@@ -3,8 +3,6 @@ package akash.market.v1beta5;
 
 import "gogoproto/gogo.proto";
 
-import "cosmos/msg/v1/msg.proto";
-
 import "akash/market/v1/bid.proto";
 import "akash/market/v1/lease.proto";
 
