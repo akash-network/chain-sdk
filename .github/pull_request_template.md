@@ -21,7 +21,7 @@
 - [ ] Code follows Akash Network's style guide
 - [ ] I've added/updated relevant unit tests
 - [ ] Dependencies have been properly updated
-- [ ] I agree and adhered to the [Contribution Guidelines](https://github.com/akash-network/akash-api/blob/main/CONTRIBUTING.md)
+- [ ] I agree and adhered to the [Contribution Guidelines](https://github.com/akash-network/chain-sdk/blob/main/CONTRIBUTING.md)
 
 ## 📎 Notes for Reviewers
 [Include any additional context, architectural decisions, or specific areas to focus on]

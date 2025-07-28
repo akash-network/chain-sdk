@@ -1,11 +1,11 @@
 {
-  "name": "@akashnetwork/akash-api",
+  "name": "@akashnetwork/chain-sdk",
   "version": "0.0.0",
   "description": "Akash API TypeScript client",
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "https://github.com/akash-network/akash-api",
+    "url": "https://github.com/akash-network/chain-sdk",
     "directory": "ts"
   },
   "license": "Apache-2.0",

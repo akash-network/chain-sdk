@@ -1,7 +1,7 @@
 # Akash Chain SDK
 
-[![Lint Status](https://github.com/akash-network/akash-api/actions/workflows/lint.yaml/badge.svg)](https://github.com/akash-network/akash-api/actions/workflows/lint.yaml)
-[![Test Status](https://github.com/akash-network/akash-api/actions/workflows/tests.yaml/badge.svg)](https://github.com/akash-network/akash-api/actions/workflows/tests.yaml)
+[![Lint Status](https://github.com/akash-network/chain-sdk/actions/workflows/lint.yaml/badge.svg)](https://github.com/akash-network/chain-sdk/actions/workflows/lint.yaml)
+[![Test Status](https://github.com/akash-network/chain-sdk/actions/workflows/tests.yaml/badge.svg)](https://github.com/akash-network/chain-sdk/actions/workflows/tests.yaml)
 
 ## Overview
 
@@ -104,4 +104,4 @@ Releases indicate changes to the repository itself. API versions are defined wit
 
 ## Contributing
 
-Please submit issues via the [support repository](https://github.com/akash-network/support/issues) and tag them with `repo/akash-api`. All pull requests must be associated with an open issue in the support repository.
+Please submit issues via the [support repository](https://github.com/akash-network/support/issues) and tag them with `repo/chain-sdk`. All pull requests must be associated with an open issue in the support repository.

@@ -1,3 +1,4 @@
+---
 "C:go/node":
   - changed-files:
       - any-glob-to-any-file: go/node/**/*

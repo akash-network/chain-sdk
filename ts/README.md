@@ -11,7 +11,7 @@ This package provides TypeScript bindings for the Akash API, generated from prot
 To install the package, run:
 
 ```bash
-npm install @akashnetwork/akash-api
+npm install @akashnetwork/chain-sdk
 ```
 
 ## Usage
