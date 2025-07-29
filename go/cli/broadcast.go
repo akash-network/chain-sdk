@@ -31,11 +31,6 @@ $ <appd> tx broadcast ./mytxn.json
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
-			//cctx, err := GetClientTxContext(cmd)
-			//if err != nil {
-			//	return err
-			//}
-
 			if cctx.Offline {
 				return errors.New("cannot broadcast tx during offline mode")
 			}
@@ -45,20 +40,10 @@ $ <appd> tx broadcast ./mytxn.json
 				return err
 			}
 
-			//txb, err := cctx.TxConfig.TxEncoder()(stdTx)
-			//if err != nil {
-			//	return err
-			//}
-
 			resp, err := cl.Tx().BroadcastTx(ctx, stdTx)
 			if err != nil {
 				return err
 			}
-
-			//res, err := cctx.BroadcastTx(txb)
-			//if err != nil {
-			//	return err
-			//}
 
 			return cctx.PrintProto(resp.(*sdk.TxResponse))
 		},

@@ -123,9 +123,7 @@ func GetTxDeploymentCreateCmd() *cobra.Command {
 				Depositor: depositorAcc,
 			}
 
-			for _, group := range groups {
-				msg.Groups = append(msg.Groups, group)
-			}
+			msg.Groups = append(msg.Groups, groups...)
 
 			if err := msg.ValidateBasic(); err != nil {
 				return err

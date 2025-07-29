@@ -200,7 +200,7 @@ $ %[1]s tx distribution withdraw-all-rewards --from mykey
 }
 
 // GetTxDistributionSetWithdrawAddrCmd returns a CLI command handler for creating a MsgSetWithdrawAddress transaction.
-func GetTxDistributionSetWithdrawAddrCmd(valAc, ac address.Codec) *cobra.Command {
+func GetTxDistributionSetWithdrawAddrCmd(_, ac address.Codec) *cobra.Command {
 	bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
@@ -245,7 +245,7 @@ $ %s tx distribution set-withdraw-addr %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 }
 
 // GetTxDistributionFundCommunityPoolCmd returns a CLI command handler for creating a MsgFundCommunityPool transaction.
-func GetTxDistributionFundCommunityPoolCmd(valAc, ac address.Codec) *cobra.Command {
+func GetTxDistributionFundCommunityPoolCmd(_, ac address.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "fund-community-pool [amount]",
 		Args:  cobra.ExactArgs(1),

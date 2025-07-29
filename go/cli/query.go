@@ -3,9 +3,8 @@ package cli
 import (
 	"context"
 
+	sdksrv "github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
-
-	"github.com/cosmos/cosmos-sdk/client/rpc"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 )
@@ -47,8 +46,8 @@ func QueryCmd() *cobra.Command {
 		GetQueryMintCmd(),
 		GetQueryParamsCmd(),
 		cflags.LineBreak,
-		rpc.ValidatorCommand(),
-		//rpc.BlockCommand(),
+		sdksrv.QueryBlockCmd(),
+		sdksrv.QueryBlocksCmd(),
 		GetQueryAuthTxsByEventsCmd(),
 		GetQueryAuthTxCmd(),
 		GetQueryGovCmd(),

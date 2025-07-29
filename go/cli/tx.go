@@ -67,7 +67,7 @@ func TxCmd(valAc, ac address.Codec) *cobra.Command {
 		GetTxFeegrantCmd(ac),
 		GetSignCommand(),
 		GetSignBatchCommand(),
-		//GetAuthMultiSignCmd(),
+		GetAuthMultiSignCmd(),
 		GetValidateSignaturesCommand(),
 		GetBroadcastCommand(),
 		GetEncodeCommand(),

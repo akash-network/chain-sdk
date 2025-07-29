@@ -5,9 +5,7 @@ func (nd *NodeCapabilities) Dup() NodeCapabilities {
 		StorageClasses: make([]string, 0, len(nd.StorageClasses)),
 	}
 
-	for _, class := range nd.StorageClasses {
-		res.StorageClasses = append(res.StorageClasses, class)
-	}
+	res.StorageClasses = append(res.StorageClasses, nd.StorageClasses...)
 
 	return res
 }

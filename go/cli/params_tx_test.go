@@ -33,7 +33,7 @@ func TestParamsParseProposal(t *testing.T) {
 	require.Equal(t, "Update max validators", proposal.Description)
 	require.Equal(t, "1000stake", proposal.Deposit)
 	require.Equal(t, utils.ParamChangesJSON{
-		{
+		utils.ParamChangeJSON{
 			Subspace: "staking",
 			Key:      "MaxValidators",
 			Value:    []byte{0x31},

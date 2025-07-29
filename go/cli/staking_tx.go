@@ -333,6 +333,10 @@ $ %s tx staking delegate %s1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 1000stake --f
 			}
 
 			delAddr, err := ac.BytesToString(cctx.GetFromAddress())
+			if err != nil {
+				return err
+			}
+
 			_, err = valAddrCodec.StringToBytes(args[0])
 			if err != nil {
 				return err

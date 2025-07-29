@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"cosmossdk.io/core/address"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -85,6 +86,10 @@ func TxMultiSignBatchExec(ctx context.Context, cctx client.Context, filename str
 	args = append(args, extraArgs...)
 
 	return ExecTestCLICmd(ctx, cctx, cli.GetMultiSignBatchCmd(), args...)
+}
+
+func MsgSendExec(ctx context.Context, cctx client.Context, ac address.Codec, args ...string) (testutil.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxBankSendTxCmd(ac), args...)
 }
 
 // DONTCOVER

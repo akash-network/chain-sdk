@@ -339,6 +339,21 @@ func (c *serialBroadcaster) BroadcastMsgs(ctx context.Context, msgs []sdk.Msg, o
 		}
 	}
 
+	// Validate all msgs before generating or broadcasting the tx.
+	// We were calling ValidateBasic separately in each CLI handler before.
+	// Right now, we're factorizing that call inside this function.
+	// ref: https://github.com/cosmos/cosmos-sdk/pull/9236#discussion_r623803504
+	for _, msg := range msgs {
+		m, ok := msg.(sdk.HasValidateBasic)
+		if !ok {
+			continue
+		}
+
+		if err := m.ValidateBasic(); err != nil {
+			return nil, err
+		}
+	}
+
 	responsech := make(chan broadcastResp, 1)
 	request := broadcastReq{
 		ctx:        ctx,

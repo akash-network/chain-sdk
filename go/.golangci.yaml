@@ -1,38 +1,48 @@
 ---
-issues:
-  exclude:
-    - comment on exported (method|function|type|const|var)
-  exclude-use-default: true
-
-# Skip generated k8s code
-run:
-  exclude-dirs:
-    - "^/node/types/v1beta1"
-    - "^/node/types/v1beta2"
-    - "^/node/market/v1beta3"
-  exclude-files:
-    - "\\.pb\\.go$"
-    - "\\.pb\\.gw\\.go$"
-  # Skip vendor/ etc
-  skip-dirs-use-default: true
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
-    - unused
-    - misspell
-    - gofmt
-    - gocritic
+    - copyloopvar
     - goconst
+    - gocritic
+    - gosec
     - govet
     - ineffassign
-    - unparam
-    - staticcheck
-    - revive
-    - gosec
-    - copyloopvar
+    - misspell
     - prealloc
-linters-settings:
-  gocritic:
-    disabled-checks:
-      - ifElseChain
-      - singleCaseSwitch
+    - revive
+    - staticcheck
+    - unparam
+    - unused
+  settings:
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+        - singleCaseSwitch
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: (.+)\.go$
+        text: comment on exported (method|function|type|const|var)
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - "node/deployment/v1beta3/*.go"
+      - "node/market/v1beta4/*.go"
+      - "node/types/v1beta3/*.go"
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

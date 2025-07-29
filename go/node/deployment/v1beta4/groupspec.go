@@ -48,9 +48,7 @@ func (g GroupSpec) ValidateBasic() error {
 func (g GroupSpec) GetResourceUnits() ResourceUnits {
 	resources := make(ResourceUnits, 0, len(g.Resources))
 
-	for _, r := range g.Resources {
-		resources = append(resources, r)
-	}
+	resources = append(resources, g.Resources...)
 
 	return resources
 }

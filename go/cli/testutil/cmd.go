@@ -17,10 +17,6 @@ import (
 
 func execSetContext(ctx context.Context, cctx client.Context, cmd *cobra.Command, extraArgs ...string) (testutil.BufferWriter, error) {
 	cmd.SetArgs(extraArgs)
-	err := cmd.ParseFlags(extraArgs)
-	if err != nil {
-		return nil, err
-	}
 
 	_, out := testutil.ApplyMockIO(cmd)
 	cctx = cctx.WithOutput(out)

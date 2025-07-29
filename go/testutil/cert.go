@@ -220,7 +220,7 @@ func Certificate(t testing.TB, key cryptotypes.PrivKey, opts ...CertificateOptio
 	}
 
 	if opt.ccache != nil {
-		err = opt.ccache.AddAccountCertificate(nil, issuer, x509Cert, priv.Public())
+		err = opt.ccache.AddAccountCertificate(context.TODO(), issuer, x509Cert, priv.Public())
 		if err != nil {
 			t.Fatal(err)
 		}

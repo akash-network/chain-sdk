@@ -425,7 +425,7 @@ func (d Dec) IsInteger() bool {
 }
 
 // format decimal state
-func (d Dec) Format(s fmt.State, verb rune) {
+func (d Dec) Format(s fmt.State, _ rune) {
 	_, err := s.Write([]byte(d.String()))
 	if err != nil {
 		panic(err)
@@ -493,11 +493,13 @@ func (d Dec) Float64() (float64, error) {
 // MustFloat64 returns the float64 representation of a Dec.
 // Would panic if the conversion failed.
 func (d Dec) MustFloat64() float64 {
-	if value, err := strconv.ParseFloat(d.String(), 64); err != nil {
+	value, err := strconv.ParseFloat(d.String(), 64)
+
+	if err != nil {
 		panic(err)
-	} else {
-		return value
 	}
+
+	return value
 }
 
 //     ____

@@ -68,6 +68,8 @@ func (s *JWTTestSuite) initClaims(tc jwtTestCase) jwtTestCase {
 		addr:   s.addr,
 	})
 
+	require.NoError(s.T(), err)
+
 	tc.TokenString = data + "." + encodeSegment(sig)
 
 	return tc
@@ -94,12 +96,11 @@ func (s *JWTTestSuite) TestSigning() {
 
 			if !tc.Expected.VerifyFail {
 				claims := &Claims{}
-				_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+				_, err := jwt.ParseWithClaims(tokenString, claims, func(_ *jwt.Token) (interface{}, error) {
 					return s.pubKey, nil
 				}, jwt.WithValidMethods([]string{"ES256K"}))
 
 				require.Equal(s.T(), &tc.Claims, claims)
-
 				require.NoError(s.T(), err)
 			} else {
 				claims := &Claims{}

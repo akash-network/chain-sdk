@@ -48,7 +48,7 @@ func TestInitCmd(t *testing.T) {
 	}{
 		{
 			name: "happy path",
-			flags: func(dir string) []string {
+			flags: func(_ string) []string {
 				return []string{
 					"appnode-test",
 				}

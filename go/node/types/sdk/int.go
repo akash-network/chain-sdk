@@ -1,3 +1,5 @@
+// do not edit
+
 package types
 
 import (

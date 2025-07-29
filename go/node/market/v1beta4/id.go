@@ -125,7 +125,7 @@ func (id LeaseID) Equals(other LeaseID) bool {
 // Validate calls the BidID's validator and returns any error.
 func (id LeaseID) Validate() error {
 	if err := id.BidID().Validate(); err != nil {
-		//return sdkerrors.Wrap(err, "LeaseID: Invalid BidID")
+		return errorsmod.Wrap(err, "LeaseID: Invalid BidID")
 	}
 	return nil
 }

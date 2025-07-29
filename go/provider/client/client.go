@@ -305,6 +305,7 @@ func (c *client) setAuth(hdr http.Header) error {
 	var tok string
 	var err error
 
+	// nolint gocritic
 	if len(c.opts.certs) > 0 {
 		return nil
 	} else if c.opts.signer != nil {

@@ -19,7 +19,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.53.3
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/edwingeng/deque/v2 v2.1.1
-	github.com/gogo/protobuf v1.3.3
+	github.com/gogo/protobuf v1.3.2
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/golang/protobuf v1.5.4
 	github.com/gorilla/websocket v1.5.3
@@ -48,7 +48,8 @@ replace (
 	// use akash fork of cometbft
 	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.17-akash.2
 	// use akash fork of cosmos sdk
-	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.3-akash.2
+	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.3-akash.3
+
 	github.com/cosmos/gogoproto => github.com/akash-network/gogoproto v1.7.0-akash.1
 
 	// Use regen gogoproto fork
@@ -58,14 +59,9 @@ replace (
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
-	//github.com/tendermint/tendermint => github.com/akash-network/cometbft v0.34.27-akash.2
 	// stick with compatible version or x/exp in v0.47.x line
 	// to be removed in akash v2
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
-
-	// ping x/sync to same version as sdk-53
-	// to be removed in akash v2
-	//golang.org/x/sync => golang.org/x/sync v0.6.0
 
 	// pin googleapis to same version as sdk-53
 	// to be removed in akash v2

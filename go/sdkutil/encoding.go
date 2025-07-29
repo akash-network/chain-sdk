@@ -26,14 +26,14 @@ func MakeEncodingConfig(modules ...module.AppModuleBasic) EncodingConfig {
 	co := NewCodecOptions()
 
 	interfaceRegistry := co.NewInterfaceRegistry()
-	codec := codec.NewProtoCodec(interfaceRegistry)
+	cdc := codec.NewProtoCodec(interfaceRegistry)
 
 	signingCtx, err := signing.NewContext(co.Options)
 	if err != nil {
 		panic(err)
 	}
 
-	txConfig, err := tx.NewTxConfigWithOptions(codec, tx.ConfigOptions{
+	txConfig, err := tx.NewTxConfigWithOptions(cdc, tx.ConfigOptions{
 		EnabledSignModes: tx.DefaultSignModes,
 		SigningOptions:   &co.Options,
 		SigningContext:   signingCtx,
@@ -44,7 +44,7 @@ func MakeEncodingConfig(modules ...module.AppModuleBasic) EncodingConfig {
 
 	encCfg := EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
-		Codec:             codec,
+		Codec:             cdc,
 		TxConfig:          txConfig,
 		Amino:             aminoCodec,
 		SigningOptions:    co.Options,

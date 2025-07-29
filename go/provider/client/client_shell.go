@@ -74,6 +74,7 @@ func (c *client) LeaseShell(
 
 	hdr := make(http.Header)
 	if err = c.setAuth(hdr); err != nil {
+		subcancel()
 		return err
 	}
 

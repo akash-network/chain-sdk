@@ -44,10 +44,6 @@ import (
 	cflags "pkg.akt.dev/go/cli/flags"
 )
 
-const (
-	flagConfig = "config"
-)
-
 // StartCmdOptions defines options that can be customized in `StartCmdWithOptions`,
 type StartCmdOptions struct {
 	// DBOpener can be used to customize db opening, for example, customize db options or support different db backends,
@@ -600,7 +596,7 @@ func addStartNodeFlags(cmd *cobra.Command, opts StartCmdOptions) {
 	cmd.Flags().Duration(cflags.FlagShutdownGrace, 0*time.Second, "On Shutdown, duration to wait for resource clean up")
 
 	// support old flags name for backwards compatibility
-	cmd.Flags().SetNormalizeFunc(func(f *pflag.FlagSet, name string) pflag.NormalizedName {
+	cmd.Flags().SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {
 		if name == cflags.FlagWithTendermint {
 			name = cflags.FlagWithComet
 		}

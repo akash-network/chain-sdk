@@ -54,7 +54,8 @@ func TestParseSubmitLegacyProposal(t *testing.T) {
 	require.Error(t, err)
 
 	// ok json
-	fs.Set(cflags.FlagProposal, okJSON.Name()) // nolint:staticcheck
+	err = fs.Set(cflags.FlagProposal, okJSON.Name()) // nolint:staticcheck
+	require.NoError(t, err)
 	proposal1, err := parseSubmitLegacyProposal(fs)
 	require.Nil(t, err, "unexpected error")
 	require.Equal(t, "Test Proposal", proposal1.Title)
@@ -64,10 +65,12 @@ func TestParseSubmitLegacyProposal(t *testing.T) {
 
 	// flags that can't be used with --proposal
 	for _, incompatibleFlag := range ProposalFlags {
-		fs.Set(incompatibleFlag, "some value")
+		err = fs.Set(incompatibleFlag, "some value")
+		require.NoError(t, err)
 		_, err := parseSubmitLegacyProposal(fs)
 		require.Error(t, err)
-		fs.Set(incompatibleFlag, "")
+		err = fs.Set(incompatibleFlag, "")
+		require.NoError(t, err)
 	}
 
 	// no --proposal, only flags

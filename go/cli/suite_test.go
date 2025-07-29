@@ -22,7 +22,7 @@ type CLITestSuite struct {
 
 func TestCLITestSuite(t *testing.T) {
 	suite.Run(t, new(AuthCLITestSuite))
-	//suite.Run(t, new(AuthzCLITestSuite))
+	suite.Run(t, new(AuthzCLITestSuite))
 	suite.Run(t, new(BankCLITestSuite))
 	suite.Run(t, new(DistributionCLITestSuite))
 	suite.Run(t, new(FeegrantCLITestSuite))

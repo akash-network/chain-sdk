@@ -487,7 +487,9 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 	sigs, err = txBuilder.GetTx().GetSignaturesV2()
 	s.Require().NoError(err)
 	s.Require().Equal(1, len(sigs))
-	//s.Require().Equal(s.val.String(), txBuilder.GetTx().GetSigners()[0].String())
+	signers, err := txBuilder.GetTx().GetSigners()
+	s.Require().NoError(err)
+	s.Require().Equal(s.val.Bytes(), signers[0])
 
 	// Write the output to disk
 	signedTxFile := sdktestutil.WriteToNewTempFile(s.T(), signedTx.String())
@@ -592,30 +594,30 @@ func (s *AuthCLITestSuite) TestCLIMultisignInsufficientCosigners() {
 		_ = sign1File.Close()
 	}()
 
-	//multiSigWith1Signature, err := clitestutil.TxMultiSignExec(
-	//	context.Background(),
-	//	s.cctx,
-	//	cli.TestFlags().
-	//		With(
-	//			multiGeneratedTxFile.Name(),
-	//			multisigRecord.Name,
-	//			sign1File.Name(),
-	//		)...)
-	//s.Require().NoError(err)
-	//
-	//// Save tx to file
-	//multiSigWith1SignatureFile := sdktestutil.WriteToNewTempFile(s.T(), multiSigWith1Signature.String())
-	//defer func() {
-	//	_ = multiSigWith1SignatureFile.Close()
-	//}()
-	//
-	//_, err = clitestutil.TxValidateSignaturesExec(
-	//	context.Background(),
-	//	s.cctx,
-	//	cli.TestFlags().
-	//		With(
-	//			multiSigWith1SignatureFile.Name())...)
-	//s.Require().Error(err)
+	multiSigWith1Signature, err := clitestutil.TxMultiSignExec(
+		context.Background(),
+		s.cctx,
+		cli.TestFlags().
+			With(
+				multiGeneratedTxFile.Name(),
+				multisigRecord.Name,
+				sign1File.Name(),
+			)...)
+	s.Require().NoError(err)
+
+	// Save tx to file
+	multiSigWith1SignatureFile := sdktestutil.WriteToNewTempFile(s.T(), multiSigWith1Signature.String())
+	defer func() {
+		_ = multiSigWith1SignatureFile.Close()
+	}()
+
+	_, err = clitestutil.TxValidateSignaturesExec(
+		context.Background(),
+		s.cctx,
+		cli.TestFlags().
+			With(
+				multiSigWith1SignatureFile.Name())...)
+	s.Require().Error(err)
 }
 
 func (s *AuthCLITestSuite) TestCLIEncode() {
@@ -758,37 +760,37 @@ func (s *AuthCLITestSuite) TestCLIMultisignSortSignatures() {
 	s.Require().Error(err)
 	s.Require().Contains(err.Error(), "signing key is not a part of multisig key")
 
-	//multiSigWith2Signatures, err := clitestutil.TxMultiSignExec(
-	//	context.Background(),
-	//	s.cctx,
-	//	cli.TestFlags().
-	//		With(
-	//			multiGeneratedTxFile.Name(),
-	//			multisigRecord.Name,
-	//			sign1File.Name(),
-	//			sign2File.Name()).
-	//		WithSignMode(cflags.SignModeLegacyAminoJSON)...)
-	//s.Require().NoError(err)
-	//
-	//// Write the output to disk
-	//signedTxFile := sdktestutil.WriteToNewTempFile(s.T(), multiSigWith2Signatures.String())
-	//defer func() {
-	//	_ = signedTxFile.Close()
-	//}()
-	//
-	//_, err = clitestutil.TxValidateSignaturesExec(
-	//	context.Background(),
-	//	s.cctx,
-	//	signedTxFile.Name())
-	//s.Require().NoError(err)
-	//
-	//_, err = clitestutil.TxBroadcastExec(
-	//	context.Background(),
-	//	s.cctx,
-	//	cli.TestFlags().
-	//		With(signedTxFile.Name()).
-	//		WithBroadcastModeSync()...)
-	//s.Require().NoError(err)
+	multiSigWith2Signatures, err := clitestutil.TxMultiSignExec(
+		context.Background(),
+		s.cctx,
+		cli.TestFlags().
+			With(
+				multiGeneratedTxFile.Name(),
+				multisigRecord.Name,
+				sign1File.Name(),
+				sign2File.Name()).
+			WithSignMode(cflags.SignModeLegacyAminoJSON)...)
+	s.Require().NoError(err)
+
+	// Write the output to disk
+	signedTxFile := sdktestutil.WriteToNewTempFile(s.T(), multiSigWith2Signatures.String())
+	defer func() {
+		_ = signedTxFile.Close()
+	}()
+
+	_, err = clitestutil.TxValidateSignaturesExec(
+		context.Background(),
+		s.cctx,
+		signedTxFile.Name())
+	s.Require().NoError(err)
+
+	_, err = clitestutil.TxBroadcastExec(
+		context.Background(),
+		s.cctx,
+		cli.TestFlags().
+			With(signedTxFile.Name()).
+			WithBroadcastModeSync()...)
+	s.Require().NoError(err)
 }
 
 func (s *AuthCLITestSuite) TestSignWithMultisig() {
@@ -919,35 +921,35 @@ func (s *AuthCLITestSuite) TestCLIMultisign() {
 		_ = sign2File.Close()
 	}()
 
-	//s.cctx.Offline = false
-	//multiSigWith2Signatures, err := clitestutil.TxMultiSignExec(
-	//	context.Background(),
-	//	s.cctx,
-	//	cli.TestFlags().
-	//		With(
-	//			multiGeneratedTxFile.Name(),
-	//			multisigRecord.Name,
-	//			sign1File.Name(),
-	//			sign2File.Name()).
-	//		WithSignMode(cflags.SignModeLegacyAminoJSON)...)
-	//s.Require().NoError(err)
-	//
-	//// Write the output to disk
-	//signedTxFile := sdktestutil.WriteToNewTempFile(s.T(), multiSigWith2Signatures.String())
-	//defer func() {
-	//	_ = signedTxFile.Close()
-	//}()
-	//
-	//_, err = clitestutil.TxValidateSignaturesExec(context.Background(), s.cctx, signedTxFile.Name())
-	//s.Require().NoError(err)
-	//
-	//_, err = clitestutil.TxBroadcastExec(
-	//	context.Background(),
-	//	s.cctx,
-	//	cli.TestFlags().
-	//		With(signedTxFile.Name()).
-	//		WithBroadcastModeSync()...)
-	//s.Require().NoError(err)
+	s.cctx.Offline = false
+	multiSigWith2Signatures, err := clitestutil.TxMultiSignExec(
+		context.Background(),
+		s.cctx,
+		cli.TestFlags().
+			With(
+				multiGeneratedTxFile.Name(),
+				multisigRecord.Name,
+				sign1File.Name(),
+				sign2File.Name()).
+			WithSignMode(cflags.SignModeLegacyAminoJSON)...)
+	s.Require().NoError(err)
+
+	// Write the output to disk
+	signedTxFile := sdktestutil.WriteToNewTempFile(s.T(), multiSigWith2Signatures.String())
+	defer func() {
+		_ = signedTxFile.Close()
+	}()
+
+	_, err = clitestutil.TxValidateSignaturesExec(context.Background(), s.cctx, signedTxFile.Name())
+	s.Require().NoError(err)
+
+	_, err = clitestutil.TxBroadcastExec(
+		context.Background(),
+		s.cctx,
+		cli.TestFlags().
+			With(signedTxFile.Name()).
+			WithBroadcastModeSync()...)
+	s.Require().NoError(err)
 }
 
 func (s *AuthCLITestSuite) TestSignBatchMultisig() {
@@ -1203,7 +1205,9 @@ func (s *AuthCLITestSuite) TestSignWithMultiSignersAminoJSON() {
 	s.Require().NoError(err)
 	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10))))
 	txBuilder.SetGasLimit(testdata.NewTestGasLimit() * 2)
-	//s.Require().Equal([]sdk.AccAddress{val0, val1}, txBuilder.GetTx().GetSigners())
+	signers, err := txBuilder.GetTx().GetSigners()
+	s.Require().NoError(err)
+	s.Require().Equal([][]byte{val0, val1}, signers)
 
 	// Write the unsigned tx into a file.
 	txJSON, err := s.cctx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())

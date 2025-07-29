@@ -8,6 +8,7 @@ import (
 	"github.com/cometbft/cometbft/libs/rand"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	sdktestutil "pkg.akt.dev/go/testutil"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	attrv1 "pkg.akt.dev/go/node/types/attributes/v1"
 	types "pkg.akt.dev/go/node/types/resources/v1beta4"
@@ -62,25 +63,25 @@ func PlacementRequirements(t testing.TB) attrv1.PlacementRequirements {
 }
 
 func RandCPUUnits() uint {
-	return RandRangeUint(
+	return sdktestutil.RandRangeUint(
 		dtypes.GetValidationConfig().Unit.Min.CPU,
 		dtypes.GetValidationConfig().Unit.Max.CPU)
 }
 
 func RandGPUUnits() uint {
-	return RandRangeUint(
+	return sdktestutil.RandRangeUint(
 		dtypes.GetValidationConfig().Unit.Min.GPU,
 		dtypes.GetValidationConfig().Unit.Max.GPU)
 }
 
 func RandMemoryQuantity() uint64 {
-	return RandRangeUint64(
+	return sdktestutil.RandRangeUint64(
 		dtypes.GetValidationConfig().Unit.Min.Memory,
 		dtypes.GetValidationConfig().Unit.Max.Memory)
 }
 
 func RandStorageQuantity() uint64 {
-	return RandRangeUint64(
+	return sdktestutil.RandRangeUint64(
 		dtypes.GetValidationConfig().Unit.Min.Storage,
 		dtypes.GetValidationConfig().Unit.Max.Storage)
 }

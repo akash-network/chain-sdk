@@ -12,11 +12,6 @@ import (
 	"pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
-//func init() {
-//	proto.RegisterType((*v1beta3.MsgDepositDeployment)(nil), "akash.deployment.v1beta3.MsgDepositDeployment")
-//	proto.RegisterType((*v1beta3.DepositDeploymentAuthorization)(nil), "akash.deployment.v1beta3.DepositDeploymentAuthorization")
-//}
-
 func RegisterDeploymentInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&v1beta3.MsgDepositDeployment{},

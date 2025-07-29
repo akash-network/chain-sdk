@@ -269,7 +269,7 @@ func multisigSign(clientCtx client.Context, txBuilder client.TxBuilder, txFactor
 
 // isMultisigSigner checks if the given pubkey is a signer in the multisig or in
 // any of the nested multisig signers.
-func isMultisigSigner(clientCtx client.Context, multisigPubKey, fromPubKey cryptotypes.PubKey) (bool, error) {
+func isMultisigSigner(cctx client.Context, multisigPubKey, fromPubKey cryptotypes.PubKey) (bool, error) { //nolint unparam
 	multisigLegacyPub := multisigPubKey.(*kmultisig.LegacyAminoPubKey)
 
 	var found bool
@@ -281,7 +281,7 @@ func isMultisigSigner(clientCtx client.Context, multisigPubKey, fromPubKey crypt
 
 		if nestedMultisig, ok := pubkey.(*kmultisig.LegacyAminoPubKey); ok {
 			var err error
-			found, err = isMultisigSigner(clientCtx, nestedMultisig, fromPubKey)
+			found, err = isMultisigSigner(cctx, nestedMultisig, fromPubKey)
 			if err != nil {
 				return false, err
 			}
