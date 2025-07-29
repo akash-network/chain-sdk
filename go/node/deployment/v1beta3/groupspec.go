@@ -1,12 +1,13 @@
+// do not edit
+
 package v1beta3
 
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	atypes "github.com/akash-network/akash-api/go/node/audit/v1beta3"
-	types "github.com/akash-network/akash-api/go/node/types/v1beta3"
+	atypes "pkg.akt.dev/go/node/audit/v1beta3"
+	sdk "pkg.akt.dev/go/node/types/sdk"
+	types "pkg.akt.dev/go/node/types/v1beta3"
 )
 
 type ResourceGroup interface {

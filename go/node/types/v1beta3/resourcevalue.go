@@ -1,14 +1,15 @@
 package v1beta3
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
+	"fmt"
+
+	sdk "pkg.akt.dev/go/node/types/sdk"
 )
 
 var (
-	ErrOverflow       = errors.Errorf("resource value overflow")
-	ErrCannotSub      = errors.Errorf("cannot subtract resources when lhs does not have same units as rhs")
-	ErrNegativeResult = errors.Errorf("result of subtraction is negative")
+	ErrOverflow       = fmt.Errorf("resource value overflow")
+	ErrCannotSub      = fmt.Errorf("cannot subtract resources when lhs does not have same units as rhs")
+	ErrNegativeResult = fmt.Errorf("result of subtraction is negative")
 )
 
 /*

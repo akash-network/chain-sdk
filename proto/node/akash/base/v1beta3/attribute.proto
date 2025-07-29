@@ -6,7 +6,7 @@ import "gogoproto/gogo.proto";
 
 option (gogoproto.goproto_stringer_all) = false;
 option (gogoproto.stringer_all)         = false;
-option go_package                       = "github.com/akash-network/akash-api/go/node/types/v1beta3";
+option go_package                       = "pkg.akt.dev/go/node/types/v1beta3";
 
 // Attribute represents key value pair
 message Attribute {

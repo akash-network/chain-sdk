@@ -3,11 +3,9 @@ package v1beta4
 import (
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	types "github.com/akash-network/akash-api/go/node/types/v1beta3"
-
-	atypes "github.com/akash-network/akash-api/go/node/audit/v1beta3"
+	atypes "pkg.akt.dev/go/node/audit/v1beta3"
+	sdk "pkg.akt.dev/go/node/types/sdk"
+	types "pkg.akt.dev/go/node/types/v1beta3"
 
 	"gopkg.in/yaml.v3"
 )
@@ -232,14 +230,4 @@ func (filters LeaseFilters) Accept(obj Lease, stateVal Lease_State) bool {
 	}
 
 	return true
-}
-
-func (m QueryLeasesResponse) TotalPriceAmount() sdk.Dec {
-	total := sdk.NewDec(0)
-
-	for _, lease := range m.Leases {
-		total = total.Add(lease.Lease.Price.Amount)
-	}
-
-	return total
 }

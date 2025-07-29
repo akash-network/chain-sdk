@@ -1,0 +1,48 @@
+---
+version: "2"
+linters:
+  default: none
+  enable:
+    - copyloopvar
+    - goconst
+    - gocritic
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+    - prealloc
+    - revive
+    - staticcheck
+    - unparam
+    - unused
+  settings:
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+        - singleCaseSwitch
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: (.+)\.go$
+        text: comment on exported (method|function|type|const|var)
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - "node/deployment/v1beta3/*.go"
+      - "node/market/v1beta4/*.go"
+      - "node/types/v1beta3/*.go"
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

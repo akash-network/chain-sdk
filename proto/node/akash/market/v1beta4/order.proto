@@ -4,7 +4,7 @@ package akash.market.v1beta4;
 import "gogoproto/gogo.proto";
 import "akash/deployment/v1beta3/groupspec.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/market/v1beta4";
+option go_package = "pkg.akt.dev/go/node/market/v1beta4";
 
 // OrderID stores owner and all other seq numbers
 message OrderID {

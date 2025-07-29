@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "pkg.akt.dev/go/node/types/sdk"
 )
 
 type ResourceUnits []ResourceUnit

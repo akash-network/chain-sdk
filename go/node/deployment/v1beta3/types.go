@@ -1,9 +1,7 @@
 package v1beta3
 
 import (
-	"bytes"
-
-	types "github.com/akash-network/akash-api/go/node/types/v1beta3"
+	types "pkg.akt.dev/go/node/types/v1beta3"
 )
 
 type attributesMatching map[string]types.Attributes
@@ -79,26 +77,6 @@ func (g Group) GetName() string {
 // GetResourceUnits method returns resources list in group
 func (g Group) GetResourceUnits() ResourceUnits {
 	return g.GroupSpec.Resources
-}
-
-// DeploymentResponses is a collection of DeploymentResponse
-type DeploymentResponses []QueryDeploymentResponse
-
-func (ds DeploymentResponses) String() string {
-	var buf bytes.Buffer
-
-	const sep = "\n\n"
-
-	for _, d := range ds {
-		buf.WriteString(d.String())
-		buf.WriteString(sep)
-	}
-
-	if len(ds) > 0 {
-		buf.Truncate(buf.Len() - len(sep))
-	}
-
-	return buf.String()
 }
 
 // Accept returns whether deployment filters valid or not

@@ -3,10 +3,10 @@ package v1
 import (
 	"math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	types "github.com/akash-network/akash-api/go/node/types/v1beta3"
+	types "pkg.akt.dev/go/node/types/resources/v1beta4"
 )
 
 func NewResourcePair(capacity, allocatable, allocated int64, format resource.Format) ResourcePair {
@@ -65,7 +65,7 @@ func (m *ResourcePair) Dup() ResourcePair {
 func (m *ResourcePair) SubMilliNLZ(val types.ResourceValue) bool {
 	avail := m.Available()
 
-	res := sdk.NewInt(avail.MilliValue())
+	res := sdkmath.NewInt(avail.MilliValue())
 	res = res.Sub(val.Val)
 	if res.IsNegative() {
 		return false
@@ -89,7 +89,7 @@ func (m *ResourcePair) SubMilliNLZ(val types.ResourceValue) bool {
 func (m *ResourcePair) SubNLZ(val types.ResourceValue) bool {
 	avail := m.Available()
 
-	res := sdk.NewInt(avail.Value())
+	res := sdkmath.NewInt(avail.Value())
 	res = res.Sub(val.Val)
 
 	if res.IsNegative() {

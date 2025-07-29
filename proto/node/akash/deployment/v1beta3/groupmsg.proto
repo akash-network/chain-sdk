@@ -4,7 +4,7 @@ package akash.deployment.v1beta3;
 import "gogoproto/gogo.proto";
 import "akash/deployment/v1beta3/groupid.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/deployment/v1beta3";
+option go_package = "pkg.akt.dev/go/node/deployment/v1beta3";
 
 // MsgCloseGroup defines SDK message to close a single Group within a Deployment.
 message MsgCloseGroup {

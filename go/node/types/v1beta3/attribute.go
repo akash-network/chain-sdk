@@ -1,3 +1,5 @@
+// do not edit
+
 package v1beta3
 
 import (
@@ -8,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,11 +22,6 @@ const (
 const (
 	errAttributesDuplicateKeys uint32 = iota + 1
 	errInvalidAttributeKey
-)
-
-var (
-	ErrAttributesDuplicateKeys = sdkerrors.Register(moduleName, errAttributesDuplicateKeys, "attributes cannot have duplicate keys")
-	ErrInvalidAttributeKey     = sdkerrors.Register(moduleName, errInvalidAttributeKey, "attribute key does not match regexp")
 )
 
 var (
@@ -123,20 +119,6 @@ func (attr Attributes) Validate() error {
 }
 
 func (attr Attributes) ValidateWithRegex(r *regexp.Regexp) error {
-	store := make(map[string]bool)
-
-	for i := range attr {
-		if !r.MatchString(attr[i].Key) {
-			return ErrInvalidAttributeKey
-		}
-
-		if _, ok := store[attr[i].Key]; ok {
-			return ErrAttributesDuplicateKeys
-		}
-
-		store[attr[i].Key] = true
-	}
-
 	return nil
 }
 

@@ -3,7 +3,7 @@ package v1beta4
 import (
 	"sort"
 
-	dtypes "github.com/akash-network/akash-api/go/node/deployment/v1beta3"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta3"
 )
 
 type ResourcesOffer []ResourceOffer
@@ -32,8 +32,6 @@ func (s ResourcesOffer) MatchGSpec(gspec dtypes.GroupSpec) bool {
 		if res.Count != ro.Count {
 			return false
 		}
-
-		// TODO @troian check resources boundaries
 	}
 
 	return true

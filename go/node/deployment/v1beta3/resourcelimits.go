@@ -1,7 +1,7 @@
 package v1beta3
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "pkg.akt.dev/go/node/types/sdk"
 )
 
 type resourceLimits struct {

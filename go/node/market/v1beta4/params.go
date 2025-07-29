@@ -1,15 +1,16 @@
 package v1beta4
 
 import (
+	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/pkg/errors"
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 
 var (
-	DefaultBidMinDeposit        = sdk.NewCoin("uakt", sdk.NewInt(500000))
+	DefaultBidMinDeposit        = sdk.NewCoin("uakt", sdkmath.NewInt(500000))
 	defaultOrderMaxBids  uint32 = 20
 	maxOrderMaxBids      uint32 = 500
 )
@@ -51,7 +52,7 @@ func (p Params) Validate() error {
 func validateCoin(i interface{}) error {
 	_, ok := i.(sdk.Coin)
 	if !ok {
-		return errors.Wrapf(ErrInvalidParam, "invalid type %T", i)
+		return errorsmod.Wrapf(ErrInvalidParam, "invalid type %T", i)
 	}
 
 	return nil
@@ -61,15 +62,15 @@ func validateOrderMaxBids(i interface{}) error {
 	val, ok := i.(uint32)
 
 	if !ok {
-		return errors.Wrapf(ErrInvalidParam, "invalid type %T", i)
+		return errorsmod.Wrapf(ErrInvalidParam, "invalid type %T", i)
 	}
 
 	if val == 0 {
-		return errors.Wrap(ErrInvalidParam, "order max bids too low")
+		return errorsmod.Wrap(ErrInvalidParam, "order max bids too low")
 	}
 
 	if val > maxOrderMaxBids {
-		return errors.Wrap(ErrInvalidParam, "order max bids too high")
+		return errorsmod.Wrap(ErrInvalidParam, "order max bids too high")
 	}
 
 	return nil

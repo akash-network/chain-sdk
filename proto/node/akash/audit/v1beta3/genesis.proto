@@ -4,7 +4,7 @@ package akash.audit.v1beta3;
 import "gogoproto/gogo.proto";
 import "akash/audit/v1beta3/audit.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/audit/v1beta3";
+option go_package = "pkg.akt.dev/go/node/audit/v1beta3";
 
 // GenesisState defines the basic genesis state used by audit module
 message GenesisState {

@@ -3,9 +3,8 @@ package v1beta3
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	types "github.com/akash-network/akash-api/go/node/types/v1beta3"
+	sdk "pkg.akt.dev/go/node/types/sdk"
+	types "pkg.akt.dev/go/node/types/v1beta3"
 )
 
 // FullPrice method returns full price of resource
@@ -59,10 +58,6 @@ func (r *ResourceUnit) totalResources() resourceLimits {
 func (r *ResourceUnit) validatePricing() error {
 	if !r.GetPrice().IsValid() {
 		return fmt.Errorf("error: invalid price object")
-	}
-
-	if r.Price.Amount.GT(sdk.NewDecFromInt(sdk.NewIntFromUint64(validationConfig.Unit.Max.Price))) {
-		return fmt.Errorf("error: invalid unit price (%v > %v fails)", validationConfig.Unit.Max.Price, r.Price)
 	}
 
 	return nil

@@ -4,7 +4,7 @@ package akash.provider.v1beta3;
 import "gogoproto/gogo.proto";
 import "akash/base/v1beta3/attribute.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/provider/v1beta3";
+option go_package = "pkg.akt.dev/go/node/provider/v1beta3";
 
 // Msg defines the provider Msg service
 service Msg {
@@ -42,7 +42,7 @@ message MsgCreateProvider {
     (gogoproto.moretags)   = "yaml:\"host_uri\""
   ];
   repeated akash.base.v1beta3.Attribute attributes = 3 [
-    (gogoproto.castrepeated) = "github.com/akash-network/akash-api/go/node/types/v1beta3.Attributes",
+    (gogoproto.castrepeated) = "pkg.akt.dev/go/node/types/v1beta3.Attributes",
     (gogoproto.nullable)     = false,
     (gogoproto.jsontag)      = "attributes",
     (gogoproto.moretags)     = "yaml:\"attributes\""
@@ -69,7 +69,7 @@ message MsgUpdateProvider {
     (gogoproto.moretags)   = "yaml:\"host_uri\""
   ];
   repeated akash.base.v1beta3.Attribute attributes = 3 [
-    (gogoproto.castrepeated) = "github.com/akash-network/akash-api/go/node/types/v1beta3.Attributes",
+    (gogoproto.castrepeated) = "pkg.akt.dev/go/node/types/v1beta3.Attributes",
     (gogoproto.nullable)     = false,
     (gogoproto.jsontag)      = "attributes",
     (gogoproto.moretags)     = "yaml:\"attributes\""
@@ -106,7 +106,7 @@ message Provider {
     (gogoproto.moretags)   = "yaml:\"host_uri\""
   ];
   repeated akash.base.v1beta3.Attribute attributes = 3 [
-    (gogoproto.castrepeated) = "github.com/akash-network/akash-api/go/node/types/v1beta3.Attributes",
+    (gogoproto.castrepeated) = "pkg.akt.dev/go/node/types/v1beta3.Attributes",
     (gogoproto.nullable)     = false,
     (gogoproto.jsontag)      = "attributes",
     (gogoproto.moretags)     = "yaml:\"attributes\""

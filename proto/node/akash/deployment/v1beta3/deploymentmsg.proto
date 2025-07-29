@@ -8,7 +8,7 @@ import "akash/deployment/v1beta3/groupspec.proto";
 
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/deployment/v1beta3";
+option go_package = "pkg.akt.dev/go/node/deployment/v1beta3";
 
 // MsgCreateDeployment defines an SDK message for creating deployment
 message MsgCreateDeployment {

@@ -3,10 +3,11 @@ package v1beta4
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	dtypes "github.com/akash-network/akash-api/go/node/deployment/v1beta3"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta3"
 )
 
 // MakeOrderID returns OrderID instance with provided groupID details and oseq
@@ -36,11 +37,12 @@ func (id OrderID) Equals(other OrderID) bool {
 // Validate method for OrderID and returns nil
 func (id OrderID) Validate() error {
 	if err := id.GroupID().Validate(); err != nil {
-		return sdkerrors.Wrap(err, "OrderID: Invalid GroupID")
+		return errorsmod.Wrap(err, "OrderID: Invalid GroupID")
 	}
 	if id.OSeq == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidSequence, "OrderID: Invalid Order Sequence")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidSequence, "OrderID: Invalid Order Sequence")
 	}
+
 	return nil
 }
 
@@ -99,13 +101,13 @@ func (id BidID) DeploymentID() dtypes.DeploymentID {
 // Validate validates bid instance and returns nil
 func (id BidID) Validate() error {
 	if err := id.OrderID().Validate(); err != nil {
-		return sdkerrors.Wrap(err, "BidID: Invalid OrderID")
+		return errorsmod.Wrap(err, "BidID: Invalid OrderID")
 	}
 	if _, err := sdk.AccAddressFromBech32(id.Provider); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "BidID: Invalid Provider Address")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidAddress, "BidID: Invalid Provider Address")
 	}
 	if id.Owner == id.Provider {
-		return sdkerrors.Wrap(sdkerrors.ErrConflict, "BidID: self-bid")
+		return errorsmod.Wrap(sdkerrors.ErrConflict, "BidID: self-bid")
 	}
 	return nil
 }
@@ -123,7 +125,7 @@ func (id LeaseID) Equals(other LeaseID) bool {
 // Validate calls the BidID's validator and returns any error.
 func (id LeaseID) Validate() error {
 	if err := id.BidID().Validate(); err != nil {
-		return sdkerrors.Wrap(err, "LeaseID: Invalid BidID")
+		return errorsmod.Wrap(err, "LeaseID: Invalid BidID")
 	}
 	return nil
 }

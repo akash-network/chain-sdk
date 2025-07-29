@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "akash/base/v1beta3/attribute.proto";
 import "akash/deployment/v1beta3/resourceunit.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/deployment/v1beta3";
+option go_package = "pkg.akt.dev/go/node/deployment/v1beta3";
 
 // GroupSpec stores group specifications
 message GroupSpec {

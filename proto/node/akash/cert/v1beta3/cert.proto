@@ -3,7 +3,7 @@ package akash.cert.v1beta3;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/cert/v1beta3";
+option go_package = "pkg.akt.dev/go/node/cert/v1beta3";
 
 // Msg defines the provider Msg service
 service Msg {

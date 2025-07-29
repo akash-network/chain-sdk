@@ -3,20 +3,22 @@ package v1beta3
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // var _ paramtypes.ParamSet = (*DepositParams)(nil)
 
 var (
-	DefaultMinInitialDepositRate = sdk.NewDecWithPrec(40, 2)
+	DefaultMinInitialDepositRate = sdkmath.LegacyNewDecWithPrec(40, 2)
 )
 
 var (
 	KeyDepositParams = []byte("depositparams")
 )
 
+// ParamKeyTable for agov module
+// Deprecated: now params can be accessed via cosmos-sdk gov store
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable(
 		paramtypes.NewParamSetPair(KeyDepositParams, DepositParams{}, validateDepositParams),
@@ -24,7 +26,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewDepositParams creates a new DepositParams object
-func NewDepositParams(minInitialDepositRate sdk.Dec) DepositParams {
+func NewDepositParams(minInitialDepositRate sdkmath.LegacyDec) DepositParams {
 	return DepositParams{
 		MinInitialDepositRate: minInitialDepositRate,
 	}
@@ -58,7 +60,7 @@ func validateDepositParams(i interface{}) error {
 }
 
 func validateMinInitialDepositRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(sdkmath.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -67,7 +69,7 @@ func validateMinInitialDepositRate(i interface{}) error {
 		return fmt.Errorf("min deposit on proposal create cannot be negative: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(sdkmath.LegacyOneDec()) {
 		return fmt.Errorf("min deposit on proposal create is too large: %s", v)
 	}
 

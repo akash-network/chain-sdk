@@ -7,7 +7,7 @@ import "akash/market/v1beta4/lease.proto";
 import "akash/market/v1beta4/bid.proto";
 import "akash/market/v1beta4/params.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/market/v1beta4";
+option go_package = "pkg.akt.dev/go/node/market/v1beta4";
 
 // GenesisState defines the basic genesis state used by market module
 message GenesisState {

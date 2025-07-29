@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "akash/escrow/v1beta3/types.proto";
 
-option go_package = "github.com/akash-network/akash-api/go/node/escrow/v1beta3";
+option go_package = "pkg.akt.dev/go/node/escrow/v1beta3";
 
 // Query defines the gRPC querier service
 service Query {
