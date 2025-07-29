@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"context"
-
 	"github.com/spf13/cobra"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
@@ -78,7 +76,8 @@ func GetAuditProviderCmd() *cobra.Command {
 
 			var res *types.QueryProvidersResponse
 			if len(args) == 1 {
-				res, err = cl.Query().Audit().ProviderAttributes(context.Background(),
+				res, err = cl.Query().Audit().ProviderAttributes(
+					ctx,
 					&types.QueryProviderAttributesRequest{
 						Owner: owner.String(),
 					},
@@ -89,7 +88,8 @@ func GetAuditProviderCmd() *cobra.Command {
 					return err
 				}
 
-				res, err = cl.Query().Audit().ProviderAuditorAttributes(context.Background(),
+				res, err = cl.Query().Audit().ProviderAuditorAttributes(
+					ctx,
 					&types.QueryProviderAuditorRequest{
 						Auditor: auditor.String(),
 						Owner:   owner.String(),

@@ -175,7 +175,7 @@ func readAttributes(cmd *cobra.Command, cctx sdkclient.Context, provider string,
 	}
 
 	sort.SliceStable(attr, func(i, j int) bool {
-		return attr[i].Key < attr[j].Value
+		return attr[i].Key < attr[j].Key
 	})
 
 	if checkAttributeDuplicates(attr) {

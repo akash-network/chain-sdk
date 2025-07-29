@@ -115,8 +115,10 @@ func makeMultiSignCmd() func(cmd *cobra.Command, args []string) (err error) {
 
 		// avoid signature verification if the sender of the tx is different than
 		// the multisig key (useful for nested multisigs).
-		skipSigVerify, _ := cmd.Flags().GetBool(cflags.FlagSkipSignatureVerification)
-
+		skipSigVerify, err := cmd.Flags().GetBool(cflags.FlagSkipSignatureVerification)
+		if err != nil {
+			return err
+		}
 		multisigPub := pubKey.(*kmultisig.LegacyAminoPubKey)
 		multisigSig := multisig.NewMultisig(len(multisigPub.PubKeys))
 		if !clientCtx.Offline {

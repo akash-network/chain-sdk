@@ -24,7 +24,7 @@ There are a few packages this implementation exports. All packages available via
 
 Source code is located within [go](./go) directory
 
-Contains all the types, clients and utilities nesessary to communicate with Akash Blockchain
+Contains all the types, clients and utilities necessary to communicate with Akash Blockchain
 
 ```go
 import "pkg.akt.dev/go"
