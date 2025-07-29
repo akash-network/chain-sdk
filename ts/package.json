@@ -40,7 +40,6 @@
     "build": "rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
-    "prepare": "cd .. && husky ts/.husky",
     "test": "jest --selectProjects unit functional",
     "test:cov": "jest --selectProjects unit functional --coverage",
     "test:functional": "jest --selectProjects functional",
