@@ -58,7 +58,7 @@ func (s *DistributionCLITestSuite) SetupSuite() {
 	cfg, err := network.DefaultConfigWithAppConfig(
 		depinject.Configs(
 			testutil.DistributionAppConfig,
-			depinject.Provide(testutil.BuildCustomSigners)))
+			depinject.Provide(sdkutil.BuildCustomSigners)))
 	s.Require().NoError(err)
 
 	genesisState := cfg.GenesisState

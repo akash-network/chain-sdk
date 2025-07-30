@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
-	"pkg.akt.dev/go/testutil"
 )
 
 func Provider(t testing.TB) ptypes.Provider {
@@ -12,7 +11,7 @@ func Provider(t testing.TB) ptypes.Provider {
 
 	return ptypes.Provider{
 		Owner:      AccAddress(t).String(),
-		HostURI:    testutil.Hostname(t),
+		HostURI:    Hostname(t),
 		Attributes: Attributes(t),
 		Info: ptypes.Info{
 			EMail:   "test@example.com",
