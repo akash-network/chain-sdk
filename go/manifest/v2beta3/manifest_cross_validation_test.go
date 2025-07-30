@@ -11,8 +11,7 @@ import (
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	akashtypes "pkg.akt.dev/go/node/types/resources/v1beta4"
-	tutil "pkg.akt.dev/go/testutil"
-	testutil "pkg.akt.dev/go/testutil/v1beta3"
+	"pkg.akt.dev/go/testutil"
 )
 
 const (
@@ -41,7 +40,7 @@ func simpleDeployment(t *testing.T, expose ServiceExposes, count uint32) []dtype
 	resources[0] = dtypes.ResourceUnit{
 		Resources: simpleResources(expose),
 		Count:     count,
-		Price:     sdk.NewInt64DecCoin(tutil.CoinDenom, 1),
+		Price:     sdk.NewInt64DecCoin(testutil.CoinDenom, 1),
 	}
 	deployment[0] = dtypes.Group{
 		ID:    gid,
@@ -64,7 +63,7 @@ func TestManifestWithDeployment(t *testing.T) {
 }
 
 func TestManifestWithDeploymentMultipleCount(t *testing.T) {
-	addl := uint32(tutil.RandRangeInt(1, 20)) // nolint: gosec
+	addl := uint32(testutil.RandRangeInt(1, 20)) // nolint: gosec
 	m := simpleManifest(addl)
 
 	deployment := simpleDeployment(t, m[0].Services[0].Expose, addl)
@@ -74,9 +73,9 @@ func TestManifestWithDeploymentMultipleCount(t *testing.T) {
 }
 
 func TestManifestWithDeploymentMultiple(t *testing.T) {
-	cpu := int64(tutil.RandRangeInt(1024, 2000))
-	storage := int64(tutil.RandRangeInt(2000, 3000))
-	memory := int64(tutil.RandRangeInt(3001, 4000))
+	cpu := int64(testutil.RandRangeInt(1024, 2000))
+	storage := int64(testutil.RandRangeInt(2000, 3000))
+	memory := int64(testutil.RandRangeInt(3001, 4000))
 
 	m := make(Manifest, 3)
 	m[0] = simpleManifest(1)[0]

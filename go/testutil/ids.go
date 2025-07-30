@@ -6,34 +6,24 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	dtypes "pkg.akt.dev/go/node/deployment/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1"
 )
 
-func Keyring(t testing.TB, cdc codec.Codec) keyring.Keyring {
-	t.Helper()
-	obj := keyring.NewInMemory(cdc)
-	return obj
-}
-
-// AccAddress provides an Account's Address bytes from a ed25519 generated
-// private key.
-func AccAddress(t testing.TB) sdk.AccAddress {
-	t.Helper()
-	privKey := secp256k1.GenPrivKey()
-	return sdk.AccAddress(privKey.PubKey().Address())
-}
-
-func Key(t testing.TB) cryptotypes.PrivKey {
-	t.Helper()
-	return secp256k1.GenPrivKey()
-}
+//// AccAddress provides an Account's Address bytes from a ed25519 generated
+//// private key.
+//func AccAddress(t testing.TB) sdk.AccAddress {
+//	t.Helper()
+//	privKey := ed25519.GenPrivKey()
+//	return sdk.AccAddress(privKey.PubKey().Address())
+//}
+//
+//func Key(t testing.TB) cryptotypes.PrivKey {
+//	t.Helper()
+//	return ed25519.GenPrivKey()
+//}
 
 func DeploymentID(t testing.TB) dtypes.DeploymentID {
 	t.Helper()

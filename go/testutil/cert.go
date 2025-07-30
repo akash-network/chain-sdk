@@ -15,7 +15,6 @@ import (
 	"testing"
 	"time"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -80,7 +79,7 @@ func CertificateOptionCache(val CertCache) CertificateOption {
 	}
 }
 
-func Certificate(t testing.TB, key cryptotypes.PrivKey, opts ...CertificateOption) TestCertificate {
+func Certificate(t testing.TB, issuer sdk.Address, opts ...CertificateOption) TestCertificate {
 	t.Helper()
 
 	opt := &certificateOption{}
@@ -109,8 +108,6 @@ func Certificate(t testing.TB, key cryptotypes.PrivKey, opts ...CertificateOptio
 	if len(opt.domains) != 0 {
 		extKeyUsage = append(extKeyUsage, x509.ExtKeyUsageServerAuth)
 	}
-
-	issuer := sdk.AccAddress(key.PubKey().Address())
 
 	template := x509.Certificate{
 		Subject: pkix.Name{
