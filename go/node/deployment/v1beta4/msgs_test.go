@@ -8,8 +8,7 @@ import (
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 	types "pkg.akt.dev/go/node/deployment/v1beta4"
-	tutil "pkg.akt.dev/go/testutil"
-	testutil "pkg.akt.dev/go/testutil/v1beta3"
+	"pkg.akt.dev/go/testutil"
 )
 
 type testMsg struct {
@@ -21,13 +20,13 @@ func TestVersionValidation(t *testing.T) {
 	tests := []testMsg{
 		{
 			msg: &types.MsgCreateDeployment{
-				ID:   tutil.DeploymentID(t),
-				Hash: tutil.DeploymentVersion(t),
+				ID:   testutil.DeploymentID(t),
+				Hash: testutil.DeploymentVersion(t),
 				Groups: types.GroupSpecs{
-					tutil.GroupSpec(t),
+					testutil.GroupSpec(t),
 				},
-				Depositor: tutil.AccAddress(t).String(),
-				Deposit:   tutil.AkashCoin(t, 0),
+				Depositor: testutil.AccAddress(t).String(),
+				Deposit:   testutil.AkashCoin(t, 0),
 			},
 			err: nil,
 		},
@@ -38,8 +37,8 @@ func TestVersionValidation(t *testing.T) {
 				Groups: []types.GroupSpec{
 					testutil.GroupSpec(t),
 				},
-				Depositor: tutil.AccAddress(t).String(),
-				Deposit:   tutil.AkashCoin(t, 0),
+				Depositor: testutil.AccAddress(t).String(),
+				Deposit:   testutil.AkashCoin(t, 0),
 			},
 			err: v1.ErrEmptyHash,
 		},
@@ -50,8 +49,8 @@ func TestVersionValidation(t *testing.T) {
 				Groups: []types.GroupSpec{
 					testutil.GroupSpec(t),
 				},
-				Depositor: tutil.AccAddress(t).String(),
-				Deposit:   tutil.AkashCoin(t, 0),
+				Depositor: testutil.AccAddress(t).String(),
+				Deposit:   testutil.AkashCoin(t, 0),
 			},
 			err: v1.ErrInvalidHash,
 		},

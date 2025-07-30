@@ -10,8 +10,7 @@ import (
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
-	tutil "pkg.akt.dev/go/testutil"
-	testutil "pkg.akt.dev/go/testutil/v1beta3"
+	"pkg.akt.dev/go/testutil"
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
 	types "pkg.akt.dev/go/node/deployment/v1beta4"
@@ -424,7 +423,7 @@ func TestGroupSpec_MatchGPUAttributesWildcard(t *testing.T) {
 }
 
 func TestDepositDeploymentAuthorization_Accept(t *testing.T) {
-	limit := sdk.NewInt64Coin(tutil.CoinDenom, 333)
+	limit := sdk.NewInt64Coin(testutil.CoinDenom, 333)
 	dda := v1.NewDepositAuthorization(limit)
 
 	// Send the wrong type of message, expect an error
@@ -435,14 +434,14 @@ func TestDepositDeploymentAuthorization_Accept(t *testing.T) {
 	require.Zero(t, response)
 
 	// Try to deposit too much coin, expect an error
-	msg = v1.NewMsgDepositDeployment(testutil.DeploymentID(t), limit.Add(sdk.NewInt64Coin(tutil.CoinDenom, 1)), testutil.AccAddress(t).String())
+	msg = v1.NewMsgDepositDeployment(testutil.DeploymentID(t), limit.Add(sdk.NewInt64Coin(testutil.CoinDenom, 1)), testutil.AccAddress(t).String())
 	response, err = dda.Accept(sdk.Context{}, msg)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "requested amount is more than spend limit")
 	require.Zero(t, response)
 
 	// Deposit 1 less than the limit, expect  an updated deposit
-	msg = v1.NewMsgDepositDeployment(testutil.DeploymentID(t), limit.Sub(sdk.NewInt64Coin(tutil.CoinDenom, 1)), testutil.AccAddress(t).String())
+	msg = v1.NewMsgDepositDeployment(testutil.DeploymentID(t), limit.Sub(sdk.NewInt64Coin(testutil.CoinDenom, 1)), testutil.AccAddress(t).String())
 	response, err = dda.Accept(sdk.Context{}, msg)
 	require.NoError(t, err)
 	require.True(t, response.Accept)
@@ -453,7 +452,7 @@ func TestDepositDeploymentAuthorization_Accept(t *testing.T) {
 	require.True(t, ok)
 
 	// Deposit the limit (now 1), expect that it is not to be deleted
-	msg = v1.NewMsgDepositDeployment(testutil.DeploymentID(t), sdk.NewInt64Coin(tutil.CoinDenom, 1), testutil.AccAddress(t).String())
+	msg = v1.NewMsgDepositDeployment(testutil.DeploymentID(t), sdk.NewInt64Coin(testutil.CoinDenom, 1), testutil.AccAddress(t).String())
 	response, err = dda.Accept(sdk.Context{}, msg)
 	require.NoError(t, err)
 	require.True(t, response.Accept)

@@ -7,6 +7,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/rand"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
@@ -86,9 +87,9 @@ func RandStorageQuantity() uint64 {
 		dtypes.GetValidationConfig().Unit.Max.Storage)
 }
 
-// Resources produces an attribute list for populating a Group's
+// Resources produce an attribute list for populating a Group's
 // 'Resources' fields.
-func Resources(t testing.TB) []dtypes.ResourceUnit {
+func Resources(t testing.TB) dtypes.ResourceUnits {
 	t.Helper()
 	count := rand.Intn(10) + 1
 
@@ -116,6 +117,46 @@ func Resources(t testing.TB) []dtypes.ResourceUnit {
 			Count: 1,
 			Price: coin,
 		}
+		vals = append(vals, res)
+	}
+	return vals
+}
+
+// ResourcesList produces an attribute list for populating a Group's
+// 'Resources' fields.
+func ResourcesList(t testing.TB, startID uint32) dtypes.ResourceUnits {
+	require.GreaterOrEqual(t, startID, uint32(1))
+
+	count := uint32(rand.Intn(10)) + 1 // nolint: gosec
+
+	vals := make(dtypes.ResourceUnits, 0, count)
+	for i := uint32(0); i < count; i++ {
+		coin := sdk.NewDecCoin(CoinDenom, sdkmath.NewInt(rand.Int63n(9999)+1))
+		res := dtypes.ResourceUnit{
+			Resources: types.Resources{
+				ID: i + startID,
+				CPU: &types.CPU{
+					Units: types.NewResourceValue(uint64(dtypes.GetValidationConfig().Unit.Min.CPU)),
+				},
+				GPU: &types.GPU{
+					Units: types.NewResourceValue(uint64(dtypes.GetValidationConfig().Unit.Min.GPU) + 1),
+				},
+				Memory: &types.Memory{
+					Quantity: types.NewResourceValue(dtypes.GetValidationConfig().Unit.Min.Memory),
+				},
+				Storage: types.Volumes{
+					types.Storage{
+						Quantity: types.NewResourceValue(dtypes.GetValidationConfig().Unit.Min.Storage),
+					},
+				},
+				Endpoints: types.Endpoints{},
+			},
+			Count: 1,
+			Price: coin,
+		}
+
+		startID++
+
 		vals = append(vals, res)
 	}
 	return vals
