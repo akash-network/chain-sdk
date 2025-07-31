@@ -41,4 +41,3 @@ func (wsw *wsWriterWrapper) Write(data []byte) (int, error) {
 
 	return len(data), err
 }
-// >>>>>>> 6d6b889 (feat: sdk-47)

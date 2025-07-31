@@ -64,7 +64,7 @@ func newGroupSpecHelper(gs dtypes.GroupSpec) *groupSpec {
 }
 
 func isValidHostname(hostname string) bool {
-	return len(hostname) <= hostnameMaxLen && 0 == len(k8svalidation.IsDNS1123Subdomain(hostname))
+	return len(hostname) <= hostnameMaxLen && len(k8svalidation.IsDNS1123Subdomain(hostname)) == 0
 }
 
 func (ve *validateEndpoints) tryDecHTTP() bool {

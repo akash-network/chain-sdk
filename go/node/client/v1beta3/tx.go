@@ -362,7 +362,7 @@ func (c *serialBroadcaster) BroadcastMsgs(ctx context.Context, msgs []sdk.Msg, o
 		opts:       bOpts,
 	}
 
-	request.id = uintptr(unsafe.Pointer(&request))
+	request.id = uintptr(unsafe.Pointer(&request)) //nolint: gosec
 
 	select {
 	case c.reqch <- request:
@@ -406,7 +406,7 @@ func (c *serialBroadcaster) BroadcastTx(ctx context.Context, tx sdk.Tx, opts ...
 		opts:       bOpts,
 	}
 
-	request.id = uintptr(unsafe.Pointer(&request))
+	request.id = uintptr(unsafe.Pointer(&request)) //nolint: gosec
 
 	select {
 	case c.reqch <- request:

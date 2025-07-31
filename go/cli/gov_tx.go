@@ -785,7 +785,7 @@ func writeFile(fileName string, input any) error {
 func parseSubmitProposal(cdc codec.Codec, path string) (proposalMsg, []sdk.Msg, sdk.Coins, error) {
 	var proposal proposalMsg
 
-	contents, err := os.ReadFile(path)
+	contents, err := os.ReadFile(path) //nolint: gosec
 	if err != nil {
 		return proposal, nil, nil, err
 	}
@@ -838,7 +838,7 @@ func parseSubmitLegacyProposal(fs *pflag.FlagSet) (*legacyProposal, error) {
 		}
 	}
 
-	contents, err := os.ReadFile(proposalFile)
+	contents, err := os.ReadFile(proposalFile) //nolint: gosec
 	if err != nil {
 		return nil, err
 	}

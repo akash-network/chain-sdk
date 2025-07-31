@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"cosmossdk.io/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"pkg.akt.dev/go/cli"
 	clitestutil "pkg.akt.dev/go/cli/testutil"

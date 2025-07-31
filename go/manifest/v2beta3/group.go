@@ -49,7 +49,7 @@ func (g Group) AllHostnames() []string {
 }
 
 func (g *Group) Validate(helper *validateManifestGroupsHelper) error {
-	if 0 == len(g.Services) {
+	if len(g.Services) == 0 {
 		return fmt.Errorf("%w: group %q contains no services", ErrInvalidManifest, g.GetName())
 	}
 

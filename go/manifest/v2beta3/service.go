@@ -36,7 +36,7 @@ func (s *Service) validate(helper *validateManifestGroupsHelper) error {
 
 		envVarName := tokens[0]
 
-		if 0 != len(k8svalidation.IsEnvVarName(envVarName)) {
+		if len(k8svalidation.IsEnvVarName(envVarName)) != 0 {
 			return fmt.Errorf("%w: service %q defines an env. var. with an invalid name %q", ErrInvalidManifest, s.Name, envVarName)
 		}
 	}

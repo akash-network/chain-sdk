@@ -143,10 +143,12 @@ $(MOCKERY_VERSION_FILE): $(AKASH_DEVCACHE)
 	touch $@
 $(MOCKERY): $(MOCKERY_VERSION_FILE)
 
+GOLANGCI_LINT_MAJOR=$(shell $(SEMVER) get major $(GOLANGCI_LINT_VERSION))
+
 $(GOLANGCI_LINT_VERSION_FILE): $(AP_DEVCACHE)
 	@echo "installing golangci-lint $(GOLANGCI_LINT_VERSION) ..."
 	rm -f $(MOCKERY)
-	(cd $(GO_ROOT); GOBIN=$(AKASH_DEVCACHE_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION))
+	(cd $(GO_ROOT); GOBIN=$(AKASH_DEVCACHE_BIN) go install github.com/golangci/golangci-lint/v$(GOLANGCI_LINT_MAJOR)/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION))
 	rm -rf "$(dir $@)"
 	mkdir -p "$(dir $@)"
 	touch $@

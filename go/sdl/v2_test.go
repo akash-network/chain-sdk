@@ -46,6 +46,10 @@ const (
 	randStorage uint64 = 1 * unit.Gi
 )
 
+const (
+	testHost = "ahostname.com"
+)
+
 var (
 	defaultHTTPOptions = manifest.ServiceExposeHTTPOptions{
 		MaxBodySize: defaultMaxBodySize,
@@ -118,7 +122,7 @@ func TestV2ParseSimpleGPU(t *testing.T) {
 	assert.Len(t, mani.GetGroups(), 1)
 
 	expectedHosts := make([]string, 1)
-	expectedHosts[0] = "ahostname.com"
+	expectedHosts[0] = testHost
 	assert.Equal(t, manifest.Group{
 		Name: "westcoast",
 		Services: manifest.Services{
@@ -317,7 +321,7 @@ func Test_V2_Parse_simple(t *testing.T) {
 	assert.Len(t, mani.GetGroups(), 1)
 
 	expectedHosts := make([]string, 1)
-	expectedHosts[0] = "ahostname.com"
+	expectedHosts[0] = testHost
 	assert.Equal(t, manifest.Group{
 		Name: "westcoast",
 		Services: manifest.Services{
@@ -414,7 +418,7 @@ func Test_v2_Parse_DeploymentNameServiceNameMismatch(t *testing.T) {
 	// make sure deployment maps to the right service
 	require.Len(t, mani.GetGroups()[0].Services[0].Expose, 2)
 	require.Len(t, mani.GetGroups()[0].Services[0].Expose[0].Hosts, 1)
-	require.Equal(t, mani.GetGroups()[0].Services[0].Expose[0].Hosts[0], "ahostname.com")
+	require.Equal(t, mani.GetGroups()[0].Services[0].Expose[0].Hosts[0], testHost)
 }
 
 func TestV2ParseServiceMix(t *testing.T) {
@@ -549,7 +553,7 @@ func TestV2ParseServiceMix(t *testing.T) {
 				Count: 1,
 				Expose: []manifest.ServiceExpose{
 					{
-						Port: 80, Global: true, Proto: manifest.TCP, Hosts: []string{"ahostname.com"},
+						Port: 80, Global: true, Proto: manifest.TCP, Hosts: []string{testHost},
 						HTTPOptions: defaultHTTPOptions,
 					},
 					{
@@ -741,7 +745,7 @@ func TestV2ParseServiceMix2(t *testing.T) {
 				Count: 1,
 				Expose: []manifest.ServiceExpose{
 					{
-						Port: 80, Global: true, Proto: manifest.TCP, Hosts: []string{"ahostname.com"},
+						Port: 80, Global: true, Proto: manifest.TCP, Hosts: []string{testHost},
 						HTTPOptions: defaultHTTPOptions,
 					},
 					{
@@ -928,7 +932,7 @@ func TestV2ParseStorageName(t *testing.T) {
 				Count: 1,
 				Expose: []manifest.ServiceExpose{
 					{
-						Port: 80, Global: true, Proto: manifest.TCP, Hosts: []string{"ahostname.com"},
+						Port: 80, Global: true, Proto: manifest.TCP, Hosts: []string{testHost},
 						HTTPOptions: defaultHTTPOptions,
 					},
 					{

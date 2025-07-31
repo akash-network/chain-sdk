@@ -7,9 +7,10 @@ const (
 
 // as per yaml following allowed as bool values
 func unifyStringAsBool(val string) (string, bool) {
-	if val == valueTrue || val == "on" || val == "yes" {
+	switch val {
+	case valueTrue, "on", "yes":
 		return valueTrue, true
-	} else if val == valueFalse || val == "off" || val == "no" {
+	case valueFalse, "off", "no":
 		return valueFalse, true
 	}
 
