@@ -35,7 +35,7 @@ require (
 	google.golang.org/grpc v1.72.2
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
-	pkg.akt.dev/go v0.0.3-rc0
+	pkg.akt.dev/go v0.0.3-rc2
 	pkg.akt.dev/go/sdl v0.0.2-rc0
 )
 
@@ -43,7 +43,7 @@ replace (
 	// use akash fork of cometbft
 	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.17-akash.2
 	// use akash fork of cosmos sdk
-	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.3-akash.3
+	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.3-akash.4
 
 	// Use regen gogoproto tag
 	// To be replaced by cosmos/gogoproto in future versions
