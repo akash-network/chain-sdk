@@ -81,7 +81,7 @@ func (s *sdl) UnmarshalYAML(node *yaml.Node) error {
 
 // ReadFile read from given path and returns SDL instance
 func ReadFile(path string) (SDL, error) {
-	buf, err := os.ReadFile(path)
+	buf, err := os.ReadFile(path) //nolint: gosec
 	if err != nil {
 		return nil, err
 	}

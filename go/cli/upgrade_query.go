@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/types/errors"
 	"cosmossdk.io/x/upgrade/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 )

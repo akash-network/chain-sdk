@@ -34,7 +34,7 @@ func (c ProviderConfig) GetAttributes() tattr.Attributes {
 
 // ReadProviderConfigPath reads and parses file
 func ReadProviderConfigPath(path string) (ProviderConfig, error) {
-	buf, err := os.ReadFile(path)
+	buf, err := os.ReadFile(path) //nolint: gosec
 	if err != nil {
 		return ProviderConfig{}, err
 	}

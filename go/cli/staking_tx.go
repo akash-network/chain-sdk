@@ -65,7 +65,7 @@ func parseAndValidateValidatorJSON(cdc codec.Codec, path string) (validator, err
 		MinSelfDelegation   string          `json:"min-self-delegation"`
 	}
 
-	contents, err := os.ReadFile(path)
+	contents, err := os.ReadFile(path) //nolint: gosec
 	if err != nil {
 		return validator{}, err
 	}

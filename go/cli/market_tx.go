@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	mv1beta "pkg.akt.dev/go/node/market/v1beta5"
 	types "pkg.akt.dev/go/node/market/v1beta5"
 )
 
@@ -71,7 +70,7 @@ func GetTxMarketBidCreateCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &mv1beta.MsgCreateBid{
+			msg := &types.MsgCreateBid{
 				OrderID:  id,
 				Provider: cctx.GetFromAddress().String(),
 				Price:    coin,
@@ -116,7 +115,7 @@ func GetTxMarketBidCloseCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &mv1beta.MsgCloseBid{
+			msg := &types.MsgCloseBid{
 				ID: id,
 			}
 
@@ -172,7 +171,7 @@ func GetTxMarketLeaseCreateCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &mv1beta.MsgCreateLease{
+			msg := &types.MsgCreateLease{
 				BidID: id.BidID(),
 			}
 
@@ -213,7 +212,7 @@ func GetTxMarketLeaseWithdrawCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &mv1beta.MsgWithdrawLease{
+			msg := &types.MsgWithdrawLease{
 				ID: id,
 			}
 
@@ -253,7 +252,7 @@ func GetTxMarketLeaseCloseCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &mv1beta.MsgCloseLease{
+			msg := &types.MsgCloseLease{
 				ID: id,
 			}
 

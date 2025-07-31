@@ -197,11 +197,11 @@ func processRemoteError(input io.Reader) error {
 		return fmt.Errorf("%w: failed parsing response data from provider", err)
 	}
 
-	if 0 != len(v.Message) {
+	if len(v.Message) != 0 {
 		return fmt.Errorf("%w: %s", errLeaseShell, v.Message)
 	}
 
-	if 0 != v.ExitCode {
+	if v.ExitCode != 0 {
 		return fmt.Errorf("%w: remote process exited with code %d", errLeaseShell, v.ExitCode)
 	}
 

@@ -43,9 +43,9 @@ var (
 	errUnknownNextCase               = errors.New("next case is unknown")
 	errHTTPOptionNotAllowed          = errors.New("http option not allowed")
 	errSDLInvalid                    = errors.New("SDL invalid")
-	errCredentialNoHost              = errors.New("Service Credentials missing Host")
-	errCredentialNoUsername          = errors.New("Service Credentials missing Username")
-	errCredentialNoPassword          = errors.New("Service Credentials missing Password")
+	errCredentialNoHost              = errors.New("service Credentials missing Host")
+	errCredentialNoUsername          = errors.New("service Credentials missing Username")
+	errCredentialNoPassword          = errors.New("service Credentials missing Password")
 )
 
 var endpointNameValidationRegex = regexp.MustCompile(`^[[:lower:]]+[[:lower:]-_\d]+$`)

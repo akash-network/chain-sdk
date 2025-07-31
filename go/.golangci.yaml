@@ -11,7 +11,6 @@ linters:
     - ineffassign
     - misspell
     - prealloc
-    - revive
     - staticcheck
     - unparam
     - unused
@@ -34,9 +33,9 @@ linters:
       - third_party$
       - builtin$
       - examples$
-      - "node/deployment/v1beta3/*.go"
-      - "node/market/v1beta4/*.go"
-      - "node/types/v1beta3/*.go"
+      - ^node\/deployment\/v1beta3
+      - ^node\/market\/v1beta4
+      - ^node\/types\/v1beta3
 formatters:
   enable:
     - gofmt

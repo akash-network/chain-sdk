@@ -359,7 +359,7 @@ func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customCo
 			config.WriteConfigFile(appCfgFilePath, customConfig)
 		} else {
 			appConf, err := config.ParseConfig(rootViper)
-			appConf.BaseConfig.MinGasPrices = "0.025uakt"
+			appConf.MinGasPrices = "0.025uakt"
 			appConf.API.Enable = true
 			appConf.API.Address = "tcp://localhost:1317"
 

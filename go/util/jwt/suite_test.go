@@ -5,25 +5,26 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	jwttests "pkg.akt.dev/testdata/jwt"
 
 	_ "pkg.akt.dev/go/sdkutil"
-	jwttests "pkg.akt.dev/testdata/jwt"
 )
 
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	kr   keyring.Keyring
-	info *keyring.Record
-	addr sdk.Address
+	kr     keyring.Keyring
+	info   *keyring.Record
+	addr   sdk.Address
 	pubKey cryptotypes.PubKey
 }
 

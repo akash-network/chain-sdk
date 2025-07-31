@@ -41,7 +41,7 @@ func TestV2ParseSimpleWithIP(t *testing.T) {
 	require.Len(t, resources, 1)
 	resource := resources[0]
 
-	ipEndpoint := findIPEndpoint(t, resource.Resources.Endpoints, 1)
+	ipEndpoint := findIPEndpoint(t, resource.Endpoints, 1)
 
 	require.Equal(t, ipEndpoint.Kind, rtypes.Endpoint_LEASED_IP)
 
@@ -72,7 +72,7 @@ func TestV2Parse_IP(t *testing.T) {
 	resources := group.GetResourceUnits()
 	require.Len(t, resources, 1)
 	resource := resources[0]
-	endpoints := resource.Resources.Endpoints
+	endpoints := resource.Endpoints
 	require.Len(t, endpoints, 2)
 
 	var ipEndpoint rtypes.Endpoint
@@ -119,10 +119,10 @@ func TestV2Parse_SharedIP(t *testing.T) {
 	require.Len(t, resources, 2)
 
 	// resource := resources[0]
-	ipEndpoint1 := findIPEndpoint(t, resources[0].Resources.Endpoints, 1)
+	ipEndpoint1 := findIPEndpoint(t, resources[0].Endpoints, 1)
 	require.Greater(t, ipEndpoint1.SequenceNumber, uint32(0))
 
-	ipEndpoint2 := findIPEndpoint(t, resources[1].Resources.Endpoints, 1)
+	ipEndpoint2 := findIPEndpoint(t, resources[1].Endpoints, 1)
 	require.Greater(t, ipEndpoint2.SequenceNumber, uint32(0))
 
 	mani, err := sdl1.Manifest()
@@ -176,16 +176,16 @@ func TestV2Parse_MultipleGroupsIP(t *testing.T) {
 	require.Len(t, resources, 1)
 
 	resource := resources[0]
-	require.Len(t, resource.Resources.Endpoints, 2)
-	ipEndpointFirstGroup := findIPEndpoint(t, resource.Resources.Endpoints, 1)
+	require.Len(t, resource.Endpoints, 2)
+	ipEndpointFirstGroup := findIPEndpoint(t, resource.Endpoints, 1)
 	require.Greater(t, ipEndpointFirstGroup.SequenceNumber, uint32(0))
 
 	resources = groups[1].GetResourceUnits()
 	require.Len(t, resources, 1)
 
 	resource = resources[0]
-	require.Len(t, resource.Resources.Endpoints, 2)
-	ipEndpointSecondGroup := findIPEndpoint(t, resource.Resources.Endpoints, 1)
+	require.Len(t, resource.Endpoints, 2)
+	ipEndpointSecondGroup := findIPEndpoint(t, resource.Endpoints, 1)
 	require.Greater(t, ipEndpointSecondGroup.SequenceNumber, uint32(0))
 	require.NotEqual(t, ipEndpointFirstGroup.SequenceNumber, ipEndpointSecondGroup.SequenceNumber)
 

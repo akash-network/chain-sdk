@@ -6,7 +6,6 @@ import (
 	"pkg.akt.dev/specs"
 )
 
-
 var (
 	schemaLoader *gojsonschema.Schema
 )

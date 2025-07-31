@@ -555,9 +555,9 @@ Example:
 func warnIfGroupVolumesExceeds(cctx sdkclient.Context, dgroups []dv1beta4.GroupSpec) {
 	for _, group := range dgroups {
 		for _, resources := range group.GetResourceUnits() {
-			if len(resources.Resources.Storage) > constants.DefaultMaxGroupVolumes {
+			if len(resources.Storage) > constants.DefaultMaxGroupVolumes {
 				_ = cctx.PrintString(fmt.Sprintf("amount of volumes for service exceeds recommended value (%v > %v)\n"+
-					"there may no providers on network to bid", len(resources.Resources.Storage), constants.DefaultMaxGroupVolumes))
+					"there may no providers on network to bid", len(resources.Storage), constants.DefaultMaxGroupVolumes))
 			}
 		}
 	}

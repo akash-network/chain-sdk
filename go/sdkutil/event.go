@@ -16,13 +16,13 @@ const (
 
 var (
 	// ErrNotFound is the error with message "Not found"
-	ErrNotFound = errors.New("Not found")
+	ErrNotFound = errors.New("not found")
 	// ErrUnknownType is the error with message "Unknown type"
-	ErrUnknownType = errors.New("Unknown type")
+	ErrUnknownType = errors.New("unknown type")
 	// ErrUnknownModule is the error with message "Unknown module"
-	ErrUnknownModule = errors.New("Unknown module")
+	ErrUnknownModule = errors.New("unknown module")
 	// ErrUnknownAction is the error with message "Unknown action"
-	ErrUnknownAction = errors.New("Unknown action")
+	ErrUnknownAction = errors.New("unknown action")
 	// ErrParsingBlockID indicates one of the uint parsers failed to convert a value.
 	ErrParsingBlockID = errors.New("error parsing block id values")
 	// ErrInvalidParseBlockIDInput indicates the splitting of block path failed.

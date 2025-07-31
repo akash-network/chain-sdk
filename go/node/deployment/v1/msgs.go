@@ -10,4 +10,3 @@ import (
 func (msg *MsgDepositDeployment) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
-

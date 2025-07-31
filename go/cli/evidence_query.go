@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"cosmossdk.io/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/version"
-	"cosmossdk.io/x/evidence/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 )
