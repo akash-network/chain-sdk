@@ -71,9 +71,6 @@ func NewEvents(pctx context.Context, node sdkclient.CometRPC, name string, bus p
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		err = ev.ebus.UnsubscribeAll(ctx, blkHeaderName)
-	}()
 
 	startch := make(chan struct{}, 1)
 
@@ -96,12 +93,12 @@ func NewEvents(pctx context.Context, node sdkclient.CometRPC, name string, bus p
 }
 
 func (e *events) Shutdown() {
-	_, stopped := <-e.lc.Done()
-	if stopped {
+	select {
+	case <-e.lc.Done():
 		return
+	default:
+		e.lc.Shutdown(nil)
 	}
-
-	e.lc.Shutdown(nil)
 
 	_ = e.group.Wait()
 }
