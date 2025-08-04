@@ -1,14 +1,18 @@
 package cli
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/pflag"
+
+	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 	client "pkg.akt.dev/go/node/client/v1beta3"
@@ -112,4 +116,25 @@ func RunForeverWithContext(ctx context.Context, fn func(ctx context.Context) err
 	<-donech
 
 	return err
+}
+
+func PrintJSON(ctx sdkclient.Context, v interface{}) error {
+	marshaled, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	buf := &bytes.Buffer{}
+	err = json.Indent(buf, marshaled, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	// Add a newline, for printing in the terminal
+	_, err = buf.WriteRune('\n')
+	if err != nil {
+		return err
+	}
+
+	return ctx.PrintString(buf.String())
 }
