@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -34,6 +35,11 @@ func AccAddress(t testing.TB) types.AccAddress {
 	t.Helper()
 	privKey := secp256k1.GenPrivKey()
 	return types.AccAddress(privKey.PubKey().Address())
+}
+
+func Key(t testing.TB) cryptotypes.PrivKey {
+	t.Helper()
+	return secp256k1.GenPrivKey()
 }
 
 func NewTestKeyring(cdc codec.Codec) Keyring {
