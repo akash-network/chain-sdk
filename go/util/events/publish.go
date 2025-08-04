@@ -3,109 +3,164 @@ package events
 import (
 	"context"
 
-	"golang.org/x/sync/errgroup"
+	"github.com/boz/go-lifecycle"
 
-	abcitypes "github.com/cometbft/cometbft/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 	cmclient "github.com/cometbft/cometbft/rpc/client"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	cmtypes "github.com/cometbft/cometbft/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/gogoproto/proto"
+	"golang.org/x/sync/errgroup"
 
-	"pkg.akt.dev/go/util/pubsub"
+	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
 	dtypes "pkg.akt.dev/go/node/deployment/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1"
+
+	"pkg.akt.dev/go/util/pubsub"
 )
 
-// Publish events using cometbft buses to clients. Waits on context
-func Publish(ctx context.Context, evbus cmclient.EventsClient, name string, bus pubsub.Bus) (err error) {
-	const queuesz = 100
-	var txname = name + "-tx"
-	var blkname = name + "-blk"
-
-	txch, err := evbus.Subscribe(ctx, txname, txQuery().String(), queuesz)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		err = evbus.UnsubscribeAll(ctx, txname)
-	}()
-
-	blkch, err := evbus.Subscribe(ctx, blkname, blkQuery().String(), queuesz)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		err = evbus.UnsubscribeAll(ctx, blkname)
-	}()
-
-	g, ctx := errgroup.WithContext(ctx)
-
-	g.Go(func() error {
-		return publishEvents(ctx, txch, bus)
-	})
-
-	g.Go(func() error {
-		return publishEvents(ctx, blkch, bus)
-	})
-
-	return g.Wait()
+type events struct {
+	ctx    context.Context
+	group  *errgroup.Group
+	ebus   cmclient.EventsClient
+	client sdkclient.CometRPC
+	bus    pubsub.Bus
+	lc     lifecycle.Lifecycle
 }
 
-func publishEvents(ctx context.Context, ch <-chan ctypes.ResultEvent, bus pubsub.Bus) error {
-	defer bus.Close()
+// Service represents an event monitoring service that subscribes to and processes blockchain events.
+// It monitors block headers and various transaction events, publishing them to a message bus.
+type Service interface {
+	// Shutdown gracefully stops the event monitoring service and cleans up resources.
+	// Once called, the service will unsubscribe from events and complete any pending operations.
+	Shutdown()
+}
 
-	var err error
+// NewEvents creates and initializes a new blockchain event monitoring service.
+//
+// Parameters:
+//   - pctx: Parent context for controlling the service lifecycle
+//   - client: Tendermint RPC client for interacting with the blockchain
+//   - name: Service name used as a prefix for subscription identifiers
+//   - bus: Message bus for publishing processed events
+//
+// Returns:
+//   - Service: A running event monitoring service interface
+//   - error: Any error encountered during service initialization
+func NewEvents(pctx context.Context, node sdkclient.CometRPC, name string, bus pubsub.Bus) (Service, error) {
+	group, ctx := errgroup.WithContext(pctx)
+
+	ev := &events{
+		ctx:    ctx,
+		group:  group,
+		ebus:   node.(cmclient.EventsClient),
+		client: node,
+		lc:     lifecycle.New(),
+		bus:    bus,
+	}
+
+	const (
+		queuesz = 1000
+	)
+
+	var blkHeaderName = name + "-blk-hdr"
+
+	blkch, err := ev.ebus.Subscribe(ctx, blkHeaderName, blkHeaderQuery().String(), queuesz)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = ev.ebus.UnsubscribeAll(ctx, blkHeaderName)
+	}()
+
+	startch := make(chan struct{}, 1)
+
+	group.Go(func() error {
+		ev.lc.WatchContext(ctx)
+
+		return ev.lc.Error()
+	})
+
+	group.Go(func() error {
+		return ev.run(blkHeaderName, blkch, startch)
+	})
+
+	select {
+	case <-pctx.Done():
+		return nil, pctx.Err()
+	case <-startch:
+		return ev, nil
+	}
+}
+
+func (e *events) Shutdown() {
+	_, stopped := <-e.lc.Done()
+	if stopped {
+		return
+	}
+
+	e.lc.Shutdown(nil)
+
+	_ = e.group.Wait()
+}
+
+func (e *events) run(subs string, ch <-chan ctypes.ResultEvent, startch chan<- struct{}) error {
+	defer func() {
+		_ = e.ebus.UnsubscribeAll(e.ctx, subs)
+
+		e.lc.ShutdownCompleted()
+	}()
+
+	startch <- struct{}{}
 
 loop:
 	for {
 		select {
-		case <-ctx.Done():
+		case err := <-e.lc.ShutdownRequest():
+			e.lc.ShutdownInitiated(err)
 			break loop
-		case ed := <-ch:
-			switch evt := ed.Data.(type) {
-			case cmtypes.EventDataTx:
-				if !evt.Result.IsOK() {
-					continue
-				}
-
-				if err = processEvents(bus, evt.Result.GetEvents()); err != nil {
-					return err
-				}
-			case cmtypes.EventDataNewBlockEvents:
-				if err = processEvents(bus, evt.Events); err != nil {
-					return err
-				}
+		case ev := <-ch:
+			// nolint: gocritic
+			switch evt := ev.Data.(type) {
+			case cmtypes.EventDataNewBlockHeader:
+				e.processBlock(evt.Header.Height)
 			}
 		}
 	}
 
-	return err
+	return e.ctx.Err()
 }
 
-func processEvents(bus pubsub.Bus, events []abcitypes.Event) error {
-	for _, ev := range events {
-		evt, err := sdktypes.ParseTypedEvent(ev)
-		if err != nil {
-			continue
-		}
-
-		if evt = filterEvent(evt); evt == nil {
-			continue
-		}
-
-		if err := bus.Publish(evt); err != nil {
-			return err
-		}
+func (e *events) processBlock(height int64) {
+	blkResults, err := e.client.BlockResults(e.ctx, &height)
+	if err != nil {
+		return
 	}
 
-	return nil
+	for _, tx := range blkResults.TxsResults {
+		if tx == nil {
+			continue
+		}
+
+		for _, ev := range tx.Events {
+			if mev, ok := processEvent(ev); ok {
+				if err := e.bus.Publish(mev); err != nil {
+					return
+				}
+			}
+		}
+	}
 }
 
-func filterEvent(bev proto.Message) proto.Message {
-	switch bev.(type) {
+func processEvent(bev abci.Event) (interface{}, bool) {
+	pev, err := sdk.ParseTypedEvent(bev)
+	if err != nil {
+		return nil, false
+	}
+
+	switch pev.(type) {
 	case *atypes.EventTrustedAuditorCreated:
 	case *atypes.EventTrustedAuditorDeleted:
 	case *dtypes.EventDeploymentCreated:
@@ -121,8 +176,8 @@ func filterEvent(bev proto.Message) proto.Message {
 	case *mtypes.EventLeaseCreated:
 	case *mtypes.EventLeaseClosed:
 	default:
-		return nil
+		return nil, false
 	}
 
-	return bev
+	return bev, true
 }
