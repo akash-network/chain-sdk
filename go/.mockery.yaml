@@ -14,3 +14,28 @@ packages:
       NodeClient:
       LightClient:
       Client:
+  pkg.akt.dev/go/node/audit/v1:
+    config:
+      dir: mocks/node/client/audit
+    interfaces:
+      QueryClient: {}
+  pkg.akt.dev/go/node/cert/v1:
+    config:
+      dir: mocks/node/client/cert
+    interfaces:
+      QueryClient: {}
+  pkg.akt.dev/go/node/deployment/v1beta4:
+    config:
+      dir: mocks/node/client/deployment
+    interfaces:
+      QueryClient: {}
+  pkg.akt.dev/go/node/market/v1beta5:
+    config:
+      dir: mocks/node/client/market
+    interfaces:
+      QueryClient: {}
+  pkg.akt.dev/go/node/provider/v1beta4:
+    config:
+      dir: mocks/node/client/provider
+    interfaces:
+      QueryClient: {}
