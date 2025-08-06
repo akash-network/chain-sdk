@@ -1,13 +1,11 @@
 package cli_test
 
 import (
-	"context"
 	"strings"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -39,8 +37,7 @@ func (s *FeegrantCLITestSuite) createGrant(granter, grantee sdk.Address) {
 		WithSkipConfirm().
 		WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(100))))
 
-	cmd := cli.GetTxFeegrantGrantCmd(address.NewBech32Codec("akash"))
-	out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, args...)
+	out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxFeegrantGrantCmd(), args...)
 	s.Require().NoError(err)
 
 	var resp sdk.TxResponse
@@ -277,8 +274,7 @@ func (s *FeegrantCLITestSuite) TestNewCmdFeeGrant() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetTxFeegrantGrantCmd(address.NewBech32Codec("akash"))
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxFeegrantGrantCmd(), tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -356,8 +352,7 @@ func (s *FeegrantCLITestSuite) TestNewCmdRevokeFeegrant() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetTxFeegrantRevokeCmd(address.NewBech32Codec("akash"))
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxFeegrantRevokeCmd(), tc.args...)
 
 			if tc.expectErr {
 				s.Require().Error(err)
@@ -394,10 +389,8 @@ func (s *FeegrantCLITestSuite) TestTxWithFeeGrant() {
 		WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))).
 		WithExpiration(getFormattedExpiration(oneYear))
 
-	cmd := cli.GetTxFeegrantGrantCmd(address.NewBech32Codec("akash"))
-
 	var res sdk.TxResponse
-	out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, args...)
+	out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxFeegrantGrantCmd(), args...)
 	s.Require().NoError(err)
 	s.Require().NoError(cctx.Codec.UnmarshalJSON(out.Bytes(), &res), out.String())
 
@@ -437,7 +430,7 @@ func (s *FeegrantCLITestSuite) TestTxWithFeeGrant() {
 				WithSkipConfirm().
 				Append(tc.flags)
 
-			_, err = clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, pArgs...)
+			_, err = clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, pArgs...)
 			s.Require().NoError(err)
 
 			var resp sdk.TxResponse
@@ -506,8 +499,7 @@ func (s *FeegrantCLITestSuite) TestFilteredFeeAllowance() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetTxFeegrantGrantCmd(address.NewBech32Codec("akash"))
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxFeegrantGrantCmd(), tc.args...)
 
 			if tc.expectErr {
 				s.Require().Error(err)
@@ -528,8 +520,6 @@ func (s *FeegrantCLITestSuite) TestFilteredFeeAllowance() {
 		{
 			"valid proposal tx",
 			func() error {
-				cmd := cli.GetTxGovSubmitLegacyProposalCmd()
-
 				pArgs := cli.TestFlags().
 					WithTitle("Text Proposal").
 					WithDescription("No desc").
@@ -538,7 +528,7 @@ func (s *FeegrantCLITestSuite) TestFilteredFeeAllowance() {
 					WithFrom(grantee.String()).
 					Append(args)
 
-				out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, pArgs...)
+				out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxGovSubmitLegacyProposalCmd(), pArgs...)
 				s.Require().NoError(err)
 				var resp sdk.TxResponse
 				s.Require().NoError(cctx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
@@ -559,9 +549,7 @@ func (s *FeegrantCLITestSuite) TestFilteredFeeAllowance() {
 					WithFrom(grantee.String()).
 					Append(args)
 
-				cmd := cli.GetTxGovWeightedVoteCmd()
-
-				out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, sArgs...)
+				out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxGovWeightedVoteCmd(), sArgs...)
 
 				s.Require().NoError(cctx.Codec.UnmarshalJSON(out.Bytes(), &sdk.TxResponse{}), out.String())
 
@@ -580,8 +568,7 @@ func (s *FeegrantCLITestSuite) TestFilteredFeeAllowance() {
 					WithFeeGranter(granter).
 					Append(args)
 
-				cmd := cli.GetTxFeegrantGrantCmd(address.NewBech32Codec("akash"))
-				out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, sArgs...)
+				out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxFeegrantGrantCmd(), sArgs...)
 				s.Require().NoError(cctx.Codec.UnmarshalJSON(out.Bytes(), &sdk.TxResponse{}), out.String())
 
 				return err

@@ -11,44 +11,32 @@ import (
 	// dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
-// // TxCreateDeploymentExec is used for testing create deployment tx
-// func TxCreateDeploymentExec(ctx context.Context, cctx client.Context, filePath string, extraArgs ...string) (sdktest.BufferWriter, error) {
-// 	args := []string{
-// 		filePath,
-// 	}
+// ExecDeploymentCreate is used for testing create deployment tx
+func ExecDeploymentCreate(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentCreateCmd(), args...)
+}
+
+// ExecDeploymentUpdate is used for testing update deployment tx
+func ExecDeploymentUpdate(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentUpdateCmd(), args...)
+}
+
+// ExecDeploymentClose is used for testing close deployment tx
+// requires --dseq, --fees
+func ExecDeploymentClose(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentCloseCmd(), args...)
+}
+
+// TxDepositDeploymentExec is used for testing deposit deployment tx
+//func TxDepositDeploymentExec(ctx context.Context, cctx client.Context, deposit sdk.Coin, extraArgs ...string) (sdktest.BufferWriter, error) {
+//	args := []string{
+//		deposit.String(),
+//	}
 //
-// 	args = append(args, extraArgs...)
+//	args = append(args, extraArgs...)
 //
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentCreateCmd(), args...)
-// }
-//
-// // TxUpdateDeploymentExec is used for testing update deployment tx
-// func TxUpdateDeploymentExec(ctx context.Context, cctx client.Context, filePath string, extraArgs ...string) (sdktest.BufferWriter, error) {
-// 	args := []string{
-// 		filePath,
-// 	}
-//
-// 	args = append(args, extraArgs...)
-//
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentUpdateCmd(), args...)
-// }
-//
-// // TxCloseDeploymentExec is used for testing close deployment tx
-// // requires --dseq, --fees
-// func TxCloseDeploymentExec(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentCloseCmd(), extraArgs...)
-// }
-//
-// // TxDepositDeploymentExec is used for testing deposit deployment tx
-// func TxDepositDeploymentExec(ctx context.Context, cctx client.Context, deposit sdk.Coin, extraArgs ...string) (sdktest.BufferWriter, error) {
-// 	args := []string{
-// 		deposit.String(),
-// 	}
-//
-// 	args = append(args, extraArgs...)
-//
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentDepositCmd(), args...)
-// }
+//	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentDepositCmd(), args...)
+//}
 //
 // // TxCloseGroupExec is used for testing close group tx
 // func TxCloseGroupExec(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
@@ -77,17 +65,17 @@ import (
 // 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentRevokeAuthorizationCmd(), args...)
 // }
 
-// QueryDeploymentsExec is used for testing deployments query
-func QueryDeploymentsExec(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentsCmd(), extraArgs...)
+// ExecQueryDeployments is used for testing deployments query
+func ExecQueryDeployments(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentsCmd(), args...)
 }
 
-// QueryDeploymentExec is used for testing deployment query
-func QueryDeploymentExec(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentCmd(), extraArgs...)
+// ExecQueryDeployment is used for testing deployment query
+func ExecQueryDeployment(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentCmd(), args...)
 }
 
-// QueryGroupExec is used for testing group query
-func QueryGroupExec(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentGroupCmd(), extraArgs...)
+// ExecQueryGroup is used for testing group query
+func ExecQueryGroup(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentGroupCmd(), args...)
 }

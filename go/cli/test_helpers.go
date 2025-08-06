@@ -2,6 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"reflect"
+	"strconv"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,6 +22,10 @@ var (
 
 type FlagsSet []string
 
+type Stringer interface {
+	String() string
+}
+
 func TestFlags() FlagsSet {
 	return FlagsSet{}
 }
@@ -29,6 +35,28 @@ func (df FlagsSet) With(flags ...string) FlagsSet {
 
 	copy(res, df)
 	res = append(res, flags...)
+
+	return res
+}
+
+func (df FlagsSet) WithFlag(key string, val any) FlagsSet {
+	var str string
+	switch v := val.(type) {
+	case string:
+		str = v
+	case int, uint, int64, uint64:
+		str = fmt.Sprintf("%d", v)
+	case bool:
+		str = strconv.FormatBool(v)
+	case Stringer:
+		str = v.String()
+	default:
+		panic(fmt.Sprintf("val %s is not a type of real|bool|string|Stringer", reflect.TypeOf(val).String()))
+	}
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+	res = append(res, fmt.Sprintf("--%s=%s", key, str))
 
 	return res
 }

@@ -4,9 +4,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+
+	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 // GetQueryParamsCmd returns a root CLI command handler for all x/params query commands.
@@ -48,7 +49,7 @@ func GetQueryParamsSubspaceCmd() *cobra.Command {
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }

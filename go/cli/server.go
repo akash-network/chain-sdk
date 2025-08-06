@@ -28,7 +28,6 @@ import (
 	"github.com/cometbft/cometbft/rpc/client/local"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdksrv "github.com/cosmos/cosmos-sdk/server"
 	srvapi "github.com/cosmos/cosmos-sdk/server/api"
@@ -141,7 +140,7 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 		},
 	}
 
-	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
+	cmd.Flags().String(cflags.FlagHome, defaultNodeHome, "The application home directory")
 	addStartNodeFlags(cmd, opts)
 	return cmd
 }

@@ -22,9 +22,8 @@ func (s *AuthzCLITestSuite) TestQueryAuthorizations() {
 	twoHours := time.Now().Add(time.Minute * time.Duration(120)).Unix()
 
 	_, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(grantee.String(), "send").
 			WithSpendLimit("100uakt").
@@ -98,9 +97,8 @@ func (s *AuthzCLITestSuite) TestQueryAuthorization() {
 	twoHours := time.Now().Add(time.Minute * time.Duration(120)).Unix()
 
 	_, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		grantee.String(),
 		"send",
 		fmt.Sprintf("--%s=100uakt", cflags.FlagSpendLimit),

@@ -16,7 +16,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -100,7 +99,7 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 			}
 
 			// Get initial height
-			initHeight, _ := cmd.Flags().GetInt64(flags.FlagInitHeight)
+			initHeight, _ := cmd.Flags().GetInt64(cflags.FlagInitHeight)
 			if initHeight < 1 {
 				initHeight = 1
 			}

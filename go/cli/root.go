@@ -25,6 +25,13 @@ var (
 // GetPersistentPreRunE persistent prerun hook for root command
 func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []string, defaultHome string) func(*cobra.Command, []string) error {
 	return func(cmd *cobra.Command, _ []string) error {
+		ctx := cmd.Context()
+
+		ctx = context.WithValue(ctx, ContextTypeAddressCodec, encodingConfig.SigningOptions.AddressCodec)
+		ctx = context.WithValue(ctx, ContextTypeValidatorCodec, encodingConfig.SigningOptions.ValidatorAddressCodec)
+
+		cmd.SetContext(ctx)
+
 		if err := InterceptConfigsPreRunHandler(cmd, envPrefixes, false, "", nil); err != nil {
 			return err
 		}

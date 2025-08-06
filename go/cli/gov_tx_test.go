@@ -1,7 +1,6 @@
 package cli_test
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 
@@ -90,7 +89,7 @@ func (s *GovCLITestSuite) TestNewCmdSubmitProposal() {
 		s.Run(tc.name, func() {
 			cmd := cli.GetTxGovSubmitProposalCmd()
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -184,7 +183,7 @@ func (s *GovCLITestSuite) TestNewCmdSubmitLegacyProposal() {
 		s.Run(tc.name, func() {
 			cmd := cli.GetTxGovSubmitLegacyProposalCmd()
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -242,7 +241,7 @@ func (s *GovCLITestSuite) TestNewCmdDeposit() {
 		s.Run(tc.name, func() {
 			cmd := cli.GetTxGovDepositCmd()
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -309,7 +308,7 @@ func (s *GovCLITestSuite) TestNewCmdVote() {
 			cmd := cli.GetTxGovVoteCmd()
 			var txResp sdk.TxResponse
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
 
 			if tc.expectErr {
 				s.Require().Error(err)
@@ -398,7 +397,7 @@ func (s *GovCLITestSuite) TestNewCmdWeightedVote() {
 			cmd := cli.GetTxGovWeightedVoteCmd()
 			var txResp sdk.TxResponse
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
 
 			if tc.expectErr {
 				s.Require().Error(err)

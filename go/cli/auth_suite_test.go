@@ -7,26 +7,25 @@ import (
 	"io"
 	"strings"
 
-	sdkmath "cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	"github.com/cosmos/cosmos-sdk/types/tx"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
+
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"pkg.akt.dev/go/cli"
 	cflags "pkg.akt.dev/go/cli/flags"
@@ -63,6 +62,9 @@ func (s *AuthCLITestSuite) SetupSuite() {
 		return s.baseCtx.WithClient(c)
 	}
 	s.cctx = ctxGen().WithOutput(&outBuf).WithSignModeStr("direct")
+
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
+	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
 
 	kb := s.cctx.Keyring
 	valAcc, _, err := kb.NewMnemonic("newAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
@@ -110,7 +112,7 @@ func (s *AuthCLITestSuite) TestCLIValidateSignatures() {
 	}()
 
 	res, err = clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -130,7 +132,7 @@ func (s *AuthCLITestSuite) TestCLIValidateSignatures() {
 	txBuilder, err := s.cctx.TxConfig.WrapTxBuilder(signedTx)
 	s.Require().NoError(err)
 	_, err = clitestutil.TxValidateSignaturesExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -147,7 +149,7 @@ func (s *AuthCLITestSuite) TestCLIValidateSignatures() {
 		_ = modifiedTxFile.Close()
 	}()
 
-	_, err = clitestutil.TxValidateSignaturesExec(context.Background(), s.cctx, modifiedTxFile.Name())
+	_, err = clitestutil.TxValidateSignaturesExec(s.ctx, s.cctx, modifiedTxFile.Name())
 	s.Require().EqualError(err, "signatures validation failed")
 }
 
@@ -172,7 +174,7 @@ func (s *AuthCLITestSuite) TestCLISignBatch() {
 
 	// sign-batch file - offline is set but account-number and sequence are not
 	_, err = clitestutil.TxSignBatchExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -185,7 +187,7 @@ func (s *AuthCLITestSuite) TestCLISignBatch() {
 
 	// sign-batch file - offline and sequence is set but account-number is not set
 	_, err = clitestutil.TxSignBatchExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -199,7 +201,7 @@ func (s *AuthCLITestSuite) TestCLISignBatch() {
 
 	// sign-batch file - offline and account-number is set but sequence is not set
 	_, err = clitestutil.TxSignBatchExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -426,7 +428,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 
 	txBuilder, err = txCfg.WrapTxBuilder(finalStdTx)
 	s.Require().NoError(err)
-	s.Require().Equal(uint64(flags.DefaultGasLimit), txBuilder.GetTx().GetGas())
+	s.Require().Equal(uint64(cflags.DefaultGasLimit), txBuilder.GetTx().GetGas())
 	s.Require().Equal(len(finalStdTx.GetMsgs()), 1)
 
 	// Write the output to disk
@@ -437,7 +439,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 
 	// Test validate-signatures
 	res, err := clitestutil.TxValidateSignaturesExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		unsignedTxFile.Name())
 	s.Require().EqualError(err, "signatures validation failed")
@@ -447,7 +449,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 
 	// Does not work in offline mode
 	_, err = clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(unsignedTxFile.Name()).
@@ -458,7 +460,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 	// But works offline if we set account number and sequence
 	s.cctx.HomeDir = strings.Replace(s.cctx.HomeDir, "simd", "simcli", 1)
 	_, err = clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(unsignedTxFile.Name()).
@@ -470,7 +472,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 
 	// Sign transaction
 	signedTx, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(unsignedTxFile.Name()).
@@ -499,7 +501,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 
 	// validate Signature
 	res, err = clitestutil.TxValidateSignaturesExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		signedTxFile.Name())
 	s.Require().NoError(err)
@@ -509,7 +511,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 
 	// Does not work in offline mode
 	_, err = clitestutil.TxBroadcastExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(signedTxFile.Name()).
@@ -519,7 +521,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 
 	// Broadcast correct transaction.
 	_, err = clitestutil.TxBroadcastExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(signedTxFile.Name()).
@@ -550,7 +552,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignInsufficientCosigners() {
 
 	// Generate multisig transaction.
 	multiGeneratedTx, err := clitestutil.ExecSend(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -578,7 +580,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignInsufficientCosigners() {
 	s.Require().NoError(err)
 
 	account1Signature, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -595,7 +597,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignInsufficientCosigners() {
 	}()
 
 	multiSigWith1Signature, err := clitestutil.TxMultiSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -612,7 +614,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignInsufficientCosigners() {
 	}()
 
 	_, err = clitestutil.TxValidateSignaturesExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -640,7 +642,7 @@ func (s *AuthCLITestSuite) TestCLIEncode() {
 
 	// Encode
 	encodeExec, err := clitestutil.TxEncodeExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		savedTxFile.Name())
 	s.Require().NoError(err)
@@ -648,7 +650,7 @@ func (s *AuthCLITestSuite) TestCLIEncode() {
 	trimmedBase64 := strings.Trim(encodeExec.String(), "\"\n")
 	// Check that the transaction decodes as expected
 	decodedTx, err := clitestutil.TxDecodeExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		trimmedBase64)
 	s.Require().NoError(err)
@@ -681,7 +683,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignSortSignatures() {
 
 	// Generate multisig transaction.
 	multiGeneratedTx, err := clitestutil.ExecSend(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -708,7 +710,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignSortSignatures() {
 	s.Require().NoError(err)
 	s.cctx.HomeDir = strings.Replace(s.cctx.HomeDir, "simd", "simcli", 1)
 	account1Signature, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -728,7 +730,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignSortSignatures() {
 	addr2, err := account2.GetAddress()
 	s.Require().NoError(err)
 	account2Signature, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -748,7 +750,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignSortSignatures() {
 	dummyAddr, err := dummyAcc.GetAddress()
 	s.Require().NoError(err)
 	_, err = clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -761,7 +763,7 @@ func (s *AuthCLITestSuite) TestCLIMultisignSortSignatures() {
 	s.Require().Contains(err.Error(), "signing key is not a part of multisig key")
 
 	multiSigWith2Signatures, err := clitestutil.TxMultiSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -779,13 +781,13 @@ func (s *AuthCLITestSuite) TestCLIMultisignSortSignatures() {
 	}()
 
 	_, err = clitestutil.TxValidateSignaturesExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		signedTxFile.Name())
 	s.Require().NoError(err)
 
 	_, err = clitestutil.TxBroadcastExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(signedTxFile.Name()).
@@ -808,7 +810,7 @@ func (s *AuthCLITestSuite) TestSignWithMultisig() {
 
 	// Generate a transaction for testing --multisig with an address not in the keyring.
 	multisigTx, err := clitestutil.ExecSend(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -834,7 +836,7 @@ func (s *AuthCLITestSuite) TestSignWithMultisig() {
 	// as the main point of this test is to test the `--multisig` flag with an address
 	// that is not in the keyring.
 	_, err = clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(multiGeneratedTx2File.Name()).
@@ -861,7 +863,7 @@ func (s *AuthCLITestSuite) TestCLIMultisign() {
 
 	// Generate multisig transaction.
 	multiGeneratedTx, err := clitestutil.ExecSend(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -888,7 +890,7 @@ func (s *AuthCLITestSuite) TestCLIMultisign() {
 	// Sign with account1
 	s.cctx.HomeDir = strings.Replace(s.cctx.HomeDir, "simd", "simcli", 1)
 	account1Signature, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(multiGeneratedTxFile.Name()).
@@ -906,7 +908,7 @@ func (s *AuthCLITestSuite) TestCLIMultisign() {
 	s.Require().NoError(err)
 	// Sign with account2
 	account2Signature, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -923,7 +925,7 @@ func (s *AuthCLITestSuite) TestCLIMultisign() {
 
 	s.cctx.Offline = false
 	multiSigWith2Signatures, err := clitestutil.TxMultiSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -940,11 +942,11 @@ func (s *AuthCLITestSuite) TestCLIMultisign() {
 		_ = signedTxFile.Close()
 	}()
 
-	_, err = clitestutil.TxValidateSignaturesExec(context.Background(), s.cctx, signedTxFile.Name())
+	_, err = clitestutil.TxValidateSignaturesExec(s.ctx, s.cctx, signedTxFile.Name())
 	s.Require().NoError(err)
 
 	_, err = clitestutil.TxBroadcastExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(signedTxFile.Name()).
@@ -973,7 +975,7 @@ func (s *AuthCLITestSuite) TestSignBatchMultisig() {
 	s.Require().NoError(err)
 
 	generatedStd, err := clitestutil.ExecSend(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -1002,7 +1004,7 @@ func (s *AuthCLITestSuite) TestSignBatchMultisig() {
 	s.Require().NoError(err)
 	// sign-batch file
 	res, err := clitestutil.TxSignBatchExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -1025,7 +1027,7 @@ func (s *AuthCLITestSuite) TestSignBatchMultisig() {
 	s.Require().NoError(err)
 	// sign-batch file with account2
 	res, err = clitestutil.TxSignBatchExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -1044,7 +1046,7 @@ func (s *AuthCLITestSuite) TestSignBatchMultisig() {
 		_ = file2.Close()
 	}()
 	_, err = clitestutil.TxMultiSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -1058,7 +1060,7 @@ func (s *AuthCLITestSuite) TestSignBatchMultisig() {
 
 func (s *AuthCLITestSuite) TestGetBroadcastCommandOfflineFlag() {
 	_, err := clitestutil.TxBroadcastExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With("fsdf").
@@ -1093,7 +1095,7 @@ func (s *AuthCLITestSuite) TestQueryParamsCmd() {
 			cmd := cli.GetQueryAuthParamsCmd()
 			cctx := s.cctx
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cmd, tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 				s.Require().NotEqual("internal", err.Error())
@@ -1138,7 +1140,7 @@ func (s *AuthCLITestSuite) TestTxWithoutPublicKey() {
 
 	// Sign the file with the unsignedTx.
 	signedTx, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(unsignedTxFile.Name()).
@@ -1166,7 +1168,7 @@ func (s *AuthCLITestSuite) TestTxWithoutPublicKey() {
 
 	// Broadcast tx, test that it shouldn't panic.
 	out, err := clitestutil.TxBroadcastExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(signedTxFile.Name()).
@@ -1219,7 +1221,7 @@ func (s *AuthCLITestSuite) TestSignWithMultiSignersAminoJSON() {
 
 	// Let val0 sign first the file with the unsignedTx.
 	signedByVal0, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(unsignedTxFile.Name()).
@@ -1237,7 +1239,7 @@ func (s *AuthCLITestSuite) TestSignWithMultiSignersAminoJSON() {
 	s.Require().NoError(err)
 
 	signedTx, err := clitestutil.TxSignExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(signedByVal0File.Name()).
@@ -1253,7 +1255,7 @@ func (s *AuthCLITestSuite) TestSignWithMultiSignersAminoJSON() {
 	}()
 
 	res, err := clitestutil.TxBroadcastExec(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(signedTxFile.Name()).
@@ -1300,7 +1302,7 @@ func (s *AuthCLITestSuite) TestAuxSigner() {
 		s.Run(tc.name, func() {
 			cmd := cli.GetTxGovSubmitLegacyProposalCmd()
 			_, err := clitestutil.ExecTestCLICmd(
-				context.Background(),
+				s.ctx,
 				s.cctx,
 				cmd,
 				cli.TestFlags().
@@ -1505,7 +1507,7 @@ func (s *AuthCLITestSuite) TestAuxToFeeWithTips() {
 		s.Run(tc.name, func() {
 			cmd := cli.GetTxGovSubmitLegacyProposalCmd()
 			res, err := clitestutil.ExecTestCLICmd(
-				context.Background(),
+				s.ctx,
 				s.cctx,
 				cmd,
 				cli.TestFlags().
@@ -1526,7 +1528,7 @@ func (s *AuthCLITestSuite) TestAuxToFeeWithTips() {
 
 				// broadcast the tx
 				res, err = clitestutil.TxAuxToFeeExec(
-					context.Background(),
+					s.ctx,
 					s.cctx,
 					genTxFile.Name(),
 					tc.feePayerArgs...,
@@ -1564,7 +1566,7 @@ func (s *AuthCLITestSuite) TestAuxToFeeWithTips() {
 
 func (s *AuthCLITestSuite) getBalances(cctx client.Context, addr sdk.AccAddress, denom string) sdkmath.Int {
 	resp, err := clitestutil.QueryBalancesExec(
-		context.Background(),
+		s.ctx,
 		cctx,
 		cli.TestFlags().
 			With(addr.String())...)
@@ -1579,7 +1581,7 @@ func (s *AuthCLITestSuite) getBalances(cctx client.Context, addr sdk.AccAddress,
 
 func (s *AuthCLITestSuite) createBankMsg(cctx client.Context, toAddr sdk.AccAddress, amount sdk.Coins, extraFlags ...string) (sdktestutil.BufferWriter, error) {
 	return clitestutil.ExecSend(
-		context.Background(),
+		s.ctx,
 		cctx,
 		cli.TestFlags().
 			With(

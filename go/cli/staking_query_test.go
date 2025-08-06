@@ -7,11 +7,11 @@ import (
 
 	"github.com/cosmos/gogoproto/proto"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.akt.dev/go/cli"
+	cflags "pkg.akt.dev/go/cli/flags"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
 )
 
@@ -550,8 +550,8 @@ func (s *StakingCLITestSuite) TestGetCmdQueryPool() {
 		{
 			"with text",
 			[]string{
-				fmt.Sprintf("--%s=text", flags.FlagOutput),
-				fmt.Sprintf("--%s=1", flags.FlagHeight),
+				fmt.Sprintf("--%s=text", cflags.FlagOutput),
+				fmt.Sprintf("--%s=1", cflags.FlagHeight),
 			},
 			`bonded_tokens: "0"
 not_bonded_tokens: "0"`,
@@ -559,8 +559,8 @@ not_bonded_tokens: "0"`,
 		{
 			"with json",
 			[]string{
-				fmt.Sprintf("--%s=json", flags.FlagOutput),
-				fmt.Sprintf("--%s=1", flags.FlagHeight),
+				fmt.Sprintf("--%s=json", cflags.FlagOutput),
+				fmt.Sprintf("--%s=1", cflags.FlagHeight),
 			},
 			`{"not_bonded_tokens":"0","bonded_tokens":"0"}`,
 		},

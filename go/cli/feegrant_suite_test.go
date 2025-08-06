@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"testing"
 
@@ -15,6 +16,7 @@ import (
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.akt.dev/go/cli"
 	cflags "pkg.akt.dev/go/cli/flags"
 	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
@@ -53,6 +55,9 @@ func (s *FeegrantCLITestSuite) SetupSuite() {
 		return s.baseCtx.WithClient(c)
 	}
 	s.cctx = ctxGen().WithOutput(&outBuf)
+
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
+	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
 
 	if testing.Short() {
 		s.T().Skip("skipping test in unit-tests mode.")

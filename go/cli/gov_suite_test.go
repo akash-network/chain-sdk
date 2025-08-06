@@ -49,13 +49,16 @@ func (s *GovCLITestSuite) SetupSuite() {
 	}
 	s.cctx = ctxGen().WithOutput(&outBuf)
 
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
+	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
+
 	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
 
 	// create a proposal with deposit
 	cmd := cli.GetTxGovSubmitLegacyProposalCmd()
 
 	_, err := clitestutil.ExecTestCLICmd(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cmd,
 		cli.TestFlags().
@@ -72,7 +75,7 @@ func (s *GovCLITestSuite) SetupSuite() {
 	cmd = cli.GetTxGovVoteCmd()
 
 	_, err = clitestutil.ExecTestCLICmd(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cmd,
 		cli.TestFlags().
@@ -89,7 +92,7 @@ func (s *GovCLITestSuite) SetupSuite() {
 	cmd = cli.GetTxGovSubmitLegacyProposalCmd()
 
 	_, err = clitestutil.ExecTestCLICmd(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cmd,
 		cli.TestFlags().
@@ -105,7 +108,7 @@ func (s *GovCLITestSuite) SetupSuite() {
 	cmd = cli.GetTxGovSubmitLegacyProposalCmd()
 
 	_, err = clitestutil.ExecTestCLICmd(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cmd,
 		cli.TestFlags().
@@ -122,7 +125,7 @@ func (s *GovCLITestSuite) SetupSuite() {
 	cmd = cli.GetTxGovWeightedVoteCmd()
 
 	_, err = clitestutil.ExecTestCLICmd(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cmd,
 		cli.TestFlags().

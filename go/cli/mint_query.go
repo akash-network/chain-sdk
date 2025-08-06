@@ -6,8 +6,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/x/mint/types"
+
+	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 // GetQueryMintCmd returns the cli query commands for the minting module.
@@ -51,7 +52,7 @@ func GetQueryMintParamsCmd() *cobra.Command {
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -79,7 +80,7 @@ func GetQueryMintInflationCmd() *cobra.Command {
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -107,7 +108,7 @@ func GetQueryMintAnnualProvisionsCmd() *cobra.Command {
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
