@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	cclient "pkg.akt.dev/go/node/client/v1beta3"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	cclient "pkg.akt.dev/go/node/client/v1beta3"
 )
 
 func Test_splitAndCall_NoMessages(t *testing.T) {

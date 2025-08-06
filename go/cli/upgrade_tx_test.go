@@ -15,14 +15,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
-	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
 	"pkg.akt.dev/go/cli"
 	cflags "pkg.akt.dev/go/cli/flags"
+	"pkg.akt.dev/go/sdkutil"
 )
 
 func TestModuleVersionsCLI(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(upgrade.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(upgrade.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).
@@ -34,6 +34,9 @@ func TestModuleVersionsCLI(t *testing.T) {
 		WithOutput(io.Discard).
 		WithChainID("test-chain").
 		WithSignModeStr(cflags.SignModeDirect)
+
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, encCfg.SigningOptions.AddressCodec)
+	ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, encCfg.SigningOptions.ValidatorAddressCodec)
 
 	testCases := []struct {
 		msg          string
@@ -66,7 +69,7 @@ func TestModuleVersionsCLI(t *testing.T) {
 		t.Run(tc.msg, func(t *testing.T) {
 			cmd := cli.GetQueryUpgradeModuleVersionsCmd()
 
-			ctx := svrcmd.CreateExecuteContext(context.Background())
+			ctx := svrcmd.CreateExecuteContext(ctx)
 
 			cmd.SetOut(io.Discard)
 			require.NotNil(t, cmd)

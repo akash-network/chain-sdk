@@ -8,9 +8,10 @@ import (
 
 	"cosmossdk.io/x/feegrant"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
+
+	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 // GetQueryFeegrantCmd returns the cli query commands for this module
@@ -76,7 +77,7 @@ $ %s query feegrant grant [granter] [grantee]
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -124,8 +125,8 @@ $ %s query feegrant grants-by-grantee [grantee]
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
-	flags.AddPaginationFlagsToCmd(cmd, "grants")
+	cflags.AddQueryFlagsToCmd(cmd)
+	cflags.AddPaginationFlagsToCmd(cmd, "grants")
 
 	return cmd
 }
@@ -173,8 +174,8 @@ $ %s query feegrant grants-by-granter [granter]
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
-	flags.AddPaginationFlagsToCmd(cmd, "grants")
+	cflags.AddQueryFlagsToCmd(cmd)
+	cflags.AddPaginationFlagsToCmd(cmd, "grants")
 
 	return cmd
 }

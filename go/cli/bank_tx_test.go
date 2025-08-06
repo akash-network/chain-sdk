@@ -1,11 +1,8 @@
 package cli_test
 
 import (
-	"context"
-
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -79,8 +76,7 @@ func (s *BankCLITestSuite) TestSendTxCmd() {
 		s.Run(tc.name, func() {
 			cctx := tc.ctxGen()
 
-			cmd := cli.GetTxBankSendTxCmd(addresscodec.NewBech32Codec("akash"))
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxBankSendTxCmd(), tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -175,8 +171,7 @@ func (s *BankCLITestSuite) TestMultiSendTxCmd() {
 		s.Run(tc.name, func() {
 			cctx := tc.ctxGen()
 
-			cmd := cli.GetTxBankMultiSendTxCmd(addresscodec.NewBech32Codec("akash"))
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cli.GetTxBankMultiSendTxCmd(), tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {

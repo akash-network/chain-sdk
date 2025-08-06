@@ -16,16 +16,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
 	"pkg.akt.dev/go/cli"
 	cflags "pkg.akt.dev/go/cli/flags"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
+	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
 )
 
 func TestGetQueryCmd(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(evidence.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(evidence.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).
@@ -37,6 +37,9 @@ func TestGetQueryCmd(t *testing.T) {
 		WithOutput(io.Discard).
 		WithChainID("test-chain").
 		WithSignModeStr(cflags.SignModeDirect)
+
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, encCfg.SigningOptions.AddressCodec)
+	ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, encCfg.SigningOptions.ValidatorAddressCodec)
 
 	testCases := map[string]struct {
 		args           []string
@@ -97,7 +100,7 @@ func TestGetQueryCmd(t *testing.T) {
 				require.Contains(t, fmt.Sprint(cmd), tc.expCmdOutput)
 			}
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), tc.ctxGen(), cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, tc.ctxGen(), cmd, tc.args...)
 			if tc.expectErr {
 				require.Error(t, err)
 			} else {

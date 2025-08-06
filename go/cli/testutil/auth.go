@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/core/address"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
 
 	"pkg.akt.dev/go/cli"
+	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 func TxSignExec(ctx context.Context, cctx client.Context, args ...string) (testutil.BufferWriter, error) {
@@ -28,7 +27,7 @@ func TxBroadcastExec(ctx context.Context, cctx client.Context, args ...string) (
 
 func TxEncodeExec(ctx context.Context, cctx client.Context, filename string, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := []string{
-		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
+		fmt.Sprintf("--%s=%s", cflags.FlagKeyringBackend, keyring.BackendTest),
 		filename,
 	}
 
@@ -52,7 +51,7 @@ func TxSignBatchExec(ctx context.Context, cctx client.Context, args ...string) (
 
 func TxDecodeExec(ctx context.Context, cctx client.Context, encodedTx string, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := []string{
-		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
+		fmt.Sprintf("--%s=%s", cflags.FlagKeyringBackend, keyring.BackendTest),
 		encodedTx,
 	}
 
@@ -68,15 +67,15 @@ func TxAuxToFeeExec(ctx context.Context, cctx client.Context, filename string, e
 	return ExecTestCLICmd(ctx, cctx, cli.GetAuxToFeeCommand(), append(args, extraArgs...)...)
 }
 
-// func QueryAccountExec(ctx context.Context, cctx client.Context, address fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
-// 	args := []string{address.String(), fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
+//func ExecQueryAccount(ctx context.Context, cctx client.Context, address fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
+//	args := []string{address.String(), fmt.Sprintf("--%s=json", cflags.FlagOutput)}
 //
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetAuthAccountCmd(), append(args, extraArgs...)...)
-// }
+//	return ExecTestCLICmd(ctx, cctx, cli.GetAuthAccountCmd(), append(args, extraArgs...)...)
+//}
 
 func TxMultiSignBatchExec(ctx context.Context, cctx client.Context, filename string, from string, sigFile1 string, sigFile2 string, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := []string{
-		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
+		fmt.Sprintf("--%s=%s", cflags.FlagKeyringBackend, keyring.BackendTest),
 		filename,
 		from,
 		sigFile1,
@@ -88,8 +87,8 @@ func TxMultiSignBatchExec(ctx context.Context, cctx client.Context, filename str
 	return ExecTestCLICmd(ctx, cctx, cli.GetMultiSignBatchCmd(), args...)
 }
 
-func MsgSendExec(ctx context.Context, cctx client.Context, ac address.Codec, args ...string) (testutil.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetTxBankSendTxCmd(ac), args...)
+func ExecSend(ctx context.Context, cctx client.Context, args ...string) (testutil.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxBankSendTxCmd(), args...)
 }
 
 // DONTCOVER

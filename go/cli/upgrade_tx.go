@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	addresscodec "cosmossdk.io/core/address"
 	"cosmossdk.io/x/upgrade/plan"
 	"cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -20,22 +19,22 @@ import (
 )
 
 // GetTxUpgradeCmd returns the transaction commands for this module
-func GetTxUpgradeCmd(ac addresscodec.Codec) *cobra.Command {
+func GetTxUpgradeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   types.ModuleName,
 		Short: "Upgrade transaction subcommands",
 	}
 
 	cmd.AddCommand(
-		NewCmdSubmitUpgradeProposal(ac),
-		NewCmdSubmitCancelUpgradeProposal(ac),
+		NewCmdSubmitUpgradeProposal(),
+		NewCmdSubmitCancelUpgradeProposal(),
 	)
 
 	return cmd
 }
 
 // NewCmdSubmitUpgradeProposal implements a command handler for submitting a software upgrade proposal transaction.
-func NewCmdSubmitUpgradeProposal(ac addresscodec.Codec) *cobra.Command {
+func NewCmdSubmitUpgradeProposal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "software-upgrade [name] (--upgrade-height [height]) (--upgrade-info [info]) [flags]",
 		Args:  cobra.ExactArgs(1),
@@ -44,6 +43,9 @@ func NewCmdSubmitUpgradeProposal(ac addresscodec.Codec) *cobra.Command {
 			"Please specify a unique name and height for the upgrade to take effect.\n" +
 			"You may include info to reference a binary download link, in a format compatible with: https://docs.cosmos.network/main/tooling/cosmovisor",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+			ac := MustAddressCodecFromContext(ctx)
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -124,13 +126,16 @@ func NewCmdSubmitUpgradeProposal(ac addresscodec.Codec) *cobra.Command {
 }
 
 // NewCmdSubmitCancelUpgradeProposal implements a command handler for submitting a software upgrade cancel proposal transaction.
-func NewCmdSubmitCancelUpgradeProposal(ac addresscodec.Codec) *cobra.Command {
+func NewCmdSubmitCancelUpgradeProposal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cancel-software-upgrade [flags]",
 		Args:  cobra.ExactArgs(0),
 		Short: "Cancel the current software upgrade proposal",
 		Long:  "Cancel a software upgrade along with an initial deposit.",
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			ac := MustAddressCodecFromContext(ctx)
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err

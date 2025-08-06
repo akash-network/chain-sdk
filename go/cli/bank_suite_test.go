@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"context"
 	"io"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -11,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
+	"pkg.akt.dev/go/cli"
 	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
 )
@@ -44,4 +46,7 @@ func (s *BankCLITestSuite) SetupSuite() {
 	s.cctx = ctxGen().
 		WithOutput(&outBuf).
 		WithSignModeStr("direct")
+
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
+	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
 }

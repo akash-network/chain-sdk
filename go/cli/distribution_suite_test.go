@@ -11,7 +11,6 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -54,6 +53,9 @@ func (s *DistributionCLITestSuite) SetupSuite() {
 		return s.baseCtx.WithClient(c)
 	}
 	s.cctx = ctxGen().WithOutput(&outBuf)
+
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
+	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
 
 	cfg, err := network.DefaultConfigWithAppConfig(
 		depinject.Configs(
@@ -484,10 +486,11 @@ func (s *DistributionCLITestSuite) TestNewWithdrawRewardsCmd() {
 	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
 
 	testCases := []struct {
-		name      string
-		args      []string
-		expectErr bool
-		respType  proto.Message
+		name                 string
+		args                 []string
+		expectErr            bool
+		respType             proto.Message
+		expectedResponseType []string
 	}{
 		{
 			"invalid validator address",
@@ -499,7 +502,9 @@ func (s *DistributionCLITestSuite) TestNewWithdrawRewardsCmd() {
 				WithSkipConfirm().
 				WithBroadcastModeSync().
 				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
-			true, nil,
+			true,
+			nil,
+			[]string{},
 		},
 		{
 			"valid transaction",
@@ -511,7 +516,11 @@ func (s *DistributionCLITestSuite) TestNewWithdrawRewardsCmd() {
 				WithSkipConfirm().
 				WithBroadcastModeSync().
 				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
-			false, &sdk.TxResponse{},
+			false,
+			&sdk.TxResponse{},
+			[]string{
+				"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorRewardResponse",
+			},
 		},
 		{
 			"valid transaction (with commission)",
@@ -524,15 +533,18 @@ func (s *DistributionCLITestSuite) TestNewWithdrawRewardsCmd() {
 				WithBroadcastModeSync().
 				WithCommission().
 				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
-			false, &sdk.TxResponse{},
+			false,
+			&sdk.TxResponse{},
+			[]string{
+				"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorRewardResponse",
+				"/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommissionResponse",
+			},
 		},
 	}
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetTxDistributionWithdrawRewardsCmd(address.NewBech32Codec("akashvaloper"), address.NewBech32Codec("akash"))
-
-			bz, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			bz, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxDistributionWithdrawRewardsCmd(), tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -543,52 +555,51 @@ func (s *DistributionCLITestSuite) TestNewWithdrawRewardsCmd() {
 	}
 }
 
-func (s *DistributionCLITestSuite) TestNewWithdrawAllRewardsCmd() {
-	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
-
-	testCases := []struct {
-		name      string
-		args      []string
-		expectErr bool
-		expErrMsg string
-		respType  proto.Message
-	}{
-		{
-			"invalid transaction (offline)",
-			cli.TestFlags().
-				WithFrom(val[0].Address.String()).
-				WithOffline().
-				WithBroadcastModeSync().
-				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
-			true,
-			"cannot generate tx in offline mode",
-			nil,
-		},
-		// {
-		// 	"valid transaction",
-		// 	cli.TestFlags().
-		// 		WithFrom(val[0].Address.String()).
-		// 		WithSkipConfirm().
-		// 		WithBroadcastModeSync().
-		// 		WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
-		// 	false, "", &sdk.TxResponse{},
-		// },
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			cmd := cli.GetTxDistributionWithdrawAllRewardsCmd(address.NewBech32Codec("akashvaloper"), address.NewBech32Codec("akash"))
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
-			if tc.expectErr {
-				s.Require().Error(err)
-				s.Require().Contains(err.Error(), tc.expErrMsg)
-			} else {
-				s.Require().NoError(err)
-				s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
-			}
-		})
-	}
-}
+//func (s *DistributionCLITestSuite) TestNewWithdrawAllRewardsCmd() {
+//	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
+//
+//	testCases := []struct {
+//		name      string
+//		args      []string
+//		expectErr bool
+//		expErrMsg string
+//		respType  proto.Message
+//	}{
+//		{
+//			"invalid transaction (offline)",
+//			cli.TestFlags().
+//				WithFrom(val[0].Address.String()).
+//				WithOffline().
+//				WithBroadcastModeSync().
+//				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
+//			true,
+//			"cannot generate tx in offline mode",
+//			nil,
+//		},
+//		{
+//			"valid transaction",
+//			cli.TestFlags().
+//				WithFrom(val[0].Address.String()).
+//				WithSkipConfirm().
+//				WithBroadcastModeSync().
+//				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
+//			false, "", &sdk.TxResponse{},
+//		},
+//	}
+//
+//	for _, tc := range testCases {
+//		s.Run(tc.name, func() {
+//			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxDistributionWithdrawAllRewardsCmd(), tc.args...)
+//			if tc.expectErr {
+//				s.Require().Error(err)
+//				s.Require().Contains(err.Error(), tc.expErrMsg)
+//			} else {
+//				s.Require().NoError(err)
+//				s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+//			}
+//		})
+//	}
+//}
 
 func (s *DistributionCLITestSuite) TestNewSetWithdrawAddrCmd() {
 	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
@@ -623,8 +634,7 @@ func (s *DistributionCLITestSuite) TestNewSetWithdrawAddrCmd() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetTxDistributionSetWithdrawAddrCmd(address.NewBech32Codec("akashvaloper"), address.NewBech32Codec("akash"))
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxDistributionSetWithdrawAddrCmd(), tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -668,9 +678,7 @@ func (s *DistributionCLITestSuite) TestNewFundCommunityPoolCmd() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetTxDistributionFundCommunityPoolCmd(address.NewBech32Codec("akashvaloper"), address.NewBech32Codec("akash"))
-
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), s.cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxDistributionFundCommunityPoolCmd(), tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {

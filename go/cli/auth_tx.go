@@ -5,17 +5,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	txsigning "cosmossdk.io/x/tx/signing"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/spf13/cobra"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -388,7 +386,7 @@ func signTx(cmd *cobra.Command, clientCtx client.Context, txF tx.Factory, newTx 
 		return err
 	}
 
-	from, err := cmd.Flags().GetString(flags.FlagFrom)
+	from, err := cmd.Flags().GetString(cflags.FlagFrom)
 	if err != nil {
 		return err
 	}

@@ -12,16 +12,16 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 
 	"pkg.akt.dev/go/cli"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
+	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
 )
 
 func TestGetQueryMintParamsCmd(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(mint.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(mint.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).
@@ -78,7 +78,7 @@ mint_denom: ""`,
 }
 
 func TestGetQueryMintInflationCmd(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(mint.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(mint.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).
@@ -130,7 +130,7 @@ func TestGetQueryMintInflationCmd(t *testing.T) {
 }
 
 func TestGetCmdQueryAnnualProvisions(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(mint.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(mint.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).

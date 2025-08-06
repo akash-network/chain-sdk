@@ -27,7 +27,7 @@ const (
 )
 
 // GetTxAuthzCmd returns the transaction commands for this module
-func GetTxAuthzCmd(ac address.Codec) *cobra.Command {
+func GetTxAuthzCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        authz.ModuleName,
 		Short:                      "Authorization transactions subcommands",
@@ -38,8 +38,8 @@ func GetTxAuthzCmd(ac address.Codec) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetTxAuthzGrantAuthorizationCmd(ac),
-		GetTxAuthzRevokeAuthorizationCmd(ac),
+		GetTxAuthzGrantAuthorizationCmd(),
+		GetTxAuthzRevokeAuthorizationCmd(),
 		GetTxAuthzExecAuthorizationCmd(),
 	)
 
@@ -47,7 +47,7 @@ func GetTxAuthzCmd(ac address.Codec) *cobra.Command {
 }
 
 // GetTxAuthzGrantAuthorizationCmd returns a CLI command handler for creating a MsgGrant transaction.
-func GetTxAuthzGrantAuthorizationCmd(ac address.Codec) *cobra.Command {
+func GetTxAuthzGrantAuthorizationCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "grant <grantee> <authorization_type=\"send\"|\"generic\"|\"delegate\"|\"unbond\"|\"redelegate\"> --from <granter>",
 		Short: "Grant authorization to an address",
@@ -63,6 +63,8 @@ Examples:
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -229,7 +231,7 @@ func getExpireTime(cmd *cobra.Command) (*time.Time, error) {
 }
 
 // GetTxAuthzRevokeAuthorizationCmd returns a CLI command handler for creating a MsgRevoke transaction.
-func GetTxAuthzRevokeAuthorizationCmd(ac address.Codec) *cobra.Command {
+func GetTxAuthzRevokeAuthorizationCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "revoke [grantee] [msg-type-url] --from=[granter]",
 		Short: "revoke authorization",
@@ -243,6 +245,8 @@ Example:
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 

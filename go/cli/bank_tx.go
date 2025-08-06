@@ -3,11 +3,8 @@ package cli
 import (
 	"fmt"
 
-	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
-
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -17,7 +14,7 @@ import (
 )
 
 // GetTxBankCmd returns a root CLI command handler for all x/bank transaction commands.
-func GetTxBankCmd(ac address.Codec) *cobra.Command {
+func GetTxBankCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "Bank transaction subcommands",
@@ -27,15 +24,15 @@ func GetTxBankCmd(ac address.Codec) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetTxBankSendTxCmd(ac),
-		GetTxBankMultiSendTxCmd(ac),
+		GetTxBankSendTxCmd(),
+		GetTxBankMultiSendTxCmd(),
 	)
 
 	return cmd
 }
 
 // GetTxBankSendTxCmd returns a CLI command handler for creating a MsgSend transaction.
-func GetTxBankSendTxCmd(ac address.Codec) *cobra.Command {
+func GetTxBankSendTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send [to_address] [amount]",
 		Short: "Send funds from one account to another.",
@@ -45,7 +42,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.
 `,
 		Args: cobra.ExactArgs(3),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if err := cmd.Flags().Set(flags.FlagFrom, args[0]); err != nil {
+			if err := cmd.Flags().Set(cflags.FlagFrom, args[0]); err != nil {
 				return err
 			}
 
@@ -54,6 +51,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -89,7 +87,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.
 
 // GetTxBankMultiSendTxCmd returns a CLI command handler for creating a MsgMultiSend transaction.
 // For a better UX this command is limited to send funds from one account to two or more accounts.
-func GetTxBankMultiSendTxCmd(ac address.Codec) *cobra.Command {
+func GetTxBankMultiSendTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "multi-send [from_key_or_address] [to_address_1 to_address_2 ...] [amount]",
 		Short: "Send funds from one account to two or more accounts.",
@@ -102,7 +100,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.`,
 		Example: fmt.Sprintf("%s tx bank multi-send akash1... akash1... akash1... akash1... 10stake", version.AppName),
 		Args:    cobra.MinimumNArgs(4),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if err := cmd.Flags().Set(flags.FlagFrom, args[0]); err != nil {
+			if err := cmd.Flags().Set(cflags.FlagFrom, args[0]); err != nil {
 				return err
 			}
 
@@ -110,6 +108,8 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.`,
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -147,8 +147,8 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.`,
 			// amount to be send from the from address
 			var amount sdk.Coins
 			if split {
-				// user input: 1000stake to send to 3 addresses
-				// actual: 333stake to each address (=> 999stake actually sent)
+				// user input: 1000uakt to send to 3 addresses
+				// actual: 333stake to each address (=> 999uakt actually sent)
 				amount = sendCoins.MulInt(totalAddrs)
 			} else {
 				amount = coins.MulInt(totalAddrs)

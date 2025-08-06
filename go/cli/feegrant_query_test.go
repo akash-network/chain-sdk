@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"cosmossdk.io/x/feegrant"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"pkg.akt.dev/go/cli"
+	cflags "pkg.akt.dev/go/cli/flags"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
 )
 
@@ -28,7 +28,7 @@ func (s *FeegrantCLITestSuite) TestCmdGetFeeGrant() {
 			[]string{
 				"wrong_granter",
 				grantee.String(),
-				fmt.Sprintf("--%s=json", flags.FlagOutput),
+				fmt.Sprintf("--%s=json", cflags.FlagOutput),
 			},
 			"decoding bech32 failed",
 			true, nil, nil,
@@ -38,7 +38,7 @@ func (s *FeegrantCLITestSuite) TestCmdGetFeeGrant() {
 			[]string{
 				granter.String(),
 				"wrong_grantee",
-				fmt.Sprintf("--%s=json", flags.FlagOutput),
+				fmt.Sprintf("--%s=json", cflags.FlagOutput),
 			},
 			"decoding bech32 failed",
 			true, nil, nil,

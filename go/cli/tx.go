@@ -15,8 +15,10 @@ import (
 type ContextType string
 
 const (
-	ContextTypeClient      = ContextType("context-client")
-	ContextTypeQueryClient = ContextType("context-query-client")
+	ContextTypeClient         = ContextType("context-client")
+	ContextTypeQueryClient    = ContextType("context-query-client")
+	ContextTypeAddressCodec   = ContextType("address-codec")
+	ContextTypeValidatorCodec = ContextType("validator-codec")
 )
 
 func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
@@ -52,19 +54,19 @@ func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 	return nil
 }
 
-func TxCmd(valAc, ac address.Codec) *cobra.Command {
+func TxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tx",
 		Short: "Transactions subcommands",
 	}
 
 	cmd.AddCommand(
-		GetTxAuthzCmd(ac),
-		GetTxBankCmd(ac),
+		GetTxAuthzCmd(),
+		GetTxBankCmd(),
 		GetTxCrisisCmd(),
-		getTxDistributionCmd(valAc, ac),
+		getTxDistributionCmd(),
 		GetTxEvidenceCmd([]*cobra.Command{}),
-		GetTxFeegrantCmd(ac),
+		GetTxFeegrantCmd(),
 		GetSignCommand(),
 		GetSignBatchCommand(),
 		GetAuthMultiSignCmd(),
@@ -72,7 +74,7 @@ func TxCmd(valAc, ac address.Codec) *cobra.Command {
 		GetBroadcastCommand(),
 		GetEncodeCommand(),
 		GetDecodeCommand(),
-		GetTxVestingCmd(ac),
+		GetTxVestingCmd(),
 		cflags.LineBreak,
 		GetTxAuditCmd(),
 		GetTxCertCmd(),
@@ -85,8 +87,8 @@ func TxCmd(valAc, ac address.Codec) *cobra.Command {
 			},
 		),
 		GetTxSlashingCmd(),
-		GetTxStakingCmd(valAc, ac),
-		GetTxUpgradeCmd(ac),
+		GetTxStakingCmd(),
+		GetTxUpgradeCmd(),
 	)
 
 	cmd.PersistentFlags().String(cflags.FlagChainID, "", "The network chain ID")
@@ -115,6 +117,34 @@ func MustQueryClientFromContext(ctx context.Context) v1beta3.LightClient {
 	}
 
 	res, valid := val.(v1beta3.LightClient)
+	if !valid {
+		panic("invalid context value")
+	}
+
+	return res
+}
+
+func MustAddressCodecFromContext(ctx context.Context) address.Codec {
+	val := ctx.Value(ContextTypeAddressCodec)
+	if val == nil {
+		panic("context does not have address codec set")
+	}
+
+	res, valid := val.(address.Codec)
+	if !valid {
+		panic("invalid context value")
+	}
+
+	return res
+}
+
+func MustValidatorCodecFromContext(ctx context.Context) address.Codec {
+	val := ctx.Value(ContextTypeValidatorCodec)
+	if val == nil {
+		panic("context does not have validator codec set")
+	}
+
+	res, valid := val.(address.Codec)
 	if !valid {
 		panic("invalid context value")
 	}

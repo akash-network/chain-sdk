@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"cosmossdk.io/core/address"
 	"github.com/spf13/cobra"
 
 	"cosmossdk.io/x/feegrant"
@@ -17,7 +16,7 @@ import (
 )
 
 // GetTxFeegrantCmd returns the transaction commands for this module
-func GetTxFeegrantCmd(ac address.Codec) *cobra.Command {
+func GetTxFeegrantCmd() *cobra.Command {
 	feegrantTxCmd := &cobra.Command{
 		Use:                        feegrant.ModuleName,
 		Short:                      "Feegrant transactions subcommands",
@@ -28,15 +27,15 @@ func GetTxFeegrantCmd(ac address.Codec) *cobra.Command {
 	}
 
 	feegrantTxCmd.AddCommand(
-		GetTxFeegrantGrantCmd(ac),
-		GetTxFeegrantRevokeCmd(ac),
+		GetTxFeegrantGrantCmd(),
+		GetTxFeegrantRevokeCmd(),
 	)
 
 	return feegrantTxCmd
 }
 
 // GetTxFeegrantGrantCmd returns a CLI command handler for creating a MsgGrantAllowance transaction.
-func GetTxFeegrantGrantCmd(ac address.Codec) *cobra.Command {
+func GetTxFeegrantGrantCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "grant [grantee]",
 		Short: "Grant Fee allowance to an address",
@@ -56,6 +55,8 @@ Examples:
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -175,7 +176,7 @@ Examples:
 }
 
 // GetTxFeegrantRevokeCmd returns a CLI command handler for creating a MsgRevokeAllowance transaction.
-func GetTxFeegrantRevokeCmd(ac address.Codec) *cobra.Command {
+func GetTxFeegrantRevokeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "revoke [grantee]",
 		Short: "revoke fee-grant",
@@ -190,6 +191,8 @@ Example:
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 

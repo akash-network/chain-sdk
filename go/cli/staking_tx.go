@@ -15,7 +15,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -123,7 +122,7 @@ func parseAndValidateValidatorJSON(cdc codec.Codec, path string) (validator, err
 }
 
 // GetTxStakingCmd returns a root CLI command handler for all x/staking transaction commands.
-func GetTxStakingCmd(valAddrCodec, ac address.Codec) *cobra.Command {
+func GetTxStakingCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        stakingtypes.ModuleName,
 		Short:                      "Staking transaction subcommands",
@@ -133,19 +132,19 @@ func GetTxStakingCmd(valAddrCodec, ac address.Codec) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetTxStakingCreateValidatorCmd(valAddrCodec),
-		GetTxStakingEditValidatorCmd(valAddrCodec),
-		GetTxStakingDelegateCmd(valAddrCodec, ac),
-		GetTxStakingRedelegateCmd(valAddrCodec, ac),
-		GetTxStakingUnbondCmd(valAddrCodec, ac),
-		GetTxStakingCancelUnbondingDelegationCmd(valAddrCodec, ac),
+		GetTxStakingCreateValidatorCmd(),
+		GetTxStakingEditValidatorCmd(),
+		GetTxStakingDelegateCmd(),
+		GetTxStakingRedelegateCmd(),
+		GetTxStakingUnbondCmd(),
+		GetTxStakingCancelUnbondingDelegationCmd(),
 	)
 
 	return cmd
 }
 
 // GetTxStakingCreateValidatorCmd returns a CLI command handler for creating a MsgCreateValidator transaction.
-func GetTxStakingCreateValidatorCmd(ac address.Codec) *cobra.Command {
+func GetTxStakingCreateValidatorCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-validator [path/to/validator.json]",
 		Short: "create new validator initialized with a self-delegation to it",
@@ -176,6 +175,9 @@ where we can get the pubkey using "%s tendermint show-validator"
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			vc := MustValidatorCodecFromContext(ctx)
+
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -194,7 +196,7 @@ where we can get the pubkey using "%s tendermint show-validator"
 				validator.Details,
 			)
 
-			valStr, err := ac.BytesToString(sdk.ValAddress(valAddr))
+			valStr, err := vc.BytesToString(valAddr)
 			if err != nil {
 				return err
 			}
@@ -204,7 +206,7 @@ where we can get the pubkey using "%s tendermint show-validator"
 			if err != nil {
 				return err
 			}
-			if err := msg.Validate(ac); err != nil {
+			if err := msg.Validate(vc); err != nil {
 				return err
 			}
 
@@ -230,7 +232,7 @@ where we can get the pubkey using "%s tendermint show-validator"
 		},
 	}
 
-	cmd.Flags().String(cflags.FlagIP, "", fmt.Sprintf("The node's public IP. It takes effect only when used in combination with --%s", flags.FlagGenerateOnly))
+	cmd.Flags().String(cflags.FlagIP, "", fmt.Sprintf("The node's public IP. It takes effect only when used in combination with --%s", cflags.FlagGenerateOnly))
 	cmd.Flags().String(cflags.FlagNodeID, "", "The node's ID")
 	cflags.AddTxFlagsToCmd(cmd)
 
@@ -238,13 +240,16 @@ where we can get the pubkey using "%s tendermint show-validator"
 }
 
 // GetTxStakingEditValidatorCmd returns a CLI command handler for creating a MsgEditValidator transaction.
-func GetTxStakingEditValidatorCmd(ac address.Codec) *cobra.Command {
+func GetTxStakingEditValidatorCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "edit-validator",
 		Short:             "edit an existing validator account",
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
+
+			vc := MustValidatorCodecFromContext(ctx)
+
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -279,7 +284,7 @@ func GetTxStakingEditValidatorCmd(ac address.Codec) *cobra.Command {
 				newMinSelfDelegation = &msb
 			}
 
-			valAddr, err := ac.BytesToString(cctx.GetFromAddress())
+			valAddr, err := vc.BytesToString(cctx.GetFromAddress())
 			if err != nil {
 				return err
 			}
@@ -305,7 +310,7 @@ func GetTxStakingEditValidatorCmd(ac address.Codec) *cobra.Command {
 }
 
 // GetTxStakingDelegateCmd returns a CLI command handler for creating a MsgDelegate transaction.
-func GetTxStakingDelegateCmd(valAddrCodec, ac address.Codec) *cobra.Command {
+func GetTxStakingDelegateCmd() *cobra.Command {
 	bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
@@ -324,6 +329,10 @@ $ %s tx staking delegate %s1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 1000stake --f
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
+			vc := MustValidatorCodecFromContext(ctx)
+
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -337,7 +346,7 @@ $ %s tx staking delegate %s1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 1000stake --f
 				return err
 			}
 
-			_, err = valAddrCodec.StringToBytes(args[0])
+			_, err = vc.StringToBytes(args[0])
 			if err != nil {
 				return err
 			}
@@ -359,7 +368,7 @@ $ %s tx staking delegate %s1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 1000stake --f
 }
 
 // GetTxStakingRedelegateCmd returns a CLI command handler for creating a MsgBeginRedelegate transaction.
-func GetTxStakingRedelegateCmd(valAddrCodec, ac address.Codec) *cobra.Command {
+func GetTxStakingRedelegateCmd() *cobra.Command {
 	bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
@@ -378,6 +387,9 @@ $ %s tx staking redelegate %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj %s1l2rsakp3
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
+			vc := MustValidatorCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -386,12 +398,12 @@ $ %s tx staking redelegate %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj %s1l2rsakp3
 				return err
 			}
 
-			_, err = valAddrCodec.StringToBytes(args[0])
+			_, err = vc.StringToBytes(args[0])
 			if err != nil {
 				return err
 			}
 
-			_, err = valAddrCodec.StringToBytes(args[1])
+			_, err = vc.StringToBytes(args[1])
 			if err != nil {
 				return err
 			}
@@ -418,7 +430,7 @@ $ %s tx staking redelegate %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj %s1l2rsakp3
 }
 
 // GetTxStakingUnbondCmd returns a CLI command handler for creating a MsgUndelegate transaction.
-func GetTxStakingUnbondCmd(valAddrCodec, ac address.Codec) *cobra.Command {
+func GetTxStakingUnbondCmd() *cobra.Command {
 	bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
@@ -437,6 +449,8 @@ $ %s tx staking unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100uakt --from 
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+			ac := MustAddressCodecFromContext(ctx)
+			vc := MustValidatorCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -444,7 +458,7 @@ $ %s tx staking unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100uakt --from 
 			if err != nil {
 				return err
 			}
-			_, err = valAddrCodec.StringToBytes(args[0])
+			_, err = vc.StringToBytes(args[0])
 			if err != nil {
 				return err
 			}
@@ -471,7 +485,7 @@ $ %s tx staking unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100uakt --from 
 }
 
 // GetTxStakingCancelUnbondingDelegationCmd returns a CLI command handler for creating a MsgCancelUnbondingDelegation transaction.
-func GetTxStakingCancelUnbondingDelegationCmd(valAddrCodec, ac address.Codec) *cobra.Command {
+func GetTxStakingCancelUnbondingDelegationCmd() *cobra.Command {
 	bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
@@ -492,6 +506,9 @@ $ %s tx staking cancel-unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100uakt 
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
+			vc := MustValidatorCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -500,7 +517,7 @@ $ %s tx staking cancel-unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100uakt 
 				return err
 			}
 
-			_, err = valAddrCodec.StringToBytes(args[0])
+			_, err = vc.StringToBytes(args[0])
 			if err != nil {
 				return err
 			}

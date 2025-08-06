@@ -14,14 +14,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
 	"pkg.akt.dev/go/cli"
+	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
 )
 
 func TestGetCurrentPlanCmd(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(upgrade.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(upgrade.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).
@@ -69,7 +69,7 @@ func TestGetCurrentPlanCmd(t *testing.T) {
 }
 
 func TestGetAppliedPlanCmd(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(upgrade.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(upgrade.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).
@@ -117,7 +117,7 @@ func TestGetAppliedPlanCmd(t *testing.T) {
 }
 
 func TestGetModuleVersionsCmd(t *testing.T) {
-	encCfg := testutilmod.MakeTestEncodingConfig(upgrade.AppModuleBasic{})
+	encCfg := sdkutil.MakeEncodingConfig(upgrade.AppModuleBasic{})
 	kr := keyring.NewInMemory(encCfg.Codec)
 	baseCtx := client.Context{}.
 		WithKeyring(kr).

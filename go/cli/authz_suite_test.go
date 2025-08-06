@@ -10,10 +10,8 @@ import (
 	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
 	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 
-	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
@@ -44,8 +42,6 @@ type AuthzCLITestSuite struct {
 
 	grantee []sdk.AccAddress
 	addrs   []sdk.AccAddress
-
-	ac address.Codec
 }
 
 func (s *AuthzCLITestSuite) SetupSuite() {
@@ -60,7 +56,8 @@ func (s *AuthzCLITestSuite) SetupSuite() {
 		WithOutput(io.Discard).
 		WithChainID("test-chain")
 
-	s.ac = addresscodec.NewBech32Codec("akash")
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
+	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
 
 	ctxGen := func() client.Context {
 		bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
@@ -95,9 +92,8 @@ func (s *AuthzCLITestSuite) SetupSuite() {
 
 	// grant send authorization to grantee2
 	out, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().With(
 			s.grantee[1].String(),
 			"send").
@@ -118,9 +114,8 @@ func (s *AuthzCLITestSuite) SetupSuite() {
 
 	// grant send authorization to grantee3
 	_, err = clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().With(
 			s.grantee[2].String(),
 			"send").
@@ -142,9 +137,8 @@ func (s *AuthzCLITestSuite) SetupSuite() {
 
 	// grant send authorization with allow list to grantee4
 	out, err = clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				s.grantee[2].String(),
@@ -177,7 +171,7 @@ func (s *AuthzCLITestSuite) msgSendExec(grantee sdk.AccAddress) {
 	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
 	// Send some funds to the new account.
 	out, err := clitestutil.ExecSend(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(
@@ -478,7 +472,7 @@ func (s *AuthzCLITestSuite) TestCLITxGrantAuthorization() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			out, err := clitestutil.ExecCreateGrant(context.Background(), s.cctx, s.ac, tc.args...)
+			out, err := clitestutil.ExecCreateGrant(s.ctx, s.cctx, tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err, out)
 				s.Require().Contains(err.Error(), tc.expErrMsg)
@@ -499,9 +493,8 @@ func (s *AuthzCLITestSuite) TestCmdRevokeAuthorizations() {
 
 	// send-authorization
 	_, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				grantee.String(),
@@ -518,9 +511,8 @@ func (s *AuthzCLITestSuite) TestCmdRevokeAuthorizations() {
 
 	// generic-authorization
 	_, err = clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				grantee.String(),
@@ -538,9 +530,8 @@ func (s *AuthzCLITestSuite) TestCmdRevokeAuthorizations() {
 
 	// generic-authorization used for amino testing
 	_, err = clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				grantee.String(),
@@ -632,7 +623,7 @@ func (s *AuthzCLITestSuite) TestCmdRevokeAuthorizations() {
 	}
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			out, err := clitestutil.ExecRevokeAuthz(context.Background(), s.cctx, s.ac, tc.args...)
+			out, err := clitestutil.ExecRevokeAuthz(s.ctx, s.cctx, tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
@@ -650,9 +641,8 @@ func (s *AuthzCLITestSuite) TestExecAuthorizationWithExpiration() {
 	tenSeconds := time.Now().Add(time.Second * time.Duration(10)).Unix()
 
 	_, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				grantee.String(),
@@ -675,7 +665,7 @@ func (s *AuthzCLITestSuite) TestExecAuthorizationWithExpiration() {
 	time.Sleep(12 * time.Second)
 
 	out, err := clitestutil.ExecAuthorization(
-		context.Background(),
+		s.ctx,
 		s.cctx,
 		cli.TestFlags().
 			With(execMsg.Name()).
@@ -695,9 +685,8 @@ func (s *AuthzCLITestSuite) TestNewExecGenericAuthorized() {
 	twoHours := time.Now().Add(time.Minute * time.Duration(120)).Unix()
 
 	_, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				grantee.String(),
@@ -787,9 +776,8 @@ func (s *AuthzCLITestSuite) TestNewExecGrantAuthorized() {
 	twoHours := time.Now().Add(time.Minute * time.Duration(120)).Unix()
 
 	_, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				grantee.String(),
@@ -807,10 +795,9 @@ func (s *AuthzCLITestSuite) TestNewExecGrantAuthorized() {
 	tokens := sdk.NewCoins(
 		sdk.NewCoin("testtoken", sdkmath.NewInt(12)),
 	)
-	normalGeneratedTx, err := clitestutil.MsgSendExec(
-		context.Background(),
+	normalGeneratedTx, err := clitestutil.ExecSend(
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				val[0].Address.String(),
@@ -861,7 +848,7 @@ func (s *AuthzCLITestSuite) TestNewExecGrantAuthorized() {
 			cctx := s.cctx
 
 			var response sdk.TxResponse
-			out, err := clitestutil.ExecAuthorization(context.Background(), cctx, tc.args...)
+			out, err := clitestutil.ExecAuthorization(s.ctx, cctx, tc.args...)
 			switch {
 			case tc.expectErrMsg != "":
 				s.Require().NoError(cctx.Codec.UnmarshalJSON(out.Bytes(), &response), out.String())
@@ -887,9 +874,8 @@ func (s *AuthzCLITestSuite) TestExecSendAuthzWithAllowList() {
 	twoHours := time.Now().Add(time.Minute * time.Duration(120)).Unix()
 
 	_, err := clitestutil.ExecCreateGrant(
-		context.Background(),
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				grantee.String(),
@@ -909,10 +895,9 @@ func (s *AuthzCLITestSuite) TestExecSendAuthzWithAllowList() {
 		sdk.NewCoin("uakt", sdkmath.NewInt(12)),
 	)
 
-	validGeneratedTx, err := clitestutil.MsgSendExec(
-		context.Background(),
+	validGeneratedTx, err := clitestutil.ExecSend(
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				val[0].Address.String(),
@@ -927,10 +912,9 @@ func (s *AuthzCLITestSuite) TestExecSendAuthzWithAllowList() {
 	execMsg := sdktestutil.WriteToNewTempFile(s.T(), validGeneratedTx.String())
 	defer execMsg.Close()
 
-	invalidGeneratedTx, err := clitestutil.MsgSendExec(
-		context.Background(),
+	invalidGeneratedTx, err := clitestutil.ExecSend(
+		s.ctx,
 		s.cctx,
-		s.ac,
 		cli.TestFlags().
 			With(
 				val[0].Address.String(),
@@ -955,7 +939,7 @@ func (s *AuthzCLITestSuite) TestExecSendAuthzWithAllowList() {
 		WithSkipConfirm()
 
 	var response sdk.TxResponse
-	out, err := clitestutil.ExecAuthorization(context.Background(), s.cctx, args...)
+	out, err := clitestutil.ExecAuthorization(s.ctx, s.cctx, args...)
 	s.Require().NoError(err)
 	s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &response), out.String())
 
@@ -967,7 +951,7 @@ func (s *AuthzCLITestSuite) TestExecSendAuthzWithAllowList() {
 		WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))).
 		WithSkipConfirm()
 
-	out, err = clitestutil.ExecAuthorization(context.Background(), s.cctx, args...)
+	out, err = clitestutil.ExecAuthorization(s.ctx, s.cctx, args...)
 	s.Require().NoError(err)
 	s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &response), out.String())
 }

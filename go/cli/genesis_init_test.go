@@ -9,14 +9,13 @@ import (
 	"testing"
 	"time"
 
-	abci_server "github.com/cometbft/cometbft/abci/server"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/log"
+	abci_server "github.com/cometbft/cometbft/abci/server"
 
+	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -32,6 +31,8 @@ import (
 	genutiltest "github.com/cosmos/cosmos-sdk/x/genutil/client/testutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+
+	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 var testMbm = module.NewBasicManager(
@@ -145,7 +146,7 @@ func TestInitDefaultBondDenom(t *testing.T) {
 
 	cmd.SetArgs([]string{
 		"appnode-test",
-		fmt.Sprintf("--%s=%s", flags.FlagHome, home),
+		fmt.Sprintf("--%s=%s", cflags.FlagHome, home),
 		fmt.Sprintf("--%s=uakt", genutilcli.FlagDefaultBondDenom),
 	})
 	require.NoError(t, cmd.ExecuteContext(ctx))
@@ -170,7 +171,7 @@ func TestEmptyState(t *testing.T) {
 	ctx = context.WithValue(ctx, server.ServerContextKey, serverCtx)
 
 	cmd := genutilcli.InitCmd(testMbm, home)
-	cmd.SetArgs([]string{"appnode-test", fmt.Sprintf("--%s=%s", flags.FlagHome, home)})
+	cmd.SetArgs([]string{"appnode-test", fmt.Sprintf("--%s=%s", cflags.FlagHome, home)})
 
 	require.NoError(t, cmd.ExecuteContext(ctx))
 
@@ -179,7 +180,7 @@ func TestEmptyState(t *testing.T) {
 	os.Stdout = w
 
 	cmd = server.ExportCmd(nil, home)
-	cmd.SetArgs([]string{fmt.Sprintf("--%s=%s", flags.FlagHome, home)})
+	cmd.SetArgs([]string{fmt.Sprintf("--%s=%s", cflags.FlagHome, home)})
 	require.NoError(t, cmd.ExecuteContext(ctx))
 
 	outC := make(chan string)
@@ -312,7 +313,7 @@ func TestInitWithHeight(t *testing.T) {
 	testInitialHeight := int64(333)
 
 	cmd := genutilcli.InitCmd(testMbm, home)
-	cmd.SetArgs([]string{"init-height-test", fmt.Sprintf("--%s=%d", flags.FlagInitHeight, testInitialHeight)})
+	cmd.SetArgs([]string{"init-height-test", fmt.Sprintf("--%s=%d", cflags.FlagInitHeight, testInitialHeight)})
 
 	require.NoError(t, cmd.ExecuteContext(ctx))
 
@@ -344,7 +345,7 @@ func TestInitWithNegativeHeight(t *testing.T) {
 	testInitialHeight := int64(-333)
 
 	cmd := genutilcli.InitCmd(testMbm, home)
-	cmd.SetArgs([]string{"init-height-test", fmt.Sprintf("--%s=%d", flags.FlagInitHeight, testInitialHeight)})
+	cmd.SetArgs([]string{"init-height-test", fmt.Sprintf("--%s=%d", cflags.FlagInitHeight, testInitialHeight)})
 
 	require.NoError(t, cmd.ExecuteContext(ctx))
 

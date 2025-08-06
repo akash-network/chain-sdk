@@ -10,24 +10,12 @@ import (
 )
 
 // TxCreateProviderExec is used for testing create provider tx
-func TxCreateProviderExec(ctx context.Context, cctx client.Context, filepath string, extraArgs ...string) (sdktest.BufferWriter, error) {
-	args := []string{
-		filepath,
-	}
-
-	args = append(args, extraArgs...)
-
+func TxCreateProviderExec(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxProviderCreateCmd(), args...)
 }
 
 // TxUpdateProviderExec is used for testing update provider tx
-func TxUpdateProviderExec(ctx context.Context, cctx client.Context, filepath string, extraArgs ...string) (sdktest.BufferWriter, error) {
-	args := []string{
-		filepath,
-	}
-
-	args = append(args, extraArgs...)
-
+func TxUpdateProviderExec(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxProviderUpdateCmd(), args...)
 }
 

@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 
-	"cosmossdk.io/core/address"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -18,7 +17,7 @@ import (
 )
 
 // GetTxVestingCmd returns vesting module's transaction commands.
-func GetTxVestingCmd(ac address.Codec) *cobra.Command {
+func GetTxVestingCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "Vesting transaction subcommands",
@@ -28,9 +27,9 @@ func GetTxVestingCmd(ac address.Codec) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetTxVestingCreateAccountCmd(ac),
-		GetTxVestingCreatePermanentLockedAccountCmd(ac),
-		GetTxVestingCreatePeriodicAccountCmd(ac),
+		GetTxVestingCreateAccountCmd(),
+		GetTxVestingCreatePermanentLockedAccountCmd(),
+		GetTxVestingCreatePeriodicAccountCmd(),
 	)
 
 	return cmd
@@ -38,7 +37,7 @@ func GetTxVestingCmd(ac address.Codec) *cobra.Command {
 
 // GetTxVestingCreateAccountCmd returns a CLI command handler for creating a
 // MsgCreateVestingAccount transaction.
-func GetTxVestingCreateAccountCmd(ac address.Codec) *cobra.Command {
+func GetTxVestingCreateAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-vesting-account [to_address] [amount] [end_time]",
 		Short: "Create a new vesting account funded with an allocation of tokens.",
@@ -50,6 +49,8 @@ timestamp.`,
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -93,7 +94,7 @@ timestamp.`,
 
 // GetTxVestingCreatePermanentLockedAccountCmd returns a CLI command handler for creating a
 // MsgCreatePermanentLockedAccount transaction.
-func GetTxVestingCreatePermanentLockedAccountCmd(ac address.Codec) *cobra.Command {
+func GetTxVestingCreatePermanentLockedAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-permanent-locked-account [to_address] [amount]",
 		Short: "Create a new permanently locked account funded with an allocation of tokens.",
@@ -103,6 +104,8 @@ tokens.`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
@@ -148,7 +151,7 @@ type InputPeriod struct {
 
 // GetTxVestingCreatePeriodicAccountCmd returns a CLI command handler for creating a
 // MsgCreatePeriodicVestingAccountCmd transaction.
-func GetTxVestingCreatePeriodicAccountCmd(ac address.Codec) *cobra.Command {
+func GetTxVestingCreatePeriodicAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-periodic-vesting-account [to_address] [periods_json_file]",
 		Short: "Create a new vesting account funded with an allocation of tokens.",
@@ -172,6 +175,8 @@ func GetTxVestingCreatePeriodicAccountCmd(ac address.Codec) *cobra.Command {
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			ac := MustAddressCodecFromContext(ctx)
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 

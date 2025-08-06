@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -14,6 +15,7 @@ import (
 type CLITestSuite struct {
 	suite.Suite
 
+	ctx     context.Context
 	kr      keyring.Keyring
 	encCfg  sdkutil.EncodingConfig
 	baseCtx client.Context

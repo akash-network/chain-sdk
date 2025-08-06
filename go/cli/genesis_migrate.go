@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -51,8 +50,8 @@ func MigrateGenesisCmd(migrations types.MigrationMap) *cobra.Command {
 	}
 
 	cmd.Flags().String(cflags.FlagGenesisTime, "", "Override genesis_time with this flag")
-	cmd.Flags().String(flags.FlagChainID, "", "Override chain_id with this flag")
-	cmd.Flags().String(flags.FlagOutputDocument, "", "Exported state is written to the given file instead of STDOUT")
+	cmd.Flags().String(cflags.FlagChainID, "", "Override chain_id with this flag")
+	cmd.Flags().String(cflags.FlagOutputDocument, "", "Exported state is written to the given file instead of STDOUT")
 
 	return cmd
 }

@@ -1,8 +1,6 @@
 package cli_test
 
 import (
-	"context"
-
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/gogoproto/proto"
 
@@ -37,7 +35,7 @@ func (s *SlashingCLITestSuite) TestNewUnjailTxCmd() {
 			cmd := cli.GetTxSlashingUnjailCmd()
 			cctx := s.cctx
 
-			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cmd, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, cctx, cmd, tc.args...)
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {

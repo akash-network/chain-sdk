@@ -8,13 +8,11 @@ import (
 
 	"cosmossdk.io/x/upgrade/types"
 
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
-
 	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 func TestParsePlan(t *testing.T) {
-	fs := NewCmdSubmitUpgradeProposal(addresscodec.NewBech32Codec("akash")).Flags()
+	fs := NewCmdSubmitUpgradeProposal().Flags()
 
 	proposal := types.MsgSoftwareUpgrade{
 		Plan: types.Plan{

@@ -53,6 +53,8 @@ func (s *SlashingCLITestSuite) SetupSuite() {
 		return s.baseCtx.WithClient(c)
 	}
 	s.cctx = ctxGen().WithOutput(&outBuf)
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
+	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
 
 	k, _, err := s.cctx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
 	s.Require().NoError(err)
