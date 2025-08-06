@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	clientmocks "pkg.akt.dev/go/mocks/node/client"
+	certsmocks "pkg.akt.dev/go/mocks/node/client/cert"
 	types "pkg.akt.dev/go/node/cert/v1"
 	certutils "pkg.akt.dev/go/node/cert/v1/utils"
 )
@@ -39,7 +39,7 @@ type certificateOption struct {
 	domains []string
 	nbf     time.Time
 	naf     time.Time
-	qclient *clientmocks.QueryClient
+	qclient *certsmocks.QueryClient
 	ccache  CertCache
 }
 
@@ -67,7 +67,7 @@ func CertificateOptionNotAfter(tm time.Time) CertificateOption {
 	}
 }
 
-func CertificateOptionMocks(val *clientmocks.QueryClient) CertificateOption {
+func CertificateOptionMocks(val *certsmocks.QueryClient) CertificateOption {
 	return func(opt *certificateOption) {
 		opt.qclient = val
 	}
