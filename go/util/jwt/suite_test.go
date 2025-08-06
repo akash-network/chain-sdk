@@ -12,10 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
-
 	jwttests "pkg.akt.dev/testdata/jwt"
 
+	"pkg.akt.dev/go/sdkutil"
 	_ "pkg.akt.dev/go/sdkutil"
 )
 
@@ -36,7 +35,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		s.T().Fatalf("could not read test data file: %v", err)
 	}
 
-	encCfg := testutilmod.MakeTestEncodingConfig()
+	encCfg := sdkutil.MakeEncodingConfig()
 	s.kr = keyring.NewInMemory(encCfg.Codec)
 
 	cfg, err := sdk.GetSealedConfig(context.Background())
