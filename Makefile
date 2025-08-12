@@ -29,9 +29,7 @@ else
 endif
 
 ifneq ($(GOWORK),off)
-	ifeq ($(shell test -e ${AKASH_ROOT}/go/go.work && echo -n yes),yes)
-		GOWORK=${AKASH_ROOT}/go/go.work
-	else
+	ifneq ($(shell test -e "$(GOWORK)" && echo yes),yes)
 		GOWORK=off
 	endif
 endif
