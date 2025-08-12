@@ -35,7 +35,7 @@ require (
 	google.golang.org/grpc v1.72.2
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
-	pkg.akt.dev/go v0.0.3-rc7
+	pkg.akt.dev/go v0.0.3-rc9
 	pkg.akt.dev/go/sdl v0.0.2-rc1
 )
 
