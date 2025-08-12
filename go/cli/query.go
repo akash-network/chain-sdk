@@ -13,19 +13,21 @@ import (
 func QueryPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 	ctx := cmd.Context()
 
-	cctx, err := GetClientTxContext(cmd)
+	cctx, err := GetClientQueryContext(cmd)
 	if err != nil {
 		return err
 	}
 
-	cl, err := aclient.DiscoverLightClient(ctx, cctx)
-	if err != nil {
-		return err
+	if _, err = LightClientFromContext(ctx); err != nil {
+		cl, err := aclient.DiscoverLightClient(ctx, cctx)
+		if err != nil {
+			return err
+		}
+
+		ctx = context.WithValue(ctx, ContextTypeQueryClient, cl)
+
+		cmd.SetContext(ctx)
 	}
-
-	ctx = context.WithValue(ctx, ContextTypeQueryClient, cl)
-
-	cmd.SetContext(ctx)
 
 	return nil
 }

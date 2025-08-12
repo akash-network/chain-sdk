@@ -19,9 +19,6 @@ import (
 	arpcclient "pkg.akt.dev/go/node/client"
 )
 
-const ClientContextKey = sdk.ContextKey("client.context")
-const ServerContextKey = sdk.ContextKey("server.context")
-
 // SetCmdClientContextHandler is to be used in a command pre-hook execution to
 // read flags that populate a Context and sets that to the command's Context.
 func SetCmdClientContextHandler(cctx sdkclient.Context, cmd *cobra.Command) (err error) {
@@ -150,7 +147,6 @@ func ReadPersistentCommandFlags(cctx sdkclient.Context, flagSet *pflag.FlagSet) 
 
 	if cctx.Keyring == nil || flagSet.Changed(cflags.FlagKeyringBackend) {
 		keyringBackend, _ := flagSet.GetString(cflags.FlagKeyringBackend)
-
 		if keyringBackend != "" {
 			kr, err := sdkclient.NewKeyringFromBackend(cctx, keyringBackend)
 			if err != nil {
@@ -161,9 +157,8 @@ func ReadPersistentCommandFlags(cctx sdkclient.Context, flagSet *pflag.FlagSet) 
 		}
 	}
 
-	if cctx.Client == nil || flagSet.Changed(cflags.FlagNode) {
-		rpcURI, _ := flagSet.GetString(cflags.FlagNode)
-		if rpcURI != "" {
+	if cctx.Client == nil {
+		if rpcURI, _ := flagSet.GetString(cflags.FlagNode); rpcURI != "" {
 			cctx = cctx.WithNodeURI(rpcURI)
 
 			client, err := arpcclient.NewClient(cctx.CmdContext, rpcURI)
@@ -176,8 +171,7 @@ func ReadPersistentCommandFlags(cctx sdkclient.Context, flagSet *pflag.FlagSet) 
 	}
 
 	if cctx.GRPCClient == nil || flagSet.Changed(cflags.FlagGRPC) {
-		grpcURI, _ := flagSet.GetString(cflags.FlagGRPC)
-		if grpcURI != "" {
+		if grpcURI, _ := flagSet.GetString(cflags.FlagGRPC); grpcURI != "" {
 			var dialOpts []grpc.DialOption
 
 			useInsecure, _ := flagSet.GetBool(cflags.FlagGRPCInsecure)
