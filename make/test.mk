@@ -38,7 +38,7 @@ test-coverage-ts: $(AKASH_TS_NODE_MODULES) proto-gen-ts
 
 .PHONY: test-go
 test-go: export GO111MODULE := $(GO111MODULE)
-test-coverage-go: export GOWORK := $(GOWORK)
+test-go: export GOWORK := $(GOWORK)
 test-go:
 	@$(TOOLS) gotest "$(GO_MODULES)" "$(test_go_flags)" "$(GO_TEST_DIRS)"
 
