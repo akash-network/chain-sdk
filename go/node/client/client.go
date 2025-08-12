@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	cmtrpc "github.com/cometbft/cometbft/rpc/core"
 	cmjclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
@@ -39,10 +40,10 @@ func queryClientInfo(ctx context.Context, cctx sdkclient.Context) (*Akash, error
 	if !cctx.Offline {
 		if cctx.Client != nil {
 			switch rpc := cctx.Client.(type) {
-			case *rpcClient:
+			case RPCClient:
 				result = rpc.Akash(ctx)
 			default:
-				return nil, errors.New("unsupported RPC client")
+				return nil, fmt.Errorf("unsupported RPC client [%T]", rpc)
 			}
 		} else {
 			rpc, err := cmjclient.New(cctx.NodeURI)
