@@ -46,7 +46,7 @@ $ <appd> query slashing signing-info '{"@type":"/cosmos.crypto.ed25519.PubKey","
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			cctx := cl.ClientContext()
 
@@ -84,7 +84,7 @@ $ <appd> query slashing signing-infos
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			pageReq, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
@@ -120,7 +120,7 @@ $ <appd> query slashing params
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			params := &types.QueryParamsRequest{}
 			res, err := cl.Query().Slashing().Params(cmd.Context(), params)

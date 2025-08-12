@@ -34,7 +34,7 @@ $ %s query %s --page=2 --limit=50
 		PersistentPreRunE:          QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			if len(args) > 0 {
 				params := &types.QueryEvidenceRequest{Hash: args[0]}

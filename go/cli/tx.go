@@ -3,10 +3,13 @@ package cli
 import (
 	"context"
 	"errors"
+	"fmt"
+	"reflect"
 
 	"cosmossdk.io/core/address"
 	"github.com/spf13/cobra"
 
+	aclient "pkg.akt.dev/go/node/client/discovery"
 	"pkg.akt.dev/go/node/client/v1beta3"
 
 	cflags "pkg.akt.dev/go/cli/flags"
@@ -42,7 +45,7 @@ func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	cl, err := DiscoverClient(ctx, cctx, opts...)
+	cl, err := aclient.DiscoverClient(ctx, cctx, opts...)
 	if err != nil {
 		return err
 	}
@@ -110,18 +113,20 @@ func MustClientFromContext(ctx context.Context) v1beta3.Client {
 	return res
 }
 
-func MustQueryClientFromContext(ctx context.Context) v1beta3.LightClient {
+func MustLightClientFromContext(ctx context.Context) v1beta3.LightClient {
 	val := ctx.Value(ContextTypeQueryClient)
 	if val == nil {
 		panic("context does not have client set")
 	}
 
-	res, valid := val.(v1beta3.LightClient)
-	if !valid {
-		panic("invalid context value")
+	switch cl := val.(type) {
+	case v1beta3.LightClient:
+		return cl
+	case v1beta3.Client:
+		return cl
+	default:
+		panic(fmt.Sprintf("invalid context value. actual %s", reflect.TypeOf(val).String()))
 	}
-
-	return res
 }
 
 func MustAddressCodecFromContext(ctx context.Context) address.Codec {

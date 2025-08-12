@@ -36,7 +36,7 @@ func GetQueryUpgradeCurrentPlanCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			params := types.QueryCurrentPlanRequest{}
 			res, err := cl.Query().Upgrade().CurrentPlan(cmd.Context(), &params)
@@ -68,7 +68,7 @@ func GetQueryUpgradeAppliedPlanCmd() *cobra.Command {
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
 			params := types.QueryAppliedPlanRequest{Name: args[0]}
@@ -119,7 +119,7 @@ func GetQueryUpgradeModuleVersionsCmd() *cobra.Command {
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			var params types.QueryModuleVersionsRequest
 

@@ -50,7 +50,7 @@ $ %s query feegrant grant [granter] [grantee]
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			granterAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
@@ -98,7 +98,7 @@ $ %s query feegrant grants-by-grantee [grantee]
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			granteeAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
@@ -147,7 +147,7 @@ $ %s query feegrant grants-by-granter [granter]
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			granterAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {

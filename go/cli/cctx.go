@@ -166,7 +166,7 @@ func ReadPersistentCommandFlags(cctx sdkclient.Context, flagSet *pflag.FlagSet) 
 		if rpcURI != "" {
 			cctx = cctx.WithNodeURI(rpcURI)
 
-			client, err := arpcclient.NewClient(rpcURI)
+			client, err := arpcclient.NewClient(cctx.CmdContext, rpcURI)
 			if err != nil {
 				return cctx, err
 			}

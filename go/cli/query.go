@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cflags "pkg.akt.dev/go/cli/flags"
+	aclient "pkg.akt.dev/go/node/client/discovery"
 )
 
 func QueryPersistentPreRunE(cmd *cobra.Command, _ []string) error {
@@ -17,7 +18,7 @@ func QueryPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	cl, err := DiscoverQueryClient(ctx, cctx)
+	cl, err := aclient.DiscoverLightClient(ctx, cctx)
 	if err != nil {
 		return err
 	}

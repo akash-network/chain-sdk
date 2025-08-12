@@ -14,8 +14,8 @@ import (
 	"pkg.akt.dev/go/cli"
 )
 
-func execSetContext(ctx context.Context, cctx client.Context, cmd *cobra.Command, extraArgs ...string) (testutil.BufferWriter, error) {
-	cmd.SetArgs(extraArgs)
+func execSetContext(ctx context.Context, cctx client.Context, cmd *cobra.Command, args ...string) (testutil.BufferWriter, error) {
+	cmd.SetArgs(args)
 
 	_, out := testutil.ApplyMockIO(cmd)
 	cctx = cctx.WithOutput(out)
@@ -33,10 +33,10 @@ func execSetContext(ctx context.Context, cctx client.Context, cmd *cobra.Command
 }
 
 // ExecTestCLICmd builds the client context, mocks the output and executes the command.
-func ExecTestCLICmd(ctx context.Context, cctx client.Context, cmd *cobra.Command, extraArgs ...string) (testutil.BufferWriter, error) {
+func ExecTestCLICmd(ctx context.Context, cctx client.Context, cmd *cobra.Command, args ...string) (testutil.BufferWriter, error) {
 	{
 		dupFlags := make(map[string]bool)
-		for _, arg := range extraArgs {
+		for _, arg := range args {
 			if !strings.HasPrefix(arg, "--") {
 				continue
 			}
@@ -52,7 +52,7 @@ func ExecTestCLICmd(ctx context.Context, cctx client.Context, cmd *cobra.Command
 		}
 	}
 
-	out, err := execSetContext(ctx, cctx, cmd, extraArgs...)
+	out, err := execSetContext(ctx, cctx, cmd, args...)
 	if err != nil {
 		return nil, err
 	}
