@@ -65,26 +65,35 @@ func (sdl *v2) buildGroups() error {
 			resources := compute.Resources.toResources()
 			resources.Endpoints = expose.GetEndpoints()
 
-			res := compute.Resources.toResources()
-			res.Endpoints = expose.GetEndpoints()
+			if location, bound := group.boundComputes[placementName][svcdepl.Profile]; !bound {
+				res := compute.Resources.toResources()
+				res.Endpoints = expose.GetEndpoints()
 
-			var resID uint32
-			if ln := uint32(len(group.dgroup.Resources)); ln > 0 { // nolint: gosec
-				resID = ln + 1
+				var resID uint32
+				if ln := uint32(len(group.dgroup.Resources)); ln > 0 { // nolint: gosec
+					resID = ln + 1
+				} else {
+					resID = 1
+				}
+
+				res.ID = resID
+				resources.ID = res.ID
+
+				group.dgroup.Resources = append(group.dgroup.Resources, dtypes.ResourceUnit{
+					Resources: res,
+					Price:     price.Value,
+					Count:     svcdepl.Count,
+				})
+
+				group.boundComputes[placementName][svcdepl.Profile] = len(group.dgroup.Resources) - 1
 			} else {
-				resID = 1
+				resources.ID = group.dgroup.Resources[location].ID
+
+				group.dgroup.Resources[location].Count += svcdepl.Count
+				group.dgroup.Resources[location].Endpoints = append(group.dgroup.Resources[location].Endpoints, expose.GetEndpoints()...)
+
+				sort.Sort(group.dgroup.Resources[location].Endpoints)
 			}
-
-			res.ID = resID
-			resources.ID = res.ID
-
-			group.dgroup.Resources = append(group.dgroup.Resources, dtypes.ResourceUnit{
-				Resources: res,
-				Price:     price.Value,
-				Count:     svcdepl.Count,
-			})
-
-			group.boundComputes[placementName][svcdepl.Profile] = len(group.dgroup.Resources) - 1
 
 			msvc := manifest.Service{
 				Name:      svcName,
