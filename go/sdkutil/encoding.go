@@ -26,6 +26,16 @@ func MakeEncodingConfig(modules ...module.AppModuleBasic) EncodingConfig {
 	co := NewCodecOptions()
 
 	interfaceRegistry := co.NewInterfaceRegistry()
+
+	std.RegisterLegacyAminoCodec(aminoCodec)
+	std.RegisterInterfaces(interfaceRegistry)
+
+	if len(modules) > 0 {
+		mb := module.NewBasicManager(modules...)
+		mb.RegisterLegacyAminoCodec(aminoCodec)
+		mb.RegisterInterfaces(interfaceRegistry)
+	}
+
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 
 	signingCtx, err := signing.NewContext(co.Options)
@@ -49,13 +59,6 @@ func MakeEncodingConfig(modules ...module.AppModuleBasic) EncodingConfig {
 		Amino:             aminoCodec,
 		SigningOptions:    co.Options,
 	}
-
-	mb := module.NewBasicManager(modules...)
-
-	std.RegisterLegacyAminoCodec(encCfg.Amino)
-	std.RegisterInterfaces(encCfg.InterfaceRegistry)
-	mb.RegisterLegacyAminoCodec(encCfg.Amino)
-	mb.RegisterInterfaces(encCfg.InterfaceRegistry)
 
 	return encCfg
 }
