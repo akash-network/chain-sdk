@@ -45,7 +45,7 @@ func GetQueryEscrowBlocksRemainingCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			id, err := cflags.DeploymentIDFromFlags(cmd.Flags())
 			if err != nil {

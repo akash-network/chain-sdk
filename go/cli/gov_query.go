@@ -71,7 +71,7 @@ $ %s query gov proposal 1
 				return fmt.Errorf("proposal-id %s not a valid uint, please input a valid proposal-id", args[0])
 			}
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			res, err := cl.Query().Gov().Proposal(ctx, &v1.QueryProposalRequest{ProposalId: proposalID})
 			if err != nil {
@@ -109,7 +109,7 @@ $ %s query gov proposals --page=2 --limit=100
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			bechDepositorAddr, _ := cmd.Flags().GetString(flagDepositor)
 			bechVoterAddr, _ := cmd.Flags().GetString(flagVoter)
@@ -198,7 +198,7 @@ $ %s query gov vote 1 akash1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
 				return fmt.Errorf("proposal-id %s not a valid int, please input a valid proposal-id", args[0])
 			}
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			// check to see if the proposal is in the store
 			_, err = cl.Query().Gov().Proposal(
@@ -263,7 +263,7 @@ $ %[1]s query gov votes 1 --page=2 --limit=100
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			cctx := cl.ClientContext()
 
@@ -343,7 +343,7 @@ $ %s query gov deposit 1 akash1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			// validate that the proposal id is a uint
 			proposalID, err := strconv.ParseUint(args[0], 10, 64)
@@ -396,7 +396,7 @@ $ %s query gov deposits 1
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			// validate that the proposal id is a uint
 			proposalID, err := strconv.ParseUint(args[0], 10, 64)
@@ -455,7 +455,7 @@ $ %s query gov tally 1
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			// validate that the proposal id is a uint
 			proposalID, err := strconv.ParseUint(args[0], 10, 64)
@@ -510,7 +510,7 @@ $ %s query gov params
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			// Query store for all 3 params
 			res, err := cl.Query().Gov().Params(
@@ -555,7 +555,7 @@ $ %s query gov param deposit
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			// Query store
 			res, err := cl.Query().Gov().Params(
@@ -606,7 +606,7 @@ $ %s query gov proposer 1
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			cctx := cl.ClientContext()
 

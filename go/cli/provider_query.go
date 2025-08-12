@@ -34,7 +34,7 @@ func GetQueryProvidersCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			pageReq, err := sdkclient.ReadPageRequest(cmd.Flags())
 			if err != nil {
@@ -68,7 +68,7 @@ func GetQueryProviderCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			owner, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {

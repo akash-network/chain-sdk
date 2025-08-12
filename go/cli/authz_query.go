@@ -115,7 +115,7 @@ $ %s q %s grants-by-granter akash1skj..
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			granter, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
@@ -164,7 +164,7 @@ $ %s q %s grants-by-grantee akash1skj..
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			grantee, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {

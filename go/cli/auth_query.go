@@ -65,7 +65,7 @@ $ <appd> query auth params
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			res, err := cl.Query().Auth().Params(ctx, &types.QueryParamsRequest{})
 			if err != nil {
@@ -91,7 +91,7 @@ func GetQueryAuthAccountCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			key, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
@@ -132,7 +132,7 @@ func GetQueryAuthAccountAddressByIDCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			accNum, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
@@ -163,7 +163,7 @@ func GetQueryAuthAccountsCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			pageReq, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
@@ -193,7 +193,7 @@ func GetQueryAuthModuleAccountsCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			res, err := cl.Query().Auth().ModuleAccounts(ctx, &types.QueryModuleAccountsRequest{})
 			if err != nil {
@@ -219,7 +219,7 @@ func GetQueryAuthModuleAccountByNameCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			moduleName := args[0]
 			if len(moduleName) == 0 {
@@ -259,7 +259,7 @@ $ %s query txs --%s 'message.sender=akash1...&message.action=withdraw_delegator_
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
 			eventsRaw, _ := cmd.Flags().GetString(cflags.FlagEvents)
@@ -330,7 +330,7 @@ $ %s query tx --%s=%s <sig1_base64>,<sig2_base64...>
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
 			typ, _ := cmd.Flags().GetString(cflags.FlagType)

@@ -34,16 +34,22 @@ func GetTxBankCmd() *cobra.Command {
 // GetTxBankSendTxCmd returns a CLI command handler for creating a MsgSend transaction.
 func GetTxBankSendTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "send [to_address] [amount]",
+		Use:   "send <from_key_or_address> [to_address] [amount]",
 		Short: "Send funds from one account to another.",
 		Long: `Send funds from one account to another.
-Note, the '--from' flag is ignored as it is implied from [from_key_or_address]
+Note, this command has two way of being executed:
+     - sender address|key is specified as a first argument, and command takes 3 arguments. in this case the '--from' flag is ignored as it is implied from [from_key_or_address]
+       send [from_key_or_address] [to_address] [amount]
+     - sender address|key is taken from --from flag. In this case command takes 2 arguments.
+       send [to_address] [amount] --from=address|key"
 When using '--dry-run' a key name cannot be used, only a bech32 address.
 `,
-		Args: cobra.ExactArgs(3),
+		Args: cobra.RangeArgs(2, 3),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if err := cmd.Flags().Set(cflags.FlagFrom, args[0]); err != nil {
-				return err
+			if len(args) == 3 {
+				if err := cmd.Flags().Set(cflags.FlagFrom, args[0]); err != nil {
+					return err
+				}
 			}
 
 			return TxPersistentPreRunE(cmd, args)
@@ -55,12 +61,15 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
-			toAddr, err := ac.StringToBytes(args[1])
+			if len(args) == 3 {
+				args = args[1:]
+			}
+			toAddr, err := ac.StringToBytes(args[0])
 			if err != nil {
 				return err
 			}
 
-			coins, err := sdk.ParseCoinsNormalized(args[2])
+			coins, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}

@@ -55,7 +55,7 @@ Example:
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			denom, err := cmd.Flags().GetString(cflags.FlagDenom)
 			if err != nil {
@@ -110,7 +110,7 @@ func GetQueryBankSpendableBalancesCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			denom, err := cmd.Flags().GetString(cflags.FlagDenom)
 			if err != nil {
@@ -177,7 +177,7 @@ To query for the client metadata of a specific coin denomination use:
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			denom, err := cmd.Flags().GetString(cflags.FlagDenom)
 			if err != nil {
@@ -228,7 +228,7 @@ To query for the total supply of a specific coin denomination use:
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			denom, err := cmd.Flags().GetString(cflags.FlagDenom)
 			if err != nil {
@@ -296,7 +296,7 @@ Getting all entries:
 			}
 
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			req := &types.QuerySendEnabledRequest{
 				Denoms:     args,

@@ -1,7 +1,6 @@
 package testutil
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
 	"testing"
@@ -10,8 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/gogoproto/jsonpb"
-
+	sdktx "github.com/cosmos/cosmos-sdk/types/tx"
 	nutils "pkg.akt.dev/go/node/utils"
 )
 
@@ -32,23 +30,22 @@ func GetTxFees(ctx context.Context, t testing.TB, cctx client.Context, data []by
 
 // ValidateTxSuccessful is a gentle response to inappropriate approach of cli test utils
 // send transaction may fail and calling cli routine won't know about it
-func ValidateTxSuccessful(ctx context.Context, t testing.TB, cctx client.Context, data []byte) (*sdk.TxResponse, sdk.Tx) {
+func ValidateTxSuccessful(ctx context.Context, t testing.TB, cctx client.Context, data []byte) (*sdk.TxResponse, *sdktx.Tx) {
 	t.Helper()
 
 	res := getTxResponse(ctx, t, cctx, data)
 	require.Zero(t, res.Code, res)
 
-	var tx sdk.Tx
-	err := cctx.Codec.UnpackAny(res.Tx, &tx)
-	require.NoError(t, err)
+	protoTx, ok := res.Tx.GetCachedValue().(*sdktx.Tx)
+	require.True(t, ok, "expected %T, got %T", sdktx.Tx{}, res.Tx.GetCachedValue())
 
-	return res, tx
+	return res, protoTx
 }
 
 func getTxResponse(ctx context.Context, t testing.TB, cctx client.Context, data []byte) *sdk.TxResponse {
 	var resp sdk.TxResponse
 
-	err := jsonpb.Unmarshal(bytes.NewBuffer(data), &resp)
+	err := cctx.Codec.UnmarshalJSON(data, &resp)
 	require.NoError(t, err)
 
 	hash, err := hex.DecodeString(resp.TxHash)

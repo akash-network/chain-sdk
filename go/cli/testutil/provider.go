@@ -9,22 +9,22 @@ import (
 	"pkg.akt.dev/go/cli"
 )
 
-// TxCreateProviderExec is used for testing create provider tx
-func TxCreateProviderExec(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+// ExecTxCreateProvider is used for testing create provider tx
+func ExecTxCreateProvider(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxProviderCreateCmd(), args...)
 }
 
-// TxUpdateProviderExec is used for testing update provider tx
-func TxUpdateProviderExec(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+// ExecTxUpdateProvider is used for testing update provider tx
+func ExecTxUpdateProvider(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxProviderUpdateCmd(), args...)
 }
 
-// QueryProvidersExec is used for testing providers query
-func QueryProvidersExec(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+// ExecQueryProviders is used for testing providers query
+func ExecQueryProviders(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetQueryProvidersCmd(), args...)
 }
 
-// QueryProviderExec is used for testing provider query
-func QueryProviderExec(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
+// ExecQueryProvider is used for testing provider query
+func ExecQueryProvider(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetQueryProviderCmd(), extraArgs...)
 }

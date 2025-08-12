@@ -83,7 +83,7 @@ func GetQueryMarketOrdersCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			ofilters, err := cflags.OrderFiltersFromFlags(cmd.Flags())
 			if err != nil {
@@ -124,7 +124,7 @@ func GetQueryMarketOrderCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			id, err := cflags.OrderIDFromFlags(cmd.Flags())
 			if err != nil {
@@ -155,7 +155,7 @@ func GetQueryMarketBidsCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			bfilters, err := cflags.BidFiltersFromFlags(cmd.Flags())
 			if err != nil {
@@ -196,7 +196,7 @@ func GetQueryMarketBidCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			bidID, err := cflags.BidIDFromFlags(cmd.Flags())
 			if err != nil {
@@ -226,7 +226,7 @@ func GetQueryMarketLeasesCmd() *cobra.Command {
 		Short:             "Query for all leases",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			lfilters, err := cflags.LeaseFiltersFromFlags(cmd.Flags())
 			if err != nil {
@@ -267,7 +267,7 @@ func GetQueryMarketLeaseCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			bidID, err := cflags.BidIDFromFlags(cmd.Flags())
 			if err != nil {

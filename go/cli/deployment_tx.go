@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 	"time"
 
@@ -14,11 +13,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"pkg.akt.dev/go/sdl"
-
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
 	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 	"pkg.akt.dev/go/node/types/constants"
+	"pkg.akt.dev/go/sdl"
 	cutils "pkg.akt.dev/go/util/tls"
 
 	cflags "pkg.akt.dev/go/cli/flags"
@@ -258,7 +256,7 @@ func GetTxDeploymentUpdateCmd() *cobra.Command {
 			}
 
 			// Query the RPC node to make sure the existing groups are identical
-			existingDeployment, err := cl.Query().Deployment().Deployment(cmd.Context(), &dv1beta4.QueryDeploymentRequest{
+			existingDeployment, err := cl.Query().Deployment().Deployment(ctx, &dv1beta4.QueryDeploymentRequest{
 				ID: id,
 			})
 			if err != nil {
@@ -267,12 +265,13 @@ func GetTxDeploymentUpdateCmd() *cobra.Command {
 
 			// do not send the transaction if the groups have changed
 			existingGroups := existingDeployment.GetGroups()
+
 			if len(existingGroups) != len(groups) {
 				return errDeploymentUpdateGroupsChanged
 			}
 
 			for i, existingGroup := range existingGroups {
-				if reflect.DeepEqual(groups[i], existingGroup.GroupSpec) {
+				if !existingGroup.GroupSpec.Equal(&groups[i]) {
 					return errDeploymentUpdateGroupsChanged
 				}
 			}

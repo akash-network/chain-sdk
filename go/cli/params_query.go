@@ -37,7 +37,7 @@ func GetQueryParamsSubspaceCmd() *cobra.Command {
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			params := proposal.QueryParamsRequest{Subspace: args[0], Key: args[1]}
 			res, err := cl.Query().Params().Params(cmd.Context(), &params)

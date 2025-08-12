@@ -48,7 +48,7 @@ func GetQueryDistributionParamsCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			res, err := cl.Query().Distribution().Params(ctx, &types.QueryParamsRequest{})
 			if err != nil {
@@ -83,7 +83,7 @@ $ %s query distribution validator-distribution-info %s1lwjmdnks33xwnmfayc64ycprw
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			validatorAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
@@ -127,7 +127,7 @@ $ %s query distribution validator-outstanding-rewards %s1lwjmdnks33xwnmfayc64ycp
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			validatorAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
@@ -171,7 +171,7 @@ $ %s query distribution commission %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			validatorAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
@@ -215,7 +215,7 @@ $ %s query distribution slashes %svaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			validatorAddr, err := sdk.ValAddressFromBech32(args[0])
 			if err != nil {
@@ -282,7 +282,7 @@ $ %s query distribution rewards %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p %s1ggh
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			delegatorAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
@@ -342,7 +342,7 @@ $ %s query distribution community-pool
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
 
-			cl := MustQueryClientFromContext(ctx)
+			cl := MustLightClientFromContext(ctx)
 
 			res, err := cl.Query().Distribution().CommunityPool(cmd.Context(), &types.QueryCommunityPoolRequest{})
 			if err != nil {
