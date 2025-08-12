@@ -11,7 +11,7 @@ option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
 // Bid stores BidID, state of bid and price.
 message Bid {
-  option (gogoproto.equal)            = false;
+  option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
 
   // BidState is an enum which refers to state of bid.

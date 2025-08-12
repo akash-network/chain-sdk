@@ -10,7 +10,7 @@ option go_package = "pkg.akt.dev/go/node/market/v1";
 
 // LeaseID stores bid details of lease.
 message LeaseID {
-  option (gogoproto.equal)            = false;
+  option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
 
   // Owner is the account bech32 address of the user who owns the deployment.

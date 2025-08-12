@@ -4,6 +4,7 @@
 package v1
 
 import (
+	bytes "bytes"
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -348,7 +349,7 @@ var fileDescriptor_8af18b536d600791 = []byte{
 	0xe9, 0x9e, 0x3c, 0x67, 0x65, 0x62, 0x6e, 0x8e, 0x95, 0x52, 0x66, 0x8a, 0x52, 0x10, 0x53, 0x66,
 	0x8a, 0x90, 0x36, 0x17, 0x4b, 0x46, 0x62, 0x71, 0x86, 0x04, 0x93, 0x02, 0xa3, 0x06, 0x8f, 0x93,
 	0xf8, 0xab, 0x7b, 0xf2, 0x60, 0xfe, 0xa7, 0x7b, 0xf2, 0xdc, 0x10, 0x85, 0x20, 0x9e, 0x52, 0x10,
-	0x58, 0xd0, 0x8a, 0xe5, 0xc5, 0x02, 0x79, 0x06, 0x6c, 0xee, 0x0b, 0x2d, 0x48, 0x19, 0x3c, 0xee,
+	0x58, 0xd0, 0x8a, 0xe5, 0xc5, 0x02, 0x79, 0x46, 0x6c, 0xee, 0x0b, 0x2d, 0x48, 0x19, 0x3c, 0xee,
 	0xcb, 0xe7, 0x12, 0x45, 0x0f, 0xbe, 0x9c, 0xfc, 0x62, 0x5a, 0xb8, 0x0e, 0x6a, 0x61, 0x1a, 0x97,
 	0x20, 0xd8, 0x42, 0x77, 0x50, 0x24, 0x06, 0x97, 0x24, 0x16, 0x81, 0x82, 0xc2, 0x1b, 0xc9, 0x32,
 	0x19, 0xac, 0x96, 0x81, 0x95, 0x93, 0x62, 0x4f, 0x2a, 0x97, 0x00, 0xc2, 0x9e, 0x80, 0xc4, 0xd2,
@@ -356,9 +357,159 @@ var fileDescriptor_8af18b536d600791 = []byte{
 	0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x70, 0xe1, 0xb1, 0x1c, 0xc3,
 	0x8d, 0xc7, 0x72, 0x0c, 0x51, 0x8a, 0x05, 0xd9, 0xe9, 0x7a, 0x89, 0xd9, 0x25, 0x7a, 0x29, 0xa9,
 	0x65, 0xfa, 0xe9, 0xf9, 0xfa, 0x79, 0xf9, 0x29, 0xa9, 0xa8, 0xf9, 0x25, 0x89, 0x0d, 0x9c, 0x55,
-	0x8c, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0x89, 0x40, 0x49, 0x5e, 0xbf, 0x03, 0x00, 0x00,
+	0x8c, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0xb6, 0x21, 0x94, 0x62, 0xbf, 0x03, 0x00, 0x00,
 }
 
+func (this *EventDeploymentCreated) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventDeploymentCreated)
+	if !ok {
+		that2, ok := that.(EventDeploymentCreated)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.ID.Equal(&that1.ID) {
+		return false
+	}
+	if !bytes.Equal(this.Hash, that1.Hash) {
+		return false
+	}
+	return true
+}
+func (this *EventDeploymentUpdated) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventDeploymentUpdated)
+	if !ok {
+		that2, ok := that.(EventDeploymentUpdated)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.ID.Equal(&that1.ID) {
+		return false
+	}
+	if !bytes.Equal(this.Hash, that1.Hash) {
+		return false
+	}
+	return true
+}
+func (this *EventDeploymentClosed) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventDeploymentClosed)
+	if !ok {
+		that2, ok := that.(EventDeploymentClosed)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.ID.Equal(&that1.ID) {
+		return false
+	}
+	return true
+}
+func (this *EventGroupStarted) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventGroupStarted)
+	if !ok {
+		that2, ok := that.(EventGroupStarted)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.ID.Equal(&that1.ID) {
+		return false
+	}
+	return true
+}
+func (this *EventGroupPaused) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventGroupPaused)
+	if !ok {
+		that2, ok := that.(EventGroupPaused)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.ID.Equal(&that1.ID) {
+		return false
+	}
+	return true
+}
+func (this *EventGroupClosed) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventGroupClosed)
+	if !ok {
+		that2, ok := that.(EventGroupClosed)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.ID.Equal(&that1.ID) {
+		return false
+	}
+	return true
+}
 func (m *EventDeploymentCreated) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)

@@ -49,6 +49,27 @@ type ClientOptions struct {
 	SignMode         string
 }
 
+type BroadcastOptions struct {
+	generateOnly     *bool
+	timeoutHeight    *uint64
+	gasAdjustment    *float64
+	gas              *GasSetting
+	gasPrices        *string
+	fees             *string
+	note             *string
+	broadcastTimeout time.Duration
+	resultAsError    bool
+	skipConfirm      *bool
+	confirmFn        ConfirmFn
+	broadcastMode    *string
+}
+
+type ConfirmFn func(string) (bool, error)
+
+// BroadcastOption is a function that takes as first argument a pointer to BroadcastOptions and returns an error
+// if the option cannot be configured. A number of BroadcastOption functions are available in this package.
+type BroadcastOption func(*BroadcastOptions) error
+
 type ClientOption func(options *ClientOptions) error
 
 // NewTxFactory creates a new Factory.
@@ -190,3 +211,110 @@ func WithSignMode(val string) ClientOption {
 		return nil
 	}
 }
+
+//// WithGasAdjustment returns a BroadcastOption that sets the gas adjustment configuration for the transaction.
+//func WithGasAdjustment(val float64) BroadcastOption {
+//	return func(options *BroadcastOptions) error {
+//		options.gasAdjustment = new(float64)
+//		*options.gasAdjustment = val
+//		return nil
+//	}
+//}
+//
+//// WithNote returns a BroadcastOption that sets the note configuration for the transaction.
+//func WithNote(val string) BroadcastOption {
+//	return func(options *BroadcastOptions) error {
+//		options.note = new(string)
+//		*options.note = val
+//		return nil
+//	}
+//}
+//
+//// WithGas returns a BroadcastOption that sets the gas setting configuration for the transaction.
+//func WithGas(val cltypes.GasSetting) BroadcastOption {
+//	return func(options *BroadcastOptions) error {
+//		options.gas = new(cltypes.GasSetting)
+//		*options.gas = val
+//		return nil
+//	}
+//}
+//
+//// WithGasPrices returns a BroadcastOption that sets the gas price configuration for the transaction.
+//// Gas price is a string of the amount. E.g. "0.25uakt".
+//func WithGasPrices(val string) BroadcastOption {
+//	return func(options *BroadcastOptions) error {
+//		options.gasPrices = new(string)
+//		*options.gasPrices = val
+//		return nil
+//	}
+//}
+//
+//// WithFees returns a BroadcastOption that sets the fees configuration for the transaction.
+//func WithFees(val string) BroadcastOption {
+//	return func(options *BroadcastOptions) error {
+//		options.fees = new(string)
+//		*options.fees = val
+//		return nil
+//	}
+//}
+//
+//// WithTimeoutHeight returns a BroadcastOption that sets the timeout height configuration for the transaction.
+//func WithTimeoutHeight(val uint64) BroadcastOption {
+//	return func(options *BroadcastOptions) error {
+//		options.timeoutHeight = new(uint64)
+//		*options.timeoutHeight = val
+//		return nil
+//	}
+//}
+//
+//// WithBroadcastTimeout returns a BroadcastOption that sets the timeout configuration for the transaction.
+//func WithBroadcastTimeout(val time.Duration) BroadcastOption {
+//	return func(options *BroadcastOptions) error {
+//		options.broadcastTimeout = val
+//		return nil
+//	}
+//}
+//
+//// WithResultCodeAsError returns a BroadcastOption that enables the result code as error configuration for the transaction.
+//func WithResultCodeAsError() BroadcastOption {
+//	return func(opts *BroadcastOptions) error {
+//		opts.resultAsError = true
+//		return nil
+//	}
+//}
+//
+//// WithSkipConfirm returns a BroadcastOption that sets whether to skip or not the confirmation for the transaction.
+//func WithSkipConfirm(val bool) BroadcastOption {
+//	return func(opts *BroadcastOptions) error {
+//		opts.skipConfirm = new(bool)
+//		*opts.skipConfirm = val
+//		return nil
+//	}
+//}
+//
+//// WithConfirmFn returns a BroadcastOption that sets the ConfirmFn function configuration for the transaction.
+//func WithConfirmFn(val ConfirmFn) BroadcastOption {
+//	return func(opts *BroadcastOptions) error {
+//		opts.confirmFn = val
+//		return nil
+//	}
+//}
+//
+//// WithBroadcastMode returns a BroadcastOption that sets the broadcast for particular tx
+//func WithBroadcastMode(val string) BroadcastOption {
+//	return func(opts *BroadcastOptions) error {
+//		opts.broadcastMode = new(string)
+//		*opts.broadcastMode = val
+//		return nil
+//	}
+//}
+//
+//// WithGenerateOnly returns a BroadcastOption that sets transaction generator to generate only mode
+//func WithGenerateOnly(val bool) BroadcastOption {
+//	return func(opts *BroadcastOptions) error {
+//		opts.generateOnly = new(bool)
+//		*opts.generateOnly = val
+//
+//		return nil
+//	}
+//}

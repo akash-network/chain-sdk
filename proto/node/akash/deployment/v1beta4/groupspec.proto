@@ -11,7 +11,7 @@ option go_package = "pkg.akt.dev/go/node/deployment/v1beta4";
 // GroupSpec defines a specification for a group in a deployment on the network.
 // This includes attributes like the group name, placement requirements, and resource units.
 message GroupSpec {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal)           = true;
   option (gogoproto.goproto_getters) = false;
 
   // Name is the name of the group.

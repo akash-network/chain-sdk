@@ -9,7 +9,7 @@ option go_package = "pkg.akt.dev/go/node/deployment/v1";
 // DeploymentID represents a unique identifier for a specific deployment on the network.
 // It is composed of two fields: an owner address and a sequence number (dseq).
 message DeploymentID {
-  option (gogoproto.equal)            = false;
+  option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
 
   // Owner is the account bech32 address of the user who owns the deployment.
