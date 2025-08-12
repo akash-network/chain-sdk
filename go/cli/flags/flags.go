@@ -135,6 +135,7 @@ const (
 	FlagAux                       = "aux"
 	FlagInitHeight                = "initial-height"
 	FlagDelayed                   = "delayed"
+	FlagSkipRPCInit               = "skip-rpc-init"
 	// FlagOutput is the flag to set the output format.
 	// This differs from FlagOutputDocument that is used to set the output file.
 	FlagOutput = cmcli.OutputFlag

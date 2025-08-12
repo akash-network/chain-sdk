@@ -37,6 +37,9 @@ func TestNewMsgVerifyInvariantTxCmd(t *testing.T) {
 		WithChainID("test-chain").
 		WithSignModeStr(cflags.SignModeDirect)
 
+	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, encCfg.SigningOptions.AddressCodec)
+	ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, encCfg.SigningOptions.ValidatorAddressCodec)
+
 	accounts := sdktestutil.CreateKeyringAccounts(t, kr, 1)
 	testCases := []struct {
 		name         string
