@@ -10,6 +10,7 @@ option go_package = "pkg.akt.dev/go/node/provider/v1beta4";
 // EventProviderCreated defines an SDK message for provider created event.
 // It contains all the required information to identify a provider on-chain.
 message EventProviderCreated {
+  option (gogoproto.equal) = true;
   // Owner is the bech32 address of the account of the provider.
   // It is a string representing a valid account address.
   //
@@ -25,6 +26,7 @@ message EventProviderCreated {
 // EventProviderUpdated defines an SDK message for provider updated event.
 // It contains all the required information to identify a provider on-chain.
 message EventProviderUpdated {
+  option (gogoproto.equal) = true;
   // Owner is the bech32 address of the account of the provider.
   // It is a string representing a valid account address.
   //
@@ -39,6 +41,7 @@ message EventProviderUpdated {
 
 // EventProviderDeleted defines an SDK message for provider deleted event.
 message EventProviderDeleted {
+  option (gogoproto.equal) = true;
   // Owner is the bech32 address of the account of the provider.
   // It is a string representing a valid account address.
   //

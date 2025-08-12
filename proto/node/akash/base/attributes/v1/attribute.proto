@@ -11,6 +11,7 @@ option go_package                       = "pkg.akt.dev/go/node/types/attributes/
 // Attribute represents an arbitrary attribute key-value pair.
 message Attribute {
   option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal)           = false;
 
   // Key of the attribute (e.g., "region", "cpu_architecture", etc.).
   string key = 1 [(gogoproto.moretags) = "yaml:\"key\""];
@@ -23,7 +24,8 @@ message Attribute {
 // entries there.
 message SignedBy { // TODO: this behaviour to be discussed
   option (gogoproto.goproto_getters) = false;
-  option (gogoproto.stringer) = false;
+  option (gogoproto.stringer)        = false;
+  option (gogoproto.equal)           = true;
 
   // AllOf indicates all keys in this list must have signed attributes.
   repeated string all_of = 1 [
@@ -41,7 +43,8 @@ message SignedBy { // TODO: this behaviour to be discussed
 // It is used to specify the characteristics and constraints of a provider that can be used to satisfy a deployment request.
 message PlacementRequirements {
   option (gogoproto.goproto_getters) = false;
-  option (gogoproto.stringer) = false;
+  option (gogoproto.stringer)        = false;
+  option (gogoproto.equal)           = true;
 
   // SignedBy holds the list of keys that tenants expect to have signatures from.
   SignedBy signed_by = 1 [

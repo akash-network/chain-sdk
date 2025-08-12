@@ -39,10 +39,10 @@ func queryClientInfo(ctx context.Context, cctx sdkclient.Context) (*Akash, error
 	if !cctx.Offline {
 		if cctx.Client != nil {
 			switch rpc := cctx.Client.(type) {
-			case RPCClient:
+			case *rpcClient:
 				result = rpc.Akash(ctx)
 			default:
-				panic("unsupported RPC client")
+				return nil, errors.New("unsupported RPC client")
 			}
 		} else {
 			rpc, err := cmjclient.New(cctx.NodeURI)

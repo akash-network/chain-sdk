@@ -11,15 +11,15 @@ import (
 	"time"
 	"unsafe"
 
-	cerrors "cosmossdk.io/errors"
 	"github.com/boz/go-lifecycle"
 	"github.com/edwingeng/deque/v2"
 
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cometbft/cometbft/mempool"
 	cbcoretypes "github.com/cometbft/cometbft/rpc/core/types"
 	cbtypes "github.com/cometbft/cometbft/types"
 
+	cerrors "cosmossdk.io/errors"
+	"cosmossdk.io/log"
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	clienttx "github.com/cosmos/cosmos-sdk/client/tx"

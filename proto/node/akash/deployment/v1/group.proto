@@ -11,7 +11,7 @@ option go_package = "pkg.akt.dev/go/node/deployment/v1";
 // within a deployment.
 // It stores owner, deployment sequence number (dseq) and group sequence number (gseq).
 message GroupID {
-  option (gogoproto.equal)            = false;
+  option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
 
   // Owner is the account address of the user who owns the group.

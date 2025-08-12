@@ -38,6 +38,25 @@ func DiscoverQueryClient(ctx context.Context, cctx sdkclient.Context) (v1beta3.Q
 	return cl, nil
 }
 
+func DiscoverLightClient(ctx context.Context, cctx sdkclient.Context) (v1beta3.LightClient, error) {
+	var cl v1beta3.LightClient
+	err := aclient.DiscoverLightClient(ctx, cctx, func(i interface{}) error {
+		var valid bool
+
+		if cl, valid = i.(v1beta3.LightClient); !valid {
+			return fmt.Errorf("%w: expected %s, actual %s", ErrInvalidClient, reflect.TypeOf(cl), reflect.TypeOf(i))
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cl, nil
+}
+
 func DiscoverClient(ctx context.Context, cctx sdkclient.Context, opts ...cltypes.ClientOption) (v1beta3.Client, error) {
 	var cl v1beta3.Client
 

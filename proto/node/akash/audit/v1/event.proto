@@ -9,6 +9,8 @@ option go_package = "pkg.akt.dev/go/node/audit/v1";
 
 // EventTrustedAuditorCreated defines an SDK message for when a trusted auditor is created.
 message EventTrustedAuditorCreated {
+  option (gogoproto.equal) = true;
+
   // Owner is the account bech32 address of the provider.
   // It is a string representing a valid account address.
   //
@@ -34,6 +36,8 @@ message EventTrustedAuditorCreated {
 
 // EventTrustedAuditorDeleted defines an event for when a trusted auditor is deleted.
 message EventTrustedAuditorDeleted {
+  option (gogoproto.equal) = true;
+
   // Owner is the account bech32 address of the provider.
   // It is a string representing a valid account address.
   //

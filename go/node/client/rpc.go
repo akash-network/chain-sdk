@@ -5,6 +5,7 @@ import (
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	jsonrpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/cosmos/cosmos-sdk/client"
 )
@@ -17,13 +18,16 @@ type RPCClient interface {
 type rpcClient struct {
 	*rpchttp.HTTP
 	rpc *jsonrpcclient.Client
+
+	group *errgroup.Group
+	ctx   context.Context
 }
 
 var _ client.CometRPC = (*rpcClient)(nil)
 
 // NewClient allows for setting a custom http client (See New).
 // An error is returned on invalid remote. The function panics when remote is nil.
-func NewClient(remote string) (RPCClient, error) {
+func NewClient(ctx context.Context, remote string) (RPCClient, error) {
 	httpClient, err := jsonrpcclient.DefaultHTTPClient(remote)
 	if err != nil {
 		return nil, err
@@ -39,10 +43,22 @@ func NewClient(remote string) (RPCClient, error) {
 		return nil, err
 	}
 
+	group, ctx := errgroup.WithContext(ctx)
+
 	rpc := &rpcClient{
-		HTTP: cl,
-		rpc:  rc,
+		HTTP:  cl,
+		rpc:   rc,
+		group: group,
+		ctx:   ctx,
 	}
+
+	group.Go(cl.Start)
+
+	group.Go(func() error {
+		<-ctx.Done()
+
+		return cl.Stop()
+	})
 
 	return rpc, nil
 }
