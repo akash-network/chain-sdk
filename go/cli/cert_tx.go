@@ -254,15 +254,37 @@ func addTxCertGenerateFlags(cmd *cobra.Command) error {
 	}
 
 	cflags.AddTxFlagsToCmd(cmd) // TODO - add just the keyring flags? not all the TX ones
+
 	return nil
 }
 
+func certGeneratePersistenPreRunE(cmd *cobra.Command, args []string) error {
+	err := cmd.Flags().Set(cflags.FlagOffline, "true")
+	if err != nil {
+		return err
+	}
+
+	return TxPersistentPreRunE(cmd, args)
+}
+
+func certPublishPersistenPreRunE(cmd *cobra.Command, args []string) error {
+	toGenesis := viper.GetBool(flagToGenesis)
+
+	if toGenesis {
+		err := cmd.Flags().Set(cflags.FlagOffline, "true")
+		if err != nil {
+			return err
+		}
+	}
+
+	return TxPersistentPreRunE(cmd, args)
+}
 func GetTxCertGenerateClientCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "client",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          TxPersistentPreRunE,
+		PersistentPreRunE:          certGeneratePersistenPreRunE,
 		RunE:                       doCertGenerateCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.ExactArgs(0),
@@ -280,7 +302,7 @@ func GetTxCertGenerateServerCmd() *cobra.Command {
 		Use:                        "server",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          TxPersistentPreRunE,
+		PersistentPreRunE:          certGeneratePersistenPreRunE,
 		RunE:                       doCertGenerateCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.MinimumNArgs(1),
@@ -313,7 +335,7 @@ func GetTxCertPublishClientCmd() *cobra.Command {
 		Use:                        "client",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          TxPersistentPreRunE,
+		PersistentPreRunE:          certPublishPersistenPreRunE,
 		RunE:                       doPublishCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.ExactArgs(0),
@@ -331,7 +353,7 @@ func GetTxCertPublishServerCmd() *cobra.Command {
 		Use:                        "server",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          TxPersistentPreRunE,
+		PersistentPreRunE:          certPublishPersistenPreRunE,
 		RunE:                       doPublishCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.ExactArgs(0),

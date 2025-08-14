@@ -67,7 +67,7 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 			return err
 		}
 
-		if err := sdkclient.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
+		if err := SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 			return err
 		}
 
