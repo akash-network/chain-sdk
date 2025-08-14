@@ -12,7 +12,7 @@ import (
 
 type RPCClient interface {
 	client.CometRPC
-	Akash(ctx context.Context) *Akash
+	Akash(ctx context.Context) (*Akash, error)
 }
 
 type rpcClient struct {
@@ -63,10 +63,11 @@ func NewClient(ctx context.Context, remote string) (RPCClient, error) {
 	return rpc, nil
 }
 
-func (cl *rpcClient) Akash(ctx context.Context) *Akash {
-	result := new(Akash)
-	params := make(map[string]interface{})
-	_, _ = cl.rpc.Call(ctx, "akash", params, result)
-
-	return result
+func (cl *rpcClient) Akash(ctx context.Context) (*Akash, error) {
+	result := &Akash{}
+	_, err := cl.rpc.Call(ctx, "akash", map[string]interface{}{}, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
