@@ -20,8 +20,13 @@ function get_gotoolchain() {
 	local local_goversion
 
 	set +o pipefail
-	gotoolchain=$(grep -E '^toolchain go[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$' "$gomod" | cut -d ' ' -f 2 | tr -d '\n')
-	goversion=$(grep -E '^go [0-9]{1,}.[0-9]{1,}(.[0-9]{1,})?$' "$gomod" | cut -d ' ' -f 2 | tr -d '\n')
+	if [[ "$GOWORK" != "off" ]] && [[ -f "$GOWORK" ]]; then
+		gotoolchain=$(grep -E '^toolchain go[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$' "$GOWORK" | cut -d ' ' -f 2 | tr -d '\n')
+		goversion=$(grep -E '^go [0-9]{1,}.[0-9]{1,}(.[0-9]{1,})?$' "$GOWORK" | cut -d ' ' -f 2 | tr -d '\n')
+	else
+		gotoolchain=$(grep -E '^toolchain go[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$' "$gomod" | cut -d ' ' -f 2 | tr -d '\n')
+		goversion=$(grep -E '^go [0-9]{1,}.[0-9]{1,}(.[0-9]{1,})?$' "$gomod" | cut -d ' ' -f 2 | tr -d '\n')
+	fi
 
 	set -o pipefail
 

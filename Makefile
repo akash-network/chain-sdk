@@ -107,7 +107,7 @@ GOLINT                           := $(GOLANGCI_LINT_RUN) ./... --disable-all --t
 DOCKER_RUN            := docker run --rm -v $(shell pwd):/workspace -w /workspace
 DOCKER_BUF            := $(DOCKER_RUN) bufbuild/buf:$(BUF_VERSION)
 
-GO_MODULES            ?= $(shell find * -name go.mod -exec dirname {} \;)
+GO_MODULES            ?= $(shell find * -name go.mod -not -path "specs/*" -not -path "testdata/*" -exec dirname {} \;)
 GO_TEST_DIRS          ?= ./...
 
 include $(AKASH_ROOT)/make/setup-cache.mk
