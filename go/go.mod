@@ -20,6 +20,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.53.3
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/edwingeng/deque/v2 v2.1.1
+	github.com/go-logr/logr v1.4.2
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/golang/protobuf v1.5.4
@@ -51,7 +52,7 @@ replace (
 	// use akash fork of cosmos sdk
 	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.3-akash.4
 
-	github.com/cosmos/gogoproto => github.com/akash-network/gogoproto v1.7.0-akash.1
+	github.com/cosmos/gogoproto => github.com/akash-network/gogoproto v1.7.0-akash.2
 
 	// Use regen gogoproto fork
 	// To be removed in akash v2 release
@@ -154,7 +155,6 @@ require (
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
-	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
