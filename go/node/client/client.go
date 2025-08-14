@@ -36,12 +36,15 @@ type SetupFn func(interface{}) error
 
 func queryClientInfo(ctx context.Context, cctx sdkclient.Context) (*Akash, error) {
 	result := new(Akash)
+	var err error
 
 	if !cctx.Offline {
 		if cctx.Client != nil {
 			switch rpc := cctx.Client.(type) {
 			case RPCClient:
-				result = rpc.Akash(ctx)
+				if result, err = rpc.Akash(ctx); err != nil {
+					return nil, err
+				}
 			default:
 				return nil, fmt.Errorf("unsupported RPC client [%T]", rpc)
 			}
@@ -52,7 +55,9 @@ func queryClientInfo(ctx context.Context, cctx sdkclient.Context) (*Akash, error
 			}
 
 			params := make(map[string]interface{})
-			_, _ = rpc.Call(ctx, "akash", params, result)
+			if _, err = rpc.Call(ctx, "akash", params, result); err != nil {
+				return nil, err
+			}
 		}
 
 		if result.ClientInfo.ApiVersion == "" {
