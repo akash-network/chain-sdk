@@ -53,13 +53,13 @@ func queryClientInfo(ctx context.Context, cctx sdkclient.Context) (*Akash, error
 
 			params := make(map[string]interface{})
 			_, _ = rpc.Call(ctx, "akash", params, result)
+		}
 
-			if result.ClientInfo == nil {
-				return nil, ErrDetectClientVersion
-			}
+		if result.ClientInfo.ApiVersion == "" {
+			return nil, ErrDetectClientVersion
 		}
 	} else {
-		result.ClientInfo = &ClientInfo{ApiVersion: VersionV1beta3}
+		result.ClientInfo = ClientInfo{ApiVersion: VersionV1beta3}
 	}
 
 	return result, nil
@@ -152,7 +152,7 @@ func DiscoverQueryClient(ctx context.Context, cctx sdkclient.Context, setup Setu
 
 func RPCAkash(_ *cmtrpctypes.Context) (*Akash, error) {
 	result := &Akash{
-		ClientInfo: &ClientInfo{
+		ClientInfo: ClientInfo{
 			ApiVersion: "v1beta3",
 		},
 	}
