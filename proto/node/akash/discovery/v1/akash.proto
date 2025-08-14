@@ -11,6 +11,7 @@ option go_package = "pkg.akt.dev/go/node/client";
 message Akash {
   // ClientInfo holds information about the client.
   ClientInfo client_info = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ClientInfo",
     (gogoproto.jsontag)    = "client_info",
     (gogoproto.moretags)   = "yaml:\"client_info\""
