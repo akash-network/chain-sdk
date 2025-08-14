@@ -23,7 +23,6 @@ import (
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 )
@@ -31,7 +30,7 @@ import (
 // GetGenesisGenTxCmd builds the application's gentx command.
 func GetGenesisGenTxCmd(mbm module.BasicManager, txEncCfg client.TxEncodingConfig, genBalIterator types.GenesisBalancesIterator, defaultNodeHome string, valAddressCodec address.Codec) *cobra.Command {
 	ipDefault, _ := server.ExternalIP()
-	fsCreateValidator, defaultsDesc := cli.CreateValidatorMsgFlagSet(ipDefault)
+	fsCreateValidator, defaultsDesc := CreateValidatorMsgFlagSet(ipDefault)
 
 	cmd := &cobra.Command{
 		Use:   "gentx [key_name] [amount]",
