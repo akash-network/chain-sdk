@@ -28,6 +28,10 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 	return func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 
+		if err := InterceptConfigsPreRunHandler(cmd, envPrefixes, false, "", nil); err != nil {
+			return err
+		}
+
 		initClientCtx := sdkclient.Context{}.
 			WithCodec(encodingConfig.Codec).
 			WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -62,10 +66,6 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 		ctx = context.WithValue(ctx, ContextTypeValidatorCodec, encodingConfig.SigningOptions.ValidatorAddressCodec)
 
 		cmd.SetContext(ctx)
-
-		if err := InterceptConfigsPreRunHandler(cmd, envPrefixes, false, "", nil); err != nil {
-			return err
-		}
 
 		if err := SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 			return err
