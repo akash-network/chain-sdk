@@ -899,7 +899,7 @@ func (df FlagsSet) WithMoniker(val string) FlagsSet {
 // 		return out, err
 // 	}
 //
-// 	qctx, err := client.GetClientQueryContext(cmd)
+// 	qctx, err := GetClientQueryContext(cmd)
 // 	if err != nil {
 // 		return out, err
 // 	}

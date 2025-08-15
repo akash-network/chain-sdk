@@ -114,7 +114,7 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 				return err
 			}
 
-			cctx, err := client.GetClientQueryContext(cmd)
+			cctx, err := GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}

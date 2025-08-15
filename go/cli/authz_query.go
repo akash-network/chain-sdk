@@ -53,7 +53,7 @@ $ %s query %s grants akash1skjw.. akash1skjwj.. %s
 		),
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
+			clientCtx, err := GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}

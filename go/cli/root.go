@@ -67,6 +67,8 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 
 		cmd.SetContext(ctx)
 
+		initClientCtx = initClientCtx.WithCmdContext(ctx)
+
 		if err := SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 			return err
 		}

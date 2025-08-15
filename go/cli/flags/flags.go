@@ -141,8 +141,9 @@ const (
 	FlagOutput = cmcli.OutputFlag
 	FlagSplit  = "split"
 
-	TimeoutDuration = "timeout-duration"
-	FlagUnordered   = "unordered"
+	TimeoutDuration  = "timeout-duration"
+	FlagUnordered    = "unordered"
+	FlagKeyAlgorithm = "algo"
 
 	// CometBFT logging flags
 
@@ -247,6 +248,12 @@ const (
 	KeyIsTestnet             = "is-testnet"
 	KeyTestnetConfig         = "testnet-config"
 	KeyTestnetTriggerUpgrade = "testnet-trigger-upgrade"
+)
+
+// List of supported output formats
+const (
+	OutputFormatJSON = "json"
+	OutputFormatText = "text"
 )
 
 const (
