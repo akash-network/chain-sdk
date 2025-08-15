@@ -32,6 +32,11 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 			return err
 		}
 
+		flagSet := cmd.Flags()
+
+		skipRPC, _ := flagSet.GetBool(cflags.FlagSkipRPCInit)
+		offline, _ := flagSet.GetBool(cflags.FlagOffline)
+
 		initClientCtx := sdkclient.Context{}.
 			WithCodec(encodingConfig.Codec).
 			WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -40,12 +45,8 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 			WithInput(os.Stdin).
 			WithAccountRetriever(authtypes.AccountRetriever{}).
 			WithBroadcastMode(cflags.BroadcastBlock).
-			WithHomeDir(defaultHome)
-
-		flagSet := cmd.Flags()
-
-		skipRPC, _ := flagSet.GetBool(cflags.FlagSkipRPCInit)
-		offline, _ := flagSet.GetBool(cflags.FlagOffline)
+			WithHomeDir(defaultHome).
+			WithOffline(offline)
 
 		if !skipRPC && !offline {
 			rpcURI, _ := flagSet.GetString(cflags.FlagNode)
