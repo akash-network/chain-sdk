@@ -157,7 +157,7 @@ func ReadPersistentCommandFlags(cctx sdkclient.Context, flagSet *pflag.FlagSet) 
 		}
 	}
 
-	if cctx.Client == nil {
+	if cctx.Client == nil && !cctx.Offline {
 		if rpcURI, _ := flagSet.GetString(cflags.FlagNode); rpcURI != "" {
 			cctx = cctx.WithNodeURI(rpcURI)
 
