@@ -173,14 +173,18 @@ func InterceptConfigsPreRunHandler(
 	serverCtx.Viper.AllowEmptyEnv(allowEmptyEnv)
 	serverCtx.Viper.AutomaticEnv()
 
-	if err := bindFlags(cmd, serverCtx.Viper, envPrefixes); err != nil {
-		return err
-	}
-
 	// intercept configuration files, using both Viper instances separately
 	cfg, err := interceptConfigs(serverCtx.Viper, customAppConfigTemplate, customAppConfig)
 	if err != nil {
 		return err
+	}
+
+	if err := bindFlags(cmd, serverCtx.Viper, envPrefixes); err != nil {
+		return err
+	}
+
+	if err := serverCtx.Viper.MergeInConfig(); err != nil {
+		return fmt.Errorf("failed to merge configuration: %w", err) // nolint: goerr113
 	}
 
 	// return value is a tendermint configuration object
@@ -374,10 +378,6 @@ func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customCo
 	rootViper.SetConfigType("toml")
 	rootViper.SetConfigName("app")
 	rootViper.AddConfigPath(configPath)
-
-	if err := rootViper.MergeInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to merge configuration: %w", err) // nolint: goerr113
-	}
 
 	return conf, nil
 }
