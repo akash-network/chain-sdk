@@ -4,19 +4,15 @@
 package v1beta3
 
 import (
-	context "context"
-	fmt "fmt"
-	query "github.com/cosmos/cosmos-sdk/types/query"
-	_ "github.com/cosmos/gogoproto/gogoproto"
-	grpc1 "github.com/cosmos/gogoproto/grpc"
-	proto "github.com/cosmos/gogoproto/proto"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
-	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
-	io "io"
-	math "math"
+	"fmt"
+	"io"
+	"math"
 	math_bits "math/bits"
+
+	"github.com/cosmos/cosmos-sdk/types/query"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	"github.com/cosmos/gogoproto/proto"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -229,89 +225,6 @@ var fileDescriptor_2bbd23f37f87a8be = []byte{
 	0xf5, 0x6b, 0x11, 0xb4, 0xde, 0xf5, 0xf3, 0x99, 0xa0, 0x7c, 0x66, 0xe8, 0x01, 0x9c, 0x32, 0xa1,
 	0x58, 0xa6, 0x0e, 0xe0, 0x56, 0xb7, 0x49, 0xdb, 0xfe, 0x20, 0xe3, 0x7f, 0x01, 0x00, 0x00, 0xff,
 	0xff, 0x94, 0x69, 0x9c, 0x9b, 0xd5, 0x03, 0x00, 0x00,
-}
-
-// Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
-
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
-
-// QueryClient is the client API for Query service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type QueryClient interface {
-	// Certificates queries certificates
-	Certificates(ctx context.Context, in *QueryCertificatesRequest, opts ...grpc.CallOption) (*QueryCertificatesResponse, error)
-}
-
-type queryClient struct {
-	cc grpc1.ClientConn
-}
-
-func NewQueryClient(cc grpc1.ClientConn) QueryClient {
-	return &queryClient{cc}
-}
-
-func (c *queryClient) Certificates(ctx context.Context, in *QueryCertificatesRequest, opts ...grpc.CallOption) (*QueryCertificatesResponse, error) {
-	out := new(QueryCertificatesResponse)
-	err := c.cc.Invoke(ctx, "/akash.cert.v1beta3.Query/Certificates", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// QueryServer is the server API for Query service.
-type QueryServer interface {
-	// Certificates queries certificates
-	Certificates(context.Context, *QueryCertificatesRequest) (*QueryCertificatesResponse, error)
-}
-
-// UnimplementedQueryServer can be embedded to have forward compatible implementations.
-type UnimplementedQueryServer struct {
-}
-
-func (*UnimplementedQueryServer) Certificates(ctx context.Context, req *QueryCertificatesRequest) (*QueryCertificatesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Certificates not implemented")
-}
-
-func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
-	s.RegisterService(&_Query_serviceDesc, srv)
-}
-
-func _Query_Certificates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryCertificatesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).Certificates(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/akash.cert.v1beta3.Query/Certificates",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Certificates(ctx, req.(*QueryCertificatesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-var Query_serviceDesc = _Query_serviceDesc
-var _Query_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "akash.cert.v1beta3.Query",
-	HandlerType: (*QueryServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Certificates",
-			Handler:    _Query_Certificates_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "akash/cert/v1beta3/query.proto",
 }
 
 func (m *CertificateResponse) Marshal() (dAtA []byte, err error) {

@@ -4,14 +4,16 @@
 package v1beta3
 
 import (
-	fmt "fmt"
+	"fmt"
+	"io"
+	"math"
+	math_bits "math/bits"
+
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	"github.com/cosmos/gogoproto/proto"
+
 	github_com_cosmos_cosmos_sdk_types "pkg.akt.dev/go/node/types/sdk"
 	types "pkg.akt.dev/go/node/types/sdk"
-	_ "github.com/cosmos/gogoproto/gogoproto"
-	proto "github.com/cosmos/gogoproto/proto"
-	io "io"
-	math "math"
-	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -27,7 +29,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the x/deployment package
 type Params struct {
-	MinDeposits github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=min_deposits,json=minDeposits,proto3,castrepeated=pkg.akt.dev/go/node/types/sdk.Coins" json:"min_deposits" yaml:"min_deposits"`
+	MinDeposits github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=min_deposits,json=minDeposits,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"min_deposits" yaml:"min_deposits"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
