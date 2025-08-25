@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -501,12 +502,12 @@ func (df FlagsSet) WithFeePayer(val sdk.AccAddress) FlagsSet {
 	return res
 }
 
-func (df FlagsSet) WithDepositor(acc sdk.Address) FlagsSet {
+func (df FlagsSet) WithDepositSources(sources []string) FlagsSet {
 	res := make([]string, len(df), len(df)+1)
 
 	copy(res, df)
 
-	res = append(res, fmt.Sprintf("--%s=%s", cflags.FlagDepositorAccount, acc))
+	res = append(res, fmt.Sprintf("--%s=%s", cflags.FlagDepositSources, strings.Join(sources, ",")))
 
 	return res
 }

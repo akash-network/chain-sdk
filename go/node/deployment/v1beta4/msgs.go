@@ -5,33 +5,40 @@ import (
 
 	cerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
+	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 )
 
 var (
-	_ sdk.Msg = &MsgCreateDeployment{}
-	_ sdk.Msg = &MsgUpdateDeployment{}
-	_ sdk.Msg = &MsgCloseDeployment{}
-	_ sdk.Msg = &MsgCloseGroup{}
-	_ sdk.Msg = &MsgPauseGroup{}
-	_ sdk.Msg = &MsgStartGroup{}
-	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg            = &MsgCreateDeployment{}
+	_ sdk.LegacyMsg      = &MsgCreateDeployment{}
+	_ deposit.HasDeposit = &MsgCreateDeployment{}
+	_ sdk.Msg            = &MsgDepositDeployment{}
+	_ sdk.LegacyMsg      = &MsgDepositDeployment{}
+	_ deposit.HasDeposit = &MsgDepositDeployment{}
+	_ sdk.Msg            = &MsgUpdateDeployment{}
+	_ sdk.Msg            = &MsgCloseDeployment{}
+	_ sdk.Msg            = &MsgCloseGroup{}
+	_ sdk.Msg            = &MsgPauseGroup{}
+	_ sdk.Msg            = &MsgStartGroup{}
+	_ sdk.Msg            = &MsgUpdateParams{}
 )
 
 var (
-	msgTypeCreateDeployment = ""
-	msgTypeUpdateDeployment = ""
-	msgTypeCloseDeployment  = ""
-	msgTypeCloseGroup       = ""
-	msgTypePauseGroup       = ""
-	msgTypeStartGroup       = ""
-	msgTypeUpdateParams     = ""
+	msgTypeCreateDeployment  = ""
+	MsgTypeDepositDeployment = ""
+	msgTypeUpdateDeployment  = ""
+	msgTypeCloseDeployment   = ""
+	msgTypeCloseGroup        = ""
+	msgTypePauseGroup        = ""
+	msgTypeStartGroup        = ""
+	msgTypeUpdateParams      = ""
 )
 
 func init() {
 	msgTypeCreateDeployment = reflect.TypeOf(&MsgCreateDeployment{}).Elem().Name()
+	MsgTypeDepositDeployment = reflect.TypeOf(&MsgDepositDeployment{}).Name()
 	msgTypeUpdateDeployment = reflect.TypeOf(&MsgUpdateDeployment{}).Elem().Name()
 	msgTypeCloseDeployment = reflect.TypeOf(&MsgCloseDeployment{}).Elem().Name()
 	msgTypeCloseGroup = reflect.TypeOf(&MsgCloseGroup{}).Elem().Name()
@@ -41,14 +48,16 @@ func init() {
 }
 
 // NewMsgCreateDeployment creates a new MsgCreateDeployment instance
-func NewMsgCreateDeployment(id v1.DeploymentID, groups []GroupSpec, hash []byte,
-	deposit sdk.Coin, depositor sdk.AccAddress) *MsgCreateDeployment {
+func NewMsgCreateDeployment(
+	id v1.DeploymentID,
+	groups []GroupSpec,
+	hash []byte,
+	deposit deposit.Deposit) *MsgCreateDeployment {
 	return &MsgCreateDeployment{
-		ID:        id,
-		Groups:    groups,
-		Hash:      hash,
-		Deposit:   deposit,
-		Depositor: depositor.String(),
+		ID:      id,
+		Groups:  groups,
+		Hash:    hash,
+		Deposit: deposit,
 	}
 }
 
@@ -92,16 +101,75 @@ func (msg *MsgCreateDeployment) ValidateBasic() error {
 		}
 
 		// deposit must be same denom as price
-		if !msg.Deposit.IsZero() {
-			if gdenom := gs.Price().Denom; gdenom != msg.Deposit.Denom {
-				return cerrors.Wrapf(v1.ErrInvalidDeposit, "Mismatched denominations (%v != %v)", msg.Deposit.Denom, gdenom)
+		if !msg.Deposit.Amount.IsZero() {
+			if gdenom := gs.Price().Denom; gdenom != msg.Deposit.Amount.Denom {
+				return cerrors.Wrapf(v1.ErrInvalidDeposit, "Mismatched denominations (%v != %v)", msg.Deposit.Amount.Denom, gdenom)
 			}
 		}
 	}
 
-	_, err := sdk.AccAddressFromBech32(msg.Depositor)
+	return nil
+}
+
+// NewMsgDepositDeployment creates a new MsgDepositDeployment instance
+func NewMsgDepositDeployment(id v1.DeploymentID, dep deposit.Deposit) *MsgDepositDeployment {
+	return &MsgDepositDeployment{
+		ID:      id,
+		Deposit: dep,
+	}
+}
+
+// Type implements the sdk.Msg interface
+func (msg *MsgDepositDeployment) Type() string {
+	return MsgTypeDepositDeployment
+}
+
+// GetSignBytes encodes the message for signing
+//
+// Deprecated: GetSignBytes is deprecated
+func (msg *MsgDepositDeployment) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg *MsgDepositDeployment) GetSigners() []sdk.AccAddress {
+	owner, err := sdk.AccAddressFromBech32(msg.ID.Owner)
 	if err != nil {
-		return cerrors.Wrap(sdkerrors.ErrInvalidAddress, "MsgCreateDeployment: Invalid Depositor Address")
+		panic(err)
+	}
+
+	return []sdk.AccAddress{owner}
+}
+
+// ValidateBasic does basic validation like check owner and groups length
+func (msg *MsgDepositDeployment) ValidateBasic() error {
+	if err := msg.ID.Validate(); err != nil {
+		return err
+	}
+
+	if msg.Deposit.Amount.IsZero() {
+		return v1.ErrInvalidDeposit
+	}
+
+	if len(msg.Deposit.Sources) == 0 {
+		return cerrors.Wrap(deposit.ErrInvalidDepositSource, "empty deposit sources")
+	}
+
+	sources := make(map[deposit.Source]int)
+
+	for _, src := range msg.Deposit.Sources {
+		switch src {
+		case deposit.SourceBalance:
+		case deposit.SourceGrant:
+		default:
+			return cerrors.Wrapf(deposit.ErrInvalidDepositSource, "empty deposit source type %d", src)
+		}
+
+		if _, exists := sources[src]; exists {
+			return cerrors.Wrapf(deposit.ErrInvalidDepositSource, "duplicate deposit source type %d", src)
+		}
+
+		sources[src] = 0
 	}
 
 	return nil
@@ -341,6 +409,9 @@ func (m *MsgUpdateParams) GetSignBytes() []byte {
 //
 // Deprecated: Route is deprecated
 func (msg *MsgCreateDeployment) Route() string { return v1.RouterKey }
+
+// Route implements the sdk.Msg interface
+func (msg *MsgDepositDeployment) Route() string { return v1.RouterKey }
 
 // Route implements the sdk.Msg interface
 //

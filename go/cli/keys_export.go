@@ -30,8 +30,7 @@ allow users to import their keys in hot wallets. This feature is for advanced
 users only that are confident about how to handle private keys work and are
 FULLY AWARE OF THE RISKS. If you are unsure, you may want to do some research
 and export your keys in ASCII-armored encrypted format.`,
-		Args:    cobra.ExactArgs(1),
-		PreRunE: keysPreRunE,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := GetClientQueryContext(cmd)
 			if err != nil {

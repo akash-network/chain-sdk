@@ -15,7 +15,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	arpcclient "pkg.akt.dev/go/node/client"
 	"pkg.akt.dev/go/sdkutil"
 )
 
@@ -32,11 +31,6 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 			return err
 		}
 
-		flagSet := cmd.Flags()
-
-		skipRPC, _ := flagSet.GetBool(cflags.FlagSkipRPCInit)
-		offline, _ := flagSet.GetBool(cflags.FlagOffline)
-
 		initClientCtx := sdkclient.Context{}.
 			WithCodec(encodingConfig.Codec).
 			WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -45,23 +39,7 @@ func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []s
 			WithInput(os.Stdin).
 			WithAccountRetriever(authtypes.AccountRetriever{}).
 			WithBroadcastMode(cflags.BroadcastBlock).
-			WithHomeDir(defaultHome).
-			WithOffline(offline)
-
-		if !skipRPC && !offline {
-			rpcURI, _ := flagSet.GetString(cflags.FlagNode)
-			if rpcURI != "" {
-				client, err := arpcclient.NewClient(ctx, rpcURI)
-				if err != nil {
-					return err
-				}
-
-				ctx = context.WithValue(ctx, ContextTypeRPCURI, rpcURI)
-				ctx = context.WithValue(ctx, ContextTypeRPCClient, client)
-
-				initClientCtx = initClientCtx.WithClient(client)
-			}
-		}
+			WithHomeDir(defaultHome)
 
 		ctx = context.WithValue(ctx, ContextTypeAddressCodec, encodingConfig.SigningOptions.AddressCodec)
 		ctx = context.WithValue(ctx, ContextTypeValidatorCodec, encodingConfig.SigningOptions.ValidatorAddressCodec)

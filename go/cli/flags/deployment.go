@@ -1,8 +1,6 @@
 package flags
 
 import (
-	"strings"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -181,24 +179,7 @@ func DepFiltersFromFlags(flags *pflag.FlagSet) (dv1beta4.DeploymentFilters, erro
 	return dfilters, nil
 }
 
-// AddDepositorFlag adds the `--depositor-account` flag
-func AddDepositorFlag(flags *pflag.FlagSet) {
-	flags.String(FlagDepositorAccount, "", "Depositor account pays for the deposit instead of deducting from the owner")
-}
-
-// DepositorFromFlags returns the depositor account if one was specified in flags,
-// otherwise it returns the owner's account.
-func DepositorFromFlags(flags *pflag.FlagSet, owner string) (string, error) {
-	depositorAcc, err := flags.GetString(FlagDepositorAccount)
-	if err != nil {
-		return "", err
-	}
-
-	// if no depositor is specified, owner is the default depositor
-	if strings.TrimSpace(depositorAcc) == "" {
-		return owner, nil
-	}
-
-	_, err = sdk.AccAddressFromBech32(depositorAcc)
-	return depositorAcc, err
+func AddDepositFlags(flags *pflag.FlagSet) {
+	flags.String(FlagDeposit, "", "Deposit amount")
+	flags.StringSlice(FlagDepositSources, []string{"grant", "balance"}, "Comma separated list of deposit sources. allowed values grant|balance")
 }

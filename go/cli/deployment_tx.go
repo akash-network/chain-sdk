@@ -1,18 +1,18 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 
+	"pkg.akt.dev/go/node/client/v1beta3"
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
 	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 	"pkg.akt.dev/go/node/types/constants"
@@ -41,7 +41,6 @@ func GetTxDeploymentCmds() *cobra.Command {
 		GetTxDeploymentDepositCmd(),
 		GetTxDeploymentCloseCmd(),
 		GetTxDeploymentGroupCmds(),
-		GetTxDeploymentAuthzCmd(),
 	)
 	return cmd
 }
@@ -103,22 +102,16 @@ func GetTxDeploymentCreateCmd() *cobra.Command {
 				return err
 			}
 
-			deposit, err := DetectDeploymentDeposit(ctx, cmd.Flags(), cl.Query())
-			if err != nil {
-				return err
-			}
-
-			depositorAcc, err := cflags.DepositorFromFlags(cmd.Flags(), id.Owner)
+			deposit, err := DetectDeposit(ctx, cmd.Flags(), cl.Query(), DetectDeploymentDeposit)
 			if err != nil {
 				return err
 			}
 
 			msg := &dv1beta4.MsgCreateDeployment{
-				ID:        id,
-				Hash:      version,
-				Groups:    make(dv1beta4.GroupSpecs, 0, len(groups)),
-				Deposit:   deposit,
-				Depositor: depositorAcc,
+				ID:      id,
+				Hash:    version,
+				Groups:  make(dv1beta4.GroupSpecs, 0, len(groups)),
+				Deposit: deposit,
 			}
 
 			msg.Groups = append(msg.Groups, groups...)
@@ -138,7 +131,6 @@ func GetTxDeploymentCreateCmd() *cobra.Command {
 
 	cflags.AddTxFlagsToCmd(cmd)
 	cflags.AddDeploymentIDFlags(cmd.Flags())
-	cflags.AddDepositorFlag(cmd.Flags())
 	cflags.AddDepositFlags(cmd.Flags())
 
 	return cmd
@@ -160,20 +152,21 @@ func GetTxDeploymentDepositCmd() *cobra.Command {
 				return err
 			}
 
-			deposit, err := sdk.ParseCoinNormalized(args[0])
+			amount, err := sdk.ParseCoinNormalized(args[0])
 			if err != nil {
 				return err
 			}
 
-			depositorAcc, err := cflags.DepositorFromFlags(cmd.Flags(), id.Owner)
+			deposit, err := DetectDeposit(ctx, cmd.Flags(), cl.Query(), func(ctx context.Context, flags *pflag.FlagSet, cl v1beta3.QueryClient) (sdk.Coin, error) {
+				return amount, nil
+			})
 			if err != nil {
 				return err
 			}
 
-			msg := &dv1.MsgDepositDeployment{
-				ID:        id,
-				Amount:    deposit,
-				Depositor: depositorAcc,
+			msg := &dv1beta4.MsgDepositDeployment{
+				ID:      id,
+				Deposit: deposit,
 			}
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
@@ -187,7 +180,7 @@ func GetTxDeploymentDepositCmd() *cobra.Command {
 
 	cflags.AddTxFlagsToCmd(cmd)
 	cflags.AddDeploymentIDFlags(cmd.Flags())
-	cflags.AddDepositorFlag(cmd.Flags())
+	cflags.AddDepositFlags(cmd.Flags())
 
 	return cmd
 }
@@ -429,124 +422,6 @@ func GetDeploymentGroupStartCmd() *cobra.Command {
 	cflags.AddTxFlagsToCmd(cmd)
 	cflags.AddGroupIDFlags(cmd.Flags())
 	cflags.MarkReqGroupIDFlags(cmd)
-
-	return cmd
-}
-
-func GetTxDeploymentAuthzCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "authz",
-		Short: "Deployment authorization transaction subcommands",
-		Long:  "Authorize and revoke access to pay for deployments on behalf of your address",
-	}
-
-	cmd.AddCommand(
-		GetTxDeploymentGrantAuthorizationCmd(),
-		GetTxDeploymentRevokeAuthorizationCmd(),
-	)
-
-	return cmd
-}
-
-func GetTxDeploymentGrantAuthorizationCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "grant <grantee> <spend_limit> --from <granter>",
-		Short: "Grant deposit deployment authorization to an address",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`grant authorization to an address to pay for a deployment on your behalf:
-
-Examples:
- $ akash tx %s authz grant akash1skjw.. 50akt --from=akash1skl..
- $ akash tx %s authz grant akash1skjw.. 50akt --from=akash1skl.. --expiration=1661020200
-	`, dv1.ModuleName, dv1.ModuleName),
-		),
-		Args:              cobra.ExactArgs(2),
-		PersistentPreRunE: TxPersistentPreRunE,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := cmd.Context()
-			cl := MustClientFromContext(ctx)
-			cctx := cl.ClientContext()
-
-			grantee, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-
-			spendLimit, err := sdk.ParseCoinNormalized(args[1])
-			if err != nil {
-				return err
-			}
-			if spendLimit.IsZero() || spendLimit.IsNegative() {
-				return fmt.Errorf("spend-limit should be greater than zero, got: %s", spendLimit)
-			}
-
-			exp, err := cmd.Flags().GetInt64(cflags.FlagExpiration)
-			if err != nil {
-				return err
-			}
-
-			granter := cctx.GetFromAddress()
-			authorization := dv1.NewDepositAuthorization(spendLimit)
-
-			expiry := time.Unix(exp, 0)
-			msg, err := authz.NewMsgGrant(granter, grantee, authorization, &expiry)
-			if err != nil {
-				return err
-			}
-
-			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
-			if err != nil {
-				return err
-			}
-
-			return cl.PrintMessage(resp)
-		},
-	}
-
-	cflags.AddTxFlagsToCmd(cmd)
-	cmd.Flags().Int64(cflags.FlagExpiration, time.Now().AddDate(1, 0, 0).Unix(), "The Unix timestamp. Default is one year.")
-	_ = cmd.MarkFlagRequired(cflags.FlagFrom)
-
-	return cmd
-}
-
-func GetTxDeploymentRevokeAuthorizationCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "revoke [grantee] --from=[granter]",
-		Short: "Revoke deposit deployment authorization given to an address",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`revoke deposit deployment authorization from a granter to a grantee:
-Example:
- $ akash tx %s authz revoke akash1skj.. --from=akash1skj..
-			`, dv1.ModuleName),
-		),
-		Args:              cobra.ExactArgs(1),
-		PersistentPreRunE: TxPersistentPreRunE,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := cmd.Context()
-			cl := MustClientFromContext(ctx)
-			cctx := cl.ClientContext()
-
-			grantee, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-
-			granter := cctx.GetFromAddress()
-			msgTypeURL := (&dv1.DepositAuthorization{}).MsgTypeURL()
-			msg := authz.NewMsgRevoke(granter, grantee, msgTypeURL)
-
-			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{&msg})
-			if err != nil {
-				return err
-			}
-
-			return cl.PrintMessage(resp)
-		},
-	}
-
-	cflags.AddTxFlagsToCmd(cmd)
-	_ = cmd.MarkFlagRequired(cflags.FlagFrom)
 
 	return cmd
 }

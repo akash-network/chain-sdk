@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	moduleName                        = "akash"
+	ModuleName                        = "akash"
 	AttributeNameRegexpStringWildcard = `^([a-zA-Z][\w\/\.\-]{1,126}[\w\*]?)$`
 	AttributeNameRegexpString         = `^([a-zA-Z][\w\/\.\-]{1,126})$`
 )
@@ -22,11 +22,12 @@ const (
 const (
 	errAttributesDuplicateKeys uint32 = iota + 1
 	errInvalidAttributeKey
+	ErrLast
 )
 
 var (
-	ErrAttributesDuplicateKeys = cerrors.Register(moduleName, errAttributesDuplicateKeys, "attributes cannot have duplicate keys")
-	ErrInvalidAttributeKey     = cerrors.Register(moduleName, errInvalidAttributeKey, "attribute key does not match regexp")
+	ErrAttributesDuplicateKeys = cerrors.Register(ModuleName, errAttributesDuplicateKeys, "attributes cannot have duplicate keys")
+	ErrInvalidAttributeKey     = cerrors.Register(ModuleName, errInvalidAttributeKey, "attribute key does not match regexp")
 )
 
 var (

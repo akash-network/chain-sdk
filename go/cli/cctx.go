@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -35,7 +36,11 @@ func SetCmdClientContextHandler(cctx sdkclient.Context, cmd *cobra.Command) (err
 func GetClientContextFromCmd(cmd *cobra.Command) sdkclient.Context {
 	if v := cmd.Context().Value(ClientContextKey); v != nil {
 		clientCtxPtr := v.(*sdkclient.Context)
-		return *clientCtxPtr
+
+		cctx := *clientCtxPtr
+		cctx = cctx.WithCmdContext(cmd.Context())
+
+		return cctx
 	}
 
 	return sdkclient.Context{}
@@ -102,6 +107,13 @@ func ReadQueryCommandFlags(cctx sdkclient.Context, flagSet *pflag.FlagSet) (sdkc
 	return ReadPersistentCommandFlags(cctx, flagSet)
 }
 
+func GetRPCURIFromContext(ctx context.Context) string {
+	val := ctx.Value(ContextTypeRPCURI)
+	res, _ := val.(string)
+
+	return res
+}
+
 // ReadPersistentCommandFlags returns a Context with fields set for "persistent"
 // or common flags that do not necessarily change with context.
 //
@@ -157,8 +169,8 @@ func ReadPersistentCommandFlags(cctx sdkclient.Context, flagSet *pflag.FlagSet) 
 		}
 	}
 
-	if cctx.Client == nil && !cctx.Offline {
-		if rpcURI, _ := flagSet.GetString(cflags.FlagNode); rpcURI != "" {
+	if cctx.Client == nil {
+		if rpcURI := GetRPCURIFromContext(cctx.CmdContext); rpcURI != "" {
 			cctx = cctx.WithNodeURI(rpcURI)
 
 			client, err := arpcclient.NewClient(cctx.CmdContext, rpcURI)

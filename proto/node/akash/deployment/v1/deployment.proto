@@ -19,8 +19,8 @@ message DeploymentID {
   //   "akash1..."
   string owner = 1 [
     (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)    = "owner",
-    (gogoproto.moretags)   = "yaml:\"owner\""
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
   ];
 
   // Dseq (deployment sequence number) is a unique numeric identifier for the deployment.

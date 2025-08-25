@@ -27,7 +27,6 @@ const (
 	errInvalidDeposit
 	errInvalidIDPath
 	errInvalidParam
-	errInvalidDeploymentDepositor
 )
 
 var (
@@ -75,6 +74,4 @@ var (
 	ErrInvalidIDPath = cerrors.Register(ModuleName, errInvalidIDPath, "ID path invalid")
 	// ErrInvalidParam indicates an invalid chain parameter
 	ErrInvalidParam = cerrors.Register(ModuleName, errInvalidParam, "parameter invalid")
-	// ErrInvalidDeploymentDepositor indicates an invalid chain parameter
-	ErrInvalidDeploymentDepositor = cerrors.Register(ModuleName, errInvalidDeploymentDepositor, "invalid deployment depositor")
 )

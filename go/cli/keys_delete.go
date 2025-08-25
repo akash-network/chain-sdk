@@ -25,8 +25,7 @@ Note that removing offline or ledger keys will remove
 only the public key references stored locally, i.e.
 private keys stored in a ledger device cannot be deleted with the CLI.
 `,
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: keysPreRunE,
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			buf := bufio.NewReader(cmd.InOrStdin())
 			clientCtx, err := GetClientQueryContext(cmd)

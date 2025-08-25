@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
+	mtypes "pkg.akt.dev/go/node/market/v1"
 	types "pkg.akt.dev/go/node/market/v1beta5"
 )
 
@@ -65,16 +66,15 @@ func GetTxMarketBidCreateCmd() *cobra.Command {
 				return err
 			}
 
-			deposit, err := DetectBidDeposit(ctx, cmd.Flags(), cl.Query())
+			deposit, err := DetectDeposit(ctx, cmd.Flags(), cl.Query(), DetectBidDeposit)
 			if err != nil {
 				return err
 			}
 
 			msg := &types.MsgCreateBid{
-				OrderID:  id,
-				Provider: cctx.GetFromAddress().String(),
-				Price:    coin,
-				Deposit:  deposit,
+				ID:      mtypes.MakeBidID(id, cctx.GetFromAddress()),
+				Price:   coin,
+				Deposit: deposit,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

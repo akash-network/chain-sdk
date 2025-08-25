@@ -79,7 +79,6 @@ const (
 	FlagAllowedValidators         = "allowed-validators"
 	FlagDenyValidators            = "deny-validators"
 	FlagAllowList                 = "allow-list"
-	FlagDeposit                   = "deposit"
 	FlagStatus                    = "status"
 	FlagState                     = "state"
 	FlagOwner                     = "owner"
@@ -89,7 +88,8 @@ const (
 	FlagProvider                  = "provider"
 	FlagSerial                    = "serial"
 	FlagPrice                     = "price"
-	FlagDepositorAccount          = "depositor-account"
+	FlagDeposit                   = "deposit"
+	FlagDepositSources            = "deposit-sources"
 	FlagExpiration                = "expiration"
 	FlagSpendLimit                = "spend-limit"
 	FlagHome                      = cmcli.HomeFlag
@@ -282,14 +282,6 @@ func init() {
 	fsValidator.String(FlagAddressValidator, "", "The Bech32 address of the validator")
 	fsRedelegation.String(FlagAddressValidatorSrc, "", "The Bech32 address of the source validator")
 	fsRedelegation.String(FlagAddressValidatorDst, "", "The Bech32 address of the destination validator")
-}
-
-func AddDepositFlags(flags *pflag.FlagSet) {
-	flags.String(FlagDeposit, "", "Deposit amount")
-}
-
-func MarkReqDepositFlags(cmd *cobra.Command) {
-	_ = cmd.MarkFlagRequired(FlagDeposit)
 }
 
 // LineBreak can be included in a command list to provide a blank line

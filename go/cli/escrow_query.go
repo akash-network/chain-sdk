@@ -88,7 +88,7 @@ func GetQueryEscrowBlocksRemainingCmd() *cobra.Command {
 				return err
 			}
 
-			balanceRemain := utils.LeaseCalcBalanceRemain(res.EscrowAccount.TotalBalance().Amount,
+			balanceRemain := utils.LeaseCalcBalanceRemain(res.EscrowAccount.Funds[0].Balance.Amount,
 				int64(blockchainHeight),
 				res.EscrowAccount.SettledAt,
 				totalLeaseAmount)

@@ -7,32 +7,12 @@ import "cosmos_proto/cosmos.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 import "akash/escrow/v1/accountid.proto";
+import "akash/escrow/v1/state.proto";
 
 option go_package = "pkg.akt.dev/go/node/escrow/v1";
 
 // FractionalPayment stores state for a payment.
 message FractionalPayment {
-  // State defines payment state
-  enum State {
-      option (gogoproto.goproto_enum_prefix) = false;
-      // PaymentStateInvalid is the state when the payment is invalid.
-      invalid   = 0 [
-          (gogoproto.enumvalue_customname) = "PaymentStateInvalid"
-      ];
-      // PaymentStateOpen is the state when the payment is open.
-      open      = 1 [
-          (gogoproto.enumvalue_customname) = "PaymentOpen"
-      ];
-      // PaymentStateClosed is the state when the payment is closed.
-      closed    = 2 [
-          (gogoproto.enumvalue_customname) = "PaymentClosed"
-      ];
-      // PaymentStateOverdrawn is the state when the payment is overdrawn.
-      overdrawn = 3 [
-          (gogoproto.enumvalue_customname) = "PaymentOverdrawn"
-      ];
-  }
-
   // AccountId is the unique identifier for the account.
   AccountID account_id = 1 [
     (gogoproto.nullable)   = false,

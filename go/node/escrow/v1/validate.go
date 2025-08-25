@@ -23,12 +23,16 @@ func (m *Account) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Owner); err != nil {
 		return ErrInvalidAccount.Wrap(err.Error())
 	}
-	if m.State == AccountStateInvalid {
+	if m.State == StateInvalid {
 		return ErrInvalidAccount.Wrap("invalid state")
 	}
-	if _, err := sdk.AccAddressFromBech32(m.Depositor); err != nil {
-		return ErrInvalidAccount.Wrapf("invalid depositor")
+
+	for _, deposit := range m.Deposits {
+		if _, err := sdk.AccAddressFromBech32(deposit.Depositor); err != nil {
+			return ErrInvalidAccount.Wrapf("invalid depositor")
+		}
 	}
+
 	return nil
 }
 
@@ -42,13 +46,8 @@ func (obj *FractionalPayment) ValidateBasic() error {
 	if obj.Rate.IsZero() {
 		return ErrInvalidPayment.Wrap("payment rate zero")
 	}
-	if obj.State == PaymentStateInvalid {
+	if obj.State == StateInvalid {
 		return ErrInvalidPayment.Wrap("invalid state")
 	}
 	return nil
-}
-
-// TotalBalance is the sum of Balance and Funds
-func (m *Account) TotalBalance() sdk.DecCoin {
-	return m.Balance.Add(m.Funds)
 }
