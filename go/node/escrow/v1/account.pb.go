@@ -4,8 +4,10 @@
 package v1
 
 import (
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -25,40 +27,50 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// State stores state for an escrow account.
-type Account_State int32
-
-const (
-	// AccountStateInvalid is an invalid state.
-	AccountStateInvalid Account_State = 0
-	// AccountOpen is the state when an account is open.
-	AccountOpen Account_State = 1
-	// AccountClosed is the state when an account is closed.
-	AccountClosed Account_State = 2
-	// AccountOverdrawn is the state when an account is overdrawn.
-	AccountOverdrawn Account_State = 3
-)
-
-var Account_State_name = map[int32]string{
-	0: "invalid",
-	1: "open",
-	2: "closed",
-	3: "overdrawn",
+type Funds struct {
+	// Balance holds the unspent coins received from all deposits
+	Balance   types.DecCoin               `protobuf:"bytes,1,opt,name=balance,proto3" json:"balance" yaml:"balance"`
+	Overdraft cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=overdraft,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"overdraft"`
 }
 
-var Account_State_value = map[string]int32{
-	"invalid":   0,
-	"open":      1,
-	"closed":    2,
-	"overdrawn": 3,
+func (m *Funds) Reset()         { *m = Funds{} }
+func (m *Funds) String() string { return proto.CompactTextString(m) }
+func (*Funds) ProtoMessage()    {}
+func (*Funds) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6835c04008686422, []int{0}
+}
+func (m *Funds) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Funds) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Funds.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Funds) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Funds.Merge(m, src)
+}
+func (m *Funds) XXX_Size() int {
+	return m.Size()
+}
+func (m *Funds) XXX_DiscardUnknown() {
+	xxx_messageInfo_Funds.DiscardUnknown(m)
 }
 
-func (x Account_State) String() string {
-	return proto.EnumName(Account_State_name, int32(x))
-}
+var xxx_messageInfo_Funds proto.InternalMessageInfo
 
-func (Account_State) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_6835c04008686422, []int{0, 0}
+func (m *Funds) GetBalance() types.DecCoin {
+	if m != nil {
+		return m.Balance
+	}
+	return types.DecCoin{}
 }
 
 // Account stores state for an escrow account.
@@ -72,31 +84,21 @@ type Account struct {
 	//   "akash1..."
 	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner" yaml:"owner"`
 	// State represents the current state of an Account.
-	State Account_State `protobuf:"varint,3,opt,name=state,proto3,enum=akash.escrow.v1.Account_State" json:"state" yaml:"state"`
-	// Balance holds the unspent coins received from the owner's wallet.
-	Balance types.DecCoin `protobuf:"bytes,4,opt,name=balance,proto3" json:"balance" yaml:"balance"`
+	State State `protobuf:"varint,3,opt,name=state,proto3,enum=akash.escrow.v1.State" json:"state" yaml:"state"`
 	// Transferred total coins spent by this account.
-	Transferred types.DecCoin `protobuf:"bytes,5,opt,name=transferred,proto3" json:"transferred" yaml:"transferred"`
+	Transferred github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=transferred,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"transferred" yaml:"transferred"`
 	// SettledAt represents the block height at which this account was last settled.
-	SettledAt int64 `protobuf:"varint,6,opt,name=settled_at,json=settledAt,proto3" json:"settledAt" yaml:"settledAt"`
-	// Depositor is the bech32 address of the depositor.
-	// It is a string representing a valid account address.
-	//
-	// Example:
-	//   "akash1..."
-	// If depositor is same as the owner, then any incoming coins are added to the Balance.
-	// If depositor isn't same as the owner, then any incoming coins are added to the Funds.
-	Depositor string `protobuf:"bytes,7,opt,name=depositor,proto3" json:"depositor" yaml:"depositor"`
-	// Funds are unspent coins received from the (non-Owner) Depositor's wallet.
-	// If there are any funds, they should be spent before spending the Balance.
-	Funds types.DecCoin `protobuf:"bytes,8,opt,name=funds,proto3" json:"funds" yaml:"funds"`
+	SettledAt int64 `protobuf:"varint,5,opt,name=settled_at,json=settledAt,proto3" json:"settledAt" yaml:"settledAt"`
+	// Balance holds the unspent coins received from all deposits
+	Funds    []Funds   `protobuf:"bytes,6,rep,name=funds,proto3" json:"funds" yaml:"funds"`
+	Deposits []Deposit `protobuf:"bytes,9,rep,name=deposits,proto3" json:"depositors" yaml:"depositors"`
 }
 
 func (m *Account) Reset()         { *m = Account{} }
 func (m *Account) String() string { return proto.CompactTextString(m) }
 func (*Account) ProtoMessage()    {}
 func (*Account) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6835c04008686422, []int{0}
+	return fileDescriptor_6835c04008686422, []int{1}
 }
 func (m *Account) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -139,25 +141,18 @@ func (m *Account) GetOwner() string {
 	return ""
 }
 
-func (m *Account) GetState() Account_State {
+func (m *Account) GetState() State {
 	if m != nil {
 		return m.State
 	}
-	return AccountStateInvalid
+	return StateInvalid
 }
 
-func (m *Account) GetBalance() types.DecCoin {
-	if m != nil {
-		return m.Balance
-	}
-	return types.DecCoin{}
-}
-
-func (m *Account) GetTransferred() types.DecCoin {
+func (m *Account) GetTransferred() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
 		return m.Transferred
 	}
-	return types.DecCoin{}
+	return nil
 }
 
 func (m *Account) GetSettledAt() int64 {
@@ -167,67 +162,111 @@ func (m *Account) GetSettledAt() int64 {
 	return 0
 }
 
-func (m *Account) GetDepositor() string {
-	if m != nil {
-		return m.Depositor
-	}
-	return ""
-}
-
-func (m *Account) GetFunds() types.DecCoin {
+func (m *Account) GetFunds() []Funds {
 	if m != nil {
 		return m.Funds
 	}
-	return types.DecCoin{}
+	return nil
+}
+
+func (m *Account) GetDeposits() []Deposit {
+	if m != nil {
+		return m.Deposits
+	}
+	return nil
 }
 
 func init() {
-	proto.RegisterEnum("akash.escrow.v1.Account_State", Account_State_name, Account_State_value)
+	proto.RegisterType((*Funds)(nil), "akash.escrow.v1.Funds")
 	proto.RegisterType((*Account)(nil), "akash.escrow.v1.Account")
 }
 
 func init() { proto.RegisterFile("akash/escrow/v1/account.proto", fileDescriptor_6835c04008686422) }
 
 var fileDescriptor_6835c04008686422 = []byte{
-	// 607 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xb1, 0x6f, 0x13, 0x3f,
-	0x14, 0xc7, 0x73, 0x69, 0x93, 0xfc, 0xe2, 0xfe, 0x68, 0x83, 0xa9, 0xc4, 0xf5, 0x44, 0xce, 0xc7,
-	0xc1, 0x10, 0x06, 0xee, 0x94, 0x32, 0x20, 0xd8, 0x9a, 0x56, 0x42, 0x19, 0x50, 0xc5, 0x75, 0x40,
-	0xb0, 0x54, 0xce, 0xd9, 0x0d, 0xa7, 0xa6, 0x76, 0x74, 0x76, 0x53, 0xf1, 0x1f, 0xa0, 0x4c, 0x88,
-	0x3d, 0x13, 0xff, 0x02, 0x7f, 0x02, 0x43, 0xc7, 0x8a, 0x89, 0xc9, 0x42, 0xe9, 0x96, 0x31, 0x7f,
-	0x01, 0x8a, 0xed, 0xf4, 0x2a, 0xa4, 0x48, 0xdd, 0xee, 0x7d, 0xbe, 0xdf, 0xf7, 0x9e, 0xfd, 0xde,
-	0x19, 0x34, 0xf1, 0x29, 0x16, 0x9f, 0x62, 0x2a, 0xd2, 0x9c, 0x5f, 0xc4, 0xa3, 0x76, 0x8c, 0xd3,
-	0x94, 0x9f, 0x33, 0x19, 0x0d, 0x73, 0x2e, 0x39, 0xdc, 0xd2, 0x72, 0x64, 0xe4, 0x68, 0xd4, 0xf6,
-	0xb6, 0xfb, 0xbc, 0xcf, 0xb5, 0x16, 0x2f, 0xbe, 0x8c, 0xcd, 0xdb, 0x49, 0xb9, 0x38, 0xe3, 0xe2,
-	0xd8, 0x08, 0x26, 0xb0, 0x92, 0x6f, 0xa2, 0xb8, 0x87, 0x05, 0x8d, 0x47, 0xed, 0x1e, 0x95, 0xb8,
-	0x1d, 0xa7, 0x3c, 0x63, 0x56, 0x47, 0x2b, 0x0e, 0x90, 0x11, 0x63, 0x08, 0x7f, 0x56, 0x41, 0x6d,
-	0xcf, 0x30, 0xd8, 0x05, 0xe5, 0x8c, 0xb8, 0x4e, 0xe0, 0xb4, 0x36, 0x76, 0xbd, 0xe8, 0x9f, 0xb3,
-	0x45, 0xd6, 0xd5, 0x3d, 0xe8, 0x34, 0x2f, 0x15, 0x2a, 0x4d, 0x15, 0x2a, 0x77, 0x0f, 0x66, 0x0a,
-	0x95, 0x33, 0x32, 0x57, 0xa8, 0xfe, 0x19, 0x9f, 0x0d, 0x5e, 0x87, 0x19, 0x09, 0x93, 0x72, 0x46,
-	0xe0, 0x1b, 0x50, 0xe1, 0x17, 0x8c, 0xe6, 0x6e, 0x39, 0x70, 0x5a, 0xf5, 0x4e, 0x7b, 0xa6, 0x90,
-	0x01, 0x73, 0x85, 0xfe, 0x37, 0x56, 0x1d, 0x86, 0xbf, 0x7e, 0x3c, 0xdf, 0xb6, 0x37, 0xda, 0x23,
-	0x24, 0xa7, 0x42, 0x1c, 0xc9, 0x3c, 0x63, 0xfd, 0xc4, 0xd8, 0xe1, 0x21, 0xa8, 0x08, 0x89, 0x25,
-	0x75, 0xd7, 0x02, 0xa7, 0xb5, 0xb9, 0xeb, 0xaf, 0x3a, 0x56, 0x74, 0xb4, 0x70, 0x75, 0x76, 0x16,
-	0x8d, 0x74, 0x42, 0xd1, 0x48, 0x87, 0x61, 0x62, 0x30, 0xfc, 0x00, 0x6a, 0x3d, 0x3c, 0xc0, 0x2c,
-	0xa5, 0xee, 0xba, 0xbe, 0xe9, 0xa3, 0xc8, 0xf6, 0x5f, 0xcc, 0x30, 0xb2, 0x33, 0x8c, 0x0e, 0x68,
-	0xba, 0xcf, 0x33, 0xd6, 0x79, 0xbc, 0xb8, 0xeb, 0x4c, 0xa1, 0x65, 0xd2, 0x5c, 0xa1, 0x4d, 0x53,
-	0xd6, 0x82, 0x30, 0x59, 0x4a, 0x30, 0x03, 0x1b, 0x32, 0xc7, 0x4c, 0x9c, 0xd0, 0x3c, 0xa7, 0xc4,
-	0xad, 0xdc, 0xa1, 0xfc, 0x33, 0x5b, 0xfe, 0x76, 0xe2, 0x5c, 0x21, 0x68, 0x5a, 0xdc, 0x82, 0x61,
-	0x72, 0xdb, 0x02, 0xdf, 0x02, 0x20, 0xa8, 0x94, 0x03, 0x4a, 0x8e, 0xb1, 0x74, 0xab, 0x81, 0xd3,
-	0x5a, 0xeb, 0x44, 0x53, 0x85, 0xea, 0x47, 0x86, 0xee, 0xc9, 0x99, 0x42, 0x75, 0xb1, 0x0c, 0xe6,
-	0x0a, 0x35, 0xec, 0x30, 0x96, 0x28, 0x4c, 0x0a, 0x19, 0xbe, 0x07, 0x75, 0x42, 0x87, 0x5c, 0x64,
-	0x92, 0xe7, 0x6e, 0x4d, 0xaf, 0xec, 0xd5, 0xa2, 0xc0, 0x0d, 0x2c, 0x0a, 0xdc, 0xa0, 0xd5, 0xab,
-	0x2b, 0xd2, 0xe0, 0x3b, 0x50, 0x39, 0x39, 0x67, 0x44, 0xb8, 0xff, 0xdd, 0x61, 0x18, 0x4d, 0x3b,
-	0x0c, 0x93, 0x52, 0x2c, 0x50, 0x87, 0x61, 0x62, 0x70, 0xf8, 0xcd, 0x01, 0x15, 0xbd, 0x6c, 0xf8,
-	0x14, 0xd4, 0x32, 0x36, 0xc2, 0x83, 0x8c, 0x34, 0x4a, 0xde, 0xc3, 0xf1, 0x24, 0x78, 0x60, 0x7f,
-	0x06, 0x2d, 0x77, 0x8d, 0x04, 0x77, 0xc0, 0x3a, 0x1f, 0x52, 0xd6, 0x70, 0xbc, 0xad, 0xf1, 0x24,
-	0xd8, 0xb0, 0x96, 0xc3, 0x21, 0x65, 0xb0, 0x09, 0xaa, 0xe9, 0x80, 0x0b, 0x4a, 0x1a, 0x65, 0xef,
-	0xfe, 0x78, 0x12, 0xdc, 0xb3, 0xe2, 0xbe, 0x86, 0xf0, 0x09, 0xa8, 0xf3, 0x11, 0xcd, 0x49, 0x8e,
-	0x2f, 0x58, 0x63, 0xcd, 0xdb, 0x1e, 0x4f, 0x82, 0xc6, 0x32, 0x7d, 0xc9, 0xbd, 0xf5, 0x2f, 0xdf,
-	0xfd, 0x52, 0xe7, 0xe5, 0xe5, 0xd4, 0x77, 0xae, 0xa6, 0xbe, 0xf3, 0x67, 0xea, 0x3b, 0x5f, 0xaf,
-	0xfd, 0xd2, 0xd5, 0xb5, 0x5f, 0xfa, 0x7d, 0xed, 0x97, 0x3e, 0x36, 0x87, 0xa7, 0xfd, 0x08, 0x9f,
-	0xca, 0x88, 0xd0, 0x51, 0xdc, 0xe7, 0x31, 0xe3, 0x84, 0x16, 0xef, 0xb1, 0x57, 0xd5, 0xcf, 0xf0,
-	0xc5, 0xdf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x42, 0x2c, 0xb5, 0x60, 0x2a, 0x04, 0x00, 0x00,
+	// 617 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x53, 0xc1, 0x6f, 0xd3, 0x3e,
+	0x18, 0x6d, 0xba, 0x75, 0xfb, 0xc5, 0xfb, 0x69, 0x40, 0x34, 0xa1, 0xac, 0x63, 0x71, 0xc9, 0x85,
+	0x4a, 0x68, 0x8e, 0x3a, 0x0e, 0x48, 0xdc, 0x16, 0x22, 0xd0, 0x04, 0x08, 0x29, 0xbb, 0x00, 0x12,
+	0x9a, 0xdc, 0xd8, 0xcb, 0xa2, 0xae, 0x71, 0x15, 0x7b, 0x9d, 0xf6, 0x5f, 0x70, 0xe4, 0x6f, 0xe0,
+	0xca, 0xfe, 0x88, 0x1d, 0xa7, 0x9d, 0x10, 0x07, 0x83, 0xba, 0x5b, 0x8f, 0x3d, 0x73, 0x40, 0xb1,
+	0x1d, 0x52, 0xad, 0x42, 0x9c, 0xda, 0xef, 0xbd, 0xe7, 0xf7, 0xbd, 0x7c, 0x9f, 0x0d, 0xb6, 0xf1,
+	0x00, 0xf3, 0xe3, 0x80, 0xf2, 0xa4, 0x60, 0x67, 0xc1, 0xb8, 0x17, 0xe0, 0x24, 0x61, 0xa7, 0xb9,
+	0x40, 0xa3, 0x82, 0x09, 0xe6, 0xdc, 0x51, 0x34, 0xd2, 0x34, 0x1a, 0xf7, 0xda, 0x1b, 0x29, 0x4b,
+	0x99, 0xe2, 0x82, 0xf2, 0x9f, 0x96, 0xb5, 0x37, 0x13, 0xc6, 0x87, 0x8c, 0x1f, 0x6a, 0x42, 0x17,
+	0x86, 0xf2, 0x74, 0x15, 0xf4, 0x31, 0xa7, 0xc1, 0xb8, 0xd7, 0xa7, 0x02, 0xf7, 0x82, 0x84, 0x65,
+	0xb9, 0xe1, 0xe1, 0x5f, 0x02, 0x64, 0xc4, 0x08, 0x16, 0x12, 0x12, 0x3a, 0x62, 0x3c, 0x33, 0x09,
+	0xdb, 0x5b, 0xb7, 0x69, 0x2e, 0xb0, 0xa0, 0x9a, 0xf4, 0xbf, 0x5a, 0xa0, 0xf5, 0xe2, 0x34, 0x27,
+	0xdc, 0x79, 0x0f, 0x56, 0xfb, 0xf8, 0x04, 0xe7, 0x09, 0x75, 0xad, 0x8e, 0xd5, 0x5d, 0xdb, 0x7d,
+	0x80, 0x4c, 0xcc, 0x32, 0x18, 0x32, 0xc1, 0x50, 0x44, 0x93, 0xe7, 0x2c, 0xcb, 0xc3, 0x87, 0x97,
+	0x12, 0x36, 0xa6, 0x12, 0x56, 0x87, 0x66, 0x12, 0xae, 0x9f, 0xe3, 0xe1, 0xc9, 0x33, 0xdf, 0x00,
+	0x7e, 0x5c, 0x51, 0xce, 0x5b, 0x60, 0xb3, 0x31, 0x2d, 0x48, 0x81, 0x8f, 0x84, 0xdb, 0xec, 0x58,
+	0x5d, 0x3b, 0xec, 0x95, 0xc7, 0xbf, 0x4b, 0xb8, 0xa5, 0x7b, 0x70, 0x32, 0x40, 0x19, 0x0b, 0x86,
+	0x58, 0x1c, 0xa3, 0xd7, 0x34, 0xc5, 0xc9, 0x79, 0x44, 0x93, 0xeb, 0x8b, 0x1d, 0x60, 0x22, 0x44,
+	0x34, 0x89, 0x6b, 0x0f, 0xff, 0xd7, 0x32, 0x58, 0xdd, 0xd3, 0x53, 0x70, 0xf6, 0x41, 0x33, 0x23,
+	0x26, 0x72, 0x1b, 0xdd, 0xda, 0x06, 0x32, 0xaa, 0xfd, 0x28, 0xdc, 0x2e, 0x3b, 0x4e, 0x24, 0x6c,
+	0xee, 0x47, 0x53, 0x09, 0x9b, 0x19, 0x99, 0x49, 0x68, 0xeb, 0xc4, 0x19, 0xf1, 0xe3, 0x66, 0x46,
+	0x9c, 0x97, 0xa0, 0xc5, 0xce, 0x72, 0x5a, 0x54, 0x19, 0xa7, 0x12, 0x6a, 0x60, 0x26, 0xe1, 0xff,
+	0x5a, 0xaa, 0x4a, 0xff, 0xfa, 0x62, 0x67, 0xc3, 0x24, 0xdb, 0x23, 0xa4, 0xa0, 0x9c, 0x1f, 0x88,
+	0x22, 0xcb, 0xd3, 0x58, 0xcb, 0x4b, 0x23, 0x35, 0x64, 0x77, 0xa9, 0x63, 0x75, 0xd7, 0x77, 0xef,
+	0x2f, 0xc4, 0x3a, 0x28, 0xd9, 0x70, 0xb3, 0x6c, 0xa0, 0x84, 0x75, 0x03, 0x55, 0xfa, 0xb1, 0x86,
+	0x9d, 0xcf, 0x16, 0x58, 0x13, 0x05, 0xce, 0xf9, 0x11, 0x2d, 0x0a, 0x4a, 0xdc, 0xe5, 0xce, 0xd2,
+	0x3f, 0x37, 0xf3, 0xce, 0x6c, 0x66, 0xfe, 0xe0, 0x4c, 0x42, 0x47, 0xfb, 0xcf, 0x81, 0xfe, 0x97,
+	0x1f, 0xf0, 0x71, 0x9a, 0x89, 0xe3, 0xd3, 0x3e, 0x4a, 0xd8, 0xd0, 0xdc, 0x4a, 0xf3, 0xb3, 0xc3,
+	0xc9, 0x20, 0x10, 0xe7, 0x23, 0xca, 0x2b, 0x63, 0x1e, 0xcf, 0x3b, 0x3a, 0x6f, 0x00, 0xe0, 0x54,
+	0x88, 0x13, 0x4a, 0x0e, 0xb1, 0x70, 0x5b, 0x1d, 0xab, 0xbb, 0x14, 0xa2, 0x89, 0x84, 0xf6, 0x81,
+	0x46, 0xf7, 0xc4, 0x54, 0x42, 0x9b, 0x57, 0xc5, 0x4c, 0xc2, 0xbb, 0xe6, 0x0b, 0x2b, 0xc8, 0x8f,
+	0x6b, 0xda, 0x79, 0x05, 0x5a, 0x47, 0xe5, 0x3d, 0x74, 0x57, 0xd4, 0x27, 0x2e, 0x8e, 0x4c, 0xdd,
+	0x52, 0xbd, 0xc5, 0x72, 0x6c, 0x4a, 0x5c, 0x8f, 0x4d, 0x95, 0x7e, 0xac, 0x61, 0xe7, 0x23, 0xf8,
+	0xcf, 0xbc, 0x01, 0xee, 0xda, 0xca, 0xcf, 0x5d, 0xf0, 0x8b, 0xb4, 0x20, 0x7c, 0x64, 0x1c, 0x81,
+	0x39, 0xc1, 0x8a, 0xd2, 0xf6, 0x9e, 0xb6, 0xad, 0x31, 0x3f, 0xfe, 0x63, 0x19, 0x3e, 0xbd, 0x9c,
+	0x78, 0xd6, 0xd5, 0xc4, 0xb3, 0x7e, 0x4e, 0x3c, 0xeb, 0xd3, 0x8d, 0xd7, 0xb8, 0xba, 0xf1, 0x1a,
+	0xdf, 0x6e, 0xbc, 0xc6, 0x87, 0xed, 0xd1, 0x20, 0x45, 0x78, 0x20, 0x10, 0xa1, 0xe3, 0x20, 0x65,
+	0x41, 0xce, 0x08, 0xad, 0x5f, 0x5e, 0x7f, 0x45, 0x3d, 0xba, 0x27, 0xbf, 0x03, 0x00, 0x00, 0xff,
+	0xff, 0x37, 0x19, 0x76, 0x37, 0x54, 0x04, 0x00, 0x00,
+}
+
+func (m *Funds) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Funds) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Funds) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Overdraft.Size()
+		i -= size
+		if _, err := m.Overdraft.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintAccount(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.Balance.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintAccount(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *Account) Marshal() (dAtA []byte, err error) {
@@ -250,48 +289,53 @@ func (m *Account) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	{
-		size, err := m.Funds.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
+	if len(m.Deposits) > 0 {
+		for iNdEx := len(m.Deposits) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Deposits[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAccount(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x4a
 		}
-		i -= size
-		i = encodeVarintAccount(dAtA, i, uint64(size))
 	}
-	i--
-	dAtA[i] = 0x42
-	if len(m.Depositor) > 0 {
-		i -= len(m.Depositor)
-		copy(dAtA[i:], m.Depositor)
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.Depositor)))
-		i--
-		dAtA[i] = 0x3a
+	if len(m.Funds) > 0 {
+		for iNdEx := len(m.Funds) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Funds[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAccount(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x32
+		}
 	}
 	if m.SettledAt != 0 {
 		i = encodeVarintAccount(dAtA, i, uint64(m.SettledAt))
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x28
 	}
-	{
-		size, err := m.Transferred.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
+	if len(m.Transferred) > 0 {
+		for iNdEx := len(m.Transferred) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Transferred[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAccount(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
 		}
-		i -= size
-		i = encodeVarintAccount(dAtA, i, uint64(size))
 	}
-	i--
-	dAtA[i] = 0x2a
-	{
-		size, err := m.Balance.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintAccount(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x22
 	if m.State != 0 {
 		i = encodeVarintAccount(dAtA, i, uint64(m.State))
 		i--
@@ -328,6 +372,19 @@ func encodeVarintAccount(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *Funds) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Balance.Size()
+	n += 1 + l + sovAccount(uint64(l))
+	l = m.Overdraft.Size()
+	n += 1 + l + sovAccount(uint64(l))
+	return n
+}
+
 func (m *Account) Size() (n int) {
 	if m == nil {
 		return 0
@@ -343,19 +400,27 @@ func (m *Account) Size() (n int) {
 	if m.State != 0 {
 		n += 1 + sovAccount(uint64(m.State))
 	}
-	l = m.Balance.Size()
-	n += 1 + l + sovAccount(uint64(l))
-	l = m.Transferred.Size()
-	n += 1 + l + sovAccount(uint64(l))
+	if len(m.Transferred) > 0 {
+		for _, e := range m.Transferred {
+			l = e.Size()
+			n += 1 + l + sovAccount(uint64(l))
+		}
+	}
 	if m.SettledAt != 0 {
 		n += 1 + sovAccount(uint64(m.SettledAt))
 	}
-	l = len(m.Depositor)
-	if l > 0 {
-		n += 1 + l + sovAccount(uint64(l))
+	if len(m.Funds) > 0 {
+		for _, e := range m.Funds {
+			l = e.Size()
+			n += 1 + l + sovAccount(uint64(l))
+		}
 	}
-	l = m.Funds.Size()
-	n += 1 + l + sovAccount(uint64(l))
+	if len(m.Deposits) > 0 {
+		for _, e := range m.Deposits {
+			l = e.Size()
+			n += 1 + l + sovAccount(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -364,6 +429,123 @@ func sovAccount(x uint64) (n int) {
 }
 func sozAccount(x uint64) (n int) {
 	return sovAccount(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *Funds) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAccount
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Funds: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Funds: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Balance", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAccount
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAccount
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAccount
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Balance.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Overdraft", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAccount
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAccount
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAccount
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Overdraft.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAccount(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAccount
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *Account) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -473,45 +655,12 @@ func (m *Account) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.State |= Account_State(b&0x7F) << shift
+				m.State |= State(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Balance", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAccount
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthAccount
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthAccount
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Balance.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Transferred", wireType)
 			}
@@ -540,11 +689,12 @@ func (m *Account) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Transferred.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Transferred = append(m.Transferred, types.DecCoin{})
+			if err := m.Transferred[len(m.Transferred)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
-		case 6:
+		case 5:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SettledAt", wireType)
 			}
@@ -563,39 +713,7 @@ func (m *Account) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAccount
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthAccount
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthAccount
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Depositor = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 8:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Funds", wireType)
 			}
@@ -624,7 +742,42 @@ func (m *Account) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Funds.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Funds = append(m.Funds, Funds{})
+			if err := m.Funds[len(m.Funds)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Deposits", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAccount
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAccount
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAccount
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Deposits = append(m.Deposits, Deposit{})
+			if err := m.Deposits[len(m.Deposits)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

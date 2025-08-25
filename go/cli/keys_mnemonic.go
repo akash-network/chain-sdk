@@ -21,10 +21,9 @@ const (
 // MnemonicKeyCommand computes the bip39 memonic for input entropy.
 func MnemonicKeyCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "mnemonic",
-		Short:   "Compute the bip39 mnemonic for some input entropy",
-		Long:    "Create a bip39 mnemonic, sometimes called a seed phrase, by reading from the system entropy. To pass your own entropy, use --unsafe-entropy",
-		PreRunE: keysPreRunE,
+		Use:   "mnemonic",
+		Short: "Compute the bip39 mnemonic for some input entropy",
+		Long:  "Create a bip39 mnemonic, sometimes called a seed phrase, by reading from the system entropy. To pass your own entropy, use --unsafe-entropy",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var entropySeed []byte
 

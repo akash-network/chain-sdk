@@ -18,6 +18,7 @@ import (
 	client "pkg.akt.dev/go/node/client/v1beta3"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
+	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 )
 
 func DetectDeploymentDeposit(ctx context.Context, flags *pflag.FlagSet, cl client.QueryClient) (sdk.Coin, error) {
@@ -82,6 +83,42 @@ func DetectBidDeposit(ctx context.Context, flags *pflag.FlagSet, cl client.Query
 	}
 
 	return deposit, nil
+}
+
+// DetectDeposit returns the deposit sources
+func DetectDeposit(ctx context.Context, flags *pflag.FlagSet, cl client.QueryClient, querier func(ctx context.Context, flags *pflag.FlagSet, cl client.QueryClient) (sdk.Coin, error)) (deposit.Deposit, error) {
+	amount, err := querier(ctx, flags, cl)
+	if err != nil {
+		return deposit.Deposit{}, err
+	}
+
+	sourcesStr, err := flags.GetStringSlice(cflags.FlagDepositSources)
+	if err != nil {
+		return deposit.Deposit{}, err
+	}
+
+	sources := make(deposit.Sources, 0, len(sourcesStr))
+
+	dupMap := make(map[string]int)
+	for _, source := range sourcesStr {
+		val, valid := deposit.Source_value[source]
+		if !valid {
+			return deposit.Deposit{}, fmt.Errorf("invalid deposit-source \"%s\"", source)
+		}
+
+		if _, exists := dupMap[source]; exists {
+			return deposit.Deposit{}, fmt.Errorf("duplicated deposit source \"%s\"", source)
+		}
+
+		dupMap[source] = 0
+
+		sources = append(sources, deposit.Source(val))
+	}
+
+	return deposit.Deposit{
+		Amount:  amount,
+		Sources: sources,
+	}, nil
 }
 
 func watchSignals(ctx context.Context, cancel context.CancelFunc) <-chan struct{} {

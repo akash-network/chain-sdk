@@ -8,6 +8,7 @@ import (
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 	types "pkg.akt.dev/go/node/deployment/v1beta4"
+	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 	"pkg.akt.dev/go/testutil"
 )
 
@@ -25,8 +26,10 @@ func TestVersionValidation(t *testing.T) {
 				Groups: types.GroupSpecs{
 					testutil.GroupSpec(t),
 				},
-				Depositor: testutil.AccAddress(t).String(),
-				Deposit:   testutil.AkashCoin(t, 0),
+				Deposit: deposit.Deposit{
+					Amount:  testutil.AkashCoin(t, 0),
+					Sources: deposit.Sources{deposit.SourceBalance},
+				},
 			},
 			err: nil,
 		},
@@ -37,8 +40,10 @@ func TestVersionValidation(t *testing.T) {
 				Groups: []types.GroupSpec{
 					testutil.GroupSpec(t),
 				},
-				Depositor: testutil.AccAddress(t).String(),
-				Deposit:   testutil.AkashCoin(t, 0),
+				Deposit: deposit.Deposit{
+					Amount:  testutil.AkashCoin(t, 0),
+					Sources: deposit.Sources{deposit.SourceBalance},
+				},
 			},
 			err: v1.ErrEmptyHash,
 		},
@@ -49,8 +54,10 @@ func TestVersionValidation(t *testing.T) {
 				Groups: []types.GroupSpec{
 					testutil.GroupSpec(t),
 				},
-				Depositor: testutil.AccAddress(t).String(),
-				Deposit:   testutil.AkashCoin(t, 0),
+				Deposit: deposit.Deposit{
+					Amount:  testutil.AkashCoin(t, 0),
+					Sources: deposit.Sources{deposit.SourceBalance},
+				},
 			},
 			err: v1.ErrInvalidHash,
 		},

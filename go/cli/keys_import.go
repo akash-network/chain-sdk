@@ -17,11 +17,10 @@ import (
 // ImportKeyCommand imports private keys from a keyfile.
 func ImportKeyCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "import <name> <keyfile>",
-		Short:   "Import private keys into the local keybase",
-		Long:    "Import a ASCII armored private key into the local keybase.",
-		Args:    cobra.ExactArgs(2),
-		PreRunE: keysPreRunE,
+		Use:   "import <name> <keyfile>",
+		Short: "Import private keys into the local keybase",
+		Long:  "Import a ASCII armored private key into the local keybase.",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := GetClientQueryContext(cmd)
 			if err != nil {
@@ -50,11 +49,10 @@ func ImportKeyCommand() *cobra.Command {
 
 func ImportKeyHexCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "import-hex <name> [hex]",
-		Short:   "Import private keys into the local keybase",
-		Long:    fmt.Sprintf("Import hex encoded private key into the local keybase.\nSupported key-types can be obtained with:\n%s list-key-types", version.AppName),
-		Args:    cobra.RangeArgs(1, 2),
-		PreRunE: keysPreRunE,
+		Use:   "import-hex <name> [hex]",
+		Short: "Import private keys into the local keybase",
+		Long:  fmt.Sprintf("Import hex encoded private key into the local keybase.\nSupported key-types can be obtained with:\n%s list-key-types", version.AppName),
+		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := GetClientQueryContext(cmd)
 			if err != nil {

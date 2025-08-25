@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	v1 "pkg.akt.dev/go/node/market/v1"
+	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 )
 
 var (
@@ -20,12 +21,14 @@ var (
 )
 
 var (
-	_ sdk.Msg = &MsgCreateBid{}
-	_ sdk.Msg = &MsgCloseBid{}
-	_ sdk.Msg = &MsgCreateLease{}
-	_ sdk.Msg = &MsgWithdrawLease{}
-	_ sdk.Msg = &MsgCloseLease{}
-	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg            = &MsgCreateBid{}
+	_ sdk.LegacyMsg      = &MsgCreateBid{}
+	_ deposit.HasDeposit = &MsgCreateBid{}
+	_ sdk.Msg            = &MsgCloseBid{}
+	_ sdk.Msg            = &MsgCreateLease{}
+	_ sdk.Msg            = &MsgWithdrawLease{}
+	_ sdk.Msg            = &MsgCloseLease{}
+	_ sdk.Msg            = &MsgUpdateParams{}
 )
 
 func init() {
@@ -38,10 +41,9 @@ func init() {
 }
 
 // NewMsgCreateBid creates a new MsgCreateBid instance
-func NewMsgCreateBid(id v1.OrderID, provider sdk.AccAddress, price sdk.DecCoin, deposit sdk.Coin, roffer ResourcesOffer) *MsgCreateBid {
+func NewMsgCreateBid(id v1.BidID, price sdk.DecCoin, deposit deposit.Deposit, roffer ResourcesOffer) *MsgCreateBid {
 	return &MsgCreateBid{
-		OrderID:        id,
-		Provider:       provider.String(),
+		ID:             id,
 		Price:          price,
 		Deposit:        deposit,
 		ResourcesOffer: roffer,
@@ -53,7 +55,7 @@ func (msg *MsgCreateBid) Type() string { return msgTypeCreateBid }
 
 // GetSigners defines whose signature is required
 func (msg *MsgCreateBid) GetSigners() []sdk.AccAddress {
-	provider, err := sdk.AccAddressFromBech32(msg.Provider)
+	provider, err := sdk.AccAddressFromBech32(msg.ID.Provider)
 	if err != nil {
 		panic(err)
 	}
@@ -63,16 +65,20 @@ func (msg *MsgCreateBid) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does basic validation of provider and order
 func (msg *MsgCreateBid) ValidateBasic() error {
-	if err := msg.OrderID.Validate(); err != nil {
+	if err := msg.ID.Validate(); err != nil {
 		return err
 	}
 
-	provider, err := sdk.AccAddressFromBech32(msg.Provider)
+	if err := msg.Deposit.Validate(); err != nil {
+		return err
+	}
+
+	provider, err := sdk.AccAddressFromBech32(msg.ID.Provider)
 	if err != nil {
 		return ErrEmptyProvider
 	}
 
-	owner, err := sdk.AccAddressFromBech32(msg.OrderID.Owner)
+	owner, err := sdk.AccAddressFromBech32(msg.ID.Owner)
 	if err != nil {
 		return fmt.Errorf("%w: empty owner", ErrInvalidBid)
 	}

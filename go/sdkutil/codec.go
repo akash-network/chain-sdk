@@ -13,7 +13,6 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	certv1 "pkg.akt.dev/go/node/cert/v1"
-	dv1 "pkg.akt.dev/go/node/deployment/v1"
 	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 	mv1beta5 "pkg.akt.dev/go/node/market/v1beta5"
 )
@@ -70,7 +69,7 @@ func BuildCustomSigners() []signing.CustomGetSigner {
 	return buildCustomGetSigners(&so)
 }
 
-func getSignerFromID(options *signing.Options, field string) func(msgIn pproto.Message) ([][]byte, error) {
+func getSignerFromID(options *signing.Options, field string, signer string) func(msgIn pproto.Message) ([][]byte, error) {
 	return func(msgIn pproto.Message) ([][]byte, error) {
 		msg := msgIn.ProtoReflect()
 		idDesc := msg.Descriptor().Fields().ByName(protoreflect.Name(field))
@@ -78,17 +77,16 @@ func getSignerFromID(options *signing.Options, field string) func(msgIn pproto.M
 			return nil, fmt.Errorf("no \"%s\" field found in %s", field, pproto.MessageName(msgIn))
 		}
 
-		signerField := "owner"
 		id := msg.Get(idDesc).Message()
-		fieldDesc := id.Descriptor().Fields().ByName(protoreflect.Name(signerField))
+		fieldDesc := id.Descriptor().Fields().ByName(protoreflect.Name(signer))
 		if fieldDesc == nil {
-			return nil, fmt.Errorf("no %s.%s field found in %s", field, signerField, pproto.MessageName(msgIn))
+			return nil, fmt.Errorf("no %s.%s field found in %s", field, signer, pproto.MessageName(msgIn))
 		}
 
 		b32 := id.Get(fieldDesc).Interface().(string)
 		addr, err := options.AddressCodec.StringToBytes(b32)
 		if err != nil {
-			return nil, fmt.Errorf("error decoding %s.%s address %q: %w", field, signerField, b32, err)
+			return nil, fmt.Errorf("error decoding %s.%s address %q: %w", field, signer, b32, err)
 		}
 
 		return [][]byte{addr}, nil
@@ -98,52 +96,56 @@ func getSignerFromID(options *signing.Options, field string) func(msgIn pproto.M
 func buildCustomGetSigners(options *signing.Options) []signing.CustomGetSigner {
 	signers := []signing.CustomGetSigner{
 		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1.MsgDepositDeployment{})),
-			Fn:      getSignerFromID(options, "id"),
+			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgDepositDeployment{})),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgCreateDeployment{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgUpdateDeployment{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgCloseDeployment{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgStartGroup{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgPauseGroup{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgCloseGroup{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCreateLease{})),
-			Fn:      getSignerFromID(options, "bid_id"),
+			Fn:      getSignerFromID(options, "bid_id", "owner"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCloseLease{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
+		},
+		{
+			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCreateBid{})),
+			Fn:      getSignerFromID(options, "id", "provider"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCloseBid{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "provider"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgWithdrawLease{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "provider"),
 		},
 		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&certv1.MsgRevokeCertificate{})),
-			Fn:      getSignerFromID(options, "id"),
+			Fn:      getSignerFromID(options, "id", "owner"),
 		},
 	}
 

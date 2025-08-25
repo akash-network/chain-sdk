@@ -15,8 +15,7 @@ func ListKeysCmd() *cobra.Command {
 		Short: "List all keys",
 		Long: `Return a list of all public keys stored by this key manager
 along with their associated name and address.`,
-		PreRunE: keysPreRunE,
-		RunE:    runListCmd,
+		RunE: runListCmd,
 	}
 
 	cmd.Flags().BoolP(flagListNames, "n", false, "List names only")
@@ -53,10 +52,9 @@ func runListCmd(cmd *cobra.Command, _ []string) error {
 // ListKeyTypesCmd lists all key types.
 func ListKeyTypesCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "list-key-types",
-		Short:   "List all key types",
-		Long:    `Return a list of all supported key types (also known as algos)`,
-		PreRunE: keysPreRunE,
+		Use:   "list-key-types",
+		Short: "List all key types",
+		Long:  `Return a list of all supported key types (also known as algos)`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := GetClientQueryContext(cmd)
 			if err != nil {

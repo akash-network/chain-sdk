@@ -5,7 +5,6 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 )
@@ -32,14 +31,14 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgStartGroup{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgStartGroup{}).Type(), nil)
 	cdc.RegisterConcrete(&MsgPauseGroup{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgPauseGroup{}).Type(), nil)
 	cdc.RegisterConcrete(&MsgCloseGroup{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgCloseGroup{}).Type(), nil)
-	cdc.RegisterConcrete(&v1.MsgDepositDeployment{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&v1.MsgDepositDeployment{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgDepositDeployment{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgDepositDeployment{}).Type(), nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgUpdateParams{}).Type(), nil)
 }
 
 // RegisterInterfaces registers the x/deployment interfaces types with the interface registry
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&v1.MsgDepositDeployment{},
+		&MsgDepositDeployment{},
 		&MsgCreateDeployment{},
 		&MsgUpdateDeployment{},
 		&MsgCloseDeployment{},
@@ -47,11 +46,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgPauseGroup{},
 		&MsgCloseGroup{},
 		&MsgUpdateParams{},
-	)
-
-	registry.RegisterImplementations(
-		(*authz.Authorization)(nil),
-		&v1.DepositAuthorization{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

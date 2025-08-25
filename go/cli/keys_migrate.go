@@ -17,9 +17,8 @@ LegacyInfo to Protobuf serialization format and overwrite the keyring entry. If 
 outputted in CLI and migration will be continued until all keys in the keyring DB are exhausted.
 See https://github.com/cosmos/cosmos-sdk/pull/9695 for more details.
 `,
-		Args:    cobra.NoArgs,
-		PreRunE: keysPreRunE,
-		RunE:    runMigrateCmd,
+		Args: cobra.NoArgs,
+		RunE: runMigrateCmd,
 	}
 
 	return cmd

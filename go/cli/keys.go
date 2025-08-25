@@ -62,8 +62,3 @@ The pass backend requires GnuPG: https://gnupg.org/
 
 	return cmd
 }
-
-func keysPreRunE(cmd *cobra.Command, _ []string) error {
-	//return cmd.Flags().Set(cflags.FlagOffline, "true")
-	return nil
-}

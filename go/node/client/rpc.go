@@ -52,9 +52,12 @@ func NewClient(ctx context.Context, remote string) (RPCClient, error) {
 		ctx:   ctx,
 	}
 
-	group.Go(cl.Start)
-
 	group.Go(func() error {
+		err := cl.Start()
+		if err != nil {
+			return err
+		}
+
 		<-ctx.Done()
 
 		return cl.Stop()

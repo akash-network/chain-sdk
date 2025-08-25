@@ -17,6 +17,7 @@ import (
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
+	aauthz "pkg.akt.dev/go/node/types/authz/v1"
 )
 
 // Flag names and values
@@ -49,7 +50,7 @@ func GetTxAuthzCmd() *cobra.Command {
 // GetTxAuthzGrantAuthorizationCmd returns a CLI command handler for creating a MsgGrant transaction.
 func GetTxAuthzGrantAuthorizationCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "grant <grantee> <authorization_type=\"send\"|\"generic\"|\"delegate\"|\"unbond\"|\"redelegate\"> --from <granter>",
+		Use:   "grant <grantee> <authorization_type=\"send\"|\"generic\"|\"delegate\"|\"unbond\"|\"redelegate\"|\"deposit\"> --from <granter>",
 		Short: "Grant authorization to an address",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`create a new grant authorization to an address to execute a transaction on your behalf:
@@ -79,6 +80,22 @@ Examples:
 
 			var authorization authz.Authorization
 			switch args[1] {
+			case "deposit":
+				limit, err := cmd.Flags().GetString(cflags.FlagSpendLimit)
+				if err != nil {
+					return err
+				}
+
+				spendLimit, err := sdk.ParseCoinNormalized(limit)
+				if err != nil {
+					return err
+				}
+
+				if spendLimit.IsZero() || spendLimit.IsNegative() {
+					return fmt.Errorf("spend-limit should be greater than zero, got: %s", spendLimit)
+				}
+
+				authorization = aauthz.NewDepositAuthorization(spendLimit)
 			case "send":
 				limit, err := cmd.Flags().GetString(cflags.FlagSpendLimit)
 				if err != nil {
@@ -114,7 +131,6 @@ Examples:
 				}
 
 				authorization = bank.NewSendAuthorization(spendLimit, allowed)
-
 			case "generic":
 				msgType, err := cmd.Flags().GetString(cflags.FlagMsgType)
 				if err != nil {
@@ -182,7 +198,6 @@ Examples:
 				if err != nil {
 					return err
 				}
-
 			default:
 				return fmt.Errorf("invalid authorization type, %s", args[1])
 			}

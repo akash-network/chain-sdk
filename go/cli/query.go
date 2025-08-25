@@ -13,6 +13,12 @@ import (
 func QueryPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 	ctx := cmd.Context()
 
+	rpcURI, _ := cmd.Flags().GetString(cflags.FlagNode)
+	if rpcURI != "" {
+		ctx = context.WithValue(ctx, ContextTypeRPCURI, rpcURI)
+		cmd.SetContext(ctx)
+	}
+
 	cctx, err := GetClientQueryContext(cmd)
 	if err != nil {
 		return err

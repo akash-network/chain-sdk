@@ -24,6 +24,7 @@ func execSetContext(ctx context.Context, cctx client.Context, cmd *cobra.Command
 	ctx = context.WithValue(ctx, server.ServerContextKey, server.NewDefaultContext())
 
 	cmd.SetContext(ctx)
+	cctx.CmdContext = ctx
 
 	if err := cli.SetCmdClientContextHandler(cctx, cmd); err != nil {
 		return nil, err

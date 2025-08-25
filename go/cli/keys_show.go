@@ -40,9 +40,8 @@ func ShowKeysCmd() *cobra.Command {
 		Long: `Display keys details. If multiple names or addresses are provided,
 then an ephemeral multisig key will be created under the name "multi"
 consisting of all the keys provided by name and multisig threshold.`,
-		Args:    cobra.MinimumNArgs(1),
-		PreRunE: keysPreRunE,
-		RunE:    runShowCmd,
+		Args: cobra.MinimumNArgs(1),
+		RunE: runShowCmd,
 	}
 	f := cmd.Flags()
 	f.String(FlagBechPrefix, sdk.PrefixAccount, "The Bech32 prefix encoding for a key (acc|val|cons)")

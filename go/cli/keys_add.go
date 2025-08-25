@@ -74,9 +74,8 @@ Example:
 
     keys add mymultisig --multisig "keyname1,keyname2,keyname3" --multisig-threshold 2
 `,
-		Args:    cobra.ExactArgs(1),
-		PreRunE: keysPreRunE,
-		RunE:    runAddCmdPrepare,
+		Args: cobra.ExactArgs(1),
+		RunE: runAddCmdPrepare,
 	}
 	f := cmd.Flags()
 	f.StringSlice(flagMultisig, nil, "List of key names stored in keyring to construct a public legacy multisig key")

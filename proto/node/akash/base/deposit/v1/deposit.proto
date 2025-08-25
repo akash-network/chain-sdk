@@ -1,0 +1,35 @@
+syntax = "proto3";
+package akash.base.deposit.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "pkg.akt.dev/go/node/types/deposit/v1";
+
+// Source is an enum which lists source of funds for deployment deposit.
+enum Source {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // Prefix should start with 0 in enum. So declaring dummy state.
+  invalid = 0 [(gogoproto.enumvalue_customname) = "SourceInvalid"];
+  // DepositSourceBalance denotes account balance as source of funds
+  balance = 1 [(gogoproto.enumvalue_customname)  = "SourceBalance"];
+  // DepositSourceGrant denotes authz grants as source of funds
+  grant = 2 [(gogoproto.enumvalue_customname)  = "SourceGrant"];
+}
+
+// Deposit is a data type use by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit
+message Deposit {
+  // Deposit specifies the amount of coins to include in the deployment's first deposit.
+  cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+
+  // Sources list of deposit sources, each entry must be unique
+  repeated Source sources = 5 [
+    (gogoproto.castrepeated) = "Sources",
+    (gogoproto.jsontag)      = "deposit_sources",
+    (gogoproto.moretags)     = "yaml:\"deposit_sources\""
+  ];
+}

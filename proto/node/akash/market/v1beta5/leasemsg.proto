@@ -11,7 +11,6 @@ option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 // MsgCreateLease is sent to create a lease.
 message MsgCreateLease {
   option (gogoproto.equal)      = false;
-//  option (cosmos.msg.v1.signer) = "bid_id.owner";
 
   // BidId is the unique identifier of the Bid.
   akash.market.v1.BidID bid_id = 1 [
@@ -28,10 +27,9 @@ message MsgCreateLeaseResponse {}
 // MsgWithdrawLease defines an SDK message for withdrawing lease funds.
 message MsgWithdrawLease {
   option (gogoproto.equal) = false;
-//  option (cosmos.msg.v1.signer) = "bid_id.provider";
 
   // BidId is the unique identifier of the Bid.
-  akash.market.v1.LeaseID bid_id = 1 [
+  akash.market.v1.LeaseID ID = 1 [
     (gogoproto.customname) = "ID",
     (gogoproto.nullable)   = false,
     (gogoproto.jsontag)    = "id",
@@ -46,10 +44,9 @@ message MsgWithdrawLeaseResponse {}
 // MsgCloseLease defines an SDK message for closing order.
 message MsgCloseLease {
   option (gogoproto.equal) = false;
-//  option (cosmos.msg.v1.signer) = "lease_id.owner";
 
-  // BidId is the unique identifier of the Bid.
-  akash.market.v1.LeaseID lease_id = 1 [
+  // LeaseID is the unique identifier of the Lease.
+  akash.market.v1.LeaseID id = 1 [
     (gogoproto.customname) = "ID",
     (gogoproto.nullable)   = false,
     (gogoproto.jsontag)    = "id",
