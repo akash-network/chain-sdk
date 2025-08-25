@@ -5,14 +5,6 @@ import "gogoproto/gogo.proto";
 
 option go_package = "pkg.akt.dev/go/node/cert/v1beta3";
 
-// Msg defines the provider Msg service
-service Msg {
-  // CreateCertificate defines a method to create new certificate given proper inputs.
-  rpc CreateCertificate(MsgCreateCertificate) returns(MsgCreateCertificateResponse);
-  // RevokeCertificate defines a method to revoke the certificate
-  rpc RevokeCertificate(MsgRevokeCertificate) returns(MsgRevokeCertificateResponse);
-}
-
 // CertificateID stores owner and sequence number
 message CertificateID {
   option (gogoproto.equal) = false;

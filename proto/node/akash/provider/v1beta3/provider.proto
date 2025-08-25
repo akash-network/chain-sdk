@@ -6,18 +6,6 @@ import "akash/base/v1beta3/attribute.proto";
 
 option go_package = "pkg.akt.dev/go/node/provider/v1beta3";
 
-// Msg defines the provider Msg service
-service Msg {
-  // CreateProvider defines a method that creates a provider given the proper inputs
-  rpc CreateProvider(MsgCreateProvider) returns (MsgCreateProviderResponse);
-
-  // UpdateProvider defines a method that updates a provider given the proper inputs
-  rpc UpdateProvider(MsgUpdateProvider) returns (MsgUpdateProviderResponse);
-
-  // DeleteProvider defines a method that deletes a provider given the proper inputs
-  rpc DeleteProvider(MsgDeleteProvider) returns (MsgDeleteProviderResponse);
-}
-
 // ProviderInfo
 message ProviderInfo {
   string email = 1 [
