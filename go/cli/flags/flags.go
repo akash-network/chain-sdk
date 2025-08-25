@@ -240,6 +240,14 @@ const (
 
 	FlagMempoolMaxTxs = "mempool.max-txs"
 
+	FlagQuery   = "query"
+	FlagOrderBy = "order_by"
+
+	TypeHash   = "hash"
+	TypeAccSeq = "acc_seq"
+	TypeSig    = "signature"
+	TypeHeight = "height"
+
 	// testnet keys
 
 	FlagTestnetRootDir = "testnet-rootdir"
