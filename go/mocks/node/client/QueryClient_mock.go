@@ -12,6 +12,8 @@ import (
 
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	escrowv1 "pkg.akt.dev/go/node/escrow/v1"
+
 	evidencetypes "cosmossdk.io/x/evidence/types"
 
 	feegrant "cosmossdk.io/x/feegrant"
@@ -426,6 +428,53 @@ func (_c *QueryClient_Distribution_Call) Return(_a0 distributiontypes.QueryClien
 }
 
 func (_c *QueryClient_Distribution_Call) RunAndReturn(run func() distributiontypes.QueryClient) *QueryClient_Distribution_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Escrow provides a mock function with no fields
+func (_m *QueryClient) Escrow() escrowv1.QueryClient {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Escrow")
+	}
+
+	var r0 escrowv1.QueryClient
+	if rf, ok := ret.Get(0).(func() escrowv1.QueryClient); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(escrowv1.QueryClient)
+		}
+	}
+
+	return r0
+}
+
+// QueryClient_Escrow_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Escrow'
+type QueryClient_Escrow_Call struct {
+	*mock.Call
+}
+
+// Escrow is a helper method to define mock.On call
+func (_e *QueryClient_Expecter) Escrow() *QueryClient_Escrow_Call {
+	return &QueryClient_Escrow_Call{Call: _e.mock.On("Escrow")}
+}
+
+func (_c *QueryClient_Escrow_Call) Run(run func()) *QueryClient_Escrow_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *QueryClient_Escrow_Call) Return(_a0 escrowv1.QueryClient) *QueryClient_Escrow_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *QueryClient_Escrow_Call) RunAndReturn(run func() escrowv1.QueryClient) *QueryClient_Escrow_Call {
 	_c.Call.Return(run)
 	return _c
 }
