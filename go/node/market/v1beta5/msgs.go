@@ -75,20 +75,20 @@ func (msg *MsgCreateBid) ValidateBasic() error {
 
 	provider, err := sdk.AccAddressFromBech32(msg.ID.Provider)
 	if err != nil {
-		return ErrEmptyProvider
+		return v1.ErrEmptyProvider
 	}
 
 	owner, err := sdk.AccAddressFromBech32(msg.ID.Owner)
 	if err != nil {
-		return fmt.Errorf("%w: empty owner", ErrInvalidBid)
+		return fmt.Errorf("%w: empty owner", v1.ErrInvalidBid)
 	}
 
 	if provider.Equals(owner) {
-		return ErrSameAccount
+		return v1.ErrSameAccount
 	}
 
 	if msg.Price.IsZero() {
-		return ErrBidZeroPrice
+		return v1.ErrBidZeroPrice
 	}
 
 	return nil
@@ -272,29 +272,29 @@ func (msg *MsgUpdateParams) GetSignBytes() []byte {
 // Route implements the sdk.Msg interface
 //
 // Deprecated: Route is deprecated
-func (msg *MsgCreateBid) Route() string { return RouterKey }
+func (msg *MsgCreateBid) Route() string { return v1.RouterKey }
 
 // Route implements the sdk.Msg interface
 //
 // Deprecated: Route is deprecated
-func (msg *MsgWithdrawLease) Route() string { return RouterKey }
+func (msg *MsgWithdrawLease) Route() string { return v1.RouterKey }
 
 // Route implements the sdk.Msg interface
 //
 // Deprecated: Route is deprecated
-func (msg *MsgCreateLease) Route() string { return RouterKey }
+func (msg *MsgCreateLease) Route() string { return v1.RouterKey }
 
 // Route implements the sdk.Msg interface
 //
 // Deprecated: Route is deprecated
-func (msg *MsgCloseBid) Route() string { return RouterKey }
+func (msg *MsgCloseBid) Route() string { return v1.RouterKey }
 
 // Route implements the sdk.Msg interface
 //
 // Deprecated: Route is deprecated
-func (msg *MsgCloseLease) Route() string { return RouterKey }
+func (msg *MsgCloseLease) Route() string { return v1.RouterKey }
 
 // Route implements the sdk.Msg interface
 //
 // Deprecated: Route is deprecated
-func (msg *MsgUpdateParams) Route() string { return RouterKey }
+func (msg *MsgUpdateParams) Route() string { return v1.RouterKey }

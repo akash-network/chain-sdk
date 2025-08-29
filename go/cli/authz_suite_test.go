@@ -27,6 +27,7 @@ import (
 	"pkg.akt.dev/go/cli"
 	cflags "pkg.akt.dev/go/cli/flags"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
+	ev1 "pkg.akt.dev/go/node/escrow/v1"
 	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
 )
@@ -35,6 +36,7 @@ var (
 	typeMsgSend           = banktypes.SendAuthorization{}.MsgTypeURL()
 	typeMsgVote           = sdk.MsgTypeURL(&govv1.MsgVote{})
 	typeMsgSubmitProposal = sdk.MsgTypeURL(&govv1.MsgSubmitProposal{})
+	typeMsgDeposit        = sdk.MsgTypeURL(&ev1.DepositAuthorization{})
 )
 
 type AuthzCLITestSuite struct {
@@ -629,6 +631,123 @@ func (s *AuthzCLITestSuite) TestCmdRevokeAuthorizations() {
 			} else {
 				s.Require().NoError(err)
 				s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+			}
+		})
+	}
+}
+
+func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
+	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
+
+	grantee := s.grantee[0]
+
+	twoHours := time.Now().Add(time.Minute * 120).Unix()
+	pastHour := time.Now().Add(-time.Minute * 60).Unix()
+
+	testCases := []struct {
+		name      string
+		args      []string
+		expectErr bool
+		expErrMsg string
+	}{
+		{
+			"Invalid granter Address",
+			cli.TestFlags().
+				With(
+					"grantee_addr",
+					"deposit",
+				).
+				WithSpendLimit("100uakt").
+				WithFrom("granter").
+				WithExpiration(fmt.Sprintf("%d", twoHours)),
+			true,
+			"key not found",
+		},
+		{
+			"Invalid grantee Address",
+			cli.TestFlags().
+				With(
+					"grantee_addr",
+					"deposit",
+				).
+				WithSpendLimit("100uakt").
+				WithFrom(val[0].Address.String()).
+				WithExpiration(fmt.Sprintf("%d", twoHours)),
+			true,
+			"invalid separator index",
+		},
+		{
+			"Invalid scope",
+			cli.TestFlags().
+				With(
+					grantee.String(),
+					"deposit",
+				).
+				WithScope([]string{"test"}).
+				WithSpendLimit("0stake").
+				WithFrom(val[0].Address.String()).
+				WithExpiration(fmt.Sprintf("%d", twoHours)),
+			true,
+			"invalid scope",
+		},
+		{
+			"Invalid spend limit",
+			cli.TestFlags().
+				With(
+					grantee.String(),
+					"deposit",
+				).
+				WithScope([]string{"deployment"}).
+				WithSpendLimit("0stake").
+				WithFrom(val[0].Address.String()).
+				WithExpiration(fmt.Sprintf("%d", twoHours)),
+			true,
+			"spend-limit should be greater than zero",
+		},
+		{
+			"Invalid expiration time",
+			cli.TestFlags().
+				With(
+					grantee.String(),
+					"deposit",
+				).
+				WithScope([]string{"deployment"}).
+				WithSpendLimit("100uakt").
+				WithFrom(val[0].Address.String()).
+				WithExpiration(fmt.Sprintf("%d", pastHour)),
+			true,
+			"",
+		},
+		{
+			"Valid tx deposit authorization",
+			cli.TestFlags().
+				With(
+					grantee.String(),
+					"deposit",
+				).
+				WithMsgType(typeMsgDeposit).
+				WithScope([]string{"deployment"}).
+				WithSpendLimit("1000000uakt").
+				WithSkipConfirm().
+				WithFrom(val[0].Address.String()).
+				WithBroadcastModeSync().
+				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))).
+				WithExpiration(fmt.Sprintf("%d", twoHours)),
+			false,
+			"",
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			out, err := clitestutil.ExecCreateGrant(s.ctx, s.cctx, tc.args...)
+			if tc.expectErr {
+				s.Require().Error(err, out)
+				s.Require().Contains(err.Error(), tc.expErrMsg)
+			} else {
+				var txResp sdk.TxResponse
+				s.Require().NoError(err)
+				s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &txResp), out.String())
 			}
 		})
 	}

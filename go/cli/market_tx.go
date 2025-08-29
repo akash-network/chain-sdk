@@ -14,7 +14,7 @@ import (
 // GetTxMarketCmds returns the transaction commands for market module
 func GetTxMarketCmds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        types.ModuleName,
+		Use:                        mtypes.ModuleName,
 		Short:                      "Transaction subcommands",
 		SuggestionsMinimumDistance: 2,
 		RunE:                       sdkclient.ValidateCmd,

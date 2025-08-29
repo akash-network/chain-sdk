@@ -45,10 +45,9 @@ func GetQueryAuthzGrantsCmd() *cobra.Command {
 			fmt.Sprintf(`Query authorization grants for a granter-grantee pair. If msg-type-url
 is set, it will select grants only for that msg type.
 Examples:
-$ %s query %s grants akash1skj.. akash1skjwj..
-$ %s query %s grants akash1skjw.. akash1skjwj.. %s
+$ %[1]s query %[2]s grants akash1skj.. akash1skjwj..
+$ %[1]s query %[2]s grants akash1skjw.. akash1skjwj.. %[3]s
 `,
-				version.AppName, authz.ModuleName,
 				version.AppName, authz.ModuleName, bank.SendAuthorization{}.MsgTypeURL()),
 		),
 		PersistentPreRunE: QueryPersistentPreRunE,

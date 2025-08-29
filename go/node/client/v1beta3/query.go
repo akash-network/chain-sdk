@@ -19,6 +19,7 @@ import (
 	atypes "pkg.akt.dev/go/node/audit/v1"
 	ctypes "pkg.akt.dev/go/node/cert/v1"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
+	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
 )
@@ -43,6 +44,7 @@ type sdkQueryClient struct {
 
 type queryClient struct {
 	dclient dtypes.QueryClient
+	eclient etypes.QueryClient
 	mclient mtypes.QueryClient
 	pclient ptypes.QueryClient
 	aclient atypes.QueryClient
@@ -59,6 +61,7 @@ func NewQueryClient(cctx sdkclient.Context) QueryClient {
 func newQueryClient(cctx sdkclient.Context) *queryClient {
 	return &queryClient{
 		dclient: dtypes.NewQueryClient(cctx),
+		eclient: etypes.NewQueryClient(cctx),
 		mclient: mtypes.NewQueryClient(cctx),
 		pclient: ptypes.NewQueryClient(cctx),
 		aclient: atypes.NewQueryClient(cctx),
@@ -89,6 +92,10 @@ func (c *queryClient) ClientContext() sdkclient.Context {
 
 func (c *queryClient) Deployment() dtypes.QueryClient {
 	return c.dclient
+}
+
+func (c *queryClient) Escrow() etypes.QueryClient {
+	return c.eclient
 }
 
 func (c *queryClient) Market() mtypes.QueryClient {

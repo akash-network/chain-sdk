@@ -179,6 +179,10 @@ func DepFiltersFromFlags(flags *pflag.FlagSet) (dv1beta4.DeploymentFilters, erro
 	return dfilters, nil
 }
 
+func AddDepositSourcesFlags(flags *pflag.FlagSet) {
+	flags.StringSlice(FlagDepositSources, []string{"grant", "balance"}, "Comma separated list of deposit sources. allowed values grant|balance")
+}
+
 func AddDepositFlags(flags *pflag.FlagSet) {
 	flags.String(FlagDeposit, "", "Deposit amount")
 	flags.StringSlice(FlagDepositSources, []string{"grant", "balance"}, "Comma separated list of deposit sources. allowed values grant|balance")

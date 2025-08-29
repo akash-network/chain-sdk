@@ -67,11 +67,11 @@ func TxAuxToFeeExec(ctx context.Context, cctx client.Context, filename string, e
 	return ExecTestCLICmd(ctx, cctx, cli.GetAuxToFeeCommand(), append(args, extraArgs...)...)
 }
 
-//func ExecQueryAccount(ctx context.Context, cctx client.Context, address fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
-//	args := []string{address.String(), fmt.Sprintf("--%s=json", cflags.FlagOutput)}
-//
-//	return ExecTestCLICmd(ctx, cctx, cli.GetAuthAccountCmd(), append(args, extraArgs...)...)
-//}
+func ExecQueryAccount(ctx context.Context, cctx client.Context, address fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
+	args := []string{address.String(), fmt.Sprintf("--%s=json", cflags.FlagOutput)}
+
+	return ExecTestCLICmd(ctx, cctx, cli.GetQueryAuthAccountCmd(), append(args, extraArgs...)...)
+}
 
 func TxMultiSignBatchExec(ctx context.Context, cctx client.Context, filename string, from string, sigFile1 string, sigFile2 string, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := []string{

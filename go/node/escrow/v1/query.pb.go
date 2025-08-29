@@ -17,6 +17,8 @@ import (
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	pkg_akt_dev_go_node_escrow_types_v1 "pkg.akt.dev/go/node/escrow/types/v1"
+	v1 "pkg.akt.dev/go/node/escrow/types/v1"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -32,18 +34,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryAccountRequest is request type for the Query/Account RPC method.
 type QueryAccountsRequest struct {
-	// Scope holds the scope of the account.
-	Scope string `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
-	// Xid TODO: What is this?
-	Xid string `protobuf:"bytes,2,opt,name=xid,proto3" json:"xid,omitempty"`
-	// Owner is the bech32 address of the account.
-	// It is a string representing a valid account address.
-	//
-	// Example:
-	//   "akash1..."
-	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty"`
 	// State represents the current state of an Account.
-	State string `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	State string `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
+	// Scope holds the scope of the account.
+	XID string `protobuf:"bytes,2,opt,name=xid,proto3" json:"xid" yaml:"xid"`
 	// Pagination is used to paginate request.
 	Pagination *query.PageRequest `protobuf:"bytes,5,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -81,30 +75,16 @@ func (m *QueryAccountsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryAccountsRequest proto.InternalMessageInfo
 
-func (m *QueryAccountsRequest) GetScope() string {
-	if m != nil {
-		return m.Scope
-	}
-	return ""
-}
-
-func (m *QueryAccountsRequest) GetXid() string {
-	if m != nil {
-		return m.Xid
-	}
-	return ""
-}
-
-func (m *QueryAccountsRequest) GetOwner() string {
-	if m != nil {
-		return m.Owner
-	}
-	return ""
-}
-
 func (m *QueryAccountsRequest) GetState() string {
 	if m != nil {
 		return m.State
+	}
+	return ""
+}
+
+func (m *QueryAccountsRequest) GetXID() string {
+	if m != nil {
+		return m.XID
 	}
 	return ""
 }
@@ -119,7 +99,7 @@ func (m *QueryAccountsRequest) GetPagination() *query.PageRequest {
 // QueryProvidersResponse is response type for the Query/Providers RPC method
 type QueryAccountsResponse struct {
 	// Accounts is a list of Account.
-	Accounts Accounts `protobuf:"bytes,1,rep,name=accounts,proto3,castrepeated=Accounts" json:"accounts"`
+	Accounts pkg_akt_dev_go_node_escrow_types_v1.Accounts `protobuf:"bytes,1,rep,name=accounts,proto3,castrepeated=pkg.akt.dev/go/node/escrow/types/v1.Accounts" json:"accounts"`
 	// Pagination contains the information about response pagination.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -157,7 +137,7 @@ func (m *QueryAccountsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryAccountsResponse proto.InternalMessageInfo
 
-func (m *QueryAccountsResponse) GetAccounts() Accounts {
+func (m *QueryAccountsResponse) GetAccounts() pkg_akt_dev_go_node_escrow_types_v1.Accounts {
 	if m != nil {
 		return m.Accounts
 	}
@@ -173,21 +153,9 @@ func (m *QueryAccountsResponse) GetPagination() *query.PageResponse {
 
 // QueryPaymentRequest is request type for the Query/Payment RPC method
 type QueryPaymentsRequest struct {
-	// Scope holds the scope of the payment.
-	Scope string `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
-	// Xid TODO: What is this?
-	Xid string `protobuf:"bytes,2,opt,name=xid,proto3" json:"xid,omitempty"`
-	// Id is the unique identifier of the payment.
-	Id string `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
-	// Owner is the bech32 address of the account.
-	// It is a string representing a valid account address.
-	//
-	// Example:
-	//
-	//	"akash1..."
-	Owner string `protobuf:"bytes,4,opt,name=owner,proto3" json:"owner,omitempty"`
-	// State represents the current state of an Account.
-	State string `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	// State represents the current state of a Payment.
+	State string `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
+	XID   string `protobuf:"bytes,2,opt,name=xid,proto3" json:"xid" yaml:"xid"`
 	// Pagination is used to paginate request.
 	Pagination *query.PageRequest `protobuf:"bytes,6,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -225,37 +193,16 @@ func (m *QueryPaymentsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryPaymentsRequest proto.InternalMessageInfo
 
-func (m *QueryPaymentsRequest) GetScope() string {
-	if m != nil {
-		return m.Scope
-	}
-	return ""
-}
-
-func (m *QueryPaymentsRequest) GetXid() string {
-	if m != nil {
-		return m.Xid
-	}
-	return ""
-}
-
-func (m *QueryPaymentsRequest) GetId() string {
-	if m != nil {
-		return m.Id
-	}
-	return ""
-}
-
-func (m *QueryPaymentsRequest) GetOwner() string {
-	if m != nil {
-		return m.Owner
-	}
-	return ""
-}
-
 func (m *QueryPaymentsRequest) GetState() string {
 	if m != nil {
 		return m.State
+	}
+	return ""
+}
+
+func (m *QueryPaymentsRequest) GetXID() string {
+	if m != nil {
+		return m.XID
 	}
 	return ""
 }
@@ -269,8 +216,8 @@ func (m *QueryPaymentsRequest) GetPagination() *query.PageRequest {
 
 // QueryProvidersResponse is response type for the Query/Providers RPC method
 type QueryPaymentsResponse struct {
-	// Payments is a list of fractional payments.
-	Payments FractionalPayments `protobuf:"bytes,1,rep,name=payments,proto3,castrepeated=FractionalPayments" json:"payments"`
+	// Payments is a list of payments.
+	Payments pkg_akt_dev_go_node_escrow_types_v1.Payments `protobuf:"bytes,1,rep,name=payments,proto3,castrepeated=pkg.akt.dev/go/node/escrow/types/v1.Payments" json:"payments"`
 	// Pagination contains the information about response pagination.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -308,7 +255,7 @@ func (m *QueryPaymentsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryPaymentsResponse proto.InternalMessageInfo
 
-func (m *QueryPaymentsResponse) GetPayments() FractionalPayments {
+func (m *QueryPaymentsResponse) GetPayments() pkg_akt_dev_go_node_escrow_types_v1.Payments {
 	if m != nil {
 		return m.Payments
 	}
@@ -332,40 +279,39 @@ func init() {
 func init() { proto.RegisterFile("akash/escrow/v1/query.proto", fileDescriptor_5a5573bbd1dc8788) }
 
 var fileDescriptor_5a5573bbd1dc8788 = []byte{
-	// 524 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0x3f, 0x6f, 0x13, 0x31,
-	0x14, 0xc0, 0xe3, 0x4b, 0x53, 0x05, 0x57, 0x82, 0xca, 0x0a, 0xd2, 0x29, 0xd0, 0x6b, 0x14, 0x41,
-	0x88, 0x10, 0xb2, 0x95, 0x30, 0x30, 0x93, 0xa1, 0xac, 0x25, 0x63, 0x17, 0xe4, 0x5c, 0xcc, 0x71,
-	0x4a, 0x7a, 0xef, 0x7a, 0x76, 0x52, 0xb2, 0xb2, 0xb0, 0x22, 0x31, 0xf2, 0x05, 0x10, 0x23, 0x33,
-	0x13, 0x53, 0xc7, 0x4a, 0x2c, 0x4c, 0x80, 0x12, 0x3e, 0x08, 0x3a, 0xdb, 0x77, 0x69, 0x2f, 0x89,
-	0x22, 0x10, 0xdb, 0x39, 0xef, 0x8f, 0x7f, 0xef, 0x67, 0x3b, 0xf8, 0x0e, 0x1f, 0x71, 0xf9, 0x8a,
-	0x09, 0xe9, 0x27, 0x70, 0xce, 0xa6, 0x1d, 0x76, 0x36, 0x11, 0xc9, 0x8c, 0xc6, 0x09, 0x28, 0x20,
-	0xb7, 0x74, 0x90, 0x9a, 0x20, 0x9d, 0x76, 0xea, 0xb5, 0x00, 0x02, 0xd0, 0x31, 0x96, 0x7e, 0x99,
-	0xb4, 0xfa, 0xdd, 0x00, 0x20, 0x18, 0x0b, 0xc6, 0xe3, 0x90, 0xf1, 0x28, 0x02, 0xc5, 0x55, 0x08,
-	0x91, 0xb4, 0xd1, 0x87, 0x3e, 0xc8, 0x53, 0x90, 0x6c, 0xc0, 0xa5, 0x30, 0xdd, 0xd9, 0xb4, 0x33,
-	0x10, 0x8a, 0x77, 0x58, 0xcc, 0x83, 0x30, 0xd2, 0xc9, 0x36, 0xf7, 0xa0, 0x48, 0xc3, 0x7d, 0x1f,
-	0x26, 0x91, 0xb2, 0xe1, 0x76, 0x31, 0xfc, 0x32, 0xe1, 0x7e, 0x5a, 0xce, 0xc7, 0x2f, 0x62, 0x3e,
-	0x3b, 0x15, 0x59, 0x66, 0xf3, 0x33, 0xc2, 0xb5, 0xe7, 0xe9, 0x5e, 0x4f, 0x4d, 0x03, 0xd9, 0x17,
-	0x67, 0x13, 0x21, 0x15, 0xa9, 0xe1, 0x8a, 0xf4, 0x21, 0x16, 0x2e, 0x6a, 0xa0, 0xf6, 0x8d, 0xbe,
-	0x59, 0x90, 0x7d, 0x5c, 0x7e, 0x1d, 0x0e, 0x5d, 0x47, 0xff, 0x96, 0x7e, 0xa6, 0x79, 0x70, 0x1e,
-	0x89, 0xc4, 0x2d, 0x9b, 0x3c, 0xbd, 0xd0, 0xd5, 0x8a, 0x2b, 0xe1, 0xee, 0xd8, 0xea, 0x74, 0x41,
-	0x8e, 0x30, 0x5e, 0x4e, 0xe2, 0x56, 0x1a, 0xa8, 0xbd, 0xd7, 0x6d, 0x51, 0x33, 0x36, 0x4d, 0xc7,
-	0xa6, 0x46, 0xaa, 0x1d, 0x9b, 0x1e, 0xf3, 0x40, 0x58, 0x9e, 0xfe, 0x95, 0xca, 0xe6, 0x47, 0x84,
-	0x6f, 0x17, 0xa0, 0x65, 0x0c, 0x91, 0x4c, 0x77, 0xa8, 0x5a, 0x13, 0xd2, 0x45, 0x8d, 0x72, 0x7b,
-	0xaf, 0xeb, 0xd2, 0xc2, 0xd9, 0x50, 0x5b, 0xd4, 0xdb, 0xbf, 0xf8, 0x71, 0x58, 0xfa, 0xf4, 0xf3,
-	0xb0, 0x9a, 0x77, 0xc9, 0x6b, 0xc9, 0xb3, 0x6b, 0xa4, 0x8e, 0x26, 0x7d, 0xb0, 0x95, 0xd4, 0x40,
-	0x5c, 0x43, 0xfd, 0x9a, 0xf9, 0x3d, 0x36, 0xda, 0xff, 0xda, 0xef, 0x4d, 0xec, 0x84, 0x43, 0x2b,
-	0xd7, 0xb9, 0xea, 0x7b, 0x67, 0xad, 0xef, 0xca, 0x66, 0xdf, 0xbb, 0xff, 0xec, 0xfb, 0x4b, 0xe6,
-	0x7b, 0x39, 0x84, 0xf5, 0x7d, 0x82, 0xab, 0xf6, 0x3e, 0x65, 0xbe, 0x9b, 0x2b, 0xbe, 0x8f, 0xf2,
-	0xbb, 0x67, 0xcb, 0x7b, 0x75, 0x6b, 0x9e, 0xac, 0x84, 0x64, 0x3f, 0xef, 0xf7, 0xdf, 0xce, 0xa0,
-	0xfb, 0xc1, 0xc1, 0x15, 0x8d, 0x4f, 0xde, 0x22, 0x9c, 0x9f, 0x36, 0xb9, 0xbf, 0x42, 0xba, 0xee,
-	0x21, 0xd4, 0x5b, 0xdb, 0xd2, 0xcc, 0x8e, 0xcd, 0x47, 0x6f, 0xbe, 0xfd, 0x7e, 0xef, 0xb4, 0xc8,
-	0x3d, 0x56, 0x7c, 0x7c, 0x6a, 0x16, 0x0b, 0x99, 0xbd, 0x50, 0xc9, 0xc6, 0xa1, 0x54, 0x9a, 0x24,
-	0x9b, 0x79, 0x13, 0x49, 0xe1, 0xca, 0x6c, 0x22, 0x29, 0x1e, 0xca, 0x56, 0x92, 0xcc, 0xb0, 0x26,
-	0xe9, 0x3d, 0xb9, 0x98, 0x7b, 0xe8, 0x72, 0xee, 0xa1, 0x5f, 0x73, 0x0f, 0xbd, 0x5b, 0x78, 0xa5,
-	0xcb, 0x85, 0x57, 0xfa, 0xbe, 0xf0, 0x4a, 0x27, 0x07, 0xf1, 0x28, 0xa0, 0x7c, 0xa4, 0xe8, 0x50,
-	0x4c, 0x59, 0x00, 0x2c, 0x82, 0xa1, 0x58, 0x36, 0x1b, 0xec, 0xea, 0x7f, 0x90, 0xc7, 0x7f, 0x02,
-	0x00, 0x00, 0xff, 0xff, 0x8d, 0xdb, 0xe0, 0xc8, 0x1a, 0x05, 0x00, 0x00,
+	// 502 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x94, 0x41, 0x8f, 0x12, 0x31,
+	0x14, 0xc7, 0x29, 0x84, 0xcd, 0xda, 0x3d, 0x98, 0x34, 0x98, 0x10, 0x5c, 0x67, 0x70, 0x8c, 0xbb,
+	0xc4, 0x98, 0xd7, 0x0c, 0x9a, 0x98, 0x78, 0x93, 0x18, 0x8d, 0xb7, 0x95, 0x93, 0xf1, 0x56, 0xa0,
+	0x19, 0x27, 0x2c, 0xd3, 0x2e, 0x2d, 0xe3, 0x72, 0xdd, 0x4f, 0xa0, 0xf1, 0x2b, 0x78, 0xf2, 0x93,
+	0xec, 0x71, 0xa3, 0x17, 0x4f, 0x68, 0xc0, 0x93, 0x47, 0x3f, 0x81, 0xe9, 0xb4, 0x0c, 0x32, 0x71,
+	0x21, 0x46, 0xbd, 0x41, 0xdf, 0x7b, 0xf3, 0xfe, 0xbf, 0xff, 0x7b, 0x2d, 0xbe, 0xce, 0x86, 0x4c,
+	0xbd, 0xa2, 0x5c, 0xf5, 0xc7, 0xe2, 0x35, 0x4d, 0x43, 0x7a, 0x32, 0xe1, 0xe3, 0x29, 0xc8, 0xb1,
+	0xd0, 0x82, 0x5c, 0xcd, 0x82, 0x60, 0x83, 0x90, 0x86, 0x8d, 0x5a, 0x24, 0x22, 0x91, 0xc5, 0xa8,
+	0xf9, 0x65, 0xd3, 0x1a, 0xfb, 0x91, 0x10, 0xd1, 0x31, 0xa7, 0x4c, 0xc6, 0x94, 0x25, 0x89, 0xd0,
+	0x4c, 0xc7, 0x22, 0x51, 0x2e, 0x7a, 0xa7, 0x2f, 0xd4, 0x48, 0x28, 0xda, 0x63, 0x8a, 0xdb, 0xaf,
+	0xd3, 0x34, 0xec, 0x71, 0xcd, 0x42, 0x2a, 0x59, 0x14, 0x27, 0x59, 0xb2, 0xcb, 0xbd, 0xb5, 0xa6,
+	0x46, 0x4f, 0x25, 0x57, 0x46, 0x13, 0xeb, 0xf7, 0xc5, 0x24, 0xd1, 0x9b, 0x93, 0x24, 0x9b, 0x8e,
+	0xf8, 0x32, 0x29, 0x78, 0x8f, 0x70, 0xed, 0xb9, 0x69, 0xf6, 0xc8, 0xd6, 0xaa, 0x2e, 0x3f, 0x99,
+	0x70, 0xa5, 0x49, 0x0d, 0x57, 0x95, 0x66, 0x9a, 0xd7, 0x51, 0x13, 0xb5, 0xae, 0x74, 0xed, 0x1f,
+	0x02, 0xb8, 0x72, 0x1a, 0x0f, 0xea, 0x65, 0x73, 0xd6, 0xd9, 0x9f, 0xcf, 0xfc, 0xca, 0x8b, 0x67,
+	0x8f, 0xbf, 0xcf, 0x7c, 0x73, 0xfa, 0x63, 0xe6, 0xe3, 0x29, 0x1b, 0x1d, 0x3f, 0x0c, 0x4e, 0xe3,
+	0x41, 0xd0, 0x35, 0x47, 0xe4, 0x09, 0xc6, 0x2b, 0xf1, 0xf5, 0x6a, 0x13, 0xb5, 0xf6, 0xda, 0x07,
+	0x60, 0x49, 0xc1, 0x90, 0x82, 0xf5, 0xd1, 0x91, 0xc2, 0x11, 0x8b, 0xb8, 0x53, 0xd0, 0xfd, 0xa5,
+	0x32, 0xf8, 0x88, 0xf0, 0xb5, 0x82, 0x4c, 0x25, 0x45, 0xa2, 0x38, 0x91, 0x78, 0xd7, 0x61, 0xab,
+	0x3a, 0x6a, 0x56, 0x5a, 0x7b, 0x6d, 0x0f, 0xd6, 0xc6, 0x91, 0x81, 0x43, 0x1a, 0x82, 0x2b, 0xed,
+	0xdc, 0x3f, 0x9f, 0xf9, 0xa5, 0x0f, 0x5f, 0xfc, 0xbb, 0x72, 0x18, 0x01, 0x1b, 0x6a, 0x18, 0xf0,
+	0x94, 0x46, 0x82, 0x26, 0x62, 0xc0, 0x8b, 0x6e, 0x41, 0xde, 0x2f, 0xef, 0x42, 0x9e, 0xae, 0x31,
+	0x95, 0x33, 0xa6, 0xc3, 0xad, 0x4c, 0x56, 0xee, 0x1a, 0x54, 0xee, 0xfd, 0x91, 0x1d, 0xc9, 0x7f,
+	0xf5, 0x7e, 0xe7, 0xef, 0xbd, 0x5f, 0xc9, 0x5c, 0x79, 0xef, 0xb6, 0x69, 0x9b, 0xf7, 0xae, 0xf4,
+	0xcf, 0xbc, 0xcf, 0xfb, 0xe5, 0x5d, 0xfe, 0x99, 0xf7, 0xed, 0xb7, 0x65, 0x5c, 0xcd, 0xa0, 0xc8,
+	0x19, 0xc2, 0xbb, 0xcb, 0x29, 0x93, 0xdb, 0x50, 0xb8, 0xca, 0xf0, 0xbb, 0xcb, 0xd1, 0x38, 0xd8,
+	0x96, 0x66, 0x3b, 0x06, 0x87, 0x67, 0x9f, 0xbe, 0xbd, 0x2b, 0xdf, 0x24, 0x3e, 0x2d, 0x3e, 0x1f,
+	0x16, 0x32, 0xdf, 0x29, 0x23, 0x62, 0x89, 0x7b, 0x99, 0x88, 0xc2, 0x96, 0x5c, 0x26, 0xa2, 0x38,
+	0xa5, 0xad, 0x22, 0x96, 0xe6, 0x76, 0x1e, 0x9c, 0xcf, 0x3d, 0x74, 0x31, 0xf7, 0xd0, 0xd7, 0xb9,
+	0x87, 0xde, 0x2c, 0xbc, 0xd2, 0xc5, 0xc2, 0x2b, 0x7d, 0x5e, 0x78, 0xa5, 0x97, 0x37, 0x36, 0x8c,
+	0x2b, 0x0d, 0x7b, 0x3b, 0xd9, 0x5b, 0x72, 0xef, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0x99, 0x87,
+	0x7e, 0x66, 0x25, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -529,31 +475,17 @@ func (m *QueryAccountsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x2a
 	}
+	if len(m.XID) > 0 {
+		i -= len(m.XID)
+		copy(dAtA[i:], m.XID)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.XID)))
+		i--
+		dAtA[i] = 0x12
+	}
 	if len(m.State) > 0 {
 		i -= len(m.State)
 		copy(dAtA[i:], m.State)
 		i = encodeVarintQuery(dAtA, i, uint64(len(m.State)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.Owner) > 0 {
-		i -= len(m.Owner)
-		copy(dAtA[i:], m.Owner)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Owner)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Xid) > 0 {
-		i -= len(m.Xid)
-		copy(dAtA[i:], m.Xid)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Xid)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Scope) > 0 {
-		i -= len(m.Scope)
-		copy(dAtA[i:], m.Scope)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Scope)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -641,38 +573,17 @@ func (m *QueryPaymentsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x32
 	}
+	if len(m.XID) > 0 {
+		i -= len(m.XID)
+		copy(dAtA[i:], m.XID)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.XID)))
+		i--
+		dAtA[i] = 0x12
+	}
 	if len(m.State) > 0 {
 		i -= len(m.State)
 		copy(dAtA[i:], m.State)
 		i = encodeVarintQuery(dAtA, i, uint64(len(m.State)))
-		i--
-		dAtA[i] = 0x2a
-	}
-	if len(m.Owner) > 0 {
-		i -= len(m.Owner)
-		copy(dAtA[i:], m.Owner)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Owner)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.Id) > 0 {
-		i -= len(m.Id)
-		copy(dAtA[i:], m.Id)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Id)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Xid) > 0 {
-		i -= len(m.Xid)
-		copy(dAtA[i:], m.Xid)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Xid)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Scope) > 0 {
-		i -= len(m.Scope)
-		copy(dAtA[i:], m.Scope)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Scope)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -745,19 +656,11 @@ func (m *QueryAccountsRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Scope)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.Xid)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.Owner)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
 	l = len(m.State)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.XID)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
@@ -793,23 +696,11 @@ func (m *QueryPaymentsRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Scope)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.Xid)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.Id)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.Owner)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
 	l = len(m.State)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.XID)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
@@ -876,102 +767,6 @@ func (m *QueryAccountsRequest) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Scope", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Scope = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Xid", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Xid = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Owner = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field State", wireType)
 			}
 			var stringLen uint64
@@ -1001,6 +796,38 @@ func (m *QueryAccountsRequest) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.State = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field XID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XID = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -1117,7 +944,7 @@ func (m *QueryAccountsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Accounts = append(m.Accounts, Account{})
+			m.Accounts = append(m.Accounts, v1.Account{})
 			if err := m.Accounts[len(m.Accounts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1210,134 +1037,6 @@ func (m *QueryPaymentsRequest) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Scope", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Scope = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Xid", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Xid = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Id = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Owner = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field State", wireType)
 			}
 			var stringLen uint64
@@ -1367,6 +1066,38 @@ func (m *QueryPaymentsRequest) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.State = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field XID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XID = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
@@ -1483,7 +1214,7 @@ func (m *QueryPaymentsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payments = append(m.Payments, FractionalPayment{})
+			m.Payments = append(m.Payments, v1.Payment{})
 			if err := m.Payments[len(m.Payments)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}

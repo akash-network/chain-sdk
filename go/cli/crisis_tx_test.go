@@ -93,7 +93,7 @@ func TestNewMsgVerifyInvariantTxCmd(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			cmd := cli.GetTxCrisisVerifyInvariantTxCmd()
 
-			_, err := clitestutil.ExecTestCLICmd(context.Background(), baseCtx, cmd, tc.args...)
+			_, err := clitestutil.ExecTestCLICmd(ctx, baseCtx, cmd, tc.args...)
 			if tc.expectErr {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.errString)

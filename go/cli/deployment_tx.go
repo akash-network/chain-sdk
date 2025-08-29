@@ -1,18 +1,14 @@
 package cli
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
 
-	"pkg.akt.dev/go/node/client/v1beta3"
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
 	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 	"pkg.akt.dev/go/node/types/constants"
@@ -38,7 +34,6 @@ func GetTxDeploymentCmds() *cobra.Command {
 	cmd.AddCommand(
 		GetTxDeploymentCreateCmd(),
 		GetTxDeploymentUpdateCmd(),
-		GetTxDeploymentDepositCmd(),
 		GetTxDeploymentCloseCmd(),
 		GetTxDeploymentGroupCmds(),
 	)
@@ -118,55 +113,6 @@ func GetTxDeploymentCreateCmd() *cobra.Command {
 
 			if err := msg.ValidateBasic(); err != nil {
 				return err
-			}
-
-			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
-			if err != nil {
-				return err
-			}
-
-			return cl.PrintMessage(resp)
-		},
-	}
-
-	cflags.AddTxFlagsToCmd(cmd)
-	cflags.AddDeploymentIDFlags(cmd.Flags())
-	cflags.AddDepositFlags(cmd.Flags())
-
-	return cmd
-}
-
-func GetTxDeploymentDepositCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "deposit <amount>",
-		Short:             "Deposit funds to deployment",
-		Args:              cobra.ExactArgs(1),
-		PersistentPreRunE: TxPersistentPreRunE,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := cmd.Context()
-			cl := MustClientFromContext(ctx)
-			cctx := cl.ClientContext()
-
-			id, err := cflags.DeploymentIDFromFlags(cmd.Flags(), cflags.WithOwner(cctx.FromAddress))
-			if err != nil {
-				return err
-			}
-
-			amount, err := sdk.ParseCoinNormalized(args[0])
-			if err != nil {
-				return err
-			}
-
-			deposit, err := DetectDeposit(ctx, cmd.Flags(), cl.Query(), func(ctx context.Context, flags *pflag.FlagSet, cl v1beta3.QueryClient) (sdk.Coin, error) {
-				return amount, nil
-			})
-			if err != nil {
-				return err
-			}
-
-			msg := &dv1beta4.MsgDepositDeployment{
-				ID:      id,
-				Deposit: deposit,
 			}
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})

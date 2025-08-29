@@ -6,6 +6,8 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
+	v1 "pkg.akt.dev/go/node/market/v1"
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -53,7 +55,7 @@ func (p Params) Validate() error {
 func validateCoin(i interface{}) error {
 	_, ok := i.(sdk.Coin)
 	if !ok {
-		return fmt.Errorf("%w: invalid type %T", ErrInvalidParam, i)
+		return fmt.Errorf("%w: invalid type %T", v1.ErrInvalidParam, i)
 	}
 
 	return nil
@@ -63,15 +65,15 @@ func validateOrderMaxBids(i interface{}) error {
 	val, ok := i.(uint32)
 
 	if !ok {
-		return fmt.Errorf("%w: invalid type %T", ErrInvalidParam, i)
+		return fmt.Errorf("%w: invalid type %T", v1.ErrInvalidParam, i)
 	}
 
 	if val == 0 {
-		return fmt.Errorf("%w: order max bids too low", ErrInvalidParam)
+		return fmt.Errorf("%w: order max bids too low", v1.ErrInvalidParam)
 	}
 
 	if val > maxOrderMaxBids {
-		return fmt.Errorf("%w: order max bids too high", ErrInvalidParam)
+		return fmt.Errorf("%w: order max bids too high", v1.ErrInvalidParam)
 	}
 
 	return nil

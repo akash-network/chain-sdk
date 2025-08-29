@@ -56,6 +56,7 @@ func QueryCmd() *cobra.Command {
 		cflags.LineBreak,
 		QueryBlockCmd(),
 		QueryBlocksCmd(),
+		QueryBlockResultsCmd(),
 		GetQueryAuthTxsByEventsCmd(),
 		GetQueryAuthTxCmd(),
 		GetQueryGovCmd(),

@@ -13,7 +13,7 @@ import (
 // GetQueryMarketCmds returns the transaction commands for the market module
 func GetQueryMarketCmds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        v1beta5.ModuleName,
+		Use:                        v1.ModuleName,
 		Short:                      "Market query commands",
 		SuggestionsMinimumDistance: 2,
 		RunE:                       sdkclient.ValidateCmd,

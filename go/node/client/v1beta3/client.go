@@ -30,6 +30,7 @@ import (
 	ctypes "pkg.akt.dev/go/node/cert/v1"
 	cltypes "pkg.akt.dev/go/node/client/types"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
+	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
 )
@@ -37,6 +38,7 @@ import (
 // QueryClient is the interface that exposes query modules.
 type QueryClient interface {
 	Deployment() dtypes.QueryClient
+	Escrow() etypes.QueryClient
 	Market() mtypes.QueryClient
 	Provider() ptypes.QueryClient
 	Audit() atypes.QueryClient

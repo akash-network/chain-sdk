@@ -17,7 +17,7 @@ import (
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	aauthz "pkg.akt.dev/go/node/types/authz/v1"
+	ev1 "pkg.akt.dev/go/node/escrow/v1"
 )
 
 // Flag names and values
@@ -56,10 +56,9 @@ func GetTxAuthzGrantAuthorizationCmd() *cobra.Command {
 			fmt.Sprintf(`create a new grant authorization to an address to execute a transaction on your behalf:
 
 Examples:
- $ %s tx %s grant akash1skjw.. send --spend-limit=1000uakt --from=<granter>
- $ %s tx %s grant akash1skjw.. generic --msg-type=/cosmos.gov.v1.MsgVote --from=<granter>
-	`, version.AppName, authz.ModuleName, version.AppName, authz.ModuleName),
-		),
+ $ %[1]s tx %[2]s grant akash1skjw.. send --spend-limit=1000uakt --from=<granter>
+ $ %[1]s tx %[2]s grant akash1skjw.. generic --msg-type=/cosmos.gov.v1.MsgVote --from=<granter>
+	`, version.AppName, authz.ModuleName)),
 		Args:              cobra.ExactArgs(2),
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -81,6 +80,29 @@ Examples:
 			var authorization authz.Authorization
 			switch args[1] {
 			case "deposit":
+				scopesS, err := cmd.Flags().GetStringSlice(cflags.FlagScope)
+				if err != nil {
+					return err
+				}
+
+				scopes := make(ev1.DepositAuthorizationScopes, 0, len(scopesS))
+				scopesDup := make(map[string]int32)
+
+				for _, scope := range scopesS {
+					id, valid := ev1.DepositAuthorization_Scope_value[scope]
+					if !valid {
+						return fmt.Errorf("invalid scope \"%s\"", scope)
+					}
+
+					if _, valid = scopesDup[scope]; valid {
+						return fmt.Errorf("duplicate scope \"%s\"", scope)
+					}
+
+					scopesDup[scope] = id
+
+					scopes = append(scopes, ev1.DepositAuthorization_Scope(id))
+				}
+
 				limit, err := cmd.Flags().GetString(cflags.FlagSpendLimit)
 				if err != nil {
 					return err
@@ -95,7 +117,11 @@ Examples:
 					return fmt.Errorf("spend-limit should be greater than zero, got: %s", spendLimit)
 				}
 
-				authorization = aauthz.NewDepositAuthorization(spendLimit)
+				authorization = ev1.NewDepositAuthorization(scopes, spendLimit)
+				err = authorization.ValidateBasic()
+				if err != nil {
+					return err
+				}
 			case "send":
 				limit, err := cmd.Flags().GetString(cflags.FlagSpendLimit)
 				if err != nil {
@@ -224,11 +250,12 @@ Examples:
 	cflags.AddTxFlagsToCmd(cmd)
 
 	cmd.Flags().String(cflags.FlagMsgType, "", "The Msg method name for which we are creating a GenericAuthorization")
-	cmd.Flags().String(cflags.FlagSpendLimit, "", "SpendLimit for Send Authorization, an array of Coins allowed spend")
+	cmd.Flags().String(cflags.FlagSpendLimit, "", "SpendLimit for Send|Deposit Authorizations, an array of Coins allowed spend")
 	cmd.Flags().StringSlice(cflags.FlagAllowedValidators, []string{}, "Allowed validators addresses separated by ,")
 	cmd.Flags().StringSlice(cflags.FlagDenyValidators, []string{}, "Deny validators addresses separated by ,")
 	cmd.Flags().StringSlice(cflags.FlagAllowList, []string{}, "Allowed addresses grantee is allowed to send funds separated by ,")
 	cmd.Flags().Int64(cflags.FlagExpiration, 0, "Expire time as Unix timestamp. Set zero (0) for no expiry. Default is 0.")
+	cmd.Flags().StringSlice(cflags.FlagScope, []string{}, "Scopes for Deposit authorization, array of values. Allowed values deployment|bid")
 
 	return cmd
 }

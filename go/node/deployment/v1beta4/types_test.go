@@ -3,18 +3,13 @@ package v1beta4_test
 import (
 	"testing"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 	types "pkg.akt.dev/go/node/deployment/v1beta4"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
-	aauthz "pkg.akt.dev/go/node/types/authz/v1"
-	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 	"pkg.akt.dev/go/testutil"
 )
 
@@ -422,53 +417,4 @@ func TestGroupSpec_MatchGPUAttributesWildcard(t *testing.T) {
 	require.False(t, match)
 	match = group.MatchResourcesRequirements(prov3Attributes)
 	require.False(t, match)
-}
-
-func TestDepositDeploymentAuthorization_Accept(t *testing.T) {
-	limit := sdk.NewInt64Coin(testutil.CoinDenom, 333)
-	dda := aauthz.NewDepositAuthorization(limit)
-
-	sctx := sdk.Context{}
-
-	// Send the wrong type of message, expect an error
-	var msg sdk.Msg
-	response, err := dda.Accept(sctx, msg)
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "invalid type")
-	require.Zero(t, response)
-
-	// Try to deposit too much coin, expect an error
-	spendReq := limit.Add(sdk.NewInt64Coin(testutil.CoinDenom, 1))
-
-	msg = types.NewMsgDepositDeployment(testutil.DeploymentID(t), deposit.Deposit{
-		Amount:  spendReq,
-		Sources: deposit.Sources{deposit.SourceGrant},
-	})
-	response, err = dda.Accept(sctx, msg)
-	require.ErrorIs(t, err, sdkerrors.ErrInsufficientFunds)
-	require.Zero(t, response)
-
-	// Deposit 1 less than the limit, expect an updated deposit
-	msg = types.NewMsgDepositDeployment(testutil.DeploymentID(t), deposit.Deposit{
-		Amount:  limit.Sub(sdk.NewInt64Coin(testutil.CoinDenom, 1)),
-		Sources: deposit.Sources{deposit.SourceGrant},
-	})
-	response, err = dda.Accept(sctx, msg)
-	require.NoError(t, err)
-	require.True(t, response.Accept)
-	require.False(t, response.Delete)
-
-	ok := false
-	dda, ok = response.Updated.(*aauthz.DepositAuthorization)
-	require.True(t, ok)
-
-	// Deposit the limit (now 1), expect that it is not to be deleted
-	msg = types.NewMsgDepositDeployment(testutil.DeploymentID(t), deposit.Deposit{
-		Amount:  sdk.NewInt64Coin(testutil.CoinDenom, 1),
-		Sources: deposit.Sources{deposit.SourceGrant},
-	})
-	response, err = dda.Accept(sctx, msg)
-	require.NoError(t, err)
-	require.True(t, response.Accept)
-	require.True(t, response.Delete)
 }

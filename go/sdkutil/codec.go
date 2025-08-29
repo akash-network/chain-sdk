@@ -96,10 +96,6 @@ func getSignerFromID(options *signing.Options, field string, signer string) func
 func buildCustomGetSigners(options *signing.Options) []signing.CustomGetSigner {
 	signers := []signing.CustomGetSigner{
 		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgDepositDeployment{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
 			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgCreateDeployment{})),
 			Fn:      getSignerFromID(options, "id", "owner"),
 		},

@@ -6,14 +6,14 @@ import "amino/amino.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 
+import "akash/escrow/types/v1/account.proto";
+
 import "akash/deployment/v1beta4/filters.proto";
 import "akash/deployment/v1beta4/group.proto";
 import "akash/deployment/v1beta4/params.proto";
 
 import "akash/deployment/v1/deployment.proto";
 import "akash/deployment/v1/group.proto";
-
-import "akash/escrow/v1/account.proto";
 
 option go_package = "pkg.akt.dev/go/node/deployment/v1beta4";
 
@@ -94,7 +94,7 @@ message QueryDeploymentResponse {
   // EscrowAccount represents an escrow mechanism where funds are held.
   // This ensures that obligations of both tenants and providers involved in the
   // transaction are met without direct access to each other's accounts.
-  akash.escrow.v1.Account escrow_account = 3 [
+  akash.escrow.types.v1.Account escrow_account = 3 [
     (gogoproto.nullable) = false
   ];
 }
@@ -102,7 +102,7 @@ message QueryDeploymentResponse {
 // QueryGroupRequest is request type for the Query/Group RPC method.
 message QueryGroupRequest {
 
-  // Id is the unique identifer of the Group.
+  // Id is the unique identifier of the Group.
   akash.deployment.v1.GroupID id = 1 [
     (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID"
