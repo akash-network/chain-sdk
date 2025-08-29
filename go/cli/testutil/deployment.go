@@ -27,44 +27,6 @@ func ExecDeploymentClose(ctx context.Context, cctx client.Context, args ...strin
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentCloseCmd(), args...)
 }
 
-// TxDepositDeploymentExec is used for testing deposit deployment tx
-//func TxDepositDeploymentExec(ctx context.Context, cctx client.Context, deposit sdk.Coin, extraArgs ...string) (sdktest.BufferWriter, error) {
-//	args := []string{
-//		deposit.String(),
-//	}
-//
-//	args = append(args, extraArgs...)
-//
-//	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentDepositCmd(), args...)
-//}
-//
-// // TxCloseGroupExec is used for testing close group tx
-// func TxCloseGroupExec(ctx context.Context, cctx client.Context, extraArgs ...string) (sdktest.BufferWriter, error) {
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentGroupCloseCmd(), extraArgs...)
-// }
-//
-// func TxGrantAuthorizationExec(ctx context.Context, cctx client.Context, grantee sdk.AccAddress, extraArgs ...string) (sdktest.BufferWriter, error) {
-// 	dmin, _ := dv1beta4.DefaultParams().MinDepositFor("uakt")
-//
-// 	spendLimit := sdk.NewCoin(dmin.Denom, dmin.Amount.MulRaw(3))
-// 	args := []string{
-// 		grantee.String(),
-// 		spendLimit.String(),
-// 	}
-// 	args = append(args, extraArgs...)
-//
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentGrantAuthorizationCmd(), args...)
-// }
-//
-// func TxRevokeAuthorizationExec(ctx context.Context, cctx client.Context, grantee sdk.AccAddress, extraArgs ...string) (sdktest.BufferWriter, error) {
-// 	args := []string{
-// 		grantee.String(),
-// 	}
-// 	args = append(args, extraArgs...)
-//
-// 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentRevokeAuthorizationCmd(), args...)
-// }
-
 // ExecQueryDeployments is used for testing deployments query
 func ExecQueryDeployments(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentsCmd(), args...)

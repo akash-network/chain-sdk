@@ -8,8 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-
-	aauthz "pkg.akt.dev/go/node/types/authz/v1"
 )
 
 // EncodingConfig specifies the concrete encoding types to use for a given app.
@@ -31,8 +29,6 @@ func MakeEncodingConfig(modules ...module.AppModuleBasic) EncodingConfig {
 
 	std.RegisterLegacyAminoCodec(aminoCodec)
 	std.RegisterInterfaces(interfaceRegistry)
-
-	aauthz.RegisterInterfaces(interfaceRegistry)
 
 	if len(modules) > 0 {
 		mb := module.NewBasicManager(modules...)

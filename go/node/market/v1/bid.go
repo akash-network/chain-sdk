@@ -44,7 +44,7 @@ func (id BidID) OrderID() OrderID {
 
 // String method for consistent output.
 func (id BidID) String() string {
-	return fmt.Sprintf("%s/%v", id.OrderID(), id.Provider)
+	return fmt.Sprintf("%s/%s", id.OrderID().String(), id.Provider)
 }
 
 // GroupID method returns GroupID details with specific bid details

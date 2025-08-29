@@ -92,6 +92,7 @@ const (
 	FlagDepositSources            = "deposit-sources"
 	FlagExpiration                = "expiration"
 	FlagSpendLimit                = "spend-limit"
+	FlagScope                     = "scope"
 	FlagHome                      = cmcli.HomeFlag
 	FlagKeyringDir                = "keyring-dir"
 	FlagUseLedger                 = "ledger"

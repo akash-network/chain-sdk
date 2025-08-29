@@ -10,7 +10,6 @@ import (
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 	"pkg.akt.dev/go/node/deployment/v1beta3"
 	"pkg.akt.dev/go/node/deployment/v1beta4"
-	aauthz "pkg.akt.dev/go/node/types/authz/v1"
 )
 
 func RegisterDeploymentInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -56,12 +55,6 @@ func DeploymentFromV1beta3(cdc codec.BinaryCodec, fromBz []byte) v1.Deployment {
 		State:     v1.Deployment_State(from.State),
 		Hash:      from.Version,
 		CreatedAt: from.CreatedAt,
-	}
-}
-
-func DepositAuthorizationFromV1beta3(from v1beta3.DepositDeploymentAuthorization) aauthz.DepositAuthorization {
-	return aauthz.DepositAuthorization{
-		SpendLimit: from.SpendLimit,
 	}
 }
 

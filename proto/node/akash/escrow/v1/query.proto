@@ -6,8 +6,8 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 
-import "akash/escrow/v1/account.proto";
-import "akash/escrow/v1/fractional_payment.proto";
+import "akash/escrow/types/v1/account.proto";
+import "akash/escrow/types/v1/payment.proto";
 
 option go_package = "pkg.akt.dev/go/node/escrow/v1";
 
@@ -17,31 +17,27 @@ service Query {
   // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   // Accounts queries all accounts.
   rpc Accounts(QueryAccountsRequest) returns (QueryAccountsResponse) {
-    option (google.api.http).get = "/akash/escrow/v1/types/accounts/list";
+    option (google.api.http).get = "/akash/escrow/v1/types/accounts";
   }
 
   // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
   // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   // Payments queries all payments.
   rpc Payments(QueryPaymentsRequest) returns (QueryPaymentsResponse) {
-    option (google.api.http).get = "/akash/escrow/v1/types/payments/list";
+    option (google.api.http).get = "/akash/escrow/v1/types/payments";
   }
 }
 
 // QueryAccountRequest is request type for the Query/Account RPC method.
 message QueryAccountsRequest {
-  // Scope holds the scope of the account.
-  string scope = 1;
-  // Xid TODO: What is this?
-  string xid   = 2;
-  // Owner is the bech32 address of the account.
-  // It is a string representing a valid account address.
-  //
-  // Example:
-  //   "akash1..."
-  string owner = 3;
   // State represents the current state of an Account.
-  string state = 4;
+  string state = 1;
+  // Scope holds the scope of the account.
+  string xid   = 2 [
+    (gogoproto.jsontag) = "xid",
+    (gogoproto.moretags) = "yaml:\"xid\"",
+    (gogoproto.customname) = "XID"
+  ];
 
   // Pagination is used to paginate request.
   cosmos.base.query.v1beta1.PageRequest pagination = 5;
@@ -50,9 +46,9 @@ message QueryAccountsRequest {
 // QueryProvidersResponse is response type for the Query/Providers RPC method
 message QueryAccountsResponse {
   // Accounts is a list of Account.
-  repeated Account accounts = 1 [
+  repeated akash.escrow.types.v1.Account accounts = 1 [
     (gogoproto.nullable)     = false,
-    (gogoproto.castrepeated) = "Accounts"
+    (gogoproto.castrepeated) = "pkg.akt.dev/go/node/escrow/types/v1.Accounts"
   ];
   // Pagination contains the information about response pagination.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -60,20 +56,13 @@ message QueryAccountsResponse {
 
 // QueryPaymentRequest is request type for the Query/Payment RPC method
 message QueryPaymentsRequest {
-  // Scope holds the scope of the payment.
-  string scope = 1;
-  // Xid TODO: What is this?
-  string xid   = 2;
-  // Id is the unique identifier of the payment.
-  string id    = 3;
-  // Owner is the bech32 address of the account.
-  // It is a string representing a valid account address.
-  //
-  // Example:
-  //   "akash1..."
-  string owner = 4;
-  // State represents the current state of an Account.
-  string state = 5;
+  // State represents the current state of a Payment.
+  string state = 1;
+  string xid   = 2 [
+    (gogoproto.jsontag) = "xid",
+    (gogoproto.moretags) = "yaml:\"xid\"",
+    (gogoproto.customname) = "XID"
+  ];
 
   // Pagination is used to paginate request.
   cosmos.base.query.v1beta1.PageRequest pagination = 6;
@@ -81,10 +70,10 @@ message QueryPaymentsRequest {
 
 // QueryProvidersResponse is response type for the Query/Providers RPC method
 message QueryPaymentsResponse {
-  // Payments is a list of fractional payments.
-  repeated FractionalPayment payments = 1 [
+  // Payments is a list of payments.
+  repeated akash.escrow.types.v1.Payment payments = 1 [
     (gogoproto.nullable)     = false,
-    (gogoproto.castrepeated) = "FractionalPayments"
+    (gogoproto.castrepeated) = "pkg.akt.dev/go/node/escrow/types/v1.Payments"
   ];
 
   // Pagination contains the information about response pagination.

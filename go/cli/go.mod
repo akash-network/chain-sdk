@@ -55,6 +55,9 @@ replace (
 
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
+
+	pkg.akt.dev/go => ../
+	pkg.akt.dev/go/sdl => ../sdl
 )
 
 require (

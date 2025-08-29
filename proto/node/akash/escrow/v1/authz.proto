@@ -1,0 +1,42 @@
+syntax = "proto3";
+package akash.escrow.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "pkg.akt.dev/go/node/escrow/v1";
+
+// DepositAuthorization allows the grantee to deposit up to spend_limit coins from
+// the granter's account for a deployment.
+message DepositAuthorization {
+  option (cosmos_proto.message_added_in)     = "chain-sdk v0.1.0";
+  option (cosmos_proto.implements_interface) = "cosmos.authz.v1beta1.Authorization";
+  option (amino.name)                        = "akash/DepositAuthorization";
+
+  // State is an enum which refers to state of deployment.
+  enum Scope {
+    option (gogoproto.goproto_enum_prefix) = false;
+
+    // Prefix should start with 0 in enum. So declaring dummy state.
+    invalid = 0 [(gogoproto.enumvalue_customname)     = "DepositScopeInvalid"];
+    // DeploymentActive denotes state for deployment active.
+    deployment = 1 [(gogoproto.enumvalue_customname)  = "DepositScopeDeployment"];
+    // DeploymentClosed denotes state for deployment closed.
+    bid = 2 [(gogoproto.enumvalue_customname)         = "DepositScopeBid"];
+  }
+
+  // SpendLimit is the amount the grantee is authorized to spend from the granter's account for
+  // the purpose of deployment.
+  cosmos.base.v1beta1.Coin spend_limit = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "spend_limit"
+  ];
+
+  repeated Scope scopes = 2 [
+    (gogoproto.castrepeated) = "DepositAuthorizationScopes",
+    (gogoproto.jsontag)  = "scopes",
+    (gogoproto.moretags) = "yaml:\"scopes\""
+  ];
+}

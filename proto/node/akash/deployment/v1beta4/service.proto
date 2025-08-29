@@ -1,7 +1,6 @@
 syntax = "proto3";
 package akash.deployment.v1beta4;
 
-import "akash/deployment/v1beta4/msg.proto";
 import "akash/deployment/v1beta4/deploymentmsg.proto";
 import "akash/deployment/v1beta4/groupmsg.proto";
 import "akash/deployment/v1beta4/paramsmsg.proto";
@@ -16,9 +15,6 @@ service Msg {
 
   // CreateDeployment defines a method to create new deployment given proper inputs.
   rpc CreateDeployment(MsgCreateDeployment) returns (MsgCreateDeploymentResponse);
-
-  // DepositDeployment deposits more funds into the deployment account.
-  rpc DepositDeployment(MsgDepositDeployment) returns (MsgDepositDeploymentResponse);
 
   // UpdateDeployment defines a method to update a deployment given proper inputs.
   rpc UpdateDeployment(MsgUpdateDeployment) returns (MsgUpdateDeploymentResponse);

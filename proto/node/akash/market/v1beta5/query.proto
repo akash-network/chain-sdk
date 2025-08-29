@@ -7,8 +7,8 @@ import "google/api/annotations.proto";
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 
-import "akash/escrow/v1/account.proto";
-import "akash/escrow/v1/fractional_payment.proto";
+import "akash/escrow/types/v1/account.proto";
+import "akash/escrow/types/v1/payment.proto";
 
 import "akash/market/v1/order.proto";
 import "akash/market/v1/bid.proto";
@@ -138,7 +138,7 @@ message QueryBidResponse {
     (gogoproto.nullable) = false
   ];
   // EscrowAccount represents the escrow account created for the Bid.
-  akash.escrow.v1.Account escrow_account = 2 [
+  akash.escrow.types.v1.Account escrow_account = 2 [
     (gogoproto.nullable) = false
   ];
 }
@@ -181,7 +181,7 @@ message QueryLeaseResponse {
     (gogoproto.nullable) = false
   ];
   // EscrowPayment holds information about the Lease's fractional payment.
-  akash.escrow.v1.FractionalPayment escrow_payment = 2 [
+  akash.escrow.types.v1.Payment escrow_payment = 2 [
     (gogoproto.nullable) = false
   ];
 }

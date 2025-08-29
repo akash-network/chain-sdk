@@ -62,6 +62,7 @@ func TxCmd() *cobra.Command {
 		GetTxBankCmd(),
 		GetTxCrisisCmd(),
 		getTxDistributionCmd(),
+		GetTxEscrowCmd(),
 		GetTxEvidenceCmd([]*cobra.Command{}),
 		GetTxFeegrantCmd(),
 		GetSignCommand(),

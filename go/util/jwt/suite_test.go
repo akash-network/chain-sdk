@@ -15,7 +15,6 @@ import (
 	jwttests "pkg.akt.dev/testdata/jwt"
 
 	"pkg.akt.dev/go/sdkutil"
-	_ "pkg.akt.dev/go/sdkutil"
 )
 
 type IntegrationTestSuite struct {

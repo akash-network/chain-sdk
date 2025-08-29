@@ -555,52 +555,6 @@ func (s *DistributionCLITestSuite) TestNewWithdrawRewardsCmd() {
 	}
 }
 
-//func (s *DistributionCLITestSuite) TestNewWithdrawAllRewardsCmd() {
-//	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
-//
-//	testCases := []struct {
-//		name      string
-//		args      []string
-//		expectErr bool
-//		expErrMsg string
-//		respType  proto.Message
-//	}{
-//		{
-//			"invalid transaction (offline)",
-//			cli.TestFlags().
-//				WithFrom(val[0].Address.String()).
-//				WithOffline().
-//				WithBroadcastModeSync().
-//				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
-//			true,
-//			"cannot generate tx in offline mode",
-//			nil,
-//		},
-//		{
-//			"valid transaction",
-//			cli.TestFlags().
-//				WithFrom(val[0].Address.String()).
-//				WithSkipConfirm().
-//				WithBroadcastModeSync().
-//				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))),
-//			false, "", &sdk.TxResponse{},
-//		},
-//	}
-//
-//	for _, tc := range testCases {
-//		s.Run(tc.name, func() {
-//			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxDistributionWithdrawAllRewardsCmd(), tc.args...)
-//			if tc.expectErr {
-//				s.Require().Error(err)
-//				s.Require().Contains(err.Error(), tc.expErrMsg)
-//			} else {
-//				s.Require().NoError(err)
-//				s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
-//			}
-//		})
-//	}
-//}
-
 func (s *DistributionCLITestSuite) TestNewSetWithdrawAddrCmd() {
 	val := sdktestutil.CreateKeyringAccounts(s.T(), s.kr, 1)
 

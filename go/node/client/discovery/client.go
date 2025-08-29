@@ -19,7 +19,7 @@ var (
 	ErrInvalidClient = errors.New("invalid client")
 )
 
-func DiscoverQueryClient(ctx context.Context, cctx sdkclient.Context) (v1beta3.QueryClient, error) {
+func DiscoverQueryClient(ctx context.Context, cctx sdkclient.Context) (aclient.QueryClient, error) {
 	var cl v1beta3.QueryClient
 	err := aclient.DiscoverQueryClient(ctx, cctx, func(i interface{}) error {
 		var valid bool
@@ -38,7 +38,7 @@ func DiscoverQueryClient(ctx context.Context, cctx sdkclient.Context) (v1beta3.Q
 	return cl, nil
 }
 
-func DiscoverLightClient(ctx context.Context, cctx sdkclient.Context) (v1beta3.LightClient, error) {
+func DiscoverLightClient(ctx context.Context, cctx sdkclient.Context) (aclient.LightClient, error) {
 	var cl v1beta3.LightClient
 	err := aclient.DiscoverLightClient(ctx, cctx, func(i interface{}) error {
 		var valid bool
@@ -57,7 +57,7 @@ func DiscoverLightClient(ctx context.Context, cctx sdkclient.Context) (v1beta3.L
 	return cl, nil
 }
 
-func DiscoverClient(ctx context.Context, cctx sdkclient.Context, opts ...cltypes.ClientOption) (v1beta3.Client, error) {
+func DiscoverClient(ctx context.Context, cctx sdkclient.Context, opts ...cltypes.ClientOption) (aclient.Client, error) {
 	var cl v1beta3.Client
 
 	setupFn := func(i interface{}) error {

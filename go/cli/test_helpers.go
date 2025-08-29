@@ -202,6 +202,16 @@ func (df FlagsSet) WithSpendLimit(val string) FlagsSet {
 	return res
 }
 
+func (df FlagsSet) WithScope(val []string) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%s", cflags.FlagScope, strings.Join(val, ",")))
+
+	return res
+}
+
 func (df FlagsSet) WithPeriodLimit(val string) FlagsSet {
 	res := make([]string, len(df), len(df)+1)
 

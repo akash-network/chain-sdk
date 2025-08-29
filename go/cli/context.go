@@ -9,7 +9,7 @@ import (
 	"cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.akt.dev/go/node/client/v1beta3"
+	aclient "pkg.akt.dev/go/node/client"
 )
 
 const (
@@ -28,21 +28,21 @@ const (
 	ContextTypeRPCClient      = ContextType("rpc-client")
 )
 
-func ClientFromContext(ctx context.Context) (v1beta3.Client, error) {
+func ClientFromContext(ctx context.Context) (aclient.Client, error) {
 	val := ctx.Value(ContextTypeClient)
 	if val == nil {
 		return nil, errors.New("context does not have client set")
 	}
 
-	res, valid := val.(v1beta3.Client)
+	res, valid := val.(aclient.Client)
 	if !valid {
-		return nil, fmt.Errorf("invalid context value, expected \"v1beta3.Client\", actual \"%s\"", reflect.TypeOf(val))
+		return nil, fmt.Errorf("invalid context value, expected \"aclient.Client\", actual \"%s\"", reflect.TypeOf(val))
 	}
 
 	return res, nil
 }
 
-func MustClientFromContext(ctx context.Context) v1beta3.Client {
+func MustClientFromContext(ctx context.Context) aclient.Client {
 	cl, err := ClientFromContext(ctx)
 	if err != nil {
 		panic(err.Error())
@@ -51,7 +51,7 @@ func MustClientFromContext(ctx context.Context) v1beta3.Client {
 	return cl
 }
 
-func LightClientFromContext(ctx context.Context) (v1beta3.LightClient, error) {
+func LightClientFromContext(ctx context.Context) (aclient.LightClient, error) {
 	val := ctx.Value(ContextTypeQueryClient)
 	if val == nil {
 		val = ctx.Value(ContextTypeClient)
@@ -61,16 +61,16 @@ func LightClientFromContext(ctx context.Context) (v1beta3.LightClient, error) {
 	}
 
 	switch cl := val.(type) {
-	case v1beta3.LightClient:
+	case aclient.Client:
 		return cl, nil
-	case v1beta3.Client:
+	case aclient.LightClient:
 		return cl, nil
 	default:
-		return nil, fmt.Errorf("invalid context value. expected \"v1beta3.Client|v1beta3.LightClient\" actual %s", reflect.TypeOf(val).String())
+		return nil, fmt.Errorf("invalid context value. expected \"aclient.Client|aclient.LightClient\" actual %s", reflect.TypeOf(val).String())
 	}
 }
 
-func MustLightClientFromContext(ctx context.Context) v1beta3.LightClient {
+func MustLightClientFromContext(ctx context.Context) aclient.LightClient {
 	cl, err := LightClientFromContext(ctx)
 	if err != nil {
 		panic(err.Error())

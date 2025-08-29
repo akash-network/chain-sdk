@@ -19,44 +19,6 @@ var _ ResourceGroup = (*GroupSpec)(nil)
 
 type GroupSpecs []GroupSpec
 
-//func (gspecs GroupSpecs) Len() int {
-//	return len(gspecs)
-//}
-//
-//func (gspecs GroupSpecs) Swap(i, j int) {
-//	gspecs[i], gspecs[j] = gspecs[j], gspecs[i]
-//}
-//
-//func (gspecs GroupSpecs) Less(i, j int) bool {
-//	if gspecs[i].Name < gspecs[j].Name {
-//		return true
-//	}
-//
-//	if gspecs[i].Requirements.Attributes.Less()
-//	//return u[i].SequenceNumber < u[j].SequenceNumber
-//}
-//
-//
-//func (gspecs GroupSpecs) Equal(rhs GroupSpecs) bool {
-//	if len(gspecs) != len(rhs) {
-//		return false
-//	}
-//
-//	lhs := gspecs.Dup()
-//	rhs = rhs.Dup()
-//
-//	sort.Sort(lhs)
-//	sort.Sort(rhs)
-//
-//	for i := range lhs {
-//		if !lhs[i].Equal(&rhs[i]) {
-//			return false
-//		}
-//	}
-//
-//	return true
-//}
-
 func (gspecs GroupSpecs) Dup() GroupSpecs {
 	res := make(GroupSpecs, 0, len(gspecs))
 

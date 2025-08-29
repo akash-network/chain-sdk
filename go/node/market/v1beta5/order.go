@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
+	v1 "pkg.akt.dev/go/node/market/v1"
 
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 )
@@ -37,9 +38,9 @@ func (o *Order) ValidateCanBid() error {
 	case OrderOpen:
 		return nil
 	case OrderActive:
-		return ErrOrderActive
+		return v1.ErrOrderActive
 	default:
-		return ErrOrderClosed
+		return v1.ErrOrderClosed
 	}
 }
 
@@ -50,9 +51,9 @@ func (o *Order) ValidateInactive() error {
 	case OrderClosed:
 		return nil
 	case OrderActive:
-		return ErrOrderActive
+		return v1.ErrOrderActive
 	default:
-		return ErrOrderClosed
+		return v1.ErrOrderClosed
 	}
 }
 

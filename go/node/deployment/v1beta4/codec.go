@@ -31,14 +31,12 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgStartGroup{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgStartGroup{}).Type(), nil)
 	cdc.RegisterConcrete(&MsgPauseGroup{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgPauseGroup{}).Type(), nil)
 	cdc.RegisterConcrete(&MsgCloseGroup{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgCloseGroup{}).Type(), nil)
-	cdc.RegisterConcrete(&MsgDepositDeployment{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgDepositDeployment{}).Type(), nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgUpdateParams{}).Type(), nil)
 }
 
 // RegisterInterfaces registers the x/deployment interfaces types with the interface registry
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgDepositDeployment{},
 		&MsgCreateDeployment{},
 		&MsgUpdateDeployment{},
 		&MsgCloseDeployment{},

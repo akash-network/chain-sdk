@@ -5,6 +5,8 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+
+	v1 "pkg.akt.dev/go/node/market/v1"
 )
 
 var (
@@ -21,22 +23,16 @@ var (
 	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
 )
 
-// func init() {
-// 	RegisterLegacyAminoCodec(amino)
-// 	cryptocodec.RegisterCrypto(amino)
-// 	amino.Seal()
-// }
-
 // RegisterLegacyAminoCodec registers the necessary x/market interfaces and concrete types
 // on the provided Amino codec. These types are used for Amino JSON serialization.
 //
 // Deprecated: RegisterLegacyAminoCodec is deprecated
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgCreateBid{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgCreateBid{}).Type(), nil)
-	cdc.RegisterConcrete(&MsgCloseBid{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgCloseBid{}).Type(), nil)
-	cdc.RegisterConcrete(&MsgCreateLease{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgCreateLease{}).Type(), nil)
-	cdc.RegisterConcrete(&MsgCloseLease{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgCloseLease{}).Type(), nil)
-	cdc.RegisterConcrete(&MsgWithdrawLease{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgWithdrawLease{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgCreateBid{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgCreateBid{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgCloseBid{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgCloseBid{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgCreateLease{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgCreateLease{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgCloseLease{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgCloseLease{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgWithdrawLease{}, "akash-sdk/x/"+v1.ModuleName+"/"+(&MsgWithdrawLease{}).Type(), nil)
 }
 
 // RegisterInterfaces registers the x/market interfaces types with the interface registry

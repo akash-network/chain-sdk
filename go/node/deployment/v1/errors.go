@@ -27,6 +27,7 @@ const (
 	errInvalidDeposit
 	errInvalidIDPath
 	errInvalidParam
+	errInvalidEscrowID
 )
 
 var (
@@ -73,5 +74,6 @@ var (
 	// ErrInvalidIDPath indicates an invalid ID path
 	ErrInvalidIDPath = cerrors.Register(ModuleName, errInvalidIDPath, "ID path invalid")
 	// ErrInvalidParam indicates an invalid chain parameter
-	ErrInvalidParam = cerrors.Register(ModuleName, errInvalidParam, "parameter invalid")
+	ErrInvalidParam    = cerrors.Register(ModuleName, errInvalidParam, "parameter invalid")
+	ErrInvalidEscrowID = cerrors.Register(ModuleName, errInvalidEscrowID, "invalid escrow id")
 )

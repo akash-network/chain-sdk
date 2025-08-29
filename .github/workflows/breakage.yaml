@@ -22,4 +22,4 @@ jobs:
       - name: go mod vendor
         run: make modvendor
       - name: check-breakage
-        run: make check-breaking
+        run: make proto-check-breaking
