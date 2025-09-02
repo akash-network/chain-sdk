@@ -32,7 +32,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryProvidersRequest is request type for the Query/Providers RPC method
 type QueryProvidersRequest struct {
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 

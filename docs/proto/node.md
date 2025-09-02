@@ -40,6 +40,11 @@
  - [akash/audit/v1/service.proto](#akash/audit/v1/service.proto)
      - [Msg](#akash.audit.v1.Msg)
    
+ - [akash/base/deposit/v1/deposit.proto](#akash/base/deposit/v1/deposit.proto)
+     - [Deposit](#akash.base.deposit.v1.Deposit)
+   
+     - [Source](#akash.base.deposit.v1.Source)
+   
  - [akash/base/resources/v1beta4/resourcevalue.proto](#akash/base/resources/v1beta4/resourcevalue.proto)
      - [ResourceValue](#akash.base.resources.v1beta4.ResourceValue)
    
@@ -92,9 +97,6 @@
  - [akash/cert/v1/service.proto](#akash/cert/v1/service.proto)
      - [Msg](#akash.cert.v1.Msg)
    
- - [akash/deployment/v1/authz.proto](#akash/deployment/v1/authz.proto)
-     - [DepositAuthorization](#akash.deployment.v1.DepositAuthorization)
-   
  - [akash/deployment/v1/deployment.proto](#akash/deployment/v1/deployment.proto)
      - [Deployment](#akash.deployment.v1.Deployment)
      - [DeploymentID](#akash.deployment.v1.DeploymentID)
@@ -111,10 +113,6 @@
      - [EventGroupClosed](#akash.deployment.v1.EventGroupClosed)
      - [EventGroupPaused](#akash.deployment.v1.EventGroupPaused)
      - [EventGroupStarted](#akash.deployment.v1.EventGroupStarted)
-   
- - [akash/deployment/v1/msg.proto](#akash/deployment/v1/msg.proto)
-     - [MsgDepositDeployment](#akash.deployment.v1.MsgDepositDeployment)
-     - [MsgDepositDeploymentResponse](#akash.deployment.v1.MsgDepositDeploymentResponse)
    
  - [akash/deployment/v1beta4/resourceunit.proto](#akash/deployment/v1beta4/resourceunit.proto)
      - [ResourceUnit](#akash.deployment.v1beta4.ResourceUnit)
@@ -158,13 +156,24 @@
      - [MsgUpdateParams](#akash.deployment.v1beta4.MsgUpdateParams)
      - [MsgUpdateParamsResponse](#akash.deployment.v1beta4.MsgUpdateParamsResponse)
    
- - [akash/escrow/v1/accountid.proto](#akash/escrow/v1/accountid.proto)
-     - [AccountID](#akash.escrow.v1.AccountID)
+ - [akash/escrow/id/v1/id.proto](#akash/escrow/id/v1/id.proto)
+     - [Account](#akash.escrow.id.v1.Account)
+     - [Payment](#akash.escrow.id.v1.Payment)
    
- - [akash/escrow/v1/account.proto](#akash/escrow/v1/account.proto)
-     - [Account](#akash.escrow.v1.Account)
+     - [Scope](#akash.escrow.id.v1.Scope)
    
-     - [Account.State](#akash.escrow.v1.Account.State)
+ - [akash/escrow/types/v1/balance.proto](#akash/escrow/types/v1/balance.proto)
+     - [Balance](#akash.escrow.types.v1.Balance)
+   
+ - [akash/escrow/types/v1/deposit.proto](#akash/escrow/types/v1/deposit.proto)
+     - [Depositor](#akash.escrow.types.v1.Depositor)
+   
+ - [akash/escrow/types/v1/state.proto](#akash/escrow/types/v1/state.proto)
+     - [State](#akash.escrow.types.v1.State)
+   
+ - [akash/escrow/types/v1/account.proto](#akash/escrow/types/v1/account.proto)
+     - [Account](#akash.escrow.types.v1.Account)
+     - [AccountState](#akash.escrow.types.v1.AccountState)
    
  - [akash/deployment/v1beta4/query.proto](#akash/deployment/v1beta4/query.proto)
      - [QueryDeploymentRequest](#akash.deployment.v1beta4.QueryDeploymentRequest)
@@ -187,13 +196,21 @@
  - [akash/discovery/v1/akash.proto](#akash/discovery/v1/akash.proto)
      - [Akash](#akash.discovery.v1.Akash)
    
- - [akash/escrow/v1/fractional_payment.proto](#akash/escrow/v1/fractional_payment.proto)
-     - [FractionalPayment](#akash.escrow.v1.FractionalPayment)
+ - [akash/escrow/types/v1/payment.proto](#akash/escrow/types/v1/payment.proto)
+     - [Payment](#akash.escrow.types.v1.Payment)
+     - [PaymentState](#akash.escrow.types.v1.PaymentState)
    
-     - [FractionalPayment.State](#akash.escrow.v1.FractionalPayment.State)
+ - [akash/escrow/v1/authz.proto](#akash/escrow/v1/authz.proto)
+     - [DepositAuthorization](#akash.escrow.v1.DepositAuthorization)
+   
+     - [DepositAuthorization.Scope](#akash.escrow.v1.DepositAuthorization.Scope)
    
  - [akash/escrow/v1/genesis.proto](#akash/escrow/v1/genesis.proto)
      - [GenesisState](#akash.escrow.v1.GenesisState)
+   
+ - [akash/escrow/v1/msg.proto](#akash/escrow/v1/msg.proto)
+     - [MsgAccountDeposit](#akash.escrow.v1.MsgAccountDeposit)
+     - [MsgAccountDepositResponse](#akash.escrow.v1.MsgAccountDepositResponse)
    
  - [akash/escrow/v1/query.proto](#akash/escrow/v1/query.proto)
      - [QueryAccountsRequest](#akash.escrow.v1.QueryAccountsRequest)
@@ -203,23 +220,8 @@
    
      - [Query](#akash.escrow.v1.Query)
    
- - [akash/gov/v1beta3/params.proto](#akash/gov/v1beta3/params.proto)
-     - [DepositParams](#akash.gov.v1beta3.DepositParams)
-   
- - [akash/gov/v1beta3/genesis.proto](#akash/gov/v1beta3/genesis.proto)
-     - [GenesisState](#akash.gov.v1beta3.GenesisState)
-   
- - [akash/inflation/v1beta2/params.proto](#akash/inflation/v1beta2/params.proto)
-     - [Params](#akash.inflation.v1beta2.Params)
-   
- - [akash/inflation/v1beta2/genesis.proto](#akash/inflation/v1beta2/genesis.proto)
-     - [GenesisState](#akash.inflation.v1beta2.GenesisState)
-   
- - [akash/inflation/v1beta3/params.proto](#akash/inflation/v1beta3/params.proto)
-     - [Params](#akash.inflation.v1beta3.Params)
-   
- - [akash/inflation/v1beta3/genesis.proto](#akash/inflation/v1beta3/genesis.proto)
-     - [GenesisState](#akash.inflation.v1beta3.GenesisState)
+ - [akash/escrow/v1/service.proto](#akash/escrow/v1/service.proto)
+     - [Msg](#akash.escrow.v1.Msg)
    
  - [akash/market/v1/bid.proto](#akash/market/v1/bid.proto)
      - [BidID](#akash.market.v1.BidID)
@@ -337,25 +339,6 @@
  - [akash/provider/v1beta4/service.proto](#akash/provider/v1beta4/service.proto)
      - [Msg](#akash.provider.v1beta4.Msg)
    
- - [akash/staking/v1beta3/params.proto](#akash/staking/v1beta3/params.proto)
-     - [Params](#akash.staking.v1beta3.Params)
-   
- - [akash/staking/v1beta3/genesis.proto](#akash/staking/v1beta3/genesis.proto)
-     - [GenesisState](#akash.staking.v1beta3.GenesisState)
-   
- - [akash/staking/v1beta3/paramsmsg.proto](#akash/staking/v1beta3/paramsmsg.proto)
-     - [MsgUpdateParams](#akash.staking.v1beta3.MsgUpdateParams)
-     - [MsgUpdateParamsResponse](#akash.staking.v1beta3.MsgUpdateParamsResponse)
-   
- - [akash/staking/v1beta3/query.proto](#akash/staking/v1beta3/query.proto)
-     - [QueryParamsRequest](#akash.staking.v1beta3.QueryParamsRequest)
-     - [QueryParamsResponse](#akash.staking.v1beta3.QueryParamsResponse)
-   
-     - [Query](#akash.staking.v1beta3.Query)
-   
- - [akash/staking/v1beta3/service.proto](#akash/staking/v1beta3/service.proto)
-     - [Msg](#akash.staking.v1beta3.Msg)
-   
  - [akash/take/v1/params.proto](#akash/take/v1/params.proto)
      - [DenomTakeRate](#akash.take.v1.DenomTakeRate)
      - [Params](#akash.take.v1.Params)
@@ -433,7 +416,7 @@ TODO: this behaviour to be discussed
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `all_of` | [string](#string) | repeated | AllOf indicates all keys in this list must have signed attributes. |
- | `any_of` | [string](#string) | repeated | AnyOf means that at least of of the keys from the list must have signed attributes. |
+ | `any_of` | [string](#string) | repeated | AnyOf means that at least one of the keys from the list must have signed attributes. |
  
  
 
@@ -592,7 +575,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited provided account addresses. |
+ | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited provider account addresses. |
  
  
 
@@ -719,7 +702,7 @@ Example: "akash1..." |
  | `auditor` | [string](#string) |  | Auditor is the account address of the auditor. It is a string representing a valid account address.
 
 Example: "akash1..." |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -737,7 +720,7 @@ Example: "akash1..." |
  | `owner` | [string](#string) |  | Owner is the account bech32 address of the provider. It is a string representing a valid account address.
 
 Example: "akash1..." |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -792,7 +775,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited provided account addresses. |
+ | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited provider account addresses. |
  | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination is used to paginate results. |
  
  
@@ -845,6 +828,51 @@ Example: "akash1..." |
  | `SignProviderAttributes` | [MsgSignProviderAttributes](#akash.audit.v1.MsgSignProviderAttributes) | [MsgSignProviderAttributesResponse](#akash.audit.v1.MsgSignProviderAttributesResponse) | SignProviderAttributes defines a method that signs provider attributes. | |
  | `DeleteProviderAttributes` | [MsgDeleteProviderAttributes](#akash.audit.v1.MsgDeleteProviderAttributes) | [MsgDeleteProviderAttributesResponse](#akash.audit.v1.MsgDeleteProviderAttributesResponse) | DeleteProviderAttributes defines a method that deletes provider attributes. | |
  
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/base/deposit/v1/deposit.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/base/deposit/v1/deposit.proto
+ 
+
+ 
+ <a name="akash.base.deposit.v1.Deposit"></a>
+
+ ### Deposit
+ Deposit is a data type use by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Deposit specifies the amount of coins to include in the deployment's first deposit. |
+ | `sources` | [Source](#akash.base.deposit.v1.Source) | repeated | Sources list of deposit sources, each entry must be unique |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.base.deposit.v1.Source"></a>
+
+ ### Source
+ Source is an enum which lists source of funds for deployment deposit.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | invalid | 0 | Prefix should start with 0 in enum. So declaring dummy state. |
+ | balance | 1 | DepositSourceBalance denotes account balance as source of funds |
+ | grant | 2 | DepositSourceGrant denotes authz grants as source of funds |
+ 
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
   <!-- end services -->
 
  
@@ -1342,7 +1370,7 @@ Example: "akash1..." |
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `filter` | [CertificateFilter](#akash.cert.v1.CertificateFilter) |  | Filter allows for filtering of results. |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -1407,38 +1435,6 @@ Example: "akash1..." |
  | `CreateCertificate` | [MsgCreateCertificate](#akash.cert.v1.MsgCreateCertificate) | [MsgCreateCertificateResponse](#akash.cert.v1.MsgCreateCertificateResponse) | CreateCertificate defines a method to create new certificate given proper inputs. | |
  | `RevokeCertificate` | [MsgRevokeCertificate](#akash.cert.v1.MsgRevokeCertificate) | [MsgRevokeCertificateResponse](#akash.cert.v1.MsgRevokeCertificateResponse) | RevokeCertificate defines a method to revoke the certificate. | |
  
-  <!-- end services -->
-
- 
- 
- <a name="akash/deployment/v1/authz.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/deployment/v1/authz.proto
- 
-
- 
- <a name="akash.deployment.v1.DepositAuthorization"></a>
-
- ### DepositAuthorization
- DepositAuthorization allows the grantee to deposit up to spend_limit coins from
-the granter's account for a deployment.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `spend_limit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | SpendLimit is the amount the grantee is authorized to spend from the granter's account for the purpose of deployment. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
   <!-- end services -->
 
  
@@ -1661,51 +1657,6 @@ It contains all the information required to identify a group.
 
  
  
- <a name="akash/deployment/v1/msg.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/deployment/v1/msg.proto
- 
-
- 
- <a name="akash.deployment.v1.MsgDepositDeployment"></a>
-
- ### MsgDepositDeployment
- MsgDepositDeployment represents a message to deposit funds into an existing deployment
-on the blockchain. This is part of the interaction mechanism for managing
-deployment-related resources.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `id` | [DeploymentID](#akash.deployment.v1.DeploymentID) |  | ID is the unique identifier of the deployment. |
- | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount defines the funds to deposit into the deployment. It is specified as a coin amount (denomination and value). |
- | `depositor` | [string](#string) |  | Depositor is the address of the account depositing funds into the deployment. This must be a valid blockchain account address. |
- 
- 
-
- 
-
- 
- <a name="akash.deployment.v1.MsgDepositDeploymentResponse"></a>
-
- ### MsgDepositDeploymentResponse
- MsgDepositDeploymentResponse defines response type for the MsgDepositDeployment.
-
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
  <a name="akash/deployment/v1beta4/resourceunit.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -1816,10 +1767,7 @@ This includes attributes like the group name, placement requirements, and resour
  | `id` | [akash.deployment.v1.DeploymentID](#akash.deployment.v1.DeploymentID) |  | ID is the unique identifier of the deployment. |
  | `groups` | [GroupSpec](#akash.deployment.v1beta4.GroupSpec) | repeated | GroupSpec is a list of group specifications for the deployment. This field is required and must be a list of GroupSpec. |
  | `hash` | [bytes](#bytes) |  | Hash of the deployment. |
- | `deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Deposit specifies the amount of coins to include in the deployment's first deposit. |
- | `depositor` | [string](#string) |  | Depositor is the account address of the user who will deposit funds to the deployment. This value can be different than the owner of the deployment if there is authorized spend grants applied. It is a string representing a valid account address.
-
-Example: "akash1..." |
+ | `deposit` | [akash.base.deposit.v1.Deposit](#akash.base.deposit.v1.Deposit) |  | Deposit specifies the amount of coins to include in the deployment's first deposit. |
  
  
 
@@ -2194,23 +2142,84 @@ Since: akash v1.0.0
 
  
  
- <a name="akash/escrow/v1/accountid.proto"></a>
+ <a name="akash/escrow/id/v1/id.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
- ## akash/escrow/v1/accountid.proto
+ ## akash/escrow/id/v1/id.proto
  
 
  
- <a name="akash.escrow.v1.AccountID"></a>
+ <a name="akash.escrow.id.v1.Account"></a>
 
- ### AccountID
- AccountID is the account identifier.
+ ### Account
+ Account is the account identifier.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `scope` | [string](#string) |  | Scope holds the scope of the account. |
- | `xid` | [string](#string) |  | Xid TODO: What is this? |
+ | `scope` | [Scope](#akash.escrow.id.v1.Scope) |  |  |
+ | `xid` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.escrow.id.v1.Payment"></a>
+
+ ### Payment
+ Payment is the payment identifier.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `aid` | [Account](#akash.escrow.id.v1.Account) |  |  |
+ | `xid` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.escrow.id.v1.Scope"></a>
+
+ ### Scope
+ Scope is an enum which refers to the account scope
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | invalid | 0 | Prefix should start with 0 in enum. So declaring dummy state. |
+ | deployment | 1 | DeploymentActive denotes state for deployment active. |
+ | bid | 2 | DeploymentClosed denotes state for deployment closed. |
+ 
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/escrow/types/v1/balance.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/escrow/types/v1/balance.proto
+ 
+
+ 
+ <a name="akash.escrow.types.v1.Balance"></a>
+
+ ### Balance
+ Balance holds the unspent coin received from all deposits with same denom
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `denom` | [string](#string) |  |  |
+ | `amount` | [string](#string) |  |  |
  
  
 
@@ -2226,33 +2235,26 @@ Since: akash v1.0.0
 
  
  
- <a name="akash/escrow/v1/account.proto"></a>
+ <a name="akash/escrow/types/v1/deposit.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
- ## akash/escrow/v1/account.proto
+ ## akash/escrow/types/v1/deposit.proto
  
 
  
- <a name="akash.escrow.v1.Account"></a>
+ <a name="akash.escrow.types.v1.Depositor"></a>
 
- ### Account
- Account stores state for an escrow account.
+ ### Depositor
+ Depositor stores state of a deposit.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [AccountID](#akash.escrow.v1.AccountID) |  | Id is the unique identifier for an escrow account. |
- | `owner` | [string](#string) |  | Owner is the bech32 address of the account. It is a string representing a valid account address.
-
-Example: "akash1..." |
- | `state` | [Account.State](#akash.escrow.v1.Account.State) |  | State represents the current state of an Account. |
- | `balance` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Balance holds the unspent coins received from the owner's wallet. |
- | `transferred` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Transferred total coins spent by this account. |
- | `settled_at` | [int64](#int64) |  | SettledAt represents the block height at which this account was last settled. |
- | `depositor` | [string](#string) |  | Depositor is the bech32 address of the depositor. It is a string representing a valid account address.
+ | `owner` | [string](#string) |  | Owner is the bech32 address of the depositor. It is a string representing a valid account address.
 
 Example: "akash1..." If depositor is same as the owner, then any incoming coins are added to the Balance. If depositor isn't same as the owner, then any incoming coins are added to the Funds. |
- | `funds` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Funds are unspent coins received from the (non-Owner) Depositor's wallet. If there are any funds, they should be spent before spending the Balance. |
+ | `height` | [int64](#int64) |  | Height blockchain height at which deposit was created |
+ | `balance` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Balance amount of funds available to spend in this deposit. |
  
  
 
@@ -2260,19 +2262,89 @@ Example: "akash1..." If depositor is same as the owner, then any incoming coins 
 
   <!-- end messages -->
 
- 
- <a name="akash.escrow.v1.Account.State"></a>
+  <!-- end enums -->
 
- ### Account.State
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/escrow/types/v1/state.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/escrow/types/v1/state.proto
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.escrow.types.v1.State"></a>
+
+ ### State
  State stores state for an escrow account.
 
  | Name | Number | Description |
  | ---- | ------ | ----------- |
  | invalid | 0 | AccountStateInvalid is an invalid state. |
- | open | 1 | AccountOpen is the state when an account is open. |
- | closed | 2 | AccountClosed is the state when an account is closed. |
- | overdrawn | 3 | AccountOverdrawn is the state when an account is overdrawn. |
+ | open | 1 | StateOpen is the state when an object is open. |
+ | closed | 2 | StateClosed is the state when an object is closed. |
+ | overdrawn | 3 | StateOverdrawn is the state when an object are overdrawn. |
  
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/escrow/types/v1/account.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/escrow/types/v1/account.proto
+ 
+
+ 
+ <a name="akash.escrow.types.v1.Account"></a>
+
+ ### Account
+ Account
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [akash.escrow.id.v1.Account](#akash.escrow.id.v1.Account) |  |  |
+ | `state` | [AccountState](#akash.escrow.types.v1.AccountState) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.escrow.types.v1.AccountState"></a>
+
+ ### AccountState
+ Account stores state for an escrow account.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `owner` | [string](#string) |  | Owner is the account bech32 address of the user who owns the deployment. It is a string representing a valid bech32 account address.
+
+Example: "akash1..." |
+ | `state` | [State](#akash.escrow.types.v1.State) |  | State represents the current state of an Account. |
+ | `transferred` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | Transferred total coins spent by this account. |
+ | `settled_at` | [int64](#int64) |  | SettledAt represents the block height at which this account was last settled. |
+ | `funds` | [Balance](#akash.escrow.types.v1.Balance) | repeated | Balance holds the unspent coins received from all deposits |
+ | `deposits` | [Depositor](#akash.escrow.types.v1.Depositor) | repeated |  |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
 
   <!-- end enums -->
 
@@ -2314,7 +2386,7 @@ Example: "akash1..." If depositor is same as the owner, then any incoming coins 
  | ----- | ---- | ----- | ----------- |
  | `deployment` | [akash.deployment.v1.Deployment](#akash.deployment.v1.Deployment) |  | Deployment represents a deployment on the network. |
  | `groups` | [Group](#akash.deployment.v1beta4.Group) | repeated | Groups is a list of deployment groups. |
- | `escrow_account` | [akash.escrow.v1.Account](#akash.escrow.v1.Account) |  | EscrowAccount represents an escrow mechanism where funds are held. This ensures that obligations of both tenants and providers involved in the transaction are met without direct access to each other's accounts. |
+ | `escrow_account` | [akash.escrow.types.v1.Account](#akash.escrow.types.v1.Account) |  | EscrowAccount represents an escrow mechanism where funds are held. This ensures that obligations of both tenants and providers involved in the transaction are met without direct access to each other's accounts. |
  
  
 
@@ -2361,7 +2433,7 @@ Example: "akash1..." If depositor is same as the owner, then any incoming coins 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [akash.deployment.v1.GroupID](#akash.deployment.v1.GroupID) |  | Id is the unique identifer of the Group. |
+ | `id` | [akash.deployment.v1.GroupID](#akash.deployment.v1.GroupID) |  | Id is the unique identifier of the Group. |
  
  
 
@@ -2451,12 +2523,11 @@ Example: "akash1..." If depositor is same as the owner, then any incoming coins 
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `CreateDeployment` | [MsgCreateDeployment](#akash.deployment.v1beta4.MsgCreateDeployment) | [MsgCreateDeploymentResponse](#akash.deployment.v1beta4.MsgCreateDeploymentResponse) | CreateDeployment defines a method to create new deployment given proper inputs. | |
- | `DepositDeployment` | [.akash.deployment.v1.MsgDepositDeployment](#akash.deployment.v1.MsgDepositDeployment) | [.akash.deployment.v1.MsgDepositDeploymentResponse](#akash.deployment.v1.MsgDepositDeploymentResponse) | DepositDeployment deposits more funds into the deployment account. | |
  | `UpdateDeployment` | [MsgUpdateDeployment](#akash.deployment.v1beta4.MsgUpdateDeployment) | [MsgUpdateDeploymentResponse](#akash.deployment.v1beta4.MsgUpdateDeploymentResponse) | UpdateDeployment defines a method to update a deployment given proper inputs. | |
  | `CloseDeployment` | [MsgCloseDeployment](#akash.deployment.v1beta4.MsgCloseDeployment) | [MsgCloseDeploymentResponse](#akash.deployment.v1beta4.MsgCloseDeploymentResponse) | CloseDeployment defines a method to close a deployment given proper inputs. | |
  | `CloseGroup` | [MsgCloseGroup](#akash.deployment.v1beta4.MsgCloseGroup) | [MsgCloseGroupResponse](#akash.deployment.v1beta4.MsgCloseGroupResponse) | CloseGroup defines a method to close a group of a deployment given proper inputs. | |
- | `PauseGroup` | [MsgPauseGroup](#akash.deployment.v1beta4.MsgPauseGroup) | [MsgPauseGroupResponse](#akash.deployment.v1beta4.MsgPauseGroupResponse) | PauseGroup defines a method to close a group of a deployment given proper inputs. | |
- | `StartGroup` | [MsgStartGroup](#akash.deployment.v1beta4.MsgStartGroup) | [MsgStartGroupResponse](#akash.deployment.v1beta4.MsgStartGroupResponse) | StartGroup defines a method to close a group of a deployment given proper inputs. | |
+ | `PauseGroup` | [MsgPauseGroup](#akash.deployment.v1beta4.MsgPauseGroup) | [MsgPauseGroupResponse](#akash.deployment.v1beta4.MsgPauseGroupResponse) | PauseGroup defines a method to pause a group of a deployment given proper inputs. | |
+ | `StartGroup` | [MsgStartGroup](#akash.deployment.v1beta4.MsgStartGroup) | [MsgStartGroupResponse](#akash.deployment.v1beta4.MsgStartGroupResponse) | StartGroup defines a method to start a group of a deployment given proper inputs. | |
  | `UpdateParams` | [MsgUpdateParams](#akash.deployment.v1beta4.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.deployment.v1beta4.MsgUpdateParamsResponse) | UpdateParams defines a governance operation for updating the x/deployment module parameters. The authority is hard-coded to the x/gov module account.
 
 Since: akash v1.0.0 | |
@@ -2527,30 +2598,81 @@ Since: akash v1.0.0 | |
 
  
  
- <a name="akash/escrow/v1/fractional_payment.proto"></a>
+ <a name="akash/escrow/types/v1/payment.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
- ## akash/escrow/v1/fractional_payment.proto
+ ## akash/escrow/types/v1/payment.proto
  
 
  
- <a name="akash.escrow.v1.FractionalPayment"></a>
+ <a name="akash.escrow.types.v1.Payment"></a>
 
- ### FractionalPayment
- FractionalPayment stores state for a payment.
+ ### Payment
+ Payment
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `account_id` | [AccountID](#akash.escrow.v1.AccountID) |  | AccountId is the unique identifier for the account. |
- | `payment_id` | [string](#string) |  | PaymentId is the unique identifier for the payment. |
- | `owner` | [string](#string) |  | Owner is the bech32 address of the payment. It is a string representing a valid account address.
+ | `id` | [akash.escrow.id.v1.Payment](#akash.escrow.id.v1.Payment) |  |  |
+ | `state` | [PaymentState](#akash.escrow.types.v1.PaymentState) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.escrow.types.v1.PaymentState"></a>
+
+ ### PaymentState
+ Payment stores state for a payment.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `owner` | [string](#string) |  | Owner is the account bech32 address of the user who owns the deployment. It is a string representing a valid bech32 account address.
 
 Example: "akash1..." |
- | `state` | [FractionalPayment.State](#akash.escrow.v1.FractionalPayment.State) |  | State represents the state of the FractionalPayment. |
- | `rate` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Rate holds the rate of the FractionalPayment. |
+ | `state` | [State](#akash.escrow.types.v1.State) |  | State represents the state of the Payment. |
+ | `rate` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Rate holds the rate of the Payment. |
  | `balance` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Balance is the current available coins. |
- | `withdrawn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Withdrawn corresponds to the amount of coins withdrawn by the FractionalPayment. |
+ | `unsettled` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Unsettled is the amount needed to settle payment if account is overdrawn |
+ | `withdrawn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Withdrawn corresponds to the amount of coins withdrawn by the Payment. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/escrow/v1/authz.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/escrow/v1/authz.proto
+ 
+
+ 
+ <a name="akash.escrow.v1.DepositAuthorization"></a>
+
+ ### DepositAuthorization
+ DepositAuthorization allows the grantee to deposit up to spend_limit coins from
+the granter's account for Akash deployments and bids. This authorization is used
+within the Cosmos SDK authz module to grant scoped permissions for deposit operations.
+The authorization can be restricted to specific scopes (deployment or bid) to limit
+what types of deposits the grantee is authorized to make on behalf of the granter.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `spend_limit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account. This limit applies cumulatively across all deposit operations within the authorized scopes. Once this limit is reached, the authorization becomes invalid and no further deposits can be made. |
+ | `scopes` | [DepositAuthorization.Scope](#akash.escrow.v1.DepositAuthorization.Scope) | repeated | Scopes defines the specific types of deposit operations this authorization permits. This provides fine-grained control over what operations the grantee can perform using the granter's funds. |
  
  
 
@@ -2559,17 +2681,18 @@ Example: "akash1..." |
   <!-- end messages -->
 
  
- <a name="akash.escrow.v1.FractionalPayment.State"></a>
+ <a name="akash.escrow.v1.DepositAuthorization.Scope"></a>
 
- ### FractionalPayment.State
- State defines payment state
+ ### DepositAuthorization.Scope
+ Scope defines the types of deposit operations that can be authorized.
+This enum is used to restrict the authorization to specific deposit contexts,
+allowing fine-grained permission control within the authz system.
 
  | Name | Number | Description |
  | ---- | ------ | ----------- |
- | invalid | 0 | PaymentStateInvalid is the state when the payment is invalid. |
- | open | 1 | PaymentStateOpen is the state when the payment is open. |
- | closed | 2 | PaymentStateClosed is the state when the payment is closed. |
- | overdrawn | 3 | PaymentStateOverdrawn is the state when the payment is overdrawn. |
+ | invalid | 0 | Prefix should start with 0 in enum. So declaring dummy state. |
+ | deployment | 1 | DepositScopeDeployment allows deposits for deployment-related operations. |
+ | bid | 2 | DepositScopeBid allows deposits for bid-related operations. |
  
 
   <!-- end enums -->
@@ -2595,9 +2718,56 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `accounts` | [Account](#akash.escrow.v1.Account) | repeated | Accounts is a list of accounts on the genesis state. |
- | `payments` | [FractionalPayment](#akash.escrow.v1.FractionalPayment) | repeated | Payments is a list of fractional payments on the genesis state.. |
+ | `accounts` | [akash.escrow.types.v1.Account](#akash.escrow.types.v1.Account) | repeated | Accounts is a list of accounts on the genesis state. |
+ | `payments` | [akash.escrow.types.v1.Payment](#akash.escrow.types.v1.Payment) | repeated | Payments is a list of fractional payments on the genesis state.. |
  
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/escrow/v1/msg.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/escrow/v1/msg.proto
+ 
+
+ 
+ <a name="akash.escrow.v1.MsgAccountDeposit"></a>
+
+ ### MsgAccountDeposit
+ MsgAccountDeposit represents a message to deposit funds into an existing escrow account
+on the blockchain. This is part of the interaction mechanism for managing
+deployment-related resources.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `owner` | [string](#string) |  | Owner is the account bech32 address of the user who owns the deployment. It is a string representing a valid bech32 account address.
+
+Example: "akash1..." |
+ | `id` | [akash.escrow.id.v1.Account](#akash.escrow.id.v1.Account) |  | ID is the unique identifier of the account. |
+ | `deposit` | [akash.base.deposit.v1.Deposit](#akash.base.deposit.v1.Deposit) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.escrow.v1.MsgAccountDepositResponse"></a>
+
+ ### MsgAccountDepositResponse
+ MsgAccountDepositResponse defines response type for the MsgDeposit.
+
  
 
  
@@ -2627,13 +2797,9 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `scope` | [string](#string) |  | Scope holds the scope of the account. |
- | `xid` | [string](#string) |  | Xid TODO: What is this? |
- | `owner` | [string](#string) |  | Owner is the bech32 address of the account. It is a string representing a valid account address.
-
-Example: "akash1..." |
  | `state` | [string](#string) |  | State represents the current state of an Account. |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `xid` | [string](#string) |  | Scope holds the scope of the account. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -2648,7 +2814,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `accounts` | [Account](#akash.escrow.v1.Account) | repeated | Accounts is a list of Account. |
+ | `accounts` | [akash.escrow.types.v1.Account](#akash.escrow.types.v1.Account) | repeated | Accounts is a list of Account. |
  | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination contains the information about response pagination. |
  
  
@@ -2664,14 +2830,9 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `scope` | [string](#string) |  | Scope holds the scope of the payment. |
- | `xid` | [string](#string) |  | Xid TODO: What is this? |
- | `id` | [string](#string) |  | Id is the unique identifier of the payment. |
- | `owner` | [string](#string) |  | Owner is the bech32 address of the account. It is a string representing a valid account address.
-
-Example: "akash1..." |
- | `state` | [string](#string) |  | State represents the current state of an Account. |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `state` | [string](#string) |  | State represents the current state of a Payment. |
+ | `xid` | [string](#string) |  |  |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -2686,7 +2847,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `payments` | [FractionalPayment](#akash.escrow.v1.FractionalPayment) | repeated | Payments is a list of fractional payments. |
+ | `payments` | [akash.escrow.types.v1.Payment](#akash.escrow.types.v1.Payment) | repeated | Payments is a list of payments. |
  | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination contains the information about response pagination. |
  
  
@@ -2707,32 +2868,17 @@ Example: "akash1..." |
 
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
- | `Accounts` | [QueryAccountsRequest](#akash.escrow.v1.QueryAccountsRequest) | [QueryAccountsResponse](#akash.escrow.v1.QueryAccountsResponse) | buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME Accounts queries all accounts. | GET|/akash/escrow/v1/types/accounts/list|
- | `Payments` | [QueryPaymentsRequest](#akash.escrow.v1.QueryPaymentsRequest) | [QueryPaymentsResponse](#akash.escrow.v1.QueryPaymentsResponse) | buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME Payments queries all payments. | GET|/akash/escrow/v1/types/payments/list|
+ | `Accounts` | [QueryAccountsRequest](#akash.escrow.v1.QueryAccountsRequest) | [QueryAccountsResponse](#akash.escrow.v1.QueryAccountsResponse) | buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME Accounts queries all accounts. | GET|/akash/escrow/v1/types/accounts|
+ | `Payments` | [QueryPaymentsRequest](#akash.escrow.v1.QueryPaymentsRequest) | [QueryPaymentsResponse](#akash.escrow.v1.QueryPaymentsResponse) | buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME Payments queries all payments. | GET|/akash/escrow/v1/types/payments|
  
   <!-- end services -->
 
  
  
- <a name="akash/gov/v1beta3/params.proto"></a>
+ <a name="akash/escrow/v1/service.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
- ## akash/gov/v1beta3/params.proto
- 
-
- 
- <a name="akash.gov.v1beta3.DepositParams"></a>
-
- ### DepositParams
- DepositParams defines the parameters for the x/gov module.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `min_initial_deposit_rate` | [bytes](#bytes) |  | MinInitialDepositRate is the minimum % of TotalDeposit author of the proposal must put in order for proposal tx to be committed. |
- 
- 
-
+ ## akash/escrow/v1/service.proto
  
 
   <!-- end messages -->
@@ -2741,165 +2887,16 @@ Example: "akash1..." |
 
   <!-- end HasExtensions -->
 
-  <!-- end services -->
-
  
+ <a name="akash.escrow.v1.Msg"></a>
+
+ ### Msg
+ Msg defines the x/deployment Msg service.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `AccountDeposit` | [MsgAccountDeposit](#akash.escrow.v1.MsgAccountDeposit) | [MsgAccountDepositResponse](#akash.escrow.v1.MsgAccountDepositResponse) | AccountDeposit deposits more funds into the escrow account. | |
  
- <a name="akash/gov/v1beta3/genesis.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/gov/v1beta3/genesis.proto
- 
-
- 
- <a name="akash.gov.v1beta3.GenesisState"></a>
-
- ### GenesisState
- GenesisState stores slice of genesis deployment instance.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `deposit_params` | [DepositParams](#akash.gov.v1beta3.DepositParams) |  | DepositParams defines all the parameters related to deposits. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
- <a name="akash/inflation/v1beta2/params.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/inflation/v1beta2/params.proto
- 
-
- 
- <a name="akash.inflation.v1beta2.Params"></a>
-
- ### Params
- Params defines the parameters for the x/deployment package.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `inflation_decay_factor` | [string](#string) |  | InflationDecayFactor is the number of years it takes inflation to halve. |
- | `initial_inflation` | [string](#string) |  | InitialInflation is the rate at which inflation starts at genesis. It is a decimal value in the range [0.0, 100.0]. |
- | `variance` | [string](#string) |  | Variance defines the fraction by which inflation can vary from ideal inflation in a block. It is a decimal value in the range [0.0, 1.0]. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
- <a name="akash/inflation/v1beta2/genesis.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/inflation/v1beta2/genesis.proto
- 
-
- 
- <a name="akash.inflation.v1beta2.GenesisState"></a>
-
- ### GenesisState
- GenesisState stores slice of genesis inflation parameters.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `params` | [Params](#akash.inflation.v1beta2.Params) |  | Params holds parameters of the genesis of inflation. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
- <a name="akash/inflation/v1beta3/params.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/inflation/v1beta3/params.proto
- 
-
- 
- <a name="akash.inflation.v1beta3.Params"></a>
-
- ### Params
- Params defines the parameters for the x/deployment package.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `inflation_decay_factor` | [string](#string) |  | InflationDecayFactor is the number of years it takes inflation to halve. |
- | `initial_inflation` | [string](#string) |  | InitialInflation is the rate at which inflation starts at genesis. It is a decimal value in the range [0.0, 100.0]. |
- | `variance` | [string](#string) |  | Variance defines the fraction by which inflation can vary from ideal inflation in a block. It is a decimal value in the range [0.0, 1.0]. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
- <a name="akash/inflation/v1beta3/genesis.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/inflation/v1beta3/genesis.proto
- 
-
- 
- <a name="akash.inflation.v1beta3.GenesisState"></a>
-
- ### GenesisState
- GenesisState stores slice of genesis inflation.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `params` | [Params](#akash.inflation.v1beta3.Params) |  | Params holds parameters of the genesis of inflation. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
   <!-- end services -->
 
  
@@ -3332,12 +3329,9 @@ for deployment.
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `order_id` | [akash.market.v1.OrderID](#akash.market.v1.OrderID) |  | OrderId is the unique identifier for the order. |
- | `provider` | [string](#string) |  | Provider is the account bech32 address of the provider making the bid. It is a string representing a valid account bech32 address.
-
-Example: "akash1..." |
+ | `id` | [akash.market.v1.BidID](#akash.market.v1.BidID) |  |  |
  | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price holds the pricing stated on the Bid. |
- | `deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Deposit holds the amount of coins to deposit. |
+ | `deposit` | [akash.base.deposit.v1.Deposit](#akash.base.deposit.v1.Deposit) |  | Deposit holds the amount of coins to deposit. |
  | `resources_offer` | [ResourceOffer](#akash.market.v1beta5.ResourceOffer) | repeated | ResourceOffer is a list of resource offers. |
  
  
@@ -3554,7 +3548,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  | BidId is the unique identifier of the Bid. |
+ | `id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  | LeaseID is the unique identifier of the Lease. |
  
  
 
@@ -3604,7 +3598,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `bid_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  | BidId is the unique identifier of the Bid. |
+ | `id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  | BidId is the unique identifier of the Bid. |
  
  
 
@@ -3710,7 +3704,7 @@ Since: akash v1.0.0
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `bid` | [Bid](#akash.market.v1beta5.Bid) |  | Bid represents a deployment bid. |
- | `escrow_account` | [akash.escrow.v1.Account](#akash.escrow.v1.Account) |  | EscrowAccount represents the escrow account created for the Bid. |
+ | `escrow_account` | [akash.escrow.types.v1.Account](#akash.escrow.types.v1.Account) |  | EscrowAccount represents the escrow account created for the Bid. |
  
  
 
@@ -3726,7 +3720,7 @@ Since: akash v1.0.0
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `filters` | [BidFilters](#akash.market.v1beta5.BidFilters) |  | Filters holds the fields to filter bids. |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -3773,7 +3767,7 @@ Since: akash v1.0.0
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `lease` | [akash.market.v1.Lease](#akash.market.v1.Lease) |  | Lease holds the lease for a deployment. |
- | `escrow_payment` | [akash.escrow.v1.FractionalPayment](#akash.escrow.v1.FractionalPayment) |  | EscrowPayment holds information about the Lease's fractional payment. |
+ | `escrow_payment` | [akash.escrow.types.v1.Payment](#akash.escrow.types.v1.Payment) |  | EscrowPayment holds information about the Lease's fractional payment. |
  
  
 
@@ -3789,7 +3783,7 @@ Since: akash v1.0.0
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `filters` | [akash.market.v1.LeaseFilters](#akash.market.v1.LeaseFilters) |  | Filters holds the fields to filter leases. |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -3851,7 +3845,7 @@ Since: akash v1.0.0
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `filters` | [OrderFilters](#akash.market.v1beta5.OrderFilters) |  | Filters holds the fields to filter orders. |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -4259,7 +4253,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is used to paginate the request. |
  
  
 
@@ -4325,196 +4319,6 @@ Example: "akash1..." |
  | `CreateProvider` | [MsgCreateProvider](#akash.provider.v1beta4.MsgCreateProvider) | [MsgCreateProviderResponse](#akash.provider.v1beta4.MsgCreateProviderResponse) | CreateProvider defines a method that creates a provider given the proper inputs. | |
  | `UpdateProvider` | [MsgUpdateProvider](#akash.provider.v1beta4.MsgUpdateProvider) | [MsgUpdateProviderResponse](#akash.provider.v1beta4.MsgUpdateProviderResponse) | UpdateProvider defines a method that updates a provider given the proper inputs. | |
  | `DeleteProvider` | [MsgDeleteProvider](#akash.provider.v1beta4.MsgDeleteProvider) | [MsgDeleteProviderResponse](#akash.provider.v1beta4.MsgDeleteProviderResponse) | DeleteProvider defines a method that deletes a provider given the proper inputs. | |
- 
-  <!-- end services -->
-
- 
- 
- <a name="akash/staking/v1beta3/params.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/staking/v1beta3/params.proto
- 
-
- 
- <a name="akash.staking.v1beta3.Params"></a>
-
- ### Params
- Params extends the parameters for the x/staking module.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `min_commission_rate` | [string](#string) |  | MinCommissionRate is the chain-wide minimum commission rate that a validator can charge their delegators. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
- <a name="akash/staking/v1beta3/genesis.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/staking/v1beta3/genesis.proto
- 
-
- 
- <a name="akash.staking.v1beta3.GenesisState"></a>
-
- ### GenesisState
- GenesisState stores slice of genesis staking parameters.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `params` | [Params](#akash.staking.v1beta3.Params) |  | Params holds parameters of the genesis of staking. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
- <a name="akash/staking/v1beta3/paramsmsg.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/staking/v1beta3/paramsmsg.proto
- 
-
- 
- <a name="akash.staking.v1beta3.MsgUpdateParams"></a>
-
- ### MsgUpdateParams
- MsgUpdateParams is the Msg/UpdateParams request type.
-
-Since: akash v1.0.0
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `authority` | [string](#string) |  | authority is the address of the governance account. |
- | `params` | [Params](#akash.staking.v1beta3.Params) |  | params defines the x/deployment parameters to update.
-
-NOTE: All parameters must be supplied. |
- 
- 
-
- 
-
- 
- <a name="akash.staking.v1beta3.MsgUpdateParamsResponse"></a>
-
- ### MsgUpdateParamsResponse
- MsgUpdateParamsResponse defines the response structure for executing a
-MsgUpdateParams message.
-
-Since: akash v1.0.0
-
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
-  <!-- end services -->
-
- 
- 
- <a name="akash/staking/v1beta3/query.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/staking/v1beta3/query.proto
- 
-
- 
- <a name="akash.staking.v1beta3.QueryParamsRequest"></a>
-
- ### QueryParamsRequest
- QueryParamsRequest is the request type for the Query/Params RPC method.
-
- 
-
- 
-
- 
- <a name="akash.staking.v1beta3.QueryParamsResponse"></a>
-
- ### QueryParamsResponse
- QueryParamsResponse is the response type for the Query/Params RPC method.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `params` | [Params](#akash.staking.v1beta3.Params) |  | Params defines the parameters of the module. |
- 
- 
-
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
- 
- <a name="akash.staking.v1beta3.Query"></a>
-
- ### Query
- Query defines the gRPC querier service of the staking package.
-
- | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
- | ----------- | ------------ | ------------- | ------------| ------- | -------- |
- | `Params` | [QueryParamsRequest](#akash.staking.v1beta3.QueryParamsRequest) | [QueryParamsResponse](#akash.staking.v1beta3.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/staking/v1beta3/params|
- 
-  <!-- end services -->
-
- 
- 
- <a name="akash/staking/v1beta3/service.proto"></a>
- <p align="right"><a href="#top">Top</a></p>
-
- ## akash/staking/v1beta3/service.proto
- 
-
-  <!-- end messages -->
-
-  <!-- end enums -->
-
-  <!-- end HasExtensions -->
-
- 
- <a name="akash.staking.v1beta3.Msg"></a>
-
- ### Msg
- Msg defines the market Msg service.
-
- | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
- | ----------- | ------------ | ------------- | ------------| ------- | -------- |
- | `UpdateParams` | [MsgUpdateParams](#akash.staking.v1beta3.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.staking.v1beta3.MsgUpdateParamsResponse) | UpdateParams defines a governance operation for updating the x/market module parameters. The authority is hard-coded to the x/gov module account.
-
-Since: akash v1.0.0 | |
  
   <!-- end services -->
 

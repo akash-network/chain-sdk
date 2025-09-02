@@ -44,7 +44,8 @@ message MsgCreateDeployment {
 // MsgCreateDeploymentResponse defines the Msg/CreateDeployment response type.
 message MsgCreateDeploymentResponse {}
 
-// MsgDepositDeployment deposits more funds into the deposit account
+// MsgDepositDeployment deposits more funds into the deposit account.
+// Deprecated: deployment deposits in future versions are part of the escrow module.
 message MsgDepositDeployment {
   option (gogoproto.equal) = false;
 
