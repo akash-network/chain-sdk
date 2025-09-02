@@ -575,7 +575,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited provider account addresses. |
+ | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited providers account addresses. |
  
  
 
@@ -775,7 +775,7 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited provider account addresses. |
+ | `providers` | [AuditedProvider](#akash.audit.v1.AuditedProvider) | repeated | Providers contains a list of audited providers account addresses. |
  | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination is used to paginate results. |
  
  
@@ -842,13 +842,13 @@ Example: "akash1..." |
  <a name="akash.base.deposit.v1.Deposit"></a>
 
  ### Deposit
- Deposit is a data type use by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit
+ Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Deposit specifies the amount of coins to include in the deployment's first deposit. |
- | `sources` | [Source](#akash.base.deposit.v1.Source) | repeated | Sources list of deposit sources, each entry must be unique |
+ | `sources` | [Source](#akash.base.deposit.v1.Source) | repeated | Sources is the set of deposit sources, each entry must be unique. |
  
  
 
@@ -2756,7 +2756,7 @@ deployment-related resources.
 
 Example: "akash1..." |
  | `id` | [akash.escrow.id.v1.Account](#akash.escrow.id.v1.Account) |  | ID is the unique identifier of the account. |
- | `deposit` | [akash.base.deposit.v1.Deposit](#akash.base.deposit.v1.Deposit) |  |  |
+ | `deposit` | [akash.base.deposit.v1.Deposit](#akash.base.deposit.v1.Deposit) |  | Deposit contains information about the deposit amount and the source of the deposit to the escrow account. |
  
  
 

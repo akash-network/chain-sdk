@@ -10,7 +10,7 @@ option go_package = "pkg.akt.dev/go/node/audit/v1";
 // GenesisState defines the basic genesis state used by audit module.
 message GenesisState {
 
-  // Providers contains a list of audited provider account addresses.
+  // Providers contains a list of audited providers account addresses.
   repeated AuditedProvider providers = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "providers",

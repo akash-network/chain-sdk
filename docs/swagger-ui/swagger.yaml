@@ -74,7 +74,7 @@ paths:
                     NOTE: There are certain teams providing auditing services,
                     which should be accounted for when deploying.
                 description: >-
-                  Providers contains a list of audited provider account
+                  Providers contains a list of audited providers account
                   addresses.
               pagination:
                 description: Pagination is used to paginate results.
@@ -249,7 +249,7 @@ paths:
                     NOTE: There are certain teams providing auditing services,
                     which should be accounted for when deploying.
                 description: >-
-                  Providers contains a list of audited provider account
+                  Providers contains a list of audited providers account
                   addresses.
               pagination:
                 description: Pagination is used to paginate results.
@@ -388,7 +388,7 @@ paths:
                     NOTE: There are certain teams providing auditing services,
                     which should be accounted for when deploying.
                 description: >-
-                  Providers contains a list of audited provider account
+                  Providers contains a list of audited providers account
                   addresses.
               pagination:
                 description: Pagination is used to paginate results.
@@ -570,7 +570,7 @@ paths:
                     NOTE: There are certain teams providing auditing services,
                     which should be accounted for when deploying.
                 description: >-
-                  Providers contains a list of audited provider account
+                  Providers contains a list of audited providers account
                   addresses.
               pagination:
                 description: Pagination is used to paginate results.
@@ -44808,7 +44808,7 @@ definitions:
 
             NOTE: There are certain teams providing auditing services, which
             should be accounted for when deploying.
-        description: Providers contains a list of audited provider account addresses.
+        description: Providers contains a list of audited providers account addresses.
       pagination:
         description: Pagination is used to paginate results.
         type: object
@@ -48764,10 +48764,10 @@ definitions:
              - invalid: Prefix should start with 0 in enum. So declaring dummy state.
              - balance: DepositSourceBalance denotes account balance as source of funds
              - grant: DepositSourceGrant denotes authz grants as source of funds
-        title: Sources list of deposit sources, each entry must be unique
-    title: >-
-      Deposit is a data type use by MsgCreateDeployment, MsgDepositDeployment
-      and MsgCreateBid to indicate source of the deposit
+        description: Sources is the set of deposit sources, each entry must be unique.
+    description: >-
+      Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment
+      and MsgCreateBid to indicate source of the deposit.
   akash.base.deposit.v1.Source:
     type: string
     enum:

@@ -25,7 +25,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the basic genesis state used by audit module.
 type GenesisState struct {
-	// Providers contains a list of audited provider account addresses.
+	// Providers contains a list of audited providers account addresses.
 	Providers []AuditedProvider `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers" yaml:"providers"`
 }
 

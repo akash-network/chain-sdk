@@ -32,7 +32,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryProvidersResponse is response type for the Query/Providers RPC method.
 type QueryProvidersResponse struct {
-	// Providers contains a list of audited provider account addresses.
+	// Providers contains a list of audited providers account addresses.
 	Providers AuditedProviders `protobuf:"bytes,1,rep,name=providers,proto3,castrepeated=AuditedProviders" json:"providers"`
 	// Pagination is used to paginate results.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
