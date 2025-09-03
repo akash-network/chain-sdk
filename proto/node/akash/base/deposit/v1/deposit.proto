@@ -18,7 +18,7 @@ enum Source {
   grant = 2 [(gogoproto.enumvalue_customname)  = "SourceGrant"];
 }
 
-// Deposit is a data type use by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit
+// Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit.
 message Deposit {
   // Deposit specifies the amount of coins to include in the deployment's first deposit.
   cosmos.base.v1beta1.Coin amount = 1 [
@@ -26,7 +26,7 @@ message Deposit {
     (gogoproto.moretags) = "yaml:\"amount\""
   ];
 
-  // Sources list of deposit sources, each entry must be unique
+  // Sources is the set of deposit sources, each entry must be unique.
   repeated Source sources = 5 [
     (gogoproto.castrepeated) = "Sources",
     (gogoproto.jsontag)      = "deposit_sources",

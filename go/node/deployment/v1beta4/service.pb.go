@@ -76,9 +76,9 @@ type MsgClient interface {
 	CloseDeployment(ctx context.Context, in *MsgCloseDeployment, opts ...grpc.CallOption) (*MsgCloseDeploymentResponse, error)
 	// CloseGroup defines a method to close a group of a deployment given proper inputs.
 	CloseGroup(ctx context.Context, in *MsgCloseGroup, opts ...grpc.CallOption) (*MsgCloseGroupResponse, error)
-	// PauseGroup defines a method to close a group of a deployment given proper inputs.
+	// PauseGroup defines a method to pause a group of a deployment given proper inputs.
 	PauseGroup(ctx context.Context, in *MsgPauseGroup, opts ...grpc.CallOption) (*MsgPauseGroupResponse, error)
-	// StartGroup defines a method to close a group of a deployment given proper inputs.
+	// StartGroup defines a method to start a group of a deployment given proper inputs.
 	StartGroup(ctx context.Context, in *MsgStartGroup, opts ...grpc.CallOption) (*MsgStartGroupResponse, error)
 	// UpdateParams defines a governance operation for updating the x/deployment module
 	// parameters. The authority is hard-coded to the x/gov module account.
@@ -168,9 +168,9 @@ type MsgServer interface {
 	CloseDeployment(context.Context, *MsgCloseDeployment) (*MsgCloseDeploymentResponse, error)
 	// CloseGroup defines a method to close a group of a deployment given proper inputs.
 	CloseGroup(context.Context, *MsgCloseGroup) (*MsgCloseGroupResponse, error)
-	// PauseGroup defines a method to close a group of a deployment given proper inputs.
+	// PauseGroup defines a method to pause a group of a deployment given proper inputs.
 	PauseGroup(context.Context, *MsgPauseGroup) (*MsgPauseGroupResponse, error)
-	// StartGroup defines a method to close a group of a deployment given proper inputs.
+	// StartGroup defines a method to start a group of a deployment given proper inputs.
 	StartGroup(context.Context, *MsgStartGroup) (*MsgStartGroupResponse, error)
 	// UpdateParams defines a governance operation for updating the x/deployment module
 	// parameters. The authority is hard-coded to the x/gov module account.

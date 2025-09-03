@@ -37,6 +37,7 @@ message MsgAccountDeposit {
     (gogoproto.moretags)   = "yaml:\"id\""
   ];
 
+  // Deposit contains information about the deposit amount and the source of the deposit to the escrow account.
   akash.base.deposit.v1.Deposit deposit = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "deposit",

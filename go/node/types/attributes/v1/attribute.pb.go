@@ -69,7 +69,7 @@ var xxx_messageInfo_Attribute proto.InternalMessageInfo
 type SignedBy struct {
 	// AllOf indicates all keys in this list must have signed attributes.
 	AllOf []string `protobuf:"bytes,1,rep,name=all_of,json=allOf,proto3" json:"all_of" yaml:"allOf"`
-	// AnyOf means that at least of of the keys from the list must have signed attributes.
+	// AnyOf means that at least one of the keys from the list must have signed attributes.
 	AnyOf []string `protobuf:"bytes,2,rep,name=any_of,json=anyOf,proto3" json:"any_of" yaml:"anyOf"`
 }
 

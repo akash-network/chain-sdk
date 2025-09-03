@@ -46,7 +46,7 @@ service Query {
 // QueryProvidersResponse is response type for the Query/Providers RPC method.
 message QueryProvidersResponse {
 
-  // Providers contains a list of audited provided account addresses.
+  // Providers contains a list of audited providers account addresses.
   repeated AuditedProvider providers = 1 [
     (gogoproto.nullable)     = false,
     (gogoproto.castrepeated) = "AuditedProviders"
@@ -87,7 +87,7 @@ message QueryProviderAttributesRequest {
   // Example:
   //   "akash1..."
   string owner = 1;
-  // Pagination is used to paginate request.
+  // Pagination is used to paginate the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -115,6 +115,6 @@ message QueryAuditorAttributesRequest {
   // Example:
   //   "akash1..."
   string auditor = 1;
-  // Pagination is used to paginate request.
+  // Pagination is used to paginate the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }

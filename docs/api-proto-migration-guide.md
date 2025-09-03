@@ -1,4 +1,4 @@
-# Akash Network Protobuf Migration Guide: v0.33.4 to v0.53.4
+# Akash Network Protobuf Migration Guide: Cosmos SDK v0.33.4 to v0.53.4
 
 This document outlines the protobuf definition changes required to migrate your Akash Network protobuf files from version 0.33.4 to 0.53.4. This guide focuses specifically on **protobuf schema changes** and complements the main API migration guide.
 
@@ -159,15 +159,17 @@ message Deposit {
 }
 ```
 
-### 2. Market Module Changes (v1beta4 → v1beta5)
+### 2. Market Module: v1beta4 and v1beta5 Coexistence
+
+**Important**: Both v1beta4 and v1beta5 exist in the current codebase. v1beta5 introduces enhanced features while maintaining v1beta4 compatibility.
 
 #### Bid Proto Definition Updates
 
 **Key Changes:**
 - `BidID` field renamed to `ID`
 - ID field type changed to `akash.market.v1.BidID`
-- Added `ResourcesOffer` field
-- Enhanced resource specification
+- Enhanced resource specification with `ResourceOffer` array
+- Improved resource management
 
 **Before (v1beta4):**
 ```protobuf
@@ -258,10 +260,12 @@ message Bid {
   ];
 
   // ResourceOffer is a list of offers (enhanced resource specification)
-  ResourcesOffer resources_offer = 5 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag)  = "resources_offer",
-    (gogoproto.moretags) = "yaml:\"resources_offer\""
+  repeated ResourceOffer resources_offer = 5 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "ResourcesOffer",
+    (gogoproto.customname)   = "ResourcesOffer",
+    (gogoproto.jsontag)      = "resources_offer",
+    (gogoproto.moretags)     = "yaml:\"resources_offer\""
   ];
 }
 ```
@@ -477,15 +481,185 @@ import "cosmos_proto/cosmos.proto";
 import "akash/base/attributes/v1/attribute.proto";
 ```
 
-### 4. New Required Proto Files
+### 4. New v1 Proto Modules
 
-Add these new proto files for v1beta4+ compatibility:
+The migration introduces several new v1 modules with enhanced functionality and improved structure:
+
+#### 4.1. Core v1 Modules
+
+**akash/deployment/v1/deployment.proto** - Stable deployment types:
+```protobuf
+// DeploymentID with enhanced documentation and cosmos_proto annotations
+message DeploymentID {
+  option (gogoproto.equal) = true;
+  
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+  
+  uint64 dseq = 2 [
+    (gogoproto.customname) = "DSeq",
+    (gogoproto.jsontag)    = "dseq",
+    (gogoproto.moretags)   = "yaml:\"dseq\""
+  ];
+}
+```
+
+**akash/base/attributes/v1/attribute.proto** - Enhanced attribute system:
+```protobuf
+// Attribute with improved structure
+message Attribute {
+  string key = 1 [(gogoproto.moretags) = "yaml:\"key\""];
+  string value = 2 [(gogoproto.moretags) = "yaml:\"value\""];
+}
+
+// New PlacementRequirements for advanced provider selection
+message PlacementRequirements {
+  SignedBy signed_by = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "signed_by",
+    (gogoproto.moretags) = "yaml:\"signed_by\""
+  ];
+  
+  repeated Attribute attributes = 2 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "Attributes",
+    (gogoproto.jsontag)      = "attributes",
+    (gogoproto.moretags)     = "yaml:\"attributes\""
+  ];
+}
+```
+
+#### 4.2. New Service Modules
+
+**akash/escrow/v1/** - Dedicated escrow management:
+```protobuf
+// MsgAccountDeposit for escrow account deposits
+message MsgAccountDeposit {
+  option (cosmos.msg.v1.signer) = "owner";
+  
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
+  
+  akash.escrow.id.v1.Account id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID"
+  ];
+  
+  akash.base.deposit.v1.Deposit deposit = 3 [
+    (gogoproto.nullable) = false
+  ];
+}
+```
+
+**akash/take/v1/** - New fee management system:
+```protobuf
+// DenomTakeRate for denomination-specific take rates
+message DenomTakeRate {
+  string denom = 1 [(gogoproto.customname) = "Denom"];
+  uint32 rate = 2 [(gogoproto.customname) = "Rate"];
+}
+
+// Params for take module configuration
+message Params {
+  repeated DenomTakeRate denom_take_rates = 1 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "DenomTakeRates"
+  ];
+  
+  uint32 default_take_rate = 2 [
+    (gogoproto.customname) = "DefaultTakeRate"
+  ];
+}
+```
+
+**akash/discovery/v1/** - Client discovery and information:
+```protobuf
+// Akash-specific RPC parameters
+message Akash {
+  ClientInfo client_info = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ClientInfo"
+  ];
+}
+```
+
+#### 4.3. Enhanced Certificate Management
+
+**akash/cert/v1/cert.proto** - Improved certificate handling:
+```protobuf
+// Enhanced certificate ID with cosmos_proto annotations
+message ID {
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+  
+  string serial = 2 [
+    (gogoproto.jsontag)  = "serial",
+    (gogoproto.moretags) = "yaml:\"serial\""
+  ];
+}
+
+// Certificate with enhanced state management
+enum State {
+  invalid = 0 [(gogoproto.enumvalue_customname) = "CertificateStateInvalid"];
+  valid = 1 [(gogoproto.enumvalue_customname) = "CertificateValid"];
+  revoked = 2 [(gogoproto.enumvalue_customname) = "CertificateRevoked"];
+}
+```
+
+#### 4.4. Enhanced Audit System
+
+**akash/audit/v1/audit.proto** - Improved auditing:
+```protobuf
+// AuditedProvider with enhanced attribute support
+message AuditedProvider {
+  string owner = 1;
+  string auditor = 2;
+  
+  repeated akash.base.attributes.v1.Attribute attributes = 4 [
+    (gogoproto.castrepeated) = "pkg.akt.dev/go/node/types/attributes/v1.Attributes",
+    (gogoproto.nullable)     = false
+  ];
+}
+
+// AttributesFilters for advanced filtering
+message AttributesFilters {
+  repeated string auditors = 1;
+  repeated string owners = 2;
+}
+```
+
+### 5. Required Proto Files for v1 Migration
+
+Add these new proto files for full v1 compatibility:
 
 ```protobuf
-// akash/base/deposit/v1/deposit.proto - New deposit structure
-// akash/deployment/v1/deployment.proto - Core deployment types
-// akash/market/v1/bid.proto - Core market types
-// akash/market/v1beta5/resourcesoffer.proto - Enhanced resource offers
+// Core v1 modules
+akash/deployment/v1/deployment.proto       // Stable deployment types
+akash/market/v1/bid.proto                  // Core market types
+akash/base/attributes/v1/attribute.proto   // Enhanced attributes
+akash/base/deposit/v1/deposit.proto        // New deposit structure
+
+// New service modules
+akash/escrow/v1/msg.proto                  // Escrow management
+akash/escrow/v1/service.proto              // Escrow service definitions
+akash/take/v1/params.proto                 // Fee management
+akash/take/v1/service.proto                // Take service definitions
+akash/discovery/v1/akash.proto             // Client discovery
+
+// Enhanced existing modules
+akash/cert/v1/cert.proto                   // Improved certificates
+akash/audit/v1/audit.proto                 // Enhanced auditing
+
+// Beta versions for compatibility
+akash/market/v1beta5/resourcesoffer.proto  // Enhanced resource offers
+akash/deployment/v1beta4/deploymentmsg.proto // Deployment messages
 ```
 
 ## Service Definition Updates
@@ -559,10 +733,10 @@ modules:
       - proto/node/akash/audit/v1beta3
       - proto/node/akash/base/v1beta3
       - proto/node/akash/cert/v1beta3
-      - proto/node/akash/deployment/v1beta3  # Exclude old version
+      - proto/node/akash/deployment/v1beta3  # v1beta3 excluded
       - proto/node/akash/escrow/v1beta3
-      - proto/node/akash/market/v1beta4      # Exclude old version
-      - proto/node/akash/provider/v1beta3    # Exclude old version
+      - proto/node/akash/market/v1beta4      # v1beta4 also excluded
+      - proto/node/akash/provider/v1beta3    # v1beta3 excluded
       - proto/node/akash/take/v1beta3
 ```
 
@@ -578,44 +752,6 @@ protoc --go_out=. --go-grpc_out=. \
   proto/node/akash/market/v1beta5/*.proto \
   proto/node/akash/provider/v1beta4/*.proto
 ```
-
-## Migration Checklist
-
-### Protobuf Schema Updates
-- [ ] Update deployment module proto files (v1beta3 → v1beta4)
-  - [ ] Rename `version` field to `hash` in MsgCreateDeployment
-  - [ ] Replace `cosmos.base.v1beta1.Coin deposit` with `akash.base.deposit.v1.Deposit deposit`
-  - [ ] Remove `depositor` field
-  - [ ] Update import statements
-- [ ] Update market module proto files (v1beta4 → v1beta5)
-  - [ ] Rename `BidID bid_id` to `akash.market.v1.BidID id` in Bid message
-  - [ ] Add `ResourcesOffer resources_offer` field
-  - [ ] Update MsgCreateBid to use new deposit structure
-- [ ] Update provider module proto files (v1beta3 → v1beta4)
-  - [ ] Rename `ProviderInfo` message to `Info`
-  - [ ] Update import paths
-- [ ] Create new proto files
-  - [ ] Add `akash/base/deposit/v1/deposit.proto`
-  - [ ] Add `akash/market/v1beta5/resourcesoffer.proto`
-
-### Build Configuration Updates
-- [ ] Update `buf.yaml` to exclude deprecated proto versions
-- [ ] Update protobuf generation scripts
-- [ ] Update import paths in existing proto files
-- [ ] Verify protobuf compilation with new schemas
-
-### Service Definition Updates
-- [ ] Update gRPC service definitions for new message types
-- [ ] Update query service endpoints
-- [ ] Verify service registration in application
-
-### Testing and Validation
-- [ ] Test protobuf compilation with new schemas
-- [ ] Validate generated Go code compiles correctly
-- [ ] Test gRPC service functionality
-- [ ] Verify backward compatibility where needed
-
----
 
 ## Cosmos SDK Specific Changes
 
@@ -786,80 +922,3 @@ message ModuleAccount {
   repeated string permissions = 3;
 }
 ```
-
-## Migration Impact on Authorization
-
-### 1. Interface Changes
-
-**Before (v0.33.4):**
-```go
-type Authorization interface {
-    Accept(ctx sdk.Context, msg sdk.Msg) (AcceptResponse, error)
-    ValidateBasic() error
-    MsgTypeURL() string
-}
-```
-
-**After (v0.53.4):**
-```go
-type Authorization interface {
-    Accept(ctx context.Context, msg sdk.Msg) (AcceptResponse, error)
-    ValidateBasic() error  
-    MsgTypeURL() string
-}
-```
-
-### 2. Akash-Specific Authorization Updates
-
-**Enhanced Deposit Authorization:**
-```go
-func (m *DepositAuthorization) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
-    return m.TryAccept(ctx, msg, false)
-}
-
-func (m *DepositAuthorization) TryAccept(ctx context.Context, msg sdk.Msg, partial bool) (authz.AcceptResponse, error) {
-    // Enhanced logic with scope checking
-    switch mt := msg.(type) {
-    case *MsgAccountDeposit:
-        // Handle escrow deposits
-    case *MsgCreateDeployment:
-        // Handle deployment deposits  
-    case *MsgCreateBid:
-        // Handle bid deposits
-    }
-}
-```
-
-## Cosmos SDK Migration Checklist
-
-### Authz Module Updates
-- [ ] Update Authorization interface implementations to use `context.Context`
-- [ ] Add amino annotations to custom authorization types
-- [ ] Implement new query methods (GranterGrants, GranteeGrants)
-- [ ] Update authorization scoping logic
-- [ ] Add cosmos_proto annotations for interface implementations
-
-### Auth Module Updates  
-- [ ] Implement MsgUpdateParams for governance parameter updates
-- [ ] Update module account permission structures
-- [ ] Add required protobuf imports (amino, cosmos_proto)
-
-### Staking Module Updates
-- [ ] Update to new AuthorizationType enum values
-- [ ] Handle CANCEL_UNBONDING_DELEGATION authorization type
-- [ ] Update staking authorization logic
-
-### Bank Module Updates
-- [ ] Update SendAuthorization with new amino annotations
-- [ ] Handle enhanced spend limit and allow list logic
-
----
-
-## Additional Resources
-
-- [Protocol Buffers Documentation](https://developers.google.com/protocol-buffers)
-- [Buf CLI Documentation](https://docs.buf.build)
-- [Akash Network Documentation](https://docs.akash.network)
-- [Cosmos SDK Protobuf Guide](https://docs.cosmos.network/main/build/building-modules/protobuf-annotations)
-
-For questions or issues during protobuf migration, please refer to the [Akash Network Support](https://github.com/akash-network/support) repository.

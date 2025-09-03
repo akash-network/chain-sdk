@@ -32,7 +32,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryProvidersResponse is response type for the Query/Providers RPC method.
 type QueryProvidersResponse struct {
-	// Providers contains a list of audited provided account addresses.
+	// Providers contains a list of audited providers account addresses.
 	Providers AuditedProviders `protobuf:"bytes,1,rep,name=providers,proto3,castrepeated=AuditedProviders" json:"providers"`
 	// Pagination is used to paginate results.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -202,7 +202,7 @@ type QueryProviderAttributesRequest struct {
 	// Example:
 	//   "akash1..."
 	Owner string `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -327,7 +327,7 @@ type QueryAuditorAttributesRequest struct {
 	//
 	//	"akash1..."
 	Auditor string `protobuf:"bytes,1,opt,name=auditor,proto3" json:"auditor,omitempty"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
