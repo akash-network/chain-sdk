@@ -18,7 +18,7 @@ The Akash Network uses a custom fork of Cosmos SDK v0.53.4-akash.0, which incorp
 
 **MsgCreateDeployment Changes:**
 - `version` field renamed to `hash`
-- `deposit` field type changed from `cosmos.base.v1beta1.Coin` to `akash.base.deposit.v1.Deposit`
+- `deposit` field type changed from `cosmos.base.v1beta1.Coin` to `deposit.Deposit` (from `pkg.akt.dev/go/node/types/deposit/v1`)
 - `depositor` field removed (deposit now includes `Amount` and `Sources` fields)
 - `groups` field now uses `GroupSpecs` type casting
 
@@ -41,9 +41,9 @@ msg := &v1beta4.MsgCreateDeployment{
     ID:     deploymentID,
     Groups: groups, // Now uses GroupSpecs type
     Hash:   versionBytes, // Renamed from version
-    Deposit: akash.base.deposit.v1.Deposit{
+    Deposit: deposit.Deposit{
         Amount:  coin,
-        Sources: []akash.base.deposit.v1.Source{akash.base.deposit.v1.SourceBalance},
+        Sources: []deposit.Source{deposit.SourceBalance},
     },
 }
 ```
@@ -54,6 +54,7 @@ msg := &v1beta4.MsgCreateDeployment{
 ```go
 import (
     "pkg.akt.dev/go/node/deployment/v1beta3"
+    "github.com/cosmos/cosmos-sdk/types"
 )
 ```
 
@@ -61,7 +62,8 @@ import (
 ```go
 import (
     "pkg.akt.dev/go/node/deployment/v1beta4"
-    "pkg.akt.dev/go/node/deployment/v1"
+    v1 "pkg.akt.dev/go/node/deployment/v1"
+    deposit "pkg.akt.dev/go/node/types/deposit/v1"
 )
 ```
 
@@ -71,12 +73,14 @@ import (
 - `BidID` field renamed to `ID` 
 - `Bid` message now includes `ResourcesOffer` field for enhanced resource specification
 - Updated message handling for bid processing
-- `ID` field now uses `akash.market.v1.BidID` type instead of local `BidID`
+- `ID` field now uses `v1.BidID` type (from `pkg.akt.dev/go/node/market/v1`) instead of local `BidID`
 
 **Migration Required:**
 
 **Before (v1beta4):**
 ```go
+import "pkg.akt.dev/go/node/market/v1beta4"
+
 bid := &v1beta4.Bid{
     BidID:     bidID,
     State:     state,
@@ -87,6 +91,11 @@ bid := &v1beta4.Bid{
 
 **After (v1beta5):**
 ```go
+import (
+    "pkg.akt.dev/go/node/market/v1beta5"
+    v1 "pkg.akt.dev/go/node/market/v1"
+)
+
 bid := &v1beta5.Bid{
     ID:             bidID, // Field renamed from BidID to ID
     State:          state,
@@ -106,6 +115,8 @@ bid := &v1beta5.Bid{
 
 **Before (v1beta3):**
 ```go
+import "pkg.akt.dev/go/node/provider/v1beta3"
+
 provider := &v1beta3.Provider{
     Owner:      owner,
     HostURI:    hostURI,
@@ -119,6 +130,8 @@ provider := &v1beta3.Provider{
 
 **After (v1beta4):**
 ```go
+import "pkg.akt.dev/go/node/provider/v1beta4"
+
 provider := &v1beta4.Provider{
     Owner:      owner,
     HostURI:    hostURI,
@@ -431,7 +444,7 @@ if errors.Is(err, collections.ErrNotFound) {
 
 ### Akash-Specific Updates
 - [ ] Update deployment module imports and message structures (v1beta3 → v1beta4)
-- [ ] Update deposit structure to use `akash.base.deposit.v1.Deposit` with `Amount` and `Sources` fields
+- [ ] Update deposit structure to use `deposit.Deposit` with `Amount` and `Sources` fields
 - [ ] Update market module for ResourcesOffer field and BidID → ID rename (v1beta4 → v1beta5)  
 - [ ] Update provider module Info structure (v1beta3 → v1beta4)
 - [ ] Implement `ConsensusVersion()` in all modules
