@@ -24,7 +24,7 @@ service Query {
 
 // QueryProvidersRequest is request type for the Query/Providers RPC method
 message QueryProvidersRequest {
-  // Pagination is used to paginate request.
+  // Pagination is used to paginate the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 

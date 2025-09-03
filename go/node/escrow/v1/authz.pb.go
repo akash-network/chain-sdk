@@ -26,15 +26,17 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// State is an enum which refers to state of deployment.
+// Scope defines the types of deposit operations that can be authorized.
+// This enum is used to restrict the authorization to specific deposit contexts,
+// allowing fine-grained permission control within the authz system.
 type DepositAuthorization_Scope int32
 
 const (
 	// Prefix should start with 0 in enum. So declaring dummy state.
 	DepositScopeInvalid DepositAuthorization_Scope = 0
-	// DeploymentActive denotes state for deployment active.
+	// DepositScopeDeployment allows deposits for deployment-related operations.
 	DepositScopeDeployment DepositAuthorization_Scope = 1
-	// DeploymentClosed denotes state for deployment closed.
+	// DepositScopeBid allows deposits for bid-related operations.
 	DepositScopeBid DepositAuthorization_Scope = 2
 )
 
@@ -59,12 +61,19 @@ func (DepositAuthorization_Scope) EnumDescriptor() ([]byte, []int) {
 }
 
 // DepositAuthorization allows the grantee to deposit up to spend_limit coins from
-// the granter's account for a deployment.
+// the granter's account for Akash deployments and bids. This authorization is used
+// within the Cosmos SDK authz module to grant scoped permissions for deposit operations.
+// The authorization can be restricted to specific scopes (deployment or bid) to limit
+// what types of deposits the grantee is authorized to make on behalf of the granter.
 type DepositAuthorization struct {
-	// SpendLimit is the amount the grantee is authorized to spend from the granter's account for
-	// the purpose of deployment.
-	SpendLimit types.Coin                 `protobuf:"bytes,1,opt,name=spend_limit,json=spendLimit,proto3" json:"spend_limit"`
-	Scopes     DepositAuthorizationScopes `protobuf:"varint,2,rep,packed,name=scopes,proto3,enum=akash.escrow.v1.DepositAuthorization_Scope,castrepeated=DepositAuthorizationScopes" json:"scopes" yaml:"scopes"`
+	// SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account.
+	// This limit applies cumulatively across all deposit operations within the authorized scopes.
+	// Once this limit is reached, the authorization becomes invalid and no further deposits can be made.
+	SpendLimit types.Coin `protobuf:"bytes,1,opt,name=spend_limit,json=spendLimit,proto3" json:"spend_limit"`
+	// Scopes defines the specific types of deposit operations this authorization permits.
+	// This provides fine-grained control over what operations
+	// the grantee can perform using the granter's funds.
+	Scopes DepositAuthorizationScopes `protobuf:"varint,2,rep,packed,name=scopes,proto3,enum=akash.escrow.v1.DepositAuthorization_Scope,castrepeated=DepositAuthorizationScopes" json:"scopes" yaml:"scopes"`
 }
 
 func (m *DepositAuthorization) Reset()         { *m = DepositAuthorization{} }

@@ -56,11 +56,11 @@ func (Source) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_b7af74e38e15b5f1, []int{0}
 }
 
-// Deposit is a data type use by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit
+// Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit.
 type Deposit struct {
 	// Deposit specifies the amount of coins to include in the deployment's first deposit.
 	Amount types.Coin `protobuf:"bytes,1,opt,name=amount,proto3" json:"amount" yaml:"amount"`
-	// Sources list of deposit sources, each entry must be unique
+	// Sources is the set of deposit sources, each entry must be unique.
 	Sources Sources `protobuf:"varint,5,rep,packed,name=sources,proto3,enum=akash.base.deposit.v1.Source,castrepeated=Sources" json:"deposit_sources" yaml:"deposit_sources"`
 }
 

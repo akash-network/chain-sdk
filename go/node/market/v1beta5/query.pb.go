@@ -37,7 +37,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type QueryOrdersRequest struct {
 	// Filters holds the fields to filter orders.
 	Filters OrderFilters `protobuf:"bytes,1,opt,name=filters,proto3" json:"filters"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -239,7 +239,7 @@ func (m *QueryOrderResponse) GetOrder() Order {
 type QueryBidsRequest struct {
 	// Filters holds the fields to filter bids.
 	Filters BidFilters `protobuf:"bytes,1,opt,name=filters,proto3" json:"filters"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -450,7 +450,7 @@ func (m *QueryBidResponse) GetEscrowAccount() v11.Account {
 type QueryLeasesRequest struct {
 	// Filters holds the fields to filter leases.
 	Filters v1.LeaseFilters `protobuf:"bytes,1,opt,name=filters,proto3" json:"filters"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 

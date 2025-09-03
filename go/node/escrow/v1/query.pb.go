@@ -38,7 +38,7 @@ type QueryAccountsRequest struct {
 	State string `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 	// Scope holds the scope of the account.
 	XID string `protobuf:"bytes,2,opt,name=xid,proto3" json:"xid" yaml:"xid"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,5,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -156,7 +156,7 @@ type QueryPaymentsRequest struct {
 	// State represents the current state of a Payment.
 	State string `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 	XID   string `protobuf:"bytes,2,opt,name=xid,proto3" json:"xid" yaml:"xid"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,6,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 

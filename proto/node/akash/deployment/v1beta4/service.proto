@@ -25,10 +25,10 @@ service Msg {
   // CloseGroup defines a method to close a group of a deployment given proper inputs.
   rpc CloseGroup(MsgCloseGroup) returns (MsgCloseGroupResponse);
 
-  // PauseGroup defines a method to close a group of a deployment given proper inputs.
+  // PauseGroup defines a method to pause a group of a deployment given proper inputs.
   rpc PauseGroup(MsgPauseGroup) returns (MsgPauseGroupResponse);
 
-  // StartGroup defines a method to close a group of a deployment given proper inputs.
+  // StartGroup defines a method to start a group of a deployment given proper inputs.
   rpc StartGroup(MsgStartGroup) returns (MsgStartGroupResponse);
 
   // UpdateParams defines a governance operation for updating the x/deployment module

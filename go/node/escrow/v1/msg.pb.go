@@ -38,7 +38,8 @@ type MsgAccountDeposit struct {
 	//   "akash1..."
 	Owner string `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner" yaml:"owner"`
 	// ID is the unique identifier of the account.
-	ID      v1.Account  `protobuf:"bytes,2,opt,name=id,proto3" json:"id" yaml:"id"`
+	ID v1.Account `protobuf:"bytes,2,opt,name=id,proto3" json:"id" yaml:"id"`
+	// Deposit contains information about the deposit amount and the source of the deposit to the escrow account.
 	Deposit v11.Deposit `protobuf:"bytes,3,opt,name=deposit,proto3" json:"deposit" yaml:"deposit"`
 }
 

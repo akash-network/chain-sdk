@@ -89,7 +89,7 @@ func (m *CertificateResponse) GetSerial() string {
 type QueryCertificatesRequest struct {
 	// Filter allows for filtering of results.
 	Filter CertificateFilter `protobuf:"bytes,1,opt,name=filter,proto3" json:"filter"`
-	// Pagination is used to paginate request.
+	// Pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 

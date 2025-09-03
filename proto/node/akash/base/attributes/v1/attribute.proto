@@ -32,7 +32,7 @@ message SignedBy { // TODO: this behaviour to be discussed
     (gogoproto.jsontag)  = "all_of",
     (gogoproto.moretags) = "yaml:\"allOf\""
   ];
-  // AnyOf means that at least of of the keys from the list must have signed attributes.
+  // AnyOf means that at least one of the keys from the list must have signed attributes.
   repeated string any_of = 2 [
     (gogoproto.jsontag)  = "any_of",
     (gogoproto.moretags) = "yaml:\"anyOf\""

@@ -67,7 +67,7 @@ message QueryOrdersRequest {
     (gogoproto.nullable) = false
   ];
 
-  // Pagination is used to paginate request.
+  // Pagination is used to paginate the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -107,7 +107,7 @@ message QueryBidsRequest {
     (gogoproto.nullable) = false
   ];
 
-  // Pagination is used to paginate request.
+  // Pagination is used to paginate the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -150,7 +150,7 @@ message QueryLeasesRequest {
     (gogoproto.nullable) = false
   ];
 
-  // Pagination is used to paginate request.
+  // Pagination is used to paginate the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
