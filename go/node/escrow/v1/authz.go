@@ -18,6 +18,7 @@ import (
 type Authorization interface {
 	authz.Authorization
 	TryAccept(context.Context, sdk.Msg, bool) (authz.AcceptResponse, error)
+	GetSpendLimit() sdk.Coin
 }
 
 type DepositAuthorizationScopes []DepositAuthorization_Scope
