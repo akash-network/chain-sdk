@@ -1,12 +1,12 @@
-# Akash Network Protobuf Migration Guide: Cosmos SDK v0.33.4 to v0.53.4
+# Akash Network Protobuf Migration Guide: Cosmos SDK v0.45.x to v0.53.4
 
-This document outlines the protobuf definition changes required to migrate your Akash Network protobuf files from version 0.33.4 to 0.53.4. This guide focuses specifically on **protobuf schema changes** and complements the main API migration guide.
+This document outlines the protobuf definition changes required to migrate your Akash Network protobuf files from version 0.45.x to 0.53.4. This guide focuses specifically on **protobuf schema changes** and complements the main API migration guide.
 
 ## Important Version Note
 
 The Akash Network protobuf definitions follow the same versioning as the main API:
 
-- **v0.33.4**: Earlier Akash Network protobuf schemas
+- **v0.45.x**: Earlier Akash Network protobuf schemas
 - **v0.53.4**: Current Akash Network protobuf schemas
 
 ## Akash-Specific Protobuf Changes
@@ -635,33 +635,6 @@ message AttributesFilters {
 }
 ```
 
-### 5. Required Proto Files for v1 Migration
-
-Add these new proto files for full v1 compatibility:
-
-```protobuf
-// Core v1 modules
-akash/deployment/v1/deployment.proto       // Stable deployment types
-akash/market/v1/bid.proto                  // Core market types
-akash/base/attributes/v1/attribute.proto   // Enhanced attributes
-akash/base/deposit/v1/deposit.proto        // New deposit structure
-
-// New service modules
-akash/escrow/v1/msg.proto                  // Escrow management
-akash/escrow/v1/service.proto              // Escrow service definitions
-akash/take/v1/params.proto                 // Fee management
-akash/take/v1/service.proto                // Take service definitions
-akash/discovery/v1/akash.proto             // Client discovery
-
-// Enhanced existing modules
-akash/cert/v1/cert.proto                   // Improved certificates
-akash/audit/v1/audit.proto                 // Enhanced auditing
-
-// Beta versions for compatibility
-akash/market/v1beta5/resourcesoffer.proto  // Enhanced resource offers
-akash/deployment/v1beta4/deploymentmsg.proto // Deployment messages
-```
-
 ## Service Definition Updates
 
 ### 1. Deployment Service (v1beta4)
@@ -719,40 +692,6 @@ service Msg {
 }
 ```
 
-## Protobuf Compilation Updates
-
-### 1. Buf Configuration Changes
-
-Update your `buf.yaml` to exclude deprecated versions:
-
-```yaml
-version: v2
-modules:
-  - path: proto/node
-    excludes:
-      - proto/node/akash/audit/v1beta3
-      - proto/node/akash/base/v1beta3
-      - proto/node/akash/cert/v1beta3
-      - proto/node/akash/deployment/v1beta3  # v1beta3 excluded
-      - proto/node/akash/escrow/v1beta3
-      - proto/node/akash/market/v1beta4      # v1beta4 also excluded
-      - proto/node/akash/provider/v1beta3    # v1beta3 excluded
-      - proto/node/akash/take/v1beta3
-```
-
-### 2. Code Generation Updates
-
-Update your protobuf generation scripts to handle new imports:
-
-```bash
-# Ensure new proto files are included in generation
-protoc --go_out=. --go-grpc_out=. \
-  proto/node/akash/base/deposit/v1/deposit.proto \
-  proto/node/akash/deployment/v1beta4/*.proto \
-  proto/node/akash/market/v1beta5/*.proto \
-  proto/node/akash/provider/v1beta4/*.proto
-```
-
 ## Cosmos SDK Specific Changes
 
 ### 1. Authz Module Changes
@@ -764,7 +703,7 @@ protoc --go_out=. --go-grpc_out=. \
 - Enhanced authorization scoping with new enum types
 - Updated protobuf annotations for amino compatibility
 
-**Before (v0.33.4):**
+**Before (v0.45.x):**
 ```protobuf
 // cosmos/authz/v1beta1/authz.proto
 message Grant {
@@ -813,7 +752,7 @@ message DepositAuthorization {
 
 ### 2. Query Service Updates
 
-#### New Query Methods (v0.33.4 → v0.53.4)
+#### New Query Methods (v0.45.x → v0.53.4)
 
 **Added Query Endpoints:**
 ```protobuf
@@ -833,7 +772,7 @@ service Query {
 
 ### 3. Auth Module Updates
 
-#### UpdateParams Message (v0.33.4 → v0.53.4)
+#### UpdateParams Message (v0.45.x → v0.53.4)
 
 **New Governance Operation:**
 ```protobuf
