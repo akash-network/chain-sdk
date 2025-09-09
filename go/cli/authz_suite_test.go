@@ -719,7 +719,7 @@ func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
 			"",
 		},
 		{
-			"Valid tx deposit authorization",
+			"Valid tx deposit authorization (uakt)",
 			cli.TestFlags().
 				With(
 					grantee.String(),
@@ -728,6 +728,24 @@ func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
 				WithMsgType(typeMsgDeposit).
 				WithScope([]string{"deployment"}).
 				WithSpendLimit("1000000uakt").
+				WithSkipConfirm().
+				WithFrom(val[0].Address.String()).
+				WithBroadcastModeSync().
+				WithFees(sdk.NewCoins(sdk.NewCoin("uakt", sdkmath.NewInt(10)))).
+				WithExpiration(fmt.Sprintf("%d", twoHours)),
+			false,
+			"",
+		},
+		{
+			"Valid tx deposit authorization (akt)",
+			cli.TestFlags().
+				With(
+					grantee.String(),
+					"deposit",
+				).
+				WithMsgType(typeMsgDeposit).
+				WithScope([]string{"deployment"}).
+				WithSpendLimit("1akt").
 				WithSkipConfirm().
 				WithFrom(val[0].Address.String()).
 				WithBroadcastModeSync().
