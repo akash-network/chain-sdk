@@ -1,8 +1,8 @@
 import type { DescMessage, DescMethodBiDiStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import type { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
 import { describe, expect, it, jest } from "@jest/globals";
-import { proto } from "@test/helpers/proto";
 
+import { proto } from "../../../test/helpers/proto.ts";
 import { createAsyncIterable } from "../../utils/stream.ts";
 import { createTxTransport } from "./createTxTransport.ts";
 import type { TxClient, TxRaw } from "./TxClient.ts";
@@ -17,7 +17,7 @@ describe(createTxTransport.name, () => {
         getMessageType,
       });
 
-      await expect(transport.stream(TestServiceSchema.method.streamMethod, createAsyncIterable([{ test: "input" }]))).rejects.toThrow(/not supported/i);
+      await expect(transport.stream(TestServiceSchema.methods.streamMethod, createAsyncIterable([{ test: "input" }]))).rejects.toThrow(/unimplemented/i);
     });
   });
 
@@ -34,7 +34,7 @@ describe(createTxTransport.name, () => {
         getMessageType,
       });
 
-      await transport.unary(TestServiceSchema.method.testMethod, { test: "input" });
+      await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" });
 
       expect(client.estimateFee).toHaveBeenCalled();
       expect(client.sign).toHaveBeenCalledWith(expect.anything(), fee, expect.anything());
@@ -52,7 +52,7 @@ describe(createTxTransport.name, () => {
         gas: "100000",
       };
 
-      await transport.unary(TestServiceSchema.method.testMethod, { test: "input" }, {
+      await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" }, {
         fee,
       });
 
@@ -93,13 +93,13 @@ describe(createTxTransport.name, () => {
 
       const afterSign = jest.fn();
       const afterBroadcast = jest.fn();
-      const result = await transport.unary(TestServiceSchema.method.testMethod, { test: "input" }, {
+      const result = await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" }, {
         memo: "test",
         afterSign,
         afterBroadcast,
       });
       const messages = [{
-        typeUrl: `/${TestServiceSchema.method.testMethod.input.typeName}`,
+        typeUrl: `/${TestServiceSchema.methods.testMethod.input.$type}`,
         value: { test: "input" },
       }];
 
@@ -121,7 +121,7 @@ describe(createTxTransport.name, () => {
           transactionHash: "123",
           events: [],
           msgResponses: [{
-            typeUrl: `/${TestServiceSchema.method.testMethod.output.typeName}`,
+            typeUrl: `/${TestServiceSchema.methods.testMethod.output.$type}`,
             value: new Uint8Array(0),
           }],
           gasUsed: 1n,
@@ -132,11 +132,11 @@ describe(createTxTransport.name, () => {
         client,
         getMessageType: (typeUrl) => ({
           ...getMessageType(),
-          decode: jest.fn(() => (typeUrl === `/${TestServiceSchema.method.testMethod.output.typeName}` ? { test: "output", ok: true } : null)),
+          decode: jest.fn(() => (typeUrl === `/${TestServiceSchema.methods.testMethod.output.$type}` ? { test: "output", ok: true } : null)),
         }),
       });
 
-      const result = await transport.unary(TestServiceSchema.method.testMethod, { test: "input" });
+      const result = await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" });
       expect(result.message).toEqual({ test: "output", ok: true });
     });
 
@@ -159,7 +159,7 @@ describe(createTxTransport.name, () => {
         getMessageType,
       });
 
-      await expect(transport.unary(TestServiceSchema.method.testMethod, { test: "input" })).rejects.toThrow(TxError);
+      await expect(transport.unary(TestServiceSchema.methods.testMethod, { test: "input" })).rejects.toThrow(TxError);
     });
   });
 
@@ -178,7 +178,7 @@ describe(createTxTransport.name, () => {
         string result = 1;
       }
     `;
-    const TestServiceSchema = def.getService<{
+    const TestServiceSchema = def.getTsProtoService<{
       testMethod: DescMethodUnary<DescMessage, DescMessage>;
       streamMethod: DescMethodBiDiStreaming<DescMessage, DescMessage>;
     }>("TestService");

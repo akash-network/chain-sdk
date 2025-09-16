@@ -1,328 +1,347 @@
-import { DecCoinSchema, DecProtoSchema } from "../protos/cosmos/base/v1beta1/coin_pb.ts";
-import { DelegationDelegatorRewardSchema, DelegatorStartingInfoSchema, FeePoolSchema, ParamsSchema, TokenizeShareRecordRewardSchema, ValidatorAccumulatedCommissionSchema, ValidatorCurrentRewardsSchema, ValidatorHistoricalRewardsSchema, ValidatorOutstandingRewardsSchema, ValidatorSlashEventSchema, ValidatorSlashEventsSchema } from "../protos/cosmos/distribution/v1beta1/distribution_pb.ts";
-import { DelegatorStartingInfoRecordSchema, GenesisStateSchema, ValidatorAccumulatedCommissionRecordSchema, ValidatorCurrentRewardsRecordSchema, ValidatorHistoricalRewardsRecordSchema, ValidatorOutstandingRewardsRecordSchema, ValidatorSlashEventRecordSchema } from "../protos/cosmos/distribution/v1beta1/genesis_pb.ts";
-import { QueryCommunityPoolResponseSchema, QueryDelegationRewardsResponseSchema, QueryDelegationTotalRewardsResponseSchema, QueryParamsResponseSchema, QueryTokenizeShareRecordRewardResponseSchema, QueryValidatorCommissionResponseSchema, QueryValidatorDistributionInfoResponseSchema, QueryValidatorOutstandingRewardsResponseSchema, QueryValidatorSlashesResponseSchema } from "../protos/cosmos/distribution/v1beta1/query_pb.ts";
-import { MsgUpdateParamsSchema } from "../protos/cosmos/distribution/v1beta1/tx_pb.ts";
-import { TallyParamsSchema, VoteSchema, WeightedVoteOptionSchema } from "../protos/cosmos/gov/v1beta1/gov_pb.ts";
-import { GenesisStateSchema as GenesisStateSchema$1 } from "../protos/cosmos/gov/v1beta1/genesis_pb.ts";
-import { QueryParamsResponseSchema as QueryParamsResponseSchema$1, QueryVoteResponseSchema, QueryVotesResponseSchema } from "../protos/cosmos/gov/v1beta1/query_pb.ts";
-import { MsgVoteWeightedSchema } from "../protos/cosmos/gov/v1beta1/tx_pb.ts";
-import { MinterSchema, ParamsSchema as ParamsSchema$1 } from "../protos/cosmos/mint/v1beta1/mint_pb.ts";
-import { GenesisStateSchema as GenesisStateSchema$2 } from "../protos/cosmos/mint/v1beta1/genesis_pb.ts";
-import { QueryAnnualProvisionsResponseSchema, QueryInflationResponseSchema, QueryParamsResponseSchema as QueryParamsResponseSchema$2 } from "../protos/cosmos/mint/v1beta1/query_pb.ts";
-import { MsgUpdateParamsSchema as MsgUpdateParamsSchema$1 } from "../protos/cosmos/mint/v1beta1/tx_pb.ts";
-import { ParamsSchema as ParamsSchema$2 } from "../protos/cosmos/slashing/v1beta1/slashing_pb.ts";
-import { GenesisStateSchema as GenesisStateSchema$3 } from "../protos/cosmos/slashing/v1beta1/genesis_pb.ts";
-import { QueryParamsResponseSchema as QueryParamsResponseSchema$3 } from "../protos/cosmos/slashing/v1beta1/query_pb.ts";
-import { MsgUpdateParamsSchema as MsgUpdateParamsSchema$2 } from "../protos/cosmos/slashing/v1beta1/tx_pb.ts";
-import { CommissionRatesSchema, CommissionSchema, DelegationResponseSchema, DelegationSchema, HistoricalInfoSchema, ParamsSchema as ParamsSchema$3, RedelegationEntryResponseSchema, RedelegationEntrySchema, RedelegationResponseSchema, RedelegationSchema, ValidatorSchema } from "../protos/cosmos/staking/v1beta1/staking_pb.ts";
-import { GenesisStateSchema as GenesisStateSchema$4 } from "../protos/cosmos/staking/v1beta1/genesis_pb.ts";
-import { QueryDelegationResponseSchema, QueryDelegatorDelegationsResponseSchema, QueryDelegatorValidatorResponseSchema, QueryDelegatorValidatorsResponseSchema, QueryHistoricalInfoResponseSchema, QueryParamsResponseSchema as QueryParamsResponseSchema$4, QueryRedelegationsResponseSchema, QueryValidatorDelegationsResponseSchema, QueryValidatorResponseSchema, QueryValidatorsResponseSchema } from "../protos/cosmos/staking/v1beta1/query_pb.ts";
-import { MsgCreateValidatorSchema, MsgEditValidatorSchema, MsgUpdateParamsSchema as MsgUpdateParamsSchema$3 } from "../protos/cosmos/staking/v1beta1/tx_pb.ts";
+import { Coin, DecCoin, DecProto } from "../protos/cosmos/base/v1beta1/coin.ts";
+import { DelegationDelegatorReward, DelegatorStartingInfo, FeePool, Params, ValidatorAccumulatedCommission, ValidatorCurrentRewards, ValidatorHistoricalRewards, ValidatorOutstandingRewards, ValidatorSlashEvent, ValidatorSlashEvents } from "../protos/cosmos/distribution/v1beta1/distribution.ts";
+import { DelegatorStartingInfoRecord, GenesisState, ValidatorAccumulatedCommissionRecord, ValidatorCurrentRewardsRecord, ValidatorHistoricalRewardsRecord, ValidatorOutstandingRewardsRecord, ValidatorSlashEventRecord } from "../protos/cosmos/distribution/v1beta1/genesis.ts";
+import { QueryCommunityPoolResponse, QueryDelegationRewardsResponse, QueryDelegationTotalRewardsResponse, QueryParamsResponse, QueryValidatorCommissionResponse, QueryValidatorDistributionInfoResponse, QueryValidatorOutstandingRewardsResponse, QueryValidatorSlashesResponse } from "../protos/cosmos/distribution/v1beta1/query.ts";
+import { MsgUpdateParams } from "../protos/cosmos/distribution/v1beta1/tx.ts";
+import { TallyParams, Vote, WeightedVoteOption } from "../protos/cosmos/gov/v1beta1/gov.ts";
+import { GenesisState as GenesisState$1 } from "../protos/cosmos/gov/v1beta1/genesis.ts";
+import { QueryParamsResponse as QueryParamsResponse$1, QueryVoteResponse, QueryVotesResponse } from "../protos/cosmos/gov/v1beta1/query.ts";
+import { MsgVoteWeighted } from "../protos/cosmos/gov/v1beta1/tx.ts";
+import { Minter, Params as Params$1 } from "../protos/cosmos/mint/v1beta1/mint.ts";
+import { GenesisState as GenesisState$2 } from "../protos/cosmos/mint/v1beta1/genesis.ts";
+import { QueryAnnualProvisionsResponse, QueryInflationResponse, QueryParamsResponse as QueryParamsResponse$2 } from "../protos/cosmos/mint/v1beta1/query.ts";
+import { MsgUpdateParams as MsgUpdateParams$1 } from "../protos/cosmos/mint/v1beta1/tx.ts";
+import { ContinuousFund } from "../protos/cosmos/protocolpool/v1/types.ts";
+import { GenesisState as GenesisState$3 } from "../protos/cosmos/protocolpool/v1/genesis.ts";
+import { Timestamp } from "../protos/google/protobuf/timestamp.ts";
+import { QueryContinuousFundResponse, QueryContinuousFundsResponse } from "../protos/cosmos/protocolpool/v1/query.ts";
+import { MsgCreateContinuousFund } from "../protos/cosmos/protocolpool/v1/tx.ts";
+import { Params as Params$2 } from "../protos/cosmos/slashing/v1beta1/slashing.ts";
+import { GenesisState as GenesisState$4 } from "../protos/cosmos/slashing/v1beta1/genesis.ts";
+import { Duration } from "../protos/google/protobuf/duration.ts";
+import { QueryParamsResponse as QueryParamsResponse$3 } from "../protos/cosmos/slashing/v1beta1/query.ts";
+import { MsgUpdateParams as MsgUpdateParams$2 } from "../protos/cosmos/slashing/v1beta1/tx.ts";
+import { Commission, CommissionRates, Delegation, DelegationResponse, Description, HistoricalInfo, Params as Params$3, Redelegation, RedelegationEntry, RedelegationEntryResponse, RedelegationResponse, Validator } from "../protos/cosmos/staking/v1beta1/staking.ts";
+import { Any } from "../protos/google/protobuf/any.ts";
+import { GenesisState as GenesisState$5 } from "../protos/cosmos/staking/v1beta1/genesis.ts";
+import { QueryDelegationResponse, QueryDelegatorDelegationsResponse, QueryDelegatorValidatorResponse, QueryDelegatorValidatorsResponse, QueryHistoricalInfoResponse, QueryParamsResponse as QueryParamsResponse$4, QueryRedelegationsResponse, QueryValidatorDelegationsResponse, QueryValidatorResponse, QueryValidatorsResponse } from "../protos/cosmos/staking/v1beta1/query.ts";
+import { Consensus } from "../protos/tendermint/version/types.ts";
+import { BlockID, Header, PartSetHeader } from "../protos/tendermint/types/types.ts";
+import { MsgCreateValidator, MsgEditValidator, MsgUpdateParams as MsgUpdateParams$3 } from "../protos/cosmos/staking/v1beta1/tx.ts";
 
 import { expect, describe, it } from "@jest/globals";
-import type { DescMessage } from "@bufbuild/protobuf";
 import { patches } from "./cosmosCustomTypePatches.ts";
-import { generateMessage } from "@test/helpers/generateMessage";
-import type { TypePatches } from "../../utils/applyPatches";
+import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";
+import type { TypePatches } from "../../utils/applyPatches.ts";
 
-type MessageTypes = Record<string, { fields: string[], schema: DescMessage }>;
-const messageTypes: MessageTypes = {
+const messageTypes: Record<string, MessageSchema> = {
   "cosmos.base.v1beta1.DecCoin": {
-    fields: ["amount"],
-    schema: DecCoinSchema
+    type: DecCoin,
+    fields: [{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.base.v1beta1.DecProto": {
-    fields: ["dec"],
-    schema: DecProtoSchema
+    type: DecProto,
+    fields: [{name: "dec",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.distribution.v1beta1.Params": {
-    fields: ["communityTax","baseProposerReward","bonusProposerReward"],
-    schema: ParamsSchema
+    type: Params,
+    fields: [{name: "communityTax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "baseProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "bonusProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.distribution.v1beta1.ValidatorHistoricalRewards": {
-    fields: ["cumulativeRewardRatio"],
-    schema: ValidatorHistoricalRewardsSchema
+    type: ValidatorHistoricalRewards,
+    fields: [{name: "cumulativeRewardRatio",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.ValidatorCurrentRewards": {
-    fields: ["rewards"],
-    schema: ValidatorCurrentRewardsSchema
+    type: ValidatorCurrentRewards,
+    fields: [{name: "rewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.ValidatorAccumulatedCommission": {
-    fields: ["commission"],
-    schema: ValidatorAccumulatedCommissionSchema
+    type: ValidatorAccumulatedCommission,
+    fields: [{name: "commission",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.ValidatorOutstandingRewards": {
-    fields: ["rewards"],
-    schema: ValidatorOutstandingRewardsSchema
+    type: ValidatorOutstandingRewards,
+    fields: [{name: "rewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.ValidatorSlashEvent": {
-    fields: ["fraction"],
-    schema: ValidatorSlashEventSchema
+    type: ValidatorSlashEvent,
+    fields: [{name: "fraction",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.distribution.v1beta1.ValidatorSlashEvents": {
-    fields: ["validatorSlashEvents"],
-    schema: ValidatorSlashEventsSchema
+    type: ValidatorSlashEvents,
+    fields: [{name: "validatorSlashEvents",kind: "list",message: {fields: [{name: "validatorPeriod",kind: "scalar",scalarType: 4,},{name: "fraction",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: ValidatorSlashEvent},},],
   },
   "cosmos.distribution.v1beta1.FeePool": {
-    fields: ["communityPool"],
-    schema: FeePoolSchema
-  },
-  "cosmos.distribution.v1beta1.TokenizeShareRecordReward": {
-    fields: ["reward"],
-    schema: TokenizeShareRecordRewardSchema
+    type: FeePool,
+    fields: [{name: "communityPool",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.DelegatorStartingInfo": {
-    fields: ["stake"],
-    schema: DelegatorStartingInfoSchema
+    type: DelegatorStartingInfo,
+    fields: [{name: "stake",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.distribution.v1beta1.DelegationDelegatorReward": {
-    fields: ["reward"],
-    schema: DelegationDelegatorRewardSchema
+    type: DelegationDelegatorReward,
+    fields: [{name: "reward",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.ValidatorOutstandingRewardsRecord": {
-    fields: ["outstandingRewards"],
-    schema: ValidatorOutstandingRewardsRecordSchema
+    type: ValidatorOutstandingRewardsRecord,
+    fields: [{name: "outstandingRewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.ValidatorAccumulatedCommissionRecord": {
-    fields: ["accumulated"],
-    schema: ValidatorAccumulatedCommissionRecordSchema
+    type: ValidatorAccumulatedCommissionRecord,
+    fields: [{name: "accumulated",kind: "message",message: {fields: [{name: "commission",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],type: ValidatorAccumulatedCommission},},],
   },
   "cosmos.distribution.v1beta1.ValidatorHistoricalRewardsRecord": {
-    fields: ["rewards"],
-    schema: ValidatorHistoricalRewardsRecordSchema
+    type: ValidatorHistoricalRewardsRecord,
+    fields: [{name: "rewards",kind: "message",message: {fields: [{name: "cumulativeRewardRatio",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},{name: "referenceCount",kind: "scalar",scalarType: 13,},],type: ValidatorHistoricalRewards},},],
   },
   "cosmos.distribution.v1beta1.ValidatorCurrentRewardsRecord": {
-    fields: ["rewards"],
-    schema: ValidatorCurrentRewardsRecordSchema
+    type: ValidatorCurrentRewardsRecord,
+    fields: [{name: "rewards",kind: "message",message: {fields: [{name: "rewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},{name: "period",kind: "scalar",scalarType: 4,},],type: ValidatorCurrentRewards},},],
   },
   "cosmos.distribution.v1beta1.DelegatorStartingInfoRecord": {
-    fields: ["startingInfo"],
-    schema: DelegatorStartingInfoRecordSchema
+    type: DelegatorStartingInfoRecord,
+    fields: [{name: "startingInfo",kind: "message",message: {fields: [{name: "previousPeriod",kind: "scalar",scalarType: 4,},{name: "stake",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "height",kind: "scalar",scalarType: 4,},],type: DelegatorStartingInfo},},],
   },
   "cosmos.distribution.v1beta1.ValidatorSlashEventRecord": {
-    fields: ["validatorSlashEvent"],
-    schema: ValidatorSlashEventRecordSchema
+    type: ValidatorSlashEventRecord,
+    fields: [{name: "validatorSlashEvent",kind: "message",message: {fields: [{name: "validatorPeriod",kind: "scalar",scalarType: 4,},{name: "fraction",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: ValidatorSlashEvent},},],
   },
   "cosmos.distribution.v1beta1.GenesisState": {
-    fields: ["params","feePool","outstandingRewards","validatorAccumulatedCommissions","validatorHistoricalRewards","validatorCurrentRewards","delegatorStartingInfos","validatorSlashEvents"],
-    schema: GenesisStateSchema
+    type: GenesisState,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "communityTax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "baseProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "bonusProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "withdrawAddrEnabled",kind: "scalar",scalarType: 8,},],type: Params},},{name: "feePool",kind: "message",message: {fields: [{name: "communityPool",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],type: FeePool},},{name: "outstandingRewards",kind: "list",message: {fields: [{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "outstandingRewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],type: ValidatorOutstandingRewardsRecord},},{name: "validatorAccumulatedCommissions",kind: "list",message: {fields: [{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "accumulated",kind: "message",message: {fields: [{name: "commission",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],type: ValidatorAccumulatedCommission},},],type: ValidatorAccumulatedCommissionRecord},},{name: "validatorHistoricalRewards",kind: "list",message: {fields: [{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "period",kind: "scalar",scalarType: 4,},{name: "rewards",kind: "message",message: {fields: [{name: "cumulativeRewardRatio",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},{name: "referenceCount",kind: "scalar",scalarType: 13,},],type: ValidatorHistoricalRewards},},],type: ValidatorHistoricalRewardsRecord},},{name: "validatorCurrentRewards",kind: "list",message: {fields: [{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "rewards",kind: "message",message: {fields: [{name: "rewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},{name: "period",kind: "scalar",scalarType: 4,},],type: ValidatorCurrentRewards},},],type: ValidatorCurrentRewardsRecord},},{name: "delegatorStartingInfos",kind: "list",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "startingInfo",kind: "message",message: {fields: [{name: "previousPeriod",kind: "scalar",scalarType: 4,},{name: "stake",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "height",kind: "scalar",scalarType: 4,},],type: DelegatorStartingInfo},},],type: DelegatorStartingInfoRecord},},{name: "validatorSlashEvents",kind: "list",message: {fields: [{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "height",kind: "scalar",scalarType: 4,},{name: "period",kind: "scalar",scalarType: 4,},{name: "validatorSlashEvent",kind: "message",message: {fields: [{name: "validatorPeriod",kind: "scalar",scalarType: 4,},{name: "fraction",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: ValidatorSlashEvent},},],type: ValidatorSlashEventRecord},},],
   },
   "cosmos.distribution.v1beta1.QueryParamsResponse": {
-    fields: ["params"],
-    schema: QueryParamsResponseSchema
+    type: QueryParamsResponse,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "communityTax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "baseProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "bonusProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "withdrawAddrEnabled",kind: "scalar",scalarType: 8,},],type: Params},},],
   },
   "cosmos.distribution.v1beta1.QueryValidatorDistributionInfoResponse": {
-    fields: ["selfBondRewards","commission"],
-    schema: QueryValidatorDistributionInfoResponseSchema
+    type: QueryValidatorDistributionInfoResponse,
+    fields: [{name: "selfBondRewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},{name: "commission",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.QueryValidatorOutstandingRewardsResponse": {
-    fields: ["rewards"],
-    schema: QueryValidatorOutstandingRewardsResponseSchema
+    type: QueryValidatorOutstandingRewardsResponse,
+    fields: [{name: "rewards",kind: "message",message: {fields: [{name: "rewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],type: ValidatorOutstandingRewards},},],
   },
   "cosmos.distribution.v1beta1.QueryValidatorCommissionResponse": {
-    fields: ["commission"],
-    schema: QueryValidatorCommissionResponseSchema
+    type: QueryValidatorCommissionResponse,
+    fields: [{name: "commission",kind: "message",message: {fields: [{name: "commission",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],type: ValidatorAccumulatedCommission},},],
   },
   "cosmos.distribution.v1beta1.QueryValidatorSlashesResponse": {
-    fields: ["slashes"],
-    schema: QueryValidatorSlashesResponseSchema
+    type: QueryValidatorSlashesResponse,
+    fields: [{name: "slashes",kind: "list",message: {fields: [{name: "validatorPeriod",kind: "scalar",scalarType: 4,},{name: "fraction",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: ValidatorSlashEvent},},],
   },
   "cosmos.distribution.v1beta1.QueryDelegationRewardsResponse": {
-    fields: ["rewards"],
-    schema: QueryDelegationRewardsResponseSchema
+    type: QueryDelegationRewardsResponse,
+    fields: [{name: "rewards",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.QueryDelegationTotalRewardsResponse": {
-    fields: ["rewards","total"],
-    schema: QueryDelegationTotalRewardsResponseSchema
+    type: QueryDelegationTotalRewardsResponse,
+    fields: [{name: "rewards",kind: "list",message: {fields: [{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "reward",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],type: DelegationDelegatorReward},},{name: "total",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.QueryCommunityPoolResponse": {
-    fields: ["pool"],
-    schema: QueryCommunityPoolResponseSchema
-  },
-  "cosmos.distribution.v1beta1.QueryTokenizeShareRecordRewardResponse": {
-    fields: ["rewards","total"],
-    schema: QueryTokenizeShareRecordRewardResponseSchema
+    type: QueryCommunityPoolResponse,
+    fields: [{name: "pool",kind: "list",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: DecCoin},},],
   },
   "cosmos.distribution.v1beta1.MsgUpdateParams": {
-    fields: ["params"],
-    schema: MsgUpdateParamsSchema
+    type: MsgUpdateParams,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "communityTax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "baseProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "bonusProposerReward",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "withdrawAddrEnabled",kind: "scalar",scalarType: 8,},],type: Params},},],
   },
   "cosmos.gov.v1beta1.WeightedVoteOption": {
-    fields: ["weight"],
-    schema: WeightedVoteOptionSchema
+    type: WeightedVoteOption,
+    fields: [{name: "weight",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.gov.v1beta1.Vote": {
-    fields: ["options"],
-    schema: VoteSchema
+    type: Vote,
+    fields: [{name: "options",kind: "list",message: {fields: [{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "weight",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: WeightedVoteOption},},],
   },
   "cosmos.gov.v1beta1.TallyParams": {
-    fields: ["quorum","threshold","vetoThreshold"],
-    schema: TallyParamsSchema
+    type: TallyParams,
+    fields: [{name: "quorum",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "threshold",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "vetoThreshold",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],
   },
   "cosmos.gov.v1beta1.GenesisState": {
-    fields: ["votes","tallyParams"],
-    schema: GenesisStateSchema$1
+    type: GenesisState$1,
+    fields: [{name: "votes",kind: "list",message: {fields: [{name: "proposalId",kind: "scalar",scalarType: 4,},{name: "voter",kind: "scalar",scalarType: 9,},{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "options",kind: "list",message: {fields: [{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "weight",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: WeightedVoteOption},},],type: Vote},},{name: "tallyParams",kind: "message",message: {fields: [{name: "quorum",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "threshold",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "vetoThreshold",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],type: TallyParams},},],
   },
   "cosmos.gov.v1beta1.QueryVoteResponse": {
-    fields: ["vote"],
-    schema: QueryVoteResponseSchema
+    type: QueryVoteResponse,
+    fields: [{name: "vote",kind: "message",message: {fields: [{name: "proposalId",kind: "scalar",scalarType: 4,},{name: "voter",kind: "scalar",scalarType: 9,},{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "options",kind: "list",message: {fields: [{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "weight",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: WeightedVoteOption},},],type: Vote},},],
   },
   "cosmos.gov.v1beta1.QueryVotesResponse": {
-    fields: ["votes"],
-    schema: QueryVotesResponseSchema
+    type: QueryVotesResponse,
+    fields: [{name: "votes",kind: "list",message: {fields: [{name: "proposalId",kind: "scalar",scalarType: 4,},{name: "voter",kind: "scalar",scalarType: 9,},{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "options",kind: "list",message: {fields: [{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "weight",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: WeightedVoteOption},},],type: Vote},},],
   },
   "cosmos.gov.v1beta1.QueryParamsResponse": {
-    fields: ["tallyParams"],
-    schema: QueryParamsResponseSchema$1
+    type: QueryParamsResponse$1,
+    fields: [{name: "tallyParams",kind: "message",message: {fields: [{name: "quorum",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "threshold",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "vetoThreshold",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],type: TallyParams},},],
   },
   "cosmos.gov.v1beta1.MsgVoteWeighted": {
-    fields: ["options"],
-    schema: MsgVoteWeightedSchema
+    type: MsgVoteWeighted,
+    fields: [{name: "options",kind: "list",message: {fields: [{name: "option",kind: "enum",enum: ["UNSPECIFIED","YES","ABSTAIN","NO","NO_WITH_VETO"],},{name: "weight",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: WeightedVoteOption},},],
   },
   "cosmos.mint.v1beta1.Minter": {
-    fields: ["inflation","annualProvisions"],
-    schema: MinterSchema
+    type: Minter,
+    fields: [{name: "inflation",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "annualProvisions",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.mint.v1beta1.Params": {
-    fields: ["inflationRateChange","inflationMax","inflationMin","goalBonded"],
-    schema: ParamsSchema$1
+    type: Params$1,
+    fields: [{name: "inflationRateChange",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMin",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "goalBonded",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.mint.v1beta1.GenesisState": {
-    fields: ["minter","params"],
-    schema: GenesisStateSchema$2
+    type: GenesisState$2,
+    fields: [{name: "minter",kind: "message",message: {fields: [{name: "inflation",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "annualProvisions",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Minter},},{name: "params",kind: "message",message: {fields: [{name: "mintDenom",kind: "scalar",scalarType: 9,},{name: "inflationRateChange",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMin",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "goalBonded",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "blocksPerYear",kind: "scalar",scalarType: 4,},],type: Params$1},},],
   },
   "cosmos.mint.v1beta1.QueryParamsResponse": {
-    fields: ["params"],
-    schema: QueryParamsResponseSchema$2
+    type: QueryParamsResponse$2,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "mintDenom",kind: "scalar",scalarType: 9,},{name: "inflationRateChange",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMin",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "goalBonded",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "blocksPerYear",kind: "scalar",scalarType: 4,},],type: Params$1},},],
   },
   "cosmos.mint.v1beta1.QueryInflationResponse": {
-    fields: ["inflation"],
-    schema: QueryInflationResponseSchema
+    type: QueryInflationResponse,
+    fields: [{name: "inflation",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],
   },
   "cosmos.mint.v1beta1.QueryAnnualProvisionsResponse": {
-    fields: ["annualProvisions"],
-    schema: QueryAnnualProvisionsResponseSchema
+    type: QueryAnnualProvisionsResponse,
+    fields: [{name: "annualProvisions",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],
   },
   "cosmos.mint.v1beta1.MsgUpdateParams": {
-    fields: ["params"],
-    schema: MsgUpdateParamsSchema$1
+    type: MsgUpdateParams$1,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "mintDenom",kind: "scalar",scalarType: 9,},{name: "inflationRateChange",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMax",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "inflationMin",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "goalBonded",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "blocksPerYear",kind: "scalar",scalarType: 4,},],type: Params$1},},],
+  },
+  "cosmos.protocolpool.v1.ContinuousFund": {
+    type: ContinuousFund,
+    fields: [{name: "percentage",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "cosmos.protocolpool.v1.GenesisState": {
+    type: GenesisState$3,
+    fields: [{name: "continuousFunds",kind: "list",message: {fields: [{name: "recipient",kind: "scalar",scalarType: 9,},{name: "percentage",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "expiry",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: ContinuousFund},},],
+  },
+  "cosmos.protocolpool.v1.QueryContinuousFundResponse": {
+    type: QueryContinuousFundResponse,
+    fields: [{name: "continuousFund",kind: "message",message: {fields: [{name: "recipient",kind: "scalar",scalarType: 9,},{name: "percentage",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "expiry",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: ContinuousFund},},],
+  },
+  "cosmos.protocolpool.v1.QueryContinuousFundsResponse": {
+    type: QueryContinuousFundsResponse,
+    fields: [{name: "continuousFunds",kind: "list",message: {fields: [{name: "recipient",kind: "scalar",scalarType: 9,},{name: "percentage",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "expiry",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: ContinuousFund},},],
+  },
+  "cosmos.protocolpool.v1.MsgCreateContinuousFund": {
+    type: MsgCreateContinuousFund,
+    fields: [{name: "percentage",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.slashing.v1beta1.Params": {
-    fields: ["minSignedPerWindow","slashFractionDoubleSign","slashFractionDowntime"],
-    schema: ParamsSchema$2
+    type: Params$2,
+    fields: [{name: "minSignedPerWindow",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "slashFractionDoubleSign",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "slashFractionDowntime",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],
   },
   "cosmos.slashing.v1beta1.GenesisState": {
-    fields: ["params"],
-    schema: GenesisStateSchema$3
+    type: GenesisState$4,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "signedBlocksWindow",kind: "scalar",scalarType: 3,},{name: "minSignedPerWindow",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "downtimeJailDuration",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Duration},},{name: "slashFractionDoubleSign",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "slashFractionDowntime",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],type: Params$2},},],
   },
   "cosmos.slashing.v1beta1.QueryParamsResponse": {
-    fields: ["params"],
-    schema: QueryParamsResponseSchema$3
+    type: QueryParamsResponse$3,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "signedBlocksWindow",kind: "scalar",scalarType: 3,},{name: "minSignedPerWindow",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "downtimeJailDuration",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Duration},},{name: "slashFractionDoubleSign",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "slashFractionDowntime",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],type: Params$2},},],
   },
   "cosmos.slashing.v1beta1.MsgUpdateParams": {
-    fields: ["params"],
-    schema: MsgUpdateParamsSchema$2
+    type: MsgUpdateParams$2,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "signedBlocksWindow",kind: "scalar",scalarType: 3,},{name: "minSignedPerWindow",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "downtimeJailDuration",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Duration},},{name: "slashFractionDoubleSign",kind: "scalar",scalarType: 12,customType: "LegacyDec",},{name: "slashFractionDowntime",kind: "scalar",scalarType: 12,customType: "LegacyDec",},],type: Params$2},},],
   },
   "cosmos.staking.v1beta1.HistoricalInfo": {
-    fields: ["valset"],
-    schema: HistoricalInfoSchema
+    type: HistoricalInfo,
+    fields: [{name: "valset",kind: "list",message: {fields: [{name: "operatorAddress",kind: "scalar",scalarType: 9,},{name: "consensusPubkey",kind: "message",message: {fields: [{name: "typeUrl",kind: "scalar",scalarType: 9,},{name: "value",kind: "scalar",scalarType: 12,},],type: Any},},{name: "jailed",kind: "scalar",scalarType: 8,},{name: "status",kind: "enum",enum: ["UNSPECIFIED","UNBONDED","UNBONDING","BONDED"],},{name: "tokens",kind: "scalar",scalarType: 9,},{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "description",kind: "message",message: {fields: [{name: "moniker",kind: "scalar",scalarType: 9,},{name: "identity",kind: "scalar",scalarType: 9,},{name: "website",kind: "scalar",scalarType: 9,},{name: "securityContact",kind: "scalar",scalarType: 9,},{name: "details",kind: "scalar",scalarType: 9,},],type: Description},},{name: "unbondingHeight",kind: "scalar",scalarType: 3,},{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},{name: "minSelfDelegation",kind: "scalar",scalarType: 9,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},{name: "unbondingIds",kind: "list",},],type: Validator},},],
   },
   "cosmos.staking.v1beta1.Validator": {
-    fields: ["delegatorShares","commission","validatorBondShares","liquidShares"],
-    schema: ValidatorSchema
+    type: Validator,
+    fields: [{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},],
   },
   "cosmos.staking.v1beta1.Commission": {
-    fields: ["commissionRates"],
-    schema: CommissionSchema
+    type: Commission,
+    fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},],
   },
   "cosmos.staking.v1beta1.CommissionRates": {
-    fields: ["rate","maxRate","maxChangeRate"],
-    schema: CommissionRatesSchema
+    type: CommissionRates,
+    fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.staking.v1beta1.Delegation": {
-    fields: ["shares"],
-    schema: DelegationSchema
+    type: Delegation,
+    fields: [{name: "shares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.staking.v1beta1.RedelegationEntry": {
-    fields: ["sharesDst"],
-    schema: RedelegationEntrySchema
+    type: RedelegationEntry,
+    fields: [{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.staking.v1beta1.Redelegation": {
-    fields: ["entries"],
-    schema: RedelegationSchema
+    type: Redelegation,
+    fields: [{name: "entries",kind: "list",message: {fields: [{name: "creationHeight",kind: "scalar",scalarType: 3,},{name: "completionTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "initialBalance",kind: "scalar",scalarType: 9,},{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "unbondingId",kind: "scalar",scalarType: 4,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},],type: RedelegationEntry},},],
   },
   "cosmos.staking.v1beta1.Params": {
-    fields: ["minCommissionRate","validatorBondFactor","globalLiquidStakingCap","validatorLiquidStakingCap"],
-    schema: ParamsSchema$3
+    type: Params$3,
+    fields: [{name: "minCommissionRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.staking.v1beta1.DelegationResponse": {
-    fields: ["delegation"],
-    schema: DelegationResponseSchema
+    type: DelegationResponse,
+    fields: [{name: "delegation",kind: "message",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "shares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Delegation},},],
   },
   "cosmos.staking.v1beta1.RedelegationEntryResponse": {
-    fields: ["redelegationEntry"],
-    schema: RedelegationEntryResponseSchema
+    type: RedelegationEntryResponse,
+    fields: [{name: "redelegationEntry",kind: "message",message: {fields: [{name: "creationHeight",kind: "scalar",scalarType: 3,},{name: "completionTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "initialBalance",kind: "scalar",scalarType: 9,},{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "unbondingId",kind: "scalar",scalarType: 4,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},],type: RedelegationEntry},},],
   },
   "cosmos.staking.v1beta1.RedelegationResponse": {
-    fields: ["redelegation","entries"],
-    schema: RedelegationResponseSchema
+    type: RedelegationResponse,
+    fields: [{name: "redelegation",kind: "message",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorSrcAddress",kind: "scalar",scalarType: 9,},{name: "validatorDstAddress",kind: "scalar",scalarType: 9,},{name: "entries",kind: "list",message: {fields: [{name: "creationHeight",kind: "scalar",scalarType: 3,},{name: "completionTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "initialBalance",kind: "scalar",scalarType: 9,},{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "unbondingId",kind: "scalar",scalarType: 4,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},],type: RedelegationEntry},},],type: Redelegation},},{name: "entries",kind: "list",message: {fields: [{name: "redelegationEntry",kind: "message",message: {fields: [{name: "creationHeight",kind: "scalar",scalarType: 3,},{name: "completionTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "initialBalance",kind: "scalar",scalarType: 9,},{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "unbondingId",kind: "scalar",scalarType: 4,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},],type: RedelegationEntry},},{name: "balance",kind: "scalar",scalarType: 9,},],type: RedelegationEntryResponse},},],
   },
   "cosmos.staking.v1beta1.GenesisState": {
-    fields: ["params","validators","delegations","redelegations"],
-    schema: GenesisStateSchema$4
+    type: GenesisState$5,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Duration},},{name: "maxValidators",kind: "scalar",scalarType: 13,},{name: "maxEntries",kind: "scalar",scalarType: 13,},{name: "historicalEntries",kind: "scalar",scalarType: 13,},{name: "bondDenom",kind: "scalar",scalarType: 9,},{name: "minCommissionRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Params$3},},{name: "validators",kind: "list",message: {fields: [{name: "operatorAddress",kind: "scalar",scalarType: 9,},{name: "consensusPubkey",kind: "message",message: {fields: [{name: "typeUrl",kind: "scalar",scalarType: 9,},{name: "value",kind: "scalar",scalarType: 12,},],type: Any},},{name: "jailed",kind: "scalar",scalarType: 8,},{name: "status",kind: "enum",enum: ["UNSPECIFIED","UNBONDED","UNBONDING","BONDED"],},{name: "tokens",kind: "scalar",scalarType: 9,},{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "description",kind: "message",message: {fields: [{name: "moniker",kind: "scalar",scalarType: 9,},{name: "identity",kind: "scalar",scalarType: 9,},{name: "website",kind: "scalar",scalarType: 9,},{name: "securityContact",kind: "scalar",scalarType: 9,},{name: "details",kind: "scalar",scalarType: 9,},],type: Description},},{name: "unbondingHeight",kind: "scalar",scalarType: 3,},{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},{name: "minSelfDelegation",kind: "scalar",scalarType: 9,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},{name: "unbondingIds",kind: "list",},],type: Validator},},{name: "delegations",kind: "list",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "shares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Delegation},},{name: "redelegations",kind: "list",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorSrcAddress",kind: "scalar",scalarType: 9,},{name: "validatorDstAddress",kind: "scalar",scalarType: 9,},{name: "entries",kind: "list",message: {fields: [{name: "creationHeight",kind: "scalar",scalarType: 3,},{name: "completionTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "initialBalance",kind: "scalar",scalarType: 9,},{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "unbondingId",kind: "scalar",scalarType: 4,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},],type: RedelegationEntry},},],type: Redelegation},},],
   },
   "cosmos.staking.v1beta1.QueryValidatorsResponse": {
-    fields: ["validators"],
-    schema: QueryValidatorsResponseSchema
+    type: QueryValidatorsResponse,
+    fields: [{name: "validators",kind: "list",message: {fields: [{name: "operatorAddress",kind: "scalar",scalarType: 9,},{name: "consensusPubkey",kind: "message",message: {fields: [{name: "typeUrl",kind: "scalar",scalarType: 9,},{name: "value",kind: "scalar",scalarType: 12,},],type: Any},},{name: "jailed",kind: "scalar",scalarType: 8,},{name: "status",kind: "enum",enum: ["UNSPECIFIED","UNBONDED","UNBONDING","BONDED"],},{name: "tokens",kind: "scalar",scalarType: 9,},{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "description",kind: "message",message: {fields: [{name: "moniker",kind: "scalar",scalarType: 9,},{name: "identity",kind: "scalar",scalarType: 9,},{name: "website",kind: "scalar",scalarType: 9,},{name: "securityContact",kind: "scalar",scalarType: 9,},{name: "details",kind: "scalar",scalarType: 9,},],type: Description},},{name: "unbondingHeight",kind: "scalar",scalarType: 3,},{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},{name: "minSelfDelegation",kind: "scalar",scalarType: 9,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},{name: "unbondingIds",kind: "list",},],type: Validator},},],
   },
   "cosmos.staking.v1beta1.QueryValidatorResponse": {
-    fields: ["validator"],
-    schema: QueryValidatorResponseSchema
+    type: QueryValidatorResponse,
+    fields: [{name: "validator",kind: "message",message: {fields: [{name: "operatorAddress",kind: "scalar",scalarType: 9,},{name: "consensusPubkey",kind: "message",message: {fields: [{name: "typeUrl",kind: "scalar",scalarType: 9,},{name: "value",kind: "scalar",scalarType: 12,},],type: Any},},{name: "jailed",kind: "scalar",scalarType: 8,},{name: "status",kind: "enum",enum: ["UNSPECIFIED","UNBONDED","UNBONDING","BONDED"],},{name: "tokens",kind: "scalar",scalarType: 9,},{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "description",kind: "message",message: {fields: [{name: "moniker",kind: "scalar",scalarType: 9,},{name: "identity",kind: "scalar",scalarType: 9,},{name: "website",kind: "scalar",scalarType: 9,},{name: "securityContact",kind: "scalar",scalarType: 9,},{name: "details",kind: "scalar",scalarType: 9,},],type: Description},},{name: "unbondingHeight",kind: "scalar",scalarType: 3,},{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},{name: "minSelfDelegation",kind: "scalar",scalarType: 9,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},{name: "unbondingIds",kind: "list",},],type: Validator},},],
   },
   "cosmos.staking.v1beta1.QueryValidatorDelegationsResponse": {
-    fields: ["delegationResponses"],
-    schema: QueryValidatorDelegationsResponseSchema
+    type: QueryValidatorDelegationsResponse,
+    fields: [{name: "delegationResponses",kind: "list",message: {fields: [{name: "delegation",kind: "message",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "shares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Delegation},},{name: "balance",kind: "message",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,},],type: Coin},},],type: DelegationResponse},},],
   },
   "cosmos.staking.v1beta1.QueryDelegationResponse": {
-    fields: ["delegationResponse"],
-    schema: QueryDelegationResponseSchema
+    type: QueryDelegationResponse,
+    fields: [{name: "delegationResponse",kind: "message",message: {fields: [{name: "delegation",kind: "message",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "shares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Delegation},},{name: "balance",kind: "message",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,},],type: Coin},},],type: DelegationResponse},},],
   },
   "cosmos.staking.v1beta1.QueryDelegatorDelegationsResponse": {
-    fields: ["delegationResponses"],
-    schema: QueryDelegatorDelegationsResponseSchema
+    type: QueryDelegatorDelegationsResponse,
+    fields: [{name: "delegationResponses",kind: "list",message: {fields: [{name: "delegation",kind: "message",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorAddress",kind: "scalar",scalarType: 9,},{name: "shares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Delegation},},{name: "balance",kind: "message",message: {fields: [{name: "denom",kind: "scalar",scalarType: 9,},{name: "amount",kind: "scalar",scalarType: 9,},],type: Coin},},],type: DelegationResponse},},],
   },
   "cosmos.staking.v1beta1.QueryRedelegationsResponse": {
-    fields: ["redelegationResponses"],
-    schema: QueryRedelegationsResponseSchema
+    type: QueryRedelegationsResponse,
+    fields: [{name: "redelegationResponses",kind: "list",message: {fields: [{name: "redelegation",kind: "message",message: {fields: [{name: "delegatorAddress",kind: "scalar",scalarType: 9,},{name: "validatorSrcAddress",kind: "scalar",scalarType: 9,},{name: "validatorDstAddress",kind: "scalar",scalarType: 9,},{name: "entries",kind: "list",message: {fields: [{name: "creationHeight",kind: "scalar",scalarType: 3,},{name: "completionTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "initialBalance",kind: "scalar",scalarType: 9,},{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "unbondingId",kind: "scalar",scalarType: 4,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},],type: RedelegationEntry},},],type: Redelegation},},{name: "entries",kind: "list",message: {fields: [{name: "redelegationEntry",kind: "message",message: {fields: [{name: "creationHeight",kind: "scalar",scalarType: 3,},{name: "completionTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "initialBalance",kind: "scalar",scalarType: 9,},{name: "sharesDst",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "unbondingId",kind: "scalar",scalarType: 4,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},],type: RedelegationEntry},},{name: "balance",kind: "scalar",scalarType: 9,},],type: RedelegationEntryResponse},},],type: RedelegationResponse},},],
   },
   "cosmos.staking.v1beta1.QueryDelegatorValidatorsResponse": {
-    fields: ["validators"],
-    schema: QueryDelegatorValidatorsResponseSchema
+    type: QueryDelegatorValidatorsResponse,
+    fields: [{name: "validators",kind: "list",message: {fields: [{name: "operatorAddress",kind: "scalar",scalarType: 9,},{name: "consensusPubkey",kind: "message",message: {fields: [{name: "typeUrl",kind: "scalar",scalarType: 9,},{name: "value",kind: "scalar",scalarType: 12,},],type: Any},},{name: "jailed",kind: "scalar",scalarType: 8,},{name: "status",kind: "enum",enum: ["UNSPECIFIED","UNBONDED","UNBONDING","BONDED"],},{name: "tokens",kind: "scalar",scalarType: 9,},{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "description",kind: "message",message: {fields: [{name: "moniker",kind: "scalar",scalarType: 9,},{name: "identity",kind: "scalar",scalarType: 9,},{name: "website",kind: "scalar",scalarType: 9,},{name: "securityContact",kind: "scalar",scalarType: 9,},{name: "details",kind: "scalar",scalarType: 9,},],type: Description},},{name: "unbondingHeight",kind: "scalar",scalarType: 3,},{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},{name: "minSelfDelegation",kind: "scalar",scalarType: 9,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},{name: "unbondingIds",kind: "list",},],type: Validator},},],
   },
   "cosmos.staking.v1beta1.QueryDelegatorValidatorResponse": {
-    fields: ["validator"],
-    schema: QueryDelegatorValidatorResponseSchema
+    type: QueryDelegatorValidatorResponse,
+    fields: [{name: "validator",kind: "message",message: {fields: [{name: "operatorAddress",kind: "scalar",scalarType: 9,},{name: "consensusPubkey",kind: "message",message: {fields: [{name: "typeUrl",kind: "scalar",scalarType: 9,},{name: "value",kind: "scalar",scalarType: 12,},],type: Any},},{name: "jailed",kind: "scalar",scalarType: 8,},{name: "status",kind: "enum",enum: ["UNSPECIFIED","UNBONDED","UNBONDING","BONDED"],},{name: "tokens",kind: "scalar",scalarType: 9,},{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "description",kind: "message",message: {fields: [{name: "moniker",kind: "scalar",scalarType: 9,},{name: "identity",kind: "scalar",scalarType: 9,},{name: "website",kind: "scalar",scalarType: 9,},{name: "securityContact",kind: "scalar",scalarType: 9,},{name: "details",kind: "scalar",scalarType: 9,},],type: Description},},{name: "unbondingHeight",kind: "scalar",scalarType: 3,},{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},{name: "minSelfDelegation",kind: "scalar",scalarType: 9,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},{name: "unbondingIds",kind: "list",},],type: Validator},},],
   },
   "cosmos.staking.v1beta1.QueryHistoricalInfoResponse": {
-    fields: ["hist"],
-    schema: QueryHistoricalInfoResponseSchema
+    type: QueryHistoricalInfoResponse,
+    fields: [{name: "hist",kind: "message",message: {fields: [{name: "header",kind: "message",message: {fields: [{name: "version",kind: "message",message: {fields: [{name: "block",kind: "scalar",scalarType: 4,},{name: "app",kind: "scalar",scalarType: 4,},],type: Consensus},},{name: "chainId",kind: "scalar",scalarType: 9,},{name: "height",kind: "scalar",scalarType: 3,},{name: "time",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "lastBlockId",kind: "message",message: {fields: [{name: "hash",kind: "scalar",scalarType: 12,},{name: "partSetHeader",kind: "message",message: {fields: [{name: "total",kind: "scalar",scalarType: 13,},{name: "hash",kind: "scalar",scalarType: 12,},],type: PartSetHeader},},],type: BlockID},},{name: "lastCommitHash",kind: "scalar",scalarType: 12,},{name: "dataHash",kind: "scalar",scalarType: 12,},{name: "validatorsHash",kind: "scalar",scalarType: 12,},{name: "nextValidatorsHash",kind: "scalar",scalarType: 12,},{name: "consensusHash",kind: "scalar",scalarType: 12,},{name: "appHash",kind: "scalar",scalarType: 12,},{name: "lastResultsHash",kind: "scalar",scalarType: 12,},{name: "evidenceHash",kind: "scalar",scalarType: 12,},{name: "proposerAddress",kind: "scalar",scalarType: 12,},],type: Header},},{name: "valset",kind: "list",message: {fields: [{name: "operatorAddress",kind: "scalar",scalarType: 9,},{name: "consensusPubkey",kind: "message",message: {fields: [{name: "typeUrl",kind: "scalar",scalarType: 9,},{name: "value",kind: "scalar",scalarType: 12,},],type: Any},},{name: "jailed",kind: "scalar",scalarType: 8,},{name: "status",kind: "enum",enum: ["UNSPECIFIED","UNBONDED","UNBONDING","BONDED"],},{name: "tokens",kind: "scalar",scalarType: 9,},{name: "delegatorShares",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "description",kind: "message",message: {fields: [{name: "moniker",kind: "scalar",scalarType: 9,},{name: "identity",kind: "scalar",scalarType: 9,},{name: "website",kind: "scalar",scalarType: 9,},{name: "securityContact",kind: "scalar",scalarType: 9,},{name: "details",kind: "scalar",scalarType: 9,},],type: Description},},{name: "unbondingHeight",kind: "scalar",scalarType: 3,},{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},{name: "commission",kind: "message",message: {fields: [{name: "commissionRates",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},{name: "updateTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Timestamp},},],type: Commission},},{name: "minSelfDelegation",kind: "scalar",scalarType: 9,},{name: "unbondingOnHoldRefCount",kind: "scalar",scalarType: 3,},{name: "unbondingIds",kind: "list",},],type: Validator},},],type: HistoricalInfo},},],
   },
   "cosmos.staking.v1beta1.QueryParamsResponse": {
-    fields: ["params"],
-    schema: QueryParamsResponseSchema$4
+    type: QueryParamsResponse$4,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Duration},},{name: "maxValidators",kind: "scalar",scalarType: 13,},{name: "maxEntries",kind: "scalar",scalarType: 13,},{name: "historicalEntries",kind: "scalar",scalarType: 13,},{name: "bondDenom",kind: "scalar",scalarType: 9,},{name: "minCommissionRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Params$3},},],
   },
   "cosmos.staking.v1beta1.MsgCreateValidator": {
-    fields: ["commission"],
-    schema: MsgCreateValidatorSchema
+    type: MsgCreateValidator,
+    fields: [{name: "commission",kind: "message",message: {fields: [{name: "rate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxChangeRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: CommissionRates},},],
   },
   "cosmos.staking.v1beta1.MsgEditValidator": {
-    fields: ["commissionRate"],
-    schema: MsgEditValidatorSchema
+    type: MsgEditValidator,
+    fields: [{name: "commissionRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
   "cosmos.staking.v1beta1.MsgUpdateParams": {
-    fields: ["params"],
-    schema: MsgUpdateParamsSchema$3
+    type: MsgUpdateParams$3,
+    fields: [{name: "params",kind: "message",message: {fields: [{name: "unbondingTime",kind: "message",message: {fields: [{name: "seconds",kind: "scalar",scalarType: 3,},{name: "nanos",kind: "scalar",scalarType: 5,},],type: Duration},},{name: "maxValidators",kind: "scalar",scalarType: 13,},{name: "maxEntries",kind: "scalar",scalarType: 13,},{name: "historicalEntries",kind: "scalar",scalarType: 13,},{name: "bondDenom",kind: "scalar",scalarType: 9,},{name: "minCommissionRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],type: Params$3},},],
   },
 };
 describe("cosmosCustomTypePatches.ts", () => {
@@ -341,16 +360,16 @@ describe("cosmosCustomTypePatches.ts", () => {
     });
   });
 
-  function generateTestCases(typeName: string, messageTypes: MessageTypes) {
+  function generateTestCases(typeName: string, messageTypes: Record<string, MessageSchema>) {
     const type = messageTypes[typeName];
-    const cases = type.fields.map((name) => ["single " + name + " field", generateMessage(type.schema, {
+    const cases = type.fields.map((field) => ["single " + field.name + " field", generateMessage(typeName, {
       ...messageTypes,
       [typeName]: {
         ...type,
-        fields: [name],
+        fields: [field],
       }
     })]);
-    cases.push(["all fields", generateMessage(type.schema, messageTypes)]);
+    cases.push(["all fields", generateMessage(typeName, messageTypes)]);
     return cases;
   }
 });

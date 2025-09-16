@@ -2,6 +2,7 @@ import type { DescField } from "@bufbuild/protobuf";
 import { afterEach, describe, expect, it } from "@jest/globals";
 import { proto } from "@test/helpers/proto";
 
+import { LegacyDec } from "./LegacyDec.ts";
 import { findPathsToCustomField } from "./utils.ts";
 
 describe("utils", () => {
@@ -45,10 +46,10 @@ describe("utils", () => {
           ];
           string name = 2;
           string price = 3 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
           string age = 4 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
       `;
@@ -73,7 +74,7 @@ describe("utils", () => {
         message Dog {
           string name = 2;
           string price = 3 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
       `;
@@ -104,7 +105,7 @@ describe("utils", () => {
         message Dog {
           string name = 2;
           string price = 3 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
 
@@ -140,7 +141,7 @@ describe("utils", () => {
         message Dog {
           string name = 2;
           string price = 3 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
 
@@ -169,7 +170,7 @@ describe("utils", () => {
         message Dog {
           string name = 2;
           string price = 3 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
       `;
@@ -197,7 +198,7 @@ describe("utils", () => {
         message Pet {
           string name = 2;
           string price = 3 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
       `;
@@ -214,20 +215,20 @@ describe("utils", () => {
         message Attribute {
           Attribute parent = 1;
           string price = 2 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
 
         message PetOwner {
           repeated Pet pets = 1;
           string cash = 2 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
 
         message Pet {
           string price = 1 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
           PetOwner owner = 2;
         }
@@ -273,7 +274,7 @@ describe("utils", () => {
 
         message Dog {
           string name = 1 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
 
@@ -284,7 +285,7 @@ describe("utils", () => {
         message Money {
           string currency = 1;
           string amount = 2 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
       `;
@@ -329,7 +330,7 @@ describe("utils", () => {
         message Dog {
           string name = 1;
           string price = 2 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
 
@@ -340,7 +341,7 @@ describe("utils", () => {
         message Money {
           string currency = 1;
           string amount = 2 [
-            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+            (gogoproto.customtype) = "${LegacyDec.typeName}"
           ];
         }
       `;

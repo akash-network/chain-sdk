@@ -4,6 +4,7 @@ import { type DescField, type DescMessage, ScalarType } from "@bufbuild/protobuf
 import {
   createEcmaScriptPlugin,
   type GeneratedFile,
+  type Printable,
   runNodeJs,
   type Schema,
 } from "@bufbuild/protoplugin";
@@ -77,12 +78,12 @@ function generateTs(schema: Schema): void {
       }
     });
 
-    const shapeImport = patchesFile.importShape(fields.values().next().value.parent);
-    const path = normalizePath(`${PROTO_PATH}/${shapeImport.from.replace(/\.js$/, "")}`);
+    const parent = fields.values().next().value!.parent;
+    const path = normalizePath(`${PROTO_PATH}/${parent.file.name}`);
     imports[path] ??= new Set(["type *"]);
 
     patches.push([
-      `"${descMessage.typeName}"(value: ${dirnameToVar(path)}.${shapeImport.name} | undefined | null, transformType: 'encode' | 'decode') {\n${
+      `"${descMessage.typeName}"(value: ${dirnameToVar(path)}.${parent.name} | undefined | null, transformType: 'encode' | 'decode') {\n${
         indent(`if (value == null) return;`) + "\n"
         + indent(`const newValue = { ...value };`) + "\n"
         + indent(encoded.join("\n")) + "\n"
@@ -178,21 +179,15 @@ function generateImportSymbols(path: string, symbols: Set<string>): string {
 
 function generateTests(fileName: string, testsFile: GeneratedFile, messageToCustomFields: Map<DescMessage, Set<DescField>>) {
   testsFile.print(`import { expect, describe, it } from "@jest/globals";`);
-  testsFile.print(`import type { DescMessage } from "@bufbuild/protobuf";`);
   testsFile.print(`import { patches } from "./${basename(fileName)}";`);
-  testsFile.print(`import { generateMessage } from "@test/helpers/generateMessage";`);
-  testsFile.print(`import type { TypePatches } from "../../utils/applyPatches";`);
+  testsFile.print(`import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";`);
+  testsFile.print(`import type { TypePatches } from "../../utils/applyPatches.ts";`);
   testsFile.print("");
-  testsFile.print(`type MessageTypes = Record<string, { fields: string[], schema: DescMessage }>;`);
-  testsFile.print(`const messageTypes: MessageTypes = {`);
+  testsFile.print(`const messageTypes: Record<string, MessageSchema> = {`);
   for (const [message, fields] of messageToCustomFields.entries()) {
-    const importedSchema = testsFile.importSchema(message);
     testsFile.print(`  "${message.typeName}": {`);
-    testsFile.print(`    fields: ${JSON.stringify(Array.from(fields, (f) => f.localName))},`);
-    testsFile.print(`    schema: `, {
-      ...importedSchema,
-      from: normalizePath(`${PROTO_PATH}/${importedSchema.from}`),
-    });
+    testsFile.print(`    type: `, testsFile.import(message.name, `${PROTO_PATH}/${message.file.name}.ts`), `,`);
+    testsFile.print(`    fields: [`, ...Array.from(fields, f => serializeField(f, testsFile)), `],`);
     testsFile.print(`  },`);
   }
   testsFile.print(`};`);
@@ -212,17 +207,47 @@ function generateTests(fileName: string, testsFile: GeneratedFile, messageToCust
   testsFile.print(`    });`);
   testsFile.print(`  });`);
   testsFile.print("");
-  testsFile.print(`  function generateTestCases(typeName: string, messageTypes: MessageTypes) {`);
+  testsFile.print(`  function generateTestCases(typeName: string, messageTypes: Record<string, MessageSchema>) {`);
   testsFile.print(`    const type = messageTypes[typeName];`);
-  testsFile.print(`    const cases = type.fields.map((name) => ["single " + name + " field", generateMessage(type.schema, {`);
+  testsFile.print(`    const cases = type.fields.map((field) => ["single " + field.name + " field", generateMessage(typeName, {`);
   testsFile.print(`      ...messageTypes,`);
   testsFile.print(`      [typeName]: {`);
   testsFile.print(`        ...type,`);
-  testsFile.print(`        fields: [name],`);
+  testsFile.print(`        fields: [field],`);
   testsFile.print(`      }`);
   testsFile.print(`    })]);`);
-  testsFile.print(`    cases.push(["all fields", generateMessage(type.schema, messageTypes)]);`);
+  testsFile.print(`    cases.push(["all fields", generateMessage(typeName, messageTypes)]);`);
   testsFile.print(`    return cases;`);
   testsFile.print(`  }`);
   testsFile.print("});");
+}
+
+function serializeField(f: DescField, file: GeneratedFile): Printable {
+  const field: Printable[] = [
+    `{`,
+    `name: "${f.localName}",`,
+    `kind: "${f.fieldKind}",`,
+  ];
+  if (f.fieldKind === "scalar") {
+    field.push(`scalarType: ${f.scalar},`);
+  }
+  if (f.fieldKind === "enum") {
+    field.push(`enum: `, JSON.stringify(f.enum.values.map(v => v.localName)), `,`);
+  }
+  if (getCustomType(f)) {
+    field.push(`customType: "${getCustomType(f)!.shortName}",`);
+  }
+  if (f.fieldKind === "map") {
+    field.push(`mapKeyType: ${f.mapKey},`);
+  }
+  if (f.message) {
+    field.push(`message: {fields: [`,
+      ...f.message.fields.map(nf => serializeField(nf, file)),
+      `],`,
+      `type: `, file.import(f.message.name, `${PROTO_PATH}/${f.message.file.name}.ts`),
+      `},`
+    );
+  }
+  field.push(`},`);
+  return field;
 }

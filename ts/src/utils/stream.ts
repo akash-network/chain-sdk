@@ -1,40 +1,51 @@
-import type { DescMessage, DescMethodBiDiStreaming, DescMethodClientStreaming, DescMethodServerStreaming, MessageJsonType, MessageShape } from "@bufbuild/protobuf";
-import { toJson } from "@bufbuild/protobuf";
-
+import type { MessageDesc, MessageShape, MethodDesc } from "../client/types.ts";
 import type { CallOptions, StreamResponse } from "../transport/types.ts";
 
 export { createAsyncIterable } from "@connectrpc/connect/protocol";
 
-export function handleStreamResponse<I extends DescMessage, O extends DescMessage>(
-  method: DescMethodServerStreaming<I, O> | DescMethodBiDiStreaming<I, O> | DescMethodClientStreaming<I, O>,
+export function handleStreamResponse<I extends MessageDesc, O extends MessageDesc>(
+  method: MethodDesc<"server_streaming" | "client_streaming" | "bidi_streaming", I, O>,
   stream: Promise<StreamResponse<I, O>>,
   options?: CallOptions,
-  transform: (schema: DescMessage, value: MessageShape<DescMessage>) => MessageJsonType<DescMessage> = toJson,
-): AsyncIterable<MessageJsonType<O>> {
+  transform: (schema: MessageDesc, value: MessageShape<O>) => MessageShape<O> = (_, value) => value as MessageShape<O>,
+): AsyncIterable<MessageShape<O>> {
   const it = (async function* () {
     const response = await stream;
     options?.onHeader?.(response.header);
     yield * response.message;
     options?.onTrailer?.(response.trailer);
-  })()[Symbol.asyncIterator]();
-  return {
-    [Symbol.asyncIterator]: () => ({
-      next: () => it.next().then((v) => ({
-        done: v.done!,
-        value: v.value ? transform(method.output, v.value) : undefined,
-      } as IteratorYieldResult<MessageJsonType<O>>)),
-    }),
-  };
+  })();
+  return mapStream(it, (value) => transform(method.output, value) as MessageShape<O>);
 }
 
 export function mapStream<T, U>(stream: AsyncIterable<T>, transform: (value: T) => U): AsyncIterable<U> {
-  const it = stream[Symbol.asyncIterator]();
+  function mapIteratorResult(result: IteratorResult<T>) {
+    if (result.done === true) {
+      return result;
+    }
+    return {
+      done: result.done,
+      value: transform(result.value),
+    };
+  }
+
   return {
-    [Symbol.asyncIterator]: () => ({
-      next: () => it.next().then((v) => ({
-        done: v.done,
-        value: v.value ? transform(v.value) : undefined,
-      } as IteratorYieldResult<U>)),
-    }),
+    [Symbol.asyncIterator]: () => {
+      const it = stream[Symbol.asyncIterator]();
+      const mappedIterator: AsyncIterator<U> = {
+        next: () => it.next().then(mapIteratorResult),
+      };
+
+      if (it.throw !== undefined) {
+        mappedIterator.throw = (e: unknown) =>
+          (it as Required<typeof it>).throw(e).then(mapIteratorResult);
+      }
+      if (it.return !== undefined) {
+        mappedIterator.return = (v: unknown) =>
+          (it as Required<typeof it>).return(v).then(mapIteratorResult);
+      }
+
+      return mappedIterator;
+    },
   };
 }

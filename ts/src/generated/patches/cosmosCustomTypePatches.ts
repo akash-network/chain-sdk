@@ -1,46 +1,50 @@
-import { Dec } from "../../encoding/customTypes/Dec.ts";
-import type * as _protos_cosmos_base_v1beta1_coin from "../protos/cosmos/base/v1beta1/coin_pb.ts";
-import type * as _protos_cosmos_distribution_v1beta1_distribution from "../protos/cosmos/distribution/v1beta1/distribution_pb.ts";
-import type * as _protos_cosmos_distribution_v1beta1_genesis from "../protos/cosmos/distribution/v1beta1/genesis_pb.ts";
-import type * as _protos_cosmos_distribution_v1beta1_query from "../protos/cosmos/distribution/v1beta1/query_pb.ts";
-import type * as _protos_cosmos_distribution_v1beta1_tx from "../protos/cosmos/distribution/v1beta1/tx_pb.ts";
-import type * as _protos_cosmos_gov_v1beta1_gov from "../protos/cosmos/gov/v1beta1/gov_pb.ts";
+import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
+import type * as _protos_cosmos_base_v1beta1_coin from "../protos/cosmos/base/v1beta1/coin.ts";
+import type * as _protos_cosmos_distribution_v1beta1_distribution from "../protos/cosmos/distribution/v1beta1/distribution.ts";
+import type * as _protos_cosmos_distribution_v1beta1_genesis from "../protos/cosmos/distribution/v1beta1/genesis.ts";
+import type * as _protos_cosmos_distribution_v1beta1_query from "../protos/cosmos/distribution/v1beta1/query.ts";
+import type * as _protos_cosmos_distribution_v1beta1_tx from "../protos/cosmos/distribution/v1beta1/tx.ts";
+import type * as _protos_cosmos_gov_v1beta1_gov from "../protos/cosmos/gov/v1beta1/gov.ts";
 import { encodeBinary, decodeBinary } from "../../encoding/binaryEncoding.ts";
-import type * as _protos_cosmos_gov_v1beta1_genesis from "../protos/cosmos/gov/v1beta1/genesis_pb.ts";
-import type * as _protos_cosmos_gov_v1beta1_query from "../protos/cosmos/gov/v1beta1/query_pb.ts";
-import type * as _protos_cosmos_gov_v1beta1_tx from "../protos/cosmos/gov/v1beta1/tx_pb.ts";
-import type * as _protos_cosmos_mint_v1beta1_mint from "../protos/cosmos/mint/v1beta1/mint_pb.ts";
-import type * as _protos_cosmos_mint_v1beta1_genesis from "../protos/cosmos/mint/v1beta1/genesis_pb.ts";
-import type * as _protos_cosmos_mint_v1beta1_query from "../protos/cosmos/mint/v1beta1/query_pb.ts";
-import type * as _protos_cosmos_mint_v1beta1_tx from "../protos/cosmos/mint/v1beta1/tx_pb.ts";
-import type * as _protos_cosmos_slashing_v1beta1_slashing from "../protos/cosmos/slashing/v1beta1/slashing_pb.ts";
-import type * as _protos_cosmos_slashing_v1beta1_genesis from "../protos/cosmos/slashing/v1beta1/genesis_pb.ts";
-import type * as _protos_cosmos_slashing_v1beta1_query from "../protos/cosmos/slashing/v1beta1/query_pb.ts";
-import type * as _protos_cosmos_slashing_v1beta1_tx from "../protos/cosmos/slashing/v1beta1/tx_pb.ts";
-import type * as _protos_cosmos_staking_v1beta1_staking from "../protos/cosmos/staking/v1beta1/staking_pb.ts";
-import type * as _protos_cosmos_staking_v1beta1_genesis from "../protos/cosmos/staking/v1beta1/genesis_pb.ts";
-import type * as _protos_cosmos_staking_v1beta1_query from "../protos/cosmos/staking/v1beta1/query_pb.ts";
-import type * as _protos_cosmos_staking_v1beta1_tx from "../protos/cosmos/staking/v1beta1/tx_pb.ts";
+import type * as _protos_cosmos_gov_v1beta1_genesis from "../protos/cosmos/gov/v1beta1/genesis.ts";
+import type * as _protos_cosmos_gov_v1beta1_query from "../protos/cosmos/gov/v1beta1/query.ts";
+import type * as _protos_cosmos_gov_v1beta1_tx from "../protos/cosmos/gov/v1beta1/tx.ts";
+import type * as _protos_cosmos_mint_v1beta1_mint from "../protos/cosmos/mint/v1beta1/mint.ts";
+import type * as _protos_cosmos_mint_v1beta1_genesis from "../protos/cosmos/mint/v1beta1/genesis.ts";
+import type * as _protos_cosmos_mint_v1beta1_query from "../protos/cosmos/mint/v1beta1/query.ts";
+import type * as _protos_cosmos_mint_v1beta1_tx from "../protos/cosmos/mint/v1beta1/tx.ts";
+import type * as _protos_cosmos_protocolpool_v1_types from "../protos/cosmos/protocolpool/v1/types.ts";
+import type * as _protos_cosmos_protocolpool_v1_genesis from "../protos/cosmos/protocolpool/v1/genesis.ts";
+import type * as _protos_cosmos_protocolpool_v1_query from "../protos/cosmos/protocolpool/v1/query.ts";
+import type * as _protos_cosmos_protocolpool_v1_tx from "../protos/cosmos/protocolpool/v1/tx.ts";
+import type * as _protos_cosmos_slashing_v1beta1_slashing from "../protos/cosmos/slashing/v1beta1/slashing.ts";
+import type * as _protos_cosmos_slashing_v1beta1_genesis from "../protos/cosmos/slashing/v1beta1/genesis.ts";
+import type * as _protos_cosmos_slashing_v1beta1_query from "../protos/cosmos/slashing/v1beta1/query.ts";
+import type * as _protos_cosmos_slashing_v1beta1_tx from "../protos/cosmos/slashing/v1beta1/tx.ts";
+import type * as _protos_cosmos_staking_v1beta1_staking from "../protos/cosmos/staking/v1beta1/staking.ts";
+import type * as _protos_cosmos_staking_v1beta1_genesis from "../protos/cosmos/staking/v1beta1/genesis.ts";
+import type * as _protos_cosmos_staking_v1beta1_query from "../protos/cosmos/staking/v1beta1/query.ts";
+import type * as _protos_cosmos_staking_v1beta1_tx from "../protos/cosmos/staking/v1beta1/tx.ts";
 
 const p = {
   "cosmos.base.v1beta1.DecCoin"(value: _protos_cosmos_base_v1beta1_coin.DecCoin | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.amount != null) newValue.amount = Dec[transformType](value.amount);
+    if (value.amount != null) newValue.amount = LegacyDec[transformType](value.amount);
     return newValue;
   },
   "cosmos.base.v1beta1.DecProto"(value: _protos_cosmos_base_v1beta1_coin.DecProto | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.dec != null) newValue.dec = Dec[transformType](value.dec);
+    if (value.dec != null) newValue.dec = LegacyDec[transformType](value.dec);
     return newValue;
   },
   "cosmos.distribution.v1beta1.Params"(value: _protos_cosmos_distribution_v1beta1_distribution.Params | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.communityTax != null) newValue.communityTax = Dec[transformType](value.communityTax);
-    if (value.baseProposerReward != null) newValue.baseProposerReward = Dec[transformType](value.baseProposerReward);
-    if (value.bonusProposerReward != null) newValue.bonusProposerReward = Dec[transformType](value.bonusProposerReward);
+    if (value.communityTax != null) newValue.communityTax = LegacyDec[transformType](value.communityTax);
+    if (value.baseProposerReward != null) newValue.baseProposerReward = LegacyDec[transformType](value.baseProposerReward);
+    if (value.bonusProposerReward != null) newValue.bonusProposerReward = LegacyDec[transformType](value.bonusProposerReward);
     return newValue;
   },
   "cosmos.distribution.v1beta1.ValidatorHistoricalRewards"(value: _protos_cosmos_distribution_v1beta1_distribution.ValidatorHistoricalRewards | undefined | null, transformType: 'encode' | 'decode') {
@@ -70,7 +74,7 @@ const p = {
   "cosmos.distribution.v1beta1.ValidatorSlashEvent"(value: _protos_cosmos_distribution_v1beta1_distribution.ValidatorSlashEvent | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.fraction != null) newValue.fraction = Dec[transformType](value.fraction);
+    if (value.fraction != null) newValue.fraction = LegacyDec[transformType](value.fraction);
     return newValue;
   },
   "cosmos.distribution.v1beta1.ValidatorSlashEvents"(value: _protos_cosmos_distribution_v1beta1_distribution.ValidatorSlashEvents | undefined | null, transformType: 'encode' | 'decode') {
@@ -85,16 +89,10 @@ const p = {
     if (value.communityPool) newValue.communityPool = value.communityPool.map((item) => p["cosmos.base.v1beta1.DecCoin"](item, transformType)!);
     return newValue;
   },
-  "cosmos.distribution.v1beta1.TokenizeShareRecordReward"(value: _protos_cosmos_distribution_v1beta1_distribution.TokenizeShareRecordReward | undefined | null, transformType: 'encode' | 'decode') {
-    if (value == null) return;
-    const newValue = { ...value };
-    if (value.reward) newValue.reward = value.reward.map((item) => p["cosmos.base.v1beta1.DecCoin"](item, transformType)!);
-    return newValue;
-  },
   "cosmos.distribution.v1beta1.DelegatorStartingInfo"(value: _protos_cosmos_distribution_v1beta1_distribution.DelegatorStartingInfo | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.stake != null) newValue.stake = Dec[transformType](value.stake);
+    if (value.stake != null) newValue.stake = LegacyDec[transformType](value.stake);
     return newValue;
   },
   "cosmos.distribution.v1beta1.DelegationDelegatorReward"(value: _protos_cosmos_distribution_v1beta1_distribution.DelegationDelegatorReward | undefined | null, transformType: 'encode' | 'decode') {
@@ -202,13 +200,6 @@ const p = {
     if (value.pool) newValue.pool = value.pool.map((item) => p["cosmos.base.v1beta1.DecCoin"](item, transformType)!);
     return newValue;
   },
-  "cosmos.distribution.v1beta1.QueryTokenizeShareRecordRewardResponse"(value: _protos_cosmos_distribution_v1beta1_query.QueryTokenizeShareRecordRewardResponse | undefined | null, transformType: 'encode' | 'decode') {
-    if (value == null) return;
-    const newValue = { ...value };
-    if (value.rewards) newValue.rewards = value.rewards.map((item) => p["cosmos.distribution.v1beta1.TokenizeShareRecordReward"](item, transformType)!);
-    if (value.total) newValue.total = value.total.map((item) => p["cosmos.base.v1beta1.DecCoin"](item, transformType)!);
-    return newValue;
-  },
   "cosmos.distribution.v1beta1.MsgUpdateParams"(value: _protos_cosmos_distribution_v1beta1_tx.MsgUpdateParams | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
@@ -218,7 +209,7 @@ const p = {
   "cosmos.gov.v1beta1.WeightedVoteOption"(value: _protos_cosmos_gov_v1beta1_gov.WeightedVoteOption | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.weight != null) newValue.weight = Dec[transformType](value.weight);
+    if (value.weight != null) newValue.weight = LegacyDec[transformType](value.weight);
     return newValue;
   },
   "cosmos.gov.v1beta1.Vote"(value: _protos_cosmos_gov_v1beta1_gov.Vote | undefined | null, transformType: 'encode' | 'decode') {
@@ -230,9 +221,9 @@ const p = {
   "cosmos.gov.v1beta1.TallyParams"(value: _protos_cosmos_gov_v1beta1_gov.TallyParams | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.quorum != null) newValue.quorum = encodeBinary(Dec[transformType](decodeBinary(value.quorum)));
-    if (value.threshold != null) newValue.threshold = encodeBinary(Dec[transformType](decodeBinary(value.threshold)));
-    if (value.vetoThreshold != null) newValue.vetoThreshold = encodeBinary(Dec[transformType](decodeBinary(value.vetoThreshold)));
+    if (value.quorum != null) newValue.quorum = encodeBinary(LegacyDec[transformType](decodeBinary(value.quorum)));
+    if (value.threshold != null) newValue.threshold = encodeBinary(LegacyDec[transformType](decodeBinary(value.threshold)));
+    if (value.vetoThreshold != null) newValue.vetoThreshold = encodeBinary(LegacyDec[transformType](decodeBinary(value.vetoThreshold)));
     return newValue;
   },
   "cosmos.gov.v1beta1.GenesisState"(value: _protos_cosmos_gov_v1beta1_genesis.GenesisState | undefined | null, transformType: 'encode' | 'decode') {
@@ -269,17 +260,17 @@ const p = {
   "cosmos.mint.v1beta1.Minter"(value: _protos_cosmos_mint_v1beta1_mint.Minter | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.inflation != null) newValue.inflation = Dec[transformType](value.inflation);
-    if (value.annualProvisions != null) newValue.annualProvisions = Dec[transformType](value.annualProvisions);
+    if (value.inflation != null) newValue.inflation = LegacyDec[transformType](value.inflation);
+    if (value.annualProvisions != null) newValue.annualProvisions = LegacyDec[transformType](value.annualProvisions);
     return newValue;
   },
   "cosmos.mint.v1beta1.Params"(value: _protos_cosmos_mint_v1beta1_mint.Params | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.inflationRateChange != null) newValue.inflationRateChange = Dec[transformType](value.inflationRateChange);
-    if (value.inflationMax != null) newValue.inflationMax = Dec[transformType](value.inflationMax);
-    if (value.inflationMin != null) newValue.inflationMin = Dec[transformType](value.inflationMin);
-    if (value.goalBonded != null) newValue.goalBonded = Dec[transformType](value.goalBonded);
+    if (value.inflationRateChange != null) newValue.inflationRateChange = LegacyDec[transformType](value.inflationRateChange);
+    if (value.inflationMax != null) newValue.inflationMax = LegacyDec[transformType](value.inflationMax);
+    if (value.inflationMin != null) newValue.inflationMin = LegacyDec[transformType](value.inflationMin);
+    if (value.goalBonded != null) newValue.goalBonded = LegacyDec[transformType](value.goalBonded);
     return newValue;
   },
   "cosmos.mint.v1beta1.GenesisState"(value: _protos_cosmos_mint_v1beta1_genesis.GenesisState | undefined | null, transformType: 'encode' | 'decode') {
@@ -298,13 +289,13 @@ const p = {
   "cosmos.mint.v1beta1.QueryInflationResponse"(value: _protos_cosmos_mint_v1beta1_query.QueryInflationResponse | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.inflation != null) newValue.inflation = encodeBinary(Dec[transformType](decodeBinary(value.inflation)));
+    if (value.inflation != null) newValue.inflation = encodeBinary(LegacyDec[transformType](decodeBinary(value.inflation)));
     return newValue;
   },
   "cosmos.mint.v1beta1.QueryAnnualProvisionsResponse"(value: _protos_cosmos_mint_v1beta1_query.QueryAnnualProvisionsResponse | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.annualProvisions != null) newValue.annualProvisions = encodeBinary(Dec[transformType](decodeBinary(value.annualProvisions)));
+    if (value.annualProvisions != null) newValue.annualProvisions = encodeBinary(LegacyDec[transformType](decodeBinary(value.annualProvisions)));
     return newValue;
   },
   "cosmos.mint.v1beta1.MsgUpdateParams"(value: _protos_cosmos_mint_v1beta1_tx.MsgUpdateParams | undefined | null, transformType: 'encode' | 'decode') {
@@ -313,12 +304,42 @@ const p = {
     if (value.params != null) newValue.params = p["cosmos.mint.v1beta1.Params"](value.params, transformType);
     return newValue;
   },
+  "cosmos.protocolpool.v1.ContinuousFund"(value: _protos_cosmos_protocolpool_v1_types.ContinuousFund | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.percentage != null) newValue.percentage = LegacyDec[transformType](value.percentage);
+    return newValue;
+  },
+  "cosmos.protocolpool.v1.GenesisState"(value: _protos_cosmos_protocolpool_v1_genesis.GenesisState | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.continuousFunds) newValue.continuousFunds = value.continuousFunds.map((item) => p["cosmos.protocolpool.v1.ContinuousFund"](item, transformType)!);
+    return newValue;
+  },
+  "cosmos.protocolpool.v1.QueryContinuousFundResponse"(value: _protos_cosmos_protocolpool_v1_query.QueryContinuousFundResponse | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.continuousFund != null) newValue.continuousFund = p["cosmos.protocolpool.v1.ContinuousFund"](value.continuousFund, transformType);
+    return newValue;
+  },
+  "cosmos.protocolpool.v1.QueryContinuousFundsResponse"(value: _protos_cosmos_protocolpool_v1_query.QueryContinuousFundsResponse | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.continuousFunds) newValue.continuousFunds = value.continuousFunds.map((item) => p["cosmos.protocolpool.v1.ContinuousFund"](item, transformType)!);
+    return newValue;
+  },
+  "cosmos.protocolpool.v1.MsgCreateContinuousFund"(value: _protos_cosmos_protocolpool_v1_tx.MsgCreateContinuousFund | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.percentage != null) newValue.percentage = LegacyDec[transformType](value.percentage);
+    return newValue;
+  },
   "cosmos.slashing.v1beta1.Params"(value: _protos_cosmos_slashing_v1beta1_slashing.Params | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.minSignedPerWindow != null) newValue.minSignedPerWindow = encodeBinary(Dec[transformType](decodeBinary(value.minSignedPerWindow)));
-    if (value.slashFractionDoubleSign != null) newValue.slashFractionDoubleSign = encodeBinary(Dec[transformType](decodeBinary(value.slashFractionDoubleSign)));
-    if (value.slashFractionDowntime != null) newValue.slashFractionDowntime = encodeBinary(Dec[transformType](decodeBinary(value.slashFractionDowntime)));
+    if (value.minSignedPerWindow != null) newValue.minSignedPerWindow = encodeBinary(LegacyDec[transformType](decodeBinary(value.minSignedPerWindow)));
+    if (value.slashFractionDoubleSign != null) newValue.slashFractionDoubleSign = encodeBinary(LegacyDec[transformType](decodeBinary(value.slashFractionDoubleSign)));
+    if (value.slashFractionDowntime != null) newValue.slashFractionDowntime = encodeBinary(LegacyDec[transformType](decodeBinary(value.slashFractionDowntime)));
     return newValue;
   },
   "cosmos.slashing.v1beta1.GenesisState"(value: _protos_cosmos_slashing_v1beta1_genesis.GenesisState | undefined | null, transformType: 'encode' | 'decode') {
@@ -348,10 +369,8 @@ const p = {
   "cosmos.staking.v1beta1.Validator"(value: _protos_cosmos_staking_v1beta1_staking.Validator | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.delegatorShares != null) newValue.delegatorShares = Dec[transformType](value.delegatorShares);
+    if (value.delegatorShares != null) newValue.delegatorShares = LegacyDec[transformType](value.delegatorShares);
     if (value.commission != null) newValue.commission = p["cosmos.staking.v1beta1.Commission"](value.commission, transformType);
-    if (value.validatorBondShares != null) newValue.validatorBondShares = Dec[transformType](value.validatorBondShares);
-    if (value.liquidShares != null) newValue.liquidShares = Dec[transformType](value.liquidShares);
     return newValue;
   },
   "cosmos.staking.v1beta1.Commission"(value: _protos_cosmos_staking_v1beta1_staking.Commission | undefined | null, transformType: 'encode' | 'decode') {
@@ -363,21 +382,21 @@ const p = {
   "cosmos.staking.v1beta1.CommissionRates"(value: _protos_cosmos_staking_v1beta1_staking.CommissionRates | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.rate != null) newValue.rate = Dec[transformType](value.rate);
-    if (value.maxRate != null) newValue.maxRate = Dec[transformType](value.maxRate);
-    if (value.maxChangeRate != null) newValue.maxChangeRate = Dec[transformType](value.maxChangeRate);
+    if (value.rate != null) newValue.rate = LegacyDec[transformType](value.rate);
+    if (value.maxRate != null) newValue.maxRate = LegacyDec[transformType](value.maxRate);
+    if (value.maxChangeRate != null) newValue.maxChangeRate = LegacyDec[transformType](value.maxChangeRate);
     return newValue;
   },
   "cosmos.staking.v1beta1.Delegation"(value: _protos_cosmos_staking_v1beta1_staking.Delegation | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.shares != null) newValue.shares = Dec[transformType](value.shares);
+    if (value.shares != null) newValue.shares = LegacyDec[transformType](value.shares);
     return newValue;
   },
   "cosmos.staking.v1beta1.RedelegationEntry"(value: _protos_cosmos_staking_v1beta1_staking.RedelegationEntry | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.sharesDst != null) newValue.sharesDst = Dec[transformType](value.sharesDst);
+    if (value.sharesDst != null) newValue.sharesDst = LegacyDec[transformType](value.sharesDst);
     return newValue;
   },
   "cosmos.staking.v1beta1.Redelegation"(value: _protos_cosmos_staking_v1beta1_staking.Redelegation | undefined | null, transformType: 'encode' | 'decode') {
@@ -389,10 +408,7 @@ const p = {
   "cosmos.staking.v1beta1.Params"(value: _protos_cosmos_staking_v1beta1_staking.Params | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.minCommissionRate != null) newValue.minCommissionRate = Dec[transformType](value.minCommissionRate);
-    if (value.validatorBondFactor != null) newValue.validatorBondFactor = Dec[transformType](value.validatorBondFactor);
-    if (value.globalLiquidStakingCap != null) newValue.globalLiquidStakingCap = Dec[transformType](value.globalLiquidStakingCap);
-    if (value.validatorLiquidStakingCap != null) newValue.validatorLiquidStakingCap = Dec[transformType](value.validatorLiquidStakingCap);
+    if (value.minCommissionRate != null) newValue.minCommissionRate = LegacyDec[transformType](value.minCommissionRate);
     return newValue;
   },
   "cosmos.staking.v1beta1.DelegationResponse"(value: _protos_cosmos_staking_v1beta1_staking.DelegationResponse | undefined | null, transformType: 'encode' | 'decode') {
@@ -492,7 +508,7 @@ const p = {
   "cosmos.staking.v1beta1.MsgEditValidator"(value: _protos_cosmos_staking_v1beta1_tx.MsgEditValidator | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.commissionRate != null) newValue.commissionRate = Dec[transformType](value.commissionRate);
+    if (value.commissionRate != null) newValue.commissionRate = LegacyDec[transformType](value.commissionRate);
     return newValue;
   },
   "cosmos.staking.v1beta1.MsgUpdateParams"(value: _protos_cosmos_staking_v1beta1_tx.MsgUpdateParams | undefined | null, transformType: 'encode' | 'decode') {
