@@ -59,7 +59,7 @@ export const Msg = {
       get parent() { return Msg; },
     },
   },
-};
+} as const;
 "
 `;
 
@@ -82,6 +82,6 @@ export const Query = {
       get parent() { return Query; },
     },
   },
-};
+} as const;
 "
 `;
