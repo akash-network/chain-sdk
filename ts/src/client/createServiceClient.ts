@@ -1,46 +1,37 @@
-import type {
-  DescMessage,
-  DescMethod,
-  DescMethodBiDiStreaming,
-  DescMethodClientStreaming,
-  DescMethodServerStreaming,
-  DescMethodUnary,
-  DescService,
-  JsonValue,
-  MessageJsonType,
-  MessageShape,
-} from "@bufbuild/protobuf";
-import {
-  fromJson,
-  toJson,
-} from "@bufbuild/protobuf";
-
 import type { CallOptions, Transport } from "../transport/types.ts";
 import type { TypePatches } from "../utils/applyPatches.ts";
 import { applyPatches } from "../utils/applyPatches.ts";
 import { createAsyncIterable, handleStreamResponse, mapStream } from "../utils/stream.ts";
+import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc, ServiceDesc } from "./types.ts";
 
-export type Client<Desc extends DescService, TCallOptions> = {
-  [P in keyof Desc["method"]]:
-  Desc["method"][P] extends DescMethodUnary<infer I, infer O> ? (input: MessageJsonType<I>, options?: TCallOptions) => Promise<MessageJsonType<O>>
-    : Desc["method"][P] extends DescMethodServerStreaming<infer I, infer O> ? (input: MessageJsonType<I>, options?: TCallOptions) => AsyncIterable<MessageJsonType<O>>
-      : Desc["method"][P] extends DescMethodClientStreaming<infer I, infer O> ? (input: AsyncIterable<MessageJsonType<I>>, options?: TCallOptions) => Promise<MessageJsonType<O>>
-        : Desc["method"][P] extends DescMethodBiDiStreaming<infer I, infer O> ? (input: AsyncIterable<MessageJsonType<I>>, options?: TCallOptions) => AsyncIterable<MessageJsonType<O>>
+export type Client<Desc extends ServiceDesc, TCallOptions> = {
+  [P in keyof Desc["methods"]]:
+  Desc["methods"][P] extends MethodDesc<"server_streaming"> ? (input: MessageInitShape<Desc["methods"][P]["input"]>, options?: TCallOptions) => AsyncIterable<MessageShape<Desc["methods"][P]["output"]>>
+    : Desc["methods"][P] extends MethodDesc<"client_streaming"> ? (input: AsyncIterable<MessageInitShape<Desc["methods"][P]["input"]>>, options?: TCallOptions) => Promise<MessageShape<Desc["methods"][P]["output"]>>
+      : Desc["methods"][P] extends MethodDesc<"bidi_streaming"> ? (input: AsyncIterable<MessageInitShape<Desc["methods"][P]["input"]>>, options?: TCallOptions) => AsyncIterable<MessageShape<Desc["methods"][P]["output"]>>
+        : Desc["methods"][P] extends MethodDesc<"unary"> | Omit<MethodDesc<"unary">, "kind"> ? (input: MessageInitShape<Desc["methods"][P]["input"]>, options?: TCallOptions) => Promise<MessageShape<Desc["methods"][P]["output"]>>
           : never;
 };
 
-export function createServiceClient<TSchema extends DescService, TCallOptions>(
+const defaultEncoder: MethodOptions = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  encode: (type: MessageDesc<unknown>, value: unknown) => type.fromPartial(value as any),
+  decode: (_: MessageDesc<unknown>, value: unknown) => value,
+};
+
+export function createServiceClient<TSchema extends ServiceDesc, TCallOptions>(
   service: TSchema,
   transport: Transport,
   options?: ServiceClientOptions,
 ): Client<TSchema, TCallOptions> {
   const methodOptions: MethodOptions = options?.typePatches
-    ? { encode: createFromJsonWithPatches(options.typePatches), decode: createToJsonWithPatches(options.typePatches) }
-    : { encode: fromJson, decode: toJson as MethodOptions["decode"] };
+    ? { encode: createEncodeWithPatches(options.typePatches), decode: createDecodeWithPatches(options.typePatches) }
+    : defaultEncoder;
   const client: Record<string, ReturnType<typeof createMethod>> = {};
-  for (let i = 0; i < service.methods.length; i++) {
-    const methodDesc = service.methods[i];
-    client[methodDesc.localName] = createMethod(methodDesc, transport, methodOptions);
+  const methodNames = Object.keys(service.methods);
+  for (let i = 0; i < methodNames.length; i++) {
+    const methodDesc = service.methods[methodNames[i]];
+    client[methodNames[i]] = createMethod(methodDesc, transport, methodOptions);
   }
 
   return client as Client<TSchema, TCallOptions>;
@@ -50,60 +41,58 @@ export interface ServiceClientOptions {
   typePatches?: TypePatches;
 }
 
-function createMethod(methodDesc: DescMethod, transport: Transport, options: MethodOptions) {
-  switch (methodDesc.methodKind) {
-    case "unary":
-      return createUnaryFn(transport, methodDesc as DescMethodUnary, options);
+function createMethod(methodDesc: MethodDesc, transport: Transport, options: MethodOptions) {
+  switch (methodDesc.kind) {
     case "server_streaming":
-      return createServerStreamingFn(transport, methodDesc as DescMethodServerStreaming, options);
+      return createServerStreamingFn(transport, methodDesc as MethodDesc<"server_streaming", MessageDesc, MessageDesc>, options);
     case "client_streaming":
-      return createClientStreamingFn(transport, methodDesc as DescMethodClientStreaming, options);
+      return createClientStreamingFn(transport, methodDesc as MethodDesc<"client_streaming", MessageDesc, MessageDesc>, options);
     case "bidi_streaming":
-      return createBiDiStreamingFn(transport, methodDesc as DescMethodBiDiStreaming, options);
+      return createBiDiStreamingFn(transport, methodDesc as MethodDesc<"bidi_streaming", MessageDesc, MessageDesc>, options);
     default:
-      throw new Error(`Unexpected method kind: ${methodDesc.methodKind}`);
+      return createUnaryFn(transport, methodDesc as MethodDesc<"unary", MessageDesc, MessageDesc>, options);
   }
 }
 
 interface MethodOptions {
-  encode: <T extends DescMessage>(schema: T, value: JsonValue) => MessageShape<T>;
-  decode: <T extends DescMessage>(schema: T, value: MessageShape<T>) => MessageJsonType<T>;
+  encode(schema: MessageDesc<unknown>, value: unknown): unknown;
+  decode(schema: MessageDesc<unknown>, value: unknown): unknown;
 }
 
-type UnaryFn<I extends DescMessage, O extends DescMessage> = (
-  input: MessageJsonType<I>,
+type UnaryFn<I extends MessageDesc<unknown>, O extends MessageDesc<unknown>> = (
+  input: MessageInitShape<I>,
   options?: CallOptions,
-) => Promise<MessageJsonType<O>>;
+) => Promise<MessageShape<O>>;
 
-function createUnaryFn<I extends DescMessage, O extends DescMessage>(
+function createUnaryFn<I extends MessageDesc<unknown>, O extends MessageDesc<unknown>>(
   transport: Transport,
-  method: DescMethodUnary<I, O>,
+  method: MethodDesc<"unary", I, O>,
   methodOptions: MethodOptions,
 ): UnaryFn<I, O> {
   return async (input, options) => {
     const response = await transport.unary(
       method,
-      methodOptions.encode(method.input, input as JsonValue),
+      methodOptions.encode(method.input, input) as MessageInitShape<I>,
       options,
     );
     options?.onHeader?.(response.header);
     options?.onTrailer?.(response.trailer);
 
-    return methodOptions.decode(method.output, response.message);
+    return methodOptions.decode(method.output, response.message) as MessageShape<O>;
   };
 }
 
-type ServerStreamingFn<I extends DescMessage, O extends DescMessage> = (
-  input: MessageJsonType<I>,
+type ServerStreamingFn<I extends MessageDesc, O extends MessageDesc> = (
+  input: MessageInitShape<I>,
   options?: CallOptions,
-) => AsyncIterable<MessageJsonType<O>>;
+) => AsyncIterable<MessageShape<O>>;
 
 function createServerStreamingFn<
-  I extends DescMessage,
-  O extends DescMessage,
+  I extends MessageDesc,
+  O extends MessageDesc,
 >(
   transport: Transport,
-  method: DescMethodServerStreaming<I, O>,
+  method: MethodDesc<"server_streaming", I, O>,
   methodOptions: MethodOptions,
 ): ServerStreamingFn<I, O> {
   return (input, options) => {
@@ -111,32 +100,33 @@ function createServerStreamingFn<
       method,
       transport.stream(
         method,
-        createAsyncIterable([methodOptions.encode(method.input, input as JsonValue)]),
+        createAsyncIterable([methodOptions.encode(method.input, input) as MessageInitShape<I>]),
         options,
       ),
       options,
-      methodOptions.decode,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      methodOptions.decode as any,
     );
   };
 }
 
-type ClientStreamingFn<I extends DescMessage, O extends DescMessage> = (
-  input: AsyncIterable<MessageJsonType<I>>,
+type ClientStreamingFn<I extends MessageDesc, O extends MessageDesc> = (
+  input: AsyncIterable<MessageInitShape<I>>,
   options?: CallOptions,
-) => Promise<MessageJsonType<O>>;
+) => Promise<MessageShape<O>>;
 
 function createClientStreamingFn<
-  I extends DescMessage,
-  O extends DescMessage,
+  I extends MessageDesc,
+  O extends MessageDesc,
 >(
   transport: Transport,
-  method: DescMethodClientStreaming<I, O>,
+  method: MethodDesc<"client_streaming", I, O>,
   methodOptions: MethodOptions,
 ): ClientStreamingFn<I, O> {
   return async (input, options) => {
     const response = await transport.stream(
       method,
-      mapStream(input, (json) => methodOptions.encode(method.input, json as JsonValue)),
+      mapStream(input, (json) => methodOptions.encode(method.input, json) as MessageInitShape<I>),
       options,
     );
     options?.onHeader?.(response.header);
@@ -153,21 +143,21 @@ function createClientStreamingFn<
       throw new Error("akash sdk protocol error: received extra messages for client streaming method");
     }
     options?.onTrailer?.(response.trailer);
-    return methodOptions.decode(method.output, singleMessage);
+    return methodOptions.decode(method.output, singleMessage) as MessageShape<O>;
   };
 }
 
-type BiDiStreamingFn<I extends DescMessage, O extends DescMessage> = (
-  input: AsyncIterable<MessageJsonType<I>>,
+type BiDiStreamingFn<I extends MessageDesc, O extends MessageDesc> = (
+  input: AsyncIterable<MessageInitShape<I>>,
   options?: CallOptions,
-) => AsyncIterable<MessageJsonType<O>>;
+) => AsyncIterable<MessageShape<O>>;
 
 function createBiDiStreamingFn<
-  I extends DescMessage,
-  O extends DescMessage,
+  I extends MessageDesc,
+  O extends MessageDesc,
 >(
   transport: Transport,
-  method: DescMethodBiDiStreaming<I, O>,
+  method: MethodDesc<"bidi_streaming", I, O>,
   methodOptions: MethodOptions,
 ): BiDiStreamingFn<I, O> {
   return (input, options) => {
@@ -175,33 +165,34 @@ function createBiDiStreamingFn<
       method,
       transport.stream(
         method,
-        mapStream(input, (json) => methodOptions.encode(method.input, json as JsonValue)),
+        mapStream(input, (json) => methodOptions.encode(method.input, json) as MessageInitShape<I>),
         options,
       ),
       options,
-      methodOptions.decode,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      methodOptions.decode as any,
     );
   };
 }
 
 const PATCHED_FROM_JSON_CACHE = new Map<TypePatches, MethodOptions["encode"]>();
-function createFromJsonWithPatches(patches: TypePatches): MethodOptions["encode"] {
+function createEncodeWithPatches(patches: TypePatches): MethodOptions["encode"] {
   if (PATCHED_FROM_JSON_CACHE.has(patches)) return PATCHED_FROM_JSON_CACHE.get(patches)!;
 
-  const encode: MethodOptions["encode"] = (schema, value) => {
-    const message = fromJson(schema, value);
-    return applyPatches("encode", schema, message, patches);
+  const encode: MethodOptions["encode"] = (messageDesc, value) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return applyPatches("encode", messageDesc, messageDesc.fromPartial(value as any), patches);
   };
   PATCHED_FROM_JSON_CACHE.set(patches, encode);
   return encode;
 }
 
 const PATCHED_TO_JSON_CACHE = new Map<TypePatches, MethodOptions["decode"]>();
-function createToJsonWithPatches(patches: TypePatches): MethodOptions["decode"] {
+function createDecodeWithPatches(patches: TypePatches): MethodOptions["decode"] {
   if (PATCHED_TO_JSON_CACHE.has(patches)) return PATCHED_TO_JSON_CACHE.get(patches)!;
 
   const decode: MethodOptions["decode"] = (schema, message) => {
-    return toJson(schema, applyPatches("decode", schema, message, patches)) as ReturnType<MethodOptions["decode"]>;
+    return applyPatches("decode", schema, message, patches);
   };
   PATCHED_TO_JSON_CACHE.set(patches, decode);
   return decode;

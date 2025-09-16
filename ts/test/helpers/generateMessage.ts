@@ -1,41 +1,64 @@
-import type { DescField, DescMessage } from "@bufbuild/protobuf";
-import { create, ScalarType } from "@bufbuild/protobuf";
+import { ScalarType } from "@bufbuild/protobuf";
 import { faker } from "@faker-js/faker";
 
 import { encodeBinary } from "../../src/encoding/binaryEncoding.ts";
-import { getCustomType } from "../../src/encoding/customTypes/utils.ts";
 
-export function generateMessage(schema: DescMessage, messageToFields: Record<string, { fields: string[] }>) {
-  const attrs = messageToFields[schema.typeName]?.fields.reduce<Record<string, unknown>>((acc, field) => {
-    acc[field] = generateField(schema.field[field], messageToFields);
+export interface Field {
+  name: string;
+  kind: string;
+  scalarType?: number;
+  customType?: string;
+  enum?: string[];
+  mapKeyType?: number;
+  message?: MessageSchema;
+};
+
+export type MessageSchema = {
+  fields: Field[],
+  type: {
+    fromPartial(attrs: Record<string, unknown>): unknown,
+    $type: string,
+  },
+};
+
+/**
+ * Used in generated tests for custom types patches
+ */
+export function generateMessage(typeName: string, messageToFields: Record<string, MessageSchema>) {
+  const messageSchema = messageToFields[typeName];
+  if (!messageSchema) {
+    throw new Error(`Message ${typeName} not found`);
+  }
+  const attrs = messageSchema.fields.reduce<Record<string, unknown>>((acc, field) => {
+    acc[field.name] = generateField(field, messageToFields);
     return acc;
   }, {});
 
-  return create(schema, attrs);
+  return messageSchema.type.fromPartial(attrs);
 }
 
-function generateField(field: DescField, messageToFields: Record<string, { fields: string[] }>) {
-  switch (field.fieldKind) {
+function generateField(field: Field, messageToFields: Record<string, MessageSchema>) {
+  switch (field.kind) {
     case "scalar":
-      return generateScalar(field, field.scalar);
+      return generateScalar(field, field.scalarType!);
     case "enum":
-      return faker.number.int({ min: 0, max: field.enum.values.length - 1 });
+      return faker.number.int({ min: 0, max: field.enum!.length - 1 });
     case "message":
-      return generateMessage(field.message!, messageToFields);
+      return generateMessage(field.message!.type.$type, messageToFields);
     case "list":
-      return Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => generateMessage(field.message!, messageToFields));
+      return Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => generateMessage(field.message!.type.$type, messageToFields));
     case "map":
       return Array.from({ length: faker.number.int({ min: 0, max: 10 }) }).reduce<Record<PropertyKey, unknown>>((map) => {
-        const key = generateScalar(field, field.mapKey);
-        map[key as string] = generateMessage(field.message!, messageToFields);
+        const key = generateScalar(field, field.mapKeyType!);
+        map[key as string] = generateMessage(field.message!.type.$type, messageToFields);
         return map;
       }, {});
     default:
-      throw new Error(`Unknown field kind: ${field["fieldKind"]}`);
+      throw new Error(`Unknown field kind: ${field.kind}`);
   }
 }
 
-function generateScalar(field: DescField, scalarType: ScalarType) {
+function generateScalar(field: Field, scalarType: ScalarType) {
   switch (scalarType) {
     case ScalarType.STRING:
       return guessFakeValue(field);
@@ -60,14 +83,17 @@ function generateScalar(field: DescField, scalarType: ScalarType) {
     case ScalarType.BOOL:
       return faker.datatype.boolean();
     default:
-      throw new Error(`Unknown scalar type: ${field.scalar}`);
+      throw new Error(`Unknown scalar type: ${field.scalarType}`);
   }
 }
 
-function guessFakeValue(field: DescField): unknown {
+function guessFakeValue(field: Field): unknown {
   const lowerName = field.name.toLowerCase();
 
-  if (getCustomType(field)) return guessFakeValueForCustomType(getCustomType(field)?.shortName);
+  if (field.customType) {
+    const value = guessFakeValueForCustomType(field.customType);
+    if (value !== null) return value;
+  }
   if (lowerName.includes("name")) return faker.person.fullName();
   if (lowerName.includes("first")) return faker.person.firstName();
   if (lowerName.includes("last")) return faker.person.lastName();
@@ -92,9 +118,9 @@ function guessFakeValue(field: DescField): unknown {
 
 function guessFakeValueForCustomType(shortName: string | undefined) {
   switch (shortName) {
-    case "Dec":
+    case "LegacyDec":
       return faker.number.float({ min: 0, max: 1000000 }).toString();
     default:
-      return faker.lorem.word();
+      return null;
   }
 }

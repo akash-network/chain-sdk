@@ -1,18 +1,18 @@
-import type { DescMethod, DescMethodBiDiStreaming, DescMethodClientStreaming, DescMethodServerStreaming, DescMethodUnary, MessageShape } from "@bufbuild/protobuf";
-import type { UnaryResponse } from "@connectrpc/connect";
+import type { DescMethod, DescMethodBiDiStreaming, DescMethodClientStreaming, DescMethodServerStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import { describe, expect, it, jest } from "@jest/globals";
-import { proto } from "@test/helpers/proto";
 
-import type { StreamResponse, Transport } from "../transport/types.ts";
+import { proto } from "../../test/helpers/proto.ts";
+import type { StreamResponse, Transport, UnaryResponse } from "../transport/types.ts";
 import { createAsyncIterable } from "../utils/stream.ts";
 import { createServiceClient } from "./createServiceClient.ts";
+import type { MessageDesc, MessageShape } from "./types.ts";
 
 describe(createServiceClient.name, () => {
   describe("unary method", () => {
     it("can create unary method", async () => {
       const { TestServiceSchema } = await setup();
       const transport = createTransport("unary", () => ({
-        message: { $typeName: "akash.test.unit.TestOutput", result: "result" },
+        message: { result: "result" },
         header: new Headers(),
         trailer: new Headers(),
       }));
@@ -34,8 +34,8 @@ describe(createServiceClient.name, () => {
       });
       expect(result).toEqual({ result: "result" });
       expect(transport.unary).toHaveBeenCalledWith(
-        TestServiceSchema.method.testMethod,
-        { $typeName: "akash.test.unit.TestInput", test: "input" },
+        TestServiceSchema.methods.testMethod,
+        { test: "input" },
         {
           signal: abortSignal,
           timeoutMs: 1000,
@@ -53,15 +53,15 @@ describe(createServiceClient.name, () => {
     it("applies patches to types if provided", async () => {
       const { TestServiceSchema } = await setup();
       const transport = createTransport("unary", () => ({
-        message: { $typeName: "akash.test.unit.TestOutput", result: "result" },
+        message: { result: "result" },
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.method.testMethod.output>, transform) {
+          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.methods.testMethod.output>, transform) {
             value.result = `${transform}-${value.result}`;
             return value;
           },
-          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.method.testMethod.input>, transform) {
+          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.methods.testMethod.input>, transform) {
             value.test = `${transform}-${value.test}`;
             return value;
           },
@@ -70,8 +70,8 @@ describe(createServiceClient.name, () => {
       const result = await client.testMethod({ test: "input" });
 
       expect(transport.unary).toHaveBeenCalledWith(
-        TestServiceSchema.method.testMethod,
-        { $typeName: "akash.test.unit.TestInput", test: "encode-input" },
+        TestServiceSchema.methods.testMethod,
+        { test: "encode-input" },
         undefined,
       );
       expect(result).toEqual({ result: "decode-result" });
@@ -80,11 +80,11 @@ describe(createServiceClient.name, () => {
     it("returns object as is if its type does not require patching", async () => {
       const { TestServiceSchema } = await setup();
       const transport = createTransport("unary", () => ({
-        message: { $typeName: "akash.test.unit.TestOutput", result: "result" },
+        message: { result: "result" },
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.method.testMethod.input>, transform) {
+          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.methods.testMethod.input>, transform) {
             value.test = `${transform}-${value.test}`;
             return value;
           },
@@ -93,8 +93,8 @@ describe(createServiceClient.name, () => {
       const result = await client.testMethod({ test: "input" });
 
       expect(transport.unary).toHaveBeenCalledWith(
-        TestServiceSchema.method.testMethod,
-        { $typeName: "akash.test.unit.TestInput", test: "encode-input" },
+        TestServiceSchema.methods.testMethod,
+        { test: "encode-input" },
         undefined,
       );
       expect(result).toEqual({ result: "result" });
@@ -116,7 +116,7 @@ describe(createServiceClient.name, () => {
       `;
       const TestInputSchema = def.getMessage<"TestInput", { test: string }>("TestInput");
       const TestOutputSchema = def.getMessage<"TestOutput", { result: string }>("TestOutput");
-      const TestServiceSchema = def.getService<{
+      const TestServiceSchema = def.getTsProtoService<{
         testMethod: DescMethodUnary<typeof TestInputSchema, typeof TestOutputSchema>;
       }>("TestService");
 
@@ -136,7 +136,6 @@ describe(createServiceClient.name, () => {
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable(results.map((result) => ({
           ...result,
-          $typeName: "akash.test.unit.TestOutput",
         }))),
         header: new Headers(),
         trailer: new Headers(),
@@ -160,7 +159,7 @@ describe(createServiceClient.name, () => {
 
       expect(await Array.fromAsync(stream)).toEqual(results);
       expect(transport.stream).toHaveBeenCalledWith(
-        TestServiceSchema.method.testStreamMethod,
+        TestServiceSchema.methods.testStreamMethod,
         expect.anything(),
         {
           signal: abortSignal,
@@ -171,7 +170,6 @@ describe(createServiceClient.name, () => {
         },
       );
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual([{
-        $typeName: "akash.test.unit.TestInput",
         test: "input",
       }]);
       const transportResult = (await transport.stream.mock.results.at(-1)?.value) as Awaited<ReturnType<typeof transport.stream>>;
@@ -186,16 +184,15 @@ describe(createServiceClient.name, () => {
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable(results.map((result) => ({
           ...result,
-          $typeName: "akash.test.unit.TestOutput",
         }))),
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.method.testStreamMethod.output>, transform) {
+          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.methods.testStreamMethod.output>, transform) {
             value.result = `${transform}-${value.result}`;
             return value;
           },
-          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.method.testStreamMethod.input>, transform) {
+          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.methods.testStreamMethod.input>, transform) {
             value.test = `${transform}-${value.test}`;
             return value;
           },
@@ -204,12 +201,11 @@ describe(createServiceClient.name, () => {
       const stream = client.testStreamMethod({ test: "input" });
 
       expect(transport.stream).toHaveBeenCalledWith(
-        TestServiceSchema.method.testStreamMethod,
+        TestServiceSchema.methods.testStreamMethod,
         expect.anything(),
         undefined,
       );
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual([{
-        $typeName: "akash.test.unit.TestInput",
         test: "encode-input",
       }]);
       expect(await Array.fromAsync(stream)).toEqual(results.map((result) => ({
@@ -225,12 +221,11 @@ describe(createServiceClient.name, () => {
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable(results.map((result) => ({
           ...result,
-          $typeName: "akash.test.unit.TestOutput",
         }))),
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.method.testStreamMethod.output>, transform) {
+          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.methods.testStreamMethod.output>, transform) {
             value.result = `${transform}-${value.result}`;
             return value;
           },
@@ -239,12 +234,11 @@ describe(createServiceClient.name, () => {
       const stream = client.testStreamMethod({ test: "input" });
 
       expect(transport.stream).toHaveBeenCalledWith(
-        TestServiceSchema.method.testStreamMethod,
+        TestServiceSchema.methods.testStreamMethod,
         expect.anything(),
         undefined,
       );
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual([{
-        $typeName: "akash.test.unit.TestInput",
         test: "input",
       }]);
       expect(await Array.fromAsync(stream)).toEqual(results.map((result) => ({
@@ -269,7 +263,7 @@ describe(createServiceClient.name, () => {
       `;
       const TestInputSchema = def.getMessage<"TestInput", { test: string }>("TestInput");
       const TestOutputSchema = def.getMessage<"TestOutput", { result: string }>("TestOutput");
-      const TestServiceSchema = def.getService<{
+      const TestServiceSchema = def.getTsProtoService<{
         testStreamMethod: DescMethodServerStreaming<typeof TestInputSchema, typeof TestOutputSchema>;
       }>("TestService");
 
@@ -286,7 +280,7 @@ describe(createServiceClient.name, () => {
       const { TestServiceSchema } = await setup();
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable([
-          { $typeName: "akash.test.unit.TestOutput", result: "result" },
+          { result: "result" },
         ]),
         header: new Headers(),
         trailer: new Headers(),
@@ -310,7 +304,7 @@ describe(createServiceClient.name, () => {
 
       expect(result).toEqual({ result: "result" });
       expect(transport.stream).toHaveBeenCalledWith(
-        TestServiceSchema.method.testClientStreamMethod,
+        TestServiceSchema.methods.testClientStreamMethod,
         expect.anything(),
         {
           signal: abortSignal,
@@ -323,7 +317,6 @@ describe(createServiceClient.name, () => {
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual(
         input.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestInput",
         })),
       );
       const transportResult = (await transport.stream.mock.results.at(-1)?.value) as Awaited<ReturnType<typeof transport.stream>>;
@@ -337,16 +330,16 @@ describe(createServiceClient.name, () => {
 
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable([
-          { $typeName: "akash.test.unit.TestOutput", result: "result" },
+          { result: "result" },
         ]),
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.method.testClientStreamMethod.output>, transform) {
+          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.methods.testClientStreamMethod.output>, transform) {
             value.result = `${transform}-${value.result}`;
             return value;
           },
-          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.method.testClientStreamMethod.input>, transform) {
+          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.methods.testClientStreamMethod.input>, transform) {
             value.test = `${transform}-${value.test}`;
             return value;
           },
@@ -356,14 +349,14 @@ describe(createServiceClient.name, () => {
 
       expect(result).toEqual({ result: "decode-result" });
       expect(transport.stream).toHaveBeenCalledWith(
-        TestServiceSchema.method.testClientStreamMethod,
+        TestServiceSchema.methods.testClientStreamMethod,
         expect.anything(),
         undefined,
       );
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual(
         input.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestInput",
+
           test: `encode-${item.test}`,
         })),
       );
@@ -375,12 +368,12 @@ describe(createServiceClient.name, () => {
 
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable([
-          { $typeName: "akash.test.unit.TestOutput", result: "result" },
+          { result: "result" },
         ]),
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.method.testClientStreamMethod.output>, transform) {
+          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.methods.testClientStreamMethod.output>, transform) {
             value.result = `${transform}-${value.result}`;
             return value;
           },
@@ -390,14 +383,14 @@ describe(createServiceClient.name, () => {
 
       expect(result).toEqual({ result: "decode-result" });
       expect(transport.stream).toHaveBeenCalledWith(
-        TestServiceSchema.method.testClientStreamMethod,
+        TestServiceSchema.methods.testClientStreamMethod,
         expect.anything(),
         undefined,
       );
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual(
         input.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestInput",
+
         })),
       );
     });
@@ -418,7 +411,7 @@ describe(createServiceClient.name, () => {
       `;
       const TestInputSchema = def.getMessage<"TestInput", { test: string }>("TestInput");
       const TestOutputSchema = def.getMessage<"TestOutput", { result: string }>("TestOutput");
-      const TestServiceSchema = def.getService<{
+      const TestServiceSchema = def.getTsProtoService<{
         testClientStreamMethod: DescMethodClientStreaming<typeof TestInputSchema, typeof TestOutputSchema>;
       }>("TestService");
 
@@ -439,7 +432,6 @@ describe(createServiceClient.name, () => {
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable(results.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestOutput",
         }))),
         header: new Headers(),
         trailer: new Headers(),
@@ -463,7 +455,7 @@ describe(createServiceClient.name, () => {
 
       expect(await Array.fromAsync(methodsCallResult)).toEqual(results);
       expect(transport.stream).toHaveBeenCalledWith(
-        TestServiceSchema.method.testBiDiStreamMethod,
+        TestServiceSchema.methods.testBiDiStreamMethod,
         expect.anything(),
         {
           signal: abortSignal,
@@ -477,7 +469,6 @@ describe(createServiceClient.name, () => {
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual(
         input.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestInput",
         })),
       );
       const transportResult = (await transport.stream.mock.results.at(-1)?.value) as Awaited<ReturnType<typeof transport.stream>>;
@@ -493,18 +484,17 @@ describe(createServiceClient.name, () => {
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable(results.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestOutput",
         }))),
         header: new Headers(),
         trailer: new Headers(),
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.method.testBiDiStreamMethod.output>, transform) {
+          "akash.test.unit.TestOutput"(value: MessageShape<typeof TestServiceSchema.methods.testBiDiStreamMethod.output>, transform) {
             value.result = `${transform}-${value.result}`;
             return value;
           },
-          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.method.testBiDiStreamMethod.input>, transform) {
+          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.methods.testBiDiStreamMethod.input>, transform) {
             value.test = `${transform}-${value.test}`;
             return value;
           },
@@ -520,7 +510,6 @@ describe(createServiceClient.name, () => {
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual(
         input.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestInput",
           test: `encode-${item.test}`,
         })),
       );
@@ -534,14 +523,13 @@ describe(createServiceClient.name, () => {
       const transport = createTransport("stream", () => ({
         message: createAsyncIterable(results.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestOutput",
         }))),
         header: new Headers(),
         trailer: new Headers(),
       }));
       const client = createServiceClient(TestServiceSchema, transport, {
         typePatches: {
-          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.method.testBiDiStreamMethod.input>, transform) {
+          "akash.test.unit.TestInput"(value: MessageShape<typeof TestServiceSchema.methods.testBiDiStreamMethod.input>, transform) {
             value.test = `${transform}-${value.test}`;
             return value;
           },
@@ -554,7 +542,6 @@ describe(createServiceClient.name, () => {
       expect(await Array.fromAsync(transport.stream.mock.lastCall?.at(1) as AsyncIterable<unknown>)).toEqual(
         input.map((item) => ({
           ...item,
-          $typeName: "akash.test.unit.TestInput",
           test: `encode-${item.test}`,
         })),
       );
@@ -576,7 +563,7 @@ describe(createServiceClient.name, () => {
       `;
       const TestInputSchema = def.getMessage<"TestInput", { test: string }>("TestInput");
       const TestOutputSchema = def.getMessage<"TestOutput", { result: string }>("TestOutput");
-      const TestServiceSchema = def.getService<{
+      const TestServiceSchema = def.getTsProtoService<{
         testBiDiStreamMethod: DescMethodBiDiStreaming<typeof TestInputSchema, typeof TestOutputSchema>;
       }>("TestService");
 
@@ -588,7 +575,7 @@ describe(createServiceClient.name, () => {
     }
   });
 
-  type Response<T extends "stream" | "unary"> = T extends "stream" ? StreamResponse : UnaryResponse;
+  type Response<T extends "stream" | "unary"> = T extends "stream" ? StreamResponse<MessageDesc, MessageDesc> : UnaryResponse<MessageDesc, MessageDesc>;
   function createTransport<T extends "stream" | "unary">(responseType: T, createResponse: () => Pick<Response<T>, "message"> & Partial<Pick<Response<T>, "header" | "trailer">>) {
     const method = jest.fn(async (method: DescMethod) => {
       return {
@@ -598,7 +585,7 @@ describe(createServiceClient.name, () => {
         stream: responseType === "stream" as const,
         service: method.parent,
         method,
-      } as Response<T>;
+      };
     });
 
     return {

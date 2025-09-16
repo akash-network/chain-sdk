@@ -2,14 +2,12 @@
 version: v2
 clean: true
 plugins:
-  - local: protoc-gen-es
+  - local: ts/node_modules/ts-proto/protoc-gen-ts_proto
     strategy: all
     out: ./ts/src/generated/protos
     include_imports: true
     opt:
-      - target=ts
-      - json_types=true
-      - import_extension=ts
+      - ts_proto_opt=outputClientImpl=false,outputServices=false,useExactTypes=false,importSuffix=.ts,outputTypeAnnotations=static-only
   - local: protoc-gen-sdk-object.ts
     out: ./ts/src/generated
     strategy: all

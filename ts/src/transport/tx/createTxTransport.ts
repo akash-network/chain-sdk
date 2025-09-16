@@ -1,20 +1,20 @@
-import type { DescMessage, DescMethodUnary, MessageShape } from "@bufbuild/protobuf";
-import type { UnaryResponse } from "@connectrpc/connect";
+import { Code, ConnectError } from "@connectrpc/connect";
 import type { GeneratedType } from "@cosmjs/proto-signing";
 
-import type { Transport, TxCallOptions } from "../types.ts";
+import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
+import type { Transport, TxCallOptions, UnaryResponse } from "../types.ts";
 import type { TxClient } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";
 
 export function createTxTransport(transportOptions: TransactionTransportOptions): Transport<TxCallOptions> {
   return {
-    async unary<I extends DescMessage, O extends DescMessage>(
-      method: DescMethodUnary<I, O>,
-      input: MessageShape<I>,
+    async unary<I extends MessageDesc, O extends MessageDesc>(
+      method: MethodDesc<"unary", I, O>,
+      input: MessageInitShape<I>,
       options?: TxCallOptions,
     ): Promise<UnaryResponse<I, O>> {
       const messages = [{
-        typeUrl: `/${method.input.typeName}`,
+        typeUrl: `/${method.input.$type}`,
         value: input,
       }];
       const memo = options?.memo ?? `akash: ${method.name}`;
@@ -36,12 +36,11 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
         header: new Headers(),
         trailer: new Headers(),
         message: (response ? transportOptions.getMessageType(response.typeUrl).decode(response.value) : {}) as MessageShape<O>,
-        service: method.parent,
         method,
       };
     },
     async stream() {
-      throw new Error("Not supported");
+      throw new ConnectError(`Transaction transport doesn't support streaming`, Code.Unimplemented);
     },
   };
 }

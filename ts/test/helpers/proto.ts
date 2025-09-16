@@ -1,18 +1,22 @@
-import type { AnyDesc, DescFile, Message } from "@bufbuild/protobuf";
+import { create, fromBinary, toBinary, type AnyDesc, type DescFile, type DescMessage, type Message, type MessageInitShape } from "@bufbuild/protobuf";
 import type { GenMessage, GenService, GenServiceMethods } from "@bufbuild/protobuf/codegenv1";
+import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import assert from "assert";
 import { exec } from "child_process";
 import { createHash } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import { join as joinPath, relative as relativePath } from "path";
 import { promisify } from "util";
+import { MessageDesc, MethodDesc } from "../../src/client/types.ts";
 
 const execAsync = promisify(exec);
 const PWD = joinPath(__dirname, "..", "..", "..");
 
 const cache: Record<string, DescFileDefinition> = Object.create(null);
-export async function proto(strings: TemplateStringsArray): Promise<DescFileDefinition> {
-  const content = strings.join("");
+export async function proto(strings: TemplateStringsArray, ...values: unknown[]): Promise<DescFileDefinition> {
+  const content = strings.reduce((result, string, index) => {
+    return result + string + (values[index] ?? '');
+  }, '');
   const fileContent = [
     "syntax = \"proto3\";",
     "package akash.test.unit;",
@@ -83,4 +87,53 @@ class DescFileDefinition {
     assert(service, `Service with name ${name} not found in this proto file`);
     return service as GenService<T>;
   }
+
+  /**
+   * Service representation generated from ts-proto generator types
+   */
+  getTsProtoService<T extends GenServiceMethods>(name: string): ServiceDescFrom<T> {
+    const service = this.getService(name);
+    const serviceDesc = { typeName: service.typeName, methods: {} as Record<string, unknown> };
+
+    service.methods.forEach((method) => {
+      serviceDesc.methods[method.localName] = {
+        kind: method.methodKind,
+        name: method.name,
+        input: createMessageDesc(method.input),
+        output: createMessageDesc(method.output),
+        parent: serviceDesc,
+      };
+    });
+    return serviceDesc as ServiceDescFrom<T>;
+  }
+}
+
+type ServiceDescFrom<T extends GenServiceMethods> = {
+  typeName: string;
+  methods: {
+    [K in keyof T]: MethodDesc<T[K]["methodKind"], MessageDesc<MessageInitShape<T[K]["input"]>, T[K]["input"]["typeName"]>, MessageDesc<MessageInitShape<T[K]["output"]>, T[K]["output"]["typeName"]>>;
+  };
+};
+
+/**
+ * Creates a ts-proto message desc from a bufbuild desc message.
+ */
+function createMessageDesc<T extends DescMessage>(schema: T): MessageDesc<MessageInitShape<T>> {
+  return {
+    $type: schema.typeName,
+    encode(message, writer = new BinaryWriter()) {
+      const object = message.$typeName ? message as MessageInitShape<T> : create(schema, message as MessageInitShape<T>);
+      const bytes = toBinary(schema, object as any);
+      writer.raw(bytes);
+      return writer;
+    },
+    decode(input) {
+      const bytes = input instanceof Uint8Array ? input : (input as unknown as { buf: Uint8Array }).buf;
+      return fromBinary(schema, bytes);
+    },
+    fromPartial(message) {
+      const { $typeName, ...rest } = create(schema, message as any);
+      return rest as unknown as MessageInitShape<T>;
+    },
+  };
 }

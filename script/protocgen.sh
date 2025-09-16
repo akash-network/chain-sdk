@@ -48,6 +48,7 @@ function gen_pulsar() {
 
 function gen_ts() {
 	buf generate --template buf.gen.ts.yaml
+	rm -rf ts/src/generated/protos/test_proto ts/src/generated/protos/proto3_proto
 }
 
 function gen_doc() {

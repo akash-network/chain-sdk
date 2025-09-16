@@ -1,7 +1,7 @@
 import type { EncodeObject, GeneratedType } from "@cosmjs/proto-signing";
 import type { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
 
-import type { TxRaw as GenTxRaw } from "../../generated/protos/cosmos/tx/v1beta1/tx_pb.ts";
+import type { TxRaw as GenTxRaw } from "../../generated/protos/cosmos/tx/v1beta1/tx.ts";
 
 export type TxRaw = Omit<GenTxRaw, "$typeName" | "$unknown">;
 export { DeliverTxResponse, StdFee, EncodeObject, GeneratedType };

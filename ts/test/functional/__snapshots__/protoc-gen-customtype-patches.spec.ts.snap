@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`protoc-gen-customtype-patches plugin generates \`Set\` instance with all the types that have reference to fields with custom type option 1`] = `
-"import type * as _protos_customtype from "../protos/customtype_pb.none";
-import { Dec } from "../../encoding/customTypes/Dec.none";
+"import type * as _protos_customtype from "../protos/customtype.ts";
+import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 
 const p = {
   "akash.test.functional.PetOwner"(value: _protos_customtype.PetOwner | undefined | null, transformType: 'encode' | 'decode') {
@@ -25,7 +25,7 @@ const p = {
   "akash.test.functional.Dog"(value: _protos_customtype.Dog | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.name != null) newValue.name = Dec[transformType](value.name);
+    if (value.name != null) newValue.name = LegacyDec[transformType](value.name);
     return newValue;
   },
   "akash.test.functional.PetClub"(value: _protos_customtype.PetClub | undefined | null, transformType: 'encode' | 'decode') {
@@ -48,7 +48,7 @@ const p = {
   "akash.test.functional.Money"(value: _protos_customtype.Money | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
-    if (value.amount != null) newValue.amount = Dec[transformType](value.amount);
+    if (value.amount != null) newValue.amount = LegacyDec[transformType](value.amount);
     return newValue;
   }
 };

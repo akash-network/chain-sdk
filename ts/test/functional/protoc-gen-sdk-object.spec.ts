@@ -18,6 +18,7 @@ describe("protoc-sdk-objec plugin", () => {
         out: ".",
         opt: [
           "target=ts",
+          "import_extension=ts"
         ],
       },
     ],
@@ -52,6 +53,8 @@ describe("protoc-sdk-objec plugin", () => {
       });
 
       expect(await readFile(joinPath(outputDir, "sdk.ts"), "utf-8")).toMatchSnapshot();
+      expect(await readFile(joinPath(outputDir, "protos", "msg_akash.ts"), "utf-8")).toMatchSnapshot();
+      expect(await readFile(joinPath(outputDir, "protos", "query_akash.ts"), "utf-8")).toMatchSnapshot();
     } finally {
       if (await access(outputDir, fsConst.W_OK).catch(() => false)) {
         await rmdir(outputDir, { recursive: true });

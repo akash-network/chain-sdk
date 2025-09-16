@@ -1,6 +1,6 @@
-import { Dec } from "./Dec.ts";
+import { LegacyDec } from "./LegacyDec.ts";
 
 export const customTypes = {
-  [Dec.typeName]: Dec,
-  [Dec.shortName]: Dec,
+  [LegacyDec.typeName]: LegacyDec,
+  [LegacyDec.shortName]: LegacyDec,
 };

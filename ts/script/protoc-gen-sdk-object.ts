@@ -1,8 +1,9 @@
 #!/usr/bin/env -S node --experimental-strip-types
 
-import { type DescMethod, hasOption } from "@bufbuild/protobuf";
+import { type DescExtension, type DescMethod, type DescService, getOption, hasOption } from "@bufbuild/protobuf";
 import {
   createEcmaScriptPlugin,
+  type GeneratedFile,
   getComments,
   runNodeJs,
   type Schema,
@@ -17,7 +18,7 @@ runNodeJs(
   }),
 );
 
-const PROTO_PATH = "./protos";
+const PROTO_PATH = "protos";
 function generateTs(schema: Schema): void {
   const servicesLoaderDefs: string[] = [];
   const sdkDefs: Record<string, string> = {};
@@ -25,24 +26,21 @@ function generateTs(schema: Schema): void {
   const services = schema.files.map((f) => f.services).flat();
   if (!services.length) return;
 
-  const msgServiceExtension = findMsgServiceExtension(schema);
+  const msgServiceExtension = findExtension(schema, "cosmos.msg.v1.service");
   const hasMsgService = !!msgServiceExtension && services.some((service) => hasOption(service, msgServiceExtension));
 
   const f = schema.generateFile(getOutputFileName(schema));
   const importExtension = schema.options.importExtension ? `.${schema.options.importExtension}` : "";
 
   services.forEach((service) => {
-    const isMsgService = !!msgServiceExtension && (
-      hasOption(service, msgServiceExtension)
-      // some cosmos-sdk tx services do not have "cosmos.msg.v1.service" option
-      || (service.name === "Msg")
-    );
-    const serviceImport = f.importSchema(service);
+    const isMsgService = !!msgServiceExtension && hasOption(service, msgServiceExtension);
+
+    const serviceImport = generateServiceDefs(service, schema);
     const serviceImportPath = normalizePath(serviceImport.from.replace(/\.js$/, importExtension));
-    servicesLoaderDefs.push(`() => import("${PROTO_PATH}/${serviceImportPath}").then(m => m.${serviceImport.name})`);
+    servicesLoaderDefs.push(`() => import("./${PROTO_PATH}/${serviceImportPath}").then(m => m.${serviceImport.name})`);
     const serviceIndex = servicesLoaderDefs.length - 1;
     const serviceMethods = service.methods.map((method, methodIndex) => {
-      const inputType = f.importJson(method.input);
+      const inputType = f.import(method.input.name, `./${method.input.file.name}`);
       const importPath = inputType.from.replace(/\.js$/, "");
       const isInputEmpty = method.input.fields.length === 0;
       imports.add(importPath);
@@ -84,10 +82,14 @@ function generateTs(schema: Schema): void {
 
   f.print(`import type { Transport, CallOptions${hasMsgService ? ", TxCallOptions" : ""} } from "../transport/types${importExtension}";`);
   f.print(`import type { SDKOptions } from "../sdk/types${importExtension}";`);
-  f.print(`import { createServiceLoader } from "../utils/createServiceLoader${importExtension}";`);
   f.print(`import { withMetadata } from "../utils/sdkMetadata${importExtension}";`);
   f.print("\n");
-  f.print(f.export("const", `serviceLoader = createServiceLoader([\n${indent(servicesLoaderDefs.join(",\n"))}\n] as const);`));
+  f.print(
+    f.export("const", "serviceLoader"),
+    `= `,
+    f.import("createServiceLoader", `../client/createServiceLoader${importExtension}`),
+    `([\n${indent(servicesLoaderDefs.join(",\n"))}\n] as const);`
+  );
 
   const factoryArgs = hasMsgService
     ? `queryTransport: Transport, txTransport: Transport`
@@ -204,10 +206,54 @@ function jsDoc(method: DescMethod, methodName: string) {
   return comments.length ? `/**\n * ${comments.join("\n * ")}\n */` : "";
 }
 
-function findMsgServiceExtension(schema: Schema) {
-  for (const file of schema.allFiles) {
-    const extension = file.extensions.find((e) => e.typeName === "cosmos.msg.v1.service");
-    if (extension) return extension;
+let extensionsCache: Record<string, DescExtension> | null = null;
+function findExtension(schema: Schema, typeName: string) {
+  if (!extensionsCache) {
+    extensionsCache = {};
+    for (const file of schema.allFiles) {
+      for (const ext of file.extensions) {
+        extensionsCache[ext.typeName] = ext;
+      }
+    }
   }
-  return null;
+  return extensionsCache[typeName];
+}
+
+const serviceFiles: Record<string, GeneratedFile>  = {};
+function generateServiceDefs(service: DescService, schema: Schema) {
+  const importExtension = schema.options.importExtension ? `.${schema.options.importExtension}` : "";
+  const serviceFilePath = `${service.file.name}_akash.ts`;
+  if (!serviceFiles[serviceFilePath]) {
+    serviceFiles[serviceFilePath] = schema.generateFile(`${PROTO_PATH}/${serviceFilePath}`);
+  }
+  const file = serviceFiles[serviceFilePath];
+  const httpExtension = findExtension(schema, "google.api.http");
+
+  file.print(`export const ${service.name} = {`);
+  file.print(`  typeName: "${service.typeName}",`);
+  file.print(`  methods: {`);
+  service.methods.forEach((method) => {
+    file.print(`    ${method.localName}: {`);
+    file.print(`      name: "${method.name}",`);
+    if (method.methodKind !== "unary")  file.print(`      kind: "${method.methodKind}",`);
+    if (httpExtension && hasOption(method, httpExtension)) {
+      const httpOption = getOption(method, httpExtension) as {
+        pattern: { case: string, value: string };
+      };
+      if (httpOption.pattern.case !== "get") file.print(`      httpMethod: "${httpOption.pattern.case}",`);
+
+      file.print(`      httpPath: "${httpOption.pattern.value}",`);
+    }
+    file.print(`      input: `, file.import(method.input.name, `./${PROTO_PATH}/${method.input.file.name}${importExtension}`), `,`);
+    file.print(`      output: `, file.import(method.output.name, `./${PROTO_PATH}/${method.output.file.name}${importExtension}`), `,`);
+    file.print(`      get parent() { return ${service.name}; },`);
+    file.print(`    },`);
+  });
+  file.print(`  },`);
+  file.print(`} as const;`);
+
+  return {
+    name: service.name,
+    from: serviceFilePath,
+  };
 }

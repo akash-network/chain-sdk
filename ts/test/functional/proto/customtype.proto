@@ -29,7 +29,7 @@ message PetClubItemsQueryResponse {
 
 message Dog {
   string name = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
 }
 
@@ -40,6 +40,6 @@ message Cat {
 message Money {
   string currency = 1;
   string amount = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
 }
