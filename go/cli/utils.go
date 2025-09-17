@@ -3,12 +3,16 @@ package cli
 import (
 	"bytes"
 	"context"
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
+	errorsmod "cosmossdk.io/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/spf13/pflag"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
@@ -183,4 +187,39 @@ func PrintJSON(ctx sdkclient.Context, v interface{}) error {
 	}
 
 	return ctx.PrintString(buf.String())
+}
+
+// ReadPageRequest reads and builds the necessary page request flags for pagination.
+func ReadPageRequest(flagSet *pflag.FlagSet) (*query.PageRequest, error) {
+	pageKeyStr, _ := flagSet.GetString(cflags.FlagPageKey)
+	offset, _ := flagSet.GetUint64(cflags.FlagOffset)
+	limit, _ := flagSet.GetUint64(cflags.FlagLimit)
+	countTotal, _ := flagSet.GetBool(cflags.FlagCountTotal)
+	page, _ := flagSet.GetUint64(cflags.FlagPage)
+	reverse, _ := flagSet.GetBool(cflags.FlagReverse)
+
+	if page > 1 && offset > 0 {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "page and offset cannot be used together")
+	}
+
+	if page > 1 {
+		offset = (page - 1) * limit
+	}
+
+	var pageKey []byte
+	if pageKeyStr != "" {
+		var err error
+		pageKey, err = b64.StdEncoding.DecodeString(pageKeyStr)
+		if err != nil {
+			return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid pagination key")
+		}
+	}
+
+	return &query.PageRequest{
+		Key:        pageKey,
+		Offset:     offset,
+		Limit:      limit,
+		CountTotal: countTotal,
+		Reverse:    reverse,
+	}, nil
 }

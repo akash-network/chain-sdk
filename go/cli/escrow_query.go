@@ -7,13 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/spf13/cobra"
-
 	"gopkg.in/yaml.v3"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
@@ -26,6 +25,11 @@ import (
 )
 
 var errNoLeaseMatches = errors.New("leases for deployment do not exist")
+
+const (
+	authzDepositScopeDeployment = "deployment"
+	authzDepositScopeBid        = "bid"
+)
 
 func GetQueryEscrowCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -42,6 +46,35 @@ func GetQueryEscrowCmd() *cobra.Command {
 	)
 
 	return cmd
+}
+
+func parseXID(xid string) ([]string, error) { //nolint: unparam
+	xid = strings.TrimPrefix(xid, "/")
+	xid = strings.TrimSuffix(xid, "/")
+
+	parts := strings.Split(xid, "/")
+
+	if len(parts) < 1 {
+		return nil, fmt.Errorf("invalid xid format")
+	}
+
+	switch parts[0] {
+	case authzDepositScopeDeployment, authzDepositScopeBid:
+	default:
+		return nil, fmt.Errorf("invalid xid scope prefix. allowed values - deployment|bid")
+	}
+
+	return parts, nil
+}
+
+func validateEscrowState(state string) (string, error) {
+	switch state {
+	case "open", "closed", "overdrawn":
+	default:
+		return "", fmt.Errorf("invalid account state. allowed values - open|closed|overdrawn")
+	}
+
+	return state, nil
 }
 
 func GetQueryEscrowAccountsCmd() *cobra.Command {
@@ -75,7 +108,7 @@ $ %[1]s query %[2]s accounts open deployment/akash1...
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
 
-			pageReq, err := sdkclient.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -84,29 +117,17 @@ $ %[1]s query %[2]s accounts open deployment/akash1...
 			var xid string
 
 			if len(args) > 0 {
-				state = args[0]
-				switch state {
-				case "open", "closed", "overdrawn":
-				default:
-					return fmt.Errorf("invalid account state. allowed values - open|closed|overdrawn")
+				state, err = validateEscrowState(args[0])
+				if err != nil {
+					return err
 				}
 			}
 
 			if len(args) > 1 {
 				xid = args[1]
-				xid = strings.TrimPrefix(xid, "/")
-				xid = strings.TrimSuffix(xid, "/")
-
-				parts := strings.Split(xid, "/")
-
-				if len(parts) < 1 {
-					return fmt.Errorf("invalid xid format")
-				}
-
-				switch parts[0] {
-				case "deployment", "bid":
-				default:
-					return fmt.Errorf("invalid xid scope prefix. allowed values - deployment|bid")
+				_, err = parseXID(xid)
+				if err != nil {
+					return err
 				}
 			}
 			req := &etypes.QueryAccountsRequest{
@@ -161,7 +182,7 @@ $ %[1]s query %[2]s accounts open deployment/akash1...
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
 
-			pageReq, err := sdkclient.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -170,29 +191,17 @@ $ %[1]s query %[2]s accounts open deployment/akash1...
 			var xid string
 
 			if len(args) > 0 {
-				state = args[0]
-				switch state {
-				case "open", "closed", "overdrawn":
-				default:
-					return fmt.Errorf("invalid account state. allowed values - open|closed|overdrawn")
+				state, err = validateEscrowState(args[0])
+				if err != nil {
+					return err
 				}
 			}
 
 			if len(args) > 1 {
 				xid = args[1]
-				xid = strings.TrimPrefix(xid, "/")
-				xid = strings.TrimSuffix(xid, "/")
-
-				parts := strings.Split(xid, "/")
-
-				if len(parts) < 1 {
-					return fmt.Errorf("invalid xid format")
-				}
-
-				switch parts[0] {
-				case "deployment", "bid":
-				default:
-					return fmt.Errorf("invalid xid scope prefix. allowed values - deployment|bid")
+				_, err = parseXID(args[1])
+				if err != nil {
+					return err
 				}
 			}
 			req := &etypes.QueryPaymentsRequest{
