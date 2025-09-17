@@ -148,9 +148,10 @@ func (msg *MsgCreateLease) ValidateBasic() error {
 }
 
 // NewMsgCloseBid creates a new MsgCloseBid instance
-func NewMsgCloseBid(id v1.BidID) *MsgCloseBid {
+func NewMsgCloseBid(id v1.BidID, reason v1.LeaseClosedReason) *MsgCloseBid {
 	return &MsgCloseBid{
-		ID: id,
+		ID:     id,
+		Reason: reason,
 	}
 }
 
@@ -169,7 +170,15 @@ func (msg *MsgCloseBid) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic method for MsgCloseBid
 func (msg *MsgCloseBid) ValidateBasic() error {
-	return msg.ID.Validate()
+	if err := msg.ID.Validate(); err != nil {
+		return err
+	}
+
+	if !msg.Reason.IsRange(v1.LeaseClosedReasonRangeProvider) {
+		return cerrors.Wrapf(v1.ErrInvalidLeaseClosedReason, "value \"%d\" range 10000..19999", msg.Reason)
+	}
+
+	return nil
 }
 
 // NewMsgCloseLease creates a new MsgCloseLease instance

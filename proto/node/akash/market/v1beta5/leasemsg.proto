@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 
 import "akash/market/v1/bid.proto";
 import "akash/market/v1/lease.proto";
+import "akash/market/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
@@ -40,7 +41,6 @@ message MsgWithdrawLease {
 // MsgWithdrawLeaseResponse defines the Msg/WithdrawLease response type.
 message MsgWithdrawLeaseResponse {}
 
-
 // MsgCloseLease defines an SDK message for closing order.
 message MsgCloseLease {
   option (gogoproto.equal) = false;
@@ -51,6 +51,11 @@ message MsgCloseLease {
     (gogoproto.nullable)   = false,
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  akash.market.v1.LeaseClosedReason reason = 2 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
   ];
 }
 

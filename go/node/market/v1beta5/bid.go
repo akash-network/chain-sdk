@@ -59,6 +59,10 @@ func (o *Bid) Filters(filters BidFilters, stateVal Bid_State) bool {
 		return false
 	}
 
+	if filters.BSeq != 0 && filters.BSeq != o.ID.BSeq {
+		return false
+	}
+
 	// Checking state filter
 	if stateVal != 0 && stateVal != o.State {
 		return false

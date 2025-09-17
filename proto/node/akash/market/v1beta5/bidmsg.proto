@@ -8,6 +8,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "akash/market/v1beta5/resourcesoffer.proto";
 import "akash/market/v1/bid.proto";
 import "akash/base/deposit/v1/deposit.proto";
+import "akash/market/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
@@ -60,6 +61,11 @@ message MsgCloseBid {
     (gogoproto.nullable)   = false,
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  akash.market.v1.LeaseClosedReason reason = 2 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
   ];
 }
 

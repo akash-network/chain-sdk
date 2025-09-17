@@ -57,6 +57,11 @@ func (filters *BidFilters) Accept(obj Bid, stateVal Bid_State) bool {
 		return false
 	}
 
+	// Checking bseq filter
+	if filters.BSeq != 0 && filters.BSeq != obj.ID.BSeq {
+		return false
+	}
+
 	// Checking state filter
 	if stateVal != 0 && stateVal != obj.State {
 		return false

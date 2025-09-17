@@ -3,8 +3,8 @@ package akash.market.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
-
 import "cosmos/base/v1beta1/coin.proto";
+import "akash/market/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1";
 
@@ -57,6 +57,13 @@ message LeaseID {
     (cosmos_proto.scalar) = "cosmos.AddressString",
     (gogoproto.jsontag)   = "provider",
     (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider.
+  uint32 bseq = 6 [
+    (gogoproto.customname) = "BSeq",
+    (gogoproto.jsontag)    = "bseq",
+    (gogoproto.moretags)   = "yaml:\"bseq\""
   ];
 }
 
@@ -120,5 +127,10 @@ message Lease {
   int64 closed_on  = 5 [
     (gogoproto.jsontag)  = "closed_on",
     (gogoproto.moretags) = "yaml:\"closed_on\""
+  ];
+
+  LeaseClosedReason reason = 6 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
   ];
 }
