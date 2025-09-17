@@ -90,7 +90,7 @@ func GetQueryMarketOrdersCmd() *cobra.Command {
 				return err
 			}
 
-			pageReq, err := sdkclient.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -162,7 +162,7 @@ func GetQueryMarketBidsCmd() *cobra.Command {
 				return err
 			}
 
-			pageReq, err := sdkclient.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -233,7 +233,7 @@ func GetQueryMarketLeasesCmd() *cobra.Command {
 				return err
 			}
 
-			pageReq, err := sdkclient.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}

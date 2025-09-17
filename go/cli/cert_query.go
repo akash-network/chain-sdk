@@ -39,7 +39,7 @@ func GetQueryCertCertificatesCmd() *cobra.Command {
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
 
-			pageReq, err := sdkclient.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
