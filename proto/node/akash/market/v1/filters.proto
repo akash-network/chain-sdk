@@ -60,4 +60,11 @@ message LeaseFilters {
         (gogoproto.jsontag)  = "state",
         (gogoproto.moretags) = "yaml:\"state\""
     ];
+
+    // BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider.
+    uint32 bseq = 7 [
+        (gogoproto.customname) = "BSeq",
+        (gogoproto.jsontag)    = "bseq",
+        (gogoproto.moretags)   = "yaml:\"bseq\""
+    ];
 }

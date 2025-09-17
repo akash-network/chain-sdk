@@ -37,6 +37,7 @@ func BidIDFromV1beta4(from v1beta4.BidID) v1.BidID {
 		GSeq:     from.GSeq,
 		OSeq:     from.OSeq,
 		Provider: from.Provider,
+		BSeq:     0,
 	}
 }
 
@@ -71,6 +72,7 @@ func LeaseFromV1beta4(cdc codec.BinaryCodec, fromBz []byte) v1.Lease {
 		Price:     from.Price,
 		CreatedAt: from.CreatedAt,
 		ClosedOn:  from.ClosedOn,
+		Reason:    v1.LeaseClosedReasonUnspecified,
 	}
 }
 

@@ -5,6 +5,8 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
+import "akash/base/deposit/v1/deposit.proto";
+
 option go_package = "pkg.akt.dev/go/node/escrow/types/v1";
 
 // Depositor stores state of a deposit.
@@ -28,8 +30,14 @@ message Depositor {
     (gogoproto.moretags)   = "yaml:\"height\""
   ];
 
+  // Source indicated origination of the funds
+  akash.base.deposit.v1.Source source = 3 [
+    (gogoproto.jsontag)      = "source",
+    (gogoproto.moretags)     = "yaml:\"source\""
+  ];
+
   // Balance amount of funds available to spend in this deposit.
-  cosmos.base.v1beta1.DecCoin balance = 3 [
+  cosmos.base.v1beta1.DecCoin balance = 4 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "balance",
     (gogoproto.moretags) = "yaml:\"balance\""

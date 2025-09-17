@@ -37,6 +37,7 @@ const (
 	errUnknownProvider
 	errInvalidBid
 	errCodeCapabilitiesMismatch
+	errInvalidLeaseClosedReason
 )
 
 var (
@@ -104,4 +105,6 @@ var (
 	ErrUnknownProvider = sdkerrors.Register(ModuleName, errUnknownProvider, "unknown provider")
 	// ErrInvalidBid indicates an invalid chain parameter
 	ErrInvalidBid = sdkerrors.Register(ModuleName, errInvalidBid, "unknown provider")
+	// ErrInvalidLeaseClosedReason indicates reason for lease close does not match context
+	ErrInvalidLeaseClosedReason = sdkerrors.Register(ModuleName, errInvalidLeaseClosedReason, "invalid lease closed reason")
 )

@@ -56,4 +56,11 @@ message BidID {
     (gogoproto.jsontag)   = "provider",
     (gogoproto.moretags)  = "yaml:\"provider\""
   ];
+
+  // BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider.
+  uint32 bseq = 6 [
+    (gogoproto.customname) = "BSeq",
+    (gogoproto.jsontag)    = "bseq",
+    (gogoproto.moretags)   = "yaml:\"bseq\""
+  ];
 }
