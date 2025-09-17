@@ -8,6 +8,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "akash/market/v1/bid.proto";
 import "akash/market/v1/order.proto";
 import "akash/market/v1/lease.proto";
+import "akash/market/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1";
 
@@ -106,6 +107,11 @@ message EventLeaseClosed {
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  LeaseClosedReason reason = 2 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
   ];
 }
 
