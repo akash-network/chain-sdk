@@ -5,13 +5,14 @@
 // source: cosmos/store/snapshots/v1/snapshot.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "cosmos.store.snapshots.v1";
 
 /** Snapshot contains Tendermint state sync snapshot info. */
 export interface Snapshot {
-  height: number;
+  height: Long;
   format: number;
   chunks: number;
   hash: Uint8Array;
@@ -42,7 +43,7 @@ export interface SnapshotIAVLItem {
   key: Uint8Array;
   value: Uint8Array;
   /** version is block height */
-  version: number;
+  version: Long;
   /** height is depth of the tree. */
   height: number;
 }
@@ -59,15 +60,15 @@ export interface SnapshotExtensionPayload {
 }
 
 function createBaseSnapshot(): Snapshot {
-  return { height: 0, format: 0, chunks: 0, hash: new Uint8Array(0), metadata: undefined };
+  return { height: Long.UZERO, format: 0, chunks: 0, hash: new Uint8Array(0), metadata: undefined };
 }
 
 export const Snapshot: MessageFns<Snapshot, "cosmos.store.snapshots.v1.Snapshot"> = {
   $type: "cosmos.store.snapshots.v1.Snapshot" as const,
 
   encode(message: Snapshot, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).uint64(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.height.toString());
     }
     if (message.format !== 0) {
       writer.uint32(16).uint32(message.format);
@@ -96,7 +97,7 @@ export const Snapshot: MessageFns<Snapshot, "cosmos.store.snapshots.v1.Snapshot"
             break;
           }
 
-          message.height = longToNumber(reader.uint64());
+          message.height = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -142,7 +143,7 @@ export const Snapshot: MessageFns<Snapshot, "cosmos.store.snapshots.v1.Snapshot"
 
   fromJSON(object: any): Snapshot {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
       format: isSet(object.format) ? globalThis.Number(object.format) : 0,
       chunks: isSet(object.chunks) ? globalThis.Number(object.chunks) : 0,
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
@@ -152,8 +153,8 @@ export const Snapshot: MessageFns<Snapshot, "cosmos.store.snapshots.v1.Snapshot"
 
   toJSON(message: Snapshot): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      obj.height = (message.height || Long.UZERO).toString();
     }
     if (message.format !== 0) {
       obj.format = Math.round(message.format);
@@ -175,7 +176,9 @@ export const Snapshot: MessageFns<Snapshot, "cosmos.store.snapshots.v1.Snapshot"
   },
   fromPartial(object: DeepPartial<Snapshot>): Snapshot {
     const message = createBaseSnapshot();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.UZERO;
     message.format = object.format ?? 0;
     message.chunks = object.chunks ?? 0;
     message.hash = object.hash ?? new Uint8Array(0);
@@ -431,7 +434,7 @@ export const SnapshotStoreItem: MessageFns<SnapshotStoreItem, "cosmos.store.snap
 };
 
 function createBaseSnapshotIAVLItem(): SnapshotIAVLItem {
-  return { key: new Uint8Array(0), value: new Uint8Array(0), version: 0, height: 0 };
+  return { key: new Uint8Array(0), value: new Uint8Array(0), version: Long.ZERO, height: 0 };
 }
 
 export const SnapshotIAVLItem: MessageFns<SnapshotIAVLItem, "cosmos.store.snapshots.v1.SnapshotIAVLItem"> = {
@@ -444,8 +447,8 @@ export const SnapshotIAVLItem: MessageFns<SnapshotIAVLItem, "cosmos.store.snapsh
     if (message.value.length !== 0) {
       writer.uint32(18).bytes(message.value);
     }
-    if (message.version !== 0) {
-      writer.uint32(24).int64(message.version);
+    if (!message.version.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.version.toString());
     }
     if (message.height !== 0) {
       writer.uint32(32).int32(message.height);
@@ -481,7 +484,7 @@ export const SnapshotIAVLItem: MessageFns<SnapshotIAVLItem, "cosmos.store.snapsh
             break;
           }
 
-          message.version = longToNumber(reader.int64());
+          message.version = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -505,7 +508,7 @@ export const SnapshotIAVLItem: MessageFns<SnapshotIAVLItem, "cosmos.store.snapsh
     return {
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
-      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      version: isSet(object.version) ? Long.fromValue(object.version) : Long.ZERO,
       height: isSet(object.height) ? globalThis.Number(object.height) : 0,
     };
   },
@@ -518,8 +521,8 @@ export const SnapshotIAVLItem: MessageFns<SnapshotIAVLItem, "cosmos.store.snapsh
     if (message.value.length !== 0) {
       obj.value = base64FromBytes(message.value);
     }
-    if (message.version !== 0) {
-      obj.version = Math.round(message.version);
+    if (!message.version.equals(Long.ZERO)) {
+      obj.version = (message.version || Long.ZERO).toString();
     }
     if (message.height !== 0) {
       obj.height = Math.round(message.height);
@@ -534,7 +537,9 @@ export const SnapshotIAVLItem: MessageFns<SnapshotIAVLItem, "cosmos.store.snapsh
     const message = createBaseSnapshotIAVLItem();
     message.key = object.key ?? new Uint8Array(0);
     message.value = object.value ?? new Uint8Array(0);
-    message.version = object.version ?? 0;
+    message.version = (object.version !== undefined && object.version !== null)
+      ? Long.fromValue(object.version)
+      : Long.ZERO;
     message.height = object.height ?? 0;
     return message;
   },
@@ -712,21 +717,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

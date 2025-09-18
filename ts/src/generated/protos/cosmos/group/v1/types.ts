@@ -5,6 +5,7 @@
 // source: cosmos/group/v1/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Duration } from "../../../google/protobuf/duration.ts";
@@ -291,7 +292,7 @@ export interface DecisionPolicyWindows {
 /** GroupInfo represents the high-level on-chain information for a group. */
 export interface GroupInfo {
   /** id is the unique ID of the group. */
-  id: number;
+  id: Long;
   /** admin is the account address of the group's admin. */
   admin: string;
   /**
@@ -305,7 +306,7 @@ export interface GroupInfo {
    * or any member is added or removed this version is incremented and will
    * cause proposals based on older versions of this group to fail
    */
-  version: number;
+  version: Long;
   /** total_weight is the sum of the group members' weights. */
   totalWeight: string;
   /** created_at is a timestamp specifying when a group was created. */
@@ -315,7 +316,7 @@ export interface GroupInfo {
 /** GroupMember represents the relationship between a group and a member. */
 export interface GroupMember {
   /** group_id is the unique ID of the group. */
-  groupId: number;
+  groupId: Long;
   /** member is the member data. */
   member: Member | undefined;
 }
@@ -325,7 +326,7 @@ export interface GroupPolicyInfo {
   /** address is the account address of group policy. */
   address: string;
   /** group_id is the unique ID of the group. */
-  groupId: number;
+  groupId: Long;
   /** admin is the account address of the group admin. */
   admin: string;
   /**
@@ -338,7 +339,7 @@ export interface GroupPolicyInfo {
    * version is used to track changes to a group's GroupPolicyInfo structure that
    * would create a different result on a running proposal.
    */
-  version: number;
+  version: Long;
   /** decision_policy specifies the group policy's decision policy. */
   decisionPolicy:
     | Any
@@ -355,7 +356,7 @@ export interface GroupPolicyInfo {
  */
 export interface Proposal {
   /** id is the unique id of the proposal. */
-  id: number;
+  id: Long;
   /** group_policy_address is the account address of group policy. */
   groupPolicyAddress: string;
   /**
@@ -374,14 +375,14 @@ export interface Proposal {
    * group_version tracks the version of the group at proposal submission.
    * This field is here for informational purposes only.
    */
-  groupVersion: number;
+  groupVersion: Long;
   /**
    * group_policy_version tracks the version of the group policy at proposal submission.
    * When a decision policy is changed, existing proposals from previous policy
    * versions will become invalid with the `ABORTED` status.
    * This field is here for informational purposes only.
    */
-  groupPolicyVersion: number;
+  groupPolicyVersion: Long;
   /** status represents the high level position in the life cycle of the proposal. Initial value is Submitted. */
   status: ProposalStatus;
   /**
@@ -428,7 +429,7 @@ export interface TallyResult {
 /** Vote represents a vote for a proposal.string metadata */
 export interface Vote {
   /** proposal is the unique ID of the proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** voter is the account address of the voter. */
   voter: string;
   /** option is the voter's choice on the proposal. */
@@ -892,15 +893,15 @@ export const DecisionPolicyWindows: MessageFns<DecisionPolicyWindows, "cosmos.gr
 };
 
 function createBaseGroupInfo(): GroupInfo {
-  return { id: 0, admin: "", metadata: "", version: 0, totalWeight: "", createdAt: undefined };
+  return { id: Long.UZERO, admin: "", metadata: "", version: Long.UZERO, totalWeight: "", createdAt: undefined };
 }
 
 export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
   $type: "cosmos.group.v1.GroupInfo" as const,
 
   encode(message: GroupInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== 0) {
-      writer.uint32(8).uint64(message.id);
+    if (!message.id.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.id.toString());
     }
     if (message.admin !== "") {
       writer.uint32(18).string(message.admin);
@@ -908,8 +909,8 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
     if (message.metadata !== "") {
       writer.uint32(26).string(message.metadata);
     }
-    if (message.version !== 0) {
-      writer.uint32(32).uint64(message.version);
+    if (!message.version.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.version.toString());
     }
     if (message.totalWeight !== "") {
       writer.uint32(42).string(message.totalWeight);
@@ -932,7 +933,7 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
             break;
           }
 
-          message.id = longToNumber(reader.uint64());
+          message.id = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -956,7 +957,7 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
             break;
           }
 
-          message.version = longToNumber(reader.uint64());
+          message.version = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 5: {
@@ -986,10 +987,10 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
 
   fromJSON(object: any): GroupInfo {
     return {
-      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
+      id: isSet(object.id) ? Long.fromValue(object.id) : Long.UZERO,
       admin: isSet(object.admin) ? globalThis.String(object.admin) : "",
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
-      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      version: isSet(object.version) ? Long.fromValue(object.version) : Long.UZERO,
       totalWeight: isSet(object.totalWeight) ? globalThis.String(object.totalWeight) : "",
       createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
     };
@@ -997,8 +998,8 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
 
   toJSON(message: GroupInfo): unknown {
     const obj: any = {};
-    if (message.id !== 0) {
-      obj.id = Math.round(message.id);
+    if (!message.id.equals(Long.UZERO)) {
+      obj.id = (message.id || Long.UZERO).toString();
     }
     if (message.admin !== "") {
       obj.admin = message.admin;
@@ -1006,8 +1007,8 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
     if (message.metadata !== "") {
       obj.metadata = message.metadata;
     }
-    if (message.version !== 0) {
-      obj.version = Math.round(message.version);
+    if (!message.version.equals(Long.UZERO)) {
+      obj.version = (message.version || Long.UZERO).toString();
     }
     if (message.totalWeight !== "") {
       obj.totalWeight = message.totalWeight;
@@ -1023,10 +1024,12 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
   },
   fromPartial(object: DeepPartial<GroupInfo>): GroupInfo {
     const message = createBaseGroupInfo();
-    message.id = object.id ?? 0;
+    message.id = (object.id !== undefined && object.id !== null) ? Long.fromValue(object.id) : Long.UZERO;
     message.admin = object.admin ?? "";
     message.metadata = object.metadata ?? "";
-    message.version = object.version ?? 0;
+    message.version = (object.version !== undefined && object.version !== null)
+      ? Long.fromValue(object.version)
+      : Long.UZERO;
     message.totalWeight = object.totalWeight ?? "";
     message.createdAt = object.createdAt ?? undefined;
     return message;
@@ -1034,15 +1037,15 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
 };
 
 function createBaseGroupMember(): GroupMember {
-  return { groupId: 0, member: undefined };
+  return { groupId: Long.UZERO, member: undefined };
 }
 
 export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember"> = {
   $type: "cosmos.group.v1.GroupMember" as const,
 
   encode(message: GroupMember, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.groupId !== 0) {
-      writer.uint32(8).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.groupId.toString());
     }
     if (message.member !== undefined) {
       Member.encode(message.member, writer.uint32(18).fork()).join();
@@ -1062,7 +1065,7 @@ export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember">
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -1084,15 +1087,15 @@ export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember">
 
   fromJSON(object: any): GroupMember {
     return {
-      groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0,
+      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
       member: isSet(object.member) ? Member.fromJSON(object.member) : undefined,
     };
   },
 
   toJSON(message: GroupMember): unknown {
     const obj: any = {};
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     if (message.member !== undefined) {
       obj.member = Member.toJSON(message.member);
@@ -1105,7 +1108,9 @@ export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember">
   },
   fromPartial(object: DeepPartial<GroupMember>): GroupMember {
     const message = createBaseGroupMember();
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     message.member = (object.member !== undefined && object.member !== null)
       ? Member.fromPartial(object.member)
       : undefined;
@@ -1116,10 +1121,10 @@ export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember">
 function createBaseGroupPolicyInfo(): GroupPolicyInfo {
   return {
     address: "",
-    groupId: 0,
+    groupId: Long.UZERO,
     admin: "",
     metadata: "",
-    version: 0,
+    version: Long.UZERO,
     decisionPolicy: undefined,
     createdAt: undefined,
   };
@@ -1132,8 +1137,8 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
     if (message.address !== "") {
       writer.uint32(10).string(message.address);
     }
-    if (message.groupId !== 0) {
-      writer.uint32(16).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.groupId.toString());
     }
     if (message.admin !== "") {
       writer.uint32(26).string(message.admin);
@@ -1141,8 +1146,8 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
     if (message.metadata !== "") {
       writer.uint32(34).string(message.metadata);
     }
-    if (message.version !== 0) {
-      writer.uint32(40).uint64(message.version);
+    if (!message.version.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.version.toString());
     }
     if (message.decisionPolicy !== undefined) {
       Any.encode(message.decisionPolicy, writer.uint32(50).fork()).join();
@@ -1173,7 +1178,7 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -1197,7 +1202,7 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
             break;
           }
 
-          message.version = longToNumber(reader.uint64());
+          message.version = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 6: {
@@ -1228,10 +1233,10 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
   fromJSON(object: any): GroupPolicyInfo {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0,
+      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
       admin: isSet(object.admin) ? globalThis.String(object.admin) : "",
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
-      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      version: isSet(object.version) ? Long.fromValue(object.version) : Long.UZERO,
       decisionPolicy: isSet(object.decisionPolicy) ? Any.fromJSON(object.decisionPolicy) : undefined,
       createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
     };
@@ -1242,8 +1247,8 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
     if (message.address !== "") {
       obj.address = message.address;
     }
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     if (message.admin !== "") {
       obj.admin = message.admin;
@@ -1251,8 +1256,8 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
     if (message.metadata !== "") {
       obj.metadata = message.metadata;
     }
-    if (message.version !== 0) {
-      obj.version = Math.round(message.version);
+    if (!message.version.equals(Long.UZERO)) {
+      obj.version = (message.version || Long.UZERO).toString();
     }
     if (message.decisionPolicy !== undefined) {
       obj.decisionPolicy = Any.toJSON(message.decisionPolicy);
@@ -1269,10 +1274,14 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
   fromPartial(object: DeepPartial<GroupPolicyInfo>): GroupPolicyInfo {
     const message = createBaseGroupPolicyInfo();
     message.address = object.address ?? "";
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     message.admin = object.admin ?? "";
     message.metadata = object.metadata ?? "";
-    message.version = object.version ?? 0;
+    message.version = (object.version !== undefined && object.version !== null)
+      ? Long.fromValue(object.version)
+      : Long.UZERO;
     message.decisionPolicy = (object.decisionPolicy !== undefined && object.decisionPolicy !== null)
       ? Any.fromPartial(object.decisionPolicy)
       : undefined;
@@ -1283,13 +1292,13 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
 
 function createBaseProposal(): Proposal {
   return {
-    id: 0,
+    id: Long.UZERO,
     groupPolicyAddress: "",
     metadata: "",
     proposers: [],
     submitTime: undefined,
-    groupVersion: 0,
-    groupPolicyVersion: 0,
+    groupVersion: Long.UZERO,
+    groupPolicyVersion: Long.UZERO,
     status: 0,
     finalTallyResult: undefined,
     votingPeriodEnd: undefined,
@@ -1304,8 +1313,8 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
   $type: "cosmos.group.v1.Proposal" as const,
 
   encode(message: Proposal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== 0) {
-      writer.uint32(8).uint64(message.id);
+    if (!message.id.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.id.toString());
     }
     if (message.groupPolicyAddress !== "") {
       writer.uint32(18).string(message.groupPolicyAddress);
@@ -1319,11 +1328,11 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
     if (message.submitTime !== undefined) {
       Timestamp.encode(toTimestamp(message.submitTime), writer.uint32(42).fork()).join();
     }
-    if (message.groupVersion !== 0) {
-      writer.uint32(48).uint64(message.groupVersion);
+    if (!message.groupVersion.equals(Long.UZERO)) {
+      writer.uint32(48).uint64(message.groupVersion.toString());
     }
-    if (message.groupPolicyVersion !== 0) {
-      writer.uint32(56).uint64(message.groupPolicyVersion);
+    if (!message.groupPolicyVersion.equals(Long.UZERO)) {
+      writer.uint32(56).uint64(message.groupPolicyVersion.toString());
     }
     if (message.status !== 0) {
       writer.uint32(64).int32(message.status);
@@ -1361,7 +1370,7 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
             break;
           }
 
-          message.id = longToNumber(reader.uint64());
+          message.id = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -1401,7 +1410,7 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
             break;
           }
 
-          message.groupVersion = longToNumber(reader.uint64());
+          message.groupVersion = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 7: {
@@ -1409,7 +1418,7 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
             break;
           }
 
-          message.groupPolicyVersion = longToNumber(reader.uint64());
+          message.groupPolicyVersion = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 8: {
@@ -1479,15 +1488,15 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
 
   fromJSON(object: any): Proposal {
     return {
-      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
+      id: isSet(object.id) ? Long.fromValue(object.id) : Long.UZERO,
       groupPolicyAddress: isSet(object.groupPolicyAddress) ? globalThis.String(object.groupPolicyAddress) : "",
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
       proposers: globalThis.Array.isArray(object?.proposers)
         ? object.proposers.map((e: any) => globalThis.String(e))
         : [],
       submitTime: isSet(object.submitTime) ? fromJsonTimestamp(object.submitTime) : undefined,
-      groupVersion: isSet(object.groupVersion) ? globalThis.Number(object.groupVersion) : 0,
-      groupPolicyVersion: isSet(object.groupPolicyVersion) ? globalThis.Number(object.groupPolicyVersion) : 0,
+      groupVersion: isSet(object.groupVersion) ? Long.fromValue(object.groupVersion) : Long.UZERO,
+      groupPolicyVersion: isSet(object.groupPolicyVersion) ? Long.fromValue(object.groupPolicyVersion) : Long.UZERO,
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
       finalTallyResult: isSet(object.finalTallyResult) ? TallyResult.fromJSON(object.finalTallyResult) : undefined,
       votingPeriodEnd: isSet(object.votingPeriodEnd) ? fromJsonTimestamp(object.votingPeriodEnd) : undefined,
@@ -1500,8 +1509,8 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
 
   toJSON(message: Proposal): unknown {
     const obj: any = {};
-    if (message.id !== 0) {
-      obj.id = Math.round(message.id);
+    if (!message.id.equals(Long.UZERO)) {
+      obj.id = (message.id || Long.UZERO).toString();
     }
     if (message.groupPolicyAddress !== "") {
       obj.groupPolicyAddress = message.groupPolicyAddress;
@@ -1515,11 +1524,11 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
     if (message.submitTime !== undefined) {
       obj.submitTime = message.submitTime.toISOString();
     }
-    if (message.groupVersion !== 0) {
-      obj.groupVersion = Math.round(message.groupVersion);
+    if (!message.groupVersion.equals(Long.UZERO)) {
+      obj.groupVersion = (message.groupVersion || Long.UZERO).toString();
     }
-    if (message.groupPolicyVersion !== 0) {
-      obj.groupPolicyVersion = Math.round(message.groupPolicyVersion);
+    if (!message.groupPolicyVersion.equals(Long.UZERO)) {
+      obj.groupPolicyVersion = (message.groupPolicyVersion || Long.UZERO).toString();
     }
     if (message.status !== 0) {
       obj.status = proposalStatusToJSON(message.status);
@@ -1550,13 +1559,17 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
   },
   fromPartial(object: DeepPartial<Proposal>): Proposal {
     const message = createBaseProposal();
-    message.id = object.id ?? 0;
+    message.id = (object.id !== undefined && object.id !== null) ? Long.fromValue(object.id) : Long.UZERO;
     message.groupPolicyAddress = object.groupPolicyAddress ?? "";
     message.metadata = object.metadata ?? "";
     message.proposers = object.proposers?.map((e) => e) || [];
     message.submitTime = object.submitTime ?? undefined;
-    message.groupVersion = object.groupVersion ?? 0;
-    message.groupPolicyVersion = object.groupPolicyVersion ?? 0;
+    message.groupVersion = (object.groupVersion !== undefined && object.groupVersion !== null)
+      ? Long.fromValue(object.groupVersion)
+      : Long.UZERO;
+    message.groupPolicyVersion = (object.groupPolicyVersion !== undefined && object.groupPolicyVersion !== null)
+      ? Long.fromValue(object.groupPolicyVersion)
+      : Long.UZERO;
     message.status = object.status ?? 0;
     message.finalTallyResult = (object.finalTallyResult !== undefined && object.finalTallyResult !== null)
       ? TallyResult.fromPartial(object.finalTallyResult)
@@ -1681,15 +1694,15 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.group.v1.TallyResult">
 };
 
 function createBaseVote(): Vote {
-  return { proposalId: 0, voter: "", option: 0, metadata: "", submitTime: undefined };
+  return { proposalId: Long.UZERO, voter: "", option: 0, metadata: "", submitTime: undefined };
 }
 
 export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
   $type: "cosmos.group.v1.Vote" as const,
 
   encode(message: Vote, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.voter !== "") {
       writer.uint32(18).string(message.voter);
@@ -1718,7 +1731,7 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -1764,7 +1777,7 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
 
   fromJSON(object: any): Vote {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       option: isSet(object.option) ? voteOptionFromJSON(object.option) : 0,
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
@@ -1774,8 +1787,8 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
 
   toJSON(message: Vote): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -1797,7 +1810,9 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
   },
   fromPartial(object: DeepPartial<Vote>): Vote {
     const message = createBaseVote();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.voter = object.voter ?? "";
     message.option = object.option ?? 0;
     message.metadata = object.metadata ?? "";
@@ -1809,19 +1824,19 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -1836,15 +1851,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

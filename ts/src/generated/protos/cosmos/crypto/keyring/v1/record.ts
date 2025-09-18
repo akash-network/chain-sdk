@@ -8,6 +8,7 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { BIP44Params } from "../../hd/v1/hd.ts";
+import Long = require("long");
 
 export const protobufPackage = "cosmos.crypto.keyring.v1";
 
@@ -425,7 +426,7 @@ export const Record_Offline: MessageFns<Record_Offline, "cosmos.crypto.keyring.v
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

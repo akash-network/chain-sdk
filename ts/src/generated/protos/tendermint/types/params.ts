@@ -5,6 +5,7 @@
 // source: tendermint/types/params.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Duration } from "../../google/protobuf/duration.ts";
 
@@ -28,12 +29,12 @@ export interface BlockParams {
    * Max block size, in bytes.
    * Note: must be greater than 0
    */
-  maxBytes: number;
+  maxBytes: Long;
   /**
    * Max gas per block.
    * Note: must be greater or equal to -1
    */
-  maxGas: number;
+  maxGas: Long;
 }
 
 /** EvidenceParams determine how we handle evidence of malfeasance. */
@@ -44,7 +45,7 @@ export interface EvidenceParams {
    * The basic formula for calculating this is: MaxAgeDuration / {average block
    * time}.
    */
-  maxAgeNumBlocks: number;
+  maxAgeNumBlocks: Long;
   /**
    * Max age of evidence, in time.
    *
@@ -60,7 +61,7 @@ export interface EvidenceParams {
    * and should fall comfortably under the max block bytes.
    * Default is 1048576 or 1MB
    */
-  maxBytes: number;
+  maxBytes: Long;
 }
 
 /**
@@ -73,7 +74,7 @@ export interface ValidatorParams {
 
 /** VersionParams contains the ABCI application version. */
 export interface VersionParams {
-  app: number;
+  app: Long;
 }
 
 /**
@@ -82,8 +83,8 @@ export interface VersionParams {
  * It is hashed into the Header.ConsensusHash.
  */
 export interface HashedParams {
-  blockMaxBytes: number;
-  blockMaxGas: number;
+  blockMaxBytes: Long;
+  blockMaxGas: Long;
 }
 
 /** ABCIParams configure functionality specific to the Application Blockchain Interface. */
@@ -99,7 +100,7 @@ export interface ABCIParams {
    * passed to the application for validation in VerifyVoteExtension and given
    * to the application to use when proposing a block during PrepareProposal.
    */
-  voteExtensionsEnableHeight: number;
+  voteExtensionsEnableHeight: Long;
 }
 
 function createBaseConsensusParams(): ConsensusParams {
@@ -239,18 +240,18 @@ export const ConsensusParams: MessageFns<ConsensusParams, "tendermint.types.Cons
 };
 
 function createBaseBlockParams(): BlockParams {
-  return { maxBytes: 0, maxGas: 0 };
+  return { maxBytes: Long.ZERO, maxGas: Long.ZERO };
 }
 
 export const BlockParams: MessageFns<BlockParams, "tendermint.types.BlockParams"> = {
   $type: "tendermint.types.BlockParams" as const,
 
   encode(message: BlockParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.maxBytes !== 0) {
-      writer.uint32(8).int64(message.maxBytes);
+    if (!message.maxBytes.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.maxBytes.toString());
     }
-    if (message.maxGas !== 0) {
-      writer.uint32(16).int64(message.maxGas);
+    if (!message.maxGas.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.maxGas.toString());
     }
     return writer;
   },
@@ -267,7 +268,7 @@ export const BlockParams: MessageFns<BlockParams, "tendermint.types.BlockParams"
             break;
           }
 
-          message.maxBytes = longToNumber(reader.int64());
+          message.maxBytes = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -275,7 +276,7 @@ export const BlockParams: MessageFns<BlockParams, "tendermint.types.BlockParams"
             break;
           }
 
-          message.maxGas = longToNumber(reader.int64());
+          message.maxGas = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -289,18 +290,18 @@ export const BlockParams: MessageFns<BlockParams, "tendermint.types.BlockParams"
 
   fromJSON(object: any): BlockParams {
     return {
-      maxBytes: isSet(object.maxBytes) ? globalThis.Number(object.maxBytes) : 0,
-      maxGas: isSet(object.maxGas) ? globalThis.Number(object.maxGas) : 0,
+      maxBytes: isSet(object.maxBytes) ? Long.fromValue(object.maxBytes) : Long.ZERO,
+      maxGas: isSet(object.maxGas) ? Long.fromValue(object.maxGas) : Long.ZERO,
     };
   },
 
   toJSON(message: BlockParams): unknown {
     const obj: any = {};
-    if (message.maxBytes !== 0) {
-      obj.maxBytes = Math.round(message.maxBytes);
+    if (!message.maxBytes.equals(Long.ZERO)) {
+      obj.maxBytes = (message.maxBytes || Long.ZERO).toString();
     }
-    if (message.maxGas !== 0) {
-      obj.maxGas = Math.round(message.maxGas);
+    if (!message.maxGas.equals(Long.ZERO)) {
+      obj.maxGas = (message.maxGas || Long.ZERO).toString();
     }
     return obj;
   },
@@ -310,28 +311,32 @@ export const BlockParams: MessageFns<BlockParams, "tendermint.types.BlockParams"
   },
   fromPartial(object: DeepPartial<BlockParams>): BlockParams {
     const message = createBaseBlockParams();
-    message.maxBytes = object.maxBytes ?? 0;
-    message.maxGas = object.maxGas ?? 0;
+    message.maxBytes = (object.maxBytes !== undefined && object.maxBytes !== null)
+      ? Long.fromValue(object.maxBytes)
+      : Long.ZERO;
+    message.maxGas = (object.maxGas !== undefined && object.maxGas !== null)
+      ? Long.fromValue(object.maxGas)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseEvidenceParams(): EvidenceParams {
-  return { maxAgeNumBlocks: 0, maxAgeDuration: undefined, maxBytes: 0 };
+  return { maxAgeNumBlocks: Long.ZERO, maxAgeDuration: undefined, maxBytes: Long.ZERO };
 }
 
 export const EvidenceParams: MessageFns<EvidenceParams, "tendermint.types.EvidenceParams"> = {
   $type: "tendermint.types.EvidenceParams" as const,
 
   encode(message: EvidenceParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.maxAgeNumBlocks !== 0) {
-      writer.uint32(8).int64(message.maxAgeNumBlocks);
+    if (!message.maxAgeNumBlocks.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.maxAgeNumBlocks.toString());
     }
     if (message.maxAgeDuration !== undefined) {
       Duration.encode(message.maxAgeDuration, writer.uint32(18).fork()).join();
     }
-    if (message.maxBytes !== 0) {
-      writer.uint32(24).int64(message.maxBytes);
+    if (!message.maxBytes.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.maxBytes.toString());
     }
     return writer;
   },
@@ -348,7 +353,7 @@ export const EvidenceParams: MessageFns<EvidenceParams, "tendermint.types.Eviden
             break;
           }
 
-          message.maxAgeNumBlocks = longToNumber(reader.int64());
+          message.maxAgeNumBlocks = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -364,7 +369,7 @@ export const EvidenceParams: MessageFns<EvidenceParams, "tendermint.types.Eviden
             break;
           }
 
-          message.maxBytes = longToNumber(reader.int64());
+          message.maxBytes = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -378,22 +383,22 @@ export const EvidenceParams: MessageFns<EvidenceParams, "tendermint.types.Eviden
 
   fromJSON(object: any): EvidenceParams {
     return {
-      maxAgeNumBlocks: isSet(object.maxAgeNumBlocks) ? globalThis.Number(object.maxAgeNumBlocks) : 0,
+      maxAgeNumBlocks: isSet(object.maxAgeNumBlocks) ? Long.fromValue(object.maxAgeNumBlocks) : Long.ZERO,
       maxAgeDuration: isSet(object.maxAgeDuration) ? Duration.fromJSON(object.maxAgeDuration) : undefined,
-      maxBytes: isSet(object.maxBytes) ? globalThis.Number(object.maxBytes) : 0,
+      maxBytes: isSet(object.maxBytes) ? Long.fromValue(object.maxBytes) : Long.ZERO,
     };
   },
 
   toJSON(message: EvidenceParams): unknown {
     const obj: any = {};
-    if (message.maxAgeNumBlocks !== 0) {
-      obj.maxAgeNumBlocks = Math.round(message.maxAgeNumBlocks);
+    if (!message.maxAgeNumBlocks.equals(Long.ZERO)) {
+      obj.maxAgeNumBlocks = (message.maxAgeNumBlocks || Long.ZERO).toString();
     }
     if (message.maxAgeDuration !== undefined) {
       obj.maxAgeDuration = Duration.toJSON(message.maxAgeDuration);
     }
-    if (message.maxBytes !== 0) {
-      obj.maxBytes = Math.round(message.maxBytes);
+    if (!message.maxBytes.equals(Long.ZERO)) {
+      obj.maxBytes = (message.maxBytes || Long.ZERO).toString();
     }
     return obj;
   },
@@ -403,11 +408,15 @@ export const EvidenceParams: MessageFns<EvidenceParams, "tendermint.types.Eviden
   },
   fromPartial(object: DeepPartial<EvidenceParams>): EvidenceParams {
     const message = createBaseEvidenceParams();
-    message.maxAgeNumBlocks = object.maxAgeNumBlocks ?? 0;
+    message.maxAgeNumBlocks = (object.maxAgeNumBlocks !== undefined && object.maxAgeNumBlocks !== null)
+      ? Long.fromValue(object.maxAgeNumBlocks)
+      : Long.ZERO;
     message.maxAgeDuration = (object.maxAgeDuration !== undefined && object.maxAgeDuration !== null)
       ? Duration.fromPartial(object.maxAgeDuration)
       : undefined;
-    message.maxBytes = object.maxBytes ?? 0;
+    message.maxBytes = (object.maxBytes !== undefined && object.maxBytes !== null)
+      ? Long.fromValue(object.maxBytes)
+      : Long.ZERO;
     return message;
   },
 };
@@ -477,15 +486,15 @@ export const ValidatorParams: MessageFns<ValidatorParams, "tendermint.types.Vali
 };
 
 function createBaseVersionParams(): VersionParams {
-  return { app: 0 };
+  return { app: Long.UZERO };
 }
 
 export const VersionParams: MessageFns<VersionParams, "tendermint.types.VersionParams"> = {
   $type: "tendermint.types.VersionParams" as const,
 
   encode(message: VersionParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.app !== 0) {
-      writer.uint32(8).uint64(message.app);
+    if (!message.app.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.app.toString());
     }
     return writer;
   },
@@ -502,7 +511,7 @@ export const VersionParams: MessageFns<VersionParams, "tendermint.types.VersionP
             break;
           }
 
-          message.app = longToNumber(reader.uint64());
+          message.app = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -515,13 +524,13 @@ export const VersionParams: MessageFns<VersionParams, "tendermint.types.VersionP
   },
 
   fromJSON(object: any): VersionParams {
-    return { app: isSet(object.app) ? globalThis.Number(object.app) : 0 };
+    return { app: isSet(object.app) ? Long.fromValue(object.app) : Long.UZERO };
   },
 
   toJSON(message: VersionParams): unknown {
     const obj: any = {};
-    if (message.app !== 0) {
-      obj.app = Math.round(message.app);
+    if (!message.app.equals(Long.UZERO)) {
+      obj.app = (message.app || Long.UZERO).toString();
     }
     return obj;
   },
@@ -531,24 +540,24 @@ export const VersionParams: MessageFns<VersionParams, "tendermint.types.VersionP
   },
   fromPartial(object: DeepPartial<VersionParams>): VersionParams {
     const message = createBaseVersionParams();
-    message.app = object.app ?? 0;
+    message.app = (object.app !== undefined && object.app !== null) ? Long.fromValue(object.app) : Long.UZERO;
     return message;
   },
 };
 
 function createBaseHashedParams(): HashedParams {
-  return { blockMaxBytes: 0, blockMaxGas: 0 };
+  return { blockMaxBytes: Long.ZERO, blockMaxGas: Long.ZERO };
 }
 
 export const HashedParams: MessageFns<HashedParams, "tendermint.types.HashedParams"> = {
   $type: "tendermint.types.HashedParams" as const,
 
   encode(message: HashedParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.blockMaxBytes !== 0) {
-      writer.uint32(8).int64(message.blockMaxBytes);
+    if (!message.blockMaxBytes.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.blockMaxBytes.toString());
     }
-    if (message.blockMaxGas !== 0) {
-      writer.uint32(16).int64(message.blockMaxGas);
+    if (!message.blockMaxGas.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.blockMaxGas.toString());
     }
     return writer;
   },
@@ -565,7 +574,7 @@ export const HashedParams: MessageFns<HashedParams, "tendermint.types.HashedPara
             break;
           }
 
-          message.blockMaxBytes = longToNumber(reader.int64());
+          message.blockMaxBytes = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -573,7 +582,7 @@ export const HashedParams: MessageFns<HashedParams, "tendermint.types.HashedPara
             break;
           }
 
-          message.blockMaxGas = longToNumber(reader.int64());
+          message.blockMaxGas = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -587,18 +596,18 @@ export const HashedParams: MessageFns<HashedParams, "tendermint.types.HashedPara
 
   fromJSON(object: any): HashedParams {
     return {
-      blockMaxBytes: isSet(object.blockMaxBytes) ? globalThis.Number(object.blockMaxBytes) : 0,
-      blockMaxGas: isSet(object.blockMaxGas) ? globalThis.Number(object.blockMaxGas) : 0,
+      blockMaxBytes: isSet(object.blockMaxBytes) ? Long.fromValue(object.blockMaxBytes) : Long.ZERO,
+      blockMaxGas: isSet(object.blockMaxGas) ? Long.fromValue(object.blockMaxGas) : Long.ZERO,
     };
   },
 
   toJSON(message: HashedParams): unknown {
     const obj: any = {};
-    if (message.blockMaxBytes !== 0) {
-      obj.blockMaxBytes = Math.round(message.blockMaxBytes);
+    if (!message.blockMaxBytes.equals(Long.ZERO)) {
+      obj.blockMaxBytes = (message.blockMaxBytes || Long.ZERO).toString();
     }
-    if (message.blockMaxGas !== 0) {
-      obj.blockMaxGas = Math.round(message.blockMaxGas);
+    if (!message.blockMaxGas.equals(Long.ZERO)) {
+      obj.blockMaxGas = (message.blockMaxGas || Long.ZERO).toString();
     }
     return obj;
   },
@@ -608,22 +617,26 @@ export const HashedParams: MessageFns<HashedParams, "tendermint.types.HashedPara
   },
   fromPartial(object: DeepPartial<HashedParams>): HashedParams {
     const message = createBaseHashedParams();
-    message.blockMaxBytes = object.blockMaxBytes ?? 0;
-    message.blockMaxGas = object.blockMaxGas ?? 0;
+    message.blockMaxBytes = (object.blockMaxBytes !== undefined && object.blockMaxBytes !== null)
+      ? Long.fromValue(object.blockMaxBytes)
+      : Long.ZERO;
+    message.blockMaxGas = (object.blockMaxGas !== undefined && object.blockMaxGas !== null)
+      ? Long.fromValue(object.blockMaxGas)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseABCIParams(): ABCIParams {
-  return { voteExtensionsEnableHeight: 0 };
+  return { voteExtensionsEnableHeight: Long.ZERO };
 }
 
 export const ABCIParams: MessageFns<ABCIParams, "tendermint.types.ABCIParams"> = {
   $type: "tendermint.types.ABCIParams" as const,
 
   encode(message: ABCIParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.voteExtensionsEnableHeight !== 0) {
-      writer.uint32(8).int64(message.voteExtensionsEnableHeight);
+    if (!message.voteExtensionsEnableHeight.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.voteExtensionsEnableHeight.toString());
     }
     return writer;
   },
@@ -640,7 +653,7 @@ export const ABCIParams: MessageFns<ABCIParams, "tendermint.types.ABCIParams"> =
             break;
           }
 
-          message.voteExtensionsEnableHeight = longToNumber(reader.int64());
+          message.voteExtensionsEnableHeight = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -655,15 +668,15 @@ export const ABCIParams: MessageFns<ABCIParams, "tendermint.types.ABCIParams"> =
   fromJSON(object: any): ABCIParams {
     return {
       voteExtensionsEnableHeight: isSet(object.voteExtensionsEnableHeight)
-        ? globalThis.Number(object.voteExtensionsEnableHeight)
-        : 0,
+        ? Long.fromValue(object.voteExtensionsEnableHeight)
+        : Long.ZERO,
     };
   },
 
   toJSON(message: ABCIParams): unknown {
     const obj: any = {};
-    if (message.voteExtensionsEnableHeight !== 0) {
-      obj.voteExtensionsEnableHeight = Math.round(message.voteExtensionsEnableHeight);
+    if (!message.voteExtensionsEnableHeight.equals(Long.ZERO)) {
+      obj.voteExtensionsEnableHeight = (message.voteExtensionsEnableHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -673,7 +686,10 @@ export const ABCIParams: MessageFns<ABCIParams, "tendermint.types.ABCIParams"> =
   },
   fromPartial(object: DeepPartial<ABCIParams>): ABCIParams {
     const message = createBaseABCIParams();
-    message.voteExtensionsEnableHeight = object.voteExtensionsEnableHeight ?? 0;
+    message.voteExtensionsEnableHeight =
+      (object.voteExtensionsEnableHeight !== undefined && object.voteExtensionsEnableHeight !== null)
+        ? Long.fromValue(object.voteExtensionsEnableHeight)
+        : Long.ZERO;
     return message;
   },
 };
@@ -681,21 +697,10 @@ export const ABCIParams: MessageFns<ABCIParams, "tendermint.types.ABCIParams"> =
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

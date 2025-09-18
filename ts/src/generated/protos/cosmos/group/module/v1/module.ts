@@ -5,6 +5,7 @@
 // source: cosmos/group/module/v1/module.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Duration } from "../../../../google/protobuf/duration.ts";
 
@@ -23,11 +24,11 @@ export interface Module {
    * max_metadata_len defines the max length of the metadata bytes field for various entities within the group module.
    * Defaults to 255 if not explicitly set.
    */
-  maxMetadataLen: number;
+  maxMetadataLen: Long;
 }
 
 function createBaseModule(): Module {
-  return { maxExecutionPeriod: undefined, maxMetadataLen: 0 };
+  return { maxExecutionPeriod: undefined, maxMetadataLen: Long.UZERO };
 }
 
 export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
@@ -37,8 +38,8 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
     if (message.maxExecutionPeriod !== undefined) {
       Duration.encode(message.maxExecutionPeriod, writer.uint32(10).fork()).join();
     }
-    if (message.maxMetadataLen !== 0) {
-      writer.uint32(16).uint64(message.maxMetadataLen);
+    if (!message.maxMetadataLen.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.maxMetadataLen.toString());
     }
     return writer;
   },
@@ -63,7 +64,7 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
             break;
           }
 
-          message.maxMetadataLen = longToNumber(reader.uint64());
+          message.maxMetadataLen = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -78,7 +79,7 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
   fromJSON(object: any): Module {
     return {
       maxExecutionPeriod: isSet(object.maxExecutionPeriod) ? Duration.fromJSON(object.maxExecutionPeriod) : undefined,
-      maxMetadataLen: isSet(object.maxMetadataLen) ? globalThis.Number(object.maxMetadataLen) : 0,
+      maxMetadataLen: isSet(object.maxMetadataLen) ? Long.fromValue(object.maxMetadataLen) : Long.UZERO,
     };
   },
 
@@ -87,8 +88,8 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
     if (message.maxExecutionPeriod !== undefined) {
       obj.maxExecutionPeriod = Duration.toJSON(message.maxExecutionPeriod);
     }
-    if (message.maxMetadataLen !== 0) {
-      obj.maxMetadataLen = Math.round(message.maxMetadataLen);
+    if (!message.maxMetadataLen.equals(Long.UZERO)) {
+      obj.maxMetadataLen = (message.maxMetadataLen || Long.UZERO).toString();
     }
     return obj;
   },
@@ -101,7 +102,9 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
     message.maxExecutionPeriod = (object.maxExecutionPeriod !== undefined && object.maxExecutionPeriod !== null)
       ? Duration.fromPartial(object.maxExecutionPeriod)
       : undefined;
-    message.maxMetadataLen = object.maxMetadataLen ?? 0;
+    message.maxMetadataLen = (object.maxMetadataLen !== undefined && object.maxMetadataLen !== null)
+      ? Long.fromValue(object.maxMetadataLen)
+      : Long.UZERO;
     return message;
   },
 };
@@ -109,21 +112,10 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

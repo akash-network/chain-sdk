@@ -5,6 +5,7 @@
 // source: cosmos/base/tendermint/v1beta1/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp.ts";
 import { EvidenceList } from "../../../../tendermint/types/evidence.ts";
@@ -29,7 +30,7 @@ export interface Header {
   /** basic block info */
   version: Consensus | undefined;
   chainId: string;
-  height: number;
+  height: Long;
   time:
     | Date
     | undefined;
@@ -181,7 +182,7 @@ function createBaseHeader(): Header {
   return {
     version: undefined,
     chainId: "",
-    height: 0,
+    height: Long.ZERO,
     time: undefined,
     lastBlockId: undefined,
     lastCommitHash: new Uint8Array(0),
@@ -206,8 +207,8 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
     if (message.chainId !== "") {
       writer.uint32(18).string(message.chainId);
     }
-    if (message.height !== 0) {
-      writer.uint32(24).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(34).fork()).join();
@@ -273,7 +274,7 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -377,7 +378,7 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
     return {
       version: isSet(object.version) ? Consensus.fromJSON(object.version) : undefined,
       chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       lastBlockId: isSet(object.lastBlockId) ? BlockID.fromJSON(object.lastBlockId) : undefined,
       lastCommitHash: isSet(object.lastCommitHash) ? bytesFromBase64(object.lastCommitHash) : new Uint8Array(0),
@@ -402,8 +403,8 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
     if (message.chainId !== "") {
       obj.chainId = message.chainId;
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
@@ -450,7 +451,9 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
       ? Consensus.fromPartial(object.version)
       : undefined;
     message.chainId = object.chainId ?? "";
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
     message.lastBlockId = (object.lastBlockId !== undefined && object.lastBlockId !== null)
       ? BlockID.fromPartial(object.lastBlockId)
@@ -496,19 +499,19 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -523,15 +526,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

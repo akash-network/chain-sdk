@@ -5,6 +5,7 @@
 // source: cosmos/distribution/v1beta1/distribution.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Coin, DecCoin } from "../../base/v1beta1/coin.ts";
 
@@ -56,7 +57,7 @@ export interface ValidatorHistoricalRewards {
  */
 export interface ValidatorCurrentRewards {
   rewards: DecCoin[];
-  period: number;
+  period: Long;
 }
 
 /**
@@ -82,7 +83,7 @@ export interface ValidatorOutstandingRewards {
  * for delegations which are withdrawn after a slash has occurred.
  */
 export interface ValidatorSlashEvent {
-  validatorPeriod: number;
+  validatorPeriod: Long;
   fraction: string;
 }
 
@@ -124,9 +125,9 @@ export interface CommunityPoolSpendProposal {
  * thus sdk.Dec is used.
  */
 export interface DelegatorStartingInfo {
-  previousPeriod: number;
+  previousPeriod: Long;
   stake: string;
-  height: number;
+  height: Long;
 }
 
 /**
@@ -344,7 +345,7 @@ export const ValidatorHistoricalRewards: MessageFns<
 };
 
 function createBaseValidatorCurrentRewards(): ValidatorCurrentRewards {
-  return { rewards: [], period: 0 };
+  return { rewards: [], period: Long.UZERO };
 }
 
 export const ValidatorCurrentRewards: MessageFns<
@@ -357,8 +358,8 @@ export const ValidatorCurrentRewards: MessageFns<
     for (const v of message.rewards) {
       DecCoin.encode(v!, writer.uint32(10).fork()).join();
     }
-    if (message.period !== 0) {
-      writer.uint32(16).uint64(message.period);
+    if (!message.period.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.period.toString());
     }
     return writer;
   },
@@ -383,7 +384,7 @@ export const ValidatorCurrentRewards: MessageFns<
             break;
           }
 
-          message.period = longToNumber(reader.uint64());
+          message.period = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -398,7 +399,7 @@ export const ValidatorCurrentRewards: MessageFns<
   fromJSON(object: any): ValidatorCurrentRewards {
     return {
       rewards: globalThis.Array.isArray(object?.rewards) ? object.rewards.map((e: any) => DecCoin.fromJSON(e)) : [],
-      period: isSet(object.period) ? globalThis.Number(object.period) : 0,
+      period: isSet(object.period) ? Long.fromValue(object.period) : Long.UZERO,
     };
   },
 
@@ -407,8 +408,8 @@ export const ValidatorCurrentRewards: MessageFns<
     if (message.rewards?.length) {
       obj.rewards = message.rewards.map((e) => DecCoin.toJSON(e));
     }
-    if (message.period !== 0) {
-      obj.period = Math.round(message.period);
+    if (!message.period.equals(Long.UZERO)) {
+      obj.period = (message.period || Long.UZERO).toString();
     }
     return obj;
   },
@@ -419,7 +420,9 @@ export const ValidatorCurrentRewards: MessageFns<
   fromPartial(object: DeepPartial<ValidatorCurrentRewards>): ValidatorCurrentRewards {
     const message = createBaseValidatorCurrentRewards();
     message.rewards = object.rewards?.map((e) => DecCoin.fromPartial(e)) || [];
-    message.period = object.period ?? 0;
+    message.period = (object.period !== undefined && object.period !== null)
+      ? Long.fromValue(object.period)
+      : Long.UZERO;
     return message;
   },
 };
@@ -557,15 +560,15 @@ export const ValidatorOutstandingRewards: MessageFns<
 };
 
 function createBaseValidatorSlashEvent(): ValidatorSlashEvent {
-  return { validatorPeriod: 0, fraction: "" };
+  return { validatorPeriod: Long.UZERO, fraction: "" };
 }
 
 export const ValidatorSlashEvent: MessageFns<ValidatorSlashEvent, "cosmos.distribution.v1beta1.ValidatorSlashEvent"> = {
   $type: "cosmos.distribution.v1beta1.ValidatorSlashEvent" as const,
 
   encode(message: ValidatorSlashEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.validatorPeriod !== 0) {
-      writer.uint32(8).uint64(message.validatorPeriod);
+    if (!message.validatorPeriod.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.validatorPeriod.toString());
     }
     if (message.fraction !== "") {
       writer.uint32(18).string(message.fraction);
@@ -585,7 +588,7 @@ export const ValidatorSlashEvent: MessageFns<ValidatorSlashEvent, "cosmos.distri
             break;
           }
 
-          message.validatorPeriod = longToNumber(reader.uint64());
+          message.validatorPeriod = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -607,15 +610,15 @@ export const ValidatorSlashEvent: MessageFns<ValidatorSlashEvent, "cosmos.distri
 
   fromJSON(object: any): ValidatorSlashEvent {
     return {
-      validatorPeriod: isSet(object.validatorPeriod) ? globalThis.Number(object.validatorPeriod) : 0,
+      validatorPeriod: isSet(object.validatorPeriod) ? Long.fromValue(object.validatorPeriod) : Long.UZERO,
       fraction: isSet(object.fraction) ? globalThis.String(object.fraction) : "",
     };
   },
 
   toJSON(message: ValidatorSlashEvent): unknown {
     const obj: any = {};
-    if (message.validatorPeriod !== 0) {
-      obj.validatorPeriod = Math.round(message.validatorPeriod);
+    if (!message.validatorPeriod.equals(Long.UZERO)) {
+      obj.validatorPeriod = (message.validatorPeriod || Long.UZERO).toString();
     }
     if (message.fraction !== "") {
       obj.fraction = message.fraction;
@@ -628,7 +631,9 @@ export const ValidatorSlashEvent: MessageFns<ValidatorSlashEvent, "cosmos.distri
   },
   fromPartial(object: DeepPartial<ValidatorSlashEvent>): ValidatorSlashEvent {
     const message = createBaseValidatorSlashEvent();
-    message.validatorPeriod = object.validatorPeriod ?? 0;
+    message.validatorPeriod = (object.validatorPeriod !== undefined && object.validatorPeriod !== null)
+      ? Long.fromValue(object.validatorPeriod)
+      : Long.UZERO;
     message.fraction = object.fraction ?? "";
     return message;
   },
@@ -879,7 +884,7 @@ export const CommunityPoolSpendProposal: MessageFns<
 };
 
 function createBaseDelegatorStartingInfo(): DelegatorStartingInfo {
-  return { previousPeriod: 0, stake: "", height: 0 };
+  return { previousPeriod: Long.UZERO, stake: "", height: Long.UZERO };
 }
 
 export const DelegatorStartingInfo: MessageFns<
@@ -889,14 +894,14 @@ export const DelegatorStartingInfo: MessageFns<
   $type: "cosmos.distribution.v1beta1.DelegatorStartingInfo" as const,
 
   encode(message: DelegatorStartingInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.previousPeriod !== 0) {
-      writer.uint32(8).uint64(message.previousPeriod);
+    if (!message.previousPeriod.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.previousPeriod.toString());
     }
     if (message.stake !== "") {
       writer.uint32(18).string(message.stake);
     }
-    if (message.height !== 0) {
-      writer.uint32(24).uint64(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.height.toString());
     }
     return writer;
   },
@@ -913,7 +918,7 @@ export const DelegatorStartingInfo: MessageFns<
             break;
           }
 
-          message.previousPeriod = longToNumber(reader.uint64());
+          message.previousPeriod = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -929,7 +934,7 @@ export const DelegatorStartingInfo: MessageFns<
             break;
           }
 
-          message.height = longToNumber(reader.uint64());
+          message.height = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -943,22 +948,22 @@ export const DelegatorStartingInfo: MessageFns<
 
   fromJSON(object: any): DelegatorStartingInfo {
     return {
-      previousPeriod: isSet(object.previousPeriod) ? globalThis.Number(object.previousPeriod) : 0,
+      previousPeriod: isSet(object.previousPeriod) ? Long.fromValue(object.previousPeriod) : Long.UZERO,
       stake: isSet(object.stake) ? globalThis.String(object.stake) : "",
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
     };
   },
 
   toJSON(message: DelegatorStartingInfo): unknown {
     const obj: any = {};
-    if (message.previousPeriod !== 0) {
-      obj.previousPeriod = Math.round(message.previousPeriod);
+    if (!message.previousPeriod.equals(Long.UZERO)) {
+      obj.previousPeriod = (message.previousPeriod || Long.UZERO).toString();
     }
     if (message.stake !== "") {
       obj.stake = message.stake;
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      obj.height = (message.height || Long.UZERO).toString();
     }
     return obj;
   },
@@ -968,9 +973,13 @@ export const DelegatorStartingInfo: MessageFns<
   },
   fromPartial(object: DeepPartial<DelegatorStartingInfo>): DelegatorStartingInfo {
     const message = createBaseDelegatorStartingInfo();
-    message.previousPeriod = object.previousPeriod ?? 0;
+    message.previousPeriod = (object.previousPeriod !== undefined && object.previousPeriod !== null)
+      ? Long.fromValue(object.previousPeriod)
+      : Long.UZERO;
     message.stake = object.stake ?? "";
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.UZERO;
     return message;
   },
 };
@@ -1188,21 +1197,10 @@ export const CommunityPoolSpendProposalWithDeposit: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

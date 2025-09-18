@@ -5,6 +5,7 @@
 // source: cosmos/base/abci/v1beta1/abci.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { Event } from "../../../../tendermint/abci/types.ts";
@@ -18,7 +19,7 @@ export const protobufPackage = "cosmos.base.abci.v1beta1";
  */
 export interface TxResponse {
   /** The block height */
-  height: number;
+  height: Long;
   /** The transaction hash. */
   txhash: string;
   /** Namespace for the Code */
@@ -37,9 +38,9 @@ export interface TxResponse {
   /** Additional information. May be non-deterministic. */
   info: string;
   /** Amount of gas requested for transaction. */
-  gasWanted: number;
+  gasWanted: Long;
   /** Amount of gas consumed by transaction. */
-  gasUsed: number;
+  gasUsed: Long;
   /** The request transaction bytes. */
   tx:
     | Any
@@ -91,9 +92,9 @@ export interface Attribute {
 /** GasInfo defines tx execution gas context. */
 export interface GasInfo {
   /** GasWanted is the maximum units of work we allow this tx to perform. */
-  gasWanted: number;
+  gasWanted: Long;
   /** GasUsed is the amount of gas actually consumed. */
-  gasUsed: number;
+  gasUsed: Long;
 }
 
 /** Result is the union of ResponseFormat and ResponseCheckTx. */
@@ -156,15 +157,15 @@ export interface TxMsgData {
 /** SearchTxsResult defines a structure for querying txs pageable */
 export interface SearchTxsResult {
   /** Count of all txs */
-  totalCount: number;
+  totalCount: Long;
   /** Count of txs in current page */
-  count: number;
+  count: Long;
   /** Index of current page, start from 1 */
-  pageNumber: number;
+  pageNumber: Long;
   /** Count of total pages */
-  pageTotal: number;
+  pageTotal: Long;
   /** Max count txs per page */
-  limit: number;
+  limit: Long;
   /** List of txs in current page */
   txs: TxResponse[];
 }
@@ -172,22 +173,22 @@ export interface SearchTxsResult {
 /** SearchBlocksResult defines a structure for querying blocks pageable */
 export interface SearchBlocksResult {
   /** Count of all blocks */
-  totalCount: number;
+  totalCount: Long;
   /** Count of blocks in current page */
-  count: number;
+  count: Long;
   /** Index of current page, start from 1 */
-  pageNumber: number;
+  pageNumber: Long;
   /** Count of total pages */
-  pageTotal: number;
+  pageTotal: Long;
   /** Max count blocks per page */
-  limit: number;
+  limit: Long;
   /** List of blocks in current page */
   blocks: Block[];
 }
 
 function createBaseTxResponse(): TxResponse {
   return {
-    height: 0,
+    height: Long.ZERO,
     txhash: "",
     codespace: "",
     code: 0,
@@ -195,8 +196,8 @@ function createBaseTxResponse(): TxResponse {
     rawLog: "",
     logs: [],
     info: "",
-    gasWanted: 0,
-    gasUsed: 0,
+    gasWanted: Long.ZERO,
+    gasUsed: Long.ZERO,
     tx: undefined,
     timestamp: "",
     events: [],
@@ -207,8 +208,8 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
   $type: "cosmos.base.abci.v1beta1.TxResponse" as const,
 
   encode(message: TxResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     if (message.txhash !== "") {
       writer.uint32(18).string(message.txhash);
@@ -231,11 +232,11 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
     if (message.info !== "") {
       writer.uint32(66).string(message.info);
     }
-    if (message.gasWanted !== 0) {
-      writer.uint32(72).int64(message.gasWanted);
+    if (!message.gasWanted.equals(Long.ZERO)) {
+      writer.uint32(72).int64(message.gasWanted.toString());
     }
-    if (message.gasUsed !== 0) {
-      writer.uint32(80).int64(message.gasUsed);
+    if (!message.gasUsed.equals(Long.ZERO)) {
+      writer.uint32(80).int64(message.gasUsed.toString());
     }
     if (message.tx !== undefined) {
       Any.encode(message.tx, writer.uint32(90).fork()).join();
@@ -261,7 +262,7 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -325,7 +326,7 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
             break;
           }
 
-          message.gasWanted = longToNumber(reader.int64());
+          message.gasWanted = Long.fromString(reader.int64().toString());
           continue;
         }
         case 10: {
@@ -333,7 +334,7 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
             break;
           }
 
-          message.gasUsed = longToNumber(reader.int64());
+          message.gasUsed = Long.fromString(reader.int64().toString());
           continue;
         }
         case 11: {
@@ -371,7 +372,7 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
 
   fromJSON(object: any): TxResponse {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       txhash: isSet(object.txhash) ? globalThis.String(object.txhash) : "",
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
       code: isSet(object.code) ? globalThis.Number(object.code) : 0,
@@ -379,8 +380,8 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
       rawLog: isSet(object.rawLog) ? globalThis.String(object.rawLog) : "",
       logs: globalThis.Array.isArray(object?.logs) ? object.logs.map((e: any) => ABCIMessageLog.fromJSON(e)) : [],
       info: isSet(object.info) ? globalThis.String(object.info) : "",
-      gasWanted: isSet(object.gasWanted) ? globalThis.Number(object.gasWanted) : 0,
-      gasUsed: isSet(object.gasUsed) ? globalThis.Number(object.gasUsed) : 0,
+      gasWanted: isSet(object.gasWanted) ? Long.fromValue(object.gasWanted) : Long.ZERO,
+      gasUsed: isSet(object.gasUsed) ? Long.fromValue(object.gasUsed) : Long.ZERO,
       tx: isSet(object.tx) ? Any.fromJSON(object.tx) : undefined,
       timestamp: isSet(object.timestamp) ? globalThis.String(object.timestamp) : "",
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => Event.fromJSON(e)) : [],
@@ -389,8 +390,8 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
 
   toJSON(message: TxResponse): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.txhash !== "") {
       obj.txhash = message.txhash;
@@ -413,11 +414,11 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
     if (message.info !== "") {
       obj.info = message.info;
     }
-    if (message.gasWanted !== 0) {
-      obj.gasWanted = Math.round(message.gasWanted);
+    if (!message.gasWanted.equals(Long.ZERO)) {
+      obj.gasWanted = (message.gasWanted || Long.ZERO).toString();
     }
-    if (message.gasUsed !== 0) {
-      obj.gasUsed = Math.round(message.gasUsed);
+    if (!message.gasUsed.equals(Long.ZERO)) {
+      obj.gasUsed = (message.gasUsed || Long.ZERO).toString();
     }
     if (message.tx !== undefined) {
       obj.tx = Any.toJSON(message.tx);
@@ -436,7 +437,9 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
   },
   fromPartial(object: DeepPartial<TxResponse>): TxResponse {
     const message = createBaseTxResponse();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.txhash = object.txhash ?? "";
     message.codespace = object.codespace ?? "";
     message.code = object.code ?? 0;
@@ -444,8 +447,12 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
     message.rawLog = object.rawLog ?? "";
     message.logs = object.logs?.map((e) => ABCIMessageLog.fromPartial(e)) || [];
     message.info = object.info ?? "";
-    message.gasWanted = object.gasWanted ?? 0;
-    message.gasUsed = object.gasUsed ?? 0;
+    message.gasWanted = (object.gasWanted !== undefined && object.gasWanted !== null)
+      ? Long.fromValue(object.gasWanted)
+      : Long.ZERO;
+    message.gasUsed = (object.gasUsed !== undefined && object.gasUsed !== null)
+      ? Long.fromValue(object.gasUsed)
+      : Long.ZERO;
     message.tx = (object.tx !== undefined && object.tx !== null) ? Any.fromPartial(object.tx) : undefined;
     message.timestamp = object.timestamp ?? "";
     message.events = object.events?.map((e) => Event.fromPartial(e)) || [];
@@ -706,18 +713,18 @@ export const Attribute: MessageFns<Attribute, "cosmos.base.abci.v1beta1.Attribut
 };
 
 function createBaseGasInfo(): GasInfo {
-  return { gasWanted: 0, gasUsed: 0 };
+  return { gasWanted: Long.UZERO, gasUsed: Long.UZERO };
 }
 
 export const GasInfo: MessageFns<GasInfo, "cosmos.base.abci.v1beta1.GasInfo"> = {
   $type: "cosmos.base.abci.v1beta1.GasInfo" as const,
 
   encode(message: GasInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.gasWanted !== 0) {
-      writer.uint32(8).uint64(message.gasWanted);
+    if (!message.gasWanted.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.gasWanted.toString());
     }
-    if (message.gasUsed !== 0) {
-      writer.uint32(16).uint64(message.gasUsed);
+    if (!message.gasUsed.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.gasUsed.toString());
     }
     return writer;
   },
@@ -734,7 +741,7 @@ export const GasInfo: MessageFns<GasInfo, "cosmos.base.abci.v1beta1.GasInfo"> = 
             break;
           }
 
-          message.gasWanted = longToNumber(reader.uint64());
+          message.gasWanted = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -742,7 +749,7 @@ export const GasInfo: MessageFns<GasInfo, "cosmos.base.abci.v1beta1.GasInfo"> = 
             break;
           }
 
-          message.gasUsed = longToNumber(reader.uint64());
+          message.gasUsed = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -756,18 +763,18 @@ export const GasInfo: MessageFns<GasInfo, "cosmos.base.abci.v1beta1.GasInfo"> = 
 
   fromJSON(object: any): GasInfo {
     return {
-      gasWanted: isSet(object.gasWanted) ? globalThis.Number(object.gasWanted) : 0,
-      gasUsed: isSet(object.gasUsed) ? globalThis.Number(object.gasUsed) : 0,
+      gasWanted: isSet(object.gasWanted) ? Long.fromValue(object.gasWanted) : Long.UZERO,
+      gasUsed: isSet(object.gasUsed) ? Long.fromValue(object.gasUsed) : Long.UZERO,
     };
   },
 
   toJSON(message: GasInfo): unknown {
     const obj: any = {};
-    if (message.gasWanted !== 0) {
-      obj.gasWanted = Math.round(message.gasWanted);
+    if (!message.gasWanted.equals(Long.UZERO)) {
+      obj.gasWanted = (message.gasWanted || Long.UZERO).toString();
     }
-    if (message.gasUsed !== 0) {
-      obj.gasUsed = Math.round(message.gasUsed);
+    if (!message.gasUsed.equals(Long.UZERO)) {
+      obj.gasUsed = (message.gasUsed || Long.UZERO).toString();
     }
     return obj;
   },
@@ -777,8 +784,12 @@ export const GasInfo: MessageFns<GasInfo, "cosmos.base.abci.v1beta1.GasInfo"> = 
   },
   fromPartial(object: DeepPartial<GasInfo>): GasInfo {
     const message = createBaseGasInfo();
-    message.gasWanted = object.gasWanted ?? 0;
-    message.gasUsed = object.gasUsed ?? 0;
+    message.gasWanted = (object.gasWanted !== undefined && object.gasWanted !== null)
+      ? Long.fromValue(object.gasWanted)
+      : Long.UZERO;
+    message.gasUsed = (object.gasUsed !== undefined && object.gasUsed !== null)
+      ? Long.fromValue(object.gasUsed)
+      : Long.UZERO;
     return message;
   },
 };
@@ -1136,27 +1147,34 @@ export const TxMsgData: MessageFns<TxMsgData, "cosmos.base.abci.v1beta1.TxMsgDat
 };
 
 function createBaseSearchTxsResult(): SearchTxsResult {
-  return { totalCount: 0, count: 0, pageNumber: 0, pageTotal: 0, limit: 0, txs: [] };
+  return {
+    totalCount: Long.UZERO,
+    count: Long.UZERO,
+    pageNumber: Long.UZERO,
+    pageTotal: Long.UZERO,
+    limit: Long.UZERO,
+    txs: [],
+  };
 }
 
 export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1beta1.SearchTxsResult"> = {
   $type: "cosmos.base.abci.v1beta1.SearchTxsResult" as const,
 
   encode(message: SearchTxsResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.totalCount !== 0) {
-      writer.uint32(8).uint64(message.totalCount);
+    if (!message.totalCount.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.totalCount.toString());
     }
-    if (message.count !== 0) {
-      writer.uint32(16).uint64(message.count);
+    if (!message.count.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.count.toString());
     }
-    if (message.pageNumber !== 0) {
-      writer.uint32(24).uint64(message.pageNumber);
+    if (!message.pageNumber.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.pageNumber.toString());
     }
-    if (message.pageTotal !== 0) {
-      writer.uint32(32).uint64(message.pageTotal);
+    if (!message.pageTotal.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.pageTotal.toString());
     }
-    if (message.limit !== 0) {
-      writer.uint32(40).uint64(message.limit);
+    if (!message.limit.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.limit.toString());
     }
     for (const v of message.txs) {
       TxResponse.encode(v!, writer.uint32(50).fork()).join();
@@ -1176,7 +1194,7 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
             break;
           }
 
-          message.totalCount = longToNumber(reader.uint64());
+          message.totalCount = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -1184,7 +1202,7 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
             break;
           }
 
-          message.count = longToNumber(reader.uint64());
+          message.count = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -1192,7 +1210,7 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
             break;
           }
 
-          message.pageNumber = longToNumber(reader.uint64());
+          message.pageNumber = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -1200,7 +1218,7 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
             break;
           }
 
-          message.pageTotal = longToNumber(reader.uint64());
+          message.pageTotal = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 5: {
@@ -1208,7 +1226,7 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
             break;
           }
 
-          message.limit = longToNumber(reader.uint64());
+          message.limit = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 6: {
@@ -1230,31 +1248,31 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
 
   fromJSON(object: any): SearchTxsResult {
     return {
-      totalCount: isSet(object.totalCount) ? globalThis.Number(object.totalCount) : 0,
-      count: isSet(object.count) ? globalThis.Number(object.count) : 0,
-      pageNumber: isSet(object.pageNumber) ? globalThis.Number(object.pageNumber) : 0,
-      pageTotal: isSet(object.pageTotal) ? globalThis.Number(object.pageTotal) : 0,
-      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      totalCount: isSet(object.totalCount) ? Long.fromValue(object.totalCount) : Long.UZERO,
+      count: isSet(object.count) ? Long.fromValue(object.count) : Long.UZERO,
+      pageNumber: isSet(object.pageNumber) ? Long.fromValue(object.pageNumber) : Long.UZERO,
+      pageTotal: isSet(object.pageTotal) ? Long.fromValue(object.pageTotal) : Long.UZERO,
+      limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => TxResponse.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: SearchTxsResult): unknown {
     const obj: any = {};
-    if (message.totalCount !== 0) {
-      obj.totalCount = Math.round(message.totalCount);
+    if (!message.totalCount.equals(Long.UZERO)) {
+      obj.totalCount = (message.totalCount || Long.UZERO).toString();
     }
-    if (message.count !== 0) {
-      obj.count = Math.round(message.count);
+    if (!message.count.equals(Long.UZERO)) {
+      obj.count = (message.count || Long.UZERO).toString();
     }
-    if (message.pageNumber !== 0) {
-      obj.pageNumber = Math.round(message.pageNumber);
+    if (!message.pageNumber.equals(Long.UZERO)) {
+      obj.pageNumber = (message.pageNumber || Long.UZERO).toString();
     }
-    if (message.pageTotal !== 0) {
-      obj.pageTotal = Math.round(message.pageTotal);
+    if (!message.pageTotal.equals(Long.UZERO)) {
+      obj.pageTotal = (message.pageTotal || Long.UZERO).toString();
     }
-    if (message.limit !== 0) {
-      obj.limit = Math.round(message.limit);
+    if (!message.limit.equals(Long.UZERO)) {
+      obj.limit = (message.limit || Long.UZERO).toString();
     }
     if (message.txs?.length) {
       obj.txs = message.txs.map((e) => TxResponse.toJSON(e));
@@ -1267,38 +1285,51 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
   },
   fromPartial(object: DeepPartial<SearchTxsResult>): SearchTxsResult {
     const message = createBaseSearchTxsResult();
-    message.totalCount = object.totalCount ?? 0;
-    message.count = object.count ?? 0;
-    message.pageNumber = object.pageNumber ?? 0;
-    message.pageTotal = object.pageTotal ?? 0;
-    message.limit = object.limit ?? 0;
+    message.totalCount = (object.totalCount !== undefined && object.totalCount !== null)
+      ? Long.fromValue(object.totalCount)
+      : Long.UZERO;
+    message.count = (object.count !== undefined && object.count !== null) ? Long.fromValue(object.count) : Long.UZERO;
+    message.pageNumber = (object.pageNumber !== undefined && object.pageNumber !== null)
+      ? Long.fromValue(object.pageNumber)
+      : Long.UZERO;
+    message.pageTotal = (object.pageTotal !== undefined && object.pageTotal !== null)
+      ? Long.fromValue(object.pageTotal)
+      : Long.UZERO;
+    message.limit = (object.limit !== undefined && object.limit !== null) ? Long.fromValue(object.limit) : Long.UZERO;
     message.txs = object.txs?.map((e) => TxResponse.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseSearchBlocksResult(): SearchBlocksResult {
-  return { totalCount: 0, count: 0, pageNumber: 0, pageTotal: 0, limit: 0, blocks: [] };
+  return {
+    totalCount: Long.ZERO,
+    count: Long.ZERO,
+    pageNumber: Long.ZERO,
+    pageTotal: Long.ZERO,
+    limit: Long.ZERO,
+    blocks: [],
+  };
 }
 
 export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abci.v1beta1.SearchBlocksResult"> = {
   $type: "cosmos.base.abci.v1beta1.SearchBlocksResult" as const,
 
   encode(message: SearchBlocksResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.totalCount !== 0) {
-      writer.uint32(8).int64(message.totalCount);
+    if (!message.totalCount.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.totalCount.toString());
     }
-    if (message.count !== 0) {
-      writer.uint32(16).int64(message.count);
+    if (!message.count.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.count.toString());
     }
-    if (message.pageNumber !== 0) {
-      writer.uint32(24).int64(message.pageNumber);
+    if (!message.pageNumber.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.pageNumber.toString());
     }
-    if (message.pageTotal !== 0) {
-      writer.uint32(32).int64(message.pageTotal);
+    if (!message.pageTotal.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.pageTotal.toString());
     }
-    if (message.limit !== 0) {
-      writer.uint32(40).int64(message.limit);
+    if (!message.limit.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.limit.toString());
     }
     for (const v of message.blocks) {
       Block.encode(v!, writer.uint32(50).fork()).join();
@@ -1318,7 +1349,7 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
             break;
           }
 
-          message.totalCount = longToNumber(reader.int64());
+          message.totalCount = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -1326,7 +1357,7 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
             break;
           }
 
-          message.count = longToNumber(reader.int64());
+          message.count = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -1334,7 +1365,7 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
             break;
           }
 
-          message.pageNumber = longToNumber(reader.int64());
+          message.pageNumber = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -1342,7 +1373,7 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
             break;
           }
 
-          message.pageTotal = longToNumber(reader.int64());
+          message.pageTotal = Long.fromString(reader.int64().toString());
           continue;
         }
         case 5: {
@@ -1350,7 +1381,7 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
             break;
           }
 
-          message.limit = longToNumber(reader.int64());
+          message.limit = Long.fromString(reader.int64().toString());
           continue;
         }
         case 6: {
@@ -1372,31 +1403,31 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
 
   fromJSON(object: any): SearchBlocksResult {
     return {
-      totalCount: isSet(object.totalCount) ? globalThis.Number(object.totalCount) : 0,
-      count: isSet(object.count) ? globalThis.Number(object.count) : 0,
-      pageNumber: isSet(object.pageNumber) ? globalThis.Number(object.pageNumber) : 0,
-      pageTotal: isSet(object.pageTotal) ? globalThis.Number(object.pageTotal) : 0,
-      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      totalCount: isSet(object.totalCount) ? Long.fromValue(object.totalCount) : Long.ZERO,
+      count: isSet(object.count) ? Long.fromValue(object.count) : Long.ZERO,
+      pageNumber: isSet(object.pageNumber) ? Long.fromValue(object.pageNumber) : Long.ZERO,
+      pageTotal: isSet(object.pageTotal) ? Long.fromValue(object.pageTotal) : Long.ZERO,
+      limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.ZERO,
       blocks: globalThis.Array.isArray(object?.blocks) ? object.blocks.map((e: any) => Block.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: SearchBlocksResult): unknown {
     const obj: any = {};
-    if (message.totalCount !== 0) {
-      obj.totalCount = Math.round(message.totalCount);
+    if (!message.totalCount.equals(Long.ZERO)) {
+      obj.totalCount = (message.totalCount || Long.ZERO).toString();
     }
-    if (message.count !== 0) {
-      obj.count = Math.round(message.count);
+    if (!message.count.equals(Long.ZERO)) {
+      obj.count = (message.count || Long.ZERO).toString();
     }
-    if (message.pageNumber !== 0) {
-      obj.pageNumber = Math.round(message.pageNumber);
+    if (!message.pageNumber.equals(Long.ZERO)) {
+      obj.pageNumber = (message.pageNumber || Long.ZERO).toString();
     }
-    if (message.pageTotal !== 0) {
-      obj.pageTotal = Math.round(message.pageTotal);
+    if (!message.pageTotal.equals(Long.ZERO)) {
+      obj.pageTotal = (message.pageTotal || Long.ZERO).toString();
     }
-    if (message.limit !== 0) {
-      obj.limit = Math.round(message.limit);
+    if (!message.limit.equals(Long.ZERO)) {
+      obj.limit = (message.limit || Long.ZERO).toString();
     }
     if (message.blocks?.length) {
       obj.blocks = message.blocks.map((e) => Block.toJSON(e));
@@ -1409,11 +1440,17 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
   },
   fromPartial(object: DeepPartial<SearchBlocksResult>): SearchBlocksResult {
     const message = createBaseSearchBlocksResult();
-    message.totalCount = object.totalCount ?? 0;
-    message.count = object.count ?? 0;
-    message.pageNumber = object.pageNumber ?? 0;
-    message.pageTotal = object.pageTotal ?? 0;
-    message.limit = object.limit ?? 0;
+    message.totalCount = (object.totalCount !== undefined && object.totalCount !== null)
+      ? Long.fromValue(object.totalCount)
+      : Long.ZERO;
+    message.count = (object.count !== undefined && object.count !== null) ? Long.fromValue(object.count) : Long.ZERO;
+    message.pageNumber = (object.pageNumber !== undefined && object.pageNumber !== null)
+      ? Long.fromValue(object.pageNumber)
+      : Long.ZERO;
+    message.pageTotal = (object.pageTotal !== undefined && object.pageTotal !== null)
+      ? Long.fromValue(object.pageTotal)
+      : Long.ZERO;
+    message.limit = (object.limit !== undefined && object.limit !== null) ? Long.fromValue(object.limit) : Long.ZERO;
     message.blocks = object.blocks?.map((e) => Block.fromPartial(e)) || [];
     return message;
   },
@@ -1447,21 +1484,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

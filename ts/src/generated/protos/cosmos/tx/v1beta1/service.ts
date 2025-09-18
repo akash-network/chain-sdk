@@ -5,6 +5,7 @@
 // source: cosmos/tx/v1beta1/service.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Block } from "../../../tendermint/types/block.ts";
 import { BlockID } from "../../../tendermint/types/types.ts";
@@ -149,12 +150,12 @@ export interface GetTxsEventRequest {
    * page is the page number to query, starts at 1. If not provided, will
    * default to first page.
    */
-  page: number;
+  page: Long;
   /**
    * limit is the total number of results to be returned in the result page.
    * If left empty it will default to a value to be set by each app.
    */
-  limit: number;
+  limit: Long;
   /**
    * query defines the transaction event query that is proxied to Tendermint's
    * TxSearch RPC method. The query must be valid.
@@ -181,7 +182,7 @@ export interface GetTxsEventResponse {
     | PageResponse
     | undefined;
   /** total is total number of results available */
-  total: number;
+  total: Long;
 }
 
 /**
@@ -259,7 +260,7 @@ export interface GetTxResponse {
  */
 export interface GetBlockWithTxsRequest {
   /** height is the height of the block to query. */
-  height: number;
+  height: Long;
   /** pagination defines a pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -348,7 +349,7 @@ export interface TxDecodeAminoResponse {
 }
 
 function createBaseGetTxsEventRequest(): GetTxsEventRequest {
-  return { events: [], pagination: undefined, orderBy: 0, page: 0, limit: 0, query: "" };
+  return { events: [], pagination: undefined, orderBy: 0, page: Long.UZERO, limit: Long.UZERO, query: "" };
 }
 
 export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1beta1.GetTxsEventRequest"> = {
@@ -364,11 +365,11 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
     if (message.orderBy !== 0) {
       writer.uint32(24).int32(message.orderBy);
     }
-    if (message.page !== 0) {
-      writer.uint32(32).uint64(message.page);
+    if (!message.page.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.page.toString());
     }
-    if (message.limit !== 0) {
-      writer.uint32(40).uint64(message.limit);
+    if (!message.limit.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.limit.toString());
     }
     if (message.query !== "") {
       writer.uint32(50).string(message.query);
@@ -412,7 +413,7 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
             break;
           }
 
-          message.page = longToNumber(reader.uint64());
+          message.page = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 5: {
@@ -420,7 +421,7 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
             break;
           }
 
-          message.limit = longToNumber(reader.uint64());
+          message.limit = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 6: {
@@ -445,8 +446,8 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => globalThis.String(e)) : [],
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
       orderBy: isSet(object.orderBy) ? orderByFromJSON(object.orderBy) : 0,
-      page: isSet(object.page) ? globalThis.Number(object.page) : 0,
-      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      page: isSet(object.page) ? Long.fromValue(object.page) : Long.UZERO,
+      limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
       query: isSet(object.query) ? globalThis.String(object.query) : "",
     };
   },
@@ -462,11 +463,11 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
     if (message.orderBy !== 0) {
       obj.orderBy = orderByToJSON(message.orderBy);
     }
-    if (message.page !== 0) {
-      obj.page = Math.round(message.page);
+    if (!message.page.equals(Long.UZERO)) {
+      obj.page = (message.page || Long.UZERO).toString();
     }
-    if (message.limit !== 0) {
-      obj.limit = Math.round(message.limit);
+    if (!message.limit.equals(Long.UZERO)) {
+      obj.limit = (message.limit || Long.UZERO).toString();
     }
     if (message.query !== "") {
       obj.query = message.query;
@@ -484,15 +485,15 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
     message.orderBy = object.orderBy ?? 0;
-    message.page = object.page ?? 0;
-    message.limit = object.limit ?? 0;
+    message.page = (object.page !== undefined && object.page !== null) ? Long.fromValue(object.page) : Long.UZERO;
+    message.limit = (object.limit !== undefined && object.limit !== null) ? Long.fromValue(object.limit) : Long.UZERO;
     message.query = object.query ?? "";
     return message;
   },
 };
 
 function createBaseGetTxsEventResponse(): GetTxsEventResponse {
-  return { txs: [], txResponses: [], pagination: undefined, total: 0 };
+  return { txs: [], txResponses: [], pagination: undefined, total: Long.UZERO };
 }
 
 export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1beta1.GetTxsEventResponse"> = {
@@ -508,8 +509,8 @@ export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1b
     if (message.pagination !== undefined) {
       PageResponse.encode(message.pagination, writer.uint32(26).fork()).join();
     }
-    if (message.total !== 0) {
-      writer.uint32(32).uint64(message.total);
+    if (!message.total.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.total.toString());
     }
     return writer;
   },
@@ -550,7 +551,7 @@ export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1b
             break;
           }
 
-          message.total = longToNumber(reader.uint64());
+          message.total = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -569,7 +570,7 @@ export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1b
         ? object.txResponses.map((e: any) => TxResponse.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
-      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      total: isSet(object.total) ? Long.fromValue(object.total) : Long.UZERO,
     };
   },
 
@@ -584,8 +585,8 @@ export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1b
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
-    if (message.total !== 0) {
-      obj.total = Math.round(message.total);
+    if (!message.total.equals(Long.UZERO)) {
+      obj.total = (message.total || Long.UZERO).toString();
     }
     return obj;
   },
@@ -600,7 +601,7 @@ export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1b
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageResponse.fromPartial(object.pagination)
       : undefined;
-    message.total = object.total ?? 0;
+    message.total = (object.total !== undefined && object.total !== null) ? Long.fromValue(object.total) : Long.UZERO;
     return message;
   },
 };
@@ -1046,15 +1047,15 @@ export const GetTxResponse: MessageFns<GetTxResponse, "cosmos.tx.v1beta1.GetTxRe
 };
 
 function createBaseGetBlockWithTxsRequest(): GetBlockWithTxsRequest {
-  return { height: 0, pagination: undefined };
+  return { height: Long.ZERO, pagination: undefined };
 }
 
 export const GetBlockWithTxsRequest: MessageFns<GetBlockWithTxsRequest, "cosmos.tx.v1beta1.GetBlockWithTxsRequest"> = {
   $type: "cosmos.tx.v1beta1.GetBlockWithTxsRequest" as const,
 
   encode(message: GetBlockWithTxsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
@@ -1074,7 +1075,7 @@ export const GetBlockWithTxsRequest: MessageFns<GetBlockWithTxsRequest, "cosmos.
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -1096,15 +1097,15 @@ export const GetBlockWithTxsRequest: MessageFns<GetBlockWithTxsRequest, "cosmos.
 
   fromJSON(object: any): GetBlockWithTxsRequest {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
 
   toJSON(message: GetBlockWithTxsRequest): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1117,7 +1118,9 @@ export const GetBlockWithTxsRequest: MessageFns<GetBlockWithTxsRequest, "cosmos.
   },
   fromPartial(object: DeepPartial<GetBlockWithTxsRequest>): GetBlockWithTxsRequest {
     const message = createBaseGetBlockWithTxsRequest();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -1750,21 +1753,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

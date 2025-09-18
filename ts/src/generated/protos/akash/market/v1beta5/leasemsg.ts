@@ -8,6 +8,7 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { BidID } from "../v1/bid.ts";
 import { LeaseID } from "../v1/lease.ts";
+import Long = require("long");
 
 export const protobufPackage = "akash.market.v1beta5";
 
@@ -363,7 +364,7 @@ export const MsgCloseLeaseResponse: MessageFns<MsgCloseLeaseResponse, "akash.mar
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

@@ -5,6 +5,7 @@
 // source: tendermint/types/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../google/protobuf/timestamp.ts";
 import { Proof } from "../crypto/proof.ts";
@@ -84,7 +85,7 @@ export interface Header {
   /** basic block info */
   version: Consensus | undefined;
   chainId: string;
-  height: number;
+  height: Long;
   time:
     | Date
     | undefined;
@@ -128,7 +129,7 @@ export interface Data {
  */
 export interface Vote {
   type: SignedMsgType;
-  height: number;
+  height: Long;
   round: number;
   /** zero if vote is nil. */
   blockId: BlockID | undefined;
@@ -155,7 +156,7 @@ export interface Vote {
 
 /** Commit contains the evidence that a block was committed by a set of validators. */
 export interface Commit {
-  height: number;
+  height: Long;
   round: number;
   blockId: BlockID | undefined;
   signatures: CommitSig[];
@@ -170,7 +171,7 @@ export interface CommitSig {
 }
 
 export interface ExtendedCommit {
-  height: number;
+  height: Long;
   round: number;
   blockId: BlockID | undefined;
   extendedSignatures: ExtendedCommitSig[];
@@ -194,7 +195,7 @@ export interface ExtendedCommitSig {
 
 export interface Proposal {
   type: SignedMsgType;
-  height: number;
+  height: Long;
   round: number;
   polRound: number;
   blockId: BlockID | undefined;
@@ -214,9 +215,9 @@ export interface LightBlock {
 
 export interface BlockMeta {
   blockId: BlockID | undefined;
-  blockSize: number;
+  blockSize: Long;
   header: Header | undefined;
-  numTxs: number;
+  numTxs: Long;
 }
 
 /** TxProof represents a Merkle proof of the presence of a transaction in the Merkle tree. */
@@ -482,7 +483,7 @@ function createBaseHeader(): Header {
   return {
     version: undefined,
     chainId: "",
-    height: 0,
+    height: Long.ZERO,
     time: undefined,
     lastBlockId: undefined,
     lastCommitHash: new Uint8Array(0),
@@ -507,8 +508,8 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
     if (message.chainId !== "") {
       writer.uint32(18).string(message.chainId);
     }
-    if (message.height !== 0) {
-      writer.uint32(24).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(34).fork()).join();
@@ -574,7 +575,7 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -678,7 +679,7 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
     return {
       version: isSet(object.version) ? Consensus.fromJSON(object.version) : undefined,
       chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       lastBlockId: isSet(object.lastBlockId) ? BlockID.fromJSON(object.lastBlockId) : undefined,
       lastCommitHash: isSet(object.lastCommitHash) ? bytesFromBase64(object.lastCommitHash) : new Uint8Array(0),
@@ -703,8 +704,8 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
     if (message.chainId !== "") {
       obj.chainId = message.chainId;
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
@@ -751,7 +752,9 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
       ? Consensus.fromPartial(object.version)
       : undefined;
     message.chainId = object.chainId ?? "";
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
     message.lastBlockId = (object.lastBlockId !== undefined && object.lastBlockId !== null)
       ? BlockID.fromPartial(object.lastBlockId)
@@ -832,7 +835,7 @@ export const Data: MessageFns<Data, "tendermint.types.Data"> = {
 function createBaseVote(): Vote {
   return {
     type: 0,
-    height: 0,
+    height: Long.ZERO,
     round: 0,
     blockId: undefined,
     timestamp: undefined,
@@ -851,8 +854,8 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
     if (message.type !== 0) {
       writer.uint32(8).int32(message.type);
     }
-    if (message.height !== 0) {
-      writer.uint32(16).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.height.toString());
     }
     if (message.round !== 0) {
       writer.uint32(24).int32(message.round);
@@ -901,7 +904,7 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -980,7 +983,7 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
   fromJSON(object: any): Vote {
     return {
       type: isSet(object.type) ? signedMsgTypeFromJSON(object.type) : 0,
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
       blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
@@ -999,8 +1002,8 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
     if (message.type !== 0) {
       obj.type = signedMsgTypeToJSON(message.type);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.round !== 0) {
       obj.round = Math.round(message.round);
@@ -1035,7 +1038,9 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
   fromPartial(object: DeepPartial<Vote>): Vote {
     const message = createBaseVote();
     message.type = object.type ?? 0;
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.round = object.round ?? 0;
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
       ? BlockID.fromPartial(object.blockId)
@@ -1051,15 +1056,15 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
 };
 
 function createBaseCommit(): Commit {
-  return { height: 0, round: 0, blockId: undefined, signatures: [] };
+  return { height: Long.ZERO, round: 0, blockId: undefined, signatures: [] };
 }
 
 export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
   $type: "tendermint.types.Commit" as const,
 
   encode(message: Commit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     if (message.round !== 0) {
       writer.uint32(16).int32(message.round);
@@ -1085,7 +1090,7 @@ export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -1123,7 +1128,7 @@ export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
 
   fromJSON(object: any): Commit {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
       blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
       signatures: globalThis.Array.isArray(object?.signatures)
@@ -1134,8 +1139,8 @@ export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
 
   toJSON(message: Commit): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.round !== 0) {
       obj.round = Math.round(message.round);
@@ -1154,7 +1159,9 @@ export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
   },
   fromPartial(object: DeepPartial<Commit>): Commit {
     const message = createBaseCommit();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.round = object.round ?? 0;
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
       ? BlockID.fromPartial(object.blockId)
@@ -1275,15 +1282,15 @@ export const CommitSig: MessageFns<CommitSig, "tendermint.types.CommitSig"> = {
 };
 
 function createBaseExtendedCommit(): ExtendedCommit {
-  return { height: 0, round: 0, blockId: undefined, extendedSignatures: [] };
+  return { height: Long.ZERO, round: 0, blockId: undefined, extendedSignatures: [] };
 }
 
 export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.ExtendedCommit"> = {
   $type: "tendermint.types.ExtendedCommit" as const,
 
   encode(message: ExtendedCommit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     if (message.round !== 0) {
       writer.uint32(16).int32(message.round);
@@ -1309,7 +1316,7 @@ export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.Extend
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -1347,7 +1354,7 @@ export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.Extend
 
   fromJSON(object: any): ExtendedCommit {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
       blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
       extendedSignatures: globalThis.Array.isArray(object?.extendedSignatures)
@@ -1358,8 +1365,8 @@ export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.Extend
 
   toJSON(message: ExtendedCommit): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.round !== 0) {
       obj.round = Math.round(message.round);
@@ -1378,7 +1385,9 @@ export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.Extend
   },
   fromPartial(object: DeepPartial<ExtendedCommit>): ExtendedCommit {
     const message = createBaseExtendedCommit();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.round = object.round ?? 0;
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
       ? BlockID.fromPartial(object.blockId)
@@ -1542,7 +1551,7 @@ export const ExtendedCommitSig: MessageFns<ExtendedCommitSig, "tendermint.types.
 function createBaseProposal(): Proposal {
   return {
     type: 0,
-    height: 0,
+    height: Long.ZERO,
     round: 0,
     polRound: 0,
     blockId: undefined,
@@ -1558,8 +1567,8 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
     if (message.type !== 0) {
       writer.uint32(8).int32(message.type);
     }
-    if (message.height !== 0) {
-      writer.uint32(16).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.height.toString());
     }
     if (message.round !== 0) {
       writer.uint32(24).int32(message.round);
@@ -1599,7 +1608,7 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -1654,7 +1663,7 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
   fromJSON(object: any): Proposal {
     return {
       type: isSet(object.type) ? signedMsgTypeFromJSON(object.type) : 0,
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
       polRound: isSet(object.polRound) ? globalThis.Number(object.polRound) : 0,
       blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
@@ -1668,8 +1677,8 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
     if (message.type !== 0) {
       obj.type = signedMsgTypeToJSON(message.type);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.round !== 0) {
       obj.round = Math.round(message.round);
@@ -1695,7 +1704,9 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
   fromPartial(object: DeepPartial<Proposal>): Proposal {
     const message = createBaseProposal();
     message.type = object.type ?? 0;
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.round = object.round ?? 0;
     message.polRound = object.polRound ?? 0;
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
@@ -1872,7 +1883,7 @@ export const LightBlock: MessageFns<LightBlock, "tendermint.types.LightBlock"> =
 };
 
 function createBaseBlockMeta(): BlockMeta {
-  return { blockId: undefined, blockSize: 0, header: undefined, numTxs: 0 };
+  return { blockId: undefined, blockSize: Long.ZERO, header: undefined, numTxs: Long.ZERO };
 }
 
 export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
@@ -1882,14 +1893,14 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
     if (message.blockId !== undefined) {
       BlockID.encode(message.blockId, writer.uint32(10).fork()).join();
     }
-    if (message.blockSize !== 0) {
-      writer.uint32(16).int64(message.blockSize);
+    if (!message.blockSize.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.blockSize.toString());
     }
     if (message.header !== undefined) {
       Header.encode(message.header, writer.uint32(26).fork()).join();
     }
-    if (message.numTxs !== 0) {
-      writer.uint32(32).int64(message.numTxs);
+    if (!message.numTxs.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.numTxs.toString());
     }
     return writer;
   },
@@ -1914,7 +1925,7 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
             break;
           }
 
-          message.blockSize = longToNumber(reader.int64());
+          message.blockSize = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -1930,7 +1941,7 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
             break;
           }
 
-          message.numTxs = longToNumber(reader.int64());
+          message.numTxs = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -1945,9 +1956,9 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
   fromJSON(object: any): BlockMeta {
     return {
       blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
-      blockSize: isSet(object.blockSize) ? globalThis.Number(object.blockSize) : 0,
+      blockSize: isSet(object.blockSize) ? Long.fromValue(object.blockSize) : Long.ZERO,
       header: isSet(object.header) ? Header.fromJSON(object.header) : undefined,
-      numTxs: isSet(object.numTxs) ? globalThis.Number(object.numTxs) : 0,
+      numTxs: isSet(object.numTxs) ? Long.fromValue(object.numTxs) : Long.ZERO,
     };
   },
 
@@ -1956,14 +1967,14 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
     if (message.blockId !== undefined) {
       obj.blockId = BlockID.toJSON(message.blockId);
     }
-    if (message.blockSize !== 0) {
-      obj.blockSize = Math.round(message.blockSize);
+    if (!message.blockSize.equals(Long.ZERO)) {
+      obj.blockSize = (message.blockSize || Long.ZERO).toString();
     }
     if (message.header !== undefined) {
       obj.header = Header.toJSON(message.header);
     }
-    if (message.numTxs !== 0) {
-      obj.numTxs = Math.round(message.numTxs);
+    if (!message.numTxs.equals(Long.ZERO)) {
+      obj.numTxs = (message.numTxs || Long.ZERO).toString();
     }
     return obj;
   },
@@ -1976,11 +1987,15 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
       ? BlockID.fromPartial(object.blockId)
       : undefined;
-    message.blockSize = object.blockSize ?? 0;
+    message.blockSize = (object.blockSize !== undefined && object.blockSize !== null)
+      ? Long.fromValue(object.blockSize)
+      : Long.ZERO;
     message.header = (object.header !== undefined && object.header !== null)
       ? Header.fromPartial(object.header)
       : undefined;
-    message.numTxs = object.numTxs ?? 0;
+    message.numTxs = (object.numTxs !== undefined && object.numTxs !== null)
+      ? Long.fromValue(object.numTxs)
+      : Long.ZERO;
     return message;
   },
 };
@@ -2107,19 +2122,19 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -2134,15 +2149,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

@@ -5,6 +5,7 @@
 // source: cosmos/protocolpool/v1/tx.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 import { Coin } from "../../base/v1beta1/coin.ts";
@@ -81,7 +82,7 @@ export interface MsgCancelContinuousFundResponse {
     | Date
     | undefined;
   /** CanceledHeight defines the canceled block height. */
-  canceledHeight: number;
+  canceledHeight: Long;
   /** Recipient is the account address string of the recipient whose funds are cancelled. */
   recipient: string;
 }
@@ -617,7 +618,7 @@ export const MsgCancelContinuousFund: MessageFns<
 };
 
 function createBaseMsgCancelContinuousFundResponse(): MsgCancelContinuousFundResponse {
-  return { canceledTime: undefined, canceledHeight: 0, recipient: "" };
+  return { canceledTime: undefined, canceledHeight: Long.UZERO, recipient: "" };
 }
 
 export const MsgCancelContinuousFundResponse: MessageFns<
@@ -630,8 +631,8 @@ export const MsgCancelContinuousFundResponse: MessageFns<
     if (message.canceledTime !== undefined) {
       Timestamp.encode(toTimestamp(message.canceledTime), writer.uint32(10).fork()).join();
     }
-    if (message.canceledHeight !== 0) {
-      writer.uint32(16).uint64(message.canceledHeight);
+    if (!message.canceledHeight.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.canceledHeight.toString());
     }
     if (message.recipient !== "") {
       writer.uint32(26).string(message.recipient);
@@ -659,7 +660,7 @@ export const MsgCancelContinuousFundResponse: MessageFns<
             break;
           }
 
-          message.canceledHeight = longToNumber(reader.uint64());
+          message.canceledHeight = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -682,7 +683,7 @@ export const MsgCancelContinuousFundResponse: MessageFns<
   fromJSON(object: any): MsgCancelContinuousFundResponse {
     return {
       canceledTime: isSet(object.canceledTime) ? fromJsonTimestamp(object.canceledTime) : undefined,
-      canceledHeight: isSet(object.canceledHeight) ? globalThis.Number(object.canceledHeight) : 0,
+      canceledHeight: isSet(object.canceledHeight) ? Long.fromValue(object.canceledHeight) : Long.UZERO,
       recipient: isSet(object.recipient) ? globalThis.String(object.recipient) : "",
     };
   },
@@ -692,8 +693,8 @@ export const MsgCancelContinuousFundResponse: MessageFns<
     if (message.canceledTime !== undefined) {
       obj.canceledTime = message.canceledTime.toISOString();
     }
-    if (message.canceledHeight !== 0) {
-      obj.canceledHeight = Math.round(message.canceledHeight);
+    if (!message.canceledHeight.equals(Long.UZERO)) {
+      obj.canceledHeight = (message.canceledHeight || Long.UZERO).toString();
     }
     if (message.recipient !== "") {
       obj.recipient = message.recipient;
@@ -707,7 +708,9 @@ export const MsgCancelContinuousFundResponse: MessageFns<
   fromPartial(object: DeepPartial<MsgCancelContinuousFundResponse>): MsgCancelContinuousFundResponse {
     const message = createBaseMsgCancelContinuousFundResponse();
     message.canceledTime = object.canceledTime ?? undefined;
-    message.canceledHeight = object.canceledHeight ?? 0;
+    message.canceledHeight = (object.canceledHeight !== undefined && object.canceledHeight !== null)
+      ? Long.fromValue(object.canceledHeight)
+      : Long.UZERO;
     message.recipient = object.recipient ?? "";
     return message;
   },
@@ -844,19 +847,19 @@ export const MsgUpdateParamsResponse: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -871,15 +874,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

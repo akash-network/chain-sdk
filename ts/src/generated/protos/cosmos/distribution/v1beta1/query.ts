@@ -5,6 +5,7 @@
 // source: cosmos/distribution/v1beta1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { DecCoin } from "../../base/v1beta1/coin.ts";
@@ -87,9 +88,9 @@ export interface QueryValidatorSlashesRequest {
   /** validator_address defines the validator address to query for. */
   validatorAddress: string;
   /** starting_height defines the optional starting height to query the slashes. */
-  startingHeight: number;
+  startingHeight: Long;
   /** starting_height defines the optional ending height to query the slashes. */
-  endingHeight: number;
+  endingHeight: Long;
   /** pagination defines an optional pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -727,7 +728,7 @@ export const QueryValidatorCommissionResponse: MessageFns<
 };
 
 function createBaseQueryValidatorSlashesRequest(): QueryValidatorSlashesRequest {
-  return { validatorAddress: "", startingHeight: 0, endingHeight: 0, pagination: undefined };
+  return { validatorAddress: "", startingHeight: Long.UZERO, endingHeight: Long.UZERO, pagination: undefined };
 }
 
 export const QueryValidatorSlashesRequest: MessageFns<
@@ -740,11 +741,11 @@ export const QueryValidatorSlashesRequest: MessageFns<
     if (message.validatorAddress !== "") {
       writer.uint32(10).string(message.validatorAddress);
     }
-    if (message.startingHeight !== 0) {
-      writer.uint32(16).uint64(message.startingHeight);
+    if (!message.startingHeight.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.startingHeight.toString());
     }
-    if (message.endingHeight !== 0) {
-      writer.uint32(24).uint64(message.endingHeight);
+    if (!message.endingHeight.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.endingHeight.toString());
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(34).fork()).join();
@@ -772,7 +773,7 @@ export const QueryValidatorSlashesRequest: MessageFns<
             break;
           }
 
-          message.startingHeight = longToNumber(reader.uint64());
+          message.startingHeight = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -780,7 +781,7 @@ export const QueryValidatorSlashesRequest: MessageFns<
             break;
           }
 
-          message.endingHeight = longToNumber(reader.uint64());
+          message.endingHeight = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -803,8 +804,8 @@ export const QueryValidatorSlashesRequest: MessageFns<
   fromJSON(object: any): QueryValidatorSlashesRequest {
     return {
       validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
-      startingHeight: isSet(object.startingHeight) ? globalThis.Number(object.startingHeight) : 0,
-      endingHeight: isSet(object.endingHeight) ? globalThis.Number(object.endingHeight) : 0,
+      startingHeight: isSet(object.startingHeight) ? Long.fromValue(object.startingHeight) : Long.UZERO,
+      endingHeight: isSet(object.endingHeight) ? Long.fromValue(object.endingHeight) : Long.UZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -814,11 +815,11 @@ export const QueryValidatorSlashesRequest: MessageFns<
     if (message.validatorAddress !== "") {
       obj.validatorAddress = message.validatorAddress;
     }
-    if (message.startingHeight !== 0) {
-      obj.startingHeight = Math.round(message.startingHeight);
+    if (!message.startingHeight.equals(Long.UZERO)) {
+      obj.startingHeight = (message.startingHeight || Long.UZERO).toString();
     }
-    if (message.endingHeight !== 0) {
-      obj.endingHeight = Math.round(message.endingHeight);
+    if (!message.endingHeight.equals(Long.UZERO)) {
+      obj.endingHeight = (message.endingHeight || Long.UZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -832,8 +833,12 @@ export const QueryValidatorSlashesRequest: MessageFns<
   fromPartial(object: DeepPartial<QueryValidatorSlashesRequest>): QueryValidatorSlashesRequest {
     const message = createBaseQueryValidatorSlashesRequest();
     message.validatorAddress = object.validatorAddress ?? "";
-    message.startingHeight = object.startingHeight ?? 0;
-    message.endingHeight = object.endingHeight ?? 0;
+    message.startingHeight = (object.startingHeight !== undefined && object.startingHeight !== null)
+      ? Long.fromValue(object.startingHeight)
+      : Long.UZERO;
+    message.endingHeight = (object.endingHeight !== undefined && object.endingHeight !== null)
+      ? Long.fromValue(object.endingHeight)
+      : Long.UZERO;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -1588,21 +1593,10 @@ export const QueryCommunityPoolResponse: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

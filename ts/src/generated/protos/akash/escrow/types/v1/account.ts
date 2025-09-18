@@ -5,12 +5,13 @@
 // source: akash/escrow/types/v1/account.proto
 
 /* eslint-disable */
+import { State, stateFromJSON, stateToJSON } from "./state.ts";
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DecCoin } from "../../../../cosmos/base/v1beta1/coin.ts";
 import { Account as Account1 } from "../../id/v1/id.ts";
 import { Balance } from "./balance.ts";
 import { Depositor } from "./deposit.ts";
-import { State, stateFromJSON, stateToJSON } from "./state.ts";
 
 export const protobufPackage = "akash.escrow.types.v1";
 
@@ -29,7 +30,7 @@ export interface AccountState {
   /** Transferred total coins spent by this account. */
   transferred: DecCoin[];
   /** SettledAt represents the block height at which this account was last settled. */
-  settledAt: number;
+  settledAt: Long;
   /** Balance holds the unspent coins received from all deposits */
   funds: Balance[];
   deposits: Depositor[];
@@ -42,7 +43,7 @@ export interface Account {
 }
 
 function createBaseAccountState(): AccountState {
-  return { owner: "", state: 0, transferred: [], settledAt: 0, funds: [], deposits: [] };
+  return { owner: "", state: 0, transferred: [], settledAt: Long.ZERO, funds: [], deposits: [] };
 }
 
 export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.AccountState"> = {
@@ -58,8 +59,8 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
     for (const v of message.transferred) {
       DecCoin.encode(v!, writer.uint32(26).fork()).join();
     }
-    if (message.settledAt !== 0) {
-      writer.uint32(32).int64(message.settledAt);
+    if (!message.settledAt.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.settledAt.toString());
     }
     for (const v of message.funds) {
       Balance.encode(v!, writer.uint32(42).fork()).join();
@@ -106,7 +107,7 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
             break;
           }
 
-          message.settledAt = longToNumber(reader.int64());
+          message.settledAt = Long.fromString(reader.int64().toString());
           continue;
         }
         case 5: {
@@ -141,7 +142,7 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
       transferred: globalThis.Array.isArray(object?.transferred)
         ? object.transferred.map((e: any) => DecCoin.fromJSON(e))
         : [],
-      settledAt: isSet(object.settledAt) ? globalThis.Number(object.settledAt) : 0,
+      settledAt: isSet(object.settledAt) ? Long.fromValue(object.settledAt) : Long.ZERO,
       funds: globalThis.Array.isArray(object?.funds) ? object.funds.map((e: any) => Balance.fromJSON(e)) : [],
       deposits: globalThis.Array.isArray(object?.deposits)
         ? object.deposits.map((e: any) => Depositor.fromJSON(e))
@@ -160,8 +161,8 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
     if (message.transferred?.length) {
       obj.transferred = message.transferred.map((e) => DecCoin.toJSON(e));
     }
-    if (message.settledAt !== 0) {
-      obj.settledAt = Math.round(message.settledAt);
+    if (!message.settledAt.equals(Long.ZERO)) {
+      obj.settledAt = (message.settledAt || Long.ZERO).toString();
     }
     if (message.funds?.length) {
       obj.funds = message.funds.map((e) => Balance.toJSON(e));
@@ -180,7 +181,9 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
     message.owner = object.owner ?? "";
     message.state = object.state ?? 0;
     message.transferred = object.transferred?.map((e) => DecCoin.fromPartial(e)) || [];
-    message.settledAt = object.settledAt ?? 0;
+    message.settledAt = (object.settledAt !== undefined && object.settledAt !== null)
+      ? Long.fromValue(object.settledAt)
+      : Long.ZERO;
     message.funds = object.funds?.map((e) => Balance.fromPartial(e)) || [];
     message.deposits = object.deposits?.map((e) => Depositor.fromPartial(e)) || [];
     return message;
@@ -270,21 +273,10 @@ export const Account: MessageFns<Account, "akash.escrow.types.v1.Account"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

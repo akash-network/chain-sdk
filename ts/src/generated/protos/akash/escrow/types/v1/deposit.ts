@@ -5,6 +5,7 @@
 // source: akash/escrow/types/v1/deposit.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DecCoin } from "../../../../cosmos/base/v1beta1/coin.ts";
 
@@ -23,13 +24,13 @@ export interface Depositor {
    */
   owner: string;
   /** Height blockchain height at which deposit was created */
-  height: number;
+  height: Long;
   /** Balance amount of funds available to spend in this deposit. */
   balance: DecCoin | undefined;
 }
 
 function createBaseDepositor(): Depositor {
-  return { owner: "", height: 0, balance: undefined };
+  return { owner: "", height: Long.ZERO, balance: undefined };
 }
 
 export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor"> = {
@@ -39,8 +40,8 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (message.height !== 0) {
-      writer.uint32(16).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.height.toString());
     }
     if (message.balance !== undefined) {
       DecCoin.encode(message.balance, writer.uint32(26).fork()).join();
@@ -68,7 +69,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -91,7 +92,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
   fromJSON(object: any): Depositor {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       balance: isSet(object.balance) ? DecCoin.fromJSON(object.balance) : undefined,
     };
   },
@@ -101,8 +102,8 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.balance !== undefined) {
       obj.balance = DecCoin.toJSON(message.balance);
@@ -116,7 +117,9 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
   fromPartial(object: DeepPartial<Depositor>): Depositor {
     const message = createBaseDepositor();
     message.owner = object.owner ?? "";
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.balance = (object.balance !== undefined && object.balance !== null)
       ? DecCoin.fromPartial(object.balance)
       : undefined;
@@ -127,21 +130,10 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

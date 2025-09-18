@@ -5,6 +5,7 @@
 // source: tendermint/version/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "tendermint.version";
@@ -15,7 +16,7 @@ export const protobufPackage = "tendermint.version";
  * updated in ResponseEndBlock.
  */
 export interface App {
-  protocol: number;
+  protocol: Long;
   software: string;
 }
 
@@ -25,20 +26,20 @@ export interface App {
  * state transition machine.
  */
 export interface Consensus {
-  block: number;
-  app: number;
+  block: Long;
+  app: Long;
 }
 
 function createBaseApp(): App {
-  return { protocol: 0, software: "" };
+  return { protocol: Long.UZERO, software: "" };
 }
 
 export const App: MessageFns<App, "tendermint.version.App"> = {
   $type: "tendermint.version.App" as const,
 
   encode(message: App, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.protocol !== 0) {
-      writer.uint32(8).uint64(message.protocol);
+    if (!message.protocol.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.protocol.toString());
     }
     if (message.software !== "") {
       writer.uint32(18).string(message.software);
@@ -58,7 +59,7 @@ export const App: MessageFns<App, "tendermint.version.App"> = {
             break;
           }
 
-          message.protocol = longToNumber(reader.uint64());
+          message.protocol = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -80,15 +81,15 @@ export const App: MessageFns<App, "tendermint.version.App"> = {
 
   fromJSON(object: any): App {
     return {
-      protocol: isSet(object.protocol) ? globalThis.Number(object.protocol) : 0,
+      protocol: isSet(object.protocol) ? Long.fromValue(object.protocol) : Long.UZERO,
       software: isSet(object.software) ? globalThis.String(object.software) : "",
     };
   },
 
   toJSON(message: App): unknown {
     const obj: any = {};
-    if (message.protocol !== 0) {
-      obj.protocol = Math.round(message.protocol);
+    if (!message.protocol.equals(Long.UZERO)) {
+      obj.protocol = (message.protocol || Long.UZERO).toString();
     }
     if (message.software !== "") {
       obj.software = message.software;
@@ -101,25 +102,27 @@ export const App: MessageFns<App, "tendermint.version.App"> = {
   },
   fromPartial(object: DeepPartial<App>): App {
     const message = createBaseApp();
-    message.protocol = object.protocol ?? 0;
+    message.protocol = (object.protocol !== undefined && object.protocol !== null)
+      ? Long.fromValue(object.protocol)
+      : Long.UZERO;
     message.software = object.software ?? "";
     return message;
   },
 };
 
 function createBaseConsensus(): Consensus {
-  return { block: 0, app: 0 };
+  return { block: Long.UZERO, app: Long.UZERO };
 }
 
 export const Consensus: MessageFns<Consensus, "tendermint.version.Consensus"> = {
   $type: "tendermint.version.Consensus" as const,
 
   encode(message: Consensus, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.block !== 0) {
-      writer.uint32(8).uint64(message.block);
+    if (!message.block.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.block.toString());
     }
-    if (message.app !== 0) {
-      writer.uint32(16).uint64(message.app);
+    if (!message.app.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.app.toString());
     }
     return writer;
   },
@@ -136,7 +139,7 @@ export const Consensus: MessageFns<Consensus, "tendermint.version.Consensus"> = 
             break;
           }
 
-          message.block = longToNumber(reader.uint64());
+          message.block = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -144,7 +147,7 @@ export const Consensus: MessageFns<Consensus, "tendermint.version.Consensus"> = 
             break;
           }
 
-          message.app = longToNumber(reader.uint64());
+          message.app = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -158,18 +161,18 @@ export const Consensus: MessageFns<Consensus, "tendermint.version.Consensus"> = 
 
   fromJSON(object: any): Consensus {
     return {
-      block: isSet(object.block) ? globalThis.Number(object.block) : 0,
-      app: isSet(object.app) ? globalThis.Number(object.app) : 0,
+      block: isSet(object.block) ? Long.fromValue(object.block) : Long.UZERO,
+      app: isSet(object.app) ? Long.fromValue(object.app) : Long.UZERO,
     };
   },
 
   toJSON(message: Consensus): unknown {
     const obj: any = {};
-    if (message.block !== 0) {
-      obj.block = Math.round(message.block);
+    if (!message.block.equals(Long.UZERO)) {
+      obj.block = (message.block || Long.UZERO).toString();
     }
-    if (message.app !== 0) {
-      obj.app = Math.round(message.app);
+    if (!message.app.equals(Long.UZERO)) {
+      obj.app = (message.app || Long.UZERO).toString();
     }
     return obj;
   },
@@ -179,8 +182,8 @@ export const Consensus: MessageFns<Consensus, "tendermint.version.Consensus"> = 
   },
   fromPartial(object: DeepPartial<Consensus>): Consensus {
     const message = createBaseConsensus();
-    message.block = object.block ?? 0;
-    message.app = object.app ?? 0;
+    message.block = (object.block !== undefined && object.block !== null) ? Long.fromValue(object.block) : Long.UZERO;
+    message.app = (object.app !== undefined && object.app !== null) ? Long.fromValue(object.app) : Long.UZERO;
     return message;
   },
 };
@@ -188,21 +191,10 @@ export const Consensus: MessageFns<Consensus, "tendermint.version.Consensus"> = 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

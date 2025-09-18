@@ -5,6 +5,7 @@
 // source: cosmos/upgrade/v1beta1/upgrade.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
@@ -34,7 +35,7 @@ export interface Plan {
     | Date
     | undefined;
   /** The height at which the upgrade must be performed. */
-  height: number;
+  height: Long;
   /**
    * Any application specific upgrade info to be included on-chain
    * such as a git commit that validators could automatically upgrade to
@@ -87,11 +88,11 @@ export interface ModuleVersion {
   /** name of the app module */
   name: string;
   /** consensus version of the app module */
-  version: number;
+  version: Long;
 }
 
 function createBasePlan(): Plan {
-  return { name: "", time: undefined, height: 0, info: "", upgradedClientState: undefined };
+  return { name: "", time: undefined, height: Long.ZERO, info: "", upgradedClientState: undefined };
 }
 
 export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
@@ -104,8 +105,8 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(18).fork()).join();
     }
-    if (message.height !== 0) {
-      writer.uint32(24).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.height.toString());
     }
     if (message.info !== "") {
       writer.uint32(34).string(message.info);
@@ -144,7 +145,7 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -176,7 +177,7 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       info: isSet(object.info) ? globalThis.String(object.info) : "",
       upgradedClientState: isSet(object.upgradedClientState) ? Any.fromJSON(object.upgradedClientState) : undefined,
     };
@@ -190,8 +191,8 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.info !== "") {
       obj.info = message.info;
@@ -209,7 +210,9 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
     const message = createBasePlan();
     message.name = object.name ?? "";
     message.time = object.time ?? undefined;
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.info = object.info ?? "";
     message.upgradedClientState = (object.upgradedClientState !== undefined && object.upgradedClientState !== null)
       ? Any.fromPartial(object.upgradedClientState)
@@ -397,7 +400,7 @@ export const CancelSoftwareUpgradeProposal: MessageFns<
 };
 
 function createBaseModuleVersion(): ModuleVersion {
-  return { name: "", version: 0 };
+  return { name: "", version: Long.UZERO };
 }
 
 export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.ModuleVersion"> = {
@@ -407,8 +410,8 @@ export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.Mo
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
-    if (message.version !== 0) {
-      writer.uint32(16).uint64(message.version);
+    if (!message.version.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.version.toString());
     }
     return writer;
   },
@@ -433,7 +436,7 @@ export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.Mo
             break;
           }
 
-          message.version = longToNumber(reader.uint64());
+          message.version = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -448,7 +451,7 @@ export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.Mo
   fromJSON(object: any): ModuleVersion {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      version: isSet(object.version) ? Long.fromValue(object.version) : Long.UZERO,
     };
   },
 
@@ -457,8 +460,8 @@ export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.Mo
     if (message.name !== "") {
       obj.name = message.name;
     }
-    if (message.version !== 0) {
-      obj.version = Math.round(message.version);
+    if (!message.version.equals(Long.UZERO)) {
+      obj.version = (message.version || Long.UZERO).toString();
     }
     return obj;
   },
@@ -469,7 +472,9 @@ export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.Mo
   fromPartial(object: DeepPartial<ModuleVersion>): ModuleVersion {
     const message = createBaseModuleVersion();
     message.name = object.name ?? "";
-    message.version = object.version ?? 0;
+    message.version = (object.version !== undefined && object.version !== null)
+      ? Long.fromValue(object.version)
+      : Long.UZERO;
     return message;
   },
 };
@@ -477,19 +482,19 @@ export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.Mo
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -504,15 +509,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

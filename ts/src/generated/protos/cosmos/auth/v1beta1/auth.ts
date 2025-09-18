@@ -5,6 +5,7 @@
 // source: cosmos/auth/v1beta1/auth.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 
@@ -18,8 +19,8 @@ export const protobufPackage = "cosmos.auth.v1beta1";
 export interface BaseAccount {
   address: string;
   pubKey: Any | undefined;
-  accountNumber: number;
-  sequence: number;
+  accountNumber: Long;
+  sequence: Long;
 }
 
 /** ModuleAccount defines an account for modules that holds coins on a pool. */
@@ -42,15 +43,15 @@ export interface ModuleCredential {
 
 /** Params defines the parameters for the auth module. */
 export interface Params {
-  maxMemoCharacters: number;
-  txSigLimit: number;
-  txSizeCostPerByte: number;
-  sigVerifyCostEd25519: number;
-  sigVerifyCostSecp256k1: number;
+  maxMemoCharacters: Long;
+  txSigLimit: Long;
+  txSizeCostPerByte: Long;
+  sigVerifyCostEd25519: Long;
+  sigVerifyCostSecp256k1: Long;
 }
 
 function createBaseBaseAccount(): BaseAccount {
-  return { address: "", pubKey: undefined, accountNumber: 0, sequence: 0 };
+  return { address: "", pubKey: undefined, accountNumber: Long.UZERO, sequence: Long.UZERO };
 }
 
 export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccount"> = {
@@ -63,11 +64,11 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
     if (message.pubKey !== undefined) {
       Any.encode(message.pubKey, writer.uint32(18).fork()).join();
     }
-    if (message.accountNumber !== 0) {
-      writer.uint32(24).uint64(message.accountNumber);
+    if (!message.accountNumber.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.accountNumber.toString());
     }
-    if (message.sequence !== 0) {
-      writer.uint32(32).uint64(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.sequence.toString());
     }
     return writer;
   },
@@ -100,7 +101,7 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
             break;
           }
 
-          message.accountNumber = longToNumber(reader.uint64());
+          message.accountNumber = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -108,7 +109,7 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
             break;
           }
 
-          message.sequence = longToNumber(reader.uint64());
+          message.sequence = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -124,8 +125,8 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
       pubKey: isSet(object.pubKey) ? Any.fromJSON(object.pubKey) : undefined,
-      accountNumber: isSet(object.accountNumber) ? globalThis.Number(object.accountNumber) : 0,
-      sequence: isSet(object.sequence) ? globalThis.Number(object.sequence) : 0,
+      accountNumber: isSet(object.accountNumber) ? Long.fromValue(object.accountNumber) : Long.UZERO,
+      sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
     };
   },
 
@@ -137,11 +138,11 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
     if (message.pubKey !== undefined) {
       obj.pubKey = Any.toJSON(message.pubKey);
     }
-    if (message.accountNumber !== 0) {
-      obj.accountNumber = Math.round(message.accountNumber);
+    if (!message.accountNumber.equals(Long.UZERO)) {
+      obj.accountNumber = (message.accountNumber || Long.UZERO).toString();
     }
-    if (message.sequence !== 0) {
-      obj.sequence = Math.round(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      obj.sequence = (message.sequence || Long.UZERO).toString();
     }
     return obj;
   },
@@ -155,8 +156,12 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
     message.pubKey = (object.pubKey !== undefined && object.pubKey !== null)
       ? Any.fromPartial(object.pubKey)
       : undefined;
-    message.accountNumber = object.accountNumber ?? 0;
-    message.sequence = object.sequence ?? 0;
+    message.accountNumber = (object.accountNumber !== undefined && object.accountNumber !== null)
+      ? Long.fromValue(object.accountNumber)
+      : Long.UZERO;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null)
+      ? Long.fromValue(object.sequence)
+      : Long.UZERO;
     return message;
   },
 };
@@ -341,11 +346,11 @@ export const ModuleCredential: MessageFns<ModuleCredential, "cosmos.auth.v1beta1
 
 function createBaseParams(): Params {
   return {
-    maxMemoCharacters: 0,
-    txSigLimit: 0,
-    txSizeCostPerByte: 0,
-    sigVerifyCostEd25519: 0,
-    sigVerifyCostSecp256k1: 0,
+    maxMemoCharacters: Long.UZERO,
+    txSigLimit: Long.UZERO,
+    txSizeCostPerByte: Long.UZERO,
+    sigVerifyCostEd25519: Long.UZERO,
+    sigVerifyCostSecp256k1: Long.UZERO,
   };
 }
 
@@ -353,20 +358,20 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
   $type: "cosmos.auth.v1beta1.Params" as const,
 
   encode(message: Params, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.maxMemoCharacters !== 0) {
-      writer.uint32(8).uint64(message.maxMemoCharacters);
+    if (!message.maxMemoCharacters.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.maxMemoCharacters.toString());
     }
-    if (message.txSigLimit !== 0) {
-      writer.uint32(16).uint64(message.txSigLimit);
+    if (!message.txSigLimit.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.txSigLimit.toString());
     }
-    if (message.txSizeCostPerByte !== 0) {
-      writer.uint32(24).uint64(message.txSizeCostPerByte);
+    if (!message.txSizeCostPerByte.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.txSizeCostPerByte.toString());
     }
-    if (message.sigVerifyCostEd25519 !== 0) {
-      writer.uint32(32).uint64(message.sigVerifyCostEd25519);
+    if (!message.sigVerifyCostEd25519.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.sigVerifyCostEd25519.toString());
     }
-    if (message.sigVerifyCostSecp256k1 !== 0) {
-      writer.uint32(40).uint64(message.sigVerifyCostSecp256k1);
+    if (!message.sigVerifyCostSecp256k1.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.sigVerifyCostSecp256k1.toString());
     }
     return writer;
   },
@@ -383,7 +388,7 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
             break;
           }
 
-          message.maxMemoCharacters = longToNumber(reader.uint64());
+          message.maxMemoCharacters = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -391,7 +396,7 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
             break;
           }
 
-          message.txSigLimit = longToNumber(reader.uint64());
+          message.txSigLimit = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -399,7 +404,7 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
             break;
           }
 
-          message.txSizeCostPerByte = longToNumber(reader.uint64());
+          message.txSizeCostPerByte = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -407,7 +412,7 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
             break;
           }
 
-          message.sigVerifyCostEd25519 = longToNumber(reader.uint64());
+          message.sigVerifyCostEd25519 = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 5: {
@@ -415,7 +420,7 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
             break;
           }
 
-          message.sigVerifyCostSecp256k1 = longToNumber(reader.uint64());
+          message.sigVerifyCostSecp256k1 = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -429,32 +434,34 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      maxMemoCharacters: isSet(object.maxMemoCharacters) ? globalThis.Number(object.maxMemoCharacters) : 0,
-      txSigLimit: isSet(object.txSigLimit) ? globalThis.Number(object.txSigLimit) : 0,
-      txSizeCostPerByte: isSet(object.txSizeCostPerByte) ? globalThis.Number(object.txSizeCostPerByte) : 0,
-      sigVerifyCostEd25519: isSet(object.sigVerifyCostEd25519) ? globalThis.Number(object.sigVerifyCostEd25519) : 0,
+      maxMemoCharacters: isSet(object.maxMemoCharacters) ? Long.fromValue(object.maxMemoCharacters) : Long.UZERO,
+      txSigLimit: isSet(object.txSigLimit) ? Long.fromValue(object.txSigLimit) : Long.UZERO,
+      txSizeCostPerByte: isSet(object.txSizeCostPerByte) ? Long.fromValue(object.txSizeCostPerByte) : Long.UZERO,
+      sigVerifyCostEd25519: isSet(object.sigVerifyCostEd25519)
+        ? Long.fromValue(object.sigVerifyCostEd25519)
+        : Long.UZERO,
       sigVerifyCostSecp256k1: isSet(object.sigVerifyCostSecp256k1)
-        ? globalThis.Number(object.sigVerifyCostSecp256k1)
-        : 0,
+        ? Long.fromValue(object.sigVerifyCostSecp256k1)
+        : Long.UZERO,
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
-    if (message.maxMemoCharacters !== 0) {
-      obj.maxMemoCharacters = Math.round(message.maxMemoCharacters);
+    if (!message.maxMemoCharacters.equals(Long.UZERO)) {
+      obj.maxMemoCharacters = (message.maxMemoCharacters || Long.UZERO).toString();
     }
-    if (message.txSigLimit !== 0) {
-      obj.txSigLimit = Math.round(message.txSigLimit);
+    if (!message.txSigLimit.equals(Long.UZERO)) {
+      obj.txSigLimit = (message.txSigLimit || Long.UZERO).toString();
     }
-    if (message.txSizeCostPerByte !== 0) {
-      obj.txSizeCostPerByte = Math.round(message.txSizeCostPerByte);
+    if (!message.txSizeCostPerByte.equals(Long.UZERO)) {
+      obj.txSizeCostPerByte = (message.txSizeCostPerByte || Long.UZERO).toString();
     }
-    if (message.sigVerifyCostEd25519 !== 0) {
-      obj.sigVerifyCostEd25519 = Math.round(message.sigVerifyCostEd25519);
+    if (!message.sigVerifyCostEd25519.equals(Long.UZERO)) {
+      obj.sigVerifyCostEd25519 = (message.sigVerifyCostEd25519 || Long.UZERO).toString();
     }
-    if (message.sigVerifyCostSecp256k1 !== 0) {
-      obj.sigVerifyCostSecp256k1 = Math.round(message.sigVerifyCostSecp256k1);
+    if (!message.sigVerifyCostSecp256k1.equals(Long.UZERO)) {
+      obj.sigVerifyCostSecp256k1 = (message.sigVerifyCostSecp256k1 || Long.UZERO).toString();
     }
     return obj;
   },
@@ -464,11 +471,22 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
-    message.maxMemoCharacters = object.maxMemoCharacters ?? 0;
-    message.txSigLimit = object.txSigLimit ?? 0;
-    message.txSizeCostPerByte = object.txSizeCostPerByte ?? 0;
-    message.sigVerifyCostEd25519 = object.sigVerifyCostEd25519 ?? 0;
-    message.sigVerifyCostSecp256k1 = object.sigVerifyCostSecp256k1 ?? 0;
+    message.maxMemoCharacters = (object.maxMemoCharacters !== undefined && object.maxMemoCharacters !== null)
+      ? Long.fromValue(object.maxMemoCharacters)
+      : Long.UZERO;
+    message.txSigLimit = (object.txSigLimit !== undefined && object.txSigLimit !== null)
+      ? Long.fromValue(object.txSigLimit)
+      : Long.UZERO;
+    message.txSizeCostPerByte = (object.txSizeCostPerByte !== undefined && object.txSizeCostPerByte !== null)
+      ? Long.fromValue(object.txSizeCostPerByte)
+      : Long.UZERO;
+    message.sigVerifyCostEd25519 = (object.sigVerifyCostEd25519 !== undefined && object.sigVerifyCostEd25519 !== null)
+      ? Long.fromValue(object.sigVerifyCostEd25519)
+      : Long.UZERO;
+    message.sigVerifyCostSecp256k1 =
+      (object.sigVerifyCostSecp256k1 !== undefined && object.sigVerifyCostSecp256k1 !== null)
+        ? Long.fromValue(object.sigVerifyCostSecp256k1)
+        : Long.UZERO;
     return message;
   },
 };
@@ -501,21 +519,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

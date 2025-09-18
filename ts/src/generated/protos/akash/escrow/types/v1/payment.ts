@@ -9,6 +9,7 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Coin, DecCoin } from "../../../../cosmos/base/v1beta1/coin.ts";
 import { Payment as Payment1 } from "../../id/v1/id.ts";
 import { State, stateFromJSON, stateToJSON } from "./state.ts";
+import Long = require("long");
 
 export const protobufPackage = "akash.escrow.types.v1";
 
@@ -277,7 +278,7 @@ export const Payment: MessageFns<Payment, "akash.escrow.types.v1.Payment"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

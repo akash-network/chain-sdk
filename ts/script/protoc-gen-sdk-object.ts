@@ -103,6 +103,10 @@ function generateTs(schema: Schema): void {
 }
 
 function getOutputFileName(schema: Schema): string {
+  if (process.env.PROTO_SOURCE) {
+    return `create${capitalize(process.env.PROTO_SOURCE)}SDK.ts`;
+  }
+
   if (process.env.BUF_PLUGIN_SDK_OBJECT_OUTPUT_FILE) {
     return process.env.BUF_PLUGIN_SDK_OBJECT_OUTPUT_FILE;
   }

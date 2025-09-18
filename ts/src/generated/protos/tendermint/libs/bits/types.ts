@@ -5,29 +5,30 @@
 // source: tendermint/libs/bits/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "tendermint.libs.bits";
 
 export interface BitArray {
-  bits: number;
-  elems: number[];
+  bits: Long;
+  elems: Long[];
 }
 
 function createBaseBitArray(): BitArray {
-  return { bits: 0, elems: [] };
+  return { bits: Long.ZERO, elems: [] };
 }
 
 export const BitArray: MessageFns<BitArray, "tendermint.libs.bits.BitArray"> = {
   $type: "tendermint.libs.bits.BitArray" as const,
 
   encode(message: BitArray, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.bits !== 0) {
-      writer.uint32(8).int64(message.bits);
+    if (!message.bits.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.bits.toString());
     }
     writer.uint32(18).fork();
     for (const v of message.elems) {
-      writer.uint64(v);
+      writer.uint64(v.toString());
     }
     writer.join();
     return writer;
@@ -45,12 +46,12 @@ export const BitArray: MessageFns<BitArray, "tendermint.libs.bits.BitArray"> = {
             break;
           }
 
-          message.bits = longToNumber(reader.int64());
+          message.bits = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
           if (tag === 16) {
-            message.elems.push(longToNumber(reader.uint64()));
+            message.elems.push(Long.fromString(reader.uint64().toString(), true));
 
             continue;
           }
@@ -58,7 +59,7 @@ export const BitArray: MessageFns<BitArray, "tendermint.libs.bits.BitArray"> = {
           if (tag === 18) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
-              message.elems.push(longToNumber(reader.uint64()));
+              message.elems.push(Long.fromString(reader.uint64().toString(), true));
             }
 
             continue;
@@ -77,18 +78,18 @@ export const BitArray: MessageFns<BitArray, "tendermint.libs.bits.BitArray"> = {
 
   fromJSON(object: any): BitArray {
     return {
-      bits: isSet(object.bits) ? globalThis.Number(object.bits) : 0,
-      elems: globalThis.Array.isArray(object?.elems) ? object.elems.map((e: any) => globalThis.Number(e)) : [],
+      bits: isSet(object.bits) ? Long.fromValue(object.bits) : Long.ZERO,
+      elems: globalThis.Array.isArray(object?.elems) ? object.elems.map((e: any) => Long.fromValue(e)) : [],
     };
   },
 
   toJSON(message: BitArray): unknown {
     const obj: any = {};
-    if (message.bits !== 0) {
-      obj.bits = Math.round(message.bits);
+    if (!message.bits.equals(Long.ZERO)) {
+      obj.bits = (message.bits || Long.ZERO).toString();
     }
     if (message.elems?.length) {
-      obj.elems = message.elems.map((e) => Math.round(e));
+      obj.elems = message.elems.map((e) => (e || Long.UZERO).toString());
     }
     return obj;
   },
@@ -98,8 +99,8 @@ export const BitArray: MessageFns<BitArray, "tendermint.libs.bits.BitArray"> = {
   },
   fromPartial(object: DeepPartial<BitArray>): BitArray {
     const message = createBaseBitArray();
-    message.bits = object.bits ?? 0;
-    message.elems = object.elems?.map((e) => e) || [];
+    message.bits = (object.bits !== undefined && object.bits !== null) ? Long.fromValue(object.bits) : Long.ZERO;
+    message.elems = object.elems?.map((e) => Long.fromValue(e)) || [];
     return message;
   },
 };
@@ -107,21 +108,10 @@ export const BitArray: MessageFns<BitArray, "tendermint.libs.bits.BitArray"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

@@ -5,6 +5,7 @@
 // source: cosmos/group/v1/events.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import {
   ProposalExecutorResult,
@@ -21,13 +22,13 @@ export const protobufPackage = "cosmos.group.v1";
 /** EventCreateGroup is an event emitted when a group is created. */
 export interface EventCreateGroup {
   /** group_id is the unique ID of the group. */
-  groupId: number;
+  groupId: Long;
 }
 
 /** EventUpdateGroup is an event emitted when a group is updated. */
 export interface EventUpdateGroup {
   /** group_id is the unique ID of the group. */
-  groupId: number;
+  groupId: Long;
 }
 
 /** EventCreateGroupPolicy is an event emitted when a group policy is created. */
@@ -45,25 +46,25 @@ export interface EventUpdateGroupPolicy {
 /** EventSubmitProposal is an event emitted when a proposal is created. */
 export interface EventSubmitProposal {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: number;
+  proposalId: Long;
 }
 
 /** EventWithdrawProposal is an event emitted when a proposal is withdrawn. */
 export interface EventWithdrawProposal {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: number;
+  proposalId: Long;
 }
 
 /** EventVote is an event emitted when a voter votes on a proposal. */
 export interface EventVote {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: number;
+  proposalId: Long;
 }
 
 /** EventExec is an event emitted when a proposal is executed. */
 export interface EventExec {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** result is the proposal execution result. */
   result: ProposalExecutorResult;
   /** logs contains error logs in case the execution result is FAILURE. */
@@ -73,7 +74,7 @@ export interface EventExec {
 /** EventLeaveGroup is an event emitted when group member leaves the group. */
 export interface EventLeaveGroup {
   /** group_id is the unique ID of the group. */
-  groupId: number;
+  groupId: Long;
   /** address is the account address of the group member. */
   address: string;
 }
@@ -81,7 +82,7 @@ export interface EventLeaveGroup {
 /** EventProposalPruned is an event emitted when a proposal is pruned. */
 export interface EventProposalPruned {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** status is the proposal status (UNSPECIFIED, SUBMITTED, ACCEPTED, REJECTED, ABORTED, WITHDRAWN). */
   status: ProposalStatus;
   /** tally_result is the proposal tally result (when applicable). */
@@ -91,21 +92,21 @@ export interface EventProposalPruned {
 /** EventTallyError is an event emitted when a proposal tally failed with an error. */
 export interface EventTallyError {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** error_message is the raw error output */
   errorMessage: string;
 }
 
 function createBaseEventCreateGroup(): EventCreateGroup {
-  return { groupId: 0 };
+  return { groupId: Long.UZERO };
 }
 
 export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.EventCreateGroup"> = {
   $type: "cosmos.group.v1.EventCreateGroup" as const,
 
   encode(message: EventCreateGroup, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.groupId !== 0) {
-      writer.uint32(8).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.groupId.toString());
     }
     return writer;
   },
@@ -122,7 +123,7 @@ export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.Eve
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -135,13 +136,13 @@ export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.Eve
   },
 
   fromJSON(object: any): EventCreateGroup {
-    return { groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0 };
+    return { groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO };
   },
 
   toJSON(message: EventCreateGroup): unknown {
     const obj: any = {};
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -151,21 +152,23 @@ export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.Eve
   },
   fromPartial(object: DeepPartial<EventCreateGroup>): EventCreateGroup {
     const message = createBaseEventCreateGroup();
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseEventUpdateGroup(): EventUpdateGroup {
-  return { groupId: 0 };
+  return { groupId: Long.UZERO };
 }
 
 export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.EventUpdateGroup"> = {
   $type: "cosmos.group.v1.EventUpdateGroup" as const,
 
   encode(message: EventUpdateGroup, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.groupId !== 0) {
-      writer.uint32(8).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.groupId.toString());
     }
     return writer;
   },
@@ -182,7 +185,7 @@ export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.Eve
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -195,13 +198,13 @@ export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.Eve
   },
 
   fromJSON(object: any): EventUpdateGroup {
-    return { groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0 };
+    return { groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO };
   },
 
   toJSON(message: EventUpdateGroup): unknown {
     const obj: any = {};
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -211,7 +214,9 @@ export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.Eve
   },
   fromPartial(object: DeepPartial<EventUpdateGroup>): EventUpdateGroup {
     const message = createBaseEventUpdateGroup();
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -337,15 +342,15 @@ export const EventUpdateGroupPolicy: MessageFns<EventUpdateGroupPolicy, "cosmos.
 };
 
 function createBaseEventSubmitProposal(): EventSubmitProposal {
-  return { proposalId: 0 };
+  return { proposalId: Long.UZERO };
 }
 
 export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.v1.EventSubmitProposal"> = {
   $type: "cosmos.group.v1.EventSubmitProposal" as const,
 
   encode(message: EventSubmitProposal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     return writer;
   },
@@ -362,7 +367,7 @@ export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -375,13 +380,13 @@ export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.
   },
 
   fromJSON(object: any): EventSubmitProposal {
-    return { proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0 };
+    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
   },
 
   toJSON(message: EventSubmitProposal): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -391,21 +396,23 @@ export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.
   },
   fromPartial(object: DeepPartial<EventSubmitProposal>): EventSubmitProposal {
     const message = createBaseEventSubmitProposal();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseEventWithdrawProposal(): EventWithdrawProposal {
-  return { proposalId: 0 };
+  return { proposalId: Long.UZERO };
 }
 
 export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.group.v1.EventWithdrawProposal"> = {
   $type: "cosmos.group.v1.EventWithdrawProposal" as const,
 
   encode(message: EventWithdrawProposal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     return writer;
   },
@@ -422,7 +429,7 @@ export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.gr
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -435,13 +442,13 @@ export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.gr
   },
 
   fromJSON(object: any): EventWithdrawProposal {
-    return { proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0 };
+    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
   },
 
   toJSON(message: EventWithdrawProposal): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -451,21 +458,23 @@ export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.gr
   },
   fromPartial(object: DeepPartial<EventWithdrawProposal>): EventWithdrawProposal {
     const message = createBaseEventWithdrawProposal();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseEventVote(): EventVote {
-  return { proposalId: 0 };
+  return { proposalId: Long.UZERO };
 }
 
 export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
   $type: "cosmos.group.v1.EventVote" as const,
 
   encode(message: EventVote, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     return writer;
   },
@@ -482,7 +491,7 @@ export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -495,13 +504,13 @@ export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
   },
 
   fromJSON(object: any): EventVote {
-    return { proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0 };
+    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
   },
 
   toJSON(message: EventVote): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -511,21 +520,23 @@ export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
   },
   fromPartial(object: DeepPartial<EventVote>): EventVote {
     const message = createBaseEventVote();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     return message;
   },
 };
 
 function createBaseEventExec(): EventExec {
-  return { proposalId: 0, result: 0, logs: "" };
+  return { proposalId: Long.UZERO, result: 0, logs: "" };
 }
 
 export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
   $type: "cosmos.group.v1.EventExec" as const,
 
   encode(message: EventExec, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.result !== 0) {
       writer.uint32(16).int32(message.result);
@@ -548,7 +559,7 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -578,7 +589,7 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
 
   fromJSON(object: any): EventExec {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       result: isSet(object.result) ? proposalExecutorResultFromJSON(object.result) : 0,
       logs: isSet(object.logs) ? globalThis.String(object.logs) : "",
     };
@@ -586,8 +597,8 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
 
   toJSON(message: EventExec): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.result !== 0) {
       obj.result = proposalExecutorResultToJSON(message.result);
@@ -603,7 +614,9 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
   },
   fromPartial(object: DeepPartial<EventExec>): EventExec {
     const message = createBaseEventExec();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.result = object.result ?? 0;
     message.logs = object.logs ?? "";
     return message;
@@ -611,15 +624,15 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
 };
 
 function createBaseEventLeaveGroup(): EventLeaveGroup {
-  return { groupId: 0, address: "" };
+  return { groupId: Long.UZERO, address: "" };
 }
 
 export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.EventLeaveGroup"> = {
   $type: "cosmos.group.v1.EventLeaveGroup" as const,
 
   encode(message: EventLeaveGroup, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.groupId !== 0) {
-      writer.uint32(8).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.groupId.toString());
     }
     if (message.address !== "") {
       writer.uint32(18).string(message.address);
@@ -639,7 +652,7 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -661,15 +674,15 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
 
   fromJSON(object: any): EventLeaveGroup {
     return {
-      groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0,
+      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
       address: isSet(object.address) ? globalThis.String(object.address) : "",
     };
   },
 
   toJSON(message: EventLeaveGroup): unknown {
     const obj: any = {};
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     if (message.address !== "") {
       obj.address = message.address;
@@ -682,22 +695,24 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
   },
   fromPartial(object: DeepPartial<EventLeaveGroup>): EventLeaveGroup {
     const message = createBaseEventLeaveGroup();
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     message.address = object.address ?? "";
     return message;
   },
 };
 
 function createBaseEventProposalPruned(): EventProposalPruned {
-  return { proposalId: 0, status: 0, tallyResult: undefined };
+  return { proposalId: Long.UZERO, status: 0, tallyResult: undefined };
 }
 
 export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.v1.EventProposalPruned"> = {
   $type: "cosmos.group.v1.EventProposalPruned" as const,
 
   encode(message: EventProposalPruned, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.status !== 0) {
       writer.uint32(16).int32(message.status);
@@ -720,7 +735,7 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -750,7 +765,7 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
 
   fromJSON(object: any): EventProposalPruned {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
       tallyResult: isSet(object.tallyResult) ? TallyResult.fromJSON(object.tallyResult) : undefined,
     };
@@ -758,8 +773,8 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
 
   toJSON(message: EventProposalPruned): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.status !== 0) {
       obj.status = proposalStatusToJSON(message.status);
@@ -775,7 +790,9 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
   },
   fromPartial(object: DeepPartial<EventProposalPruned>): EventProposalPruned {
     const message = createBaseEventProposalPruned();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.status = object.status ?? 0;
     message.tallyResult = (object.tallyResult !== undefined && object.tallyResult !== null)
       ? TallyResult.fromPartial(object.tallyResult)
@@ -785,15 +802,15 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
 };
 
 function createBaseEventTallyError(): EventTallyError {
-  return { proposalId: 0, errorMessage: "" };
+  return { proposalId: Long.UZERO, errorMessage: "" };
 }
 
 export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.EventTallyError"> = {
   $type: "cosmos.group.v1.EventTallyError" as const,
 
   encode(message: EventTallyError, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.errorMessage !== "") {
       writer.uint32(18).string(message.errorMessage);
@@ -813,7 +830,7 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -835,15 +852,15 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
 
   fromJSON(object: any): EventTallyError {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       errorMessage: isSet(object.errorMessage) ? globalThis.String(object.errorMessage) : "",
     };
   },
 
   toJSON(message: EventTallyError): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.errorMessage !== "") {
       obj.errorMessage = message.errorMessage;
@@ -856,7 +873,9 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
   },
   fromPartial(object: DeepPartial<EventTallyError>): EventTallyError {
     const message = createBaseEventTallyError();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.errorMessage = object.errorMessage ?? "";
     return message;
   },
@@ -865,21 +884,10 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

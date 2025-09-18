@@ -5,6 +5,7 @@
 // source: cosmos/staking/v1beta1/genesis.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Delegation, Params, Redelegation, UnbondingDelegation, Validator } from "./staking.ts";
 
@@ -43,7 +44,7 @@ export interface LastValidatorPower {
   /** address is the address of the validator. */
   address: string;
   /** power defines the power of the validator. */
-  power: number;
+  power: Long;
 }
 
 function createBaseGenesisState(): GenesisState {
@@ -242,7 +243,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.staking.v1beta1.Gene
 };
 
 function createBaseLastValidatorPower(): LastValidatorPower {
-  return { address: "", power: 0 };
+  return { address: "", power: Long.ZERO };
 }
 
 export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.v1beta1.LastValidatorPower"> = {
@@ -252,8 +253,8 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
     if (message.address !== "") {
       writer.uint32(10).string(message.address);
     }
-    if (message.power !== 0) {
-      writer.uint32(16).int64(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.power.toString());
     }
     return writer;
   },
@@ -278,7 +279,7 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
             break;
           }
 
-          message.power = longToNumber(reader.int64());
+          message.power = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -293,7 +294,7 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
   fromJSON(object: any): LastValidatorPower {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      power: isSet(object.power) ? globalThis.Number(object.power) : 0,
+      power: isSet(object.power) ? Long.fromValue(object.power) : Long.ZERO,
     };
   },
 
@@ -302,8 +303,8 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
     if (message.address !== "") {
       obj.address = message.address;
     }
-    if (message.power !== 0) {
-      obj.power = Math.round(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      obj.power = (message.power || Long.ZERO).toString();
     }
     return obj;
   },
@@ -314,7 +315,7 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
   fromPartial(object: DeepPartial<LastValidatorPower>): LastValidatorPower {
     const message = createBaseLastValidatorPower();
     message.address = object.address ?? "";
-    message.power = object.power ?? 0;
+    message.power = (object.power !== undefined && object.power !== null) ? Long.fromValue(object.power) : Long.ZERO;
     return message;
   },
 };
@@ -347,21 +348,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

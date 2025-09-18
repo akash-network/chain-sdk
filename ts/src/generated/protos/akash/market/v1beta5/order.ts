@@ -5,6 +5,7 @@
 // source: akash/market/v1beta5/order.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { GroupSpec } from "../../deployment/v1beta4/groupspec.ts";
 import { OrderID } from "../v1/order.ts";
@@ -17,7 +18,7 @@ export interface Order {
   id: OrderID | undefined;
   state: Order_State;
   spec: GroupSpec | undefined;
-  createdAt: number;
+  createdAt: Long;
 }
 
 /** State is an enum which refers to state of order. */
@@ -71,7 +72,7 @@ export function order_StateToJSON(object: Order_State): string {
 }
 
 function createBaseOrder(): Order {
-  return { id: undefined, state: 0, spec: undefined, createdAt: 0 };
+  return { id: undefined, state: 0, spec: undefined, createdAt: Long.ZERO };
 }
 
 export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
@@ -87,8 +88,8 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
     if (message.spec !== undefined) {
       GroupSpec.encode(message.spec, writer.uint32(26).fork()).join();
     }
-    if (message.createdAt !== 0) {
-      writer.uint32(32).int64(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.createdAt.toString());
     }
     return writer;
   },
@@ -129,7 +130,7 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
             break;
           }
 
-          message.createdAt = longToNumber(reader.int64());
+          message.createdAt = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -146,7 +147,7 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
       id: isSet(object.id) ? OrderID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? order_StateFromJSON(object.state) : 0,
       spec: isSet(object.spec) ? GroupSpec.fromJSON(object.spec) : undefined,
-      createdAt: isSet(object.createdAt) ? globalThis.Number(object.createdAt) : 0,
+      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
     };
   },
 
@@ -161,8 +162,8 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
     if (message.spec !== undefined) {
       obj.spec = GroupSpec.toJSON(message.spec);
     }
-    if (message.createdAt !== 0) {
-      obj.createdAt = Math.round(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      obj.createdAt = (message.createdAt || Long.ZERO).toString();
     }
     return obj;
   },
@@ -175,7 +176,9 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
     message.id = (object.id !== undefined && object.id !== null) ? OrderID.fromPartial(object.id) : undefined;
     message.state = object.state ?? 0;
     message.spec = (object.spec !== undefined && object.spec !== null) ? GroupSpec.fromPartial(object.spec) : undefined;
-    message.createdAt = object.createdAt ?? 0;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
+      ? Long.fromValue(object.createdAt)
+      : Long.ZERO;
     return message;
   },
 };
@@ -183,21 +186,10 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

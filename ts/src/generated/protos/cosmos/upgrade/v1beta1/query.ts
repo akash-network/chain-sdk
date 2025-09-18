@@ -5,6 +5,7 @@
 // source: cosmos/upgrade/v1beta1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { ModuleVersion, Plan } from "./upgrade.ts";
 
@@ -41,7 +42,7 @@ export interface QueryAppliedPlanRequest {
  */
 export interface QueryAppliedPlanResponse {
   /** height is the block height at which the plan was applied. */
-  height: number;
+  height: Long;
 }
 
 /**
@@ -55,7 +56,7 @@ export interface QueryUpgradedConsensusStateRequest {
    * last height of the current chain must be sent in request
    * as this is the height under which next consensus state is stored
    */
-  lastHeight: number;
+  lastHeight: Long;
 }
 
 /**
@@ -274,7 +275,7 @@ export const QueryAppliedPlanRequest: MessageFns<
 };
 
 function createBaseQueryAppliedPlanResponse(): QueryAppliedPlanResponse {
-  return { height: 0 };
+  return { height: Long.ZERO };
 }
 
 export const QueryAppliedPlanResponse: MessageFns<
@@ -284,8 +285,8 @@ export const QueryAppliedPlanResponse: MessageFns<
   $type: "cosmos.upgrade.v1beta1.QueryAppliedPlanResponse" as const,
 
   encode(message: QueryAppliedPlanResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     return writer;
   },
@@ -302,7 +303,7 @@ export const QueryAppliedPlanResponse: MessageFns<
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -315,13 +316,13 @@ export const QueryAppliedPlanResponse: MessageFns<
   },
 
   fromJSON(object: any): QueryAppliedPlanResponse {
-    return { height: isSet(object.height) ? globalThis.Number(object.height) : 0 };
+    return { height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO };
   },
 
   toJSON(message: QueryAppliedPlanResponse): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     return obj;
   },
@@ -331,13 +332,15 @@ export const QueryAppliedPlanResponse: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryAppliedPlanResponse>): QueryAppliedPlanResponse {
     const message = createBaseQueryAppliedPlanResponse();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseQueryUpgradedConsensusStateRequest(): QueryUpgradedConsensusStateRequest {
-  return { lastHeight: 0 };
+  return { lastHeight: Long.ZERO };
 }
 
 export const QueryUpgradedConsensusStateRequest: MessageFns<
@@ -347,8 +350,8 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
   $type: "cosmos.upgrade.v1beta1.QueryUpgradedConsensusStateRequest" as const,
 
   encode(message: QueryUpgradedConsensusStateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.lastHeight !== 0) {
-      writer.uint32(8).int64(message.lastHeight);
+    if (!message.lastHeight.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.lastHeight.toString());
     }
     return writer;
   },
@@ -365,7 +368,7 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
             break;
           }
 
-          message.lastHeight = longToNumber(reader.int64());
+          message.lastHeight = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -378,13 +381,13 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryUpgradedConsensusStateRequest {
-    return { lastHeight: isSet(object.lastHeight) ? globalThis.Number(object.lastHeight) : 0 };
+    return { lastHeight: isSet(object.lastHeight) ? Long.fromValue(object.lastHeight) : Long.ZERO };
   },
 
   toJSON(message: QueryUpgradedConsensusStateRequest): unknown {
     const obj: any = {};
-    if (message.lastHeight !== 0) {
-      obj.lastHeight = Math.round(message.lastHeight);
+    if (!message.lastHeight.equals(Long.ZERO)) {
+      obj.lastHeight = (message.lastHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -394,7 +397,9 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryUpgradedConsensusStateRequest>): QueryUpgradedConsensusStateRequest {
     const message = createBaseQueryUpgradedConsensusStateRequest();
-    message.lastHeight = object.lastHeight ?? 0;
+    message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null)
+      ? Long.fromValue(object.lastHeight)
+      : Long.ZERO;
     return message;
   },
 };
@@ -733,21 +738,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

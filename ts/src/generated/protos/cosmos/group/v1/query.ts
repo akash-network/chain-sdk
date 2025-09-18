@@ -5,6 +5,7 @@
 // source: cosmos/group/v1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { GroupInfo, GroupMember, GroupPolicyInfo, Proposal, TallyResult, Vote } from "./types.ts";
@@ -14,7 +15,7 @@ export const protobufPackage = "cosmos.group.v1";
 /** QueryGroupInfoRequest is the Query/GroupInfo request type. */
 export interface QueryGroupInfoRequest {
   /** group_id is the unique ID of the group. */
-  groupId: number;
+  groupId: Long;
 }
 
 /** QueryGroupInfoResponse is the Query/GroupInfo response type. */
@@ -38,7 +39,7 @@ export interface QueryGroupPolicyInfoResponse {
 /** QueryGroupMembersRequest is the Query/GroupMembers request type. */
 export interface QueryGroupMembersRequest {
   /** group_id is the unique ID of the group. */
-  groupId: number;
+  groupId: Long;
   /** pagination defines an optional pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -70,7 +71,7 @@ export interface QueryGroupsByAdminResponse {
 /** QueryGroupPoliciesByGroupRequest is the Query/GroupPoliciesByGroup request type. */
 export interface QueryGroupPoliciesByGroupRequest {
   /** group_id is the unique ID of the group policy's group. */
-  groupId: number;
+  groupId: Long;
   /** pagination defines an optional pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -102,7 +103,7 @@ export interface QueryGroupPoliciesByAdminResponse {
 /** QueryProposalRequest is the Query/Proposal request type. */
 export interface QueryProposalRequest {
   /** proposal_id is the unique ID of a proposal. */
-  proposalId: number;
+  proposalId: Long;
 }
 
 /** QueryProposalResponse is the Query/Proposal response type. */
@@ -130,7 +131,7 @@ export interface QueryProposalsByGroupPolicyResponse {
 /** QueryVoteByProposalVoterRequest is the Query/VoteByProposalVoter request type. */
 export interface QueryVoteByProposalVoterRequest {
   /** proposal_id is the unique ID of a proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** voter is a proposal voter account address. */
   voter: string;
 }
@@ -144,7 +145,7 @@ export interface QueryVoteByProposalVoterResponse {
 /** QueryVotesByProposalRequest is the Query/VotesByProposal request type. */
 export interface QueryVotesByProposalRequest {
   /** proposal_id is the unique ID of a proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** pagination defines an optional pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -192,7 +193,7 @@ export interface QueryGroupsByMemberResponse {
 /** QueryTallyResultRequest is the Query/TallyResult request type. */
 export interface QueryTallyResultRequest {
   /** proposal_id is the unique id of a proposal. */
-  proposalId: number;
+  proposalId: Long;
 }
 
 /** QueryTallyResultResponse is the Query/TallyResult response type. */
@@ -216,15 +217,15 @@ export interface QueryGroupsResponse {
 }
 
 function createBaseQueryGroupInfoRequest(): QueryGroupInfoRequest {
-  return { groupId: 0 };
+  return { groupId: Long.UZERO };
 }
 
 export const QueryGroupInfoRequest: MessageFns<QueryGroupInfoRequest, "cosmos.group.v1.QueryGroupInfoRequest"> = {
   $type: "cosmos.group.v1.QueryGroupInfoRequest" as const,
 
   encode(message: QueryGroupInfoRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.groupId !== 0) {
-      writer.uint32(8).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.groupId.toString());
     }
     return writer;
   },
@@ -241,7 +242,7 @@ export const QueryGroupInfoRequest: MessageFns<QueryGroupInfoRequest, "cosmos.gr
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -254,13 +255,13 @@ export const QueryGroupInfoRequest: MessageFns<QueryGroupInfoRequest, "cosmos.gr
   },
 
   fromJSON(object: any): QueryGroupInfoRequest {
-    return { groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0 };
+    return { groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO };
   },
 
   toJSON(message: QueryGroupInfoRequest): unknown {
     const obj: any = {};
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -270,7 +271,9 @@ export const QueryGroupInfoRequest: MessageFns<QueryGroupInfoRequest, "cosmos.gr
   },
   fromPartial(object: DeepPartial<QueryGroupInfoRequest>): QueryGroupInfoRequest {
     const message = createBaseQueryGroupInfoRequest();
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -464,7 +467,7 @@ export const QueryGroupPolicyInfoResponse: MessageFns<
 };
 
 function createBaseQueryGroupMembersRequest(): QueryGroupMembersRequest {
-  return { groupId: 0, pagination: undefined };
+  return { groupId: Long.UZERO, pagination: undefined };
 }
 
 export const QueryGroupMembersRequest: MessageFns<
@@ -474,8 +477,8 @@ export const QueryGroupMembersRequest: MessageFns<
   $type: "cosmos.group.v1.QueryGroupMembersRequest" as const,
 
   encode(message: QueryGroupMembersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.groupId !== 0) {
-      writer.uint32(8).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.groupId.toString());
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
@@ -495,7 +498,7 @@ export const QueryGroupMembersRequest: MessageFns<
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -517,15 +520,15 @@ export const QueryGroupMembersRequest: MessageFns<
 
   fromJSON(object: any): QueryGroupMembersRequest {
     return {
-      groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0,
+      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
 
   toJSON(message: QueryGroupMembersRequest): unknown {
     const obj: any = {};
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -538,7 +541,9 @@ export const QueryGroupMembersRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryGroupMembersRequest>): QueryGroupMembersRequest {
     const message = createBaseQueryGroupMembersRequest();
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -796,7 +801,7 @@ export const QueryGroupsByAdminResponse: MessageFns<
 };
 
 function createBaseQueryGroupPoliciesByGroupRequest(): QueryGroupPoliciesByGroupRequest {
-  return { groupId: 0, pagination: undefined };
+  return { groupId: Long.UZERO, pagination: undefined };
 }
 
 export const QueryGroupPoliciesByGroupRequest: MessageFns<
@@ -806,8 +811,8 @@ export const QueryGroupPoliciesByGroupRequest: MessageFns<
   $type: "cosmos.group.v1.QueryGroupPoliciesByGroupRequest" as const,
 
   encode(message: QueryGroupPoliciesByGroupRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.groupId !== 0) {
-      writer.uint32(8).uint64(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.groupId.toString());
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
@@ -827,7 +832,7 @@ export const QueryGroupPoliciesByGroupRequest: MessageFns<
             break;
           }
 
-          message.groupId = longToNumber(reader.uint64());
+          message.groupId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -849,15 +854,15 @@ export const QueryGroupPoliciesByGroupRequest: MessageFns<
 
   fromJSON(object: any): QueryGroupPoliciesByGroupRequest {
     return {
-      groupId: isSet(object.groupId) ? globalThis.Number(object.groupId) : 0,
+      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
 
   toJSON(message: QueryGroupPoliciesByGroupRequest): unknown {
     const obj: any = {};
-    if (message.groupId !== 0) {
-      obj.groupId = Math.round(message.groupId);
+    if (!message.groupId.equals(Long.UZERO)) {
+      obj.groupId = (message.groupId || Long.UZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -870,7 +875,9 @@ export const QueryGroupPoliciesByGroupRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryGroupPoliciesByGroupRequest>): QueryGroupPoliciesByGroupRequest {
     const message = createBaseQueryGroupPoliciesByGroupRequest();
-    message.groupId = object.groupId ?? 0;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null)
+      ? Long.fromValue(object.groupId)
+      : Long.UZERO;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -1132,15 +1139,15 @@ export const QueryGroupPoliciesByAdminResponse: MessageFns<
 };
 
 function createBaseQueryProposalRequest(): QueryProposalRequest {
-  return { proposalId: 0 };
+  return { proposalId: Long.UZERO };
 }
 
 export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.group.v1.QueryProposalRequest"> = {
   $type: "cosmos.group.v1.QueryProposalRequest" as const,
 
   encode(message: QueryProposalRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     return writer;
   },
@@ -1157,7 +1164,7 @@ export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.grou
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -1170,13 +1177,13 @@ export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.grou
   },
 
   fromJSON(object: any): QueryProposalRequest {
-    return { proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0 };
+    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
   },
 
   toJSON(message: QueryProposalRequest): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -1186,7 +1193,9 @@ export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.grou
   },
   fromPartial(object: DeepPartial<QueryProposalRequest>): QueryProposalRequest {
     const message = createBaseQueryProposalRequest();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -1422,7 +1431,7 @@ export const QueryProposalsByGroupPolicyResponse: MessageFns<
 };
 
 function createBaseQueryVoteByProposalVoterRequest(): QueryVoteByProposalVoterRequest {
-  return { proposalId: 0, voter: "" };
+  return { proposalId: Long.UZERO, voter: "" };
 }
 
 export const QueryVoteByProposalVoterRequest: MessageFns<
@@ -1432,8 +1441,8 @@ export const QueryVoteByProposalVoterRequest: MessageFns<
   $type: "cosmos.group.v1.QueryVoteByProposalVoterRequest" as const,
 
   encode(message: QueryVoteByProposalVoterRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.voter !== "") {
       writer.uint32(18).string(message.voter);
@@ -1453,7 +1462,7 @@ export const QueryVoteByProposalVoterRequest: MessageFns<
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -1475,15 +1484,15 @@ export const QueryVoteByProposalVoterRequest: MessageFns<
 
   fromJSON(object: any): QueryVoteByProposalVoterRequest {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
     };
   },
 
   toJSON(message: QueryVoteByProposalVoterRequest): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -1496,7 +1505,9 @@ export const QueryVoteByProposalVoterRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryVoteByProposalVoterRequest>): QueryVoteByProposalVoterRequest {
     const message = createBaseQueryVoteByProposalVoterRequest();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.voter = object.voter ?? "";
     return message;
   },
@@ -1566,7 +1577,7 @@ export const QueryVoteByProposalVoterResponse: MessageFns<
 };
 
 function createBaseQueryVotesByProposalRequest(): QueryVotesByProposalRequest {
-  return { proposalId: 0, pagination: undefined };
+  return { proposalId: Long.UZERO, pagination: undefined };
 }
 
 export const QueryVotesByProposalRequest: MessageFns<
@@ -1576,8 +1587,8 @@ export const QueryVotesByProposalRequest: MessageFns<
   $type: "cosmos.group.v1.QueryVotesByProposalRequest" as const,
 
   encode(message: QueryVotesByProposalRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
@@ -1597,7 +1608,7 @@ export const QueryVotesByProposalRequest: MessageFns<
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -1619,15 +1630,15 @@ export const QueryVotesByProposalRequest: MessageFns<
 
   fromJSON(object: any): QueryVotesByProposalRequest {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
 
   toJSON(message: QueryVotesByProposalRequest): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1640,7 +1651,9 @@ export const QueryVotesByProposalRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryVotesByProposalRequest>): QueryVotesByProposalRequest {
     const message = createBaseQueryVotesByProposalRequest();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -2064,15 +2077,15 @@ export const QueryGroupsByMemberResponse: MessageFns<
 };
 
 function createBaseQueryTallyResultRequest(): QueryTallyResultRequest {
-  return { proposalId: 0 };
+  return { proposalId: Long.UZERO };
 }
 
 export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmos.group.v1.QueryTallyResultRequest"> = {
   $type: "cosmos.group.v1.QueryTallyResultRequest" as const,
 
   encode(message: QueryTallyResultRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     return writer;
   },
@@ -2089,7 +2102,7 @@ export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmo
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -2102,13 +2115,13 @@ export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmo
   },
 
   fromJSON(object: any): QueryTallyResultRequest {
-    return { proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0 };
+    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
   },
 
   toJSON(message: QueryTallyResultRequest): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -2118,7 +2131,9 @@ export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmo
   },
   fromPartial(object: DeepPartial<QueryTallyResultRequest>): QueryTallyResultRequest {
     const message = createBaseQueryTallyResultRequest();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -2333,21 +2348,10 @@ export const QueryGroupsResponse: MessageFns<QueryGroupsResponse, "cosmos.group.
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

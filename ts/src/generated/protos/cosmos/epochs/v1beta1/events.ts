@@ -5,31 +5,32 @@
 // source: cosmos/epochs/v1beta1/events.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "cosmos.epochs.v1beta1";
 
 /** EventEpochEnd is an event emitted when an epoch end. */
 export interface EventEpochEnd {
-  epochNumber: number;
+  epochNumber: Long;
 }
 
 /** EventEpochStart is an event emitted when an epoch start. */
 export interface EventEpochStart {
-  epochNumber: number;
-  epochStartTime: number;
+  epochNumber: Long;
+  epochStartTime: Long;
 }
 
 function createBaseEventEpochEnd(): EventEpochEnd {
-  return { epochNumber: 0 };
+  return { epochNumber: Long.ZERO };
 }
 
 export const EventEpochEnd: MessageFns<EventEpochEnd, "cosmos.epochs.v1beta1.EventEpochEnd"> = {
   $type: "cosmos.epochs.v1beta1.EventEpochEnd" as const,
 
   encode(message: EventEpochEnd, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.epochNumber !== 0) {
-      writer.uint32(8).int64(message.epochNumber);
+    if (!message.epochNumber.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.epochNumber.toString());
     }
     return writer;
   },
@@ -46,7 +47,7 @@ export const EventEpochEnd: MessageFns<EventEpochEnd, "cosmos.epochs.v1beta1.Eve
             break;
           }
 
-          message.epochNumber = longToNumber(reader.int64());
+          message.epochNumber = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -59,13 +60,13 @@ export const EventEpochEnd: MessageFns<EventEpochEnd, "cosmos.epochs.v1beta1.Eve
   },
 
   fromJSON(object: any): EventEpochEnd {
-    return { epochNumber: isSet(object.epochNumber) ? globalThis.Number(object.epochNumber) : 0 };
+    return { epochNumber: isSet(object.epochNumber) ? Long.fromValue(object.epochNumber) : Long.ZERO };
   },
 
   toJSON(message: EventEpochEnd): unknown {
     const obj: any = {};
-    if (message.epochNumber !== 0) {
-      obj.epochNumber = Math.round(message.epochNumber);
+    if (!message.epochNumber.equals(Long.ZERO)) {
+      obj.epochNumber = (message.epochNumber || Long.ZERO).toString();
     }
     return obj;
   },
@@ -75,24 +76,26 @@ export const EventEpochEnd: MessageFns<EventEpochEnd, "cosmos.epochs.v1beta1.Eve
   },
   fromPartial(object: DeepPartial<EventEpochEnd>): EventEpochEnd {
     const message = createBaseEventEpochEnd();
-    message.epochNumber = object.epochNumber ?? 0;
+    message.epochNumber = (object.epochNumber !== undefined && object.epochNumber !== null)
+      ? Long.fromValue(object.epochNumber)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseEventEpochStart(): EventEpochStart {
-  return { epochNumber: 0, epochStartTime: 0 };
+  return { epochNumber: Long.ZERO, epochStartTime: Long.ZERO };
 }
 
 export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1.EventEpochStart"> = {
   $type: "cosmos.epochs.v1beta1.EventEpochStart" as const,
 
   encode(message: EventEpochStart, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.epochNumber !== 0) {
-      writer.uint32(8).int64(message.epochNumber);
+    if (!message.epochNumber.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.epochNumber.toString());
     }
-    if (message.epochStartTime !== 0) {
-      writer.uint32(16).int64(message.epochStartTime);
+    if (!message.epochStartTime.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.epochStartTime.toString());
     }
     return writer;
   },
@@ -109,7 +112,7 @@ export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1
             break;
           }
 
-          message.epochNumber = longToNumber(reader.int64());
+          message.epochNumber = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -117,7 +120,7 @@ export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1
             break;
           }
 
-          message.epochStartTime = longToNumber(reader.int64());
+          message.epochStartTime = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -131,18 +134,18 @@ export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1
 
   fromJSON(object: any): EventEpochStart {
     return {
-      epochNumber: isSet(object.epochNumber) ? globalThis.Number(object.epochNumber) : 0,
-      epochStartTime: isSet(object.epochStartTime) ? globalThis.Number(object.epochStartTime) : 0,
+      epochNumber: isSet(object.epochNumber) ? Long.fromValue(object.epochNumber) : Long.ZERO,
+      epochStartTime: isSet(object.epochStartTime) ? Long.fromValue(object.epochStartTime) : Long.ZERO,
     };
   },
 
   toJSON(message: EventEpochStart): unknown {
     const obj: any = {};
-    if (message.epochNumber !== 0) {
-      obj.epochNumber = Math.round(message.epochNumber);
+    if (!message.epochNumber.equals(Long.ZERO)) {
+      obj.epochNumber = (message.epochNumber || Long.ZERO).toString();
     }
-    if (message.epochStartTime !== 0) {
-      obj.epochStartTime = Math.round(message.epochStartTime);
+    if (!message.epochStartTime.equals(Long.ZERO)) {
+      obj.epochStartTime = (message.epochStartTime || Long.ZERO).toString();
     }
     return obj;
   },
@@ -152,8 +155,12 @@ export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1
   },
   fromPartial(object: DeepPartial<EventEpochStart>): EventEpochStart {
     const message = createBaseEventEpochStart();
-    message.epochNumber = object.epochNumber ?? 0;
-    message.epochStartTime = object.epochStartTime ?? 0;
+    message.epochNumber = (object.epochNumber !== undefined && object.epochNumber !== null)
+      ? Long.fromValue(object.epochNumber)
+      : Long.ZERO;
+    message.epochStartTime = (object.epochStartTime !== undefined && object.epochStartTime !== null)
+      ? Long.fromValue(object.epochStartTime)
+      : Long.ZERO;
     return message;
   },
 };
@@ -161,21 +168,10 @@ export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

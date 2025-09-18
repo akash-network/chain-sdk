@@ -10,6 +10,7 @@ import { CPU } from "./cpu.ts";
 import { GPU } from "./gpu.ts";
 import { Memory } from "./memory.ts";
 import { ResourcePair } from "./resourcepair.ts";
+import Long = require("long");
 
 export const protobufPackage = "akash.inventory.v1";
 
@@ -183,7 +184,7 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
