@@ -3,7 +3,7 @@ package mocks
 import (
 	"context"
 
-	feegrantv1beta1 "github.com/cosmos/cosmos-sdk/x/feegrant"
+	feegrantv1beta1 "cosmossdk.io/x/feegrant"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

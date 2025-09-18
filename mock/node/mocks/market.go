@@ -4,7 +4,7 @@ import (
 	"context"
 
 	query "github.com/cosmos/cosmos-sdk/types/query"
-	escrowv1 "pkg.akt.dev/go/node/escrow/v1"
+	escrowtypesv1 "pkg.akt.dev/go/node/escrow/types/v1"
 	marketv1 "pkg.akt.dev/go/node/market/v1"
 	marketv1beta5 "pkg.akt.dev/go/node/market/v1beta5"
 )
@@ -15,8 +15,8 @@ type MarketData struct {
 	Bids               []marketv1beta5.Bid
 	Leases             []marketv1.Lease
 	Params             marketv1beta5.Params
-	EscrowAccounts     map[string]escrowv1.Account
-	FractionalPayments map[string]escrowv1.FractionalPayment
+	EscrowAccounts     map[string]escrowtypesv1.Account
+	FractionalPayments map[string]escrowtypesv1.Payment
 }
 
 // MockMarketQueryServer implements the market query server
@@ -230,13 +230,8 @@ func (m MockMarketQueryServer) Bid(ctx context.Context, req *marketv1beta5.Query
 			escrowAccount, ok := m.Data.EscrowAccounts[b.ID.String()]
 			if !ok {
 				// If no mock data exists, create a default one
-				escrowAccount = escrowv1.Account{
-					ID: escrowv1.AccountID{
-						Scope: "bid",
-						XID:   b.ID.String(),
-					},
-					Owner: b.ID.Owner,
-					State: escrowv1.AccountOpen,
+				escrowAccount = escrowtypesv1.Account{
+					// Set default account values here if needed
 				}
 			}
 

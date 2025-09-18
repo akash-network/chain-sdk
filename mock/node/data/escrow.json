@@ -2,41 +2,52 @@
   "accounts": [
     {
       "id": {
-        "scope": "deployment",
+        "scope": 1,
         "xid": "akash1example"
       },
-      "state": 1,
-      "balance": {
-        "denom": "uakt",
-        "amount": "1000000"
-      },
-      "transferred": {
-        "denom": "uakt",
-        "amount": "0"
-      },
-      "settled_at": 0
+      "state": {
+        "owner": "akash1example",
+        "state": 1,
+        "transferred": [],
+        "settled_at": 0,
+        "funds": [
+          {
+            "denom": "uakt",
+            "amount": "1000000"
+          }
+        ],
+        "deposits": []
+      }
     }
   ],
   "payments": [
     {
-      "account_id": {
-        "scope": "deployment",
-        "xid": "akash1example"
+      "id": {
+        "aid": {
+          "scope": 1,
+          "xid": "akash1example"
+        },
+        "xid": "payment1"
       },
-      "payment_id": "payment1",
-      "owner": "akash1example",
-      "state": 1,
-      "rate": {
-        "denom": "uakt",
-        "amount": "1000"
-      },
-      "balance": {
-        "denom": "uakt",
-        "amount": "1000000"
-      },
-      "withdrawn": {
-        "denom": "uakt",
-        "amount": "0"
+      "state": {
+        "owner": "akash1example",
+        "state": 1,
+        "rate": {
+          "denom": "uakt",
+          "amount": "1000"
+        },
+        "balance": {
+          "denom": "uakt",
+          "amount": "1000000"
+        },
+        "unsettled": {
+          "denom": "uakt",
+          "amount": "0"
+        },
+        "withdrawn": {
+          "denom": "uakt",
+          "amount": "0"
+        }
       }
     }
   ]

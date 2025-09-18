@@ -3,13 +3,14 @@ package mocks
 import (
 	"context"
 
+	escrowtypesv1 "pkg.akt.dev/go/node/escrow/types/v1"
 	escrowv1 "pkg.akt.dev/go/node/escrow/v1"
 )
 
 // EscrowData holds the escrow data
 type EscrowData struct {
-	Accounts []escrowv1.Account
-	Payments []escrowv1.FractionalPayment
+	Accounts []escrowtypesv1.Account
+	Payments []escrowtypesv1.Payment
 }
 
 // MockEscrowQueryServer implements the escrow query server
@@ -29,11 +30,11 @@ func NewMockEscrowQueryServer(data EscrowData) *MockEscrowQueryServer {
 func (m MockEscrowQueryServer) Accounts(ctx context.Context, req *escrowv1.QueryAccountsRequest) (*escrowv1.QueryAccountsResponse, error) {
 	accounts := m.Data.Accounts
 
-	// Filter by owner if specified
-	if req.Owner != "" {
-		var filtered []escrowv1.Account
+	// Filter by XID if specified
+	if req.XID != "" {
+		var filtered []escrowtypesv1.Account
 		for _, a := range accounts {
-			if a.ID.XID == req.Owner {
+			if a.ID.XID == req.XID {
 				filtered = append(filtered, a)
 			}
 		}
@@ -49,11 +50,11 @@ func (m MockEscrowQueryServer) Accounts(ctx context.Context, req *escrowv1.Query
 func (m MockEscrowQueryServer) Payments(ctx context.Context, req *escrowv1.QueryPaymentsRequest) (*escrowv1.QueryPaymentsResponse, error) {
 	payments := m.Data.Payments
 
-	// Filter by owner if specified
-	if req.Owner != "" {
-		var filtered []escrowv1.FractionalPayment
+	// Filter by XID if specified
+	if req.XID != "" {
+		var filtered []escrowtypesv1.Payment
 		for _, p := range payments {
-			if p.Owner == req.Owner {
+			if p.ID.AID.XID == req.XID {
 				filtered = append(filtered, p)
 			}
 		}

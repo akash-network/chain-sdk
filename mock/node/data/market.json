@@ -96,7 +96,7 @@
   "escrow_accounts": {
     "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu/1/1/1/akash1z2plvwxnyzh4fw7hqmwv5mkpwhgjqcjs9qc7z7": {
       "id": {
-        "scope": "bid",
+        "scope": 2,
         "xid": "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu/1/1/1/akash1z2plvwxnyzh4fw7hqmwv5mkpwhgjqcjs9qc7z7"
       },
       "owner": "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu",
@@ -115,7 +115,7 @@
   "fractional_payments": {
     "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu/1/1/1/akash1z2plvwxnyzh4fw7hqmwv5mkpwhgjqcjs9qc7z7": {
       "account_id": {
-        "scope": "lease",
+        "scope": 2,
         "xid": "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu/1/1/1/akash1z2plvwxnyzh4fw7hqmwv5mkpwhgjqcjs9qc7z7"
       },
       "payment_id": "payment-1",

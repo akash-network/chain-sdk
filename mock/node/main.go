@@ -17,7 +17,7 @@ import (
 	authv1beta1 "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzv1beta1 "github.com/cosmos/cosmos-sdk/x/authz"
 	bankv1beta1 "github.com/cosmos/cosmos-sdk/x/bank/types"
-	feegrantv1beta1 "github.com/cosmos/cosmos-sdk/x/feegrant"
+	feegrantv1beta1 "cosmossdk.io/x/feegrant"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	_ "k8s.io/apimachinery/pkg/api/resource"

@@ -82,24 +82,34 @@
     ],
     "escrow_account": {
       "id": {
-        "scope": "deployment",
+        "scope": 1,
         "xid": "akash1q9j9hrrgkm6jf5e9ant6dtmwtuynf2vrd3j28y/19062874"
       },
-      "owner": "akash1q9j9hrrgkm6jf5e9ant6dtmwtuynf2vrd3j28y",
-      "state": 1,
-      "balance": {
-        "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
-        "amount": "0"
-      },
-      "transferred": {
-        "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
-        "amount": "138656641054000000000000"
-      },
-      "settled_at": 19062967,
-      "depositor": "akash1p4k0jer30g25mf62h5yc42agtjeumw4gxk8z37",
-      "funds": {
-        "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
-        "amount": "4861343358946000000000000"
+      "state": {
+        "owner": "akash1q9j9hrrgkm6jf5e9ant6dtmwtuynf2vrd3j28y",
+        "state": 1,
+        "transferred": [
+          {
+            "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
+            "amount": "138656641054000000000000"
+          }
+        ],
+        "settled_at": 19062967,
+        "funds": [
+          {
+            "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
+            "amount": "4861343358946000000000000"
+          }
+        ],
+        "deposits": [
+          {
+            "owner": "akash1p4k0jer30g25mf62h5yc42agtjeumw4gxk8z37",
+            "amount": {
+              "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
+              "amount": "4861343358946000000000000"
+            }
+          }
+        ]
       }
     }
   },
@@ -186,24 +196,34 @@
     ],
     "escrow_account": {
       "id": {
-        "scope": "deployment",
+        "scope": 1,
         "xid": "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu/19131128"
       },
-      "owner": "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu",
-      "state": 1,
-      "balance": {
-        "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
-        "amount": "0"
-      },
-      "transferred": {
-        "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
-        "amount": "140347575701000000000000"
-      },
-      "settled_at": 19131220,
-      "depositor": "akash1p4k0jer30g25mf62h5yc42agtjeumw4gxk8z37",
-      "funds": {
-        "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
-        "amount": "4859652424299000000000000"
+      "state": {
+        "owner": "akash1q95lhzq4g2yzjlrlkfg3ukcqas89955vmu2ryu",
+        "state": 1,
+        "transferred": [
+          {
+            "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
+            "amount": "140347575701000000000000"
+          }
+        ],
+        "settled_at": 19131220,
+        "funds": [
+          {
+            "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
+            "amount": "4859652424299000000000000"
+          }
+        ],
+        "deposits": [
+          {
+            "owner": "akash1p4k0jer30g25mf62h5yc42agtjeumw4gxk8z37",
+            "amount": {
+              "denom": "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1",
+              "amount": "4859652424299000000000000"
+            }
+          }
+        ]
       }
     }
   }
