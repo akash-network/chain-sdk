@@ -5,6 +5,7 @@
 // source: cosmos/staking/v1beta1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import {
@@ -239,7 +240,7 @@ export interface QueryDelegatorValidatorResponse {
  */
 export interface QueryHistoricalInfoRequest {
   /** height defines at which height to query the historical info. */
-  height: number;
+  height: Long;
 }
 
 /**
@@ -2056,7 +2057,7 @@ export const QueryDelegatorValidatorResponse: MessageFns<
 };
 
 function createBaseQueryHistoricalInfoRequest(): QueryHistoricalInfoRequest {
-  return { height: 0 };
+  return { height: Long.ZERO };
 }
 
 export const QueryHistoricalInfoRequest: MessageFns<
@@ -2066,8 +2067,8 @@ export const QueryHistoricalInfoRequest: MessageFns<
   $type: "cosmos.staking.v1beta1.QueryHistoricalInfoRequest" as const,
 
   encode(message: QueryHistoricalInfoRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     return writer;
   },
@@ -2084,7 +2085,7 @@ export const QueryHistoricalInfoRequest: MessageFns<
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -2097,13 +2098,13 @@ export const QueryHistoricalInfoRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryHistoricalInfoRequest {
-    return { height: isSet(object.height) ? globalThis.Number(object.height) : 0 };
+    return { height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO };
   },
 
   toJSON(message: QueryHistoricalInfoRequest): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     return obj;
   },
@@ -2113,7 +2114,9 @@ export const QueryHistoricalInfoRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryHistoricalInfoRequest>): QueryHistoricalInfoRequest {
     const message = createBaseQueryHistoricalInfoRequest();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     return message;
   },
 };
@@ -2398,21 +2401,10 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.stakin
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

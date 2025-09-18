@@ -5,40 +5,49 @@
 // source: cosmos/benchmark/v1/benchmark.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "cosmos.benchmark.v1";
 
 /** Op is a message describing a benchmark operation. */
 export interface Op {
-  seed: number;
+  seed: Long;
   actor: string;
-  keyLength: number;
-  valueLength: number;
+  keyLength: Long;
+  valueLength: Long;
   iterations: number;
   delete: boolean;
   exists: boolean;
 }
 
 function createBaseOp(): Op {
-  return { seed: 0, actor: "", keyLength: 0, valueLength: 0, iterations: 0, delete: false, exists: false };
+  return {
+    seed: Long.UZERO,
+    actor: "",
+    keyLength: Long.UZERO,
+    valueLength: Long.UZERO,
+    iterations: 0,
+    delete: false,
+    exists: false,
+  };
 }
 
 export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
   $type: "cosmos.benchmark.v1.Op" as const,
 
   encode(message: Op, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.seed !== 0) {
-      writer.uint32(8).uint64(message.seed);
+    if (!message.seed.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.seed.toString());
     }
     if (message.actor !== "") {
       writer.uint32(18).string(message.actor);
     }
-    if (message.keyLength !== 0) {
-      writer.uint32(24).uint64(message.keyLength);
+    if (!message.keyLength.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.keyLength.toString());
     }
-    if (message.valueLength !== 0) {
-      writer.uint32(32).uint64(message.valueLength);
+    if (!message.valueLength.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.valueLength.toString());
     }
     if (message.iterations !== 0) {
       writer.uint32(40).uint32(message.iterations);
@@ -64,7 +73,7 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
             break;
           }
 
-          message.seed = longToNumber(reader.uint64());
+          message.seed = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -80,7 +89,7 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
             break;
           }
 
-          message.keyLength = longToNumber(reader.uint64());
+          message.keyLength = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -88,7 +97,7 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
             break;
           }
 
-          message.valueLength = longToNumber(reader.uint64());
+          message.valueLength = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 5: {
@@ -126,10 +135,10 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
 
   fromJSON(object: any): Op {
     return {
-      seed: isSet(object.seed) ? globalThis.Number(object.seed) : 0,
+      seed: isSet(object.seed) ? Long.fromValue(object.seed) : Long.UZERO,
       actor: isSet(object.actor) ? globalThis.String(object.actor) : "",
-      keyLength: isSet(object.keyLength) ? globalThis.Number(object.keyLength) : 0,
-      valueLength: isSet(object.valueLength) ? globalThis.Number(object.valueLength) : 0,
+      keyLength: isSet(object.keyLength) ? Long.fromValue(object.keyLength) : Long.UZERO,
+      valueLength: isSet(object.valueLength) ? Long.fromValue(object.valueLength) : Long.UZERO,
       iterations: isSet(object.iterations) ? globalThis.Number(object.iterations) : 0,
       delete: isSet(object.delete) ? globalThis.Boolean(object.delete) : false,
       exists: isSet(object.exists) ? globalThis.Boolean(object.exists) : false,
@@ -138,17 +147,17 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
 
   toJSON(message: Op): unknown {
     const obj: any = {};
-    if (message.seed !== 0) {
-      obj.seed = Math.round(message.seed);
+    if (!message.seed.equals(Long.UZERO)) {
+      obj.seed = (message.seed || Long.UZERO).toString();
     }
     if (message.actor !== "") {
       obj.actor = message.actor;
     }
-    if (message.keyLength !== 0) {
-      obj.keyLength = Math.round(message.keyLength);
+    if (!message.keyLength.equals(Long.UZERO)) {
+      obj.keyLength = (message.keyLength || Long.UZERO).toString();
     }
-    if (message.valueLength !== 0) {
-      obj.valueLength = Math.round(message.valueLength);
+    if (!message.valueLength.equals(Long.UZERO)) {
+      obj.valueLength = (message.valueLength || Long.UZERO).toString();
     }
     if (message.iterations !== 0) {
       obj.iterations = Math.round(message.iterations);
@@ -167,10 +176,14 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
   },
   fromPartial(object: DeepPartial<Op>): Op {
     const message = createBaseOp();
-    message.seed = object.seed ?? 0;
+    message.seed = (object.seed !== undefined && object.seed !== null) ? Long.fromValue(object.seed) : Long.UZERO;
     message.actor = object.actor ?? "";
-    message.keyLength = object.keyLength ?? 0;
-    message.valueLength = object.valueLength ?? 0;
+    message.keyLength = (object.keyLength !== undefined && object.keyLength !== null)
+      ? Long.fromValue(object.keyLength)
+      : Long.UZERO;
+    message.valueLength = (object.valueLength !== undefined && object.valueLength !== null)
+      ? Long.fromValue(object.valueLength)
+      : Long.UZERO;
     message.iterations = object.iterations ?? 0;
     message.delete = object.delete ?? false;
     message.exists = object.exists ?? false;
@@ -181,21 +194,10 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

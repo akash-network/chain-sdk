@@ -5,6 +5,7 @@
 // source: cosmos/gov/v1/genesis.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Deposit, DepositParams, Params, Proposal, TallyParams, Vote, VotingParams } from "./gov.ts";
 
@@ -13,7 +14,7 @@ export const protobufPackage = "cosmos.gov.v1";
 /** GenesisState defines the gov module's genesis state. */
 export interface GenesisState {
   /** starting_proposal_id is the ID of the starting proposal. */
-  startingProposalId: number;
+  startingProposalId: Long;
   /** deposits defines all the deposits present at genesis. */
   deposits: Deposit[];
   /** votes defines all the votes present at genesis. */
@@ -62,7 +63,7 @@ export interface GenesisState {
 
 function createBaseGenesisState(): GenesisState {
   return {
-    startingProposalId: 0,
+    startingProposalId: Long.UZERO,
     deposits: [],
     votes: [],
     proposals: [],
@@ -78,8 +79,8 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
   $type: "cosmos.gov.v1.GenesisState" as const,
 
   encode(message: GenesisState, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.startingProposalId !== 0) {
-      writer.uint32(8).uint64(message.startingProposalId);
+    if (!message.startingProposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.startingProposalId.toString());
     }
     for (const v of message.deposits) {
       Deposit.encode(v!, writer.uint32(18).fork()).join();
@@ -120,7 +121,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
             break;
           }
 
-          message.startingProposalId = longToNumber(reader.uint64());
+          message.startingProposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -198,7 +199,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
 
   fromJSON(object: any): GenesisState {
     return {
-      startingProposalId: isSet(object.startingProposalId) ? globalThis.Number(object.startingProposalId) : 0,
+      startingProposalId: isSet(object.startingProposalId) ? Long.fromValue(object.startingProposalId) : Long.UZERO,
       deposits: globalThis.Array.isArray(object?.deposits) ? object.deposits.map((e: any) => Deposit.fromJSON(e)) : [],
       votes: globalThis.Array.isArray(object?.votes) ? object.votes.map((e: any) => Vote.fromJSON(e)) : [],
       proposals: globalThis.Array.isArray(object?.proposals)
@@ -214,8 +215,8 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
 
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
-    if (message.startingProposalId !== 0) {
-      obj.startingProposalId = Math.round(message.startingProposalId);
+    if (!message.startingProposalId.equals(Long.UZERO)) {
+      obj.startingProposalId = (message.startingProposalId || Long.UZERO).toString();
     }
     if (message.deposits?.length) {
       obj.deposits = message.deposits.map((e) => Deposit.toJSON(e));
@@ -249,7 +250,9 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
-    message.startingProposalId = object.startingProposalId ?? 0;
+    message.startingProposalId = (object.startingProposalId !== undefined && object.startingProposalId !== null)
+      ? Long.fromValue(object.startingProposalId)
+      : Long.UZERO;
     message.deposits = object.deposits?.map((e) => Deposit.fromPartial(e)) || [];
     message.votes = object.votes?.map((e) => Vote.fromPartial(e)) || [];
     message.proposals = object.proposals?.map((e) => Proposal.fromPartial(e)) || [];
@@ -273,21 +276,10 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

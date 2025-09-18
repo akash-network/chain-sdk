@@ -5,6 +5,7 @@
 // source: cosmos/nft/v1beta1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { Class, NFT } from "./nft.ts";
@@ -22,7 +23,7 @@ export interface QueryBalanceRequest {
 /** QueryBalanceResponse is the response type for the Query/Balance RPC method */
 export interface QueryBalanceResponse {
   /** amount is the number of all NFTs of a given class owned by the owner */
-  amount: number;
+  amount: Long;
 }
 
 /** QueryOwnerRequest is the request type for the Query/Owner RPC method */
@@ -48,7 +49,7 @@ export interface QuerySupplyRequest {
 /** QuerySupplyResponse is the response type for the Query/Supply RPC method */
 export interface QuerySupplyResponse {
   /** amount is the number of all NFTs from the given class */
-  amount: number;
+  amount: Long;
 }
 
 /** QueryNFTstRequest is the request type for the Query/NFTs RPC method */
@@ -188,15 +189,15 @@ export const QueryBalanceRequest: MessageFns<QueryBalanceRequest, "cosmos.nft.v1
 };
 
 function createBaseQueryBalanceResponse(): QueryBalanceResponse {
-  return { amount: 0 };
+  return { amount: Long.UZERO };
 }
 
 export const QueryBalanceResponse: MessageFns<QueryBalanceResponse, "cosmos.nft.v1beta1.QueryBalanceResponse"> = {
   $type: "cosmos.nft.v1beta1.QueryBalanceResponse" as const,
 
   encode(message: QueryBalanceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.amount !== 0) {
-      writer.uint32(8).uint64(message.amount);
+    if (!message.amount.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.amount.toString());
     }
     return writer;
   },
@@ -213,7 +214,7 @@ export const QueryBalanceResponse: MessageFns<QueryBalanceResponse, "cosmos.nft.
             break;
           }
 
-          message.amount = longToNumber(reader.uint64());
+          message.amount = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -226,13 +227,13 @@ export const QueryBalanceResponse: MessageFns<QueryBalanceResponse, "cosmos.nft.
   },
 
   fromJSON(object: any): QueryBalanceResponse {
-    return { amount: isSet(object.amount) ? globalThis.Number(object.amount) : 0 };
+    return { amount: isSet(object.amount) ? Long.fromValue(object.amount) : Long.UZERO };
   },
 
   toJSON(message: QueryBalanceResponse): unknown {
     const obj: any = {};
-    if (message.amount !== 0) {
-      obj.amount = Math.round(message.amount);
+    if (!message.amount.equals(Long.UZERO)) {
+      obj.amount = (message.amount || Long.UZERO).toString();
     }
     return obj;
   },
@@ -242,7 +243,9 @@ export const QueryBalanceResponse: MessageFns<QueryBalanceResponse, "cosmos.nft.
   },
   fromPartial(object: DeepPartial<QueryBalanceResponse>): QueryBalanceResponse {
     const message = createBaseQueryBalanceResponse();
-    message.amount = object.amount ?? 0;
+    message.amount = (object.amount !== undefined && object.amount !== null)
+      ? Long.fromValue(object.amount)
+      : Long.UZERO;
     return message;
   },
 };
@@ -446,15 +449,15 @@ export const QuerySupplyRequest: MessageFns<QuerySupplyRequest, "cosmos.nft.v1be
 };
 
 function createBaseQuerySupplyResponse(): QuerySupplyResponse {
-  return { amount: 0 };
+  return { amount: Long.UZERO };
 }
 
 export const QuerySupplyResponse: MessageFns<QuerySupplyResponse, "cosmos.nft.v1beta1.QuerySupplyResponse"> = {
   $type: "cosmos.nft.v1beta1.QuerySupplyResponse" as const,
 
   encode(message: QuerySupplyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.amount !== 0) {
-      writer.uint32(8).uint64(message.amount);
+    if (!message.amount.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.amount.toString());
     }
     return writer;
   },
@@ -471,7 +474,7 @@ export const QuerySupplyResponse: MessageFns<QuerySupplyResponse, "cosmos.nft.v1
             break;
           }
 
-          message.amount = longToNumber(reader.uint64());
+          message.amount = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -484,13 +487,13 @@ export const QuerySupplyResponse: MessageFns<QuerySupplyResponse, "cosmos.nft.v1
   },
 
   fromJSON(object: any): QuerySupplyResponse {
-    return { amount: isSet(object.amount) ? globalThis.Number(object.amount) : 0 };
+    return { amount: isSet(object.amount) ? Long.fromValue(object.amount) : Long.UZERO };
   },
 
   toJSON(message: QuerySupplyResponse): unknown {
     const obj: any = {};
-    if (message.amount !== 0) {
-      obj.amount = Math.round(message.amount);
+    if (!message.amount.equals(Long.UZERO)) {
+      obj.amount = (message.amount || Long.UZERO).toString();
     }
     return obj;
   },
@@ -500,7 +503,9 @@ export const QuerySupplyResponse: MessageFns<QuerySupplyResponse, "cosmos.nft.v1
   },
   fromPartial(object: DeepPartial<QuerySupplyResponse>): QuerySupplyResponse {
     const message = createBaseQuerySupplyResponse();
-    message.amount = object.amount ?? 0;
+    message.amount = (object.amount !== undefined && object.amount !== null)
+      ? Long.fromValue(object.amount)
+      : Long.UZERO;
     return message;
   },
 };
@@ -1084,21 +1089,10 @@ export const QueryClassesResponse: MessageFns<QueryClassesResponse, "cosmos.nft.
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

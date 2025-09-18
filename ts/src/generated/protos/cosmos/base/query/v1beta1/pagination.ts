@@ -5,6 +5,7 @@
 // source: cosmos/base/query/v1beta1/pagination.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "cosmos.base.query.v1beta1";
@@ -30,12 +31,12 @@ export interface PageRequest {
    * It is less efficient than using key. Only one of offset or key should
    * be set.
    */
-  offset: number;
+  offset: Long;
   /**
    * limit is the total number of results to be returned in the result page.
    * If left empty it will default to a value to be set by each app.
    */
-  limit: number;
+  limit: Long;
   /**
    * count_total is set to true  to indicate that the result set should include
    * a count of the total number of items available for pagination in UIs.
@@ -67,11 +68,11 @@ export interface PageResponse {
    * total is total number of results available if PageRequest.count_total
    * was set, its value is undefined otherwise
    */
-  total: number;
+  total: Long;
 }
 
 function createBasePageRequest(): PageRequest {
-  return { key: new Uint8Array(0), offset: 0, limit: 0, countTotal: false, reverse: false };
+  return { key: new Uint8Array(0), offset: Long.UZERO, limit: Long.UZERO, countTotal: false, reverse: false };
 }
 
 export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.PageRequest"> = {
@@ -81,11 +82,11 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
     if (message.key.length !== 0) {
       writer.uint32(10).bytes(message.key);
     }
-    if (message.offset !== 0) {
-      writer.uint32(16).uint64(message.offset);
+    if (!message.offset.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.offset.toString());
     }
-    if (message.limit !== 0) {
-      writer.uint32(24).uint64(message.limit);
+    if (!message.limit.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.limit.toString());
     }
     if (message.countTotal !== false) {
       writer.uint32(32).bool(message.countTotal);
@@ -116,7 +117,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
             break;
           }
 
-          message.offset = longToNumber(reader.uint64());
+          message.offset = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -124,7 +125,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
             break;
           }
 
-          message.limit = longToNumber(reader.uint64());
+          message.limit = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -155,8 +156,8 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
   fromJSON(object: any): PageRequest {
     return {
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
-      offset: isSet(object.offset) ? globalThis.Number(object.offset) : 0,
-      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      offset: isSet(object.offset) ? Long.fromValue(object.offset) : Long.UZERO,
+      limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
       countTotal: isSet(object.countTotal) ? globalThis.Boolean(object.countTotal) : false,
       reverse: isSet(object.reverse) ? globalThis.Boolean(object.reverse) : false,
     };
@@ -167,11 +168,11 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
     if (message.key.length !== 0) {
       obj.key = base64FromBytes(message.key);
     }
-    if (message.offset !== 0) {
-      obj.offset = Math.round(message.offset);
+    if (!message.offset.equals(Long.UZERO)) {
+      obj.offset = (message.offset || Long.UZERO).toString();
     }
-    if (message.limit !== 0) {
-      obj.limit = Math.round(message.limit);
+    if (!message.limit.equals(Long.UZERO)) {
+      obj.limit = (message.limit || Long.UZERO).toString();
     }
     if (message.countTotal !== false) {
       obj.countTotal = message.countTotal;
@@ -188,8 +189,10 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
   fromPartial(object: DeepPartial<PageRequest>): PageRequest {
     const message = createBasePageRequest();
     message.key = object.key ?? new Uint8Array(0);
-    message.offset = object.offset ?? 0;
-    message.limit = object.limit ?? 0;
+    message.offset = (object.offset !== undefined && object.offset !== null)
+      ? Long.fromValue(object.offset)
+      : Long.UZERO;
+    message.limit = (object.limit !== undefined && object.limit !== null) ? Long.fromValue(object.limit) : Long.UZERO;
     message.countTotal = object.countTotal ?? false;
     message.reverse = object.reverse ?? false;
     return message;
@@ -197,7 +200,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
 };
 
 function createBasePageResponse(): PageResponse {
-  return { nextKey: new Uint8Array(0), total: 0 };
+  return { nextKey: new Uint8Array(0), total: Long.UZERO };
 }
 
 export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.PageResponse"> = {
@@ -207,8 +210,8 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
     if (message.nextKey.length !== 0) {
       writer.uint32(10).bytes(message.nextKey);
     }
-    if (message.total !== 0) {
-      writer.uint32(16).uint64(message.total);
+    if (!message.total.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.total.toString());
     }
     return writer;
   },
@@ -233,7 +236,7 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
             break;
           }
 
-          message.total = longToNumber(reader.uint64());
+          message.total = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -248,7 +251,7 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
   fromJSON(object: any): PageResponse {
     return {
       nextKey: isSet(object.nextKey) ? bytesFromBase64(object.nextKey) : new Uint8Array(0),
-      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      total: isSet(object.total) ? Long.fromValue(object.total) : Long.UZERO,
     };
   },
 
@@ -257,8 +260,8 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
     if (message.nextKey.length !== 0) {
       obj.nextKey = base64FromBytes(message.nextKey);
     }
-    if (message.total !== 0) {
-      obj.total = Math.round(message.total);
+    if (!message.total.equals(Long.UZERO)) {
+      obj.total = (message.total || Long.UZERO).toString();
     }
     return obj;
   },
@@ -269,7 +272,7 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
   fromPartial(object: DeepPartial<PageResponse>): PageResponse {
     const message = createBasePageResponse();
     message.nextKey = object.nextKey ?? new Uint8Array(0);
-    message.total = object.total ?? 0;
+    message.total = (object.total !== undefined && object.total !== null) ? Long.fromValue(object.total) : Long.UZERO;
     return message;
   },
 };
@@ -302,21 +305,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

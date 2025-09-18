@@ -5,6 +5,7 @@
 // source: cosmos/mint/v1beta1/mint.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "cosmos.mint.v1beta1";
@@ -30,7 +31,7 @@ export interface Params {
   /** goal of percent bonded atoms */
   goalBonded: string;
   /** expected blocks per year */
-  blocksPerYear: number;
+  blocksPerYear: Long;
 }
 
 function createBaseMinter(): Minter {
@@ -118,7 +119,7 @@ function createBaseParams(): Params {
     inflationMax: "",
     inflationMin: "",
     goalBonded: "",
-    blocksPerYear: 0,
+    blocksPerYear: Long.UZERO,
   };
 }
 
@@ -141,8 +142,8 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
     if (message.goalBonded !== "") {
       writer.uint32(42).string(message.goalBonded);
     }
-    if (message.blocksPerYear !== 0) {
-      writer.uint32(48).uint64(message.blocksPerYear);
+    if (!message.blocksPerYear.equals(Long.UZERO)) {
+      writer.uint32(48).uint64(message.blocksPerYear.toString());
     }
     return writer;
   },
@@ -199,7 +200,7 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
             break;
           }
 
-          message.blocksPerYear = longToNumber(reader.uint64());
+          message.blocksPerYear = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -218,7 +219,7 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
       inflationMax: isSet(object.inflationMax) ? globalThis.String(object.inflationMax) : "",
       inflationMin: isSet(object.inflationMin) ? globalThis.String(object.inflationMin) : "",
       goalBonded: isSet(object.goalBonded) ? globalThis.String(object.goalBonded) : "",
-      blocksPerYear: isSet(object.blocksPerYear) ? globalThis.Number(object.blocksPerYear) : 0,
+      blocksPerYear: isSet(object.blocksPerYear) ? Long.fromValue(object.blocksPerYear) : Long.UZERO,
     };
   },
 
@@ -239,8 +240,8 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
     if (message.goalBonded !== "") {
       obj.goalBonded = message.goalBonded;
     }
-    if (message.blocksPerYear !== 0) {
-      obj.blocksPerYear = Math.round(message.blocksPerYear);
+    if (!message.blocksPerYear.equals(Long.UZERO)) {
+      obj.blocksPerYear = (message.blocksPerYear || Long.UZERO).toString();
     }
     return obj;
   },
@@ -255,7 +256,9 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
     message.inflationMax = object.inflationMax ?? "";
     message.inflationMin = object.inflationMin ?? "";
     message.goalBonded = object.goalBonded ?? "";
-    message.blocksPerYear = object.blocksPerYear ?? 0;
+    message.blocksPerYear = (object.blocksPerYear !== undefined && object.blocksPerYear !== null)
+      ? Long.fromValue(object.blocksPerYear)
+      : Long.UZERO;
     return message;
   },
 };
@@ -263,21 +266,10 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

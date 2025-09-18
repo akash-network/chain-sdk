@@ -5,6 +5,7 @@
 // source: cosmos/tx/v1beta1/tx.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
@@ -80,7 +81,7 @@ export interface SignDoc {
    */
   chainId: string;
   /** account_number is the account number of the account in state */
-  accountNumber: number;
+  accountNumber: Long;
 }
 
 /**
@@ -104,9 +105,9 @@ export interface SignDocDirectAux {
    */
   chainId: string;
   /** account_number is the account number of the account in state. */
-  accountNumber: number;
+  accountNumber: Long;
   /** sequence is the sequence number of the signing account. */
-  sequence: number;
+  sequence: Long;
   /**
    * tips have been depreacted and should not be used
    *
@@ -138,7 +139,7 @@ export interface TxBody {
    * timeout_height is the block height after which this transaction will not
    * be processed by the chain.
    */
-  timeoutHeight: number;
+  timeoutHeight: Long;
   /**
    * unordered, when set to true, indicates that the transaction signer(s)
    * intend for the transaction to be evaluated and executed in an un-ordered
@@ -237,7 +238,7 @@ export interface SignerInfo {
    * number of committed transactions signed by a given address. It is used to
    * prevent replay attacks.
    */
-  sequence: number;
+  sequence: Long;
 }
 
 /** ModeInfo describes the signing mode of a single or nested multisig signer. */
@@ -285,7 +286,7 @@ export interface Fee {
    * gas_limit is the maximum gas that can be used in transaction processing
    * before an out of gas error occurs
    */
-  gasLimit: number;
+  gasLimit: Long;
   /**
    * if unset, the first signer is responsible for paying the fees. If set, the
    * specified account must pay the fees. the payer must be a tx signer (and
@@ -536,7 +537,7 @@ export const TxRaw: MessageFns<TxRaw, "cosmos.tx.v1beta1.TxRaw"> = {
 };
 
 function createBaseSignDoc(): SignDoc {
-  return { bodyBytes: new Uint8Array(0), authInfoBytes: new Uint8Array(0), chainId: "", accountNumber: 0 };
+  return { bodyBytes: new Uint8Array(0), authInfoBytes: new Uint8Array(0), chainId: "", accountNumber: Long.UZERO };
 }
 
 export const SignDoc: MessageFns<SignDoc, "cosmos.tx.v1beta1.SignDoc"> = {
@@ -552,8 +553,8 @@ export const SignDoc: MessageFns<SignDoc, "cosmos.tx.v1beta1.SignDoc"> = {
     if (message.chainId !== "") {
       writer.uint32(26).string(message.chainId);
     }
-    if (message.accountNumber !== 0) {
-      writer.uint32(32).uint64(message.accountNumber);
+    if (!message.accountNumber.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.accountNumber.toString());
     }
     return writer;
   },
@@ -594,7 +595,7 @@ export const SignDoc: MessageFns<SignDoc, "cosmos.tx.v1beta1.SignDoc"> = {
             break;
           }
 
-          message.accountNumber = longToNumber(reader.uint64());
+          message.accountNumber = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -611,7 +612,7 @@ export const SignDoc: MessageFns<SignDoc, "cosmos.tx.v1beta1.SignDoc"> = {
       bodyBytes: isSet(object.bodyBytes) ? bytesFromBase64(object.bodyBytes) : new Uint8Array(0),
       authInfoBytes: isSet(object.authInfoBytes) ? bytesFromBase64(object.authInfoBytes) : new Uint8Array(0),
       chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
-      accountNumber: isSet(object.accountNumber) ? globalThis.Number(object.accountNumber) : 0,
+      accountNumber: isSet(object.accountNumber) ? Long.fromValue(object.accountNumber) : Long.UZERO,
     };
   },
 
@@ -626,8 +627,8 @@ export const SignDoc: MessageFns<SignDoc, "cosmos.tx.v1beta1.SignDoc"> = {
     if (message.chainId !== "") {
       obj.chainId = message.chainId;
     }
-    if (message.accountNumber !== 0) {
-      obj.accountNumber = Math.round(message.accountNumber);
+    if (!message.accountNumber.equals(Long.UZERO)) {
+      obj.accountNumber = (message.accountNumber || Long.UZERO).toString();
     }
     return obj;
   },
@@ -640,7 +641,9 @@ export const SignDoc: MessageFns<SignDoc, "cosmos.tx.v1beta1.SignDoc"> = {
     message.bodyBytes = object.bodyBytes ?? new Uint8Array(0);
     message.authInfoBytes = object.authInfoBytes ?? new Uint8Array(0);
     message.chainId = object.chainId ?? "";
-    message.accountNumber = object.accountNumber ?? 0;
+    message.accountNumber = (object.accountNumber !== undefined && object.accountNumber !== null)
+      ? Long.fromValue(object.accountNumber)
+      : Long.UZERO;
     return message;
   },
 };
@@ -650,8 +653,8 @@ function createBaseSignDocDirectAux(): SignDocDirectAux {
     bodyBytes: new Uint8Array(0),
     publicKey: undefined,
     chainId: "",
-    accountNumber: 0,
-    sequence: 0,
+    accountNumber: Long.UZERO,
+    sequence: Long.UZERO,
     tip: undefined,
   };
 }
@@ -669,11 +672,11 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
     if (message.chainId !== "") {
       writer.uint32(26).string(message.chainId);
     }
-    if (message.accountNumber !== 0) {
-      writer.uint32(32).uint64(message.accountNumber);
+    if (!message.accountNumber.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.accountNumber.toString());
     }
-    if (message.sequence !== 0) {
-      writer.uint32(40).uint64(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.sequence.toString());
     }
     if (message.tip !== undefined) {
       Tip.encode(message.tip, writer.uint32(50).fork()).join();
@@ -717,7 +720,7 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
             break;
           }
 
-          message.accountNumber = longToNumber(reader.uint64());
+          message.accountNumber = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 5: {
@@ -725,7 +728,7 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
             break;
           }
 
-          message.sequence = longToNumber(reader.uint64());
+          message.sequence = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 6: {
@@ -750,8 +753,8 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
       bodyBytes: isSet(object.bodyBytes) ? bytesFromBase64(object.bodyBytes) : new Uint8Array(0),
       publicKey: isSet(object.publicKey) ? Any.fromJSON(object.publicKey) : undefined,
       chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
-      accountNumber: isSet(object.accountNumber) ? globalThis.Number(object.accountNumber) : 0,
-      sequence: isSet(object.sequence) ? globalThis.Number(object.sequence) : 0,
+      accountNumber: isSet(object.accountNumber) ? Long.fromValue(object.accountNumber) : Long.UZERO,
+      sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
       tip: isSet(object.tip) ? Tip.fromJSON(object.tip) : undefined,
     };
   },
@@ -767,11 +770,11 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
     if (message.chainId !== "") {
       obj.chainId = message.chainId;
     }
-    if (message.accountNumber !== 0) {
-      obj.accountNumber = Math.round(message.accountNumber);
+    if (!message.accountNumber.equals(Long.UZERO)) {
+      obj.accountNumber = (message.accountNumber || Long.UZERO).toString();
     }
-    if (message.sequence !== 0) {
-      obj.sequence = Math.round(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      obj.sequence = (message.sequence || Long.UZERO).toString();
     }
     if (message.tip !== undefined) {
       obj.tip = Tip.toJSON(message.tip);
@@ -789,8 +792,12 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
       ? Any.fromPartial(object.publicKey)
       : undefined;
     message.chainId = object.chainId ?? "";
-    message.accountNumber = object.accountNumber ?? 0;
-    message.sequence = object.sequence ?? 0;
+    message.accountNumber = (object.accountNumber !== undefined && object.accountNumber !== null)
+      ? Long.fromValue(object.accountNumber)
+      : Long.UZERO;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null)
+      ? Long.fromValue(object.sequence)
+      : Long.UZERO;
     message.tip = (object.tip !== undefined && object.tip !== null) ? Tip.fromPartial(object.tip) : undefined;
     return message;
   },
@@ -800,7 +807,7 @@ function createBaseTxBody(): TxBody {
   return {
     messages: [],
     memo: "",
-    timeoutHeight: 0,
+    timeoutHeight: Long.UZERO,
     unordered: false,
     timeoutTimestamp: undefined,
     extensionOptions: [],
@@ -818,8 +825,8 @@ export const TxBody: MessageFns<TxBody, "cosmos.tx.v1beta1.TxBody"> = {
     if (message.memo !== "") {
       writer.uint32(18).string(message.memo);
     }
-    if (message.timeoutHeight !== 0) {
-      writer.uint32(24).uint64(message.timeoutHeight);
+    if (!message.timeoutHeight.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.timeoutHeight.toString());
     }
     if (message.unordered !== false) {
       writer.uint32(32).bool(message.unordered);
@@ -864,7 +871,7 @@ export const TxBody: MessageFns<TxBody, "cosmos.tx.v1beta1.TxBody"> = {
             break;
           }
 
-          message.timeoutHeight = longToNumber(reader.uint64());
+          message.timeoutHeight = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -912,7 +919,7 @@ export const TxBody: MessageFns<TxBody, "cosmos.tx.v1beta1.TxBody"> = {
     return {
       messages: globalThis.Array.isArray(object?.messages) ? object.messages.map((e: any) => Any.fromJSON(e)) : [],
       memo: isSet(object.memo) ? globalThis.String(object.memo) : "",
-      timeoutHeight: isSet(object.timeoutHeight) ? globalThis.Number(object.timeoutHeight) : 0,
+      timeoutHeight: isSet(object.timeoutHeight) ? Long.fromValue(object.timeoutHeight) : Long.UZERO,
       unordered: isSet(object.unordered) ? globalThis.Boolean(object.unordered) : false,
       timeoutTimestamp: isSet(object.timeoutTimestamp) ? fromJsonTimestamp(object.timeoutTimestamp) : undefined,
       extensionOptions: globalThis.Array.isArray(object?.extensionOptions)
@@ -932,8 +939,8 @@ export const TxBody: MessageFns<TxBody, "cosmos.tx.v1beta1.TxBody"> = {
     if (message.memo !== "") {
       obj.memo = message.memo;
     }
-    if (message.timeoutHeight !== 0) {
-      obj.timeoutHeight = Math.round(message.timeoutHeight);
+    if (!message.timeoutHeight.equals(Long.UZERO)) {
+      obj.timeoutHeight = (message.timeoutHeight || Long.UZERO).toString();
     }
     if (message.unordered !== false) {
       obj.unordered = message.unordered;
@@ -957,7 +964,9 @@ export const TxBody: MessageFns<TxBody, "cosmos.tx.v1beta1.TxBody"> = {
     const message = createBaseTxBody();
     message.messages = object.messages?.map((e) => Any.fromPartial(e)) || [];
     message.memo = object.memo ?? "";
-    message.timeoutHeight = object.timeoutHeight ?? 0;
+    message.timeoutHeight = (object.timeoutHeight !== undefined && object.timeoutHeight !== null)
+      ? Long.fromValue(object.timeoutHeight)
+      : Long.UZERO;
     message.unordered = object.unordered ?? false;
     message.timeoutTimestamp = object.timeoutTimestamp ?? undefined;
     message.extensionOptions = object.extensionOptions?.map((e) => Any.fromPartial(e)) || [];
@@ -1063,7 +1072,7 @@ export const AuthInfo: MessageFns<AuthInfo, "cosmos.tx.v1beta1.AuthInfo"> = {
 };
 
 function createBaseSignerInfo(): SignerInfo {
-  return { publicKey: undefined, modeInfo: undefined, sequence: 0 };
+  return { publicKey: undefined, modeInfo: undefined, sequence: Long.UZERO };
 }
 
 export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> = {
@@ -1076,8 +1085,8 @@ export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> 
     if (message.modeInfo !== undefined) {
       ModeInfo.encode(message.modeInfo, writer.uint32(18).fork()).join();
     }
-    if (message.sequence !== 0) {
-      writer.uint32(24).uint64(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.sequence.toString());
     }
     return writer;
   },
@@ -1110,7 +1119,7 @@ export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> 
             break;
           }
 
-          message.sequence = longToNumber(reader.uint64());
+          message.sequence = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -1126,7 +1135,7 @@ export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> 
     return {
       publicKey: isSet(object.publicKey) ? Any.fromJSON(object.publicKey) : undefined,
       modeInfo: isSet(object.modeInfo) ? ModeInfo.fromJSON(object.modeInfo) : undefined,
-      sequence: isSet(object.sequence) ? globalThis.Number(object.sequence) : 0,
+      sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
     };
   },
 
@@ -1138,8 +1147,8 @@ export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> 
     if (message.modeInfo !== undefined) {
       obj.modeInfo = ModeInfo.toJSON(message.modeInfo);
     }
-    if (message.sequence !== 0) {
-      obj.sequence = Math.round(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      obj.sequence = (message.sequence || Long.UZERO).toString();
     }
     return obj;
   },
@@ -1155,7 +1164,9 @@ export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> 
     message.modeInfo = (object.modeInfo !== undefined && object.modeInfo !== null)
       ? ModeInfo.fromPartial(object.modeInfo)
       : undefined;
-    message.sequence = object.sequence ?? 0;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null)
+      ? Long.fromValue(object.sequence)
+      : Long.UZERO;
     return message;
   },
 };
@@ -1385,7 +1396,7 @@ export const ModeInfo_Multi: MessageFns<ModeInfo_Multi, "cosmos.tx.v1beta1.ModeI
 };
 
 function createBaseFee(): Fee {
-  return { amount: [], gasLimit: 0, payer: "", granter: "" };
+  return { amount: [], gasLimit: Long.UZERO, payer: "", granter: "" };
 }
 
 export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
@@ -1395,8 +1406,8 @@ export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
     for (const v of message.amount) {
       Coin.encode(v!, writer.uint32(10).fork()).join();
     }
-    if (message.gasLimit !== 0) {
-      writer.uint32(16).uint64(message.gasLimit);
+    if (!message.gasLimit.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.gasLimit.toString());
     }
     if (message.payer !== "") {
       writer.uint32(26).string(message.payer);
@@ -1427,7 +1438,7 @@ export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
             break;
           }
 
-          message.gasLimit = longToNumber(reader.uint64());
+          message.gasLimit = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -1458,7 +1469,7 @@ export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
   fromJSON(object: any): Fee {
     return {
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
-      gasLimit: isSet(object.gasLimit) ? globalThis.Number(object.gasLimit) : 0,
+      gasLimit: isSet(object.gasLimit) ? Long.fromValue(object.gasLimit) : Long.UZERO,
       payer: isSet(object.payer) ? globalThis.String(object.payer) : "",
       granter: isSet(object.granter) ? globalThis.String(object.granter) : "",
     };
@@ -1469,8 +1480,8 @@ export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
     if (message.amount?.length) {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
     }
-    if (message.gasLimit !== 0) {
-      obj.gasLimit = Math.round(message.gasLimit);
+    if (!message.gasLimit.equals(Long.UZERO)) {
+      obj.gasLimit = (message.gasLimit || Long.UZERO).toString();
     }
     if (message.payer !== "") {
       obj.payer = message.payer;
@@ -1487,7 +1498,9 @@ export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
   fromPartial(object: DeepPartial<Fee>): Fee {
     const message = createBaseFee();
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
-    message.gasLimit = object.gasLimit ?? 0;
+    message.gasLimit = (object.gasLimit !== undefined && object.gasLimit !== null)
+      ? Long.fromValue(object.gasLimit)
+      : Long.UZERO;
     message.payer = object.payer ?? "";
     message.granter = object.granter ?? "";
     return message;
@@ -1712,19 +1725,19 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -1739,15 +1752,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

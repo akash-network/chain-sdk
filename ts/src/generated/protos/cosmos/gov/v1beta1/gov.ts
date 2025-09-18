@@ -5,6 +5,7 @@
 // source: cosmos/gov/v1beta1/gov.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Duration } from "../../../google/protobuf/duration.ts";
@@ -174,7 +175,7 @@ export interface TextProposal {
  */
 export interface Deposit {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** depositor defines the deposit addresses from the proposals. */
   depositor: string;
   /** amount to be deposited by depositor. */
@@ -184,7 +185,7 @@ export interface Deposit {
 /** Proposal defines the core field members of a governance proposal. */
 export interface Proposal {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** content is the proposal's content. */
   content:
     | Any
@@ -235,7 +236,7 @@ export interface TallyResult {
  */
 export interface Vote {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: number;
+  proposalId: Long;
   /** voter is the voter address of the proposal. */
   voter: string;
   /**
@@ -440,15 +441,15 @@ export const TextProposal: MessageFns<TextProposal, "cosmos.gov.v1beta1.TextProp
 };
 
 function createBaseDeposit(): Deposit {
-  return { proposalId: 0, depositor: "", amount: [] };
+  return { proposalId: Long.UZERO, depositor: "", amount: [] };
 }
 
 export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
   $type: "cosmos.gov.v1beta1.Deposit" as const,
 
   encode(message: Deposit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.depositor !== "") {
       writer.uint32(18).string(message.depositor);
@@ -471,7 +472,7 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -501,7 +502,7 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
 
   fromJSON(object: any): Deposit {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
@@ -509,8 +510,8 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
 
   toJSON(message: Deposit): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.depositor !== "") {
       obj.depositor = message.depositor;
@@ -526,7 +527,9 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
   },
   fromPartial(object: DeepPartial<Deposit>): Deposit {
     const message = createBaseDeposit();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.depositor = object.depositor ?? "";
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
     return message;
@@ -535,7 +538,7 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
 
 function createBaseProposal(): Proposal {
   return {
-    proposalId: 0,
+    proposalId: Long.UZERO,
     content: undefined,
     status: 0,
     finalTallyResult: undefined,
@@ -551,8 +554,8 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
   $type: "cosmos.gov.v1beta1.Proposal" as const,
 
   encode(message: Proposal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.content !== undefined) {
       Any.encode(message.content, writer.uint32(18).fork()).join();
@@ -593,7 +596,7 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -671,7 +674,7 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
 
   fromJSON(object: any): Proposal {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       content: isSet(object.content) ? Any.fromJSON(object.content) : undefined,
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
       finalTallyResult: isSet(object.finalTallyResult) ? TallyResult.fromJSON(object.finalTallyResult) : undefined,
@@ -687,8 +690,8 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
 
   toJSON(message: Proposal): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.content !== undefined) {
       obj.content = Any.toJSON(message.content);
@@ -722,7 +725,9 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
   },
   fromPartial(object: DeepPartial<Proposal>): Proposal {
     const message = createBaseProposal();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.content = (object.content !== undefined && object.content !== null)
       ? Any.fromPartial(object.content)
       : undefined;
@@ -850,15 +855,15 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.gov.v1beta1.TallyResul
 };
 
 function createBaseVote(): Vote {
-  return { proposalId: 0, voter: "", option: 0, options: [] };
+  return { proposalId: Long.UZERO, voter: "", option: 0, options: [] };
 }
 
 export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
   $type: "cosmos.gov.v1beta1.Vote" as const,
 
   encode(message: Vote, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.proposalId !== 0) {
-      writer.uint32(8).uint64(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.proposalId.toString());
     }
     if (message.voter !== "") {
       writer.uint32(18).string(message.voter);
@@ -884,7 +889,7 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
             break;
           }
 
-          message.proposalId = longToNumber(reader.uint64());
+          message.proposalId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -922,7 +927,7 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
 
   fromJSON(object: any): Vote {
     return {
-      proposalId: isSet(object.proposalId) ? globalThis.Number(object.proposalId) : 0,
+      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       option: isSet(object.option) ? voteOptionFromJSON(object.option) : 0,
       options: globalThis.Array.isArray(object?.options)
@@ -933,8 +938,8 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
 
   toJSON(message: Vote): unknown {
     const obj: any = {};
-    if (message.proposalId !== 0) {
-      obj.proposalId = Math.round(message.proposalId);
+    if (!message.proposalId.equals(Long.UZERO)) {
+      obj.proposalId = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -953,7 +958,9 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
   },
   fromPartial(object: DeepPartial<Vote>): Vote {
     const message = createBaseVote();
-    message.proposalId = object.proposalId ?? 0;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
+      ? Long.fromValue(object.proposalId)
+      : Long.UZERO;
     message.voter = object.voter ?? "";
     message.option = object.option ?? 0;
     message.options = object.options?.map((e) => WeightedVoteOption.fromPartial(e)) || [];
@@ -1227,19 +1234,19 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -1254,15 +1261,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

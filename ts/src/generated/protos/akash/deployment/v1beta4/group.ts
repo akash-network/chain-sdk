@@ -5,6 +5,7 @@
 // source: akash/deployment/v1beta4/group.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { GroupID } from "../v1/group.ts";
 import { GroupSpec } from "./groupspec.ts";
@@ -24,7 +25,7 @@ export interface Group {
     | GroupSpec
     | undefined;
   /** CreatedAt is the block height at which the deployment was created. */
-  createdAt: number;
+  createdAt: Long;
 }
 
 /** State is an enum which refers to state of group. */
@@ -85,7 +86,7 @@ export function group_StateToJSON(object: Group_State): string {
 }
 
 function createBaseGroup(): Group {
-  return { id: undefined, state: 0, groupSpec: undefined, createdAt: 0 };
+  return { id: undefined, state: 0, groupSpec: undefined, createdAt: Long.ZERO };
 }
 
 export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
@@ -101,8 +102,8 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     if (message.groupSpec !== undefined) {
       GroupSpec.encode(message.groupSpec, writer.uint32(26).fork()).join();
     }
-    if (message.createdAt !== 0) {
-      writer.uint32(32).int64(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.createdAt.toString());
     }
     return writer;
   },
@@ -143,7 +144,7 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
             break;
           }
 
-          message.createdAt = longToNumber(reader.int64());
+          message.createdAt = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -160,7 +161,7 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
       id: isSet(object.id) ? GroupID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? group_StateFromJSON(object.state) : 0,
       groupSpec: isSet(object.groupSpec) ? GroupSpec.fromJSON(object.groupSpec) : undefined,
-      createdAt: isSet(object.createdAt) ? globalThis.Number(object.createdAt) : 0,
+      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
     };
   },
 
@@ -175,8 +176,8 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     if (message.groupSpec !== undefined) {
       obj.groupSpec = GroupSpec.toJSON(message.groupSpec);
     }
-    if (message.createdAt !== 0) {
-      obj.createdAt = Math.round(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      obj.createdAt = (message.createdAt || Long.ZERO).toString();
     }
     return obj;
   },
@@ -191,7 +192,9 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     message.groupSpec = (object.groupSpec !== undefined && object.groupSpec !== null)
       ? GroupSpec.fromPartial(object.groupSpec)
       : undefined;
-    message.createdAt = object.createdAt ?? 0;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
+      ? Long.fromValue(object.createdAt)
+      : Long.ZERO;
     return message;
   },
 };
@@ -199,21 +202,10 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

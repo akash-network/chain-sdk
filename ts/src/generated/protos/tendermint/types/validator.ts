@@ -5,6 +5,7 @@
 // source: tendermint/types/validator.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { PublicKey } from "../crypto/keys.ts";
 
@@ -63,23 +64,23 @@ export function blockIDFlagToJSON(object: BlockIDFlag): string {
 export interface ValidatorSet {
   validators: Validator[];
   proposer: Validator | undefined;
-  totalVotingPower: number;
+  totalVotingPower: Long;
 }
 
 export interface Validator {
   address: Uint8Array;
   pubKey: PublicKey | undefined;
-  votingPower: number;
-  proposerPriority: number;
+  votingPower: Long;
+  proposerPriority: Long;
 }
 
 export interface SimpleValidator {
   pubKey: PublicKey | undefined;
-  votingPower: number;
+  votingPower: Long;
 }
 
 function createBaseValidatorSet(): ValidatorSet {
-  return { validators: [], proposer: undefined, totalVotingPower: 0 };
+  return { validators: [], proposer: undefined, totalVotingPower: Long.ZERO };
 }
 
 export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorSet"> = {
@@ -92,8 +93,8 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
     if (message.proposer !== undefined) {
       Validator.encode(message.proposer, writer.uint32(18).fork()).join();
     }
-    if (message.totalVotingPower !== 0) {
-      writer.uint32(24).int64(message.totalVotingPower);
+    if (!message.totalVotingPower.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.totalVotingPower.toString());
     }
     return writer;
   },
@@ -126,7 +127,7 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
             break;
           }
 
-          message.totalVotingPower = longToNumber(reader.int64());
+          message.totalVotingPower = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -144,7 +145,7 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
         ? object.validators.map((e: any) => Validator.fromJSON(e))
         : [],
       proposer: isSet(object.proposer) ? Validator.fromJSON(object.proposer) : undefined,
-      totalVotingPower: isSet(object.totalVotingPower) ? globalThis.Number(object.totalVotingPower) : 0,
+      totalVotingPower: isSet(object.totalVotingPower) ? Long.fromValue(object.totalVotingPower) : Long.ZERO,
     };
   },
 
@@ -156,8 +157,8 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
     if (message.proposer !== undefined) {
       obj.proposer = Validator.toJSON(message.proposer);
     }
-    if (message.totalVotingPower !== 0) {
-      obj.totalVotingPower = Math.round(message.totalVotingPower);
+    if (!message.totalVotingPower.equals(Long.ZERO)) {
+      obj.totalVotingPower = (message.totalVotingPower || Long.ZERO).toString();
     }
     return obj;
   },
@@ -171,13 +172,15 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
     message.proposer = (object.proposer !== undefined && object.proposer !== null)
       ? Validator.fromPartial(object.proposer)
       : undefined;
-    message.totalVotingPower = object.totalVotingPower ?? 0;
+    message.totalVotingPower = (object.totalVotingPower !== undefined && object.totalVotingPower !== null)
+      ? Long.fromValue(object.totalVotingPower)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseValidator(): Validator {
-  return { address: new Uint8Array(0), pubKey: undefined, votingPower: 0, proposerPriority: 0 };
+  return { address: new Uint8Array(0), pubKey: undefined, votingPower: Long.ZERO, proposerPriority: Long.ZERO };
 }
 
 export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
@@ -190,11 +193,11 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     if (message.pubKey !== undefined) {
       PublicKey.encode(message.pubKey, writer.uint32(18).fork()).join();
     }
-    if (message.votingPower !== 0) {
-      writer.uint32(24).int64(message.votingPower);
+    if (!message.votingPower.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.votingPower.toString());
     }
-    if (message.proposerPriority !== 0) {
-      writer.uint32(32).int64(message.proposerPriority);
+    if (!message.proposerPriority.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.proposerPriority.toString());
     }
     return writer;
   },
@@ -227,7 +230,7 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
             break;
           }
 
-          message.votingPower = longToNumber(reader.int64());
+          message.votingPower = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -235,7 +238,7 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
             break;
           }
 
-          message.proposerPriority = longToNumber(reader.int64());
+          message.proposerPriority = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -251,8 +254,8 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     return {
       address: isSet(object.address) ? bytesFromBase64(object.address) : new Uint8Array(0),
       pubKey: isSet(object.pubKey) ? PublicKey.fromJSON(object.pubKey) : undefined,
-      votingPower: isSet(object.votingPower) ? globalThis.Number(object.votingPower) : 0,
-      proposerPriority: isSet(object.proposerPriority) ? globalThis.Number(object.proposerPriority) : 0,
+      votingPower: isSet(object.votingPower) ? Long.fromValue(object.votingPower) : Long.ZERO,
+      proposerPriority: isSet(object.proposerPriority) ? Long.fromValue(object.proposerPriority) : Long.ZERO,
     };
   },
 
@@ -264,11 +267,11 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     if (message.pubKey !== undefined) {
       obj.pubKey = PublicKey.toJSON(message.pubKey);
     }
-    if (message.votingPower !== 0) {
-      obj.votingPower = Math.round(message.votingPower);
+    if (!message.votingPower.equals(Long.ZERO)) {
+      obj.votingPower = (message.votingPower || Long.ZERO).toString();
     }
-    if (message.proposerPriority !== 0) {
-      obj.proposerPriority = Math.round(message.proposerPriority);
+    if (!message.proposerPriority.equals(Long.ZERO)) {
+      obj.proposerPriority = (message.proposerPriority || Long.ZERO).toString();
     }
     return obj;
   },
@@ -282,14 +285,18 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     message.pubKey = (object.pubKey !== undefined && object.pubKey !== null)
       ? PublicKey.fromPartial(object.pubKey)
       : undefined;
-    message.votingPower = object.votingPower ?? 0;
-    message.proposerPriority = object.proposerPriority ?? 0;
+    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null)
+      ? Long.fromValue(object.votingPower)
+      : Long.ZERO;
+    message.proposerPriority = (object.proposerPriority !== undefined && object.proposerPriority !== null)
+      ? Long.fromValue(object.proposerPriority)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseSimpleValidator(): SimpleValidator {
-  return { pubKey: undefined, votingPower: 0 };
+  return { pubKey: undefined, votingPower: Long.ZERO };
 }
 
 export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.SimpleValidator"> = {
@@ -299,8 +306,8 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
     if (message.pubKey !== undefined) {
       PublicKey.encode(message.pubKey, writer.uint32(10).fork()).join();
     }
-    if (message.votingPower !== 0) {
-      writer.uint32(16).int64(message.votingPower);
+    if (!message.votingPower.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.votingPower.toString());
     }
     return writer;
   },
@@ -325,7 +332,7 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
             break;
           }
 
-          message.votingPower = longToNumber(reader.int64());
+          message.votingPower = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -340,7 +347,7 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
   fromJSON(object: any): SimpleValidator {
     return {
       pubKey: isSet(object.pubKey) ? PublicKey.fromJSON(object.pubKey) : undefined,
-      votingPower: isSet(object.votingPower) ? globalThis.Number(object.votingPower) : 0,
+      votingPower: isSet(object.votingPower) ? Long.fromValue(object.votingPower) : Long.ZERO,
     };
   },
 
@@ -349,8 +356,8 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
     if (message.pubKey !== undefined) {
       obj.pubKey = PublicKey.toJSON(message.pubKey);
     }
-    if (message.votingPower !== 0) {
-      obj.votingPower = Math.round(message.votingPower);
+    if (!message.votingPower.equals(Long.ZERO)) {
+      obj.votingPower = (message.votingPower || Long.ZERO).toString();
     }
     return obj;
   },
@@ -363,7 +370,9 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
     message.pubKey = (object.pubKey !== undefined && object.pubKey !== null)
       ? PublicKey.fromPartial(object.pubKey)
       : undefined;
-    message.votingPower = object.votingPower ?? 0;
+    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null)
+      ? Long.fromValue(object.votingPower)
+      : Long.ZERO;
     return message;
   },
 };
@@ -396,21 +405,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

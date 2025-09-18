@@ -47,8 +47,10 @@ function gen_pulsar() {
 }
 
 function gen_ts() {
-	buf generate --template buf.gen.ts.yaml
-	rm -rf ts/src/generated/protos/test_proto ts/src/generated/protos/proto3_proto
+	rm -rf ts/src/generated
+	PROTO_SOURCE=node buf generate --template buf.gen.ts.yaml ./proto/node
+	PROTO_SOURCE=cosmos buf generate --template buf.gen.ts.yaml ./go/vendor/github.com/cosmos/cosmos-sdk/proto
+	PROTO_SOURCE=provider buf generate --template buf.gen.ts.yaml ./proto/provider
 }
 
 function gen_doc() {

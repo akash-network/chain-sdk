@@ -5,6 +5,7 @@
 // source: cosmos/evidence/v1beta1/evidence.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
@@ -16,33 +17,33 @@ export const protobufPackage = "cosmos.evidence.v1beta1";
  */
 export interface Equivocation {
   /** height is the equivocation height. */
-  height: number;
+  height: Long;
   /** time is the equivocation time. */
   time:
     | Date
     | undefined;
   /** power is the equivocation validator power. */
-  power: number;
+  power: Long;
   /** consensus_address is the equivocation validator consensus address. */
   consensusAddress: string;
 }
 
 function createBaseEquivocation(): Equivocation {
-  return { height: 0, time: undefined, power: 0, consensusAddress: "" };
+  return { height: Long.ZERO, time: undefined, power: Long.ZERO, consensusAddress: "" };
 }
 
 export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equivocation"> = {
   $type: "cosmos.evidence.v1beta1.Equivocation" as const,
 
   encode(message: Equivocation, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(18).fork()).join();
     }
-    if (message.power !== 0) {
-      writer.uint32(24).int64(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.power.toString());
     }
     if (message.consensusAddress !== "") {
       writer.uint32(34).string(message.consensusAddress);
@@ -62,7 +63,7 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -78,7 +79,7 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
             break;
           }
 
-          message.power = longToNumber(reader.int64());
+          message.power = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -100,23 +101,23 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
 
   fromJSON(object: any): Equivocation {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      power: isSet(object.power) ? globalThis.Number(object.power) : 0,
+      power: isSet(object.power) ? Long.fromValue(object.power) : Long.ZERO,
       consensusAddress: isSet(object.consensusAddress) ? globalThis.String(object.consensusAddress) : "",
     };
   },
 
   toJSON(message: Equivocation): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
     }
-    if (message.power !== 0) {
-      obj.power = Math.round(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      obj.power = (message.power || Long.ZERO).toString();
     }
     if (message.consensusAddress !== "") {
       obj.consensusAddress = message.consensusAddress;
@@ -129,9 +130,11 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
   },
   fromPartial(object: DeepPartial<Equivocation>): Equivocation {
     const message = createBaseEquivocation();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
-    message.power = object.power ?? 0;
+    message.power = (object.power !== undefined && object.power !== null) ? Long.fromValue(object.power) : Long.ZERO;
     message.consensusAddress = object.consensusAddress ?? "";
     return message;
   },
@@ -140,19 +143,19 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -167,15 +170,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

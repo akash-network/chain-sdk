@@ -5,6 +5,7 @@
 // source: cosmos/store/streaming/abci/grpc.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { RequestFinalizeBlock, ResponseCommit, ResponseFinalizeBlock } from "../../../../tendermint/abci/types.ts";
 import { StoreKVPair } from "../../v1beta1/listening.ts";
@@ -24,7 +25,7 @@ export interface ListenFinalizeBlockResponse {
 /** ListenCommitRequest is the request type for the ListenCommit RPC method */
 export interface ListenCommitRequest {
   /** explicitly pass in block height as ResponseCommit does not contain this info */
-  blockHeight: number;
+  blockHeight: Long;
   res: ResponseCommit | undefined;
   changeSet: StoreKVPair[];
 }
@@ -167,15 +168,15 @@ export const ListenFinalizeBlockResponse: MessageFns<
 };
 
 function createBaseListenCommitRequest(): ListenCommitRequest {
-  return { blockHeight: 0, res: undefined, changeSet: [] };
+  return { blockHeight: Long.ZERO, res: undefined, changeSet: [] };
 }
 
 export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.streaming.abci.ListenCommitRequest"> = {
   $type: "cosmos.store.streaming.abci.ListenCommitRequest" as const,
 
   encode(message: ListenCommitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.blockHeight !== 0) {
-      writer.uint32(8).int64(message.blockHeight);
+    if (!message.blockHeight.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.blockHeight.toString());
     }
     if (message.res !== undefined) {
       ResponseCommit.encode(message.res, writer.uint32(18).fork()).join();
@@ -198,7 +199,7 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
             break;
           }
 
-          message.blockHeight = longToNumber(reader.int64());
+          message.blockHeight = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -228,7 +229,7 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
 
   fromJSON(object: any): ListenCommitRequest {
     return {
-      blockHeight: isSet(object.blockHeight) ? globalThis.Number(object.blockHeight) : 0,
+      blockHeight: isSet(object.blockHeight) ? Long.fromValue(object.blockHeight) : Long.ZERO,
       res: isSet(object.res) ? ResponseCommit.fromJSON(object.res) : undefined,
       changeSet: globalThis.Array.isArray(object?.changeSet)
         ? object.changeSet.map((e: any) => StoreKVPair.fromJSON(e))
@@ -238,8 +239,8 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
 
   toJSON(message: ListenCommitRequest): unknown {
     const obj: any = {};
-    if (message.blockHeight !== 0) {
-      obj.blockHeight = Math.round(message.blockHeight);
+    if (!message.blockHeight.equals(Long.ZERO)) {
+      obj.blockHeight = (message.blockHeight || Long.ZERO).toString();
     }
     if (message.res !== undefined) {
       obj.res = ResponseCommit.toJSON(message.res);
@@ -255,7 +256,9 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
   },
   fromPartial(object: DeepPartial<ListenCommitRequest>): ListenCommitRequest {
     const message = createBaseListenCommitRequest();
-    message.blockHeight = object.blockHeight ?? 0;
+    message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null)
+      ? Long.fromValue(object.blockHeight)
+      : Long.ZERO;
     message.res = (object.res !== undefined && object.res !== null)
       ? ResponseCommit.fromPartial(object.res)
       : undefined;
@@ -315,21 +318,10 @@ export const ListenCommitResponse: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

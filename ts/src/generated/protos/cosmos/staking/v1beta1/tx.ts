@@ -5,6 +5,7 @@
 // source: cosmos/staking/v1beta1/tx.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
@@ -111,7 +112,7 @@ export interface MsgCancelUnbondingDelegation {
     | Coin
     | undefined;
   /** creation_height is the height which the unbonding took place. */
-  creationHeight: number;
+  creationHeight: Long;
 }
 
 /** MsgCancelUnbondingDelegationResponse */
@@ -1011,7 +1012,7 @@ export const MsgUndelegateResponse: MessageFns<MsgUndelegateResponse, "cosmos.st
   };
 
 function createBaseMsgCancelUnbondingDelegation(): MsgCancelUnbondingDelegation {
-  return { delegatorAddress: "", validatorAddress: "", amount: undefined, creationHeight: 0 };
+  return { delegatorAddress: "", validatorAddress: "", amount: undefined, creationHeight: Long.ZERO };
 }
 
 export const MsgCancelUnbondingDelegation: MessageFns<
@@ -1030,8 +1031,8 @@ export const MsgCancelUnbondingDelegation: MessageFns<
     if (message.amount !== undefined) {
       Coin.encode(message.amount, writer.uint32(26).fork()).join();
     }
-    if (message.creationHeight !== 0) {
-      writer.uint32(32).int64(message.creationHeight);
+    if (!message.creationHeight.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.creationHeight.toString());
     }
     return writer;
   },
@@ -1072,7 +1073,7 @@ export const MsgCancelUnbondingDelegation: MessageFns<
             break;
           }
 
-          message.creationHeight = longToNumber(reader.int64());
+          message.creationHeight = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -1089,7 +1090,7 @@ export const MsgCancelUnbondingDelegation: MessageFns<
       delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
       validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
-      creationHeight: isSet(object.creationHeight) ? globalThis.Number(object.creationHeight) : 0,
+      creationHeight: isSet(object.creationHeight) ? Long.fromValue(object.creationHeight) : Long.ZERO,
     };
   },
 
@@ -1104,8 +1105,8 @@ export const MsgCancelUnbondingDelegation: MessageFns<
     if (message.amount !== undefined) {
       obj.amount = Coin.toJSON(message.amount);
     }
-    if (message.creationHeight !== 0) {
-      obj.creationHeight = Math.round(message.creationHeight);
+    if (!message.creationHeight.equals(Long.ZERO)) {
+      obj.creationHeight = (message.creationHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -1120,7 +1121,9 @@ export const MsgCancelUnbondingDelegation: MessageFns<
     message.amount = (object.amount !== undefined && object.amount !== null)
       ? Coin.fromPartial(object.amount)
       : undefined;
-    message.creationHeight = object.creationHeight ?? 0;
+    message.creationHeight = (object.creationHeight !== undefined && object.creationHeight !== null)
+      ? Long.fromValue(object.creationHeight)
+      : Long.ZERO;
     return message;
   },
 };
@@ -1304,19 +1307,19 @@ export const MsgUpdateParamsResponse: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -1331,15 +1334,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

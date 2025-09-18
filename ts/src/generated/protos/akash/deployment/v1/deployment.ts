@@ -5,6 +5,7 @@
 // source: akash/deployment/v1/deployment.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "akash.deployment.v1";
@@ -26,7 +27,7 @@ export interface DeploymentID {
    * Dseq (deployment sequence number) is a unique numeric identifier for the deployment.
    * It is used to differentiate deployments created by the same owner.
    */
-  dseq: number;
+  dseq: Long;
 }
 
 /** Deployment stores deploymentID, state and checksum details. */
@@ -43,7 +44,7 @@ export interface Deployment {
   /** Hash is an hashed representation of the deployment. */
   hash: Uint8Array;
   /** CreatedAt indicates when the deployment was created as a block height value. */
-  createdAt: number;
+  createdAt: Long;
 }
 
 /** State is an enum which refers to state of deployment. */
@@ -90,7 +91,7 @@ export function deployment_StateToJSON(object: Deployment_State): string {
 }
 
 function createBaseDeploymentID(): DeploymentID {
-  return { owner: "", dseq: 0 };
+  return { owner: "", dseq: Long.UZERO };
 }
 
 export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.DeploymentID"> = {
@@ -100,8 +101,8 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (message.dseq !== 0) {
-      writer.uint32(16).uint64(message.dseq);
+    if (!message.dseq.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.dseq.toString());
     }
     return writer;
   },
@@ -126,7 +127,7 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
             break;
           }
 
-          message.dseq = longToNumber(reader.uint64());
+          message.dseq = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -141,7 +142,7 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
   fromJSON(object: any): DeploymentID {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      dseq: isSet(object.dseq) ? globalThis.Number(object.dseq) : 0,
+      dseq: isSet(object.dseq) ? Long.fromValue(object.dseq) : Long.UZERO,
     };
   },
 
@@ -150,8 +151,8 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (message.dseq !== 0) {
-      obj.dseq = Math.round(message.dseq);
+    if (!message.dseq.equals(Long.UZERO)) {
+      obj.dseq = (message.dseq || Long.UZERO).toString();
     }
     return obj;
   },
@@ -162,13 +163,13 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
   fromPartial(object: DeepPartial<DeploymentID>): DeploymentID {
     const message = createBaseDeploymentID();
     message.owner = object.owner ?? "";
-    message.dseq = object.dseq ?? 0;
+    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? Long.fromValue(object.dseq) : Long.UZERO;
     return message;
   },
 };
 
 function createBaseDeployment(): Deployment {
-  return { id: undefined, state: 0, hash: new Uint8Array(0), createdAt: 0 };
+  return { id: undefined, state: 0, hash: new Uint8Array(0), createdAt: Long.ZERO };
 }
 
 export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"> = {
@@ -184,8 +185,8 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     if (message.hash.length !== 0) {
       writer.uint32(26).bytes(message.hash);
     }
-    if (message.createdAt !== 0) {
-      writer.uint32(32).int64(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.createdAt.toString());
     }
     return writer;
   },
@@ -226,7 +227,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
             break;
           }
 
-          message.createdAt = longToNumber(reader.int64());
+          message.createdAt = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -243,7 +244,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
       id: isSet(object.id) ? DeploymentID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? deployment_StateFromJSON(object.state) : 0,
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      createdAt: isSet(object.createdAt) ? globalThis.Number(object.createdAt) : 0,
+      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
     };
   },
 
@@ -258,8 +259,8 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     if (message.hash.length !== 0) {
       obj.hash = base64FromBytes(message.hash);
     }
-    if (message.createdAt !== 0) {
-      obj.createdAt = Math.round(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      obj.createdAt = (message.createdAt || Long.ZERO).toString();
     }
     return obj;
   },
@@ -272,7 +273,9 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     message.id = (object.id !== undefined && object.id !== null) ? DeploymentID.fromPartial(object.id) : undefined;
     message.state = object.state ?? 0;
     message.hash = object.hash ?? new Uint8Array(0);
-    message.createdAt = object.createdAt ?? 0;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
+      ? Long.fromValue(object.createdAt)
+      : Long.ZERO;
     return message;
   },
 };
@@ -305,21 +308,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

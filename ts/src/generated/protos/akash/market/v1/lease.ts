@@ -5,6 +5,7 @@
 // source: akash/market/v1/lease.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 
@@ -24,7 +25,7 @@ export interface LeaseID {
    * Dseq (deployment sequence number) is a unique numeric identifier for the deployment.
    * It is used to differentiate deployments created by the same owner.
    */
-  dseq: number;
+  dseq: Long;
   /**
    * Gseq (group sequence number) is a unique numeric identifier for the group.
    * It is used to differentiate groups created by the same owner in a deployment.
@@ -63,9 +64,9 @@ export interface Lease {
     | DecCoin
     | undefined;
   /** CreatedAt is the block height at which the Lease was created. */
-  createdAt: number;
+  createdAt: Long;
   /** ClosedOn is the block height at which the Lease was closed. */
-  closedOn: number;
+  closedOn: Long;
 }
 
 /** State is an enum which refers to state of lease. */
@@ -119,7 +120,7 @@ export function lease_StateToJSON(object: Lease_State): string {
 }
 
 function createBaseLeaseID(): LeaseID {
-  return { owner: "", dseq: 0, gseq: 0, oseq: 0, provider: "" };
+  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "" };
 }
 
 export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
@@ -129,8 +130,8 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (message.dseq !== 0) {
-      writer.uint32(16).uint64(message.dseq);
+    if (!message.dseq.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.dseq.toString());
     }
     if (message.gseq !== 0) {
       writer.uint32(24).uint32(message.gseq);
@@ -164,7 +165,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
             break;
           }
 
-          message.dseq = longToNumber(reader.uint64());
+          message.dseq = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -203,7 +204,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
   fromJSON(object: any): LeaseID {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      dseq: isSet(object.dseq) ? globalThis.Number(object.dseq) : 0,
+      dseq: isSet(object.dseq) ? Long.fromValue(object.dseq) : Long.UZERO,
       gseq: isSet(object.gseq) ? globalThis.Number(object.gseq) : 0,
       oseq: isSet(object.oseq) ? globalThis.Number(object.oseq) : 0,
       provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
@@ -215,8 +216,8 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (message.dseq !== 0) {
-      obj.dseq = Math.round(message.dseq);
+    if (!message.dseq.equals(Long.UZERO)) {
+      obj.dseq = (message.dseq || Long.UZERO).toString();
     }
     if (message.gseq !== 0) {
       obj.gseq = Math.round(message.gseq);
@@ -236,7 +237,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
   fromPartial(object: DeepPartial<LeaseID>): LeaseID {
     const message = createBaseLeaseID();
     message.owner = object.owner ?? "";
-    message.dseq = object.dseq ?? 0;
+    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? Long.fromValue(object.dseq) : Long.UZERO;
     message.gseq = object.gseq ?? 0;
     message.oseq = object.oseq ?? 0;
     message.provider = object.provider ?? "";
@@ -245,7 +246,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
 };
 
 function createBaseLease(): Lease {
-  return { id: undefined, state: 0, price: undefined, createdAt: 0, closedOn: 0 };
+  return { id: undefined, state: 0, price: undefined, createdAt: Long.ZERO, closedOn: Long.ZERO };
 }
 
 export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
@@ -261,11 +262,11 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     if (message.price !== undefined) {
       DecCoin.encode(message.price, writer.uint32(26).fork()).join();
     }
-    if (message.createdAt !== 0) {
-      writer.uint32(32).int64(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.createdAt.toString());
     }
-    if (message.closedOn !== 0) {
-      writer.uint32(40).int64(message.closedOn);
+    if (!message.closedOn.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.closedOn.toString());
     }
     return writer;
   },
@@ -306,7 +307,7 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
             break;
           }
 
-          message.createdAt = longToNumber(reader.int64());
+          message.createdAt = Long.fromString(reader.int64().toString());
           continue;
         }
         case 5: {
@@ -314,7 +315,7 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
             break;
           }
 
-          message.closedOn = longToNumber(reader.int64());
+          message.closedOn = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -331,8 +332,8 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? lease_StateFromJSON(object.state) : 0,
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
-      createdAt: isSet(object.createdAt) ? globalThis.Number(object.createdAt) : 0,
-      closedOn: isSet(object.closedOn) ? globalThis.Number(object.closedOn) : 0,
+      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
+      closedOn: isSet(object.closedOn) ? Long.fromValue(object.closedOn) : Long.ZERO,
     };
   },
 
@@ -347,11 +348,11 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     if (message.price !== undefined) {
       obj.price = DecCoin.toJSON(message.price);
     }
-    if (message.createdAt !== 0) {
-      obj.createdAt = Math.round(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      obj.createdAt = (message.createdAt || Long.ZERO).toString();
     }
-    if (message.closedOn !== 0) {
-      obj.closedOn = Math.round(message.closedOn);
+    if (!message.closedOn.equals(Long.ZERO)) {
+      obj.closedOn = (message.closedOn || Long.ZERO).toString();
     }
     return obj;
   },
@@ -366,8 +367,12 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     message.price = (object.price !== undefined && object.price !== null)
       ? DecCoin.fromPartial(object.price)
       : undefined;
-    message.createdAt = object.createdAt ?? 0;
-    message.closedOn = object.closedOn ?? 0;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
+      ? Long.fromValue(object.createdAt)
+      : Long.ZERO;
+    message.closedOn = (object.closedOn !== undefined && object.closedOn !== null)
+      ? Long.fromValue(object.closedOn)
+      : Long.ZERO;
     return message;
   },
 };
@@ -375,21 +380,10 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

@@ -5,6 +5,7 @@
 // source: tendermint/p2p/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "tendermint.p2p";
@@ -16,9 +17,9 @@ export interface NetAddress {
 }
 
 export interface ProtocolVersion {
-  p2p: number;
-  block: number;
-  app: number;
+  p2p: Long;
+  block: Long;
+  app: Long;
 }
 
 export interface DefaultNodeInfo {
@@ -132,21 +133,21 @@ export const NetAddress: MessageFns<NetAddress, "tendermint.p2p.NetAddress"> = {
 };
 
 function createBaseProtocolVersion(): ProtocolVersion {
-  return { p2p: 0, block: 0, app: 0 };
+  return { p2p: Long.UZERO, block: Long.UZERO, app: Long.UZERO };
 }
 
 export const ProtocolVersion: MessageFns<ProtocolVersion, "tendermint.p2p.ProtocolVersion"> = {
   $type: "tendermint.p2p.ProtocolVersion" as const,
 
   encode(message: ProtocolVersion, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.p2p !== 0) {
-      writer.uint32(8).uint64(message.p2p);
+    if (!message.p2p.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.p2p.toString());
     }
-    if (message.block !== 0) {
-      writer.uint32(16).uint64(message.block);
+    if (!message.block.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.block.toString());
     }
-    if (message.app !== 0) {
-      writer.uint32(24).uint64(message.app);
+    if (!message.app.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.app.toString());
     }
     return writer;
   },
@@ -163,7 +164,7 @@ export const ProtocolVersion: MessageFns<ProtocolVersion, "tendermint.p2p.Protoc
             break;
           }
 
-          message.p2p = longToNumber(reader.uint64());
+          message.p2p = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -171,7 +172,7 @@ export const ProtocolVersion: MessageFns<ProtocolVersion, "tendermint.p2p.Protoc
             break;
           }
 
-          message.block = longToNumber(reader.uint64());
+          message.block = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -179,7 +180,7 @@ export const ProtocolVersion: MessageFns<ProtocolVersion, "tendermint.p2p.Protoc
             break;
           }
 
-          message.app = longToNumber(reader.uint64());
+          message.app = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -193,22 +194,22 @@ export const ProtocolVersion: MessageFns<ProtocolVersion, "tendermint.p2p.Protoc
 
   fromJSON(object: any): ProtocolVersion {
     return {
-      p2p: isSet(object.p2p) ? globalThis.Number(object.p2p) : 0,
-      block: isSet(object.block) ? globalThis.Number(object.block) : 0,
-      app: isSet(object.app) ? globalThis.Number(object.app) : 0,
+      p2p: isSet(object.p2p) ? Long.fromValue(object.p2p) : Long.UZERO,
+      block: isSet(object.block) ? Long.fromValue(object.block) : Long.UZERO,
+      app: isSet(object.app) ? Long.fromValue(object.app) : Long.UZERO,
     };
   },
 
   toJSON(message: ProtocolVersion): unknown {
     const obj: any = {};
-    if (message.p2p !== 0) {
-      obj.p2p = Math.round(message.p2p);
+    if (!message.p2p.equals(Long.UZERO)) {
+      obj.p2p = (message.p2p || Long.UZERO).toString();
     }
-    if (message.block !== 0) {
-      obj.block = Math.round(message.block);
+    if (!message.block.equals(Long.UZERO)) {
+      obj.block = (message.block || Long.UZERO).toString();
     }
-    if (message.app !== 0) {
-      obj.app = Math.round(message.app);
+    if (!message.app.equals(Long.UZERO)) {
+      obj.app = (message.app || Long.UZERO).toString();
     }
     return obj;
   },
@@ -218,9 +219,9 @@ export const ProtocolVersion: MessageFns<ProtocolVersion, "tendermint.p2p.Protoc
   },
   fromPartial(object: DeepPartial<ProtocolVersion>): ProtocolVersion {
     const message = createBaseProtocolVersion();
-    message.p2p = object.p2p ?? 0;
-    message.block = object.block ?? 0;
-    message.app = object.app ?? 0;
+    message.p2p = (object.p2p !== undefined && object.p2p !== null) ? Long.fromValue(object.p2p) : Long.UZERO;
+    message.block = (object.block !== undefined && object.block !== null) ? Long.fromValue(object.block) : Long.UZERO;
+    message.app = (object.app !== undefined && object.app !== null) ? Long.fromValue(object.app) : Long.UZERO;
     return message;
   },
 };
@@ -518,21 +519,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

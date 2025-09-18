@@ -5,6 +5,7 @@
 // source: tendermint/abci/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../google/protobuf/timestamp.ts";
 import { PublicKey } from "../crypto/keys.ts";
@@ -114,8 +115,8 @@ export interface RequestFlush {
 
 export interface RequestInfo {
   version: string;
-  blockVersion: number;
-  p2pVersion: number;
+  blockVersion: Long;
+  p2pVersion: Long;
   abciVersion: string;
 }
 
@@ -125,13 +126,13 @@ export interface RequestInitChain {
   consensusParams: ConsensusParams | undefined;
   validators: ValidatorUpdate[];
   appStateBytes: Uint8Array;
-  initialHeight: number;
+  initialHeight: Long;
 }
 
 export interface RequestQuery {
   data: Uint8Array;
   path: string;
-  height: number;
+  height: Long;
   prove: boolean;
 }
 
@@ -159,7 +160,7 @@ export interface RequestOfferSnapshot {
 
 /** loads a snapshot chunk */
 export interface RequestLoadSnapshotChunk {
-  height: number;
+  height: Long;
   format: number;
   chunk: number;
 }
@@ -173,7 +174,7 @@ export interface RequestApplySnapshotChunk {
 
 export interface RequestPrepareProposal {
   /** the modified transactions cannot exceed this size. */
-  maxTxBytes: number;
+  maxTxBytes: Long;
   /**
    * txs is an array of transactions that will be included in a block,
    * sent to the app for possible modifications.
@@ -181,7 +182,7 @@ export interface RequestPrepareProposal {
   txs: Uint8Array[];
   localLastCommit: ExtendedCommitInfo | undefined;
   misbehavior: Misbehavior[];
-  height: number;
+  height: Long;
   time: Date | undefined;
   nextValidatorsHash: Uint8Array;
   /** address of the public key of the validator proposing the block. */
@@ -194,7 +195,7 @@ export interface RequestProcessProposal {
   misbehavior: Misbehavior[];
   /** hash is the merkle root hash of the fields of the proposed block. */
   hash: Uint8Array;
-  height: number;
+  height: Long;
   time: Date | undefined;
   nextValidatorsHash: Uint8Array;
   /** address of the public key of the original proposer of the block. */
@@ -206,7 +207,7 @@ export interface RequestExtendVote {
   /** the hash of the block that this vote may be referring to */
   hash: Uint8Array;
   /** the height of the extended vote */
-  height: number;
+  height: Long;
   /** info of the block that this vote may be referring to */
   time: Date | undefined;
   txs: Uint8Array[];
@@ -223,7 +224,7 @@ export interface RequestVerifyVoteExtension {
   hash: Uint8Array;
   /** the validator that signed the vote extension */
   validatorAddress: Uint8Array;
-  height: number;
+  height: Long;
   voteExtension: Uint8Array;
 }
 
@@ -233,7 +234,7 @@ export interface RequestFinalizeBlock {
   misbehavior: Misbehavior[];
   /** hash is the merkle root hash of the fields of the decided block. */
   hash: Uint8Array;
-  height: number;
+  height: Long;
   time: Date | undefined;
   nextValidatorsHash: Uint8Array;
   /** proposer_address is the address of the public key of the original proposer of the block. */
@@ -275,8 +276,8 @@ export interface ResponseFlush {
 export interface ResponseInfo {
   data: string;
   version: string;
-  appVersion: number;
-  lastBlockHeight: number;
+  appVersion: Long;
+  lastBlockHeight: Long;
   lastBlockAppHash: Uint8Array;
 }
 
@@ -292,11 +293,11 @@ export interface ResponseQuery {
   log: string;
   /** nondeterministic */
   info: string;
-  index: number;
+  index: Long;
   key: Uint8Array;
   value: Uint8Array;
   proofOps: ProofOps | undefined;
-  height: number;
+  height: Long;
   codespace: string;
 }
 
@@ -307,14 +308,14 @@ export interface ResponseCheckTx {
   log: string;
   /** nondeterministic */
   info: string;
-  gasWanted: number;
-  gasUsed: number;
+  gasWanted: Long;
+  gasUsed: Long;
   events: Event[];
   codespace: string;
 }
 
 export interface ResponseCommit {
-  retainHeight: number;
+  retainHeight: Long;
 }
 
 export interface ResponseListSnapshots {
@@ -639,8 +640,8 @@ export interface ExecTxResult {
   log: string;
   /** nondeterministic */
   info: string;
-  gasWanted: number;
-  gasUsed: number;
+  gasWanted: Long;
+  gasUsed: Long;
   /** nondeterministic */
   events: Event[];
   codespace: string;
@@ -652,7 +653,7 @@ export interface ExecTxResult {
  * One usage is indexing transaction results.
  */
 export interface TxResult {
-  height: number;
+  height: Long;
   index: number;
   tx: Uint8Array;
   result: ExecTxResult | undefined;
@@ -662,12 +663,12 @@ export interface Validator {
   /** The first 20 bytes of SHA256(public key) */
   address: Uint8Array;
   /** PubKey pub_key = 2 [(gogoproto.nullable)=false]; */
-  power: number;
+  power: Long;
 }
 
 export interface ValidatorUpdate {
   pubKey: PublicKey | undefined;
-  power: number;
+  power: Long;
 }
 
 export interface VoteInfo {
@@ -695,7 +696,7 @@ export interface Misbehavior {
     | Validator
     | undefined;
   /** The height when the offense occurred */
-  height: number;
+  height: Long;
   /** The corresponding time where the offense occurred */
   time:
     | Date
@@ -705,12 +706,12 @@ export interface Misbehavior {
    * not store historical validators.
    * https://github.com/tendermint/tendermint/issues/4581
    */
-  totalVotingPower: number;
+  totalVotingPower: Long;
 }
 
 export interface Snapshot {
   /** The height at which the snapshot was taken */
-  height: number;
+  height: Long;
   /** The application-specific snapshot format */
   format: number;
   /** Number of chunks in the snapshot */
@@ -1188,7 +1189,7 @@ export const RequestFlush: MessageFns<RequestFlush, "tendermint.abci.RequestFlus
 };
 
 function createBaseRequestInfo(): RequestInfo {
-  return { version: "", blockVersion: 0, p2pVersion: 0, abciVersion: "" };
+  return { version: "", blockVersion: Long.UZERO, p2pVersion: Long.UZERO, abciVersion: "" };
 }
 
 export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo"> = {
@@ -1198,11 +1199,11 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
     if (message.version !== "") {
       writer.uint32(10).string(message.version);
     }
-    if (message.blockVersion !== 0) {
-      writer.uint32(16).uint64(message.blockVersion);
+    if (!message.blockVersion.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.blockVersion.toString());
     }
-    if (message.p2pVersion !== 0) {
-      writer.uint32(24).uint64(message.p2pVersion);
+    if (!message.p2pVersion.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.p2pVersion.toString());
     }
     if (message.abciVersion !== "") {
       writer.uint32(34).string(message.abciVersion);
@@ -1230,7 +1231,7 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
             break;
           }
 
-          message.blockVersion = longToNumber(reader.uint64());
+          message.blockVersion = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -1238,7 +1239,7 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
             break;
           }
 
-          message.p2pVersion = longToNumber(reader.uint64());
+          message.p2pVersion = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -1261,8 +1262,8 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
   fromJSON(object: any): RequestInfo {
     return {
       version: isSet(object.version) ? globalThis.String(object.version) : "",
-      blockVersion: isSet(object.blockVersion) ? globalThis.Number(object.blockVersion) : 0,
-      p2pVersion: isSet(object.p2pVersion) ? globalThis.Number(object.p2pVersion) : 0,
+      blockVersion: isSet(object.blockVersion) ? Long.fromValue(object.blockVersion) : Long.UZERO,
+      p2pVersion: isSet(object.p2pVersion) ? Long.fromValue(object.p2pVersion) : Long.UZERO,
       abciVersion: isSet(object.abciVersion) ? globalThis.String(object.abciVersion) : "",
     };
   },
@@ -1272,11 +1273,11 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
     if (message.version !== "") {
       obj.version = message.version;
     }
-    if (message.blockVersion !== 0) {
-      obj.blockVersion = Math.round(message.blockVersion);
+    if (!message.blockVersion.equals(Long.UZERO)) {
+      obj.blockVersion = (message.blockVersion || Long.UZERO).toString();
     }
-    if (message.p2pVersion !== 0) {
-      obj.p2pVersion = Math.round(message.p2pVersion);
+    if (!message.p2pVersion.equals(Long.UZERO)) {
+      obj.p2pVersion = (message.p2pVersion || Long.UZERO).toString();
     }
     if (message.abciVersion !== "") {
       obj.abciVersion = message.abciVersion;
@@ -1290,8 +1291,12 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
   fromPartial(object: DeepPartial<RequestInfo>): RequestInfo {
     const message = createBaseRequestInfo();
     message.version = object.version ?? "";
-    message.blockVersion = object.blockVersion ?? 0;
-    message.p2pVersion = object.p2pVersion ?? 0;
+    message.blockVersion = (object.blockVersion !== undefined && object.blockVersion !== null)
+      ? Long.fromValue(object.blockVersion)
+      : Long.UZERO;
+    message.p2pVersion = (object.p2pVersion !== undefined && object.p2pVersion !== null)
+      ? Long.fromValue(object.p2pVersion)
+      : Long.UZERO;
     message.abciVersion = object.abciVersion ?? "";
     return message;
   },
@@ -1304,7 +1309,7 @@ function createBaseRequestInitChain(): RequestInitChain {
     consensusParams: undefined,
     validators: [],
     appStateBytes: new Uint8Array(0),
-    initialHeight: 0,
+    initialHeight: Long.ZERO,
   };
 }
 
@@ -1327,8 +1332,8 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
     if (message.appStateBytes.length !== 0) {
       writer.uint32(42).bytes(message.appStateBytes);
     }
-    if (message.initialHeight !== 0) {
-      writer.uint32(48).int64(message.initialHeight);
+    if (!message.initialHeight.equals(Long.ZERO)) {
+      writer.uint32(48).int64(message.initialHeight.toString());
     }
     return writer;
   },
@@ -1385,7 +1390,7 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
             break;
           }
 
-          message.initialHeight = longToNumber(reader.int64());
+          message.initialHeight = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -1406,7 +1411,7 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
         ? object.validators.map((e: any) => ValidatorUpdate.fromJSON(e))
         : [],
       appStateBytes: isSet(object.appStateBytes) ? bytesFromBase64(object.appStateBytes) : new Uint8Array(0),
-      initialHeight: isSet(object.initialHeight) ? globalThis.Number(object.initialHeight) : 0,
+      initialHeight: isSet(object.initialHeight) ? Long.fromValue(object.initialHeight) : Long.ZERO,
     };
   },
 
@@ -1427,8 +1432,8 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
     if (message.appStateBytes.length !== 0) {
       obj.appStateBytes = base64FromBytes(message.appStateBytes);
     }
-    if (message.initialHeight !== 0) {
-      obj.initialHeight = Math.round(message.initialHeight);
+    if (!message.initialHeight.equals(Long.ZERO)) {
+      obj.initialHeight = (message.initialHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -1445,13 +1450,15 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
       : undefined;
     message.validators = object.validators?.map((e) => ValidatorUpdate.fromPartial(e)) || [];
     message.appStateBytes = object.appStateBytes ?? new Uint8Array(0);
-    message.initialHeight = object.initialHeight ?? 0;
+    message.initialHeight = (object.initialHeight !== undefined && object.initialHeight !== null)
+      ? Long.fromValue(object.initialHeight)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseRequestQuery(): RequestQuery {
-  return { data: new Uint8Array(0), path: "", height: 0, prove: false };
+  return { data: new Uint8Array(0), path: "", height: Long.ZERO, prove: false };
 }
 
 export const RequestQuery: MessageFns<RequestQuery, "tendermint.abci.RequestQuery"> = {
@@ -1464,8 +1471,8 @@ export const RequestQuery: MessageFns<RequestQuery, "tendermint.abci.RequestQuer
     if (message.path !== "") {
       writer.uint32(18).string(message.path);
     }
-    if (message.height !== 0) {
-      writer.uint32(24).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.height.toString());
     }
     if (message.prove !== false) {
       writer.uint32(32).bool(message.prove);
@@ -1501,7 +1508,7 @@ export const RequestQuery: MessageFns<RequestQuery, "tendermint.abci.RequestQuer
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -1525,7 +1532,7 @@ export const RequestQuery: MessageFns<RequestQuery, "tendermint.abci.RequestQuer
     return {
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(0),
       path: isSet(object.path) ? globalThis.String(object.path) : "",
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       prove: isSet(object.prove) ? globalThis.Boolean(object.prove) : false,
     };
   },
@@ -1538,8 +1545,8 @@ export const RequestQuery: MessageFns<RequestQuery, "tendermint.abci.RequestQuer
     if (message.path !== "") {
       obj.path = message.path;
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.prove !== false) {
       obj.prove = message.prove;
@@ -1554,7 +1561,9 @@ export const RequestQuery: MessageFns<RequestQuery, "tendermint.abci.RequestQuer
     const message = createBaseRequestQuery();
     message.data = object.data ?? new Uint8Array(0);
     message.path = object.path ?? "";
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.prove = object.prove ?? false;
     return message;
   },
@@ -1809,7 +1818,7 @@ export const RequestOfferSnapshot: MessageFns<RequestOfferSnapshot, "tendermint.
 };
 
 function createBaseRequestLoadSnapshotChunk(): RequestLoadSnapshotChunk {
-  return { height: 0, format: 0, chunk: 0 };
+  return { height: Long.UZERO, format: 0, chunk: 0 };
 }
 
 export const RequestLoadSnapshotChunk: MessageFns<
@@ -1819,8 +1828,8 @@ export const RequestLoadSnapshotChunk: MessageFns<
   $type: "tendermint.abci.RequestLoadSnapshotChunk" as const,
 
   encode(message: RequestLoadSnapshotChunk, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).uint64(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.height.toString());
     }
     if (message.format !== 0) {
       writer.uint32(16).uint32(message.format);
@@ -1843,7 +1852,7 @@ export const RequestLoadSnapshotChunk: MessageFns<
             break;
           }
 
-          message.height = longToNumber(reader.uint64());
+          message.height = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -1873,7 +1882,7 @@ export const RequestLoadSnapshotChunk: MessageFns<
 
   fromJSON(object: any): RequestLoadSnapshotChunk {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
       format: isSet(object.format) ? globalThis.Number(object.format) : 0,
       chunk: isSet(object.chunk) ? globalThis.Number(object.chunk) : 0,
     };
@@ -1881,8 +1890,8 @@ export const RequestLoadSnapshotChunk: MessageFns<
 
   toJSON(message: RequestLoadSnapshotChunk): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      obj.height = (message.height || Long.UZERO).toString();
     }
     if (message.format !== 0) {
       obj.format = Math.round(message.format);
@@ -1898,7 +1907,9 @@ export const RequestLoadSnapshotChunk: MessageFns<
   },
   fromPartial(object: DeepPartial<RequestLoadSnapshotChunk>): RequestLoadSnapshotChunk {
     const message = createBaseRequestLoadSnapshotChunk();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.UZERO;
     message.format = object.format ?? 0;
     message.chunk = object.chunk ?? 0;
     return message;
@@ -2004,11 +2015,11 @@ export const RequestApplySnapshotChunk: MessageFns<
 
 function createBaseRequestPrepareProposal(): RequestPrepareProposal {
   return {
-    maxTxBytes: 0,
+    maxTxBytes: Long.ZERO,
     txs: [],
     localLastCommit: undefined,
     misbehavior: [],
-    height: 0,
+    height: Long.ZERO,
     time: undefined,
     nextValidatorsHash: new Uint8Array(0),
     proposerAddress: new Uint8Array(0),
@@ -2019,8 +2030,8 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
   $type: "tendermint.abci.RequestPrepareProposal" as const,
 
   encode(message: RequestPrepareProposal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.maxTxBytes !== 0) {
-      writer.uint32(8).int64(message.maxTxBytes);
+    if (!message.maxTxBytes.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.maxTxBytes.toString());
     }
     for (const v of message.txs) {
       writer.uint32(18).bytes(v!);
@@ -2031,8 +2042,8 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
     for (const v of message.misbehavior) {
       Misbehavior.encode(v!, writer.uint32(34).fork()).join();
     }
-    if (message.height !== 0) {
-      writer.uint32(40).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(50).fork()).join();
@@ -2058,7 +2069,7 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
             break;
           }
 
-          message.maxTxBytes = longToNumber(reader.int64());
+          message.maxTxBytes = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -2090,7 +2101,7 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 6: {
@@ -2128,13 +2139,13 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
 
   fromJSON(object: any): RequestPrepareProposal {
     return {
-      maxTxBytes: isSet(object.maxTxBytes) ? globalThis.Number(object.maxTxBytes) : 0,
+      maxTxBytes: isSet(object.maxTxBytes) ? Long.fromValue(object.maxTxBytes) : Long.ZERO,
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => bytesFromBase64(e)) : [],
       localLastCommit: isSet(object.localLastCommit) ? ExtendedCommitInfo.fromJSON(object.localLastCommit) : undefined,
       misbehavior: globalThis.Array.isArray(object?.misbehavior)
         ? object.misbehavior.map((e: any) => Misbehavior.fromJSON(e))
         : [],
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       nextValidatorsHash: isSet(object.nextValidatorsHash)
         ? bytesFromBase64(object.nextValidatorsHash)
@@ -2145,8 +2156,8 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
 
   toJSON(message: RequestPrepareProposal): unknown {
     const obj: any = {};
-    if (message.maxTxBytes !== 0) {
-      obj.maxTxBytes = Math.round(message.maxTxBytes);
+    if (!message.maxTxBytes.equals(Long.ZERO)) {
+      obj.maxTxBytes = (message.maxTxBytes || Long.ZERO).toString();
     }
     if (message.txs?.length) {
       obj.txs = message.txs.map((e) => base64FromBytes(e));
@@ -2157,8 +2168,8 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
     if (message.misbehavior?.length) {
       obj.misbehavior = message.misbehavior.map((e) => Misbehavior.toJSON(e));
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
@@ -2177,13 +2188,17 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
   },
   fromPartial(object: DeepPartial<RequestPrepareProposal>): RequestPrepareProposal {
     const message = createBaseRequestPrepareProposal();
-    message.maxTxBytes = object.maxTxBytes ?? 0;
+    message.maxTxBytes = (object.maxTxBytes !== undefined && object.maxTxBytes !== null)
+      ? Long.fromValue(object.maxTxBytes)
+      : Long.ZERO;
     message.txs = object.txs?.map((e) => e) || [];
     message.localLastCommit = (object.localLastCommit !== undefined && object.localLastCommit !== null)
       ? ExtendedCommitInfo.fromPartial(object.localLastCommit)
       : undefined;
     message.misbehavior = object.misbehavior?.map((e) => Misbehavior.fromPartial(e)) || [];
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
     message.nextValidatorsHash = object.nextValidatorsHash ?? new Uint8Array(0);
     message.proposerAddress = object.proposerAddress ?? new Uint8Array(0);
@@ -2197,7 +2212,7 @@ function createBaseRequestProcessProposal(): RequestProcessProposal {
     proposedLastCommit: undefined,
     misbehavior: [],
     hash: new Uint8Array(0),
-    height: 0,
+    height: Long.ZERO,
     time: undefined,
     nextValidatorsHash: new Uint8Array(0),
     proposerAddress: new Uint8Array(0),
@@ -2220,8 +2235,8 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
     if (message.hash.length !== 0) {
       writer.uint32(34).bytes(message.hash);
     }
-    if (message.height !== 0) {
-      writer.uint32(40).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(50).fork()).join();
@@ -2279,7 +2294,7 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 6: {
@@ -2323,7 +2338,7 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
         ? object.misbehavior.map((e: any) => Misbehavior.fromJSON(e))
         : [],
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       nextValidatorsHash: isSet(object.nextValidatorsHash)
         ? bytesFromBase64(object.nextValidatorsHash)
@@ -2346,8 +2361,8 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
     if (message.hash.length !== 0) {
       obj.hash = base64FromBytes(message.hash);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
@@ -2372,7 +2387,9 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
       : undefined;
     message.misbehavior = object.misbehavior?.map((e) => Misbehavior.fromPartial(e)) || [];
     message.hash = object.hash ?? new Uint8Array(0);
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
     message.nextValidatorsHash = object.nextValidatorsHash ?? new Uint8Array(0);
     message.proposerAddress = object.proposerAddress ?? new Uint8Array(0);
@@ -2383,7 +2400,7 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
 function createBaseRequestExtendVote(): RequestExtendVote {
   return {
     hash: new Uint8Array(0),
-    height: 0,
+    height: Long.ZERO,
     time: undefined,
     txs: [],
     proposedLastCommit: undefined,
@@ -2400,8 +2417,8 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
     if (message.hash.length !== 0) {
       writer.uint32(10).bytes(message.hash);
     }
-    if (message.height !== 0) {
-      writer.uint32(16).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(26).fork()).join();
@@ -2444,7 +2461,7 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -2507,7 +2524,7 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
   fromJSON(object: any): RequestExtendVote {
     return {
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => bytesFromBase64(e)) : [],
       proposedLastCommit: isSet(object.proposedLastCommit) ? CommitInfo.fromJSON(object.proposedLastCommit) : undefined,
@@ -2526,8 +2543,8 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
     if (message.hash.length !== 0) {
       obj.hash = base64FromBytes(message.hash);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
@@ -2556,7 +2573,9 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
   fromPartial(object: DeepPartial<RequestExtendVote>): RequestExtendVote {
     const message = createBaseRequestExtendVote();
     message.hash = object.hash ?? new Uint8Array(0);
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
     message.txs = object.txs?.map((e) => e) || [];
     message.proposedLastCommit = (object.proposedLastCommit !== undefined && object.proposedLastCommit !== null)
@@ -2570,7 +2589,12 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
 };
 
 function createBaseRequestVerifyVoteExtension(): RequestVerifyVoteExtension {
-  return { hash: new Uint8Array(0), validatorAddress: new Uint8Array(0), height: 0, voteExtension: new Uint8Array(0) };
+  return {
+    hash: new Uint8Array(0),
+    validatorAddress: new Uint8Array(0),
+    height: Long.ZERO,
+    voteExtension: new Uint8Array(0),
+  };
 }
 
 export const RequestVerifyVoteExtension: MessageFns<
@@ -2586,8 +2610,8 @@ export const RequestVerifyVoteExtension: MessageFns<
     if (message.validatorAddress.length !== 0) {
       writer.uint32(18).bytes(message.validatorAddress);
     }
-    if (message.height !== 0) {
-      writer.uint32(24).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.height.toString());
     }
     if (message.voteExtension.length !== 0) {
       writer.uint32(34).bytes(message.voteExtension);
@@ -2623,7 +2647,7 @@ export const RequestVerifyVoteExtension: MessageFns<
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -2647,7 +2671,7 @@ export const RequestVerifyVoteExtension: MessageFns<
     return {
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
       validatorAddress: isSet(object.validatorAddress) ? bytesFromBase64(object.validatorAddress) : new Uint8Array(0),
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       voteExtension: isSet(object.voteExtension) ? bytesFromBase64(object.voteExtension) : new Uint8Array(0),
     };
   },
@@ -2660,8 +2684,8 @@ export const RequestVerifyVoteExtension: MessageFns<
     if (message.validatorAddress.length !== 0) {
       obj.validatorAddress = base64FromBytes(message.validatorAddress);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.voteExtension.length !== 0) {
       obj.voteExtension = base64FromBytes(message.voteExtension);
@@ -2676,7 +2700,9 @@ export const RequestVerifyVoteExtension: MessageFns<
     const message = createBaseRequestVerifyVoteExtension();
     message.hash = object.hash ?? new Uint8Array(0);
     message.validatorAddress = object.validatorAddress ?? new Uint8Array(0);
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.voteExtension = object.voteExtension ?? new Uint8Array(0);
     return message;
   },
@@ -2688,7 +2714,7 @@ function createBaseRequestFinalizeBlock(): RequestFinalizeBlock {
     decidedLastCommit: undefined,
     misbehavior: [],
     hash: new Uint8Array(0),
-    height: 0,
+    height: Long.ZERO,
     time: undefined,
     nextValidatorsHash: new Uint8Array(0),
     proposerAddress: new Uint8Array(0),
@@ -2711,8 +2737,8 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
     if (message.hash.length !== 0) {
       writer.uint32(34).bytes(message.hash);
     }
-    if (message.height !== 0) {
-      writer.uint32(40).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(50).fork()).join();
@@ -2770,7 +2796,7 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 6: {
@@ -2814,7 +2840,7 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
         ? object.misbehavior.map((e: any) => Misbehavior.fromJSON(e))
         : [],
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       nextValidatorsHash: isSet(object.nextValidatorsHash)
         ? bytesFromBase64(object.nextValidatorsHash)
@@ -2837,8 +2863,8 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
     if (message.hash.length !== 0) {
       obj.hash = base64FromBytes(message.hash);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
@@ -2863,7 +2889,9 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
       : undefined;
     message.misbehavior = object.misbehavior?.map((e) => Misbehavior.fromPartial(e)) || [];
     message.hash = object.hash ?? new Uint8Array(0);
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
     message.nextValidatorsHash = object.nextValidatorsHash ?? new Uint8Array(0);
     message.proposerAddress = object.proposerAddress ?? new Uint8Array(0);
@@ -3417,7 +3445,13 @@ export const ResponseFlush: MessageFns<ResponseFlush, "tendermint.abci.ResponseF
 };
 
 function createBaseResponseInfo(): ResponseInfo {
-  return { data: "", version: "", appVersion: 0, lastBlockHeight: 0, lastBlockAppHash: new Uint8Array(0) };
+  return {
+    data: "",
+    version: "",
+    appVersion: Long.UZERO,
+    lastBlockHeight: Long.ZERO,
+    lastBlockAppHash: new Uint8Array(0),
+  };
 }
 
 export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInfo"> = {
@@ -3430,11 +3464,11 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
     if (message.version !== "") {
       writer.uint32(18).string(message.version);
     }
-    if (message.appVersion !== 0) {
-      writer.uint32(24).uint64(message.appVersion);
+    if (!message.appVersion.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.appVersion.toString());
     }
-    if (message.lastBlockHeight !== 0) {
-      writer.uint32(32).int64(message.lastBlockHeight);
+    if (!message.lastBlockHeight.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.lastBlockHeight.toString());
     }
     if (message.lastBlockAppHash.length !== 0) {
       writer.uint32(42).bytes(message.lastBlockAppHash);
@@ -3470,7 +3504,7 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
             break;
           }
 
-          message.appVersion = longToNumber(reader.uint64());
+          message.appVersion = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 4: {
@@ -3478,7 +3512,7 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
             break;
           }
 
-          message.lastBlockHeight = longToNumber(reader.int64());
+          message.lastBlockHeight = Long.fromString(reader.int64().toString());
           continue;
         }
         case 5: {
@@ -3502,8 +3536,8 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
     return {
       data: isSet(object.data) ? globalThis.String(object.data) : "",
       version: isSet(object.version) ? globalThis.String(object.version) : "",
-      appVersion: isSet(object.appVersion) ? globalThis.Number(object.appVersion) : 0,
-      lastBlockHeight: isSet(object.lastBlockHeight) ? globalThis.Number(object.lastBlockHeight) : 0,
+      appVersion: isSet(object.appVersion) ? Long.fromValue(object.appVersion) : Long.UZERO,
+      lastBlockHeight: isSet(object.lastBlockHeight) ? Long.fromValue(object.lastBlockHeight) : Long.ZERO,
       lastBlockAppHash: isSet(object.lastBlockAppHash) ? bytesFromBase64(object.lastBlockAppHash) : new Uint8Array(0),
     };
   },
@@ -3516,11 +3550,11 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
     if (message.version !== "") {
       obj.version = message.version;
     }
-    if (message.appVersion !== 0) {
-      obj.appVersion = Math.round(message.appVersion);
+    if (!message.appVersion.equals(Long.UZERO)) {
+      obj.appVersion = (message.appVersion || Long.UZERO).toString();
     }
-    if (message.lastBlockHeight !== 0) {
-      obj.lastBlockHeight = Math.round(message.lastBlockHeight);
+    if (!message.lastBlockHeight.equals(Long.ZERO)) {
+      obj.lastBlockHeight = (message.lastBlockHeight || Long.ZERO).toString();
     }
     if (message.lastBlockAppHash.length !== 0) {
       obj.lastBlockAppHash = base64FromBytes(message.lastBlockAppHash);
@@ -3535,8 +3569,12 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
     const message = createBaseResponseInfo();
     message.data = object.data ?? "";
     message.version = object.version ?? "";
-    message.appVersion = object.appVersion ?? 0;
-    message.lastBlockHeight = object.lastBlockHeight ?? 0;
+    message.appVersion = (object.appVersion !== undefined && object.appVersion !== null)
+      ? Long.fromValue(object.appVersion)
+      : Long.UZERO;
+    message.lastBlockHeight = (object.lastBlockHeight !== undefined && object.lastBlockHeight !== null)
+      ? Long.fromValue(object.lastBlockHeight)
+      : Long.ZERO;
     message.lastBlockAppHash = object.lastBlockAppHash ?? new Uint8Array(0);
     return message;
   },
@@ -3645,11 +3683,11 @@ function createBaseResponseQuery(): ResponseQuery {
     code: 0,
     log: "",
     info: "",
-    index: 0,
+    index: Long.ZERO,
     key: new Uint8Array(0),
     value: new Uint8Array(0),
     proofOps: undefined,
-    height: 0,
+    height: Long.ZERO,
     codespace: "",
   };
 }
@@ -3667,8 +3705,8 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
     if (message.info !== "") {
       writer.uint32(34).string(message.info);
     }
-    if (message.index !== 0) {
-      writer.uint32(40).int64(message.index);
+    if (!message.index.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.index.toString());
     }
     if (message.key.length !== 0) {
       writer.uint32(50).bytes(message.key);
@@ -3679,8 +3717,8 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
     if (message.proofOps !== undefined) {
       ProofOps.encode(message.proofOps, writer.uint32(66).fork()).join();
     }
-    if (message.height !== 0) {
-      writer.uint32(72).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(72).int64(message.height.toString());
     }
     if (message.codespace !== "") {
       writer.uint32(82).string(message.codespace);
@@ -3724,7 +3762,7 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
             break;
           }
 
-          message.index = longToNumber(reader.int64());
+          message.index = Long.fromString(reader.int64().toString());
           continue;
         }
         case 6: {
@@ -3756,7 +3794,7 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 10: {
@@ -3781,11 +3819,11 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
       code: isSet(object.code) ? globalThis.Number(object.code) : 0,
       log: isSet(object.log) ? globalThis.String(object.log) : "",
       info: isSet(object.info) ? globalThis.String(object.info) : "",
-      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
       proofOps: isSet(object.proofOps) ? ProofOps.fromJSON(object.proofOps) : undefined,
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
     };
   },
@@ -3801,8 +3839,8 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
     if (message.info !== "") {
       obj.info = message.info;
     }
-    if (message.index !== 0) {
-      obj.index = Math.round(message.index);
+    if (!message.index.equals(Long.ZERO)) {
+      obj.index = (message.index || Long.ZERO).toString();
     }
     if (message.key.length !== 0) {
       obj.key = base64FromBytes(message.key);
@@ -3813,8 +3851,8 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
     if (message.proofOps !== undefined) {
       obj.proofOps = ProofOps.toJSON(message.proofOps);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.codespace !== "") {
       obj.codespace = message.codespace;
@@ -3830,20 +3868,31 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
     message.code = object.code ?? 0;
     message.log = object.log ?? "";
     message.info = object.info ?? "";
-    message.index = object.index ?? 0;
+    message.index = (object.index !== undefined && object.index !== null) ? Long.fromValue(object.index) : Long.ZERO;
     message.key = object.key ?? new Uint8Array(0);
     message.value = object.value ?? new Uint8Array(0);
     message.proofOps = (object.proofOps !== undefined && object.proofOps !== null)
       ? ProofOps.fromPartial(object.proofOps)
       : undefined;
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.codespace = object.codespace ?? "";
     return message;
   },
 };
 
 function createBaseResponseCheckTx(): ResponseCheckTx {
-  return { code: 0, data: new Uint8Array(0), log: "", info: "", gasWanted: 0, gasUsed: 0, events: [], codespace: "" };
+  return {
+    code: 0,
+    data: new Uint8Array(0),
+    log: "",
+    info: "",
+    gasWanted: Long.ZERO,
+    gasUsed: Long.ZERO,
+    events: [],
+    codespace: "",
+  };
 }
 
 export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.ResponseCheckTx"> = {
@@ -3862,11 +3911,11 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
     if (message.info !== "") {
       writer.uint32(34).string(message.info);
     }
-    if (message.gasWanted !== 0) {
-      writer.uint32(40).int64(message.gasWanted);
+    if (!message.gasWanted.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.gasWanted.toString());
     }
-    if (message.gasUsed !== 0) {
-      writer.uint32(48).int64(message.gasUsed);
+    if (!message.gasUsed.equals(Long.ZERO)) {
+      writer.uint32(48).int64(message.gasUsed.toString());
     }
     for (const v of message.events) {
       Event.encode(v!, writer.uint32(58).fork()).join();
@@ -3921,7 +3970,7 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
             break;
           }
 
-          message.gasWanted = longToNumber(reader.int64());
+          message.gasWanted = Long.fromString(reader.int64().toString());
           continue;
         }
         case 6: {
@@ -3929,7 +3978,7 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
             break;
           }
 
-          message.gasUsed = longToNumber(reader.int64());
+          message.gasUsed = Long.fromString(reader.int64().toString());
           continue;
         }
         case 7: {
@@ -3963,8 +4012,8 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(0),
       log: isSet(object.log) ? globalThis.String(object.log) : "",
       info: isSet(object.info) ? globalThis.String(object.info) : "",
-      gasWanted: isSet(object.gas_wanted) ? globalThis.Number(object.gas_wanted) : 0,
-      gasUsed: isSet(object.gas_used) ? globalThis.Number(object.gas_used) : 0,
+      gasWanted: isSet(object.gas_wanted) ? Long.fromValue(object.gas_wanted) : Long.ZERO,
+      gasUsed: isSet(object.gas_used) ? Long.fromValue(object.gas_used) : Long.ZERO,
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => Event.fromJSON(e)) : [],
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
     };
@@ -3984,11 +4033,11 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
     if (message.info !== "") {
       obj.info = message.info;
     }
-    if (message.gasWanted !== 0) {
-      obj.gas_wanted = Math.round(message.gasWanted);
+    if (!message.gasWanted.equals(Long.ZERO)) {
+      obj.gas_wanted = (message.gasWanted || Long.ZERO).toString();
     }
-    if (message.gasUsed !== 0) {
-      obj.gas_used = Math.round(message.gasUsed);
+    if (!message.gasUsed.equals(Long.ZERO)) {
+      obj.gas_used = (message.gasUsed || Long.ZERO).toString();
     }
     if (message.events?.length) {
       obj.events = message.events.map((e) => Event.toJSON(e));
@@ -4008,8 +4057,12 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
     message.data = object.data ?? new Uint8Array(0);
     message.log = object.log ?? "";
     message.info = object.info ?? "";
-    message.gasWanted = object.gasWanted ?? 0;
-    message.gasUsed = object.gasUsed ?? 0;
+    message.gasWanted = (object.gasWanted !== undefined && object.gasWanted !== null)
+      ? Long.fromValue(object.gasWanted)
+      : Long.ZERO;
+    message.gasUsed = (object.gasUsed !== undefined && object.gasUsed !== null)
+      ? Long.fromValue(object.gasUsed)
+      : Long.ZERO;
     message.events = object.events?.map((e) => Event.fromPartial(e)) || [];
     message.codespace = object.codespace ?? "";
     return message;
@@ -4017,15 +4070,15 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
 };
 
 function createBaseResponseCommit(): ResponseCommit {
-  return { retainHeight: 0 };
+  return { retainHeight: Long.ZERO };
 }
 
 export const ResponseCommit: MessageFns<ResponseCommit, "tendermint.abci.ResponseCommit"> = {
   $type: "tendermint.abci.ResponseCommit" as const,
 
   encode(message: ResponseCommit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.retainHeight !== 0) {
-      writer.uint32(24).int64(message.retainHeight);
+    if (!message.retainHeight.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.retainHeight.toString());
     }
     return writer;
   },
@@ -4042,7 +4095,7 @@ export const ResponseCommit: MessageFns<ResponseCommit, "tendermint.abci.Respons
             break;
           }
 
-          message.retainHeight = longToNumber(reader.int64());
+          message.retainHeight = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -4055,13 +4108,13 @@ export const ResponseCommit: MessageFns<ResponseCommit, "tendermint.abci.Respons
   },
 
   fromJSON(object: any): ResponseCommit {
-    return { retainHeight: isSet(object.retainHeight) ? globalThis.Number(object.retainHeight) : 0 };
+    return { retainHeight: isSet(object.retainHeight) ? Long.fromValue(object.retainHeight) : Long.ZERO };
   },
 
   toJSON(message: ResponseCommit): unknown {
     const obj: any = {};
-    if (message.retainHeight !== 0) {
-      obj.retainHeight = Math.round(message.retainHeight);
+    if (!message.retainHeight.equals(Long.ZERO)) {
+      obj.retainHeight = (message.retainHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -4071,7 +4124,9 @@ export const ResponseCommit: MessageFns<ResponseCommit, "tendermint.abci.Respons
   },
   fromPartial(object: DeepPartial<ResponseCommit>): ResponseCommit {
     const message = createBaseResponseCommit();
-    message.retainHeight = object.retainHeight ?? 0;
+    message.retainHeight = (object.retainHeight !== undefined && object.retainHeight !== null)
+      ? Long.fromValue(object.retainHeight)
+      : Long.ZERO;
     return message;
   },
 };
@@ -5091,7 +5146,16 @@ export const EventAttribute: MessageFns<EventAttribute, "tendermint.abci.EventAt
 };
 
 function createBaseExecTxResult(): ExecTxResult {
-  return { code: 0, data: new Uint8Array(0), log: "", info: "", gasWanted: 0, gasUsed: 0, events: [], codespace: "" };
+  return {
+    code: 0,
+    data: new Uint8Array(0),
+    log: "",
+    info: "",
+    gasWanted: Long.ZERO,
+    gasUsed: Long.ZERO,
+    events: [],
+    codespace: "",
+  };
 }
 
 export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResult"> = {
@@ -5110,11 +5174,11 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
     if (message.info !== "") {
       writer.uint32(34).string(message.info);
     }
-    if (message.gasWanted !== 0) {
-      writer.uint32(40).int64(message.gasWanted);
+    if (!message.gasWanted.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.gasWanted.toString());
     }
-    if (message.gasUsed !== 0) {
-      writer.uint32(48).int64(message.gasUsed);
+    if (!message.gasUsed.equals(Long.ZERO)) {
+      writer.uint32(48).int64(message.gasUsed.toString());
     }
     for (const v of message.events) {
       Event.encode(v!, writer.uint32(58).fork()).join();
@@ -5169,7 +5233,7 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
             break;
           }
 
-          message.gasWanted = longToNumber(reader.int64());
+          message.gasWanted = Long.fromString(reader.int64().toString());
           continue;
         }
         case 6: {
@@ -5177,7 +5241,7 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
             break;
           }
 
-          message.gasUsed = longToNumber(reader.int64());
+          message.gasUsed = Long.fromString(reader.int64().toString());
           continue;
         }
         case 7: {
@@ -5211,8 +5275,8 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(0),
       log: isSet(object.log) ? globalThis.String(object.log) : "",
       info: isSet(object.info) ? globalThis.String(object.info) : "",
-      gasWanted: isSet(object.gas_wanted) ? globalThis.Number(object.gas_wanted) : 0,
-      gasUsed: isSet(object.gas_used) ? globalThis.Number(object.gas_used) : 0,
+      gasWanted: isSet(object.gas_wanted) ? Long.fromValue(object.gas_wanted) : Long.ZERO,
+      gasUsed: isSet(object.gas_used) ? Long.fromValue(object.gas_used) : Long.ZERO,
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => Event.fromJSON(e)) : [],
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
     };
@@ -5232,11 +5296,11 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
     if (message.info !== "") {
       obj.info = message.info;
     }
-    if (message.gasWanted !== 0) {
-      obj.gas_wanted = Math.round(message.gasWanted);
+    if (!message.gasWanted.equals(Long.ZERO)) {
+      obj.gas_wanted = (message.gasWanted || Long.ZERO).toString();
     }
-    if (message.gasUsed !== 0) {
-      obj.gas_used = Math.round(message.gasUsed);
+    if (!message.gasUsed.equals(Long.ZERO)) {
+      obj.gas_used = (message.gasUsed || Long.ZERO).toString();
     }
     if (message.events?.length) {
       obj.events = message.events.map((e) => Event.toJSON(e));
@@ -5256,8 +5320,12 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
     message.data = object.data ?? new Uint8Array(0);
     message.log = object.log ?? "";
     message.info = object.info ?? "";
-    message.gasWanted = object.gasWanted ?? 0;
-    message.gasUsed = object.gasUsed ?? 0;
+    message.gasWanted = (object.gasWanted !== undefined && object.gasWanted !== null)
+      ? Long.fromValue(object.gasWanted)
+      : Long.ZERO;
+    message.gasUsed = (object.gasUsed !== undefined && object.gasUsed !== null)
+      ? Long.fromValue(object.gasUsed)
+      : Long.ZERO;
     message.events = object.events?.map((e) => Event.fromPartial(e)) || [];
     message.codespace = object.codespace ?? "";
     return message;
@@ -5265,15 +5333,15 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
 };
 
 function createBaseTxResult(): TxResult {
-  return { height: 0, index: 0, tx: new Uint8Array(0), result: undefined };
+  return { height: Long.ZERO, index: 0, tx: new Uint8Array(0), result: undefined };
 }
 
 export const TxResult: MessageFns<TxResult, "tendermint.abci.TxResult"> = {
   $type: "tendermint.abci.TxResult" as const,
 
   encode(message: TxResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.height.toString());
     }
     if (message.index !== 0) {
       writer.uint32(16).uint32(message.index);
@@ -5299,7 +5367,7 @@ export const TxResult: MessageFns<TxResult, "tendermint.abci.TxResult"> = {
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -5337,7 +5405,7 @@ export const TxResult: MessageFns<TxResult, "tendermint.abci.TxResult"> = {
 
   fromJSON(object: any): TxResult {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       index: isSet(object.index) ? globalThis.Number(object.index) : 0,
       tx: isSet(object.tx) ? bytesFromBase64(object.tx) : new Uint8Array(0),
       result: isSet(object.result) ? ExecTxResult.fromJSON(object.result) : undefined,
@@ -5346,8 +5414,8 @@ export const TxResult: MessageFns<TxResult, "tendermint.abci.TxResult"> = {
 
   toJSON(message: TxResult): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.index !== 0) {
       obj.index = Math.round(message.index);
@@ -5366,7 +5434,9 @@ export const TxResult: MessageFns<TxResult, "tendermint.abci.TxResult"> = {
   },
   fromPartial(object: DeepPartial<TxResult>): TxResult {
     const message = createBaseTxResult();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.index = object.index ?? 0;
     message.tx = object.tx ?? new Uint8Array(0);
     message.result = (object.result !== undefined && object.result !== null)
@@ -5377,7 +5447,7 @@ export const TxResult: MessageFns<TxResult, "tendermint.abci.TxResult"> = {
 };
 
 function createBaseValidator(): Validator {
-  return { address: new Uint8Array(0), power: 0 };
+  return { address: new Uint8Array(0), power: Long.ZERO };
 }
 
 export const Validator: MessageFns<Validator, "tendermint.abci.Validator"> = {
@@ -5387,8 +5457,8 @@ export const Validator: MessageFns<Validator, "tendermint.abci.Validator"> = {
     if (message.address.length !== 0) {
       writer.uint32(10).bytes(message.address);
     }
-    if (message.power !== 0) {
-      writer.uint32(24).int64(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.power.toString());
     }
     return writer;
   },
@@ -5413,7 +5483,7 @@ export const Validator: MessageFns<Validator, "tendermint.abci.Validator"> = {
             break;
           }
 
-          message.power = longToNumber(reader.int64());
+          message.power = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -5428,7 +5498,7 @@ export const Validator: MessageFns<Validator, "tendermint.abci.Validator"> = {
   fromJSON(object: any): Validator {
     return {
       address: isSet(object.address) ? bytesFromBase64(object.address) : new Uint8Array(0),
-      power: isSet(object.power) ? globalThis.Number(object.power) : 0,
+      power: isSet(object.power) ? Long.fromValue(object.power) : Long.ZERO,
     };
   },
 
@@ -5437,8 +5507,8 @@ export const Validator: MessageFns<Validator, "tendermint.abci.Validator"> = {
     if (message.address.length !== 0) {
       obj.address = base64FromBytes(message.address);
     }
-    if (message.power !== 0) {
-      obj.power = Math.round(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      obj.power = (message.power || Long.ZERO).toString();
     }
     return obj;
   },
@@ -5449,13 +5519,13 @@ export const Validator: MessageFns<Validator, "tendermint.abci.Validator"> = {
   fromPartial(object: DeepPartial<Validator>): Validator {
     const message = createBaseValidator();
     message.address = object.address ?? new Uint8Array(0);
-    message.power = object.power ?? 0;
+    message.power = (object.power !== undefined && object.power !== null) ? Long.fromValue(object.power) : Long.ZERO;
     return message;
   },
 };
 
 function createBaseValidatorUpdate(): ValidatorUpdate {
-  return { pubKey: undefined, power: 0 };
+  return { pubKey: undefined, power: Long.ZERO };
 }
 
 export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.ValidatorUpdate"> = {
@@ -5465,8 +5535,8 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
     if (message.pubKey !== undefined) {
       PublicKey.encode(message.pubKey, writer.uint32(10).fork()).join();
     }
-    if (message.power !== 0) {
-      writer.uint32(16).int64(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.power.toString());
     }
     return writer;
   },
@@ -5491,7 +5561,7 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
             break;
           }
 
-          message.power = longToNumber(reader.int64());
+          message.power = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -5506,7 +5576,7 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
   fromJSON(object: any): ValidatorUpdate {
     return {
       pubKey: isSet(object.pubKey) ? PublicKey.fromJSON(object.pubKey) : undefined,
-      power: isSet(object.power) ? globalThis.Number(object.power) : 0,
+      power: isSet(object.power) ? Long.fromValue(object.power) : Long.ZERO,
     };
   },
 
@@ -5515,8 +5585,8 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
     if (message.pubKey !== undefined) {
       obj.pubKey = PublicKey.toJSON(message.pubKey);
     }
-    if (message.power !== 0) {
-      obj.power = Math.round(message.power);
+    if (!message.power.equals(Long.ZERO)) {
+      obj.power = (message.power || Long.ZERO).toString();
     }
     return obj;
   },
@@ -5529,7 +5599,7 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
     message.pubKey = (object.pubKey !== undefined && object.pubKey !== null)
       ? PublicKey.fromPartial(object.pubKey)
       : undefined;
-    message.power = object.power ?? 0;
+    message.power = (object.power !== undefined && object.power !== null) ? Long.fromValue(object.power) : Long.ZERO;
     return message;
   },
 };
@@ -5734,7 +5804,7 @@ export const ExtendedVoteInfo: MessageFns<ExtendedVoteInfo, "tendermint.abci.Ext
 };
 
 function createBaseMisbehavior(): Misbehavior {
-  return { type: 0, validator: undefined, height: 0, time: undefined, totalVotingPower: 0 };
+  return { type: 0, validator: undefined, height: Long.ZERO, time: undefined, totalVotingPower: Long.ZERO };
 }
 
 export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior"> = {
@@ -5747,14 +5817,14 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
     if (message.validator !== undefined) {
       Validator.encode(message.validator, writer.uint32(18).fork()).join();
     }
-    if (message.height !== 0) {
-      writer.uint32(24).int64(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.height.toString());
     }
     if (message.time !== undefined) {
       Timestamp.encode(toTimestamp(message.time), writer.uint32(34).fork()).join();
     }
-    if (message.totalVotingPower !== 0) {
-      writer.uint32(40).int64(message.totalVotingPower);
+    if (!message.totalVotingPower.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.totalVotingPower.toString());
     }
     return writer;
   },
@@ -5787,7 +5857,7 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
             break;
           }
 
-          message.height = longToNumber(reader.int64());
+          message.height = Long.fromString(reader.int64().toString());
           continue;
         }
         case 4: {
@@ -5803,7 +5873,7 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
             break;
           }
 
-          message.totalVotingPower = longToNumber(reader.int64());
+          message.totalVotingPower = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -5819,9 +5889,9 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
     return {
       type: isSet(object.type) ? misbehaviorTypeFromJSON(object.type) : 0,
       validator: isSet(object.validator) ? Validator.fromJSON(object.validator) : undefined,
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      totalVotingPower: isSet(object.totalVotingPower) ? globalThis.Number(object.totalVotingPower) : 0,
+      totalVotingPower: isSet(object.totalVotingPower) ? Long.fromValue(object.totalVotingPower) : Long.ZERO,
     };
   },
 
@@ -5833,14 +5903,14 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
     if (message.validator !== undefined) {
       obj.validator = Validator.toJSON(message.validator);
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.ZERO)) {
+      obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.time !== undefined) {
       obj.time = message.time.toISOString();
     }
-    if (message.totalVotingPower !== 0) {
-      obj.totalVotingPower = Math.round(message.totalVotingPower);
+    if (!message.totalVotingPower.equals(Long.ZERO)) {
+      obj.totalVotingPower = (message.totalVotingPower || Long.ZERO).toString();
     }
     return obj;
   },
@@ -5854,23 +5924,27 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
     message.validator = (object.validator !== undefined && object.validator !== null)
       ? Validator.fromPartial(object.validator)
       : undefined;
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.ZERO;
     message.time = object.time ?? undefined;
-    message.totalVotingPower = object.totalVotingPower ?? 0;
+    message.totalVotingPower = (object.totalVotingPower !== undefined && object.totalVotingPower !== null)
+      ? Long.fromValue(object.totalVotingPower)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseSnapshot(): Snapshot {
-  return { height: 0, format: 0, chunks: 0, hash: new Uint8Array(0), metadata: new Uint8Array(0) };
+  return { height: Long.UZERO, format: 0, chunks: 0, hash: new Uint8Array(0), metadata: new Uint8Array(0) };
 }
 
 export const Snapshot: MessageFns<Snapshot, "tendermint.abci.Snapshot"> = {
   $type: "tendermint.abci.Snapshot" as const,
 
   encode(message: Snapshot, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.height !== 0) {
-      writer.uint32(8).uint64(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.height.toString());
     }
     if (message.format !== 0) {
       writer.uint32(16).uint32(message.format);
@@ -5899,7 +5973,7 @@ export const Snapshot: MessageFns<Snapshot, "tendermint.abci.Snapshot"> = {
             break;
           }
 
-          message.height = longToNumber(reader.uint64());
+          message.height = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -5945,7 +6019,7 @@ export const Snapshot: MessageFns<Snapshot, "tendermint.abci.Snapshot"> = {
 
   fromJSON(object: any): Snapshot {
     return {
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
       format: isSet(object.format) ? globalThis.Number(object.format) : 0,
       chunks: isSet(object.chunks) ? globalThis.Number(object.chunks) : 0,
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
@@ -5955,8 +6029,8 @@ export const Snapshot: MessageFns<Snapshot, "tendermint.abci.Snapshot"> = {
 
   toJSON(message: Snapshot): unknown {
     const obj: any = {};
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      obj.height = (message.height || Long.UZERO).toString();
     }
     if (message.format !== 0) {
       obj.format = Math.round(message.format);
@@ -5978,7 +6052,9 @@ export const Snapshot: MessageFns<Snapshot, "tendermint.abci.Snapshot"> = {
   },
   fromPartial(object: DeepPartial<Snapshot>): Snapshot {
     const message = createBaseSnapshot();
-    message.height = object.height ?? 0;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.UZERO;
     message.format = object.format ?? 0;
     message.chunks = object.chunks ?? 0;
     message.hash = object.hash ?? new Uint8Array(0);
@@ -6015,19 +6091,19 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -6042,15 +6118,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

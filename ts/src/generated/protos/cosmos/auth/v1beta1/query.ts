@@ -5,6 +5,7 @@
 // source: cosmos/auth/v1beta1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
@@ -107,9 +108,9 @@ export interface QueryAccountAddressByIDRequest {
    *
    * @deprecated
    */
-  id: number;
+  id: Long;
   /** account_id is the account number of the address to be queried. */
-  accountId: number;
+  accountId: Long;
 }
 
 /** QueryAccountAddressByIDResponse is the response type for AccountAddressByID rpc method */
@@ -1099,7 +1100,7 @@ export const AddressStringToBytesResponse: MessageFns<
 };
 
 function createBaseQueryAccountAddressByIDRequest(): QueryAccountAddressByIDRequest {
-  return { id: 0, accountId: 0 };
+  return { id: Long.ZERO, accountId: Long.UZERO };
 }
 
 export const QueryAccountAddressByIDRequest: MessageFns<
@@ -1109,11 +1110,11 @@ export const QueryAccountAddressByIDRequest: MessageFns<
   $type: "cosmos.auth.v1beta1.QueryAccountAddressByIDRequest" as const,
 
   encode(message: QueryAccountAddressByIDRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== 0) {
-      writer.uint32(8).int64(message.id);
+    if (!message.id.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.id.toString());
     }
-    if (message.accountId !== 0) {
-      writer.uint32(16).uint64(message.accountId);
+    if (!message.accountId.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.accountId.toString());
     }
     return writer;
   },
@@ -1130,7 +1131,7 @@ export const QueryAccountAddressByIDRequest: MessageFns<
             break;
           }
 
-          message.id = longToNumber(reader.int64());
+          message.id = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -1138,7 +1139,7 @@ export const QueryAccountAddressByIDRequest: MessageFns<
             break;
           }
 
-          message.accountId = longToNumber(reader.uint64());
+          message.accountId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -1152,18 +1153,18 @@ export const QueryAccountAddressByIDRequest: MessageFns<
 
   fromJSON(object: any): QueryAccountAddressByIDRequest {
     return {
-      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
-      accountId: isSet(object.accountId) ? globalThis.Number(object.accountId) : 0,
+      id: isSet(object.id) ? Long.fromValue(object.id) : Long.ZERO,
+      accountId: isSet(object.accountId) ? Long.fromValue(object.accountId) : Long.UZERO,
     };
   },
 
   toJSON(message: QueryAccountAddressByIDRequest): unknown {
     const obj: any = {};
-    if (message.id !== 0) {
-      obj.id = Math.round(message.id);
+    if (!message.id.equals(Long.ZERO)) {
+      obj.id = (message.id || Long.ZERO).toString();
     }
-    if (message.accountId !== 0) {
-      obj.accountId = Math.round(message.accountId);
+    if (!message.accountId.equals(Long.UZERO)) {
+      obj.accountId = (message.accountId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -1173,8 +1174,10 @@ export const QueryAccountAddressByIDRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryAccountAddressByIDRequest>): QueryAccountAddressByIDRequest {
     const message = createBaseQueryAccountAddressByIDRequest();
-    message.id = object.id ?? 0;
-    message.accountId = object.accountId ?? 0;
+    message.id = (object.id !== undefined && object.id !== null) ? Long.fromValue(object.id) : Long.ZERO;
+    message.accountId = (object.accountId !== undefined && object.accountId !== null)
+      ? Long.fromValue(object.accountId)
+      : Long.UZERO;
     return message;
   },
 };
@@ -1398,21 +1401,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

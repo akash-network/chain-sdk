@@ -10,6 +10,7 @@ import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Deposit } from "../../base/deposit/v1/deposit.ts";
 import { BidID } from "../v1/bid.ts";
 import { ResourceOffer } from "./resourcesoffer.ts";
+import Long = require("long");
 
 export const protobufPackage = "akash.market.v1beta5";
 
@@ -313,7 +314,7 @@ export const MsgCloseBidResponse: MessageFns<MsgCloseBidResponse, "akash.market.
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

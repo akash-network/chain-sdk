@@ -5,6 +5,7 @@
 // source: cosmos/tx/signing/v1beta1/signing.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { CompactBitArray } from "../../../crypto/multisig/v1beta1/multisig.ts";
@@ -139,7 +140,7 @@ export interface SignatureDescriptor {
    * number of committed transactions signed by a given address. It is used to prevent
    * replay attacks.
    */
-  sequence: number;
+  sequence: Long;
 }
 
 /** Data represents signature data */
@@ -236,7 +237,7 @@ export const SignatureDescriptors: MessageFns<SignatureDescriptors, "cosmos.tx.s
   };
 
 function createBaseSignatureDescriptor(): SignatureDescriptor {
-  return { publicKey: undefined, data: undefined, sequence: 0 };
+  return { publicKey: undefined, data: undefined, sequence: Long.UZERO };
 }
 
 export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.signing.v1beta1.SignatureDescriptor"> = {
@@ -249,8 +250,8 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
     if (message.data !== undefined) {
       SignatureDescriptor_Data.encode(message.data, writer.uint32(18).fork()).join();
     }
-    if (message.sequence !== 0) {
-      writer.uint32(24).uint64(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      writer.uint32(24).uint64(message.sequence.toString());
     }
     return writer;
   },
@@ -283,7 +284,7 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
             break;
           }
 
-          message.sequence = longToNumber(reader.uint64());
+          message.sequence = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -299,7 +300,7 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
     return {
       publicKey: isSet(object.publicKey) ? Any.fromJSON(object.publicKey) : undefined,
       data: isSet(object.data) ? SignatureDescriptor_Data.fromJSON(object.data) : undefined,
-      sequence: isSet(object.sequence) ? globalThis.Number(object.sequence) : 0,
+      sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
     };
   },
 
@@ -311,8 +312,8 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
     if (message.data !== undefined) {
       obj.data = SignatureDescriptor_Data.toJSON(message.data);
     }
-    if (message.sequence !== 0) {
-      obj.sequence = Math.round(message.sequence);
+    if (!message.sequence.equals(Long.UZERO)) {
+      obj.sequence = (message.sequence || Long.UZERO).toString();
     }
     return obj;
   },
@@ -328,7 +329,9 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
     message.data = (object.data !== undefined && object.data !== null)
       ? SignatureDescriptor_Data.fromPartial(object.data)
       : undefined;
-    message.sequence = object.sequence ?? 0;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null)
+      ? Long.fromValue(object.sequence)
+      : Long.UZERO;
     return message;
   },
 };
@@ -612,21 +615,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

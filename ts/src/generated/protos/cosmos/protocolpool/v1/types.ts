@@ -5,6 +5,7 @@
 // source: cosmos/protocolpool/v1/types.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
@@ -31,7 +32,7 @@ export interface Params {
    * DistributionFrequency is the frequency (in terms of blocks) that funds are distributed out from the
    * x/protocolpool module.
    */
-  distributionFrequency: number;
+  distributionFrequency: Long;
 }
 
 function createBaseContinuousFund(): ContinuousFund {
@@ -129,7 +130,7 @@ export const ContinuousFund: MessageFns<ContinuousFund, "cosmos.protocolpool.v1.
 };
 
 function createBaseParams(): Params {
-  return { enabledDistributionDenoms: [], distributionFrequency: 0 };
+  return { enabledDistributionDenoms: [], distributionFrequency: Long.UZERO };
 }
 
 export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
@@ -139,8 +140,8 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
     for (const v of message.enabledDistributionDenoms) {
       writer.uint32(10).string(v!);
     }
-    if (message.distributionFrequency !== 0) {
-      writer.uint32(16).uint64(message.distributionFrequency);
+    if (!message.distributionFrequency.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.distributionFrequency.toString());
     }
     return writer;
   },
@@ -165,7 +166,7 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
             break;
           }
 
-          message.distributionFrequency = longToNumber(reader.uint64());
+          message.distributionFrequency = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -182,7 +183,9 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
       enabledDistributionDenoms: globalThis.Array.isArray(object?.enabledDistributionDenoms)
         ? object.enabledDistributionDenoms.map((e: any) => globalThis.String(e))
         : [],
-      distributionFrequency: isSet(object.distributionFrequency) ? globalThis.Number(object.distributionFrequency) : 0,
+      distributionFrequency: isSet(object.distributionFrequency)
+        ? Long.fromValue(object.distributionFrequency)
+        : Long.UZERO,
     };
   },
 
@@ -191,8 +194,8 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
     if (message.enabledDistributionDenoms?.length) {
       obj.enabledDistributionDenoms = message.enabledDistributionDenoms;
     }
-    if (message.distributionFrequency !== 0) {
-      obj.distributionFrequency = Math.round(message.distributionFrequency);
+    if (!message.distributionFrequency.equals(Long.UZERO)) {
+      obj.distributionFrequency = (message.distributionFrequency || Long.UZERO).toString();
     }
     return obj;
   },
@@ -203,7 +206,10 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.enabledDistributionDenoms = object.enabledDistributionDenoms?.map((e) => e) || [];
-    message.distributionFrequency = object.distributionFrequency ?? 0;
+    message.distributionFrequency =
+      (object.distributionFrequency !== undefined && object.distributionFrequency !== null)
+        ? Long.fromValue(object.distributionFrequency)
+        : Long.UZERO;
     return message;
   },
 };
@@ -211,19 +217,19 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -238,15 +244,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

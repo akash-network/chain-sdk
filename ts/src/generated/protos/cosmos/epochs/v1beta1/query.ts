@@ -5,6 +5,7 @@
 // source: cosmos/epochs/v1beta1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { EpochInfo } from "./genesis.ts";
 
@@ -38,7 +39,7 @@ export interface QueryCurrentEpochRequest {
  * querying an epoch by its identifier.
  */
 export interface QueryCurrentEpochResponse {
-  currentEpoch: number;
+  currentEpoch: Long;
 }
 
 function createBaseQueryEpochInfosRequest(): QueryEpochInfosRequest {
@@ -218,7 +219,7 @@ export const QueryCurrentEpochRequest: MessageFns<
 };
 
 function createBaseQueryCurrentEpochResponse(): QueryCurrentEpochResponse {
-  return { currentEpoch: 0 };
+  return { currentEpoch: Long.ZERO };
 }
 
 export const QueryCurrentEpochResponse: MessageFns<
@@ -228,8 +229,8 @@ export const QueryCurrentEpochResponse: MessageFns<
   $type: "cosmos.epochs.v1beta1.QueryCurrentEpochResponse" as const,
 
   encode(message: QueryCurrentEpochResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.currentEpoch !== 0) {
-      writer.uint32(8).int64(message.currentEpoch);
+    if (!message.currentEpoch.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.currentEpoch.toString());
     }
     return writer;
   },
@@ -246,7 +247,7 @@ export const QueryCurrentEpochResponse: MessageFns<
             break;
           }
 
-          message.currentEpoch = longToNumber(reader.int64());
+          message.currentEpoch = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -259,13 +260,13 @@ export const QueryCurrentEpochResponse: MessageFns<
   },
 
   fromJSON(object: any): QueryCurrentEpochResponse {
-    return { currentEpoch: isSet(object.currentEpoch) ? globalThis.Number(object.currentEpoch) : 0 };
+    return { currentEpoch: isSet(object.currentEpoch) ? Long.fromValue(object.currentEpoch) : Long.ZERO };
   },
 
   toJSON(message: QueryCurrentEpochResponse): unknown {
     const obj: any = {};
-    if (message.currentEpoch !== 0) {
-      obj.currentEpoch = Math.round(message.currentEpoch);
+    if (!message.currentEpoch.equals(Long.ZERO)) {
+      obj.currentEpoch = (message.currentEpoch || Long.ZERO).toString();
     }
     return obj;
   },
@@ -275,7 +276,9 @@ export const QueryCurrentEpochResponse: MessageFns<
   },
   fromPartial(object: DeepPartial<QueryCurrentEpochResponse>): QueryCurrentEpochResponse {
     const message = createBaseQueryCurrentEpochResponse();
-    message.currentEpoch = object.currentEpoch ?? 0;
+    message.currentEpoch = (object.currentEpoch !== undefined && object.currentEpoch !== null)
+      ? Long.fromValue(object.currentEpoch)
+      : Long.ZERO;
     return message;
   },
 };
@@ -283,21 +286,10 @@ export const QueryCurrentEpochResponse: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

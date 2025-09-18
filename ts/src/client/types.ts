@@ -23,12 +23,12 @@ export interface MethodDesc<
 }
 
 export interface MessageDesc<TValue = unknown, TTypeName = string> {
-  $type: TTypeName;
+  readonly $type: TTypeName;
   encode(message: TValue, writer?: BinaryWriter): BinaryWriter;
   decode(input: BinaryReader | Uint8Array, length?: number): TValue;
   fromPartial(object: DeepPartial<TValue>): TValue;
 }
 
-export type MessageShape<T> = T extends MessageDesc<infer U> ? U : never;
+export type MessageShape<T> = T extends Pick<MessageDesc, "decode"> ? ReturnType<T["decode"]> : never;
 
-export type MessageInitShape<T> = T extends MessageDesc<infer U> ? DeepPartial<U> : never;
+export type MessageInitShape<T> = T extends Pick<MessageDesc, "decode"> ? DeepPartial<ReturnType<T["decode"]>> : never;

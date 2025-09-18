@@ -5,6 +5,7 @@
 // source: cosmos/epochs/v1beta1/genesis.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Duration } from "../../../google/protobuf/duration.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
@@ -41,7 +42,7 @@ export interface EpochInfo {
    * The first tick (current_epoch=1) is defined as
    * the first block whose blocktime is greater than the EpochInfo start_time.
    */
-  currentEpoch: number;
+  currentEpoch: Long;
   /**
    * current_epoch_start_time describes the start time of the current timer
    * interval. The interval is (current_epoch_start_time,
@@ -73,7 +74,7 @@ export interface EpochInfo {
    * current_epoch_start_height is the block height at which the current epoch
    * started. (The block height at which the timer last ticked)
    */
-  currentEpochStartHeight: number;
+  currentEpochStartHeight: Long;
 }
 
 /** GenesisState defines the epochs module's genesis state. */
@@ -86,10 +87,10 @@ function createBaseEpochInfo(): EpochInfo {
     identifier: "",
     startTime: undefined,
     duration: undefined,
-    currentEpoch: 0,
+    currentEpoch: Long.ZERO,
     currentEpochStartTime: undefined,
     epochCountingStarted: false,
-    currentEpochStartHeight: 0,
+    currentEpochStartHeight: Long.ZERO,
   };
 }
 
@@ -106,8 +107,8 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
     if (message.duration !== undefined) {
       Duration.encode(message.duration, writer.uint32(26).fork()).join();
     }
-    if (message.currentEpoch !== 0) {
-      writer.uint32(32).int64(message.currentEpoch);
+    if (!message.currentEpoch.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.currentEpoch.toString());
     }
     if (message.currentEpochStartTime !== undefined) {
       Timestamp.encode(toTimestamp(message.currentEpochStartTime), writer.uint32(42).fork()).join();
@@ -115,8 +116,8 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
     if (message.epochCountingStarted !== false) {
       writer.uint32(48).bool(message.epochCountingStarted);
     }
-    if (message.currentEpochStartHeight !== 0) {
-      writer.uint32(64).int64(message.currentEpochStartHeight);
+    if (!message.currentEpochStartHeight.equals(Long.ZERO)) {
+      writer.uint32(64).int64(message.currentEpochStartHeight.toString());
     }
     return writer;
   },
@@ -157,7 +158,7 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
             break;
           }
 
-          message.currentEpoch = longToNumber(reader.int64());
+          message.currentEpoch = Long.fromString(reader.int64().toString());
           continue;
         }
         case 5: {
@@ -181,7 +182,7 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
             break;
           }
 
-          message.currentEpochStartHeight = longToNumber(reader.int64());
+          message.currentEpochStartHeight = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -198,7 +199,7 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
       identifier: isSet(object.identifier) ? globalThis.String(object.identifier) : "",
       startTime: isSet(object.startTime) ? fromJsonTimestamp(object.startTime) : undefined,
       duration: isSet(object.duration) ? Duration.fromJSON(object.duration) : undefined,
-      currentEpoch: isSet(object.currentEpoch) ? globalThis.Number(object.currentEpoch) : 0,
+      currentEpoch: isSet(object.currentEpoch) ? Long.fromValue(object.currentEpoch) : Long.ZERO,
       currentEpochStartTime: isSet(object.currentEpochStartTime)
         ? fromJsonTimestamp(object.currentEpochStartTime)
         : undefined,
@@ -206,8 +207,8 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
         ? globalThis.Boolean(object.epochCountingStarted)
         : false,
       currentEpochStartHeight: isSet(object.currentEpochStartHeight)
-        ? globalThis.Number(object.currentEpochStartHeight)
-        : 0,
+        ? Long.fromValue(object.currentEpochStartHeight)
+        : Long.ZERO,
     };
   },
 
@@ -222,8 +223,8 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
     if (message.duration !== undefined) {
       obj.duration = Duration.toJSON(message.duration);
     }
-    if (message.currentEpoch !== 0) {
-      obj.currentEpoch = Math.round(message.currentEpoch);
+    if (!message.currentEpoch.equals(Long.ZERO)) {
+      obj.currentEpoch = (message.currentEpoch || Long.ZERO).toString();
     }
     if (message.currentEpochStartTime !== undefined) {
       obj.currentEpochStartTime = message.currentEpochStartTime.toISOString();
@@ -231,8 +232,8 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
     if (message.epochCountingStarted !== false) {
       obj.epochCountingStarted = message.epochCountingStarted;
     }
-    if (message.currentEpochStartHeight !== 0) {
-      obj.currentEpochStartHeight = Math.round(message.currentEpochStartHeight);
+    if (!message.currentEpochStartHeight.equals(Long.ZERO)) {
+      obj.currentEpochStartHeight = (message.currentEpochStartHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -247,10 +248,15 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
     message.duration = (object.duration !== undefined && object.duration !== null)
       ? Duration.fromPartial(object.duration)
       : undefined;
-    message.currentEpoch = object.currentEpoch ?? 0;
+    message.currentEpoch = (object.currentEpoch !== undefined && object.currentEpoch !== null)
+      ? Long.fromValue(object.currentEpoch)
+      : Long.ZERO;
     message.currentEpochStartTime = object.currentEpochStartTime ?? undefined;
     message.epochCountingStarted = object.epochCountingStarted ?? false;
-    message.currentEpochStartHeight = object.currentEpochStartHeight ?? 0;
+    message.currentEpochStartHeight =
+      (object.currentEpochStartHeight !== undefined && object.currentEpochStartHeight !== null)
+        ? Long.fromValue(object.currentEpochStartHeight)
+        : Long.ZERO;
     return message;
   },
 };
@@ -320,19 +326,19 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.epochs.v1beta1.Genes
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -347,15 +353,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

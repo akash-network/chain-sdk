@@ -5,6 +5,7 @@
 // source: cosmos/counter/v1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "cosmos.counter.v1";
@@ -15,7 +16,7 @@ export interface QueryGetCountRequest {
 
 /** QueryGetCountResponse defines the response type for querying x/mock count. */
 export interface QueryGetCountResponse {
-  totalCount: number;
+  totalCount: Long;
 }
 
 function createBaseQueryGetCountRequest(): QueryGetCountRequest {
@@ -64,15 +65,15 @@ export const QueryGetCountRequest: MessageFns<QueryGetCountRequest, "cosmos.coun
 };
 
 function createBaseQueryGetCountResponse(): QueryGetCountResponse {
-  return { totalCount: 0 };
+  return { totalCount: Long.ZERO };
 }
 
 export const QueryGetCountResponse: MessageFns<QueryGetCountResponse, "cosmos.counter.v1.QueryGetCountResponse"> = {
   $type: "cosmos.counter.v1.QueryGetCountResponse" as const,
 
   encode(message: QueryGetCountResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.totalCount !== 0) {
-      writer.uint32(8).int64(message.totalCount);
+    if (!message.totalCount.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.totalCount.toString());
     }
     return writer;
   },
@@ -89,7 +90,7 @@ export const QueryGetCountResponse: MessageFns<QueryGetCountResponse, "cosmos.co
             break;
           }
 
-          message.totalCount = longToNumber(reader.int64());
+          message.totalCount = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -102,13 +103,13 @@ export const QueryGetCountResponse: MessageFns<QueryGetCountResponse, "cosmos.co
   },
 
   fromJSON(object: any): QueryGetCountResponse {
-    return { totalCount: isSet(object.totalCount) ? globalThis.Number(object.totalCount) : 0 };
+    return { totalCount: isSet(object.totalCount) ? Long.fromValue(object.totalCount) : Long.ZERO };
   },
 
   toJSON(message: QueryGetCountResponse): unknown {
     const obj: any = {};
-    if (message.totalCount !== 0) {
-      obj.totalCount = Math.round(message.totalCount);
+    if (!message.totalCount.equals(Long.ZERO)) {
+      obj.totalCount = (message.totalCount || Long.ZERO).toString();
     }
     return obj;
   },
@@ -118,7 +119,9 @@ export const QueryGetCountResponse: MessageFns<QueryGetCountResponse, "cosmos.co
   },
   fromPartial(object: DeepPartial<QueryGetCountResponse>): QueryGetCountResponse {
     const message = createBaseQueryGetCountResponse();
-    message.totalCount = object.totalCount ?? 0;
+    message.totalCount = (object.totalCount !== undefined && object.totalCount !== null)
+      ? Long.fromValue(object.totalCount)
+      : Long.ZERO;
     return message;
   },
 };
@@ -126,21 +129,10 @@ export const QueryGetCountResponse: MessageFns<QueryGetCountResponse, "cosmos.co
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

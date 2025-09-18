@@ -5,6 +5,7 @@
 // source: cosmos/counter/v1/tx.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "cosmos.counter.v1";
@@ -14,17 +15,17 @@ export interface MsgIncreaseCounter {
   /** signer is the address that controls the module (defaults to x/gov unless overwritten). */
   signer: string;
   /** count is the number of times to increment the counter. */
-  count: number;
+  count: Long;
 }
 
 /** MsgIncreaseCountResponse is the Msg/Counter response type. */
 export interface MsgIncreaseCountResponse {
   /** new_count is the number of times the counter was incremented. */
-  newCount: number;
+  newCount: Long;
 }
 
 function createBaseMsgIncreaseCounter(): MsgIncreaseCounter {
-  return { signer: "", count: 0 };
+  return { signer: "", count: Long.ZERO };
 }
 
 export const MsgIncreaseCounter: MessageFns<MsgIncreaseCounter, "cosmos.counter.v1.MsgIncreaseCounter"> = {
@@ -34,8 +35,8 @@ export const MsgIncreaseCounter: MessageFns<MsgIncreaseCounter, "cosmos.counter.
     if (message.signer !== "") {
       writer.uint32(10).string(message.signer);
     }
-    if (message.count !== 0) {
-      writer.uint32(16).int64(message.count);
+    if (!message.count.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.count.toString());
     }
     return writer;
   },
@@ -60,7 +61,7 @@ export const MsgIncreaseCounter: MessageFns<MsgIncreaseCounter, "cosmos.counter.
             break;
           }
 
-          message.count = longToNumber(reader.int64());
+          message.count = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -75,7 +76,7 @@ export const MsgIncreaseCounter: MessageFns<MsgIncreaseCounter, "cosmos.counter.
   fromJSON(object: any): MsgIncreaseCounter {
     return {
       signer: isSet(object.signer) ? globalThis.String(object.signer) : "",
-      count: isSet(object.count) ? globalThis.Number(object.count) : 0,
+      count: isSet(object.count) ? Long.fromValue(object.count) : Long.ZERO,
     };
   },
 
@@ -84,8 +85,8 @@ export const MsgIncreaseCounter: MessageFns<MsgIncreaseCounter, "cosmos.counter.
     if (message.signer !== "") {
       obj.signer = message.signer;
     }
-    if (message.count !== 0) {
-      obj.count = Math.round(message.count);
+    if (!message.count.equals(Long.ZERO)) {
+      obj.count = (message.count || Long.ZERO).toString();
     }
     return obj;
   },
@@ -96,13 +97,13 @@ export const MsgIncreaseCounter: MessageFns<MsgIncreaseCounter, "cosmos.counter.
   fromPartial(object: DeepPartial<MsgIncreaseCounter>): MsgIncreaseCounter {
     const message = createBaseMsgIncreaseCounter();
     message.signer = object.signer ?? "";
-    message.count = object.count ?? 0;
+    message.count = (object.count !== undefined && object.count !== null) ? Long.fromValue(object.count) : Long.ZERO;
     return message;
   },
 };
 
 function createBaseMsgIncreaseCountResponse(): MsgIncreaseCountResponse {
-  return { newCount: 0 };
+  return { newCount: Long.ZERO };
 }
 
 export const MsgIncreaseCountResponse: MessageFns<
@@ -112,8 +113,8 @@ export const MsgIncreaseCountResponse: MessageFns<
   $type: "cosmos.counter.v1.MsgIncreaseCountResponse" as const,
 
   encode(message: MsgIncreaseCountResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.newCount !== 0) {
-      writer.uint32(8).int64(message.newCount);
+    if (!message.newCount.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.newCount.toString());
     }
     return writer;
   },
@@ -130,7 +131,7 @@ export const MsgIncreaseCountResponse: MessageFns<
             break;
           }
 
-          message.newCount = longToNumber(reader.int64());
+          message.newCount = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -143,13 +144,13 @@ export const MsgIncreaseCountResponse: MessageFns<
   },
 
   fromJSON(object: any): MsgIncreaseCountResponse {
-    return { newCount: isSet(object.newCount) ? globalThis.Number(object.newCount) : 0 };
+    return { newCount: isSet(object.newCount) ? Long.fromValue(object.newCount) : Long.ZERO };
   },
 
   toJSON(message: MsgIncreaseCountResponse): unknown {
     const obj: any = {};
-    if (message.newCount !== 0) {
-      obj.newCount = Math.round(message.newCount);
+    if (!message.newCount.equals(Long.ZERO)) {
+      obj.newCount = (message.newCount || Long.ZERO).toString();
     }
     return obj;
   },
@@ -159,7 +160,9 @@ export const MsgIncreaseCountResponse: MessageFns<
   },
   fromPartial(object: DeepPartial<MsgIncreaseCountResponse>): MsgIncreaseCountResponse {
     const message = createBaseMsgIncreaseCountResponse();
-    message.newCount = object.newCount ?? 0;
+    message.newCount = (object.newCount !== undefined && object.newCount !== null)
+      ? Long.fromValue(object.newCount)
+      : Long.ZERO;
     return message;
   },
 };
@@ -167,21 +170,10 @@ export const MsgIncreaseCountResponse: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

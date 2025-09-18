@@ -5,6 +5,7 @@
 // source: cosmos/staking/v1beta1/staking.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Duration } from "../../../google/protobuf/duration.ts";
@@ -186,7 +187,7 @@ export interface Validator {
     | Description
     | undefined;
   /** unbonding_height defines, if unbonding, the height at which this validator has begun unbonding. */
-  unbondingHeight: number;
+  unbondingHeight: Long;
   /** unbonding_time defines, if unbonding, the min time for the validator to complete unbonding. */
   unbondingTime:
     | Date
@@ -198,9 +199,9 @@ export interface Validator {
   /** min_self_delegation is the validator's self declared minimum self delegation. */
   minSelfDelegation: string;
   /** strictly positive if this validator's unbonding has been stopped by external modules */
-  unbondingOnHoldRefCount: number;
+  unbondingOnHoldRefCount: Long;
   /** list of unbonding ids, each uniquely identifing an unbonding of this validator */
-  unbondingIds: number[];
+  unbondingIds: Long[];
 }
 
 /** ValAddresses defines a repeated set of validator addresses. */
@@ -270,7 +271,7 @@ export interface UnbondingDelegation {
 /** UnbondingDelegationEntry defines an unbonding object with relevant metadata. */
 export interface UnbondingDelegationEntry {
   /** creation_height is the height which the unbonding took place. */
-  creationHeight: number;
+  creationHeight: Long;
   /** completion_time is the unix time for unbonding completion. */
   completionTime:
     | Date
@@ -280,15 +281,15 @@ export interface UnbondingDelegationEntry {
   /** balance defines the tokens to receive at completion. */
   balance: string;
   /** Incrementing id that uniquely identifies this entry */
-  unbondingId: number;
+  unbondingId: Long;
   /** Strictly positive if this entry's unbonding has been stopped by external modules */
-  unbondingOnHoldRefCount: number;
+  unbondingOnHoldRefCount: Long;
 }
 
 /** RedelegationEntry defines a redelegation object with relevant metadata. */
 export interface RedelegationEntry {
   /** creation_height  defines the height which the redelegation took place. */
-  creationHeight: number;
+  creationHeight: Long;
   /** completion_time defines the unix time for redelegation completion. */
   completionTime:
     | Date
@@ -298,9 +299,9 @@ export interface RedelegationEntry {
   /** shares_dst is the amount of destination-validator shares created by redelegation. */
   sharesDst: string;
   /** Incrementing id that uniquely identifies this entry */
-  unbondingId: number;
+  unbondingId: Long;
   /** Strictly positive if this entry's unbonding has been stopped by external modules */
-  unbondingOnHoldRefCount: number;
+  unbondingOnHoldRefCount: Long;
 }
 
 /**
@@ -771,11 +772,11 @@ function createBaseValidator(): Validator {
     tokens: "",
     delegatorShares: "",
     description: undefined,
-    unbondingHeight: 0,
+    unbondingHeight: Long.ZERO,
     unbondingTime: undefined,
     commission: undefined,
     minSelfDelegation: "",
-    unbondingOnHoldRefCount: 0,
+    unbondingOnHoldRefCount: Long.ZERO,
     unbondingIds: [],
   };
 }
@@ -805,8 +806,8 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
     if (message.description !== undefined) {
       Description.encode(message.description, writer.uint32(58).fork()).join();
     }
-    if (message.unbondingHeight !== 0) {
-      writer.uint32(64).int64(message.unbondingHeight);
+    if (!message.unbondingHeight.equals(Long.ZERO)) {
+      writer.uint32(64).int64(message.unbondingHeight.toString());
     }
     if (message.unbondingTime !== undefined) {
       Timestamp.encode(toTimestamp(message.unbondingTime), writer.uint32(74).fork()).join();
@@ -817,12 +818,12 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
     if (message.minSelfDelegation !== "") {
       writer.uint32(90).string(message.minSelfDelegation);
     }
-    if (message.unbondingOnHoldRefCount !== 0) {
-      writer.uint32(96).int64(message.unbondingOnHoldRefCount);
+    if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
+      writer.uint32(96).int64(message.unbondingOnHoldRefCount.toString());
     }
     writer.uint32(106).fork();
     for (const v of message.unbondingIds) {
-      writer.uint64(v);
+      writer.uint64(v.toString());
     }
     writer.join();
     return writer;
@@ -896,7 +897,7 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
             break;
           }
 
-          message.unbondingHeight = longToNumber(reader.int64());
+          message.unbondingHeight = Long.fromString(reader.int64().toString());
           continue;
         }
         case 9: {
@@ -928,12 +929,12 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
             break;
           }
 
-          message.unbondingOnHoldRefCount = longToNumber(reader.int64());
+          message.unbondingOnHoldRefCount = Long.fromString(reader.int64().toString());
           continue;
         }
         case 13: {
           if (tag === 104) {
-            message.unbondingIds.push(longToNumber(reader.uint64()));
+            message.unbondingIds.push(Long.fromString(reader.uint64().toString(), true));
 
             continue;
           }
@@ -941,7 +942,7 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
           if (tag === 106) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
-              message.unbondingIds.push(longToNumber(reader.uint64()));
+              message.unbondingIds.push(Long.fromString(reader.uint64().toString(), true));
             }
 
             continue;
@@ -967,15 +968,15 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
       tokens: isSet(object.tokens) ? globalThis.String(object.tokens) : "",
       delegatorShares: isSet(object.delegatorShares) ? globalThis.String(object.delegatorShares) : "",
       description: isSet(object.description) ? Description.fromJSON(object.description) : undefined,
-      unbondingHeight: isSet(object.unbondingHeight) ? globalThis.Number(object.unbondingHeight) : 0,
+      unbondingHeight: isSet(object.unbondingHeight) ? Long.fromValue(object.unbondingHeight) : Long.ZERO,
       unbondingTime: isSet(object.unbondingTime) ? fromJsonTimestamp(object.unbondingTime) : undefined,
       commission: isSet(object.commission) ? Commission.fromJSON(object.commission) : undefined,
       minSelfDelegation: isSet(object.minSelfDelegation) ? globalThis.String(object.minSelfDelegation) : "",
       unbondingOnHoldRefCount: isSet(object.unbondingOnHoldRefCount)
-        ? globalThis.Number(object.unbondingOnHoldRefCount)
-        : 0,
+        ? Long.fromValue(object.unbondingOnHoldRefCount)
+        : Long.ZERO,
       unbondingIds: globalThis.Array.isArray(object?.unbondingIds)
-        ? object.unbondingIds.map((e: any) => globalThis.Number(e))
+        ? object.unbondingIds.map((e: any) => Long.fromValue(e))
         : [],
     };
   },
@@ -1003,8 +1004,8 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
     if (message.description !== undefined) {
       obj.description = Description.toJSON(message.description);
     }
-    if (message.unbondingHeight !== 0) {
-      obj.unbondingHeight = Math.round(message.unbondingHeight);
+    if (!message.unbondingHeight.equals(Long.ZERO)) {
+      obj.unbondingHeight = (message.unbondingHeight || Long.ZERO).toString();
     }
     if (message.unbondingTime !== undefined) {
       obj.unbondingTime = message.unbondingTime.toISOString();
@@ -1015,11 +1016,11 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
     if (message.minSelfDelegation !== "") {
       obj.minSelfDelegation = message.minSelfDelegation;
     }
-    if (message.unbondingOnHoldRefCount !== 0) {
-      obj.unbondingOnHoldRefCount = Math.round(message.unbondingOnHoldRefCount);
+    if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
+      obj.unbondingOnHoldRefCount = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
     }
     if (message.unbondingIds?.length) {
-      obj.unbondingIds = message.unbondingIds.map((e) => Math.round(e));
+      obj.unbondingIds = message.unbondingIds.map((e) => (e || Long.UZERO).toString());
     }
     return obj;
   },
@@ -1040,14 +1041,19 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
     message.description = (object.description !== undefined && object.description !== null)
       ? Description.fromPartial(object.description)
       : undefined;
-    message.unbondingHeight = object.unbondingHeight ?? 0;
+    message.unbondingHeight = (object.unbondingHeight !== undefined && object.unbondingHeight !== null)
+      ? Long.fromValue(object.unbondingHeight)
+      : Long.ZERO;
     message.unbondingTime = object.unbondingTime ?? undefined;
     message.commission = (object.commission !== undefined && object.commission !== null)
       ? Commission.fromPartial(object.commission)
       : undefined;
     message.minSelfDelegation = object.minSelfDelegation ?? "";
-    message.unbondingOnHoldRefCount = object.unbondingOnHoldRefCount ?? 0;
-    message.unbondingIds = object.unbondingIds?.map((e) => e) || [];
+    message.unbondingOnHoldRefCount =
+      (object.unbondingOnHoldRefCount !== undefined && object.unbondingOnHoldRefCount !== null)
+        ? Long.fromValue(object.unbondingOnHoldRefCount)
+        : Long.ZERO;
+    message.unbondingIds = object.unbondingIds?.map((e) => Long.fromValue(e)) || [];
     return message;
   },
 };
@@ -1604,12 +1610,12 @@ export const UnbondingDelegation: MessageFns<UnbondingDelegation, "cosmos.stakin
 
 function createBaseUnbondingDelegationEntry(): UnbondingDelegationEntry {
   return {
-    creationHeight: 0,
+    creationHeight: Long.ZERO,
     completionTime: undefined,
     initialBalance: "",
     balance: "",
-    unbondingId: 0,
-    unbondingOnHoldRefCount: 0,
+    unbondingId: Long.UZERO,
+    unbondingOnHoldRefCount: Long.ZERO,
   };
 }
 
@@ -1620,8 +1626,8 @@ export const UnbondingDelegationEntry: MessageFns<
   $type: "cosmos.staking.v1beta1.UnbondingDelegationEntry" as const,
 
   encode(message: UnbondingDelegationEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.creationHeight !== 0) {
-      writer.uint32(8).int64(message.creationHeight);
+    if (!message.creationHeight.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.creationHeight.toString());
     }
     if (message.completionTime !== undefined) {
       Timestamp.encode(toTimestamp(message.completionTime), writer.uint32(18).fork()).join();
@@ -1632,11 +1638,11 @@ export const UnbondingDelegationEntry: MessageFns<
     if (message.balance !== "") {
       writer.uint32(34).string(message.balance);
     }
-    if (message.unbondingId !== 0) {
-      writer.uint32(40).uint64(message.unbondingId);
+    if (!message.unbondingId.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.unbondingId.toString());
     }
-    if (message.unbondingOnHoldRefCount !== 0) {
-      writer.uint32(48).int64(message.unbondingOnHoldRefCount);
+    if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
+      writer.uint32(48).int64(message.unbondingOnHoldRefCount.toString());
     }
     return writer;
   },
@@ -1653,7 +1659,7 @@ export const UnbondingDelegationEntry: MessageFns<
             break;
           }
 
-          message.creationHeight = longToNumber(reader.int64());
+          message.creationHeight = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -1685,7 +1691,7 @@ export const UnbondingDelegationEntry: MessageFns<
             break;
           }
 
-          message.unbondingId = longToNumber(reader.uint64());
+          message.unbondingId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 6: {
@@ -1693,7 +1699,7 @@ export const UnbondingDelegationEntry: MessageFns<
             break;
           }
 
-          message.unbondingOnHoldRefCount = longToNumber(reader.int64());
+          message.unbondingOnHoldRefCount = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -1707,21 +1713,21 @@ export const UnbondingDelegationEntry: MessageFns<
 
   fromJSON(object: any): UnbondingDelegationEntry {
     return {
-      creationHeight: isSet(object.creationHeight) ? globalThis.Number(object.creationHeight) : 0,
+      creationHeight: isSet(object.creationHeight) ? Long.fromValue(object.creationHeight) : Long.ZERO,
       completionTime: isSet(object.completionTime) ? fromJsonTimestamp(object.completionTime) : undefined,
       initialBalance: isSet(object.initialBalance) ? globalThis.String(object.initialBalance) : "",
       balance: isSet(object.balance) ? globalThis.String(object.balance) : "",
-      unbondingId: isSet(object.unbondingId) ? globalThis.Number(object.unbondingId) : 0,
+      unbondingId: isSet(object.unbondingId) ? Long.fromValue(object.unbondingId) : Long.UZERO,
       unbondingOnHoldRefCount: isSet(object.unbondingOnHoldRefCount)
-        ? globalThis.Number(object.unbondingOnHoldRefCount)
-        : 0,
+        ? Long.fromValue(object.unbondingOnHoldRefCount)
+        : Long.ZERO,
     };
   },
 
   toJSON(message: UnbondingDelegationEntry): unknown {
     const obj: any = {};
-    if (message.creationHeight !== 0) {
-      obj.creationHeight = Math.round(message.creationHeight);
+    if (!message.creationHeight.equals(Long.ZERO)) {
+      obj.creationHeight = (message.creationHeight || Long.ZERO).toString();
     }
     if (message.completionTime !== undefined) {
       obj.completionTime = message.completionTime.toISOString();
@@ -1732,11 +1738,11 @@ export const UnbondingDelegationEntry: MessageFns<
     if (message.balance !== "") {
       obj.balance = message.balance;
     }
-    if (message.unbondingId !== 0) {
-      obj.unbondingId = Math.round(message.unbondingId);
+    if (!message.unbondingId.equals(Long.UZERO)) {
+      obj.unbondingId = (message.unbondingId || Long.UZERO).toString();
     }
-    if (message.unbondingOnHoldRefCount !== 0) {
-      obj.unbondingOnHoldRefCount = Math.round(message.unbondingOnHoldRefCount);
+    if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
+      obj.unbondingOnHoldRefCount = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
     }
     return obj;
   },
@@ -1746,24 +1752,31 @@ export const UnbondingDelegationEntry: MessageFns<
   },
   fromPartial(object: DeepPartial<UnbondingDelegationEntry>): UnbondingDelegationEntry {
     const message = createBaseUnbondingDelegationEntry();
-    message.creationHeight = object.creationHeight ?? 0;
+    message.creationHeight = (object.creationHeight !== undefined && object.creationHeight !== null)
+      ? Long.fromValue(object.creationHeight)
+      : Long.ZERO;
     message.completionTime = object.completionTime ?? undefined;
     message.initialBalance = object.initialBalance ?? "";
     message.balance = object.balance ?? "";
-    message.unbondingId = object.unbondingId ?? 0;
-    message.unbondingOnHoldRefCount = object.unbondingOnHoldRefCount ?? 0;
+    message.unbondingId = (object.unbondingId !== undefined && object.unbondingId !== null)
+      ? Long.fromValue(object.unbondingId)
+      : Long.UZERO;
+    message.unbondingOnHoldRefCount =
+      (object.unbondingOnHoldRefCount !== undefined && object.unbondingOnHoldRefCount !== null)
+        ? Long.fromValue(object.unbondingOnHoldRefCount)
+        : Long.ZERO;
     return message;
   },
 };
 
 function createBaseRedelegationEntry(): RedelegationEntry {
   return {
-    creationHeight: 0,
+    creationHeight: Long.ZERO,
     completionTime: undefined,
     initialBalance: "",
     sharesDst: "",
-    unbondingId: 0,
-    unbondingOnHoldRefCount: 0,
+    unbondingId: Long.UZERO,
+    unbondingOnHoldRefCount: Long.ZERO,
   };
 }
 
@@ -1771,8 +1784,8 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
   $type: "cosmos.staking.v1beta1.RedelegationEntry" as const,
 
   encode(message: RedelegationEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.creationHeight !== 0) {
-      writer.uint32(8).int64(message.creationHeight);
+    if (!message.creationHeight.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.creationHeight.toString());
     }
     if (message.completionTime !== undefined) {
       Timestamp.encode(toTimestamp(message.completionTime), writer.uint32(18).fork()).join();
@@ -1783,11 +1796,11 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
     if (message.sharesDst !== "") {
       writer.uint32(34).string(message.sharesDst);
     }
-    if (message.unbondingId !== 0) {
-      writer.uint32(40).uint64(message.unbondingId);
+    if (!message.unbondingId.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.unbondingId.toString());
     }
-    if (message.unbondingOnHoldRefCount !== 0) {
-      writer.uint32(48).int64(message.unbondingOnHoldRefCount);
+    if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
+      writer.uint32(48).int64(message.unbondingOnHoldRefCount.toString());
     }
     return writer;
   },
@@ -1804,7 +1817,7 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
             break;
           }
 
-          message.creationHeight = longToNumber(reader.int64());
+          message.creationHeight = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -1836,7 +1849,7 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
             break;
           }
 
-          message.unbondingId = longToNumber(reader.uint64());
+          message.unbondingId = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 6: {
@@ -1844,7 +1857,7 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
             break;
           }
 
-          message.unbondingOnHoldRefCount = longToNumber(reader.int64());
+          message.unbondingOnHoldRefCount = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -1858,21 +1871,21 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
 
   fromJSON(object: any): RedelegationEntry {
     return {
-      creationHeight: isSet(object.creationHeight) ? globalThis.Number(object.creationHeight) : 0,
+      creationHeight: isSet(object.creationHeight) ? Long.fromValue(object.creationHeight) : Long.ZERO,
       completionTime: isSet(object.completionTime) ? fromJsonTimestamp(object.completionTime) : undefined,
       initialBalance: isSet(object.initialBalance) ? globalThis.String(object.initialBalance) : "",
       sharesDst: isSet(object.sharesDst) ? globalThis.String(object.sharesDst) : "",
-      unbondingId: isSet(object.unbondingId) ? globalThis.Number(object.unbondingId) : 0,
+      unbondingId: isSet(object.unbondingId) ? Long.fromValue(object.unbondingId) : Long.UZERO,
       unbondingOnHoldRefCount: isSet(object.unbondingOnHoldRefCount)
-        ? globalThis.Number(object.unbondingOnHoldRefCount)
-        : 0,
+        ? Long.fromValue(object.unbondingOnHoldRefCount)
+        : Long.ZERO,
     };
   },
 
   toJSON(message: RedelegationEntry): unknown {
     const obj: any = {};
-    if (message.creationHeight !== 0) {
-      obj.creationHeight = Math.round(message.creationHeight);
+    if (!message.creationHeight.equals(Long.ZERO)) {
+      obj.creationHeight = (message.creationHeight || Long.ZERO).toString();
     }
     if (message.completionTime !== undefined) {
       obj.completionTime = message.completionTime.toISOString();
@@ -1883,11 +1896,11 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
     if (message.sharesDst !== "") {
       obj.sharesDst = message.sharesDst;
     }
-    if (message.unbondingId !== 0) {
-      obj.unbondingId = Math.round(message.unbondingId);
+    if (!message.unbondingId.equals(Long.UZERO)) {
+      obj.unbondingId = (message.unbondingId || Long.UZERO).toString();
     }
-    if (message.unbondingOnHoldRefCount !== 0) {
-      obj.unbondingOnHoldRefCount = Math.round(message.unbondingOnHoldRefCount);
+    if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
+      obj.unbondingOnHoldRefCount = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
     }
     return obj;
   },
@@ -1897,12 +1910,19 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
   },
   fromPartial(object: DeepPartial<RedelegationEntry>): RedelegationEntry {
     const message = createBaseRedelegationEntry();
-    message.creationHeight = object.creationHeight ?? 0;
+    message.creationHeight = (object.creationHeight !== undefined && object.creationHeight !== null)
+      ? Long.fromValue(object.creationHeight)
+      : Long.ZERO;
     message.completionTime = object.completionTime ?? undefined;
     message.initialBalance = object.initialBalance ?? "";
     message.sharesDst = object.sharesDst ?? "";
-    message.unbondingId = object.unbondingId ?? 0;
-    message.unbondingOnHoldRefCount = object.unbondingOnHoldRefCount ?? 0;
+    message.unbondingId = (object.unbondingId !== undefined && object.unbondingId !== null)
+      ? Long.fromValue(object.unbondingId)
+      : Long.UZERO;
+    message.unbondingOnHoldRefCount =
+      (object.unbondingOnHoldRefCount !== undefined && object.unbondingOnHoldRefCount !== null)
+        ? Long.fromValue(object.unbondingOnHoldRefCount)
+        : Long.ZERO;
     return message;
   },
 };
@@ -2564,19 +2584,19 @@ export const ValidatorUpdates: MessageFns<ValidatorUpdates, "cosmos.staking.v1be
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -2591,15 +2611,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

@@ -5,13 +5,14 @@
 // source: tendermint/crypto/proof.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "tendermint.crypto";
 
 export interface Proof {
-  total: number;
-  index: number;
+  total: Long;
+  index: Long;
   leafHash: Uint8Array;
   aunts: Uint8Array[];
 }
@@ -46,18 +47,18 @@ export interface ProofOps {
 }
 
 function createBaseProof(): Proof {
-  return { total: 0, index: 0, leafHash: new Uint8Array(0), aunts: [] };
+  return { total: Long.ZERO, index: Long.ZERO, leafHash: new Uint8Array(0), aunts: [] };
 }
 
 export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
   $type: "tendermint.crypto.Proof" as const,
 
   encode(message: Proof, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.total !== 0) {
-      writer.uint32(8).int64(message.total);
+    if (!message.total.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.total.toString());
     }
-    if (message.index !== 0) {
-      writer.uint32(16).int64(message.index);
+    if (!message.index.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.index.toString());
     }
     if (message.leafHash.length !== 0) {
       writer.uint32(26).bytes(message.leafHash);
@@ -80,7 +81,7 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
             break;
           }
 
-          message.total = longToNumber(reader.int64());
+          message.total = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -88,7 +89,7 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
             break;
           }
 
-          message.index = longToNumber(reader.int64());
+          message.index = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -118,8 +119,8 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
 
   fromJSON(object: any): Proof {
     return {
-      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
-      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      total: isSet(object.total) ? Long.fromValue(object.total) : Long.ZERO,
+      index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
       leafHash: isSet(object.leafHash) ? bytesFromBase64(object.leafHash) : new Uint8Array(0),
       aunts: globalThis.Array.isArray(object?.aunts) ? object.aunts.map((e: any) => bytesFromBase64(e)) : [],
     };
@@ -127,11 +128,11 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
 
   toJSON(message: Proof): unknown {
     const obj: any = {};
-    if (message.total !== 0) {
-      obj.total = Math.round(message.total);
+    if (!message.total.equals(Long.ZERO)) {
+      obj.total = (message.total || Long.ZERO).toString();
     }
-    if (message.index !== 0) {
-      obj.index = Math.round(message.index);
+    if (!message.index.equals(Long.ZERO)) {
+      obj.index = (message.index || Long.ZERO).toString();
     }
     if (message.leafHash.length !== 0) {
       obj.leafHash = base64FromBytes(message.leafHash);
@@ -147,8 +148,8 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
   },
   fromPartial(object: DeepPartial<Proof>): Proof {
     const message = createBaseProof();
-    message.total = object.total ?? 0;
-    message.index = object.index ?? 0;
+    message.total = (object.total !== undefined && object.total !== null) ? Long.fromValue(object.total) : Long.ZERO;
+    message.index = (object.index !== undefined && object.index !== null) ? Long.fromValue(object.index) : Long.ZERO;
     message.leafHash = object.leafHash ?? new Uint8Array(0);
     message.aunts = object.aunts?.map((e) => e) || [];
     return message;
@@ -509,21 +510,10 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

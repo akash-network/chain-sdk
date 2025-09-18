@@ -5,6 +5,7 @@
 // source: cosmos/store/v1beta1/commit_info.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
@@ -15,7 +16,7 @@ export const protobufPackage = "cosmos.store.v1beta1";
  * a version/height.
  */
 export interface CommitInfo {
-  version: number;
+  version: Long;
   storeInfos: StoreInfo[];
   timestamp: Date | undefined;
 }
@@ -34,20 +35,20 @@ export interface StoreInfo {
  * committed.
  */
 export interface CommitID {
-  version: number;
+  version: Long;
   hash: Uint8Array;
 }
 
 function createBaseCommitInfo(): CommitInfo {
-  return { version: 0, storeInfos: [], timestamp: undefined };
+  return { version: Long.ZERO, storeInfos: [], timestamp: undefined };
 }
 
 export const CommitInfo: MessageFns<CommitInfo, "cosmos.store.v1beta1.CommitInfo"> = {
   $type: "cosmos.store.v1beta1.CommitInfo" as const,
 
   encode(message: CommitInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.version !== 0) {
-      writer.uint32(8).int64(message.version);
+    if (!message.version.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.version.toString());
     }
     for (const v of message.storeInfos) {
       StoreInfo.encode(v!, writer.uint32(18).fork()).join();
@@ -70,7 +71,7 @@ export const CommitInfo: MessageFns<CommitInfo, "cosmos.store.v1beta1.CommitInfo
             break;
           }
 
-          message.version = longToNumber(reader.int64());
+          message.version = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -100,7 +101,7 @@ export const CommitInfo: MessageFns<CommitInfo, "cosmos.store.v1beta1.CommitInfo
 
   fromJSON(object: any): CommitInfo {
     return {
-      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      version: isSet(object.version) ? Long.fromValue(object.version) : Long.ZERO,
       storeInfos: globalThis.Array.isArray(object?.storeInfos)
         ? object.storeInfos.map((e: any) => StoreInfo.fromJSON(e))
         : [],
@@ -110,8 +111,8 @@ export const CommitInfo: MessageFns<CommitInfo, "cosmos.store.v1beta1.CommitInfo
 
   toJSON(message: CommitInfo): unknown {
     const obj: any = {};
-    if (message.version !== 0) {
-      obj.version = Math.round(message.version);
+    if (!message.version.equals(Long.ZERO)) {
+      obj.version = (message.version || Long.ZERO).toString();
     }
     if (message.storeInfos?.length) {
       obj.storeInfos = message.storeInfos.map((e) => StoreInfo.toJSON(e));
@@ -127,7 +128,9 @@ export const CommitInfo: MessageFns<CommitInfo, "cosmos.store.v1beta1.CommitInfo
   },
   fromPartial(object: DeepPartial<CommitInfo>): CommitInfo {
     const message = createBaseCommitInfo();
-    message.version = object.version ?? 0;
+    message.version = (object.version !== undefined && object.version !== null)
+      ? Long.fromValue(object.version)
+      : Long.ZERO;
     message.storeInfos = object.storeInfos?.map((e) => StoreInfo.fromPartial(e)) || [];
     message.timestamp = object.timestamp ?? undefined;
     return message;
@@ -215,15 +218,15 @@ export const StoreInfo: MessageFns<StoreInfo, "cosmos.store.v1beta1.StoreInfo"> 
 };
 
 function createBaseCommitID(): CommitID {
-  return { version: 0, hash: new Uint8Array(0) };
+  return { version: Long.ZERO, hash: new Uint8Array(0) };
 }
 
 export const CommitID: MessageFns<CommitID, "cosmos.store.v1beta1.CommitID"> = {
   $type: "cosmos.store.v1beta1.CommitID" as const,
 
   encode(message: CommitID, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.version !== 0) {
-      writer.uint32(8).int64(message.version);
+    if (!message.version.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.version.toString());
     }
     if (message.hash.length !== 0) {
       writer.uint32(18).bytes(message.hash);
@@ -243,7 +246,7 @@ export const CommitID: MessageFns<CommitID, "cosmos.store.v1beta1.CommitID"> = {
             break;
           }
 
-          message.version = longToNumber(reader.int64());
+          message.version = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -265,15 +268,15 @@ export const CommitID: MessageFns<CommitID, "cosmos.store.v1beta1.CommitID"> = {
 
   fromJSON(object: any): CommitID {
     return {
-      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      version: isSet(object.version) ? Long.fromValue(object.version) : Long.ZERO,
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
     };
   },
 
   toJSON(message: CommitID): unknown {
     const obj: any = {};
-    if (message.version !== 0) {
-      obj.version = Math.round(message.version);
+    if (!message.version.equals(Long.ZERO)) {
+      obj.version = (message.version || Long.ZERO).toString();
     }
     if (message.hash.length !== 0) {
       obj.hash = base64FromBytes(message.hash);
@@ -286,7 +289,9 @@ export const CommitID: MessageFns<CommitID, "cosmos.store.v1beta1.CommitID"> = {
   },
   fromPartial(object: DeepPartial<CommitID>): CommitID {
     const message = createBaseCommitID();
-    message.version = object.version ?? 0;
+    message.version = (object.version !== undefined && object.version !== null)
+      ? Long.fromValue(object.version)
+      : Long.ZERO;
     message.hash = object.hash ?? new Uint8Array(0);
     return message;
   },
@@ -320,19 +325,19 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -347,15 +352,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

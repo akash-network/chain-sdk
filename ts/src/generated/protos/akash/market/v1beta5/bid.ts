@@ -5,6 +5,7 @@
 // source: akash/market/v1beta5/bid.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { BidID } from "../v1/bid.ts";
@@ -28,7 +29,7 @@ export interface Bid {
     | DecCoin
     | undefined;
   /** CreatedAt is the block height at which the Bid was created. */
-  createdAt: number;
+  createdAt: Long;
   /** ResourceOffer is a list of offers. */
   resourcesOffer: ResourceOffer[];
 }
@@ -91,7 +92,7 @@ export function bid_StateToJSON(object: Bid_State): string {
 }
 
 function createBaseBid(): Bid {
-  return { id: undefined, state: 0, price: undefined, createdAt: 0, resourcesOffer: [] };
+  return { id: undefined, state: 0, price: undefined, createdAt: Long.ZERO, resourcesOffer: [] };
 }
 
 export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
@@ -107,8 +108,8 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     if (message.price !== undefined) {
       DecCoin.encode(message.price, writer.uint32(26).fork()).join();
     }
-    if (message.createdAt !== 0) {
-      writer.uint32(32).int64(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      writer.uint32(32).int64(message.createdAt.toString());
     }
     for (const v of message.resourcesOffer) {
       ResourceOffer.encode(v!, writer.uint32(42).fork()).join();
@@ -152,7 +153,7 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
             break;
           }
 
-          message.createdAt = longToNumber(reader.int64());
+          message.createdAt = Long.fromString(reader.int64().toString());
           continue;
         }
         case 5: {
@@ -177,7 +178,7 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
       id: isSet(object.id) ? BidID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? bid_StateFromJSON(object.state) : 0,
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
-      createdAt: isSet(object.createdAt) ? globalThis.Number(object.createdAt) : 0,
+      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
       resourcesOffer: globalThis.Array.isArray(object?.resourcesOffer)
         ? object.resourcesOffer.map((e: any) => ResourceOffer.fromJSON(e))
         : [],
@@ -195,8 +196,8 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     if (message.price !== undefined) {
       obj.price = DecCoin.toJSON(message.price);
     }
-    if (message.createdAt !== 0) {
-      obj.createdAt = Math.round(message.createdAt);
+    if (!message.createdAt.equals(Long.ZERO)) {
+      obj.createdAt = (message.createdAt || Long.ZERO).toString();
     }
     if (message.resourcesOffer?.length) {
       obj.resourcesOffer = message.resourcesOffer.map((e) => ResourceOffer.toJSON(e));
@@ -214,7 +215,9 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     message.price = (object.price !== undefined && object.price !== null)
       ? DecCoin.fromPartial(object.price)
       : undefined;
-    message.createdAt = object.createdAt ?? 0;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
+      ? Long.fromValue(object.createdAt)
+      : Long.ZERO;
     message.resourcesOffer = object.resourcesOffer?.map((e) => ResourceOffer.fromPartial(e)) || [];
     return message;
   },
@@ -223,21 +226,10 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

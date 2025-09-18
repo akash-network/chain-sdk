@@ -5,6 +5,7 @@
 // source: cosmos/base/node/v1beta1/query.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp.ts";
 
@@ -19,7 +20,7 @@ export interface ConfigResponse {
   minimumGasPrice: string;
   pruningKeepRecent: string;
   pruningInterval: string;
-  haltHeight: number;
+  haltHeight: Long;
 }
 
 /** StateRequest defines the request structure for the status of a node. */
@@ -29,9 +30,9 @@ export interface StatusRequest {
 /** StateResponse defines the response structure for the status of a node. */
 export interface StatusResponse {
   /** earliest block height available in the store */
-  earliestStoreHeight: number;
+  earliestStoreHeight: Long;
   /** current block height */
-  height: number;
+  height: Long;
   /** block height timestamp */
   timestamp:
     | Date
@@ -88,7 +89,7 @@ export const ConfigRequest: MessageFns<ConfigRequest, "cosmos.base.node.v1beta1.
 };
 
 function createBaseConfigResponse(): ConfigResponse {
-  return { minimumGasPrice: "", pruningKeepRecent: "", pruningInterval: "", haltHeight: 0 };
+  return { minimumGasPrice: "", pruningKeepRecent: "", pruningInterval: "", haltHeight: Long.UZERO };
 }
 
 export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta1.ConfigResponse"> = {
@@ -104,8 +105,8 @@ export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta
     if (message.pruningInterval !== "") {
       writer.uint32(26).string(message.pruningInterval);
     }
-    if (message.haltHeight !== 0) {
-      writer.uint32(32).uint64(message.haltHeight);
+    if (!message.haltHeight.equals(Long.UZERO)) {
+      writer.uint32(32).uint64(message.haltHeight.toString());
     }
     return writer;
   },
@@ -146,7 +147,7 @@ export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta
             break;
           }
 
-          message.haltHeight = longToNumber(reader.uint64());
+          message.haltHeight = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
       }
@@ -163,7 +164,7 @@ export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta
       minimumGasPrice: isSet(object.minimumGasPrice) ? globalThis.String(object.minimumGasPrice) : "",
       pruningKeepRecent: isSet(object.pruningKeepRecent) ? globalThis.String(object.pruningKeepRecent) : "",
       pruningInterval: isSet(object.pruningInterval) ? globalThis.String(object.pruningInterval) : "",
-      haltHeight: isSet(object.haltHeight) ? globalThis.Number(object.haltHeight) : 0,
+      haltHeight: isSet(object.haltHeight) ? Long.fromValue(object.haltHeight) : Long.UZERO,
     };
   },
 
@@ -178,8 +179,8 @@ export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta
     if (message.pruningInterval !== "") {
       obj.pruningInterval = message.pruningInterval;
     }
-    if (message.haltHeight !== 0) {
-      obj.haltHeight = Math.round(message.haltHeight);
+    if (!message.haltHeight.equals(Long.UZERO)) {
+      obj.haltHeight = (message.haltHeight || Long.UZERO).toString();
     }
     return obj;
   },
@@ -192,7 +193,9 @@ export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta
     message.minimumGasPrice = object.minimumGasPrice ?? "";
     message.pruningKeepRecent = object.pruningKeepRecent ?? "";
     message.pruningInterval = object.pruningInterval ?? "";
-    message.haltHeight = object.haltHeight ?? 0;
+    message.haltHeight = (object.haltHeight !== undefined && object.haltHeight !== null)
+      ? Long.fromValue(object.haltHeight)
+      : Long.UZERO;
     return message;
   },
 };
@@ -244,8 +247,8 @@ export const StatusRequest: MessageFns<StatusRequest, "cosmos.base.node.v1beta1.
 
 function createBaseStatusResponse(): StatusResponse {
   return {
-    earliestStoreHeight: 0,
-    height: 0,
+    earliestStoreHeight: Long.UZERO,
+    height: Long.UZERO,
     timestamp: undefined,
     appHash: new Uint8Array(0),
     validatorHash: new Uint8Array(0),
@@ -256,11 +259,11 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
   $type: "cosmos.base.node.v1beta1.StatusResponse" as const,
 
   encode(message: StatusResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.earliestStoreHeight !== 0) {
-      writer.uint32(8).uint64(message.earliestStoreHeight);
+    if (!message.earliestStoreHeight.equals(Long.UZERO)) {
+      writer.uint32(8).uint64(message.earliestStoreHeight.toString());
     }
-    if (message.height !== 0) {
-      writer.uint32(16).uint64(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.height.toString());
     }
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(26).fork()).join();
@@ -286,7 +289,7 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
             break;
           }
 
-          message.earliestStoreHeight = longToNumber(reader.uint64());
+          message.earliestStoreHeight = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 2: {
@@ -294,7 +297,7 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
             break;
           }
 
-          message.height = longToNumber(reader.uint64());
+          message.height = Long.fromString(reader.uint64().toString(), true);
           continue;
         }
         case 3: {
@@ -332,8 +335,8 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
 
   fromJSON(object: any): StatusResponse {
     return {
-      earliestStoreHeight: isSet(object.earliestStoreHeight) ? globalThis.Number(object.earliestStoreHeight) : 0,
-      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      earliestStoreHeight: isSet(object.earliestStoreHeight) ? Long.fromValue(object.earliestStoreHeight) : Long.UZERO,
+      height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       appHash: isSet(object.appHash) ? bytesFromBase64(object.appHash) : new Uint8Array(0),
       validatorHash: isSet(object.validatorHash) ? bytesFromBase64(object.validatorHash) : new Uint8Array(0),
@@ -342,11 +345,11 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
 
   toJSON(message: StatusResponse): unknown {
     const obj: any = {};
-    if (message.earliestStoreHeight !== 0) {
-      obj.earliestStoreHeight = Math.round(message.earliestStoreHeight);
+    if (!message.earliestStoreHeight.equals(Long.UZERO)) {
+      obj.earliestStoreHeight = (message.earliestStoreHeight || Long.UZERO).toString();
     }
-    if (message.height !== 0) {
-      obj.height = Math.round(message.height);
+    if (!message.height.equals(Long.UZERO)) {
+      obj.height = (message.height || Long.UZERO).toString();
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
@@ -365,8 +368,12 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
   },
   fromPartial(object: DeepPartial<StatusResponse>): StatusResponse {
     const message = createBaseStatusResponse();
-    message.earliestStoreHeight = object.earliestStoreHeight ?? 0;
-    message.height = object.height ?? 0;
+    message.earliestStoreHeight = (object.earliestStoreHeight !== undefined && object.earliestStoreHeight !== null)
+      ? Long.fromValue(object.earliestStoreHeight)
+      : Long.UZERO;
+    message.height = (object.height !== undefined && object.height !== null)
+      ? Long.fromValue(object.height)
+      : Long.UZERO;
     message.timestamp = object.timestamp ?? undefined;
     message.appHash = object.appHash ?? new Uint8Array(0);
     message.validatorHash = object.validatorHash ?? new Uint8Array(0);
@@ -402,19 +409,19 @@ function base64FromBytes(arr: Uint8Array): string {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
+  const seconds = numberToLong(Math.trunc(date.getTime() / 1_000));
   const nanos = (date.getTime() % 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
 function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
+  let millis = (t.seconds.toNumber() || 0) * 1_000;
   millis += (t.nanos || 0) / 1_000_000;
   return new globalThis.Date(millis);
 }
@@ -429,15 +436,8 @@ function fromJsonTimestamp(o: any): Date {
   }
 }
 
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
+function numberToLong(number: number) {
+  return Long.fromNumber(number);
 }
 
 function isSet(value: any): boolean {

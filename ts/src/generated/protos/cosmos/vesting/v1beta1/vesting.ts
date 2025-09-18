@@ -5,6 +5,7 @@
 // source: cosmos/vesting/v1beta1/vesting.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { BaseAccount } from "../../auth/v1beta1/auth.ts";
 import { Coin } from "../../base/v1beta1/coin.ts";
@@ -21,7 +22,7 @@ export interface BaseVestingAccount {
   delegatedFree: Coin[];
   delegatedVesting: Coin[];
   /** Vesting end time, as unix timestamp (in seconds). */
-  endTime: number;
+  endTime: Long;
 }
 
 /**
@@ -33,7 +34,7 @@ export interface ContinuousVestingAccount {
     | BaseVestingAccount
     | undefined;
   /** Vesting start time, as unix timestamp (in seconds). */
-  startTime: number;
+  startTime: Long;
 }
 
 /**
@@ -48,7 +49,7 @@ export interface DelayedVestingAccount {
 /** Period defines a length of time and amount of coins that will vest. */
 export interface Period {
   /** Period duration in seconds. */
-  length: number;
+  length: Long;
   amount: Coin[];
 }
 
@@ -58,7 +59,7 @@ export interface Period {
  */
 export interface PeriodicVestingAccount {
   baseVestingAccount: BaseVestingAccount | undefined;
-  startTime: number;
+  startTime: Long;
   vestingPeriods: Period[];
 }
 
@@ -72,7 +73,7 @@ export interface PermanentLockedAccount {
 }
 
 function createBaseBaseVestingAccount(): BaseVestingAccount {
-  return { baseAccount: undefined, originalVesting: [], delegatedFree: [], delegatedVesting: [], endTime: 0 };
+  return { baseAccount: undefined, originalVesting: [], delegatedFree: [], delegatedVesting: [], endTime: Long.ZERO };
 }
 
 export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.v1beta1.BaseVestingAccount"> = {
@@ -91,8 +92,8 @@ export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.
     for (const v of message.delegatedVesting) {
       Coin.encode(v!, writer.uint32(34).fork()).join();
     }
-    if (message.endTime !== 0) {
-      writer.uint32(40).int64(message.endTime);
+    if (!message.endTime.equals(Long.ZERO)) {
+      writer.uint32(40).int64(message.endTime.toString());
     }
     return writer;
   },
@@ -141,7 +142,7 @@ export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.
             break;
           }
 
-          message.endTime = longToNumber(reader.int64());
+          message.endTime = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -165,7 +166,7 @@ export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.
       delegatedVesting: globalThis.Array.isArray(object?.delegatedVesting)
         ? object.delegatedVesting.map((e: any) => Coin.fromJSON(e))
         : [],
-      endTime: isSet(object.endTime) ? globalThis.Number(object.endTime) : 0,
+      endTime: isSet(object.endTime) ? Long.fromValue(object.endTime) : Long.ZERO,
     };
   },
 
@@ -183,8 +184,8 @@ export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.
     if (message.delegatedVesting?.length) {
       obj.delegatedVesting = message.delegatedVesting.map((e) => Coin.toJSON(e));
     }
-    if (message.endTime !== 0) {
-      obj.endTime = Math.round(message.endTime);
+    if (!message.endTime.equals(Long.ZERO)) {
+      obj.endTime = (message.endTime || Long.ZERO).toString();
     }
     return obj;
   },
@@ -200,13 +201,15 @@ export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.
     message.originalVesting = object.originalVesting?.map((e) => Coin.fromPartial(e)) || [];
     message.delegatedFree = object.delegatedFree?.map((e) => Coin.fromPartial(e)) || [];
     message.delegatedVesting = object.delegatedVesting?.map((e) => Coin.fromPartial(e)) || [];
-    message.endTime = object.endTime ?? 0;
+    message.endTime = (object.endTime !== undefined && object.endTime !== null)
+      ? Long.fromValue(object.endTime)
+      : Long.ZERO;
     return message;
   },
 };
 
 function createBaseContinuousVestingAccount(): ContinuousVestingAccount {
-  return { baseVestingAccount: undefined, startTime: 0 };
+  return { baseVestingAccount: undefined, startTime: Long.ZERO };
 }
 
 export const ContinuousVestingAccount: MessageFns<
@@ -219,8 +222,8 @@ export const ContinuousVestingAccount: MessageFns<
     if (message.baseVestingAccount !== undefined) {
       BaseVestingAccount.encode(message.baseVestingAccount, writer.uint32(10).fork()).join();
     }
-    if (message.startTime !== 0) {
-      writer.uint32(16).int64(message.startTime);
+    if (!message.startTime.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.startTime.toString());
     }
     return writer;
   },
@@ -245,7 +248,7 @@ export const ContinuousVestingAccount: MessageFns<
             break;
           }
 
-          message.startTime = longToNumber(reader.int64());
+          message.startTime = Long.fromString(reader.int64().toString());
           continue;
         }
       }
@@ -262,7 +265,7 @@ export const ContinuousVestingAccount: MessageFns<
       baseVestingAccount: isSet(object.baseVestingAccount)
         ? BaseVestingAccount.fromJSON(object.baseVestingAccount)
         : undefined,
-      startTime: isSet(object.startTime) ? globalThis.Number(object.startTime) : 0,
+      startTime: isSet(object.startTime) ? Long.fromValue(object.startTime) : Long.ZERO,
     };
   },
 
@@ -271,8 +274,8 @@ export const ContinuousVestingAccount: MessageFns<
     if (message.baseVestingAccount !== undefined) {
       obj.baseVestingAccount = BaseVestingAccount.toJSON(message.baseVestingAccount);
     }
-    if (message.startTime !== 0) {
-      obj.startTime = Math.round(message.startTime);
+    if (!message.startTime.equals(Long.ZERO)) {
+      obj.startTime = (message.startTime || Long.ZERO).toString();
     }
     return obj;
   },
@@ -285,7 +288,9 @@ export const ContinuousVestingAccount: MessageFns<
     message.baseVestingAccount = (object.baseVestingAccount !== undefined && object.baseVestingAccount !== null)
       ? BaseVestingAccount.fromPartial(object.baseVestingAccount)
       : undefined;
-    message.startTime = object.startTime ?? 0;
+    message.startTime = (object.startTime !== undefined && object.startTime !== null)
+      ? Long.fromValue(object.startTime)
+      : Long.ZERO;
     return message;
   },
 };
@@ -358,15 +363,15 @@ export const DelayedVestingAccount: MessageFns<DelayedVestingAccount, "cosmos.ve
   };
 
 function createBasePeriod(): Period {
-  return { length: 0, amount: [] };
+  return { length: Long.ZERO, amount: [] };
 }
 
 export const Period: MessageFns<Period, "cosmos.vesting.v1beta1.Period"> = {
   $type: "cosmos.vesting.v1beta1.Period" as const,
 
   encode(message: Period, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.length !== 0) {
-      writer.uint32(8).int64(message.length);
+    if (!message.length.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.length.toString());
     }
     for (const v of message.amount) {
       Coin.encode(v!, writer.uint32(18).fork()).join();
@@ -386,7 +391,7 @@ export const Period: MessageFns<Period, "cosmos.vesting.v1beta1.Period"> = {
             break;
           }
 
-          message.length = longToNumber(reader.int64());
+          message.length = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -408,15 +413,15 @@ export const Period: MessageFns<Period, "cosmos.vesting.v1beta1.Period"> = {
 
   fromJSON(object: any): Period {
     return {
-      length: isSet(object.length) ? globalThis.Number(object.length) : 0,
+      length: isSet(object.length) ? Long.fromValue(object.length) : Long.ZERO,
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
   },
 
   toJSON(message: Period): unknown {
     const obj: any = {};
-    if (message.length !== 0) {
-      obj.length = Math.round(message.length);
+    if (!message.length.equals(Long.ZERO)) {
+      obj.length = (message.length || Long.ZERO).toString();
     }
     if (message.amount?.length) {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
@@ -429,14 +434,16 @@ export const Period: MessageFns<Period, "cosmos.vesting.v1beta1.Period"> = {
   },
   fromPartial(object: DeepPartial<Period>): Period {
     const message = createBasePeriod();
-    message.length = object.length ?? 0;
+    message.length = (object.length !== undefined && object.length !== null)
+      ? Long.fromValue(object.length)
+      : Long.ZERO;
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBasePeriodicVestingAccount(): PeriodicVestingAccount {
-  return { baseVestingAccount: undefined, startTime: 0, vestingPeriods: [] };
+  return { baseVestingAccount: undefined, startTime: Long.ZERO, vestingPeriods: [] };
 }
 
 export const PeriodicVestingAccount: MessageFns<
@@ -449,8 +456,8 @@ export const PeriodicVestingAccount: MessageFns<
     if (message.baseVestingAccount !== undefined) {
       BaseVestingAccount.encode(message.baseVestingAccount, writer.uint32(10).fork()).join();
     }
-    if (message.startTime !== 0) {
-      writer.uint32(16).int64(message.startTime);
+    if (!message.startTime.equals(Long.ZERO)) {
+      writer.uint32(16).int64(message.startTime.toString());
     }
     for (const v of message.vestingPeriods) {
       Period.encode(v!, writer.uint32(26).fork()).join();
@@ -478,7 +485,7 @@ export const PeriodicVestingAccount: MessageFns<
             break;
           }
 
-          message.startTime = longToNumber(reader.int64());
+          message.startTime = Long.fromString(reader.int64().toString());
           continue;
         }
         case 3: {
@@ -503,7 +510,7 @@ export const PeriodicVestingAccount: MessageFns<
       baseVestingAccount: isSet(object.baseVestingAccount)
         ? BaseVestingAccount.fromJSON(object.baseVestingAccount)
         : undefined,
-      startTime: isSet(object.startTime) ? globalThis.Number(object.startTime) : 0,
+      startTime: isSet(object.startTime) ? Long.fromValue(object.startTime) : Long.ZERO,
       vestingPeriods: globalThis.Array.isArray(object?.vestingPeriods)
         ? object.vestingPeriods.map((e: any) => Period.fromJSON(e))
         : [],
@@ -515,8 +522,8 @@ export const PeriodicVestingAccount: MessageFns<
     if (message.baseVestingAccount !== undefined) {
       obj.baseVestingAccount = BaseVestingAccount.toJSON(message.baseVestingAccount);
     }
-    if (message.startTime !== 0) {
-      obj.startTime = Math.round(message.startTime);
+    if (!message.startTime.equals(Long.ZERO)) {
+      obj.startTime = (message.startTime || Long.ZERO).toString();
     }
     if (message.vestingPeriods?.length) {
       obj.vestingPeriods = message.vestingPeriods.map((e) => Period.toJSON(e));
@@ -532,7 +539,9 @@ export const PeriodicVestingAccount: MessageFns<
     message.baseVestingAccount = (object.baseVestingAccount !== undefined && object.baseVestingAccount !== null)
       ? BaseVestingAccount.fromPartial(object.baseVestingAccount)
       : undefined;
-    message.startTime = object.startTime ?? 0;
+    message.startTime = (object.startTime !== undefined && object.startTime !== null)
+      ? Long.fromValue(object.startTime)
+      : Long.ZERO;
     message.vestingPeriods = object.vestingPeriods?.map((e) => Period.fromPartial(e)) || [];
     return message;
   },
@@ -610,21 +619,10 @@ export const PermanentLockedAccount: MessageFns<
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

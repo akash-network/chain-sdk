@@ -5,6 +5,7 @@
 // source: cosmos/slashing/v1beta1/genesis.proto
 
 /* eslint-disable */
+import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Params, ValidatorSigningInfo } from "./slashing.ts";
 
@@ -50,7 +51,7 @@ export interface ValidatorMissedBlocks {
 /** MissedBlock contains height and missed status as boolean. */
 export interface MissedBlock {
   /** index is the height at which the block was missed. */
-  index: number;
+  index: Long;
   /** missed is the missed status. */
   missed: boolean;
 }
@@ -319,15 +320,15 @@ export const ValidatorMissedBlocks: MessageFns<ValidatorMissedBlocks, "cosmos.sl
   };
 
 function createBaseMissedBlock(): MissedBlock {
-  return { index: 0, missed: false };
+  return { index: Long.ZERO, missed: false };
 }
 
 export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.MissedBlock"> = {
   $type: "cosmos.slashing.v1beta1.MissedBlock" as const,
 
   encode(message: MissedBlock, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.index !== 0) {
-      writer.uint32(8).int64(message.index);
+    if (!message.index.equals(Long.ZERO)) {
+      writer.uint32(8).int64(message.index.toString());
     }
     if (message.missed !== false) {
       writer.uint32(16).bool(message.missed);
@@ -347,7 +348,7 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
             break;
           }
 
-          message.index = longToNumber(reader.int64());
+          message.index = Long.fromString(reader.int64().toString());
           continue;
         }
         case 2: {
@@ -369,15 +370,15 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
 
   fromJSON(object: any): MissedBlock {
     return {
-      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
       missed: isSet(object.missed) ? globalThis.Boolean(object.missed) : false,
     };
   },
 
   toJSON(message: MissedBlock): unknown {
     const obj: any = {};
-    if (message.index !== 0) {
-      obj.index = Math.round(message.index);
+    if (!message.index.equals(Long.ZERO)) {
+      obj.index = (message.index || Long.ZERO).toString();
     }
     if (message.missed !== false) {
       obj.missed = message.missed;
@@ -390,7 +391,7 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
   },
   fromPartial(object: DeepPartial<MissedBlock>): MissedBlock {
     const message = createBaseMissedBlock();
-    message.index = object.index ?? 0;
+    message.index = (object.index !== undefined && object.index !== null) ? Long.fromValue(object.index) : Long.ZERO;
     message.missed = object.missed ?? false;
     return message;
   },
@@ -399,21 +400,10 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(int64: { toString(): string }): number {
-  const num = globalThis.Number(int64.toString());
-  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
-  }
-  return num;
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;
