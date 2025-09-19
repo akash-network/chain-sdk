@@ -12,30 +12,25 @@
   "author": "Akash Network Team",
   "type": "module",
   "exports": {
-    "./certificate": {
-      "import": "./dist/nodejs/esm/auth/certificates/index.js",
-      "require": "./dist/nodejs/cjs/auth/certificates/index.js",
-      "types": "./dist/types/auth/certificates/index.d.ts"
-    },
-    "./node": {
-      "import": "./dist/nodejs/esm/createChainNodeSDK.js",
-      "require": "./dist/nodejs/cjs/createChainNodeSDK.js",
-      "types": "./dist/types/sdk/nodejs/createChainNodeSDK.d.ts"
-    },
-    "./provider": {
-      "import": "./dist/nodejs/esm/createProviderSDK.js",
-      "require": "./dist/nodejs/cjs/createProviderSDK.js",
-      "types": "./dist/types/sdk/nodejs/createProviderSDK.d.ts"
-    },
-    "./sdl": {
-      "import": "./dist/nodejs/esm/sdl/index.js",
-      "require": "./dist/nodejs/cjs/sdl/index.js",
-      "types": "./dist/types/sdl/index.d.ts"
+    "./chain": {
+      "import": "./dist/nodejs/esm/sdk/chain/index.server.js",
+      "require": "./dist/nodejs/cjs/sdk/chain/index.server.js",
+      "types": "./dist/types/sdk/chain/index.server.d.ts"
     },
     "./types/*": {
       "import": "./dist/nodejs/esm/generated/protos/index.*.js",
       "require": "./dist/nodejs/cjs/generated/protos/index.*.js",
       "types": "./dist/types/generated/protos/index.*.d.ts"
+    },
+    "./provider": {
+      "import": "./dist/nodejs/esm/sdk/provider/index.server.js",
+      "require": "./dist/nodejs/cjs/sdk/provider/index.server.js",
+      "types": "./dist/types/sdk/provider/index.server.d.ts"
+    },
+    "./sdl": {
+      "import": "./dist/nodejs/esm/sdl/index.js",
+      "require": "./dist/nodejs/cjs/sdl/index.js",
+      "types": "./dist/types/sdl/index.d.ts"
     }
   },
   "files": [

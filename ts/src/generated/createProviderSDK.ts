@@ -1,11 +1,11 @@
-import { createServiceLoader } from "../client/createServiceLoader.ts";
+import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
+import { SDKOptions } from "../sdk/types.ts";
 
 import type * as google_protobuf_empty from "./protos/google/protobuf/empty.ts";
 import type * as akash_provider_lease_v1_service from "./protos/akash/provider/lease/v1/service.ts";
-import { createClientFactory } from "../client/createClientFactory.ts";
-import type { Transport, CallOptions } from "../transport/types.ts";
-import type { SDKOptions } from "../sdk/types.ts";
-import { withMetadata } from "../utils/sdkMetadata.ts";
+import { createClientFactory } from "../sdk/client/createClientFactory.ts";
+import type { Transport, CallOptions } from "../sdk/transport/types.ts";
+import { withMetadata } from "../sdk/client/sdkMetadata.ts";
 
 
 export const serviceLoader= createServiceLoader([

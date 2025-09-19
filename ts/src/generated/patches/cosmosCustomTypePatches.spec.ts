@@ -32,7 +32,7 @@ import { MsgCreateValidator, MsgEditValidator, MsgUpdateParams as MsgUpdateParam
 import { expect, describe, it } from "@jest/globals";
 import { patches } from "./cosmosCustomTypePatches.ts";
 import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";
-import type { TypePatches } from "../../utils/applyPatches.ts";
+import type { TypePatches } from "../../sdk/client/applyPatches.ts";
 
 const messageTypes: Record<string, MessageSchema> = {
   "cosmos.base.v1beta1.DecCoin": {

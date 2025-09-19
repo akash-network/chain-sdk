@@ -185,7 +185,7 @@ function generateTests(fileName: string, testsFile: GeneratedFile, messageToCust
   testsFile.print(`import { expect, describe, it } from "@jest/globals";`);
   testsFile.print(`import { patches } from "./${basename(fileName)}";`);
   testsFile.print(`import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";`);
-  testsFile.print(`import type { TypePatches } from "../../utils/applyPatches.ts";`);
+  testsFile.print(`import type { TypePatches } from "../../sdk/client/applyPatches.ts";`);
   testsFile.print("");
   testsFile.print(`const messageTypes: Record<string, MessageSchema> = {`);
   for (const [message, fields] of messageToCustomFields.entries()) {

@@ -2,15 +2,14 @@ import * as esbuild from 'esbuild';
 import packageDetails from './package.json' with { type: 'json' };
 
 /**
- * @type {esbuild.BuildOptions}
+ * @param {"server"|"web"} type
  * @param {esbuild.BuildOptions} config
  */
-const baseConfig = (config) => ({
+const baseConfig = (type, config) => ({
   ...config,
   entryPoints: [
-    'src/sdk/nodejs/createProviderSDK.ts',
-    'src/sdk/nodejs/createChainNodeSDK.ts',
-    'src/auth/certificates/index.ts',
+    `src/sdk/chain/index.${type}.ts`,
+    `src/sdk/provider/index.${type}.ts`,
     'src/sdl/index.ts',
     'src/generated/protos/index.*'
   ],
@@ -23,7 +22,7 @@ const baseConfig = (config) => ({
  * @type {esbuild.BuildOptions}
  * @param {esbuild.BuildOptions['format']} format
  */
-const nodeJsConfig = (format) => baseConfig({
+const nodeJsConfig = (format) => baseConfig('server', {
   minify: false,
   target: [`node${packageDetails.engines.node}`],
   format,

@@ -2,9 +2,9 @@ import type { Interceptor } from "@connectrpc/connect";
 import { ConnectError } from "@connectrpc/connect";
 import { getAbortSignalReason } from "@connectrpc/connect/protocol";
 
+import type { DeepPartial } from "../../utils/types.ts";
+import { mapStream } from "../client/stream.ts";
 import type { MessageDesc, MessageInitShape, MessageShape } from "../client/types.ts";
-import { mapStream } from "../utils/stream.ts";
-import type { DeepPartial } from "../utils/types.ts";
 import type { StreamRequest, StreamResponse, UnaryRequest, UnaryResponse } from "./types.ts";
 
 /**

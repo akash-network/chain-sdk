@@ -1,7 +1,7 @@
 import type { CallOptions, Transport } from "../transport/types.ts";
-import type { TypePatches } from "../utils/applyPatches.ts";
-import { applyPatches } from "../utils/applyPatches.ts";
-import { createAsyncIterable, handleStreamResponse, mapStream } from "../utils/stream.ts";
+import type { TypePatches } from "./applyPatches.ts";
+import { applyPatches } from "./applyPatches.ts";
+import { createAsyncIterable, handleStreamResponse, mapStream } from "./stream.ts";
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc, ServiceDesc } from "./types.ts";
 
 export type Client<Desc extends ServiceDesc, TCallOptions> = {

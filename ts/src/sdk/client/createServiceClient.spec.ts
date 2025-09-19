@@ -1,10 +1,10 @@
 import type { DescMethod, DescMethodBiDiStreaming, DescMethodClientStreaming, DescMethodServerStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import { describe, expect, it, jest } from "@jest/globals";
 
-import { proto } from "../../test/helpers/proto.ts";
+import { proto } from "../../../test/helpers/proto.ts";
 import type { StreamResponse, Transport, UnaryResponse } from "../transport/types.ts";
-import { createAsyncIterable } from "../utils/stream.ts";
 import { createServiceClient } from "./createServiceClient.ts";
+import { createAsyncIterable } from "./stream.ts";
 import type { MessageDesc, MessageShape } from "./types.ts";
 
 describe(createServiceClient.name, () => {
