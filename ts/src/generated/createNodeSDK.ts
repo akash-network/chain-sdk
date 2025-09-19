@@ -1,4 +1,5 @@
-import { createServiceLoader } from "../client/createServiceLoader.ts";
+import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
+import { SDKOptions } from "../sdk/types.ts";
 
 import type * as akash_audit_v1_query from "./protos/akash/audit/v1/query.ts";
 import type * as akash_audit_v1_msg from "./protos/akash/audit/v1/msg.ts";
@@ -18,10 +19,9 @@ import type * as akash_provider_v1beta4_query from "./protos/akash/provider/v1be
 import type * as akash_provider_v1beta4_msg from "./protos/akash/provider/v1beta4/msg.ts";
 import type * as akash_take_v1_query from "./protos/akash/take/v1/query.ts";
 import type * as akash_take_v1_paramsmsg from "./protos/akash/take/v1/paramsmsg.ts";
-import { createClientFactory } from "../client/createClientFactory.ts";
-import type { Transport, CallOptions, TxCallOptions } from "../transport/types.ts";
-import type { SDKOptions } from "../sdk/types.ts";
-import { withMetadata } from "../utils/sdkMetadata.ts";
+import { createClientFactory } from "../sdk/client/createClientFactory.ts";
+import type { Transport, CallOptions, TxCallOptions } from "../sdk/transport/types.ts";
+import { withMetadata } from "../sdk/client/sdkMetadata.ts";
 
 
 export const serviceLoader= createServiceLoader([

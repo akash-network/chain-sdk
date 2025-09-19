@@ -1,11 +1,11 @@
-import { createMessageType } from "../../client/createServiceLoader.ts";
 import { createSDK as createCosmosSDK, serviceLoader as cosmosServiceLoader } from "../../generated/createCosmosSDK.ts";
 import { createSDK as createNodeSDK, serviceLoader as nodeServiceLoader } from "../../generated/createNodeSDK.ts";
 import { TxRaw } from "../../generated/protos/cosmos/tx/v1beta1/tx.ts";
-import { createGrpcTransport } from "../../transport/grpc/createGrpcTransport.ts";
-import { createTxTransport } from "../../transport/tx/createTxTransport.ts";
-import type { StargateClientOptions } from "../../transport/tx/txClient/createStargateClient.ts";
-import { createStargateClient } from "../../transport/tx/txClient/createStargateClient.ts";
+import { createMessageType } from "../client/createServiceLoader.ts";
+import { createGrpcTransport } from "../transport/grpc/createGrpcTransport.ts";
+import { createTxTransport } from "../transport/tx/createTxTransport.ts";
+import type { StargateClientOptions } from "../transport/tx/txClient/createStargateClient.ts";
+import { createStargateClient } from "../transport/tx/txClient/createStargateClient.ts";
 
 export type { PayloadOf, ResponseOf } from "../types.ts";
 

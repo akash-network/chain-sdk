@@ -1,4 +1,5 @@
-import { createServiceLoader } from "../client/createServiceLoader.ts";
+import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
+import { SDKOptions } from "../sdk/types.ts";
 
 import type * as cosmos_app_v1alpha1_query from "./protos/cosmos/app/v1alpha1/query.ts";
 import type * as cosmos_auth_v1beta1_query from "./protos/cosmos/auth/v1beta1/query.ts";
@@ -51,10 +52,9 @@ import type * as cosmos_tx_v1beta1_service from "./protos/cosmos/tx/v1beta1/serv
 import type * as cosmos_upgrade_v1beta1_query from "./protos/cosmos/upgrade/v1beta1/query.ts";
 import type * as cosmos_upgrade_v1beta1_tx from "./protos/cosmos/upgrade/v1beta1/tx.ts";
 import type * as cosmos_vesting_v1beta1_tx from "./protos/cosmos/vesting/v1beta1/tx.ts";
-import { createClientFactory } from "../client/createClientFactory.ts";
-import type { Transport, CallOptions, TxCallOptions } from "../transport/types.ts";
-import type { SDKOptions } from "../sdk/types.ts";
-import { withMetadata } from "../utils/sdkMetadata.ts";
+import { createClientFactory } from "../sdk/client/createClientFactory.ts";
+import type { Transport, CallOptions, TxCallOptions } from "../sdk/transport/types.ts";
+import { withMetadata } from "../sdk/client/sdkMetadata.ts";
 
 
 export const serviceLoader= createServiceLoader([

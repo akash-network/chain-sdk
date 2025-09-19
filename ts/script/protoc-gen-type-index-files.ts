@@ -42,7 +42,7 @@ function generateTs(schema: Schema): void {
   if (typesNamesToPatch.size > 0) {
     const patchesFile = schema.generateFile(patchesFileName);
     patchesFile.print(`import { patches } from "../patches/${process.env.PROTO_SOURCE}CustomTypePatches.ts";`);
-    patchesFile.print(`import type { MessageDesc } from "../../client/types.ts";`);
+    patchesFile.print(`import type { MessageDesc } from "../../sdk/client/types.ts";`);
     patchesFile.print(`export const patched = <T extends MessageDesc>(messageDesc: T): T => {`);
     patchesFile.print(`  const patchMessage = patches[messageDesc.$type as keyof typeof patches] as any;`);
     patchesFile.print(`  if (!patchMessage) return messageDesc;`);

@@ -7,7 +7,7 @@ import { createHash } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import { join as joinPath, relative as relativePath } from "path";
 import { promisify } from "util";
-import { MessageDesc, MethodDesc } from "../../src/client/types.ts";
+import type { MessageDesc, MethodDesc } from "../../src/sdk/client/types.ts";
 
 const execAsync = promisify(exec);
 const PWD = joinPath(__dirname, "..", "..", "..");
