@@ -1,7 +1,7 @@
 import type { DescMethod } from "@bufbuild/protobuf";
 import type { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-import type { DeepPartial } from "../utils/types.ts";
+import type { DeepPartial } from "../../utils/types.ts";
 
 export interface ServiceDesc {
   typeName: string;

@@ -1,4 +1,4 @@
-import type { MessageDesc, MessageShape } from "../client/types.ts";
+import type { MessageDesc, MessageShape } from "./types.ts";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TypePatches = Record<string, (value: any, transform: "encode" | "decode") => any>;

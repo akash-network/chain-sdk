@@ -1,5 +1,5 @@
-import type { ServiceClientOptions } from "../client/createServiceClient.ts";
-import type { SDKMethod } from "../utils/sdkMetadata.ts";
+import type { ServiceClientOptions } from "./client/createServiceClient.ts";
+import type { SDKMethod } from "./client/sdkMetadata.ts";
 
 export interface SDKOptions {
   clientOptions?: ServiceClientOptions;

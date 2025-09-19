@@ -1,5 +1,5 @@
-import type { MessageDesc, MessageShape, MethodDesc } from "../client/types.ts";
 import type { CallOptions, StreamResponse } from "../transport/types.ts";
+import type { MessageDesc, MessageShape, MethodDesc } from "./types.ts";
 
 export { createAsyncIterable } from "@connectrpc/connect/protocol";
 

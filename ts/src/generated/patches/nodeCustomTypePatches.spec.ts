@@ -36,7 +36,7 @@ import { QueryBidResponse, QueryBidsResponse, QueryLeaseResponse, QueryLeasesRes
 import { expect, describe, it } from "@jest/globals";
 import { patches } from "./nodeCustomTypePatches.ts";
 import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";
-import type { TypePatches } from "../../utils/applyPatches.ts";
+import type { TypePatches } from "../../sdk/client/applyPatches.ts";
 
 const messageTypes: Record<string, MessageSchema> = {
   "akash.deployment.v1beta4.ResourceUnit": {

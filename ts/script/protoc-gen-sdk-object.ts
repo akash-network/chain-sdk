@@ -78,28 +78,29 @@ function generateTs(schema: Schema): void {
   imports.forEach((importPath) => {
     f.print(`import type * as ${fileNameToScope(importPath)} from "${importPath.startsWith("./") ? "./" + normalizePath(`${PROTO_PATH}/${importPath}${importExtension}`) : importPath}";`);
   });
-  f.print(`import { createClientFactory } from "../client/createClientFactory${importExtension}";`);
+  f.print(`import { createClientFactory } from "../sdk/client/createClientFactory${importExtension}";`);
 
-  f.print(`import type { Transport, CallOptions${hasMsgService ? ", TxCallOptions" : ""} } from "../transport/types${importExtension}";`);
-  f.print(`import type { SDKOptions } from "../sdk/types${importExtension}";`);
-  f.print(`import { withMetadata } from "../utils/sdkMetadata${importExtension}";`);
+  f.print(`import type { Transport, CallOptions${hasMsgService ? ", TxCallOptions" : ""} } from "../sdk/transport/types${importExtension}";`);
+  f.print(`import { withMetadata } from "../sdk/client/sdkMetadata${importExtension}";`);
   f.print("\n");
   f.print(
     f.export("const", "serviceLoader"),
     `= `,
-    f.import("createServiceLoader", `../client/createServiceLoader${importExtension}`),
+    f.import("createServiceLoader", `../sdk/client/createServiceLoader${importExtension}`),
     `([\n${indent(servicesLoaderDefs.join(",\n"))}\n] as const);`
   );
 
   const factoryArgs = hasMsgService
     ? `queryTransport: Transport, txTransport: Transport`
     : `transport: Transport`;
-  f.print(f.export("function", `createSDK(${factoryArgs}, options?: SDKOptions) {\n`
-  + `  const getClient = createClientFactory<CallOptions>(${hasMsgService ? "queryTransport" : "transport"}, options?.clientOptions);\n`
-  + (hasMsgService ? `  const getMsgClient = createClientFactory<TxCallOptions>(txTransport, options?.clientOptions);\n` : "")
-  + `  return ${indent(stringifyObject(sdkDefs)).trim()};\n`
-  + `}`,
-  ));
+  f.print(
+    f.export("function", "createSDK"),
+    `(${factoryArgs}, options?: `, f.import("SDKOptions", `../sdk/types${importExtension}`), `) {\n`,
+    `  const getClient = createClientFactory<CallOptions>(${hasMsgService ? "queryTransport" : "transport"}, options?.clientOptions);\n`,
+    (hasMsgService ? `  const getMsgClient = createClientFactory<TxCallOptions>(txTransport, options?.clientOptions);\n` : ""),
+    `  return ${indent(stringifyObject(sdkDefs)).trim()};\n`,
+    `}`,
+  );
 }
 
 function getOutputFileName(schema: Schema): string {

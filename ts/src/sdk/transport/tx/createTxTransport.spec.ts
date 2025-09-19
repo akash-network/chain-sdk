@@ -2,8 +2,8 @@ import type { DescMessage, DescMethodBiDiStreaming, DescMethodUnary } from "@buf
 import type { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
 import { describe, expect, it, jest } from "@jest/globals";
 
-import { proto } from "../../../test/helpers/proto.ts";
-import { createAsyncIterable } from "../../utils/stream.ts";
+import { proto } from "../../../../test/helpers/proto.ts";
+import { createAsyncIterable } from "../../client/stream.ts";
 import { createTxTransport } from "./createTxTransport.ts";
 import type { TxClient, TxRaw } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";
