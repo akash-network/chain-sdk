@@ -9,6 +9,7 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Deposit } from "../../base/deposit/v1/deposit.ts";
 import { BidID } from "../v1/bid.ts";
+import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "../v1/types.ts";
 import { ResourceOffer } from "./resourcesoffer.ts";
 import Long = require("long");
 
@@ -39,6 +40,7 @@ export interface MsgCreateBidResponse {
 export interface MsgCloseBid {
   /** Id is the unique identifier of the Bid. */
   id: BidID | undefined;
+  reason: LeaseClosedReason;
 }
 
 /** MsgCloseBidResponse defines the Msg/CloseBid response type. */
@@ -207,7 +209,7 @@ export const MsgCreateBidResponse: MessageFns<MsgCreateBidResponse, "akash.marke
 };
 
 function createBaseMsgCloseBid(): MsgCloseBid {
-  return { id: undefined };
+  return { id: undefined, reason: 0 };
 }
 
 export const MsgCloseBid: MessageFns<MsgCloseBid, "akash.market.v1beta5.MsgCloseBid"> = {
@@ -216,6 +218,9 @@ export const MsgCloseBid: MessageFns<MsgCloseBid, "akash.market.v1beta5.MsgClose
   encode(message: MsgCloseBid, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== undefined) {
       BidID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.reason !== 0) {
+      writer.uint32(16).int32(message.reason);
     }
     return writer;
   },
@@ -235,6 +240,14 @@ export const MsgCloseBid: MessageFns<MsgCloseBid, "akash.market.v1beta5.MsgClose
           message.id = BidID.decode(reader, reader.uint32());
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.reason = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -245,13 +258,19 @@ export const MsgCloseBid: MessageFns<MsgCloseBid, "akash.market.v1beta5.MsgClose
   },
 
   fromJSON(object: any): MsgCloseBid {
-    return { id: isSet(object.id) ? BidID.fromJSON(object.id) : undefined };
+    return {
+      id: isSet(object.id) ? BidID.fromJSON(object.id) : undefined,
+      reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
+    };
   },
 
   toJSON(message: MsgCloseBid): unknown {
     const obj: any = {};
     if (message.id !== undefined) {
       obj.id = BidID.toJSON(message.id);
+    }
+    if (message.reason !== 0) {
+      obj.reason = leaseClosedReasonToJSON(message.reason);
     }
     return obj;
   },
@@ -262,6 +281,7 @@ export const MsgCloseBid: MessageFns<MsgCloseBid, "akash.market.v1beta5.MsgClose
   fromPartial(object: DeepPartial<MsgCloseBid>): MsgCloseBid {
     const message = createBaseMsgCloseBid();
     message.id = (object.id !== undefined && object.id !== null) ? BidID.fromPartial(object.id) : undefined;
+    message.reason = object.reason ?? 0;
     return message;
   },
 };

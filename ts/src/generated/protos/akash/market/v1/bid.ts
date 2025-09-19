@@ -46,10 +46,12 @@ export interface BidID {
    *   "akash1..."
    */
   provider: string;
+  /** BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. */
+  bseq: number;
 }
 
 function createBaseBidID(): BidID {
-  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "" };
+  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "", bseq: 0 };
 }
 
 export const BidID: MessageFns<BidID, "akash.market.v1.BidID"> = {
@@ -70,6 +72,9 @@ export const BidID: MessageFns<BidID, "akash.market.v1.BidID"> = {
     }
     if (message.provider !== "") {
       writer.uint32(42).string(message.provider);
+    }
+    if (message.bseq !== 0) {
+      writer.uint32(48).uint32(message.bseq);
     }
     return writer;
   },
@@ -121,6 +126,14 @@ export const BidID: MessageFns<BidID, "akash.market.v1.BidID"> = {
           message.provider = reader.string();
           continue;
         }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.bseq = reader.uint32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -137,6 +150,7 @@ export const BidID: MessageFns<BidID, "akash.market.v1.BidID"> = {
       gseq: isSet(object.gseq) ? globalThis.Number(object.gseq) : 0,
       oseq: isSet(object.oseq) ? globalThis.Number(object.oseq) : 0,
       provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      bseq: isSet(object.bseq) ? globalThis.Number(object.bseq) : 0,
     };
   },
 
@@ -157,6 +171,9 @@ export const BidID: MessageFns<BidID, "akash.market.v1.BidID"> = {
     if (message.provider !== "") {
       obj.provider = message.provider;
     }
+    if (message.bseq !== 0) {
+      obj.bseq = Math.round(message.bseq);
+    }
     return obj;
   },
 
@@ -170,6 +187,7 @@ export const BidID: MessageFns<BidID, "akash.market.v1.BidID"> = {
     message.gseq = object.gseq ?? 0;
     message.oseq = object.oseq ?? 0;
     message.provider = object.provider ?? "";
+    message.bseq = object.bseq ?? 0;
     return message;
   },
 };
