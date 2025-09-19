@@ -1,6 +1,6 @@
 module pkg.akt.dev/mock/node
 
-go 1.24
+go 1.24.3
 
 replace (
 	// use cosmos fork of keyring
