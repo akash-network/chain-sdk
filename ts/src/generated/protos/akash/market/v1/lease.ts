@@ -8,6 +8,7 @@
 import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
+import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "./types.ts";
 
 export const protobufPackage = "akash.market.v1";
 
@@ -44,6 +45,8 @@ export interface LeaseID {
    *   "akash1..."
    */
   provider: string;
+  /** BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. */
+  bseq: number;
 }
 
 /**
@@ -67,6 +70,7 @@ export interface Lease {
   createdAt: Long;
   /** ClosedOn is the block height at which the Lease was closed. */
   closedOn: Long;
+  reason: LeaseClosedReason;
 }
 
 /** State is an enum which refers to state of lease. */
@@ -120,7 +124,7 @@ export function lease_StateToJSON(object: Lease_State): string {
 }
 
 function createBaseLeaseID(): LeaseID {
-  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "" };
+  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "", bseq: 0 };
 }
 
 export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
@@ -141,6 +145,9 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     }
     if (message.provider !== "") {
       writer.uint32(42).string(message.provider);
+    }
+    if (message.bseq !== 0) {
+      writer.uint32(48).uint32(message.bseq);
     }
     return writer;
   },
@@ -192,6 +199,14 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
           message.provider = reader.string();
           continue;
         }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.bseq = reader.uint32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -208,6 +223,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
       gseq: isSet(object.gseq) ? globalThis.Number(object.gseq) : 0,
       oseq: isSet(object.oseq) ? globalThis.Number(object.oseq) : 0,
       provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      bseq: isSet(object.bseq) ? globalThis.Number(object.bseq) : 0,
     };
   },
 
@@ -228,6 +244,9 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     if (message.provider !== "") {
       obj.provider = message.provider;
     }
+    if (message.bseq !== 0) {
+      obj.bseq = Math.round(message.bseq);
+    }
     return obj;
   },
 
@@ -241,12 +260,13 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     message.gseq = object.gseq ?? 0;
     message.oseq = object.oseq ?? 0;
     message.provider = object.provider ?? "";
+    message.bseq = object.bseq ?? 0;
     return message;
   },
 };
 
 function createBaseLease(): Lease {
-  return { id: undefined, state: 0, price: undefined, createdAt: Long.ZERO, closedOn: Long.ZERO };
+  return { id: undefined, state: 0, price: undefined, createdAt: Long.ZERO, closedOn: Long.ZERO, reason: 0 };
 }
 
 export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
@@ -267,6 +287,9 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     }
     if (!message.closedOn.equals(Long.ZERO)) {
       writer.uint32(40).int64(message.closedOn.toString());
+    }
+    if (message.reason !== 0) {
+      writer.uint32(48).int32(message.reason);
     }
     return writer;
   },
@@ -318,6 +341,14 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
           message.closedOn = Long.fromString(reader.int64().toString());
           continue;
         }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.reason = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -334,6 +365,7 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
       createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
       closedOn: isSet(object.closedOn) ? Long.fromValue(object.closedOn) : Long.ZERO,
+      reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
     };
   },
 
@@ -354,6 +386,9 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     if (!message.closedOn.equals(Long.ZERO)) {
       obj.closedOn = (message.closedOn || Long.ZERO).toString();
     }
+    if (message.reason !== 0) {
+      obj.reason = leaseClosedReasonToJSON(message.reason);
+    }
     return obj;
   },
 
@@ -373,6 +408,7 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     message.closedOn = (object.closedOn !== undefined && object.closedOn !== null)
       ? Long.fromValue(object.closedOn)
       : Long.ZERO;
+    message.reason = object.reason ?? 0;
     return message;
   },
 };

@@ -10,6 +10,7 @@ import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { BidID } from "./bid.ts";
 import { LeaseID } from "./lease.ts";
 import { OrderID } from "./order.ts";
+import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "./types.ts";
 import Long = require("long");
 
 export const protobufPackage = "akash.market.v1";
@@ -74,6 +75,7 @@ export interface EventLeaseCreated {
 export interface EventLeaseClosed {
   /** Id is the unique identifier of the Lease. */
   id: LeaseID | undefined;
+  reason: LeaseClosedReason;
 }
 
 function createBaseEventOrderCreated(): EventOrderCreated {
@@ -417,7 +419,7 @@ export const EventLeaseCreated: MessageFns<EventLeaseCreated, "akash.market.v1.E
 };
 
 function createBaseEventLeaseClosed(): EventLeaseClosed {
-  return { id: undefined };
+  return { id: undefined, reason: 0 };
 }
 
 export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.EventLeaseClosed"> = {
@@ -426,6 +428,9 @@ export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.Eve
   encode(message: EventLeaseClosed, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== undefined) {
       LeaseID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.reason !== 0) {
+      writer.uint32(16).int32(message.reason);
     }
     return writer;
   },
@@ -445,6 +450,14 @@ export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.Eve
           message.id = LeaseID.decode(reader, reader.uint32());
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.reason = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -455,13 +468,19 @@ export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.Eve
   },
 
   fromJSON(object: any): EventLeaseClosed {
-    return { id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined };
+    return {
+      id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
+      reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
+    };
   },
 
   toJSON(message: EventLeaseClosed): unknown {
     const obj: any = {};
     if (message.id !== undefined) {
       obj.id = LeaseID.toJSON(message.id);
+    }
+    if (message.reason !== 0) {
+      obj.reason = leaseClosedReasonToJSON(message.reason);
     }
     return obj;
   },
@@ -472,6 +491,7 @@ export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.Eve
   fromPartial(object: DeepPartial<EventLeaseClosed>): EventLeaseClosed {
     const message = createBaseEventLeaseClosed();
     message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
+    message.reason = object.reason ?? 0;
     return message;
   },
 };

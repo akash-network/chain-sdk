@@ -8,6 +8,7 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { BidID } from "../v1/bid.ts";
 import { LeaseID } from "../v1/lease.ts";
+import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "../v1/types.ts";
 import Long = require("long");
 
 export const protobufPackage = "akash.market.v1beta5";
@@ -36,6 +37,7 @@ export interface MsgWithdrawLeaseResponse {
 export interface MsgCloseLease {
   /** LeaseID is the unique identifier of the Lease. */
   id: LeaseID | undefined;
+  reason: LeaseClosedReason;
 }
 
 /** MsgCloseLeaseResponse defines the Msg/CloseLease response type. */
@@ -257,7 +259,7 @@ export const MsgWithdrawLeaseResponse: MessageFns<
 };
 
 function createBaseMsgCloseLease(): MsgCloseLease {
-  return { id: undefined };
+  return { id: undefined, reason: 0 };
 }
 
 export const MsgCloseLease: MessageFns<MsgCloseLease, "akash.market.v1beta5.MsgCloseLease"> = {
@@ -266,6 +268,9 @@ export const MsgCloseLease: MessageFns<MsgCloseLease, "akash.market.v1beta5.MsgC
   encode(message: MsgCloseLease, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== undefined) {
       LeaseID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.reason !== 0) {
+      writer.uint32(16).int32(message.reason);
     }
     return writer;
   },
@@ -285,6 +290,14 @@ export const MsgCloseLease: MessageFns<MsgCloseLease, "akash.market.v1beta5.MsgC
           message.id = LeaseID.decode(reader, reader.uint32());
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.reason = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -295,13 +308,19 @@ export const MsgCloseLease: MessageFns<MsgCloseLease, "akash.market.v1beta5.MsgC
   },
 
   fromJSON(object: any): MsgCloseLease {
-    return { id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined };
+    return {
+      id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
+      reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
+    };
   },
 
   toJSON(message: MsgCloseLease): unknown {
     const obj: any = {};
     if (message.id !== undefined) {
       obj.id = LeaseID.toJSON(message.id);
+    }
+    if (message.reason !== 0) {
+      obj.reason = leaseClosedReasonToJSON(message.reason);
     }
     return obj;
   },
@@ -312,6 +331,7 @@ export const MsgCloseLease: MessageFns<MsgCloseLease, "akash.market.v1beta5.MsgC
   fromPartial(object: DeepPartial<MsgCloseLease>): MsgCloseLease {
     const message = createBaseMsgCloseLease();
     message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
+    message.reason = object.reason ?? 0;
     return message;
   },
 };
