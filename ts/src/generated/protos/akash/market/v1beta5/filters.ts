@@ -45,6 +45,8 @@ export interface BidFilters {
   provider: string;
   /** State represents the state of the lease. */
   state: string;
+  /** BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. */
+  bseq: number;
 }
 
 /** OrderFilters defines flags for order list filter */
@@ -77,7 +79,7 @@ export interface OrderFilters {
 }
 
 function createBaseBidFilters(): BidFilters {
-  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "", state: "" };
+  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "", state: "", bseq: 0 };
 }
 
 export const BidFilters: MessageFns<BidFilters, "akash.market.v1beta5.BidFilters"> = {
@@ -101,6 +103,9 @@ export const BidFilters: MessageFns<BidFilters, "akash.market.v1beta5.BidFilters
     }
     if (message.state !== "") {
       writer.uint32(50).string(message.state);
+    }
+    if (message.bseq !== 0) {
+      writer.uint32(56).uint32(message.bseq);
     }
     return writer;
   },
@@ -160,6 +165,14 @@ export const BidFilters: MessageFns<BidFilters, "akash.market.v1beta5.BidFilters
           message.state = reader.string();
           continue;
         }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.bseq = reader.uint32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -177,6 +190,7 @@ export const BidFilters: MessageFns<BidFilters, "akash.market.v1beta5.BidFilters
       oseq: isSet(object.oseq) ? globalThis.Number(object.oseq) : 0,
       provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
       state: isSet(object.state) ? globalThis.String(object.state) : "",
+      bseq: isSet(object.bseq) ? globalThis.Number(object.bseq) : 0,
     };
   },
 
@@ -200,6 +214,9 @@ export const BidFilters: MessageFns<BidFilters, "akash.market.v1beta5.BidFilters
     if (message.state !== "") {
       obj.state = message.state;
     }
+    if (message.bseq !== 0) {
+      obj.bseq = Math.round(message.bseq);
+    }
     return obj;
   },
 
@@ -214,6 +231,7 @@ export const BidFilters: MessageFns<BidFilters, "akash.market.v1beta5.BidFilters
     message.oseq = object.oseq ?? 0;
     message.provider = object.provider ?? "";
     message.state = object.state ?? "";
+    message.bseq = object.bseq ?? 0;
     return message;
   },
 };

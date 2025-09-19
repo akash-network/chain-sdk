@@ -8,6 +8,7 @@
 import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DecCoin } from "../../../../cosmos/base/v1beta1/coin.ts";
+import { Source, sourceFromJSON, sourceToJSON } from "../../../base/deposit/v1/deposit.ts";
 
 export const protobufPackage = "akash.escrow.types.v1";
 
@@ -25,12 +26,14 @@ export interface Depositor {
   owner: string;
   /** Height blockchain height at which deposit was created */
   height: Long;
+  /** Source indicated origination of the funds */
+  source: Source;
   /** Balance amount of funds available to spend in this deposit. */
   balance: DecCoin | undefined;
 }
 
 function createBaseDepositor(): Depositor {
-  return { owner: "", height: Long.ZERO, balance: undefined };
+  return { owner: "", height: Long.ZERO, source: 0, balance: undefined };
 }
 
 export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor"> = {
@@ -43,8 +46,11 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     if (!message.height.equals(Long.ZERO)) {
       writer.uint32(16).int64(message.height.toString());
     }
+    if (message.source !== 0) {
+      writer.uint32(24).int32(message.source);
+    }
     if (message.balance !== undefined) {
-      DecCoin.encode(message.balance, writer.uint32(26).fork()).join();
+      DecCoin.encode(message.balance, writer.uint32(34).fork()).join();
     }
     return writer;
   },
@@ -73,7 +79,15 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
           continue;
         }
         case 3: {
-          if (tag !== 26) {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.source = reader.int32() as any;
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
             break;
           }
 
@@ -93,6 +107,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
+      source: isSet(object.source) ? sourceFromJSON(object.source) : 0,
       balance: isSet(object.balance) ? DecCoin.fromJSON(object.balance) : undefined,
     };
   },
@@ -104,6 +119,9 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     }
     if (!message.height.equals(Long.ZERO)) {
       obj.height = (message.height || Long.ZERO).toString();
+    }
+    if (message.source !== 0) {
+      obj.source = sourceToJSON(message.source);
     }
     if (message.balance !== undefined) {
       obj.balance = DecCoin.toJSON(message.balance);
@@ -120,6 +138,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     message.height = (object.height !== undefined && object.height !== null)
       ? Long.fromValue(object.height)
       : Long.ZERO;
+    message.source = object.source ?? 0;
     message.balance = (object.balance !== undefined && object.balance !== null)
       ? DecCoin.fromPartial(object.balance)
       : undefined;
