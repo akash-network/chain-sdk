@@ -5,8 +5,8 @@
 // source: cosmos/group/v1/events.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import {
   ProposalExecutorResult,
   proposalExecutorResultFromJSON,

@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
 import { Account } from "../../escrow/types/v1/account.ts";
 import { Deployment, DeploymentID } from "../v1/deployment.ts";
@@ -13,7 +14,6 @@ import { GroupID } from "../v1/group.ts";
 import { DeploymentFilters } from "./filters.ts";
 import { Group } from "./group.ts";
 import { Params } from "./params.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.deployment.v1beta4";
 

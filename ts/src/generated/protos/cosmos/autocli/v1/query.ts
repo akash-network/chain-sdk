@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { ModuleOptions } from "./options.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.autocli.v1";
 

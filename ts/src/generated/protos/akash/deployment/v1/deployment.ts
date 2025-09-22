@@ -5,8 +5,8 @@
 // source: akash/deployment/v1/deployment.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 
 export const protobufPackage = "akash.deployment.v1";
 

@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Config } from "./config.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.app.v1alpha1";
 

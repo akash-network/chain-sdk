@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { Params, ValidatorSigningInfo } from "./slashing.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.slashing.v1beta1";
 

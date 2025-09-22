@@ -5,8 +5,8 @@
 // source: cosmos/auth/v1beta1/auth.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../google/protobuf/any.ts";
 
 export const protobufPackage = "cosmos.auth.v1beta1";

@@ -5,8 +5,8 @@
 // source: cosmos/gov/v1/genesis.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Deposit, DepositParams, Params, Proposal, TallyParams, Vote, VotingParams } from "./gov.ts";
 
 export const protobufPackage = "cosmos.gov.v1";

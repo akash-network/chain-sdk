@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PlacementRequirements } from "../../base/attributes/v1/attribute.ts";
 import { ResourceUnit } from "./resourceunit.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.deployment.v1beta4";
 

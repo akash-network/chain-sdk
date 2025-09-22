@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 
 import type { CreateJWTOptions } from "./jwt-token.ts";
-import { JwtToken } from "./jwt-token.ts";
+import { JwtTokenManager } from "./jwt-token.ts";
 import type { ClaimsTestCase, SigningTestCase } from "./test/test-utils.ts";
 import { replaceTemplateValues } from "./test/test-utils.ts";
 import { createSignArbitraryAkashWallet, type SignArbitraryAkashWallet } from "./wallet-utils.ts";
@@ -16,7 +16,7 @@ describe("JWT Claims Validation", () => {
   const jwtClaimsTestCases = JSON.parse(fs.readFileSync(path.join(testdataPath, "cases_jwt.json.tmpl"), "utf-8")) as ClaimsTestCase[];
 
   let testWallet: DirectSecp256k1HdWallet;
-  let jwtToken: JwtToken;
+  let jwtToken: JwtTokenManager;
   let akashWallet: SignArbitraryAkashWallet;
 
   beforeAll(async () => {
@@ -24,7 +24,7 @@ describe("JWT Claims Validation", () => {
       prefix: "akash",
     });
     akashWallet = await createSignArbitraryAkashWallet(testWallet);
-    jwtToken = new JwtToken(akashWallet);
+    jwtToken = new JwtTokenManager(akashWallet);
   });
 
   it.each(jwtClaimsTestCases)("$description", async (testCase) => {
@@ -43,7 +43,7 @@ describe("JWT Claims Validation", () => {
     }
 
     // For test cases that should pass, create and verify the token
-    const token = await jwtToken.createToken(claims as CreateJWTOptions);
+    const token = await jwtToken.generateToken(claims as CreateJWTOptions);
     const decoded = jwtToken.decodeToken(token);
     expect(decoded).toBeDefined();
 

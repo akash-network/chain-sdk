@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { Coin } from "../../base/v1beta1/coin.ts";
 import { Metadata, Params, SendEnabled } from "./bank.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.bank.v1beta1";
 

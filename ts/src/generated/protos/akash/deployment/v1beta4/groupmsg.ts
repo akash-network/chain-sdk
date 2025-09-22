@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { GroupID } from "../v1/group.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.deployment.v1beta4";
 

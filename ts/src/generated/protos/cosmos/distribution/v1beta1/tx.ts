@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Coin } from "../../base/v1beta1/coin.ts";
 import { Params } from "./distribution.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.distribution.v1beta1";
 

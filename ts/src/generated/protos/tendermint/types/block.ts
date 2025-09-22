@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { EvidenceList } from "./evidence.ts";
 import { Commit, Data, Header } from "./types.ts";
-import Long = require("long");
 
 export const protobufPackage = "tendermint.types";
 

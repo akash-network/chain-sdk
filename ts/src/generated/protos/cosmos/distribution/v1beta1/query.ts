@@ -5,8 +5,8 @@
 // source: cosmos/distribution/v1beta1/query.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { DecCoin } from "../../base/v1beta1/coin.ts";
 import {

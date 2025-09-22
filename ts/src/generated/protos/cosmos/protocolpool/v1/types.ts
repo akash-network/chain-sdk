@@ -5,8 +5,8 @@
 // source: cosmos/protocolpool/v1/types.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
 export const protobufPackage = "cosmos.protocolpool.v1";

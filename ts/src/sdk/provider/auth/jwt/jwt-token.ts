@@ -3,7 +3,7 @@ import { JwtValidator } from "./jwt-validator.ts";
 import type { JwtTokenPayload } from "./types.ts";
 import type { SignArbitraryAkashWallet } from "./wallet-utils.ts";
 
-export class JwtToken {
+export class JwtTokenManager {
   private validator: JwtValidator;
   private wallet: SignArbitraryAkashWallet;
 
@@ -32,7 +32,7 @@ export class JwtToken {
    *     pubkey
    *   }
    * );
-   * const token = await jwtToken.createToken({
+   * const token = await jwtToken.generateToken({
    *   version: "v1",
    *   iss: "https://example.com",
    *   exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
@@ -40,7 +40,7 @@ export class JwtToken {
    * });
    * console.log(token);
    */
-  async createToken(options: CreateJWTOptions): Promise<string> {
+  async generateToken(options: CreateJWTOptions): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     const inputPayload: JwtTokenPayload = {
       iss: options.iss,

@@ -5,8 +5,8 @@
 // source: tendermint/types/params.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Duration } from "../../google/protobuf/duration.ts";
 
 export const protobufPackage = "tendermint.types";

@@ -5,8 +5,8 @@
 // source: cosmos/gov/v1beta1/gov.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Duration } from "../../../google/protobuf/duration.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";

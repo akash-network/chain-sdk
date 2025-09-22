@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Coin, DecCoin } from "../../../../cosmos/base/v1beta1/coin.ts";
 import { Payment as Payment1 } from "../../id/v1/id.ts";
 import { State, stateFromJSON, stateToJSON } from "./state.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.escrow.types.v1";
 

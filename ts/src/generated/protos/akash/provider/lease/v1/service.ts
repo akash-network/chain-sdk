@@ -5,8 +5,8 @@
 // source: akash/provider/lease/v1/service.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Group } from "../../../manifest/v2beta3/group.ts";
 import { LeaseID } from "../../../market/v1/lease.ts";
 

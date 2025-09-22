@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { ClientInfo } from "./client_info.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.discovery.v1";
 

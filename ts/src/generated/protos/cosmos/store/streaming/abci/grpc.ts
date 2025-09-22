@@ -5,8 +5,8 @@
 // source: cosmos/store/streaming/abci/grpc.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { RequestFinalizeBlock, ResponseCommit, ResponseFinalizeBlock } from "../../../../tendermint/abci/types.ts";
 import { StoreKVPair } from "../../v1beta1/listening.ts";
 

@@ -6,11 +6,11 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Lease } from "../v1/lease.ts";
 import { Bid } from "./bid.ts";
 import { Order } from "./order.ts";
 import { Params } from "./params.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.market.v1beta5";
 

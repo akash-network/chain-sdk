@@ -5,8 +5,8 @@
 // source: cosmos/distribution/v1beta1/distribution.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Coin, DecCoin } from "../../base/v1beta1/coin.ts";
 
 export const protobufPackage = "cosmos.distribution.v1beta1";

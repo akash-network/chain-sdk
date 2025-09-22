@@ -5,8 +5,8 @@
 // source: cosmos/group/v1/genesis.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { GroupInfo, GroupMember, GroupPolicyInfo, Proposal, Vote } from "./types.ts";
 
 export const protobufPackage = "cosmos.group.v1";

@@ -5,8 +5,8 @@
 // source: cosmos/base/tendermint/v1beta1/query.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { DefaultNodeInfo } from "../../../../tendermint/p2p/types.ts";
 import { Block } from "../../../../tendermint/types/block.ts";

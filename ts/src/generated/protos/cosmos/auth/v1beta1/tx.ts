@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Params } from "./auth.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.auth.v1beta1";
 

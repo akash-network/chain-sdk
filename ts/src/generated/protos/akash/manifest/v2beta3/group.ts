@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Service } from "./service.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.manifest.v2beta3";
 

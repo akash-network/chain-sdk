@@ -5,8 +5,8 @@
 // source: cosmos/staking/v1beta1/genesis.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Delegation, Params, Redelegation, UnbondingDelegation, Validator } from "./staking.ts";
 
 export const protobufPackage = "cosmos.staking.v1beta1";

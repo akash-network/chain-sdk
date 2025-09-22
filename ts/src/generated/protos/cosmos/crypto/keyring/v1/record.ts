@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { BIP44Params } from "../../hd/v1/hd.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.crypto.keyring.v1";
 

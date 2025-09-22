@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
 import { Account } from "../../escrow/types/v1/account.ts";
 import { Payment } from "../../escrow/types/v1/payment.ts";
@@ -17,7 +18,6 @@ import { Bid } from "./bid.ts";
 import { BidFilters, OrderFilters } from "./filters.ts";
 import { Order } from "./order.ts";
 import { Params } from "./params.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.market.v1beta5";
 

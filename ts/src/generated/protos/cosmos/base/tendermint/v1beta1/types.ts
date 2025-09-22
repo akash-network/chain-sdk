@@ -5,8 +5,8 @@
 // source: cosmos/base/tendermint/v1beta1/types.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Timestamp } from "../../../../google/protobuf/timestamp.ts";
 import { EvidenceList } from "../../../../tendermint/types/evidence.ts";
 import { BlockID, Commit, Data } from "../../../../tendermint/types/types.ts";
