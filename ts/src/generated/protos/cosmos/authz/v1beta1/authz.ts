@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../google/protobuf/any.ts";
-import Long = require("long");
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
 export const protobufPackage = "cosmos.authz.v1beta1";

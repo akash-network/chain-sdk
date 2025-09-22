@@ -5,8 +5,8 @@
 // source: akash/market/v1beta5/order.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { GroupSpec } from "../../deployment/v1beta4/groupspec.ts";
 import { OrderID } from "../v1/order.ts";
 

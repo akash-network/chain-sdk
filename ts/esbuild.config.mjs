@@ -15,7 +15,10 @@ const baseConfig = (type, config) => ({
   ],
   bundle: true,
   sourcemap: true,
-  external: Object.keys(packageDetails.dependencies),
+  packages: "external",
+  external: [
+    "node:*",
+  ],
 });
 
 /**

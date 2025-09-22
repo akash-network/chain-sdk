@@ -5,8 +5,8 @@
 // source: cosmos/staking/v1beta1/tx.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 import { Coin } from "../../base/v1beta1/coin.ts";

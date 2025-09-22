@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Deployment } from "../v1/deployment.ts";
 import { Group } from "./group.ts";
 import { Params } from "./params.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.deployment.v1beta4";
 

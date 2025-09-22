@@ -5,8 +5,8 @@
 // source: cosmos/benchmark/v1/tx.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Op } from "./benchmark.ts";
 
 export const protobufPackage = "cosmos.benchmark.v1";

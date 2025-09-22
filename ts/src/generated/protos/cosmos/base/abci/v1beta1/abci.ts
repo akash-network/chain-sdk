@@ -5,8 +5,8 @@
 // source: cosmos/base/abci/v1beta1/abci.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { Event } from "../../../../tendermint/abci/types.ts";
 import { Block } from "../../../../tendermint/types/block.ts";

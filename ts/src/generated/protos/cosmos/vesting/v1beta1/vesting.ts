@@ -5,8 +5,8 @@
 // source: cosmos/vesting/v1beta1/vesting.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { BaseAccount } from "../../auth/v1beta1/auth.ts";
 import { Coin } from "../../base/v1beta1/coin.ts";
 

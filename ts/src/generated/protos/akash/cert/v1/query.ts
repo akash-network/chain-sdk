@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
 import { Certificate } from "./cert.ts";
 import { CertificateFilter } from "./filters.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.cert.v1";
 

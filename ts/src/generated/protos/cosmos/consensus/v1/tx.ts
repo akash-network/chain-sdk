@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { ABCIParams, BlockParams, EvidenceParams, ValidatorParams } from "../../../tendermint/types/params.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.consensus.v1";
 

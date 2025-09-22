@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
 import { AuditedProvider } from "./audit.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.audit.v1";
 

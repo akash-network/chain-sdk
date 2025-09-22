@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { Grant } from "./feegrant.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.feegrant.v1beta1";
 

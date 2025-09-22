@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../google/protobuf/any.ts";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.evidence.v1beta1";
 

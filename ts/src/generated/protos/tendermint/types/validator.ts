@@ -5,8 +5,8 @@
 // source: tendermint/types/validator.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PublicKey } from "../crypto/keys.ts";
 
 export const protobufPackage = "tendermint.types";

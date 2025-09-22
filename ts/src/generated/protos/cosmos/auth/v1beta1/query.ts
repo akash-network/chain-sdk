@@ -5,8 +5,8 @@
 // source: cosmos/auth/v1beta1/query.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../google/protobuf/any.ts";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { BaseAccount, Params } from "./auth.ts";

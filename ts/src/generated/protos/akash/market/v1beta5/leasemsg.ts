@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { BidID } from "../v1/bid.ts";
 import { LeaseID } from "../v1/lease.ts";
 import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "../v1/types.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.market.v1beta5";
 

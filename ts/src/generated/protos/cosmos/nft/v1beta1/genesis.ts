@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Class, NFT } from "./nft.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.nft.v1beta1";
 

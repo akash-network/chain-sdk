@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long = require("long");
+import Long from "long";
 
 export const protobufPackage = "cosmos.protocolpool.module.v1";
 

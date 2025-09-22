@@ -5,8 +5,8 @@
 // source: cosmos/base/node/v1beta1/query.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Timestamp } from "../../../../google/protobuf/timestamp.ts";
 
 export const protobufPackage = "cosmos.base.node.v1beta1";

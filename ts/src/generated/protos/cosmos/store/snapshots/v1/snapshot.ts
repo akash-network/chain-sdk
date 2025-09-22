@@ -5,8 +5,8 @@
 // source: cosmos/store/snapshots/v1/snapshot.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 
 export const protobufPackage = "cosmos.store.snapshots.v1";
 

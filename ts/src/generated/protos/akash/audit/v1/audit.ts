@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Attribute } from "../../base/attributes/v1/attribute.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.audit.v1";
 

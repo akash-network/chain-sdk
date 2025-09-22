@@ -5,8 +5,8 @@
 // source: akash/deployment/v1beta4/group.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { GroupID } from "../v1/group.ts";
 import { GroupSpec } from "./groupspec.ts";
 

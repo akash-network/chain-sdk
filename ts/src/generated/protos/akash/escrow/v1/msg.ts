@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Deposit } from "../../base/deposit/v1/deposit.ts";
 import { Account } from "../id/v1/id.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.escrow.v1";
 

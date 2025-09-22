@@ -5,8 +5,8 @@
 // source: cosmos/slashing/v1beta1/slashing.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Duration } from "../../../google/protobuf/duration.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 

@@ -5,8 +5,8 @@
 // source: cosmos/base/query/v1beta1/pagination.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 
 export const protobufPackage = "cosmos.base.query.v1beta1";
 

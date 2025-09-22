@@ -5,13 +5,13 @@
 // source: akash/escrow/types/v1/account.proto
 
 /* eslint-disable */
-import { State, stateFromJSON, stateToJSON } from "./state.ts";
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { DecCoin } from "../../../../cosmos/base/v1beta1/coin.ts";
 import { Account as Account1 } from "../../id/v1/id.ts";
 import { Balance } from "./balance.ts";
 import { Depositor } from "./deposit.ts";
+import { State, stateFromJSON, stateToJSON } from "./state.ts";
 
 export const protobufPackage = "akash.escrow.types.v1";
 

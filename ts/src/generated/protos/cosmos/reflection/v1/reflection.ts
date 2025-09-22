@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { FileDescriptorProto } from "../../../google/protobuf/descriptor.ts";
-import Long = require("long");
 
 export const protobufPackage = "cosmos.reflection.v1";
 

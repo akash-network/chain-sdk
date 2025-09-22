@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
+import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 import { Quantity } from "../../../k8s.io/apimachinery/pkg/api/resource/generated.ts";
 import { Cluster } from "../../inventory/v1/cluster.ts";
-import Long = require("long");
-import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
 export const protobufPackage = "akash.provider.v1";
 

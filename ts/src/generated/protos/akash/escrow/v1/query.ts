@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
 import { Account } from "../types/v1/account.ts";
 import { Payment } from "../types/v1/payment.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.escrow.v1";
 

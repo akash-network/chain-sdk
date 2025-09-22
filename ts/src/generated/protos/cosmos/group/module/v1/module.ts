@@ -5,8 +5,8 @@
 // source: cosmos/group/module/v1/module.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Duration } from "../../../../google/protobuf/duration.ts";
 
 export const protobufPackage = "cosmos.group.module.v1";

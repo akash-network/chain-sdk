@@ -5,8 +5,8 @@
 // source: tendermint/types/evidence.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Timestamp } from "../../google/protobuf/timestamp.ts";
 import { LightBlock, Vote } from "./types.ts";
 import { Validator } from "./validator.ts";

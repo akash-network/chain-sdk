@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Quantity } from "../../../k8s.io/apimachinery/pkg/api/resource/generated.ts";
 import { Attribute } from "../../base/attributes/v1/attribute.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.inventory.v1";
 

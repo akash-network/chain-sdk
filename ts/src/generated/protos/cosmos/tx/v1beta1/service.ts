@@ -5,8 +5,8 @@
 // source: cosmos/tx/v1beta1/service.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Block } from "../../../tendermint/types/block.ts";
 import { BlockID } from "../../../tendermint/types/types.ts";
 import { GasInfo, Result, TxResponse } from "../../base/abci/v1beta1/abci.ts";

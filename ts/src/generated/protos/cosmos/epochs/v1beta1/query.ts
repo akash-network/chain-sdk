@@ -5,8 +5,8 @@
 // source: cosmos/epochs/v1beta1/query.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { EpochInfo } from "./genesis.ts";
 
 export const protobufPackage = "cosmos.epochs.v1beta1";

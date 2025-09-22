@@ -5,8 +5,8 @@
 // source: cosmos/store/v1beta1/commit_info.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
 export const protobufPackage = "cosmos.store.v1beta1";

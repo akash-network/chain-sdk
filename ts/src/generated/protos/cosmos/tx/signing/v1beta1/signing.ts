@@ -5,8 +5,8 @@
 // source: cosmos/tx/signing/v1beta1/signing.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { CompactBitArray } from "../../../crypto/multisig/v1beta1/multisig.ts";
 

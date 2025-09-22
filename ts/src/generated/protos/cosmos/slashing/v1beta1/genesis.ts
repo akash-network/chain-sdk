@@ -5,8 +5,8 @@
 // source: cosmos/slashing/v1beta1/genesis.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Params, ValidatorSigningInfo } from "./slashing.ts";
 
 export const protobufPackage = "cosmos.slashing.v1beta1";

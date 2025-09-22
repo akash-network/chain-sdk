@@ -5,8 +5,8 @@
 // source: tendermint/abci/types.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { Timestamp } from "../../google/protobuf/timestamp.ts";
 import { PublicKey } from "../crypto/keys.ts";
 import { ProofOps } from "../crypto/proof.ts";

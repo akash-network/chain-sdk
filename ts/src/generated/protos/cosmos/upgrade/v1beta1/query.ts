@@ -5,8 +5,8 @@
 // source: cosmos/upgrade/v1beta1/query.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { ModuleVersion, Plan } from "./upgrade.ts";
 
 export const protobufPackage = "cosmos.upgrade.v1beta1";

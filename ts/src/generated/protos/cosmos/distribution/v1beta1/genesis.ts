@@ -5,8 +5,8 @@
 // source: cosmos/distribution/v1beta1/genesis.proto
 
 /* eslint-disable */
-import Long = require("long");
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { DecCoin } from "../../base/v1beta1/coin.ts";
 import {
   DelegatorStartingInfo,

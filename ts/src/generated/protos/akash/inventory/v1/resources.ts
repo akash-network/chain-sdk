@@ -6,11 +6,11 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import Long from "long";
 import { CPU } from "./cpu.ts";
 import { GPU } from "./gpu.ts";
 import { Memory } from "./memory.ts";
 import { ResourcePair } from "./resourcepair.ts";
-import Long = require("long");
 
 export const protobufPackage = "akash.inventory.v1";
 
