@@ -1,0 +1,54 @@
+{
+  "accounts": [
+    {
+      "id": {
+        "scope": 1,
+        "xid": "akash1example"
+      },
+      "state": {
+        "owner": "akash1example",
+        "state": 1,
+        "transferred": [],
+        "settled_at": 0,
+        "funds": [
+          {
+            "denom": "uakt",
+            "amount": "1000000"
+          }
+        ],
+        "deposits": []
+      }
+    }
+  ],
+  "payments": [
+    {
+      "id": {
+        "aid": {
+          "scope": 1,
+          "xid": "akash1example"
+        },
+        "xid": "payment1"
+      },
+      "state": {
+        "owner": "akash1example",
+        "state": 1,
+        "rate": {
+          "denom": "uakt",
+          "amount": "1000"
+        },
+        "balance": {
+          "denom": "uakt",
+          "amount": "1000000"
+        },
+        "unsettled": {
+          "denom": "uakt",
+          "amount": "0"
+        },
+        "withdrawn": {
+          "denom": "uakt",
+          "amount": "0"
+        }
+      }
+    }
+  ]
+} 
