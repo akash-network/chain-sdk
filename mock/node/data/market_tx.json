@@ -1,0 +1,17 @@
+{
+  "create_bid_responses": [
+    {}
+  ],
+  "close_bid_responses": [
+    {}
+  ],
+  "withdraw_lease_responses": [
+    {}
+  ],
+  "create_lease_responses": [
+    {}
+  ],
+  "close_lease_responses": [
+    {}
+  ]
+}

@@ -14,10 +14,10 @@ import (
 	"syscall"
 	"time"
 
+	feegrantv1beta1 "cosmossdk.io/x/feegrant"
 	authv1beta1 "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzv1beta1 "github.com/cosmos/cosmos-sdk/x/authz"
 	bankv1beta1 "github.com/cosmos/cosmos-sdk/x/bank/types"
-	feegrantv1beta1 "cosmossdk.io/x/feegrant"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	_ "k8s.io/apimachinery/pkg/api/resource"
@@ -69,6 +69,30 @@ var BankData string
 //go:embed data/feegrant.json
 var FeegrantData string
 
+//go:embed data/deployment_tx.json
+var DeploymentTxData string
+
+//go:embed data/market_tx.json
+var MarketTxData string
+
+//go:embed data/escrow_tx.json
+var EscrowTxData string
+
+//go:embed data/cert_tx.json
+var CertTxData string
+
+//go:embed data/provider_tx.json
+var ProviderTxData string
+
+//go:embed data/audit_tx.json
+var AuditTxData string
+
+//go:embed data/take_tx.json
+var TakeTxData string
+
+//go:embed data/staking_tx.json
+var StakingTxData string
+
 // StaticDeployments holds the deployments loaded from JSON
 var StaticDeployments []deploymentv1beta4.QueryDeploymentResponse
 
@@ -105,20 +129,52 @@ var StaticBankData mocks.BankData
 // StaticFeegrantData holds the feegrant data loaded from JSON
 var StaticFeegrantData mocks.FeegrantData
 
+// StaticDeploymentTxData holds the deployment transaction data loaded from JSON
+var StaticDeploymentTxData mocks.DeploymentTxData
+
+// StaticMarketTxData holds the market transaction data loaded from JSON
+var StaticMarketTxData mocks.MarketTxData
+
+// StaticEscrowTxData holds the escrow transaction data loaded from JSON
+var StaticEscrowTxData mocks.EscrowTxData
+
+// StaticCertTxData holds the certificate transaction data loaded from JSON
+var StaticCertTxData mocks.CertTxData
+
+// StaticProviderTxData holds the provider transaction data loaded from JSON
+var StaticProviderTxData mocks.ProviderTxData
+
+// StaticAuditTxData holds the audit transaction data loaded from JSON
+var StaticAuditTxData mocks.AuditTxData
+
+// StaticTakeTxData holds the take transaction data loaded from JSON
+var StaticTakeTxData mocks.TakeTxData
+
+// StaticStakingTxData holds the staking transaction data loaded from JSON
+var StaticStakingTxData mocks.StakingTxData
+
 // embeddedData maps file names to their embedded content
 var embeddedData = map[string]string{
-	"deployments":  DeploymentsData,
-	"escrow":       EscrowData,
-	"providers":    ProvidersData,
-	"certificates": CertificatesData,
-	"market":       MarketData,
-	"audit":        AuditData,
-	"staking":      StakingData,
-	"take":         TakeData,
-	"authz":        AuthzData,
-	"auth":         AuthData,
-	"bank":         BankData,
-	"feegrant":     FeegrantData,
+	"deployments":   DeploymentsData,
+	"escrow":        EscrowData,
+	"providers":     ProvidersData,
+	"certificates":  CertificatesData,
+	"market":        MarketData,
+	"audit":         AuditData,
+	"staking":       StakingData,
+	"take":          TakeData,
+	"authz":         AuthzData,
+	"auth":          AuthData,
+	"bank":          BankData,
+	"feegrant":      FeegrantData,
+	"deployment_tx": DeploymentTxData,
+	"market_tx":     MarketTxData,
+	"escrow_tx":     EscrowTxData,
+	"cert_tx":       CertTxData,
+	"provider_tx":   ProviderTxData,
+	"audit_tx":      AuditTxData,
+	"take_tx":       TakeTxData,
+	"staking_tx":    StakingTxData,
 }
 
 func init() {
@@ -193,6 +249,54 @@ func init() {
 	if err != nil {
 		panic(fmt.Errorf("failed to unmarshal feegrant data: %w", err))
 	}
+
+	// Load deployment transaction data
+	err = json.Unmarshal([]byte(DeploymentTxData), &StaticDeploymentTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal deployment transaction data: %w", err))
+	}
+
+	// Load market transaction data
+	err = json.Unmarshal([]byte(MarketTxData), &StaticMarketTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal market transaction data: %w", err))
+	}
+
+	// Load escrow transaction data
+	err = json.Unmarshal([]byte(EscrowTxData), &StaticEscrowTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal escrow transaction data: %w", err))
+	}
+
+	// Load certificate transaction data
+	err = json.Unmarshal([]byte(CertTxData), &StaticCertTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal certificate transaction data: %w", err))
+	}
+
+	// Load provider transaction data
+	err = json.Unmarshal([]byte(ProviderTxData), &StaticProviderTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal provider transaction data: %w", err))
+	}
+
+	// Load audit transaction data
+	err = json.Unmarshal([]byte(AuditTxData), &StaticAuditTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal audit transaction data: %w", err))
+	}
+
+	// Load take transaction data
+	err = json.Unmarshal([]byte(TakeTxData), &StaticTakeTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal take transaction data: %w", err))
+	}
+
+	// Load staking transaction data
+	err = json.Unmarshal([]byte(StakingTxData), &StaticStakingTxData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal staking transaction data: %w", err))
+	}
 }
 
 func startGRPCServer(ctx context.Context) error {
@@ -201,6 +305,38 @@ func startGRPCServer(ctx context.Context) error {
 	// Register deployment server
 	mockDeploymentQueryServer := mocks.NewMockDeploymentQueryServer(StaticDeployments)
 	deploymentv1beta4.RegisterQueryServer(grpcSrv, mockDeploymentQueryServer)
+
+	// Register deployment transaction server
+	mockDeploymentMsgServer := mocks.NewMockDeploymentMsgServer(StaticDeploymentTxData)
+	deploymentv1beta4.RegisterMsgServer(grpcSrv, mockDeploymentMsgServer)
+
+	// Register market transaction server
+	mockMarketMsgServer := mocks.NewMockMarketMsgServer(StaticMarketTxData)
+	marketv1beta5.RegisterMsgServer(grpcSrv, mockMarketMsgServer)
+
+	// Register escrow transaction server
+	mockEscrowMsgServer := mocks.NewMockEscrowMsgServer(StaticEscrowTxData)
+	escrowv1.RegisterMsgServer(grpcSrv, mockEscrowMsgServer)
+
+	// Register certificate transaction server
+	mockCertMsgServer := mocks.NewMockCertMsgServer(StaticCertTxData)
+	certv1.RegisterMsgServer(grpcSrv, mockCertMsgServer)
+
+	// Register provider transaction server
+	mockProviderMsgServer := mocks.NewMockProviderMsgServer(StaticProviderTxData)
+	providerv1beta4.RegisterMsgServer(grpcSrv, mockProviderMsgServer)
+
+	// Register audit transaction server
+	mockAuditMsgServer := mocks.NewMockAuditMsgServer(StaticAuditTxData)
+	auditv1.RegisterMsgServer(grpcSrv, mockAuditMsgServer)
+
+	// Register take transaction server
+	mockTakeMsgServer := mocks.NewMockTakeMsgServer(StaticTakeTxData)
+	takev1.RegisterMsgServer(grpcSrv, mockTakeMsgServer)
+
+	// Register staking transaction server
+	mockStakingMsgServer := mocks.NewMockStakingMsgServer(StaticStakingTxData)
+	stakingv1beta3.RegisterMsgServer(grpcSrv, mockStakingMsgServer)
 
 	// Register escrow server
 	mockEscrowQueryServer := mocks.NewMockEscrowQueryServer(StaticEscrowData)
