@@ -76,6 +76,18 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
               ? JSON.stringify(method.input.toJSON(req.message))
               : undefined,
           });
+
+          if (!response.ok) {
+            const errBody = await response.text();
+            let jsonBody: Record<string, string> | undefined;
+            try {
+              jsonBody = JSON.parse(errBody);
+            } catch {}
+            const code = typeof jsonBody?.code === "number" ? jsonBody.code : Code.Unknown;
+            const message = jsonBody?.message || errBody || `HTTP ${response.status} ${response.statusText}`;
+            throw new ConnectError(message, code);
+          }
+
           const body = await response.json();
           return {
             stream: false,
