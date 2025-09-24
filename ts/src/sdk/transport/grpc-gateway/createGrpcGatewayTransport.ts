@@ -82,7 +82,9 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
             let jsonBody: Record<string, string> | undefined;
             try {
               jsonBody = JSON.parse(errBody);
-            } catch {}
+            } catch {
+              // ignore
+            }
             const code = typeof jsonBody?.code === "number" ? jsonBody.code : Code.Unknown;
             const message = jsonBody?.message || errBody || `HTTP ${response.status} ${response.statusText}`;
             throw new ConnectError(message, code);
