@@ -24,7 +24,7 @@ This package supports commonjs and ESM environments.
 
 ```typescript
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { createChainNodeSDK } from "@akashnetwork/chain-sdk";
+import { createChainNodeSDK } from "@akashnetwork/chain-sdk/chain";
 
 const mnemonic = "your mnemonic here";
 const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
@@ -53,10 +53,10 @@ console.log(deployments);
 #### Web Environment
 
 ```typescript
-import { createChainNodeWebSDK, type TxClient } from "@akashnetwork/chain-sdk/web";
+import { createChainNodeSDK, type TxClient } from "@akashnetwork/chain-sdk/chain/web";
 
 const wallet: TxClient = // kplr or leap wallet object in browser exposed by corresponding extension
-const sdk = createChainNodeWebSDK({
+const sdk = createChainNodeSDK({
   query: {
     baseUrl: "http://rpc.dev.akash.pub:31317", // grpc gateway api url
   },
@@ -78,7 +78,7 @@ const deployments = await sdk.akash.deployment.v1beta4.getDeployments({
 Currently provider SDK supports only `getStatus` and `streamStatus` methods over gRPC protocol.
 
 ```typescript
-import { createProviderSDK } from "@akashnetwork/chain-sdk";
+import { createProviderSDK } from "@akashnetwork/chain-sdk/provider";
 
 const sdk = createProviderSDK({
   baseUrl: "https://provider.provider-02.sandbox-01.aksh.pw:8444",
@@ -101,7 +101,7 @@ This is the recommended method for getting authorized access to your resources o
 
 ```ts
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { JwtTokenManager, createSignArbitraryAkashWallet } from "@akashnetwork/chain-sdk"
+import { JwtTokenManager, createSignArbitraryAkashWallet } from "@akashnetwork/chain-sdk/provider"
 
 const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
 const accounts = await wallet.getAccounts();
@@ -144,7 +144,7 @@ It is essential to store the generated certificate on-chain, as the provider ver
 
 ```ts
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { certificateManager } from "@akashnetwork/chain-sdk"
+import { certificateManager } from "@akashnetwork/chain-sdk/provider"
 import { fetch, Agent } from 'undici'
 import { chainSdk } from "./chainSdk"; // chainSdk created in the example above
 
@@ -186,7 +186,7 @@ const leaseDetails = await fetch(`https://some-provider.url:8443/lease/${lease.d
 ### Stack Definition Language (SDL)
 
 ```typescript
-import { SDL } from "@akashnetwork/chain-sdk";
+import { SDL } from "@akashnetwork/chain-sdk/sdl";
 
 const yaml = `
 version: "2.0"
