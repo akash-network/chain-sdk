@@ -170,8 +170,8 @@ const lease = {
 const leaseDetails = await fetch(`https://some-provider.url:8443/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`, {
   dispatcher: new Agent({
     connect: {
-      cert: clientCertPair.publicKey,
-      key: clientCertPair.cert
+      cert: clientCertPair.cert,
+      key: clientCertPair.privateKey
     }
   })
 });
