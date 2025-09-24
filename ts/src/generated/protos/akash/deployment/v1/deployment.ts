@@ -244,7 +244,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
       id: isSet(object.id) ? DeploymentID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? deployment_StateFromJSON(object.state) : 0,
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
     };
   },
 
@@ -260,7 +260,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
       obj.hash = base64FromBytes(message.hash);
     }
     if (!message.createdAt.equals(Long.ZERO)) {
-      obj.createdAt = (message.createdAt || Long.ZERO).toString();
+      obj.created_at = (message.createdAt || Long.ZERO).toString();
     }
     return obj;
   },

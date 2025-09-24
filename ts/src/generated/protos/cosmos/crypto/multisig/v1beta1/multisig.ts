@@ -145,7 +145,7 @@ export const CompactBitArray: MessageFns<CompactBitArray, "cosmos.crypto.multisi
 
   fromJSON(object: any): CompactBitArray {
     return {
-      extraBitsStored: isSet(object.extraBitsStored) ? globalThis.Number(object.extraBitsStored) : 0,
+      extraBitsStored: isSet(object.extra_bits_stored) ? globalThis.Number(object.extra_bits_stored) : 0,
       elems: isSet(object.elems) ? bytesFromBase64(object.elems) : new Uint8Array(0),
     };
   },
@@ -153,7 +153,7 @@ export const CompactBitArray: MessageFns<CompactBitArray, "cosmos.crypto.multisi
   toJSON(message: CompactBitArray): unknown {
     const obj: any = {};
     if (message.extraBitsStored !== 0) {
-      obj.extraBitsStored = Math.round(message.extraBitsStored);
+      obj.extra_bits_stored = Math.round(message.extraBitsStored);
     }
     if (message.elems.length !== 0) {
       obj.elems = base64FromBytes(message.elems);

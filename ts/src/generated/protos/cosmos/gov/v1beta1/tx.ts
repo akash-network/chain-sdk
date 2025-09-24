@@ -139,8 +139,8 @@ export const MsgSubmitProposal: MessageFns<MsgSubmitProposal, "cosmos.gov.v1beta
   fromJSON(object: any): MsgSubmitProposal {
     return {
       content: isSet(object.content) ? Any.fromJSON(object.content) : undefined,
-      initialDeposit: globalThis.Array.isArray(object?.initialDeposit)
-        ? object.initialDeposit.map((e: any) => Coin.fromJSON(e))
+      initialDeposit: globalThis.Array.isArray(object?.initial_deposit)
+        ? object.initial_deposit.map((e: any) => Coin.fromJSON(e))
         : [],
       proposer: isSet(object.proposer) ? globalThis.String(object.proposer) : "",
     };
@@ -152,7 +152,7 @@ export const MsgSubmitProposal: MessageFns<MsgSubmitProposal, "cosmos.gov.v1beta
       obj.content = Any.toJSON(message.content);
     }
     if (message.initialDeposit?.length) {
-      obj.initialDeposit = message.initialDeposit.map((e) => Coin.toJSON(e));
+      obj.initial_deposit = message.initialDeposit.map((e) => Coin.toJSON(e));
     }
     if (message.proposer !== "") {
       obj.proposer = message.proposer;
@@ -216,13 +216,13 @@ export const MsgSubmitProposalResponse: MessageFns<
   },
 
   fromJSON(object: any): MsgSubmitProposalResponse {
-    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
   },
 
   toJSON(message: MsgSubmitProposalResponse): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -301,7 +301,7 @@ export const MsgVote: MessageFns<MsgVote, "cosmos.gov.v1beta1.MsgVote"> = {
 
   fromJSON(object: any): MsgVote {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       option: isSet(object.option) ? voteOptionFromJSON(object.option) : 0,
     };
@@ -310,7 +310,7 @@ export const MsgVote: MessageFns<MsgVote, "cosmos.gov.v1beta1.MsgVote"> = {
   toJSON(message: MsgVote): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -442,7 +442,7 @@ export const MsgVoteWeighted: MessageFns<MsgVoteWeighted, "cosmos.gov.v1beta1.Ms
 
   fromJSON(object: any): MsgVoteWeighted {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       options: globalThis.Array.isArray(object?.options)
         ? object.options.map((e: any) => WeightedVoteOption.fromJSON(e))
@@ -453,7 +453,7 @@ export const MsgVoteWeighted: MessageFns<MsgVoteWeighted, "cosmos.gov.v1beta1.Ms
   toJSON(message: MsgVoteWeighted): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -588,7 +588,7 @@ export const MsgDeposit: MessageFns<MsgDeposit, "cosmos.gov.v1beta1.MsgDeposit">
 
   fromJSON(object: any): MsgDeposit {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
@@ -597,7 +597,7 @@ export const MsgDeposit: MessageFns<MsgDeposit, "cosmos.gov.v1beta1.MsgDeposit">
   toJSON(message: MsgDeposit): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.depositor !== "") {
       obj.depositor = message.depositor;

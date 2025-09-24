@@ -161,26 +161,26 @@ export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta
 
   fromJSON(object: any): ConfigResponse {
     return {
-      minimumGasPrice: isSet(object.minimumGasPrice) ? globalThis.String(object.minimumGasPrice) : "",
-      pruningKeepRecent: isSet(object.pruningKeepRecent) ? globalThis.String(object.pruningKeepRecent) : "",
-      pruningInterval: isSet(object.pruningInterval) ? globalThis.String(object.pruningInterval) : "",
-      haltHeight: isSet(object.haltHeight) ? Long.fromValue(object.haltHeight) : Long.UZERO,
+      minimumGasPrice: isSet(object.minimum_gas_price) ? globalThis.String(object.minimum_gas_price) : "",
+      pruningKeepRecent: isSet(object.pruning_keep_recent) ? globalThis.String(object.pruning_keep_recent) : "",
+      pruningInterval: isSet(object.pruning_interval) ? globalThis.String(object.pruning_interval) : "",
+      haltHeight: isSet(object.halt_height) ? Long.fromValue(object.halt_height) : Long.UZERO,
     };
   },
 
   toJSON(message: ConfigResponse): unknown {
     const obj: any = {};
     if (message.minimumGasPrice !== "") {
-      obj.minimumGasPrice = message.minimumGasPrice;
+      obj.minimum_gas_price = message.minimumGasPrice;
     }
     if (message.pruningKeepRecent !== "") {
-      obj.pruningKeepRecent = message.pruningKeepRecent;
+      obj.pruning_keep_recent = message.pruningKeepRecent;
     }
     if (message.pruningInterval !== "") {
-      obj.pruningInterval = message.pruningInterval;
+      obj.pruning_interval = message.pruningInterval;
     }
     if (!message.haltHeight.equals(Long.UZERO)) {
-      obj.haltHeight = (message.haltHeight || Long.UZERO).toString();
+      obj.halt_height = (message.haltHeight || Long.UZERO).toString();
     }
     return obj;
   },
@@ -335,18 +335,20 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
 
   fromJSON(object: any): StatusResponse {
     return {
-      earliestStoreHeight: isSet(object.earliestStoreHeight) ? Long.fromValue(object.earliestStoreHeight) : Long.UZERO,
+      earliestStoreHeight: isSet(object.earliest_store_height)
+        ? Long.fromValue(object.earliest_store_height)
+        : Long.UZERO,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      appHash: isSet(object.appHash) ? bytesFromBase64(object.appHash) : new Uint8Array(0),
-      validatorHash: isSet(object.validatorHash) ? bytesFromBase64(object.validatorHash) : new Uint8Array(0),
+      appHash: isSet(object.app_hash) ? bytesFromBase64(object.app_hash) : new Uint8Array(0),
+      validatorHash: isSet(object.validator_hash) ? bytesFromBase64(object.validator_hash) : new Uint8Array(0),
     };
   },
 
   toJSON(message: StatusResponse): unknown {
     const obj: any = {};
     if (!message.earliestStoreHeight.equals(Long.UZERO)) {
-      obj.earliestStoreHeight = (message.earliestStoreHeight || Long.UZERO).toString();
+      obj.earliest_store_height = (message.earliestStoreHeight || Long.UZERO).toString();
     }
     if (!message.height.equals(Long.UZERO)) {
       obj.height = (message.height || Long.UZERO).toString();
@@ -355,10 +357,10 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
       obj.timestamp = message.timestamp.toISOString();
     }
     if (message.appHash.length !== 0) {
-      obj.appHash = base64FromBytes(message.appHash);
+      obj.app_hash = base64FromBytes(message.appHash);
     }
     if (message.validatorHash.length !== 0) {
-      obj.validatorHash = base64FromBytes(message.validatorHash);
+      obj.validator_hash = base64FromBytes(message.validatorHash);
     }
     return obj;
   },

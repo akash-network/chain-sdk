@@ -129,9 +129,9 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
       cpu: isSet(object.cpu) ? CPU.fromJSON(object.cpu) : undefined,
       memory: isSet(object.memory) ? Memory.fromJSON(object.memory) : undefined,
       gpu: isSet(object.gpu) ? GPU.fromJSON(object.gpu) : undefined,
-      ephemeralStorage: isSet(object.ephemeralStorage) ? ResourcePair.fromJSON(object.ephemeralStorage) : undefined,
-      volumesAttached: isSet(object.volumesAttached) ? ResourcePair.fromJSON(object.volumesAttached) : undefined,
-      volumesMounted: isSet(object.volumesMounted) ? ResourcePair.fromJSON(object.volumesMounted) : undefined,
+      ephemeralStorage: isSet(object.ephemeral_storage) ? ResourcePair.fromJSON(object.ephemeral_storage) : undefined,
+      volumesAttached: isSet(object.volumes_attached) ? ResourcePair.fromJSON(object.volumes_attached) : undefined,
+      volumesMounted: isSet(object.volumes_mounted) ? ResourcePair.fromJSON(object.volumes_mounted) : undefined,
     };
   },
 
@@ -147,13 +147,13 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
       obj.gpu = GPU.toJSON(message.gpu);
     }
     if (message.ephemeralStorage !== undefined) {
-      obj.ephemeralStorage = ResourcePair.toJSON(message.ephemeralStorage);
+      obj.ephemeral_storage = ResourcePair.toJSON(message.ephemeralStorage);
     }
     if (message.volumesAttached !== undefined) {
-      obj.volumesAttached = ResourcePair.toJSON(message.volumesAttached);
+      obj.volumes_attached = ResourcePair.toJSON(message.volumesAttached);
     }
     if (message.volumesMounted !== undefined) {
-      obj.volumesMounted = ResourcePair.toJSON(message.volumesMounted);
+      obj.volumes_mounted = ResourcePair.toJSON(message.volumesMounted);
     }
     return obj;
   },

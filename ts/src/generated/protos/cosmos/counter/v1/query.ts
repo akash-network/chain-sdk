@@ -103,13 +103,13 @@ export const QueryGetCountResponse: MessageFns<QueryGetCountResponse, "cosmos.co
   },
 
   fromJSON(object: any): QueryGetCountResponse {
-    return { totalCount: isSet(object.totalCount) ? Long.fromValue(object.totalCount) : Long.ZERO };
+    return { totalCount: isSet(object.total_count) ? Long.fromValue(object.total_count) : Long.ZERO };
   },
 
   toJSON(message: QueryGetCountResponse): unknown {
     const obj: any = {};
     if (!message.totalCount.equals(Long.ZERO)) {
-      obj.totalCount = (message.totalCount || Long.ZERO).toString();
+      obj.total_count = (message.totalCount || Long.ZERO).toString();
     }
     return obj;
   },

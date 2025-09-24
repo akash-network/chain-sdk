@@ -283,8 +283,8 @@ export const MsgTripCircuitBreaker: MessageFns<MsgTripCircuitBreaker, "cosmos.ci
   fromJSON(object: any): MsgTripCircuitBreaker {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      msgTypeUrls: globalThis.Array.isArray(object?.msgTypeUrls)
-        ? object.msgTypeUrls.map((e: any) => globalThis.String(e))
+      msgTypeUrls: globalThis.Array.isArray(object?.msg_type_urls)
+        ? object.msg_type_urls.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -295,7 +295,7 @@ export const MsgTripCircuitBreaker: MessageFns<MsgTripCircuitBreaker, "cosmos.ci
       obj.authority = message.authority;
     }
     if (message.msgTypeUrls?.length) {
-      obj.msgTypeUrls = message.msgTypeUrls;
+      obj.msg_type_urls = message.msgTypeUrls;
     }
     return obj;
   },
@@ -426,8 +426,8 @@ export const MsgResetCircuitBreaker: MessageFns<MsgResetCircuitBreaker, "cosmos.
   fromJSON(object: any): MsgResetCircuitBreaker {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      msgTypeUrls: globalThis.Array.isArray(object?.msgTypeUrls)
-        ? object.msgTypeUrls.map((e: any) => globalThis.String(e))
+      msgTypeUrls: globalThis.Array.isArray(object?.msg_type_urls)
+        ? object.msg_type_urls.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -438,7 +438,7 @@ export const MsgResetCircuitBreaker: MessageFns<MsgResetCircuitBreaker, "cosmos.
       obj.authority = message.authority;
     }
     if (message.msgTypeUrls?.length) {
-      obj.msgTypeUrls = message.msgTypeUrls;
+      obj.msg_type_urls = message.msgTypeUrls;
     }
     return obj;
   },

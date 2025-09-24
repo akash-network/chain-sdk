@@ -352,9 +352,9 @@ export const DefaultNodeInfo: MessageFns<DefaultNodeInfo, "tendermint.p2p.Defaul
 
   fromJSON(object: any): DefaultNodeInfo {
     return {
-      protocolVersion: isSet(object.protocolVersion) ? ProtocolVersion.fromJSON(object.protocolVersion) : undefined,
-      defaultNodeId: isSet(object.defaultNodeId) ? globalThis.String(object.defaultNodeId) : "",
-      listenAddr: isSet(object.listenAddr) ? globalThis.String(object.listenAddr) : "",
+      protocolVersion: isSet(object.protocol_version) ? ProtocolVersion.fromJSON(object.protocol_version) : undefined,
+      defaultNodeId: isSet(object.default_node_id) ? globalThis.String(object.default_node_id) : "",
+      listenAddr: isSet(object.listen_addr) ? globalThis.String(object.listen_addr) : "",
       network: isSet(object.network) ? globalThis.String(object.network) : "",
       version: isSet(object.version) ? globalThis.String(object.version) : "",
       channels: isSet(object.channels) ? bytesFromBase64(object.channels) : new Uint8Array(0),
@@ -366,13 +366,13 @@ export const DefaultNodeInfo: MessageFns<DefaultNodeInfo, "tendermint.p2p.Defaul
   toJSON(message: DefaultNodeInfo): unknown {
     const obj: any = {};
     if (message.protocolVersion !== undefined) {
-      obj.protocolVersion = ProtocolVersion.toJSON(message.protocolVersion);
+      obj.protocol_version = ProtocolVersion.toJSON(message.protocolVersion);
     }
     if (message.defaultNodeId !== "") {
-      obj.defaultNodeId = message.defaultNodeId;
+      obj.default_node_id = message.defaultNodeId;
     }
     if (message.listenAddr !== "") {
-      obj.listenAddr = message.listenAddr;
+      obj.listen_addr = message.listenAddr;
     }
     if (message.network !== "") {
       obj.network = message.network;
@@ -464,18 +464,18 @@ export const DefaultNodeInfoOther: MessageFns<DefaultNodeInfoOther, "tendermint.
 
   fromJSON(object: any): DefaultNodeInfoOther {
     return {
-      txIndex: isSet(object.txIndex) ? globalThis.String(object.txIndex) : "",
-      rpcAddress: isSet(object.rpcAddress) ? globalThis.String(object.rpcAddress) : "",
+      txIndex: isSet(object.tx_index) ? globalThis.String(object.tx_index) : "",
+      rpcAddress: isSet(object.rpc_address) ? globalThis.String(object.rpc_address) : "",
     };
   },
 
   toJSON(message: DefaultNodeInfoOther): unknown {
     const obj: any = {};
     if (message.txIndex !== "") {
-      obj.txIndex = message.txIndex;
+      obj.tx_index = message.txIndex;
     }
     if (message.rpcAddress !== "") {
-      obj.rpcAddress = message.rpcAddress;
+      obj.rpc_address = message.rpcAddress;
     }
     return obj;
   },

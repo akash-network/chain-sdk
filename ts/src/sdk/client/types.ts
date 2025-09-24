@@ -27,6 +27,9 @@ export interface MessageDesc<TValue = unknown, TTypeName = string> {
   encode(message: TValue, writer?: BinaryWriter): BinaryWriter;
   decode(input: BinaryReader | Uint8Array, length?: number): TValue;
   fromPartial(object: DeepPartial<TValue>): TValue;
+  toJSON(message: TValue): unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fromJSON(object: any): TValue;
 }
 
 export type MessageShape<T> = T extends Pick<MessageDesc, "decode"> ? ReturnType<T["decode"]> : never;

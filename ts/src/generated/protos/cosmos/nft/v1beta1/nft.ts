@@ -154,7 +154,7 @@ export const Class: MessageFns<Class, "cosmos.nft.v1beta1.Class"> = {
       symbol: isSet(object.symbol) ? globalThis.String(object.symbol) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
       uri: isSet(object.uri) ? globalThis.String(object.uri) : "",
-      uriHash: isSet(object.uriHash) ? globalThis.String(object.uriHash) : "",
+      uriHash: isSet(object.uri_hash) ? globalThis.String(object.uri_hash) : "",
       data: isSet(object.data) ? Any.fromJSON(object.data) : undefined,
     };
   },
@@ -177,7 +177,7 @@ export const Class: MessageFns<Class, "cosmos.nft.v1beta1.Class"> = {
       obj.uri = message.uri;
     }
     if (message.uriHash !== "") {
-      obj.uriHash = message.uriHash;
+      obj.uri_hash = message.uriHash;
     }
     if (message.data !== undefined) {
       obj.data = Any.toJSON(message.data);
@@ -285,10 +285,10 @@ export const NFT: MessageFns<NFT, "cosmos.nft.v1beta1.NFT"> = {
 
   fromJSON(object: any): NFT {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       uri: isSet(object.uri) ? globalThis.String(object.uri) : "",
-      uriHash: isSet(object.uriHash) ? globalThis.String(object.uriHash) : "",
+      uriHash: isSet(object.uri_hash) ? globalThis.String(object.uri_hash) : "",
       data: isSet(object.data) ? Any.fromJSON(object.data) : undefined,
     };
   },
@@ -296,7 +296,7 @@ export const NFT: MessageFns<NFT, "cosmos.nft.v1beta1.NFT"> = {
   toJSON(message: NFT): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -305,7 +305,7 @@ export const NFT: MessageFns<NFT, "cosmos.nft.v1beta1.NFT"> = {
       obj.uri = message.uri;
     }
     if (message.uriHash !== "") {
-      obj.uriHash = message.uriHash;
+      obj.uri_hash = message.uriHash;
     }
     if (message.data !== undefined) {
       obj.data = Any.toJSON(message.data);

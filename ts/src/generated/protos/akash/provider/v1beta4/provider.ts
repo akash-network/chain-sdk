@@ -198,7 +198,7 @@ export const Provider: MessageFns<Provider, "akash.provider.v1beta4.Provider"> =
   fromJSON(object: any): Provider {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      hostUri: isSet(object.hostUri) ? globalThis.String(object.hostUri) : "",
+      hostUri: isSet(object.host_uri) ? globalThis.String(object.host_uri) : "",
       attributes: globalThis.Array.isArray(object?.attributes)
         ? object.attributes.map((e: any) => Attribute.fromJSON(e))
         : [],
@@ -212,7 +212,7 @@ export const Provider: MessageFns<Provider, "akash.provider.v1beta4.Provider"> =
       obj.owner = message.owner;
     }
     if (message.hostUri !== "") {
-      obj.hostUri = message.hostUri;
+      obj.host_uri = message.hostUri;
     }
     if (message.attributes?.length) {
       obj.attributes = message.attributes.map((e) => Attribute.toJSON(e));

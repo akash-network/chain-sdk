@@ -80,13 +80,15 @@ export const Module: MessageFns<Module, "cosmos.benchmark.module.v1.Module"> = {
   },
 
   fromJSON(object: any): Module {
-    return { genesisParams: isSet(object.genesisParams) ? GeneratorParams.fromJSON(object.genesisParams) : undefined };
+    return {
+      genesisParams: isSet(object.genesis_params) ? GeneratorParams.fromJSON(object.genesis_params) : undefined,
+    };
   },
 
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (message.genesisParams !== undefined) {
-      obj.genesisParams = GeneratorParams.toJSON(message.genesisParams);
+      obj.genesis_params = GeneratorParams.toJSON(message.genesisParams);
     }
     return obj;
   },
@@ -266,16 +268,16 @@ export const GeneratorParams: MessageFns<GeneratorParams, "cosmos.benchmark.modu
   fromJSON(object: any): GeneratorParams {
     return {
       seed: isSet(object.seed) ? Long.fromValue(object.seed) : Long.UZERO,
-      bucketCount: isSet(object.bucketCount) ? Long.fromValue(object.bucketCount) : Long.UZERO,
-      keyMean: isSet(object.keyMean) ? Long.fromValue(object.keyMean) : Long.UZERO,
-      keyStdDev: isSet(object.keyStdDev) ? Long.fromValue(object.keyStdDev) : Long.UZERO,
-      valueMean: isSet(object.valueMean) ? Long.fromValue(object.valueMean) : Long.UZERO,
-      valueStdDev: isSet(object.valueStdDev) ? Long.fromValue(object.valueStdDev) : Long.UZERO,
-      genesisCount: isSet(object.genesisCount) ? Long.fromValue(object.genesisCount) : Long.UZERO,
-      insertWeight: isSet(object.insertWeight) ? globalThis.Number(object.insertWeight) : 0,
-      updateWeight: isSet(object.updateWeight) ? globalThis.Number(object.updateWeight) : 0,
-      getWeight: isSet(object.getWeight) ? globalThis.Number(object.getWeight) : 0,
-      deleteWeight: isSet(object.deleteWeight) ? globalThis.Number(object.deleteWeight) : 0,
+      bucketCount: isSet(object.bucket_count) ? Long.fromValue(object.bucket_count) : Long.UZERO,
+      keyMean: isSet(object.key_mean) ? Long.fromValue(object.key_mean) : Long.UZERO,
+      keyStdDev: isSet(object.key_std_dev) ? Long.fromValue(object.key_std_dev) : Long.UZERO,
+      valueMean: isSet(object.value_mean) ? Long.fromValue(object.value_mean) : Long.UZERO,
+      valueStdDev: isSet(object.value_std_dev) ? Long.fromValue(object.value_std_dev) : Long.UZERO,
+      genesisCount: isSet(object.genesis_count) ? Long.fromValue(object.genesis_count) : Long.UZERO,
+      insertWeight: isSet(object.insert_weight) ? globalThis.Number(object.insert_weight) : 0,
+      updateWeight: isSet(object.update_weight) ? globalThis.Number(object.update_weight) : 0,
+      getWeight: isSet(object.get_weight) ? globalThis.Number(object.get_weight) : 0,
+      deleteWeight: isSet(object.delete_weight) ? globalThis.Number(object.delete_weight) : 0,
     };
   },
 
@@ -285,34 +287,34 @@ export const GeneratorParams: MessageFns<GeneratorParams, "cosmos.benchmark.modu
       obj.seed = (message.seed || Long.UZERO).toString();
     }
     if (!message.bucketCount.equals(Long.UZERO)) {
-      obj.bucketCount = (message.bucketCount || Long.UZERO).toString();
+      obj.bucket_count = (message.bucketCount || Long.UZERO).toString();
     }
     if (!message.keyMean.equals(Long.UZERO)) {
-      obj.keyMean = (message.keyMean || Long.UZERO).toString();
+      obj.key_mean = (message.keyMean || Long.UZERO).toString();
     }
     if (!message.keyStdDev.equals(Long.UZERO)) {
-      obj.keyStdDev = (message.keyStdDev || Long.UZERO).toString();
+      obj.key_std_dev = (message.keyStdDev || Long.UZERO).toString();
     }
     if (!message.valueMean.equals(Long.UZERO)) {
-      obj.valueMean = (message.valueMean || Long.UZERO).toString();
+      obj.value_mean = (message.valueMean || Long.UZERO).toString();
     }
     if (!message.valueStdDev.equals(Long.UZERO)) {
-      obj.valueStdDev = (message.valueStdDev || Long.UZERO).toString();
+      obj.value_std_dev = (message.valueStdDev || Long.UZERO).toString();
     }
     if (!message.genesisCount.equals(Long.UZERO)) {
-      obj.genesisCount = (message.genesisCount || Long.UZERO).toString();
+      obj.genesis_count = (message.genesisCount || Long.UZERO).toString();
     }
     if (message.insertWeight !== 0) {
-      obj.insertWeight = message.insertWeight;
+      obj.insert_weight = message.insertWeight;
     }
     if (message.updateWeight !== 0) {
-      obj.updateWeight = message.updateWeight;
+      obj.update_weight = message.updateWeight;
     }
     if (message.getWeight !== 0) {
-      obj.getWeight = message.getWeight;
+      obj.get_weight = message.getWeight;
     }
     if (message.deleteWeight !== 0) {
-      obj.deleteWeight = message.deleteWeight;
+      obj.delete_weight = message.deleteWeight;
     }
     return obj;
   },

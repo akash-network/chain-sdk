@@ -72,18 +72,18 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      bidMinDeposit: isSet(object.bidMinDeposit) ? Coin.fromJSON(object.bidMinDeposit) : undefined,
-      orderMaxBids: isSet(object.orderMaxBids) ? globalThis.Number(object.orderMaxBids) : 0,
+      bidMinDeposit: isSet(object.bid_min_deposit) ? Coin.fromJSON(object.bid_min_deposit) : undefined,
+      orderMaxBids: isSet(object.order_max_bids) ? globalThis.Number(object.order_max_bids) : 0,
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.bidMinDeposit !== undefined) {
-      obj.bidMinDeposit = Coin.toJSON(message.bidMinDeposit);
+      obj.bid_min_deposit = Coin.toJSON(message.bidMinDeposit);
     }
     if (message.orderMaxBids !== 0) {
-      obj.orderMaxBids = Math.round(message.orderMaxBids);
+      obj.order_max_bids = Math.round(message.orderMaxBids);
     }
     return obj;
   },

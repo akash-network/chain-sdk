@@ -128,8 +128,8 @@ export const ListAllInterfacesResponse: MessageFns<
 
   fromJSON(object: any): ListAllInterfacesResponse {
     return {
-      interfaceNames: globalThis.Array.isArray(object?.interfaceNames)
-        ? object.interfaceNames.map((e: any) => globalThis.String(e))
+      interfaceNames: globalThis.Array.isArray(object?.interface_names)
+        ? object.interface_names.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -137,7 +137,7 @@ export const ListAllInterfacesResponse: MessageFns<
   toJSON(message: ListAllInterfacesResponse): unknown {
     const obj: any = {};
     if (message.interfaceNames?.length) {
-      obj.interfaceNames = message.interfaceNames;
+      obj.interface_names = message.interfaceNames;
     }
     return obj;
   },
@@ -194,13 +194,13 @@ export const ListImplementationsRequest: MessageFns<
   },
 
   fromJSON(object: any): ListImplementationsRequest {
-    return { interfaceName: isSet(object.interfaceName) ? globalThis.String(object.interfaceName) : "" };
+    return { interfaceName: isSet(object.interface_name) ? globalThis.String(object.interface_name) : "" };
   },
 
   toJSON(message: ListImplementationsRequest): unknown {
     const obj: any = {};
     if (message.interfaceName !== "") {
-      obj.interfaceName = message.interfaceName;
+      obj.interface_name = message.interfaceName;
     }
     return obj;
   },
@@ -258,8 +258,8 @@ export const ListImplementationsResponse: MessageFns<
 
   fromJSON(object: any): ListImplementationsResponse {
     return {
-      implementationMessageNames: globalThis.Array.isArray(object?.implementationMessageNames)
-        ? object.implementationMessageNames.map((e: any) => globalThis.String(e))
+      implementationMessageNames: globalThis.Array.isArray(object?.implementation_message_names)
+        ? object.implementation_message_names.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -267,7 +267,7 @@ export const ListImplementationsResponse: MessageFns<
   toJSON(message: ListImplementationsResponse): unknown {
     const obj: any = {};
     if (message.implementationMessageNames?.length) {
-      obj.implementationMessageNames = message.implementationMessageNames;
+      obj.implementation_message_names = message.implementationMessageNames;
     }
     return obj;
   },

@@ -1,4 +1,4 @@
-import { create, fromBinary, toBinary, type AnyDesc, type DescFile, type DescMessage, type Message, type MessageInitShape } from "@bufbuild/protobuf";
+import { create, fromBinary, fromJson, toBinary, toJson, type AnyDesc, type DescFile, type DescMessage, type Message, type MessageInitShape } from "@bufbuild/protobuf";
 import type { GenMessage, GenService, GenServiceMethods } from "@bufbuild/protobuf/codegenv1";
 import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import assert from "assert";
@@ -134,6 +134,12 @@ function createMessageDesc<T extends DescMessage>(schema: T): MessageDesc<Messag
     fromPartial(message) {
       const { $typeName, ...rest } = create(schema, message as any);
       return rest as unknown as MessageInitShape<T>;
+    },
+    toJSON(message) {
+      return toJson(schema, create(schema, message as any));
+    },
+    fromJSON(message) {
+      return fromJson(schema, message);
     },
   };
 }

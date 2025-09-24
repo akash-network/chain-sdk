@@ -78,18 +78,20 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
 
   fromJSON(object: any): Module {
     return {
-      maxExecutionPeriod: isSet(object.maxExecutionPeriod) ? Duration.fromJSON(object.maxExecutionPeriod) : undefined,
-      maxMetadataLen: isSet(object.maxMetadataLen) ? Long.fromValue(object.maxMetadataLen) : Long.UZERO,
+      maxExecutionPeriod: isSet(object.max_execution_period)
+        ? Duration.fromJSON(object.max_execution_period)
+        : undefined,
+      maxMetadataLen: isSet(object.max_metadata_len) ? Long.fromValue(object.max_metadata_len) : Long.UZERO,
     };
   },
 
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (message.maxExecutionPeriod !== undefined) {
-      obj.maxExecutionPeriod = Duration.toJSON(message.maxExecutionPeriod);
+      obj.max_execution_period = Duration.toJSON(message.maxExecutionPeriod);
     }
     if (!message.maxMetadataLen.equals(Long.UZERO)) {
-      obj.maxMetadataLen = (message.maxMetadataLen || Long.UZERO).toString();
+      obj.max_metadata_len = (message.maxMetadataLen || Long.UZERO).toString();
     }
     return obj;
   },

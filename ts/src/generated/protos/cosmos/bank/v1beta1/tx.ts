@@ -143,8 +143,8 @@ export const MsgSend: MessageFns<MsgSend, "cosmos.bank.v1beta1.MsgSend"> = {
 
   fromJSON(object: any): MsgSend {
     return {
-      fromAddress: isSet(object.fromAddress) ? globalThis.String(object.fromAddress) : "",
-      toAddress: isSet(object.toAddress) ? globalThis.String(object.toAddress) : "",
+      fromAddress: isSet(object.from_address) ? globalThis.String(object.from_address) : "",
+      toAddress: isSet(object.to_address) ? globalThis.String(object.to_address) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
   },
@@ -152,10 +152,10 @@ export const MsgSend: MessageFns<MsgSend, "cosmos.bank.v1beta1.MsgSend"> = {
   toJSON(message: MsgSend): unknown {
     const obj: any = {};
     if (message.fromAddress !== "") {
-      obj.fromAddress = message.fromAddress;
+      obj.from_address = message.fromAddress;
     }
     if (message.toAddress !== "") {
-      obj.toAddress = message.toAddress;
+      obj.to_address = message.toAddress;
     }
     if (message.amount?.length) {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
@@ -534,11 +534,11 @@ export const MsgSetSendEnabled: MessageFns<MsgSetSendEnabled, "cosmos.bank.v1bet
   fromJSON(object: any): MsgSetSendEnabled {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      sendEnabled: globalThis.Array.isArray(object?.sendEnabled)
-        ? object.sendEnabled.map((e: any) => SendEnabled.fromJSON(e))
+      sendEnabled: globalThis.Array.isArray(object?.send_enabled)
+        ? object.send_enabled.map((e: any) => SendEnabled.fromJSON(e))
         : [],
-      useDefaultFor: globalThis.Array.isArray(object?.useDefaultFor)
-        ? object.useDefaultFor.map((e: any) => globalThis.String(e))
+      useDefaultFor: globalThis.Array.isArray(object?.use_default_for)
+        ? object.use_default_for.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -549,10 +549,10 @@ export const MsgSetSendEnabled: MessageFns<MsgSetSendEnabled, "cosmos.bank.v1bet
       obj.authority = message.authority;
     }
     if (message.sendEnabled?.length) {
-      obj.sendEnabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
+      obj.send_enabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
     }
     if (message.useDefaultFor?.length) {
-      obj.useDefaultFor = message.useDefaultFor;
+      obj.use_default_for = message.useDefaultFor;
     }
     return obj;
   },

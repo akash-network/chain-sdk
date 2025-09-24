@@ -115,7 +115,7 @@ export const EventSend: MessageFns<EventSend, "cosmos.nft.v1beta1.EventSend"> = 
 
   fromJSON(object: any): EventSend {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       sender: isSet(object.sender) ? globalThis.String(object.sender) : "",
       receiver: isSet(object.receiver) ? globalThis.String(object.receiver) : "",
@@ -125,7 +125,7 @@ export const EventSend: MessageFns<EventSend, "cosmos.nft.v1beta1.EventSend"> = 
   toJSON(message: EventSend): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -214,7 +214,7 @@ export const EventMint: MessageFns<EventMint, "cosmos.nft.v1beta1.EventMint"> = 
 
   fromJSON(object: any): EventMint {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
     };
@@ -223,7 +223,7 @@ export const EventMint: MessageFns<EventMint, "cosmos.nft.v1beta1.EventMint"> = 
   toJSON(message: EventMint): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -308,7 +308,7 @@ export const EventBurn: MessageFns<EventBurn, "cosmos.nft.v1beta1.EventBurn"> = 
 
   fromJSON(object: any): EventBurn {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
     };
@@ -317,7 +317,7 @@ export const EventBurn: MessageFns<EventBurn, "cosmos.nft.v1beta1.EventBurn"> = 
   toJSON(message: EventBurn): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.id !== "") {
       obj.id = message.id;

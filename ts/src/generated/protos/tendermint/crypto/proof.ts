@@ -121,7 +121,7 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
     return {
       total: isSet(object.total) ? Long.fromValue(object.total) : Long.ZERO,
       index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
-      leafHash: isSet(object.leafHash) ? bytesFromBase64(object.leafHash) : new Uint8Array(0),
+      leafHash: isSet(object.leaf_hash) ? bytesFromBase64(object.leaf_hash) : new Uint8Array(0),
       aunts: globalThis.Array.isArray(object?.aunts) ? object.aunts.map((e: any) => bytesFromBase64(e)) : [],
     };
   },
@@ -135,7 +135,7 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
       obj.index = (message.index || Long.ZERO).toString();
     }
     if (message.leafHash.length !== 0) {
-      obj.leafHash = base64FromBytes(message.leafHash);
+      obj.leaf_hash = base64FromBytes(message.leafHash);
     }
     if (message.aunts?.length) {
       obj.aunts = message.aunts.map((e) => base64FromBytes(e));

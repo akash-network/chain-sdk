@@ -110,13 +110,13 @@ export const Module: MessageFns<Module, "cosmos.auth.module.v1.Module"> = {
 
   fromJSON(object: any): Module {
     return {
-      bech32Prefix: isSet(object.bech32Prefix) ? globalThis.String(object.bech32Prefix) : "",
-      moduleAccountPermissions: globalThis.Array.isArray(object?.moduleAccountPermissions)
-        ? object.moduleAccountPermissions.map((e: any) => ModuleAccountPermission.fromJSON(e))
+      bech32Prefix: isSet(object.bech32_prefix) ? globalThis.String(object.bech32_prefix) : "",
+      moduleAccountPermissions: globalThis.Array.isArray(object?.module_account_permissions)
+        ? object.module_account_permissions.map((e: any) => ModuleAccountPermission.fromJSON(e))
         : [],
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      enableUnorderedTransactions: isSet(object.enableUnorderedTransactions)
-        ? globalThis.Boolean(object.enableUnorderedTransactions)
+      enableUnorderedTransactions: isSet(object.enable_unordered_transactions)
+        ? globalThis.Boolean(object.enable_unordered_transactions)
         : false,
     };
   },
@@ -124,16 +124,16 @@ export const Module: MessageFns<Module, "cosmos.auth.module.v1.Module"> = {
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (message.bech32Prefix !== "") {
-      obj.bech32Prefix = message.bech32Prefix;
+      obj.bech32_prefix = message.bech32Prefix;
     }
     if (message.moduleAccountPermissions?.length) {
-      obj.moduleAccountPermissions = message.moduleAccountPermissions.map((e) => ModuleAccountPermission.toJSON(e));
+      obj.module_account_permissions = message.moduleAccountPermissions.map((e) => ModuleAccountPermission.toJSON(e));
     }
     if (message.authority !== "") {
       obj.authority = message.authority;
     }
     if (message.enableUnorderedTransactions !== false) {
-      obj.enableUnorderedTransactions = message.enableUnorderedTransactions;
+      obj.enable_unordered_transactions = message.enableUnorderedTransactions;
     }
     return obj;
   },

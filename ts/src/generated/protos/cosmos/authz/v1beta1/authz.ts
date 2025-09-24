@@ -346,8 +346,8 @@ export const GrantQueueItem: MessageFns<GrantQueueItem, "cosmos.authz.v1beta1.Gr
 
   fromJSON(object: any): GrantQueueItem {
     return {
-      msgTypeUrls: globalThis.Array.isArray(object?.msgTypeUrls)
-        ? object.msgTypeUrls.map((e: any) => globalThis.String(e))
+      msgTypeUrls: globalThis.Array.isArray(object?.msg_type_urls)
+        ? object.msg_type_urls.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -355,7 +355,7 @@ export const GrantQueueItem: MessageFns<GrantQueueItem, "cosmos.authz.v1beta1.Gr
   toJSON(message: GrantQueueItem): unknown {
     const obj: any = {};
     if (message.msgTypeUrls?.length) {
-      obj.msgTypeUrls = message.msgTypeUrls;
+      obj.msg_type_urls = message.msgTypeUrls;
     }
     return obj;
   },

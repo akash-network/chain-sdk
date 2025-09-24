@@ -480,13 +480,13 @@ export const QueryValidatorRequest: MessageFns<QueryValidatorRequest, "cosmos.st
     },
 
     fromJSON(object: any): QueryValidatorRequest {
-      return { validatorAddr: isSet(object.validatorAddr) ? globalThis.String(object.validatorAddr) : "" };
+      return { validatorAddr: isSet(object.validator_addr) ? globalThis.String(object.validator_addr) : "" };
     },
 
     toJSON(message: QueryValidatorRequest): unknown {
       const obj: any = {};
       if (message.validatorAddr !== "") {
-        obj.validatorAddr = message.validatorAddr;
+        obj.validator_addr = message.validatorAddr;
       }
       return obj;
     },
@@ -620,7 +620,7 @@ export const QueryValidatorDelegationsRequest: MessageFns<
 
   fromJSON(object: any): QueryValidatorDelegationsRequest {
     return {
-      validatorAddr: isSet(object.validatorAddr) ? globalThis.String(object.validatorAddr) : "",
+      validatorAddr: isSet(object.validator_addr) ? globalThis.String(object.validator_addr) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -628,7 +628,7 @@ export const QueryValidatorDelegationsRequest: MessageFns<
   toJSON(message: QueryValidatorDelegationsRequest): unknown {
     const obj: any = {};
     if (message.validatorAddr !== "") {
-      obj.validatorAddr = message.validatorAddr;
+      obj.validator_addr = message.validatorAddr;
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -703,8 +703,8 @@ export const QueryValidatorDelegationsResponse: MessageFns<
 
   fromJSON(object: any): QueryValidatorDelegationsResponse {
     return {
-      delegationResponses: globalThis.Array.isArray(object?.delegationResponses)
-        ? object.delegationResponses.map((e: any) => DelegationResponse.fromJSON(e))
+      delegationResponses: globalThis.Array.isArray(object?.delegation_responses)
+        ? object.delegation_responses.map((e: any) => DelegationResponse.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -713,7 +713,7 @@ export const QueryValidatorDelegationsResponse: MessageFns<
   toJSON(message: QueryValidatorDelegationsResponse): unknown {
     const obj: any = {};
     if (message.delegationResponses?.length) {
-      obj.delegationResponses = message.delegationResponses.map((e) => DelegationResponse.toJSON(e));
+      obj.delegation_responses = message.delegationResponses.map((e) => DelegationResponse.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -788,7 +788,7 @@ export const QueryValidatorUnbondingDelegationsRequest: MessageFns<
 
   fromJSON(object: any): QueryValidatorUnbondingDelegationsRequest {
     return {
-      validatorAddr: isSet(object.validatorAddr) ? globalThis.String(object.validatorAddr) : "",
+      validatorAddr: isSet(object.validator_addr) ? globalThis.String(object.validator_addr) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -796,7 +796,7 @@ export const QueryValidatorUnbondingDelegationsRequest: MessageFns<
   toJSON(message: QueryValidatorUnbondingDelegationsRequest): unknown {
     const obj: any = {};
     if (message.validatorAddr !== "") {
-      obj.validatorAddr = message.validatorAddr;
+      obj.validator_addr = message.validatorAddr;
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -873,8 +873,8 @@ export const QueryValidatorUnbondingDelegationsResponse: MessageFns<
 
   fromJSON(object: any): QueryValidatorUnbondingDelegationsResponse {
     return {
-      unbondingResponses: globalThis.Array.isArray(object?.unbondingResponses)
-        ? object.unbondingResponses.map((e: any) => UnbondingDelegation.fromJSON(e))
+      unbondingResponses: globalThis.Array.isArray(object?.unbonding_responses)
+        ? object.unbonding_responses.map((e: any) => UnbondingDelegation.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -883,7 +883,7 @@ export const QueryValidatorUnbondingDelegationsResponse: MessageFns<
   toJSON(message: QueryValidatorUnbondingDelegationsResponse): unknown {
     const obj: any = {};
     if (message.unbondingResponses?.length) {
-      obj.unbondingResponses = message.unbondingResponses.map((e) => UnbondingDelegation.toJSON(e));
+      obj.unbonding_responses = message.unbondingResponses.map((e) => UnbondingDelegation.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -960,18 +960,18 @@ export const QueryDelegationRequest: MessageFns<
 
   fromJSON(object: any): QueryDelegationRequest {
     return {
-      delegatorAddr: isSet(object.delegatorAddr) ? globalThis.String(object.delegatorAddr) : "",
-      validatorAddr: isSet(object.validatorAddr) ? globalThis.String(object.validatorAddr) : "",
+      delegatorAddr: isSet(object.delegator_addr) ? globalThis.String(object.delegator_addr) : "",
+      validatorAddr: isSet(object.validator_addr) ? globalThis.String(object.validator_addr) : "",
     };
   },
 
   toJSON(message: QueryDelegationRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddr !== "") {
-      obj.delegatorAddr = message.delegatorAddr;
+      obj.delegator_addr = message.delegatorAddr;
     }
     if (message.validatorAddr !== "") {
-      obj.validatorAddr = message.validatorAddr;
+      obj.validator_addr = message.validatorAddr;
     }
     return obj;
   },
@@ -1030,8 +1030,8 @@ export const QueryDelegationResponse: MessageFns<
 
   fromJSON(object: any): QueryDelegationResponse {
     return {
-      delegationResponse: isSet(object.delegationResponse)
-        ? DelegationResponse.fromJSON(object.delegationResponse)
+      delegationResponse: isSet(object.delegation_response)
+        ? DelegationResponse.fromJSON(object.delegation_response)
         : undefined,
     };
   },
@@ -1039,7 +1039,7 @@ export const QueryDelegationResponse: MessageFns<
   toJSON(message: QueryDelegationResponse): unknown {
     const obj: any = {};
     if (message.delegationResponse !== undefined) {
-      obj.delegationResponse = DelegationResponse.toJSON(message.delegationResponse);
+      obj.delegation_response = DelegationResponse.toJSON(message.delegationResponse);
     }
     return obj;
   },
@@ -1110,18 +1110,18 @@ export const QueryUnbondingDelegationRequest: MessageFns<
 
   fromJSON(object: any): QueryUnbondingDelegationRequest {
     return {
-      delegatorAddr: isSet(object.delegatorAddr) ? globalThis.String(object.delegatorAddr) : "",
-      validatorAddr: isSet(object.validatorAddr) ? globalThis.String(object.validatorAddr) : "",
+      delegatorAddr: isSet(object.delegator_addr) ? globalThis.String(object.delegator_addr) : "",
+      validatorAddr: isSet(object.validator_addr) ? globalThis.String(object.validator_addr) : "",
     };
   },
 
   toJSON(message: QueryUnbondingDelegationRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddr !== "") {
-      obj.delegatorAddr = message.delegatorAddr;
+      obj.delegator_addr = message.delegatorAddr;
     }
     if (message.validatorAddr !== "") {
-      obj.validatorAddr = message.validatorAddr;
+      obj.validator_addr = message.validatorAddr;
     }
     return obj;
   },
@@ -1256,7 +1256,7 @@ export const QueryDelegatorDelegationsRequest: MessageFns<
 
   fromJSON(object: any): QueryDelegatorDelegationsRequest {
     return {
-      delegatorAddr: isSet(object.delegatorAddr) ? globalThis.String(object.delegatorAddr) : "",
+      delegatorAddr: isSet(object.delegator_addr) ? globalThis.String(object.delegator_addr) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -1264,7 +1264,7 @@ export const QueryDelegatorDelegationsRequest: MessageFns<
   toJSON(message: QueryDelegatorDelegationsRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddr !== "") {
-      obj.delegatorAddr = message.delegatorAddr;
+      obj.delegator_addr = message.delegatorAddr;
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1339,8 +1339,8 @@ export const QueryDelegatorDelegationsResponse: MessageFns<
 
   fromJSON(object: any): QueryDelegatorDelegationsResponse {
     return {
-      delegationResponses: globalThis.Array.isArray(object?.delegationResponses)
-        ? object.delegationResponses.map((e: any) => DelegationResponse.fromJSON(e))
+      delegationResponses: globalThis.Array.isArray(object?.delegation_responses)
+        ? object.delegation_responses.map((e: any) => DelegationResponse.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -1349,7 +1349,7 @@ export const QueryDelegatorDelegationsResponse: MessageFns<
   toJSON(message: QueryDelegatorDelegationsResponse): unknown {
     const obj: any = {};
     if (message.delegationResponses?.length) {
-      obj.delegationResponses = message.delegationResponses.map((e) => DelegationResponse.toJSON(e));
+      obj.delegation_responses = message.delegationResponses.map((e) => DelegationResponse.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -1424,7 +1424,7 @@ export const QueryDelegatorUnbondingDelegationsRequest: MessageFns<
 
   fromJSON(object: any): QueryDelegatorUnbondingDelegationsRequest {
     return {
-      delegatorAddr: isSet(object.delegatorAddr) ? globalThis.String(object.delegatorAddr) : "",
+      delegatorAddr: isSet(object.delegator_addr) ? globalThis.String(object.delegator_addr) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -1432,7 +1432,7 @@ export const QueryDelegatorUnbondingDelegationsRequest: MessageFns<
   toJSON(message: QueryDelegatorUnbondingDelegationsRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddr !== "") {
-      obj.delegatorAddr = message.delegatorAddr;
+      obj.delegator_addr = message.delegatorAddr;
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1509,8 +1509,8 @@ export const QueryDelegatorUnbondingDelegationsResponse: MessageFns<
 
   fromJSON(object: any): QueryDelegatorUnbondingDelegationsResponse {
     return {
-      unbondingResponses: globalThis.Array.isArray(object?.unbondingResponses)
-        ? object.unbondingResponses.map((e: any) => UnbondingDelegation.fromJSON(e))
+      unbondingResponses: globalThis.Array.isArray(object?.unbonding_responses)
+        ? object.unbonding_responses.map((e: any) => UnbondingDelegation.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -1519,7 +1519,7 @@ export const QueryDelegatorUnbondingDelegationsResponse: MessageFns<
   toJSON(message: QueryDelegatorUnbondingDelegationsResponse): unknown {
     const obj: any = {};
     if (message.unbondingResponses?.length) {
-      obj.unbondingResponses = message.unbondingResponses.map((e) => UnbondingDelegation.toJSON(e));
+      obj.unbonding_responses = message.unbondingResponses.map((e) => UnbondingDelegation.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -1618,9 +1618,9 @@ export const QueryRedelegationsRequest: MessageFns<
 
   fromJSON(object: any): QueryRedelegationsRequest {
     return {
-      delegatorAddr: isSet(object.delegatorAddr) ? globalThis.String(object.delegatorAddr) : "",
-      srcValidatorAddr: isSet(object.srcValidatorAddr) ? globalThis.String(object.srcValidatorAddr) : "",
-      dstValidatorAddr: isSet(object.dstValidatorAddr) ? globalThis.String(object.dstValidatorAddr) : "",
+      delegatorAddr: isSet(object.delegator_addr) ? globalThis.String(object.delegator_addr) : "",
+      srcValidatorAddr: isSet(object.src_validator_addr) ? globalThis.String(object.src_validator_addr) : "",
+      dstValidatorAddr: isSet(object.dst_validator_addr) ? globalThis.String(object.dst_validator_addr) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -1628,13 +1628,13 @@ export const QueryRedelegationsRequest: MessageFns<
   toJSON(message: QueryRedelegationsRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddr !== "") {
-      obj.delegatorAddr = message.delegatorAddr;
+      obj.delegator_addr = message.delegatorAddr;
     }
     if (message.srcValidatorAddr !== "") {
-      obj.srcValidatorAddr = message.srcValidatorAddr;
+      obj.src_validator_addr = message.srcValidatorAddr;
     }
     if (message.dstValidatorAddr !== "") {
-      obj.dstValidatorAddr = message.dstValidatorAddr;
+      obj.dst_validator_addr = message.dstValidatorAddr;
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1711,8 +1711,8 @@ export const QueryRedelegationsResponse: MessageFns<
 
   fromJSON(object: any): QueryRedelegationsResponse {
     return {
-      redelegationResponses: globalThis.Array.isArray(object?.redelegationResponses)
-        ? object.redelegationResponses.map((e: any) => RedelegationResponse.fromJSON(e))
+      redelegationResponses: globalThis.Array.isArray(object?.redelegation_responses)
+        ? object.redelegation_responses.map((e: any) => RedelegationResponse.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -1721,7 +1721,7 @@ export const QueryRedelegationsResponse: MessageFns<
   toJSON(message: QueryRedelegationsResponse): unknown {
     const obj: any = {};
     if (message.redelegationResponses?.length) {
-      obj.redelegationResponses = message.redelegationResponses.map((e) => RedelegationResponse.toJSON(e));
+      obj.redelegation_responses = message.redelegationResponses.map((e) => RedelegationResponse.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -1796,7 +1796,7 @@ export const QueryDelegatorValidatorsRequest: MessageFns<
 
   fromJSON(object: any): QueryDelegatorValidatorsRequest {
     return {
-      delegatorAddr: isSet(object.delegatorAddr) ? globalThis.String(object.delegatorAddr) : "",
+      delegatorAddr: isSet(object.delegator_addr) ? globalThis.String(object.delegator_addr) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -1804,7 +1804,7 @@ export const QueryDelegatorValidatorsRequest: MessageFns<
   toJSON(message: QueryDelegatorValidatorsRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddr !== "") {
-      obj.delegatorAddr = message.delegatorAddr;
+      obj.delegator_addr = message.delegatorAddr;
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1964,18 +1964,18 @@ export const QueryDelegatorValidatorRequest: MessageFns<
 
   fromJSON(object: any): QueryDelegatorValidatorRequest {
     return {
-      delegatorAddr: isSet(object.delegatorAddr) ? globalThis.String(object.delegatorAddr) : "",
-      validatorAddr: isSet(object.validatorAddr) ? globalThis.String(object.validatorAddr) : "",
+      delegatorAddr: isSet(object.delegator_addr) ? globalThis.String(object.delegator_addr) : "",
+      validatorAddr: isSet(object.validator_addr) ? globalThis.String(object.validator_addr) : "",
     };
   },
 
   toJSON(message: QueryDelegatorValidatorRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddr !== "") {
-      obj.delegatorAddr = message.delegatorAddr;
+      obj.delegator_addr = message.delegatorAddr;
     }
     if (message.validatorAddr !== "") {
-      obj.validatorAddr = message.validatorAddr;
+      obj.validator_addr = message.validatorAddr;
     }
     return obj;
   },

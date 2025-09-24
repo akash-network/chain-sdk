@@ -462,7 +462,7 @@ export const QueryAllBalancesRequest: MessageFns<
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
-      resolveDenom: isSet(object.resolveDenom) ? globalThis.Boolean(object.resolveDenom) : false,
+      resolveDenom: isSet(object.resolve_denom) ? globalThis.Boolean(object.resolve_denom) : false,
     };
   },
 
@@ -475,7 +475,7 @@ export const QueryAllBalancesRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     if (message.resolveDenom !== false) {
-      obj.resolveDenom = message.resolveDenom;
+      obj.resolve_denom = message.resolveDenom;
     }
     return obj;
   },
@@ -1889,8 +1889,8 @@ export const QueryDenomOwnersResponse: MessageFns<
 
   fromJSON(object: any): QueryDenomOwnersResponse {
     return {
-      denomOwners: globalThis.Array.isArray(object?.denomOwners)
-        ? object.denomOwners.map((e: any) => DenomOwner.fromJSON(e))
+      denomOwners: globalThis.Array.isArray(object?.denom_owners)
+        ? object.denom_owners.map((e: any) => DenomOwner.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -1899,7 +1899,7 @@ export const QueryDenomOwnersResponse: MessageFns<
   toJSON(message: QueryDenomOwnersResponse): unknown {
     const obj: any = {};
     if (message.denomOwners?.length) {
-      obj.denomOwners = message.denomOwners.map((e) => DenomOwner.toJSON(e));
+      obj.denom_owners = message.denomOwners.map((e) => DenomOwner.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -2057,8 +2057,8 @@ export const QueryDenomOwnersByQueryResponse: MessageFns<
 
   fromJSON(object: any): QueryDenomOwnersByQueryResponse {
     return {
-      denomOwners: globalThis.Array.isArray(object?.denomOwners)
-        ? object.denomOwners.map((e: any) => DenomOwner.fromJSON(e))
+      denomOwners: globalThis.Array.isArray(object?.denom_owners)
+        ? object.denom_owners.map((e: any) => DenomOwner.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -2067,7 +2067,7 @@ export const QueryDenomOwnersByQueryResponse: MessageFns<
   toJSON(message: QueryDenomOwnersByQueryResponse): unknown {
     const obj: any = {};
     if (message.denomOwners?.length) {
-      obj.denomOwners = message.denomOwners.map((e) => DenomOwner.toJSON(e));
+      obj.denom_owners = message.denomOwners.map((e) => DenomOwner.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -2225,8 +2225,8 @@ export const QuerySendEnabledResponse: MessageFns<
 
   fromJSON(object: any): QuerySendEnabledResponse {
     return {
-      sendEnabled: globalThis.Array.isArray(object?.sendEnabled)
-        ? object.sendEnabled.map((e: any) => SendEnabled.fromJSON(e))
+      sendEnabled: globalThis.Array.isArray(object?.send_enabled)
+        ? object.send_enabled.map((e: any) => SendEnabled.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
     };
@@ -2235,7 +2235,7 @@ export const QuerySendEnabledResponse: MessageFns<
   toJSON(message: QuerySendEnabledResponse): unknown {
     const obj: any = {};
     if (message.sendEnabled?.length) {
-      obj.sendEnabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
+      obj.send_enabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);

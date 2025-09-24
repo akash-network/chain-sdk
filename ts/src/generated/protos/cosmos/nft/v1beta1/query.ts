@@ -161,7 +161,7 @@ export const QueryBalanceRequest: MessageFns<QueryBalanceRequest, "cosmos.nft.v1
 
   fromJSON(object: any): QueryBalanceRequest {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
     };
   },
@@ -169,7 +169,7 @@ export const QueryBalanceRequest: MessageFns<QueryBalanceRequest, "cosmos.nft.v1
   toJSON(message: QueryBalanceRequest): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.owner !== "") {
       obj.owner = message.owner;
@@ -301,7 +301,7 @@ export const QueryOwnerRequest: MessageFns<QueryOwnerRequest, "cosmos.nft.v1beta
 
   fromJSON(object: any): QueryOwnerRequest {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       id: isSet(object.id) ? globalThis.String(object.id) : "",
     };
   },
@@ -309,7 +309,7 @@ export const QueryOwnerRequest: MessageFns<QueryOwnerRequest, "cosmos.nft.v1beta
   toJSON(message: QueryOwnerRequest): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -427,13 +427,13 @@ export const QuerySupplyRequest: MessageFns<QuerySupplyRequest, "cosmos.nft.v1be
   },
 
   fromJSON(object: any): QuerySupplyRequest {
-    return { classId: isSet(object.classId) ? globalThis.String(object.classId) : "" };
+    return { classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "" };
   },
 
   toJSON(message: QuerySupplyRequest): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     return obj;
   },
@@ -572,7 +572,7 @@ export const QueryNFTsRequest: MessageFns<QueryNFTsRequest, "cosmos.nft.v1beta1.
 
   fromJSON(object: any): QueryNFTsRequest {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
@@ -581,7 +581,7 @@ export const QueryNFTsRequest: MessageFns<QueryNFTsRequest, "cosmos.nft.v1beta1.
   toJSON(message: QueryNFTsRequest): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.owner !== "") {
       obj.owner = message.owner;
@@ -737,7 +737,7 @@ export const QueryNFTRequest: MessageFns<QueryNFTRequest, "cosmos.nft.v1beta1.Qu
 
   fromJSON(object: any): QueryNFTRequest {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       id: isSet(object.id) ? globalThis.String(object.id) : "",
     };
   },
@@ -745,7 +745,7 @@ export const QueryNFTRequest: MessageFns<QueryNFTRequest, "cosmos.nft.v1beta1.Qu
   toJSON(message: QueryNFTRequest): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -863,13 +863,13 @@ export const QueryClassRequest: MessageFns<QueryClassRequest, "cosmos.nft.v1beta
   },
 
   fromJSON(object: any): QueryClassRequest {
-    return { classId: isSet(object.classId) ? globalThis.String(object.classId) : "" };
+    return { classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "" };
   },
 
   toJSON(message: QueryClassRequest): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     return obj;
   },

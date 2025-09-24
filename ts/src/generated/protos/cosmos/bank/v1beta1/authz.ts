@@ -75,11 +75,11 @@ export const SendAuthorization: MessageFns<SendAuthorization, "cosmos.bank.v1bet
 
   fromJSON(object: any): SendAuthorization {
     return {
-      spendLimit: globalThis.Array.isArray(object?.spendLimit)
-        ? object.spendLimit.map((e: any) => Coin.fromJSON(e))
+      spendLimit: globalThis.Array.isArray(object?.spend_limit)
+        ? object.spend_limit.map((e: any) => Coin.fromJSON(e))
         : [],
-      allowList: globalThis.Array.isArray(object?.allowList)
-        ? object.allowList.map((e: any) => globalThis.String(e))
+      allowList: globalThis.Array.isArray(object?.allow_list)
+        ? object.allow_list.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -87,10 +87,10 @@ export const SendAuthorization: MessageFns<SendAuthorization, "cosmos.bank.v1bet
   toJSON(message: SendAuthorization): unknown {
     const obj: any = {};
     if (message.spendLimit?.length) {
-      obj.spendLimit = message.spendLimit.map((e) => Coin.toJSON(e));
+      obj.spend_limit = message.spendLimit.map((e) => Coin.toJSON(e));
     }
     if (message.allowList?.length) {
-      obj.allowList = message.allowList;
+      obj.allow_list = message.allowList;
     }
     return obj;
   },

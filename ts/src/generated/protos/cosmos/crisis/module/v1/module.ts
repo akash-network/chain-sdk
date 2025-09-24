@@ -69,7 +69,7 @@ export const Module: MessageFns<Module, "cosmos.crisis.module.v1.Module"> = {
 
   fromJSON(object: any): Module {
     return {
-      feeCollectorName: isSet(object.feeCollectorName) ? globalThis.String(object.feeCollectorName) : "",
+      feeCollectorName: isSet(object.fee_collector_name) ? globalThis.String(object.fee_collector_name) : "",
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
     };
   },
@@ -77,7 +77,7 @@ export const Module: MessageFns<Module, "cosmos.crisis.module.v1.Module"> = {
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (message.feeCollectorName !== "") {
-      obj.feeCollectorName = message.feeCollectorName;
+      obj.fee_collector_name = message.feeCollectorName;
     }
     if (message.authority !== "") {
       obj.authority = message.authority;

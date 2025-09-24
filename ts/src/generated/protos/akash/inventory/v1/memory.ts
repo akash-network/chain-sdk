@@ -100,7 +100,7 @@ export const MemoryInfo: MessageFns<MemoryInfo, "akash.inventory.v1.MemoryInfo">
     return {
       vendor: isSet(object.vendor) ? globalThis.String(object.vendor) : "",
       type: isSet(object.type) ? globalThis.String(object.type) : "",
-      totalSize: isSet(object.totalSize) ? globalThis.String(object.totalSize) : "",
+      totalSize: isSet(object.total_size) ? globalThis.String(object.total_size) : "",
       speed: isSet(object.speed) ? globalThis.String(object.speed) : "",
     };
   },
@@ -114,7 +114,7 @@ export const MemoryInfo: MessageFns<MemoryInfo, "akash.inventory.v1.MemoryInfo">
       obj.type = message.type;
     }
     if (message.totalSize !== "") {
-      obj.totalSize = message.totalSize;
+      obj.total_size = message.totalSize;
     }
     if (message.speed !== "") {
       obj.speed = message.speed;

@@ -381,13 +381,13 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryUpgradedConsensusStateRequest {
-    return { lastHeight: isSet(object.lastHeight) ? Long.fromValue(object.lastHeight) : Long.ZERO };
+    return { lastHeight: isSet(object.last_height) ? Long.fromValue(object.last_height) : Long.ZERO };
   },
 
   toJSON(message: QueryUpgradedConsensusStateRequest): unknown {
     const obj: any = {};
     if (!message.lastHeight.equals(Long.ZERO)) {
-      obj.lastHeight = (message.lastHeight || Long.ZERO).toString();
+      obj.last_height = (message.lastHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -447,8 +447,8 @@ export const QueryUpgradedConsensusStateResponse: MessageFns<
 
   fromJSON(object: any): QueryUpgradedConsensusStateResponse {
     return {
-      upgradedConsensusState: isSet(object.upgradedConsensusState)
-        ? bytesFromBase64(object.upgradedConsensusState)
+      upgradedConsensusState: isSet(object.upgraded_consensus_state)
+        ? bytesFromBase64(object.upgraded_consensus_state)
         : new Uint8Array(0),
     };
   },
@@ -456,7 +456,7 @@ export const QueryUpgradedConsensusStateResponse: MessageFns<
   toJSON(message: QueryUpgradedConsensusStateResponse): unknown {
     const obj: any = {};
     if (message.upgradedConsensusState.length !== 0) {
-      obj.upgradedConsensusState = base64FromBytes(message.upgradedConsensusState);
+      obj.upgraded_consensus_state = base64FromBytes(message.upgradedConsensusState);
     }
     return obj;
   },
@@ -513,13 +513,13 @@ export const QueryModuleVersionsRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryModuleVersionsRequest {
-    return { moduleName: isSet(object.moduleName) ? globalThis.String(object.moduleName) : "" };
+    return { moduleName: isSet(object.module_name) ? globalThis.String(object.module_name) : "" };
   },
 
   toJSON(message: QueryModuleVersionsRequest): unknown {
     const obj: any = {};
     if (message.moduleName !== "") {
-      obj.moduleName = message.moduleName;
+      obj.module_name = message.moduleName;
     }
     return obj;
   },
@@ -577,8 +577,8 @@ export const QueryModuleVersionsResponse: MessageFns<
 
   fromJSON(object: any): QueryModuleVersionsResponse {
     return {
-      moduleVersions: globalThis.Array.isArray(object?.moduleVersions)
-        ? object.moduleVersions.map((e: any) => ModuleVersion.fromJSON(e))
+      moduleVersions: globalThis.Array.isArray(object?.module_versions)
+        ? object.module_versions.map((e: any) => ModuleVersion.fromJSON(e))
         : [],
     };
   },
@@ -586,7 +586,7 @@ export const QueryModuleVersionsResponse: MessageFns<
   toJSON(message: QueryModuleVersionsResponse): unknown {
     const obj: any = {};
     if (message.moduleVersions?.length) {
-      obj.moduleVersions = message.moduleVersions.map((e) => ModuleVersion.toJSON(e));
+      obj.module_versions = message.moduleVersions.map((e) => ModuleVersion.toJSON(e));
     }
     return obj;
   },

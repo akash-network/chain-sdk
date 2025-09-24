@@ -199,15 +199,15 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
 
   fromJSON(object: any): GenesisState {
     return {
-      startingProposalId: isSet(object.startingProposalId) ? Long.fromValue(object.startingProposalId) : Long.UZERO,
+      startingProposalId: isSet(object.starting_proposal_id) ? Long.fromValue(object.starting_proposal_id) : Long.UZERO,
       deposits: globalThis.Array.isArray(object?.deposits) ? object.deposits.map((e: any) => Deposit.fromJSON(e)) : [],
       votes: globalThis.Array.isArray(object?.votes) ? object.votes.map((e: any) => Vote.fromJSON(e)) : [],
       proposals: globalThis.Array.isArray(object?.proposals)
         ? object.proposals.map((e: any) => Proposal.fromJSON(e))
         : [],
-      depositParams: isSet(object.depositParams) ? DepositParams.fromJSON(object.depositParams) : undefined,
-      votingParams: isSet(object.votingParams) ? VotingParams.fromJSON(object.votingParams) : undefined,
-      tallyParams: isSet(object.tallyParams) ? TallyParams.fromJSON(object.tallyParams) : undefined,
+      depositParams: isSet(object.deposit_params) ? DepositParams.fromJSON(object.deposit_params) : undefined,
+      votingParams: isSet(object.voting_params) ? VotingParams.fromJSON(object.voting_params) : undefined,
+      tallyParams: isSet(object.tally_params) ? TallyParams.fromJSON(object.tally_params) : undefined,
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
       constitution: isSet(object.constitution) ? globalThis.String(object.constitution) : "",
     };
@@ -216,7 +216,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
     if (!message.startingProposalId.equals(Long.UZERO)) {
-      obj.startingProposalId = (message.startingProposalId || Long.UZERO).toString();
+      obj.starting_proposal_id = (message.startingProposalId || Long.UZERO).toString();
     }
     if (message.deposits?.length) {
       obj.deposits = message.deposits.map((e) => Deposit.toJSON(e));
@@ -228,13 +228,13 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
       obj.proposals = message.proposals.map((e) => Proposal.toJSON(e));
     }
     if (message.depositParams !== undefined) {
-      obj.depositParams = DepositParams.toJSON(message.depositParams);
+      obj.deposit_params = DepositParams.toJSON(message.depositParams);
     }
     if (message.votingParams !== undefined) {
-      obj.votingParams = VotingParams.toJSON(message.votingParams);
+      obj.voting_params = VotingParams.toJSON(message.votingParams);
     }
     if (message.tallyParams !== undefined) {
-      obj.tallyParams = TallyParams.toJSON(message.tallyParams);
+      obj.tally_params = TallyParams.toJSON(message.tallyParams);
     }
     if (message.params !== undefined) {
       obj.params = Params.toJSON(message.params);

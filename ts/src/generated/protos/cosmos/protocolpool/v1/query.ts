@@ -288,14 +288,14 @@ export const QueryContinuousFundResponse: MessageFns<
 
   fromJSON(object: any): QueryContinuousFundResponse {
     return {
-      continuousFund: isSet(object.continuousFund) ? ContinuousFund.fromJSON(object.continuousFund) : undefined,
+      continuousFund: isSet(object.continuous_fund) ? ContinuousFund.fromJSON(object.continuous_fund) : undefined,
     };
   },
 
   toJSON(message: QueryContinuousFundResponse): unknown {
     const obj: any = {};
     if (message.continuousFund !== undefined) {
-      obj.continuousFund = ContinuousFund.toJSON(message.continuousFund);
+      obj.continuous_fund = ContinuousFund.toJSON(message.continuousFund);
     }
     return obj;
   },
@@ -403,8 +403,8 @@ export const QueryContinuousFundsResponse: MessageFns<
 
   fromJSON(object: any): QueryContinuousFundsResponse {
     return {
-      continuousFunds: globalThis.Array.isArray(object?.continuousFunds)
-        ? object.continuousFunds.map((e: any) => ContinuousFund.fromJSON(e))
+      continuousFunds: globalThis.Array.isArray(object?.continuous_funds)
+        ? object.continuous_funds.map((e: any) => ContinuousFund.fromJSON(e))
         : [],
     };
   },
@@ -412,7 +412,7 @@ export const QueryContinuousFundsResponse: MessageFns<
   toJSON(message: QueryContinuousFundsResponse): unknown {
     const obj: any = {};
     if (message.continuousFunds?.length) {
-      obj.continuousFunds = message.continuousFunds.map((e) => ContinuousFund.toJSON(e));
+      obj.continuous_funds = message.continuousFunds.map((e) => ContinuousFund.toJSON(e));
     }
     return obj;
   },

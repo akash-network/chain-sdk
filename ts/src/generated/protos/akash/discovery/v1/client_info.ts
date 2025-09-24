@@ -55,13 +55,13 @@ export const ClientInfo: MessageFns<ClientInfo, "akash.discovery.v1.ClientInfo">
   },
 
   fromJSON(object: any): ClientInfo {
-    return { apiVersion: isSet(object.apiVersion) ? globalThis.String(object.apiVersion) : "" };
+    return { apiVersion: isSet(object.api_version) ? globalThis.String(object.api_version) : "" };
   },
 
   toJSON(message: ClientInfo): unknown {
     const obj: any = {};
     if (message.apiVersion !== "") {
-      obj.apiVersion = message.apiVersion;
+      obj.api_version = message.apiVersion;
     }
     return obj;
   },

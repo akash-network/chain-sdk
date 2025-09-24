@@ -403,7 +403,7 @@ export const MsgRevoke: MessageFns<MsgRevoke, "cosmos.authz.v1beta1.MsgRevoke"> 
     return {
       granter: isSet(object.granter) ? globalThis.String(object.granter) : "",
       grantee: isSet(object.grantee) ? globalThis.String(object.grantee) : "",
-      msgTypeUrl: isSet(object.msgTypeUrl) ? globalThis.String(object.msgTypeUrl) : "",
+      msgTypeUrl: isSet(object.msg_type_url) ? globalThis.String(object.msg_type_url) : "",
     };
   },
 
@@ -416,7 +416,7 @@ export const MsgRevoke: MessageFns<MsgRevoke, "cosmos.authz.v1beta1.MsgRevoke"> 
       obj.grantee = message.grantee;
     }
     if (message.msgTypeUrl !== "") {
-      obj.msgTypeUrl = message.msgTypeUrl;
+      obj.msg_type_url = message.msgTypeUrl;
     }
     return obj;
   },

@@ -323,7 +323,7 @@ export const GetValidatorSetByHeightResponse: MessageFns<
 
   fromJSON(object: any): GetValidatorSetByHeightResponse {
     return {
-      blockHeight: isSet(object.blockHeight) ? Long.fromValue(object.blockHeight) : Long.ZERO,
+      blockHeight: isSet(object.block_height) ? Long.fromValue(object.block_height) : Long.ZERO,
       validators: globalThis.Array.isArray(object?.validators)
         ? object.validators.map((e: any) => Validator.fromJSON(e))
         : [],
@@ -334,7 +334,7 @@ export const GetValidatorSetByHeightResponse: MessageFns<
   toJSON(message: GetValidatorSetByHeightResponse): unknown {
     const obj: any = {};
     if (!message.blockHeight.equals(Long.ZERO)) {
-      obj.blockHeight = (message.blockHeight || Long.ZERO).toString();
+      obj.block_height = (message.blockHeight || Long.ZERO).toString();
     }
     if (message.validators?.length) {
       obj.validators = message.validators.map((e) => Validator.toJSON(e));
@@ -491,7 +491,7 @@ export const GetLatestValidatorSetResponse: MessageFns<
 
   fromJSON(object: any): GetLatestValidatorSetResponse {
     return {
-      blockHeight: isSet(object.blockHeight) ? Long.fromValue(object.blockHeight) : Long.ZERO,
+      blockHeight: isSet(object.block_height) ? Long.fromValue(object.block_height) : Long.ZERO,
       validators: globalThis.Array.isArray(object?.validators)
         ? object.validators.map((e: any) => Validator.fromJSON(e))
         : [],
@@ -502,7 +502,7 @@ export const GetLatestValidatorSetResponse: MessageFns<
   toJSON(message: GetLatestValidatorSetResponse): unknown {
     const obj: any = {};
     if (!message.blockHeight.equals(Long.ZERO)) {
-      obj.blockHeight = (message.blockHeight || Long.ZERO).toString();
+      obj.block_height = (message.blockHeight || Long.ZERO).toString();
     }
     if (message.validators?.length) {
       obj.validators = message.validators.map((e) => Validator.toJSON(e));
@@ -603,9 +603,9 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
   fromJSON(object: any): Validator {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      pubKey: isSet(object.pubKey) ? Any.fromJSON(object.pubKey) : undefined,
-      votingPower: isSet(object.votingPower) ? Long.fromValue(object.votingPower) : Long.ZERO,
-      proposerPriority: isSet(object.proposerPriority) ? Long.fromValue(object.proposerPriority) : Long.ZERO,
+      pubKey: isSet(object.pub_key) ? Any.fromJSON(object.pub_key) : undefined,
+      votingPower: isSet(object.voting_power) ? Long.fromValue(object.voting_power) : Long.ZERO,
+      proposerPriority: isSet(object.proposer_priority) ? Long.fromValue(object.proposer_priority) : Long.ZERO,
     };
   },
 
@@ -615,13 +615,13 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
       obj.address = message.address;
     }
     if (message.pubKey !== undefined) {
-      obj.pubKey = Any.toJSON(message.pubKey);
+      obj.pub_key = Any.toJSON(message.pubKey);
     }
     if (!message.votingPower.equals(Long.ZERO)) {
-      obj.votingPower = (message.votingPower || Long.ZERO).toString();
+      obj.voting_power = (message.votingPower || Long.ZERO).toString();
     }
     if (!message.proposerPriority.equals(Long.ZERO)) {
-      obj.proposerPriority = (message.proposerPriority || Long.ZERO).toString();
+      obj.proposer_priority = (message.proposerPriority || Long.ZERO).toString();
     }
     return obj;
   },
@@ -775,22 +775,22 @@ export const GetBlockByHeightResponse: MessageFns<
 
   fromJSON(object: any): GetBlockByHeightResponse {
     return {
-      blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
+      blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
       block: isSet(object.block) ? Block.fromJSON(object.block) : undefined,
-      sdkBlock: isSet(object.sdkBlock) ? Block1.fromJSON(object.sdkBlock) : undefined,
+      sdkBlock: isSet(object.sdk_block) ? Block1.fromJSON(object.sdk_block) : undefined,
     };
   },
 
   toJSON(message: GetBlockByHeightResponse): unknown {
     const obj: any = {};
     if (message.blockId !== undefined) {
-      obj.blockId = BlockID.toJSON(message.blockId);
+      obj.block_id = BlockID.toJSON(message.blockId);
     }
     if (message.block !== undefined) {
       obj.block = Block.toJSON(message.block);
     }
     if (message.sdkBlock !== undefined) {
-      obj.sdkBlock = Block1.toJSON(message.sdkBlock);
+      obj.sdk_block = Block1.toJSON(message.sdkBlock);
     }
     return obj;
   },
@@ -924,22 +924,22 @@ export const GetLatestBlockResponse: MessageFns<
 
   fromJSON(object: any): GetLatestBlockResponse {
     return {
-      blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
+      blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
       block: isSet(object.block) ? Block.fromJSON(object.block) : undefined,
-      sdkBlock: isSet(object.sdkBlock) ? Block1.fromJSON(object.sdkBlock) : undefined,
+      sdkBlock: isSet(object.sdk_block) ? Block1.fromJSON(object.sdk_block) : undefined,
     };
   },
 
   toJSON(message: GetLatestBlockResponse): unknown {
     const obj: any = {};
     if (message.blockId !== undefined) {
-      obj.blockId = BlockID.toJSON(message.blockId);
+      obj.block_id = BlockID.toJSON(message.blockId);
     }
     if (message.block !== undefined) {
       obj.block = Block.toJSON(message.block);
     }
     if (message.sdkBlock !== undefined) {
-      obj.sdkBlock = Block1.toJSON(message.sdkBlock);
+      obj.sdk_block = Block1.toJSON(message.sdkBlock);
     }
     return obj;
   },
@@ -1164,9 +1164,9 @@ export const GetNodeInfoResponse: MessageFns<
 
   fromJSON(object: any): GetNodeInfoResponse {
     return {
-      defaultNodeInfo: isSet(object.defaultNodeInfo) ? DefaultNodeInfo.fromJSON(object.defaultNodeInfo) : undefined,
-      applicationVersion: isSet(object.applicationVersion)
-        ? VersionInfo.fromJSON(object.applicationVersion)
+      defaultNodeInfo: isSet(object.default_node_info) ? DefaultNodeInfo.fromJSON(object.default_node_info) : undefined,
+      applicationVersion: isSet(object.application_version)
+        ? VersionInfo.fromJSON(object.application_version)
         : undefined,
     };
   },
@@ -1174,10 +1174,10 @@ export const GetNodeInfoResponse: MessageFns<
   toJSON(message: GetNodeInfoResponse): unknown {
     const obj: any = {};
     if (message.defaultNodeInfo !== undefined) {
-      obj.defaultNodeInfo = DefaultNodeInfo.toJSON(message.defaultNodeInfo);
+      obj.default_node_info = DefaultNodeInfo.toJSON(message.defaultNodeInfo);
     }
     if (message.applicationVersion !== undefined) {
-      obj.applicationVersion = VersionInfo.toJSON(message.applicationVersion);
+      obj.application_version = VersionInfo.toJSON(message.applicationVersion);
     }
     return obj;
   },
@@ -1324,15 +1324,15 @@ export const VersionInfo: MessageFns<VersionInfo, "cosmos.base.tendermint.v1beta
   fromJSON(object: any): VersionInfo {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      appName: isSet(object.appName) ? globalThis.String(object.appName) : "",
+      appName: isSet(object.app_name) ? globalThis.String(object.app_name) : "",
       version: isSet(object.version) ? globalThis.String(object.version) : "",
-      gitCommit: isSet(object.gitCommit) ? globalThis.String(object.gitCommit) : "",
-      buildTags: isSet(object.buildTags) ? globalThis.String(object.buildTags) : "",
-      goVersion: isSet(object.goVersion) ? globalThis.String(object.goVersion) : "",
-      buildDeps: globalThis.Array.isArray(object?.buildDeps)
-        ? object.buildDeps.map((e: any) => Module.fromJSON(e))
+      gitCommit: isSet(object.git_commit) ? globalThis.String(object.git_commit) : "",
+      buildTags: isSet(object.build_tags) ? globalThis.String(object.build_tags) : "",
+      goVersion: isSet(object.go_version) ? globalThis.String(object.go_version) : "",
+      buildDeps: globalThis.Array.isArray(object?.build_deps)
+        ? object.build_deps.map((e: any) => Module.fromJSON(e))
         : [],
-      cosmosSdkVersion: isSet(object.cosmosSdkVersion) ? globalThis.String(object.cosmosSdkVersion) : "",
+      cosmosSdkVersion: isSet(object.cosmos_sdk_version) ? globalThis.String(object.cosmos_sdk_version) : "",
     };
   },
 
@@ -1342,25 +1342,25 @@ export const VersionInfo: MessageFns<VersionInfo, "cosmos.base.tendermint.v1beta
       obj.name = message.name;
     }
     if (message.appName !== "") {
-      obj.appName = message.appName;
+      obj.app_name = message.appName;
     }
     if (message.version !== "") {
       obj.version = message.version;
     }
     if (message.gitCommit !== "") {
-      obj.gitCommit = message.gitCommit;
+      obj.git_commit = message.gitCommit;
     }
     if (message.buildTags !== "") {
-      obj.buildTags = message.buildTags;
+      obj.build_tags = message.buildTags;
     }
     if (message.goVersion !== "") {
-      obj.goVersion = message.goVersion;
+      obj.go_version = message.goVersion;
     }
     if (message.buildDeps?.length) {
-      obj.buildDeps = message.buildDeps.map((e) => Module.toJSON(e));
+      obj.build_deps = message.buildDeps.map((e) => Module.toJSON(e));
     }
     if (message.cosmosSdkVersion !== "") {
-      obj.cosmosSdkVersion = message.cosmosSdkVersion;
+      obj.cosmos_sdk_version = message.cosmosSdkVersion;
     }
     return obj;
   },
@@ -1732,7 +1732,7 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
       index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
-      proofOps: isSet(object.proofOps) ? ProofOps.fromJSON(object.proofOps) : undefined,
+      proofOps: isSet(object.proof_ops) ? ProofOps.fromJSON(object.proof_ops) : undefined,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
     };
@@ -1759,7 +1759,7 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
       obj.value = base64FromBytes(message.value);
     }
     if (message.proofOps !== undefined) {
-      obj.proofOps = ProofOps.toJSON(message.proofOps);
+      obj.proof_ops = ProofOps.toJSON(message.proofOps);
     }
     if (!message.height.equals(Long.ZERO)) {
       obj.height = (message.height || Long.ZERO).toString();

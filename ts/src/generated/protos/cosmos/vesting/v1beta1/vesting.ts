@@ -156,36 +156,36 @@ export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.
 
   fromJSON(object: any): BaseVestingAccount {
     return {
-      baseAccount: isSet(object.baseAccount) ? BaseAccount.fromJSON(object.baseAccount) : undefined,
-      originalVesting: globalThis.Array.isArray(object?.originalVesting)
-        ? object.originalVesting.map((e: any) => Coin.fromJSON(e))
+      baseAccount: isSet(object.base_account) ? BaseAccount.fromJSON(object.base_account) : undefined,
+      originalVesting: globalThis.Array.isArray(object?.original_vesting)
+        ? object.original_vesting.map((e: any) => Coin.fromJSON(e))
         : [],
-      delegatedFree: globalThis.Array.isArray(object?.delegatedFree)
-        ? object.delegatedFree.map((e: any) => Coin.fromJSON(e))
+      delegatedFree: globalThis.Array.isArray(object?.delegated_free)
+        ? object.delegated_free.map((e: any) => Coin.fromJSON(e))
         : [],
-      delegatedVesting: globalThis.Array.isArray(object?.delegatedVesting)
-        ? object.delegatedVesting.map((e: any) => Coin.fromJSON(e))
+      delegatedVesting: globalThis.Array.isArray(object?.delegated_vesting)
+        ? object.delegated_vesting.map((e: any) => Coin.fromJSON(e))
         : [],
-      endTime: isSet(object.endTime) ? Long.fromValue(object.endTime) : Long.ZERO,
+      endTime: isSet(object.end_time) ? Long.fromValue(object.end_time) : Long.ZERO,
     };
   },
 
   toJSON(message: BaseVestingAccount): unknown {
     const obj: any = {};
     if (message.baseAccount !== undefined) {
-      obj.baseAccount = BaseAccount.toJSON(message.baseAccount);
+      obj.base_account = BaseAccount.toJSON(message.baseAccount);
     }
     if (message.originalVesting?.length) {
-      obj.originalVesting = message.originalVesting.map((e) => Coin.toJSON(e));
+      obj.original_vesting = message.originalVesting.map((e) => Coin.toJSON(e));
     }
     if (message.delegatedFree?.length) {
-      obj.delegatedFree = message.delegatedFree.map((e) => Coin.toJSON(e));
+      obj.delegated_free = message.delegatedFree.map((e) => Coin.toJSON(e));
     }
     if (message.delegatedVesting?.length) {
-      obj.delegatedVesting = message.delegatedVesting.map((e) => Coin.toJSON(e));
+      obj.delegated_vesting = message.delegatedVesting.map((e) => Coin.toJSON(e));
     }
     if (!message.endTime.equals(Long.ZERO)) {
-      obj.endTime = (message.endTime || Long.ZERO).toString();
+      obj.end_time = (message.endTime || Long.ZERO).toString();
     }
     return obj;
   },
@@ -262,20 +262,20 @@ export const ContinuousVestingAccount: MessageFns<
 
   fromJSON(object: any): ContinuousVestingAccount {
     return {
-      baseVestingAccount: isSet(object.baseVestingAccount)
-        ? BaseVestingAccount.fromJSON(object.baseVestingAccount)
+      baseVestingAccount: isSet(object.base_vesting_account)
+        ? BaseVestingAccount.fromJSON(object.base_vesting_account)
         : undefined,
-      startTime: isSet(object.startTime) ? Long.fromValue(object.startTime) : Long.ZERO,
+      startTime: isSet(object.start_time) ? Long.fromValue(object.start_time) : Long.ZERO,
     };
   },
 
   toJSON(message: ContinuousVestingAccount): unknown {
     const obj: any = {};
     if (message.baseVestingAccount !== undefined) {
-      obj.baseVestingAccount = BaseVestingAccount.toJSON(message.baseVestingAccount);
+      obj.base_vesting_account = BaseVestingAccount.toJSON(message.baseVestingAccount);
     }
     if (!message.startTime.equals(Long.ZERO)) {
-      obj.startTime = (message.startTime || Long.ZERO).toString();
+      obj.start_time = (message.startTime || Long.ZERO).toString();
     }
     return obj;
   },
@@ -336,8 +336,8 @@ export const DelayedVestingAccount: MessageFns<DelayedVestingAccount, "cosmos.ve
 
     fromJSON(object: any): DelayedVestingAccount {
       return {
-        baseVestingAccount: isSet(object.baseVestingAccount)
-          ? BaseVestingAccount.fromJSON(object.baseVestingAccount)
+        baseVestingAccount: isSet(object.base_vesting_account)
+          ? BaseVestingAccount.fromJSON(object.base_vesting_account)
           : undefined,
       };
     },
@@ -345,7 +345,7 @@ export const DelayedVestingAccount: MessageFns<DelayedVestingAccount, "cosmos.ve
     toJSON(message: DelayedVestingAccount): unknown {
       const obj: any = {};
       if (message.baseVestingAccount !== undefined) {
-        obj.baseVestingAccount = BaseVestingAccount.toJSON(message.baseVestingAccount);
+        obj.base_vesting_account = BaseVestingAccount.toJSON(message.baseVestingAccount);
       }
       return obj;
     },
@@ -507,12 +507,12 @@ export const PeriodicVestingAccount: MessageFns<
 
   fromJSON(object: any): PeriodicVestingAccount {
     return {
-      baseVestingAccount: isSet(object.baseVestingAccount)
-        ? BaseVestingAccount.fromJSON(object.baseVestingAccount)
+      baseVestingAccount: isSet(object.base_vesting_account)
+        ? BaseVestingAccount.fromJSON(object.base_vesting_account)
         : undefined,
-      startTime: isSet(object.startTime) ? Long.fromValue(object.startTime) : Long.ZERO,
-      vestingPeriods: globalThis.Array.isArray(object?.vestingPeriods)
-        ? object.vestingPeriods.map((e: any) => Period.fromJSON(e))
+      startTime: isSet(object.start_time) ? Long.fromValue(object.start_time) : Long.ZERO,
+      vestingPeriods: globalThis.Array.isArray(object?.vesting_periods)
+        ? object.vesting_periods.map((e: any) => Period.fromJSON(e))
         : [],
     };
   },
@@ -520,13 +520,13 @@ export const PeriodicVestingAccount: MessageFns<
   toJSON(message: PeriodicVestingAccount): unknown {
     const obj: any = {};
     if (message.baseVestingAccount !== undefined) {
-      obj.baseVestingAccount = BaseVestingAccount.toJSON(message.baseVestingAccount);
+      obj.base_vesting_account = BaseVestingAccount.toJSON(message.baseVestingAccount);
     }
     if (!message.startTime.equals(Long.ZERO)) {
-      obj.startTime = (message.startTime || Long.ZERO).toString();
+      obj.start_time = (message.startTime || Long.ZERO).toString();
     }
     if (message.vestingPeriods?.length) {
-      obj.vestingPeriods = message.vestingPeriods.map((e) => Period.toJSON(e));
+      obj.vesting_periods = message.vestingPeriods.map((e) => Period.toJSON(e));
     }
     return obj;
   },
@@ -590,8 +590,8 @@ export const PermanentLockedAccount: MessageFns<
 
   fromJSON(object: any): PermanentLockedAccount {
     return {
-      baseVestingAccount: isSet(object.baseVestingAccount)
-        ? BaseVestingAccount.fromJSON(object.baseVestingAccount)
+      baseVestingAccount: isSet(object.base_vesting_account)
+        ? BaseVestingAccount.fromJSON(object.base_vesting_account)
         : undefined,
     };
   },
@@ -599,7 +599,7 @@ export const PermanentLockedAccount: MessageFns<
   toJSON(message: PermanentLockedAccount): unknown {
     const obj: any = {};
     if (message.baseVestingAccount !== undefined) {
-      obj.baseVestingAccount = BaseVestingAccount.toJSON(message.baseVestingAccount);
+      obj.base_vesting_account = BaseVestingAccount.toJSON(message.baseVestingAccount);
     }
     return obj;
   },

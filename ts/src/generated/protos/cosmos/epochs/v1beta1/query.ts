@@ -260,13 +260,13 @@ export const QueryCurrentEpochResponse: MessageFns<
   },
 
   fromJSON(object: any): QueryCurrentEpochResponse {
-    return { currentEpoch: isSet(object.currentEpoch) ? Long.fromValue(object.currentEpoch) : Long.ZERO };
+    return { currentEpoch: isSet(object.current_epoch) ? Long.fromValue(object.current_epoch) : Long.ZERO };
   },
 
   toJSON(message: QueryCurrentEpochResponse): unknown {
     const obj: any = {};
     if (!message.currentEpoch.equals(Long.ZERO)) {
-      obj.currentEpoch = (message.currentEpoch || Long.ZERO).toString();
+      obj.current_epoch = (message.currentEpoch || Long.ZERO).toString();
     }
     return obj;
   },

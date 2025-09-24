@@ -124,8 +124,8 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
   fromJSON(object: any): BaseAccount {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      pubKey: isSet(object.pubKey) ? Any.fromJSON(object.pubKey) : undefined,
-      accountNumber: isSet(object.accountNumber) ? Long.fromValue(object.accountNumber) : Long.UZERO,
+      pubKey: isSet(object.pub_key) ? Any.fromJSON(object.pub_key) : undefined,
+      accountNumber: isSet(object.account_number) ? Long.fromValue(object.account_number) : Long.UZERO,
       sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
     };
   },
@@ -136,10 +136,10 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
       obj.address = message.address;
     }
     if (message.pubKey !== undefined) {
-      obj.pubKey = Any.toJSON(message.pubKey);
+      obj.pub_key = Any.toJSON(message.pubKey);
     }
     if (!message.accountNumber.equals(Long.UZERO)) {
-      obj.accountNumber = (message.accountNumber || Long.UZERO).toString();
+      obj.account_number = (message.accountNumber || Long.UZERO).toString();
     }
     if (!message.sequence.equals(Long.UZERO)) {
       obj.sequence = (message.sequence || Long.UZERO).toString();
@@ -228,7 +228,7 @@ export const ModuleAccount: MessageFns<ModuleAccount, "cosmos.auth.v1beta1.Modul
 
   fromJSON(object: any): ModuleAccount {
     return {
-      baseAccount: isSet(object.baseAccount) ? BaseAccount.fromJSON(object.baseAccount) : undefined,
+      baseAccount: isSet(object.base_account) ? BaseAccount.fromJSON(object.base_account) : undefined,
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       permissions: globalThis.Array.isArray(object?.permissions)
         ? object.permissions.map((e: any) => globalThis.String(e))
@@ -239,7 +239,7 @@ export const ModuleAccount: MessageFns<ModuleAccount, "cosmos.auth.v1beta1.Modul
   toJSON(message: ModuleAccount): unknown {
     const obj: any = {};
     if (message.baseAccount !== undefined) {
-      obj.baseAccount = BaseAccount.toJSON(message.baseAccount);
+      obj.base_account = BaseAccount.toJSON(message.baseAccount);
     }
     if (message.name !== "") {
       obj.name = message.name;
@@ -315,9 +315,9 @@ export const ModuleCredential: MessageFns<ModuleCredential, "cosmos.auth.v1beta1
 
   fromJSON(object: any): ModuleCredential {
     return {
-      moduleName: isSet(object.moduleName) ? globalThis.String(object.moduleName) : "",
-      derivationKeys: globalThis.Array.isArray(object?.derivationKeys)
-        ? object.derivationKeys.map((e: any) => bytesFromBase64(e))
+      moduleName: isSet(object.module_name) ? globalThis.String(object.module_name) : "",
+      derivationKeys: globalThis.Array.isArray(object?.derivation_keys)
+        ? object.derivation_keys.map((e: any) => bytesFromBase64(e))
         : [],
     };
   },
@@ -325,10 +325,10 @@ export const ModuleCredential: MessageFns<ModuleCredential, "cosmos.auth.v1beta1
   toJSON(message: ModuleCredential): unknown {
     const obj: any = {};
     if (message.moduleName !== "") {
-      obj.moduleName = message.moduleName;
+      obj.module_name = message.moduleName;
     }
     if (message.derivationKeys?.length) {
-      obj.derivationKeys = message.derivationKeys.map((e) => base64FromBytes(e));
+      obj.derivation_keys = message.derivationKeys.map((e) => base64FromBytes(e));
     }
     return obj;
   },
@@ -434,14 +434,16 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      maxMemoCharacters: isSet(object.maxMemoCharacters) ? Long.fromValue(object.maxMemoCharacters) : Long.UZERO,
-      txSigLimit: isSet(object.txSigLimit) ? Long.fromValue(object.txSigLimit) : Long.UZERO,
-      txSizeCostPerByte: isSet(object.txSizeCostPerByte) ? Long.fromValue(object.txSizeCostPerByte) : Long.UZERO,
-      sigVerifyCostEd25519: isSet(object.sigVerifyCostEd25519)
-        ? Long.fromValue(object.sigVerifyCostEd25519)
+      maxMemoCharacters: isSet(object.max_memo_characters) ? Long.fromValue(object.max_memo_characters) : Long.UZERO,
+      txSigLimit: isSet(object.tx_sig_limit) ? Long.fromValue(object.tx_sig_limit) : Long.UZERO,
+      txSizeCostPerByte: isSet(object.tx_size_cost_per_byte)
+        ? Long.fromValue(object.tx_size_cost_per_byte)
         : Long.UZERO,
-      sigVerifyCostSecp256k1: isSet(object.sigVerifyCostSecp256k1)
-        ? Long.fromValue(object.sigVerifyCostSecp256k1)
+      sigVerifyCostEd25519: isSet(object.sig_verify_cost_ed25519)
+        ? Long.fromValue(object.sig_verify_cost_ed25519)
+        : Long.UZERO,
+      sigVerifyCostSecp256k1: isSet(object.sig_verify_cost_secp256k1)
+        ? Long.fromValue(object.sig_verify_cost_secp256k1)
         : Long.UZERO,
     };
   },
@@ -449,19 +451,19 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (!message.maxMemoCharacters.equals(Long.UZERO)) {
-      obj.maxMemoCharacters = (message.maxMemoCharacters || Long.UZERO).toString();
+      obj.max_memo_characters = (message.maxMemoCharacters || Long.UZERO).toString();
     }
     if (!message.txSigLimit.equals(Long.UZERO)) {
-      obj.txSigLimit = (message.txSigLimit || Long.UZERO).toString();
+      obj.tx_sig_limit = (message.txSigLimit || Long.UZERO).toString();
     }
     if (!message.txSizeCostPerByte.equals(Long.UZERO)) {
-      obj.txSizeCostPerByte = (message.txSizeCostPerByte || Long.UZERO).toString();
+      obj.tx_size_cost_per_byte = (message.txSizeCostPerByte || Long.UZERO).toString();
     }
     if (!message.sigVerifyCostEd25519.equals(Long.UZERO)) {
-      obj.sigVerifyCostEd25519 = (message.sigVerifyCostEd25519 || Long.UZERO).toString();
+      obj.sig_verify_cost_ed25519 = (message.sigVerifyCostEd25519 || Long.UZERO).toString();
     }
     if (!message.sigVerifyCostSecp256k1.equals(Long.UZERO)) {
-      obj.sigVerifyCostSecp256k1 = (message.sigVerifyCostSecp256k1 || Long.UZERO).toString();
+      obj.sig_verify_cost_secp256k1 = (message.sigVerifyCostSecp256k1 || Long.UZERO).toString();
     }
     return obj;
   },

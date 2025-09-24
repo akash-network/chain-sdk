@@ -347,13 +347,13 @@ export const QueryValidatorDistributionInfoRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryValidatorDistributionInfoRequest {
-    return { validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "" };
+    return { validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "" };
   },
 
   toJSON(message: QueryValidatorDistributionInfoRequest): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     return obj;
   },
@@ -433,9 +433,9 @@ export const QueryValidatorDistributionInfoResponse: MessageFns<
 
   fromJSON(object: any): QueryValidatorDistributionInfoResponse {
     return {
-      operatorAddress: isSet(object.operatorAddress) ? globalThis.String(object.operatorAddress) : "",
-      selfBondRewards: globalThis.Array.isArray(object?.selfBondRewards)
-        ? object.selfBondRewards.map((e: any) => DecCoin.fromJSON(e))
+      operatorAddress: isSet(object.operator_address) ? globalThis.String(object.operator_address) : "",
+      selfBondRewards: globalThis.Array.isArray(object?.self_bond_rewards)
+        ? object.self_bond_rewards.map((e: any) => DecCoin.fromJSON(e))
         : [],
       commission: globalThis.Array.isArray(object?.commission)
         ? object.commission.map((e: any) => DecCoin.fromJSON(e))
@@ -446,10 +446,10 @@ export const QueryValidatorDistributionInfoResponse: MessageFns<
   toJSON(message: QueryValidatorDistributionInfoResponse): unknown {
     const obj: any = {};
     if (message.operatorAddress !== "") {
-      obj.operatorAddress = message.operatorAddress;
+      obj.operator_address = message.operatorAddress;
     }
     if (message.selfBondRewards?.length) {
-      obj.selfBondRewards = message.selfBondRewards.map((e) => DecCoin.toJSON(e));
+      obj.self_bond_rewards = message.selfBondRewards.map((e) => DecCoin.toJSON(e));
     }
     if (message.commission?.length) {
       obj.commission = message.commission.map((e) => DecCoin.toJSON(e));
@@ -511,13 +511,13 @@ export const QueryValidatorOutstandingRewardsRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryValidatorOutstandingRewardsRequest {
-    return { validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "" };
+    return { validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "" };
   },
 
   toJSON(message: QueryValidatorOutstandingRewardsRequest): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     return obj;
   },
@@ -639,13 +639,13 @@ export const QueryValidatorCommissionRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryValidatorCommissionRequest {
-    return { validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "" };
+    return { validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "" };
   },
 
   toJSON(message: QueryValidatorCommissionRequest): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     return obj;
   },
@@ -803,9 +803,9 @@ export const QueryValidatorSlashesRequest: MessageFns<
 
   fromJSON(object: any): QueryValidatorSlashesRequest {
     return {
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
-      startingHeight: isSet(object.startingHeight) ? Long.fromValue(object.startingHeight) : Long.UZERO,
-      endingHeight: isSet(object.endingHeight) ? Long.fromValue(object.endingHeight) : Long.UZERO,
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
+      startingHeight: isSet(object.starting_height) ? Long.fromValue(object.starting_height) : Long.UZERO,
+      endingHeight: isSet(object.ending_height) ? Long.fromValue(object.ending_height) : Long.UZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -813,13 +813,13 @@ export const QueryValidatorSlashesRequest: MessageFns<
   toJSON(message: QueryValidatorSlashesRequest): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (!message.startingHeight.equals(Long.UZERO)) {
-      obj.startingHeight = (message.startingHeight || Long.UZERO).toString();
+      obj.starting_height = (message.startingHeight || Long.UZERO).toString();
     }
     if (!message.endingHeight.equals(Long.UZERO)) {
-      obj.endingHeight = (message.endingHeight || Long.UZERO).toString();
+      obj.ending_height = (message.endingHeight || Long.UZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -985,18 +985,18 @@ export const QueryDelegationRewardsRequest: MessageFns<
 
   fromJSON(object: any): QueryDelegationRewardsRequest {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
     };
   },
 
   toJSON(message: QueryDelegationRewardsRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     return obj;
   },
@@ -1119,13 +1119,13 @@ export const QueryDelegationTotalRewardsRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryDelegationTotalRewardsRequest {
-    return { delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "" };
+    return { delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "" };
   },
 
   toJSON(message: QueryDelegationTotalRewardsRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     return obj;
   },
@@ -1265,13 +1265,13 @@ export const QueryDelegatorValidatorsRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryDelegatorValidatorsRequest {
-    return { delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "" };
+    return { delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "" };
   },
 
   toJSON(message: QueryDelegatorValidatorsRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     return obj;
   },
@@ -1395,13 +1395,13 @@ export const QueryDelegatorWithdrawAddressRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryDelegatorWithdrawAddressRequest {
-    return { delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "" };
+    return { delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "" };
   },
 
   toJSON(message: QueryDelegatorWithdrawAddressRequest): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     return obj;
   },
@@ -1458,13 +1458,13 @@ export const QueryDelegatorWithdrawAddressResponse: MessageFns<
   },
 
   fromJSON(object: any): QueryDelegatorWithdrawAddressResponse {
-    return { withdrawAddress: isSet(object.withdrawAddress) ? globalThis.String(object.withdrawAddress) : "" };
+    return { withdrawAddress: isSet(object.withdraw_address) ? globalThis.String(object.withdraw_address) : "" };
   },
 
   toJSON(message: QueryDelegatorWithdrawAddressResponse): unknown {
     const obj: any = {};
     if (message.withdrawAddress !== "") {
-      obj.withdrawAddress = message.withdrawAddress;
+      obj.withdraw_address = message.withdrawAddress;
     }
     return obj;
   },

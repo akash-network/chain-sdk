@@ -174,9 +174,9 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.staking.v1beta1.Gene
   fromJSON(object: any): GenesisState {
     return {
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
-      lastTotalPower: isSet(object.lastTotalPower) ? bytesFromBase64(object.lastTotalPower) : new Uint8Array(0),
-      lastValidatorPowers: globalThis.Array.isArray(object?.lastValidatorPowers)
-        ? object.lastValidatorPowers.map((e: any) => LastValidatorPower.fromJSON(e))
+      lastTotalPower: isSet(object.last_total_power) ? bytesFromBase64(object.last_total_power) : new Uint8Array(0),
+      lastValidatorPowers: globalThis.Array.isArray(object?.last_validator_powers)
+        ? object.last_validator_powers.map((e: any) => LastValidatorPower.fromJSON(e))
         : [],
       validators: globalThis.Array.isArray(object?.validators)
         ? object.validators.map((e: any) => Validator.fromJSON(e))
@@ -184,8 +184,8 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.staking.v1beta1.Gene
       delegations: globalThis.Array.isArray(object?.delegations)
         ? object.delegations.map((e: any) => Delegation.fromJSON(e))
         : [],
-      unbondingDelegations: globalThis.Array.isArray(object?.unbondingDelegations)
-        ? object.unbondingDelegations.map((e: any) => UnbondingDelegation.fromJSON(e))
+      unbondingDelegations: globalThis.Array.isArray(object?.unbonding_delegations)
+        ? object.unbonding_delegations.map((e: any) => UnbondingDelegation.fromJSON(e))
         : [],
       redelegations: globalThis.Array.isArray(object?.redelegations)
         ? object.redelegations.map((e: any) => Redelegation.fromJSON(e))
@@ -200,10 +200,10 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.staking.v1beta1.Gene
       obj.params = Params.toJSON(message.params);
     }
     if (message.lastTotalPower.length !== 0) {
-      obj.lastTotalPower = base64FromBytes(message.lastTotalPower);
+      obj.last_total_power = base64FromBytes(message.lastTotalPower);
     }
     if (message.lastValidatorPowers?.length) {
-      obj.lastValidatorPowers = message.lastValidatorPowers.map((e) => LastValidatorPower.toJSON(e));
+      obj.last_validator_powers = message.lastValidatorPowers.map((e) => LastValidatorPower.toJSON(e));
     }
     if (message.validators?.length) {
       obj.validators = message.validators.map((e) => Validator.toJSON(e));
@@ -212,7 +212,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.staking.v1beta1.Gene
       obj.delegations = message.delegations.map((e) => Delegation.toJSON(e));
     }
     if (message.unbondingDelegations?.length) {
-      obj.unbondingDelegations = message.unbondingDelegations.map((e) => UnbondingDelegation.toJSON(e));
+      obj.unbonding_delegations = message.unbondingDelegations.map((e) => UnbondingDelegation.toJSON(e));
     }
     if (message.redelegations?.length) {
       obj.redelegations = message.redelegations.map((e) => Redelegation.toJSON(e));

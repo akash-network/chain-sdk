@@ -155,12 +155,12 @@ export const ModuleDescriptor: MessageFns<ModuleDescriptor, "cosmos.app.v1alpha1
 
   fromJSON(object: any): ModuleDescriptor {
     return {
-      goImport: isSet(object.goImport) ? globalThis.String(object.goImport) : "",
-      usePackage: globalThis.Array.isArray(object?.usePackage)
-        ? object.usePackage.map((e: any) => PackageReference.fromJSON(e))
+      goImport: isSet(object.go_import) ? globalThis.String(object.go_import) : "",
+      usePackage: globalThis.Array.isArray(object?.use_package)
+        ? object.use_package.map((e: any) => PackageReference.fromJSON(e))
         : [],
-      canMigrateFrom: globalThis.Array.isArray(object?.canMigrateFrom)
-        ? object.canMigrateFrom.map((e: any) => MigrateFromInfo.fromJSON(e))
+      canMigrateFrom: globalThis.Array.isArray(object?.can_migrate_from)
+        ? object.can_migrate_from.map((e: any) => MigrateFromInfo.fromJSON(e))
         : [],
     };
   },
@@ -168,13 +168,13 @@ export const ModuleDescriptor: MessageFns<ModuleDescriptor, "cosmos.app.v1alpha1
   toJSON(message: ModuleDescriptor): unknown {
     const obj: any = {};
     if (message.goImport !== "") {
-      obj.goImport = message.goImport;
+      obj.go_import = message.goImport;
     }
     if (message.usePackage?.length) {
-      obj.usePackage = message.usePackage.map((e) => PackageReference.toJSON(e));
+      obj.use_package = message.usePackage.map((e) => PackageReference.toJSON(e));
     }
     if (message.canMigrateFrom?.length) {
-      obj.canMigrateFrom = message.canMigrateFrom.map((e) => MigrateFromInfo.toJSON(e));
+      obj.can_migrate_from = message.canMigrateFrom.map((e) => MigrateFromInfo.toJSON(e));
     }
     return obj;
   },

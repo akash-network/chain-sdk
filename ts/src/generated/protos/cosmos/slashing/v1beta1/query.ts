@@ -206,13 +206,13 @@ export const QuerySigningInfoRequest: MessageFns<
   },
 
   fromJSON(object: any): QuerySigningInfoRequest {
-    return { consAddress: isSet(object.consAddress) ? globalThis.String(object.consAddress) : "" };
+    return { consAddress: isSet(object.cons_address) ? globalThis.String(object.cons_address) : "" };
   },
 
   toJSON(message: QuerySigningInfoRequest): unknown {
     const obj: any = {};
     if (message.consAddress !== "") {
-      obj.consAddress = message.consAddress;
+      obj.cons_address = message.consAddress;
     }
     return obj;
   },
@@ -270,14 +270,16 @@ export const QuerySigningInfoResponse: MessageFns<
 
   fromJSON(object: any): QuerySigningInfoResponse {
     return {
-      valSigningInfo: isSet(object.valSigningInfo) ? ValidatorSigningInfo.fromJSON(object.valSigningInfo) : undefined,
+      valSigningInfo: isSet(object.val_signing_info)
+        ? ValidatorSigningInfo.fromJSON(object.val_signing_info)
+        : undefined,
     };
   },
 
   toJSON(message: QuerySigningInfoResponse): unknown {
     const obj: any = {};
     if (message.valSigningInfo !== undefined) {
-      obj.valSigningInfo = ValidatorSigningInfo.toJSON(message.valSigningInfo);
+      obj.val_signing_info = ValidatorSigningInfo.toJSON(message.valSigningInfo);
     }
     return obj;
   },

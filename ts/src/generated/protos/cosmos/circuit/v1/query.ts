@@ -398,8 +398,8 @@ export const DisabledListResponse: MessageFns<DisabledListResponse, "cosmos.circ
 
   fromJSON(object: any): DisabledListResponse {
     return {
-      disabledList: globalThis.Array.isArray(object?.disabledList)
-        ? object.disabledList.map((e: any) => globalThis.String(e))
+      disabledList: globalThis.Array.isArray(object?.disabled_list)
+        ? object.disabled_list.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -407,7 +407,7 @@ export const DisabledListResponse: MessageFns<DisabledListResponse, "cosmos.circ
   toJSON(message: DisabledListResponse): unknown {
     const obj: any = {};
     if (message.disabledList?.length) {
-      obj.disabledList = message.disabledList;
+      obj.disabled_list = message.disabledList;
     }
     return obj;
   },

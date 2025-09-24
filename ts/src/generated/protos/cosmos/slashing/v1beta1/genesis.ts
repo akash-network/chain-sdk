@@ -119,11 +119,11 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.slashing.v1beta1.Gen
   fromJSON(object: any): GenesisState {
     return {
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
-      signingInfos: globalThis.Array.isArray(object?.signingInfos)
-        ? object.signingInfos.map((e: any) => SigningInfo.fromJSON(e))
+      signingInfos: globalThis.Array.isArray(object?.signing_infos)
+        ? object.signing_infos.map((e: any) => SigningInfo.fromJSON(e))
         : [],
-      missedBlocks: globalThis.Array.isArray(object?.missedBlocks)
-        ? object.missedBlocks.map((e: any) => ValidatorMissedBlocks.fromJSON(e))
+      missedBlocks: globalThis.Array.isArray(object?.missed_blocks)
+        ? object.missed_blocks.map((e: any) => ValidatorMissedBlocks.fromJSON(e))
         : [],
     };
   },
@@ -134,10 +134,10 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.slashing.v1beta1.Gen
       obj.params = Params.toJSON(message.params);
     }
     if (message.signingInfos?.length) {
-      obj.signingInfos = message.signingInfos.map((e) => SigningInfo.toJSON(e));
+      obj.signing_infos = message.signingInfos.map((e) => SigningInfo.toJSON(e));
     }
     if (message.missedBlocks?.length) {
-      obj.missedBlocks = message.missedBlocks.map((e) => ValidatorMissedBlocks.toJSON(e));
+      obj.missed_blocks = message.missedBlocks.map((e) => ValidatorMissedBlocks.toJSON(e));
     }
     return obj;
   },
@@ -208,8 +208,8 @@ export const SigningInfo: MessageFns<SigningInfo, "cosmos.slashing.v1beta1.Signi
   fromJSON(object: any): SigningInfo {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      validatorSigningInfo: isSet(object.validatorSigningInfo)
-        ? ValidatorSigningInfo.fromJSON(object.validatorSigningInfo)
+      validatorSigningInfo: isSet(object.validator_signing_info)
+        ? ValidatorSigningInfo.fromJSON(object.validator_signing_info)
         : undefined,
     };
   },
@@ -220,7 +220,7 @@ export const SigningInfo: MessageFns<SigningInfo, "cosmos.slashing.v1beta1.Signi
       obj.address = message.address;
     }
     if (message.validatorSigningInfo !== undefined) {
-      obj.validatorSigningInfo = ValidatorSigningInfo.toJSON(message.validatorSigningInfo);
+      obj.validator_signing_info = ValidatorSigningInfo.toJSON(message.validatorSigningInfo);
     }
     return obj;
   },
@@ -291,8 +291,8 @@ export const ValidatorMissedBlocks: MessageFns<ValidatorMissedBlocks, "cosmos.sl
     fromJSON(object: any): ValidatorMissedBlocks {
       return {
         address: isSet(object.address) ? globalThis.String(object.address) : "",
-        missedBlocks: globalThis.Array.isArray(object?.missedBlocks)
-          ? object.missedBlocks.map((e: any) => MissedBlock.fromJSON(e))
+        missedBlocks: globalThis.Array.isArray(object?.missed_blocks)
+          ? object.missed_blocks.map((e: any) => MissedBlock.fromJSON(e))
           : [],
       };
     },
@@ -303,7 +303,7 @@ export const ValidatorMissedBlocks: MessageFns<ValidatorMissedBlocks, "cosmos.sl
         obj.address = message.address;
       }
       if (message.missedBlocks?.length) {
-        obj.missedBlocks = message.missedBlocks.map((e) => MissedBlock.toJSON(e));
+        obj.missed_blocks = message.missedBlocks.map((e) => MissedBlock.toJSON(e));
       }
       return obj;
     },

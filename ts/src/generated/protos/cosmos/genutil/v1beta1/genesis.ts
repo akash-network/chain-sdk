@@ -56,14 +56,14 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.genutil.v1beta1.Gene
 
   fromJSON(object: any): GenesisState {
     return {
-      genTxs: globalThis.Array.isArray(object?.genTxs) ? object.genTxs.map((e: any) => bytesFromBase64(e)) : [],
+      genTxs: globalThis.Array.isArray(object?.gen_txs) ? object.gen_txs.map((e: any) => bytesFromBase64(e)) : [],
     };
   },
 
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
     if (message.genTxs?.length) {
-      obj.genTxs = message.genTxs.map((e) => base64FromBytes(e));
+      obj.gen_txs = message.genTxs.map((e) => base64FromBytes(e));
     }
     return obj;
   },

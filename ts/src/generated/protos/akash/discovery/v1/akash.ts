@@ -56,13 +56,13 @@ export const Akash: MessageFns<Akash, "akash.discovery.v1.Akash"> = {
   },
 
   fromJSON(object: any): Akash {
-    return { clientInfo: isSet(object.clientInfo) ? ClientInfo.fromJSON(object.clientInfo) : undefined };
+    return { clientInfo: isSet(object.client_info) ? ClientInfo.fromJSON(object.client_info) : undefined };
   },
 
   toJSON(message: Akash): unknown {
     const obj: any = {};
     if (message.clientInfo !== undefined) {
-      obj.clientInfo = ClientInfo.toJSON(message.clientInfo);
+      obj.client_info = ClientInfo.toJSON(message.clientInfo);
     }
     return obj;
   },

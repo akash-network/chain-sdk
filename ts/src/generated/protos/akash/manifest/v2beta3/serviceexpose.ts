@@ -169,15 +169,15 @@ export const ServiceExpose: MessageFns<ServiceExpose, "akash.manifest.v2beta3.Se
   fromJSON(object: any): ServiceExpose {
     return {
       port: isSet(object.port) ? globalThis.Number(object.port) : 0,
-      externalPort: isSet(object.externalPort) ? globalThis.Number(object.externalPort) : 0,
+      externalPort: isSet(object.external_port) ? globalThis.Number(object.external_port) : 0,
       proto: isSet(object.proto) ? globalThis.String(object.proto) : "",
       service: isSet(object.service) ? globalThis.String(object.service) : "",
       global: isSet(object.global) ? globalThis.Boolean(object.global) : false,
       hosts: globalThis.Array.isArray(object?.hosts) ? object.hosts.map((e: any) => globalThis.String(e)) : [],
-      httpOptions: isSet(object.httpOptions) ? ServiceExposeHTTPOptions.fromJSON(object.httpOptions) : undefined,
+      httpOptions: isSet(object.http_options) ? ServiceExposeHTTPOptions.fromJSON(object.http_options) : undefined,
       ip: isSet(object.ip) ? globalThis.String(object.ip) : "",
-      endpointSequenceNumber: isSet(object.endpointSequenceNumber)
-        ? globalThis.Number(object.endpointSequenceNumber)
+      endpointSequenceNumber: isSet(object.endpoint_sequence_number)
+        ? globalThis.Number(object.endpoint_sequence_number)
         : 0,
     };
   },
@@ -188,7 +188,7 @@ export const ServiceExpose: MessageFns<ServiceExpose, "akash.manifest.v2beta3.Se
       obj.port = Math.round(message.port);
     }
     if (message.externalPort !== 0) {
-      obj.externalPort = Math.round(message.externalPort);
+      obj.external_port = Math.round(message.externalPort);
     }
     if (message.proto !== "") {
       obj.proto = message.proto;
@@ -203,13 +203,13 @@ export const ServiceExpose: MessageFns<ServiceExpose, "akash.manifest.v2beta3.Se
       obj.hosts = message.hosts;
     }
     if (message.httpOptions !== undefined) {
-      obj.httpOptions = ServiceExposeHTTPOptions.toJSON(message.httpOptions);
+      obj.http_options = ServiceExposeHTTPOptions.toJSON(message.httpOptions);
     }
     if (message.ip !== "") {
       obj.ip = message.ip;
     }
     if (message.endpointSequenceNumber !== 0) {
-      obj.endpointSequenceNumber = Math.round(message.endpointSequenceNumber);
+      obj.endpoint_sequence_number = Math.round(message.endpointSequenceNumber);
     }
     return obj;
   },

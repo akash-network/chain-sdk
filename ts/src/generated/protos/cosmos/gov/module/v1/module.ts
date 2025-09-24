@@ -72,7 +72,7 @@ export const Module: MessageFns<Module, "cosmos.gov.module.v1.Module"> = {
 
   fromJSON(object: any): Module {
     return {
-      maxMetadataLen: isSet(object.maxMetadataLen) ? Long.fromValue(object.maxMetadataLen) : Long.UZERO,
+      maxMetadataLen: isSet(object.max_metadata_len) ? Long.fromValue(object.max_metadata_len) : Long.UZERO,
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
     };
   },
@@ -80,7 +80,7 @@ export const Module: MessageFns<Module, "cosmos.gov.module.v1.Module"> = {
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (!message.maxMetadataLen.equals(Long.UZERO)) {
-      obj.maxMetadataLen = (message.maxMetadataLen || Long.UZERO).toString();
+      obj.max_metadata_len = (message.maxMetadataLen || Long.UZERO).toString();
     }
     if (message.authority !== "") {
       obj.authority = message.authority;

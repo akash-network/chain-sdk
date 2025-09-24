@@ -111,7 +111,7 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       mount: isSet(object.mount) ? globalThis.String(object.mount) : "",
-      readOnly: isSet(object.readOnly) ? globalThis.Boolean(object.readOnly) : false,
+      readOnly: isSet(object.read_only) ? globalThis.Boolean(object.read_only) : false,
     };
   },
 
@@ -124,7 +124,7 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
       obj.mount = message.mount;
     }
     if (message.readOnly !== false) {
-      obj.readOnly = message.readOnly;
+      obj.read_only = message.readOnly;
     }
     return obj;
   },

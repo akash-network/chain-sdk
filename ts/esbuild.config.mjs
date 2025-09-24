@@ -8,8 +8,8 @@ import packageDetails from './package.json' with { type: 'json' };
 const baseConfig = (type, config) => ({
   ...config,
   entryPoints: [
-    `src/sdk/chain/index.${type}.ts`,
-    `src/sdk/provider/index.${type}.ts`,
+    `src/sdk/chain/${type}/index.ts`,
+    `src/sdk/provider/${type}/index.ts`,
     'src/sdl/index.ts',
     'src/generated/protos/index.*'
   ],
@@ -34,8 +34,19 @@ const nodeJsConfig = (format) => baseConfig('server', {
   outdir: `dist/nodejs/${format}`,
 });
 
+const webConfig = (format) => baseConfig('web', {
+  minify: false,
+  target: ['es2020'],
+  format,
+  splitting: format === 'esm',
+  platform: 'browser',
+  outdir: `dist/web/${format}`,
+});
+
 await Promise.all([
   esbuild.build(nodeJsConfig('esm')),
   esbuild.build(nodeJsConfig('cjs')),
+  esbuild.build(webConfig('esm')),
+  esbuild.build(webConfig('cjs')),
 ]);
-console.log('Building Nodejs SDK finished');
+console.log('Building JS SDK finished');

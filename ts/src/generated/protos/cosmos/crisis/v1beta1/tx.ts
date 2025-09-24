@@ -103,8 +103,8 @@ export const MsgVerifyInvariant: MessageFns<MsgVerifyInvariant, "cosmos.crisis.v
   fromJSON(object: any): MsgVerifyInvariant {
     return {
       sender: isSet(object.sender) ? globalThis.String(object.sender) : "",
-      invariantModuleName: isSet(object.invariantModuleName) ? globalThis.String(object.invariantModuleName) : "",
-      invariantRoute: isSet(object.invariantRoute) ? globalThis.String(object.invariantRoute) : "",
+      invariantModuleName: isSet(object.invariant_module_name) ? globalThis.String(object.invariant_module_name) : "",
+      invariantRoute: isSet(object.invariant_route) ? globalThis.String(object.invariant_route) : "",
     };
   },
 
@@ -114,10 +114,10 @@ export const MsgVerifyInvariant: MessageFns<MsgVerifyInvariant, "cosmos.crisis.v
       obj.sender = message.sender;
     }
     if (message.invariantModuleName !== "") {
-      obj.invariantModuleName = message.invariantModuleName;
+      obj.invariant_module_name = message.invariantModuleName;
     }
     if (message.invariantRoute !== "") {
-      obj.invariantRoute = message.invariantRoute;
+      obj.invariant_route = message.invariantRoute;
     }
     return obj;
   },
@@ -234,7 +234,7 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.crisis.v1beta1
   fromJSON(object: any): MsgUpdateParams {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      constantFee: isSet(object.constantFee) ? Coin.fromJSON(object.constantFee) : undefined,
+      constantFee: isSet(object.constant_fee) ? Coin.fromJSON(object.constant_fee) : undefined,
     };
   },
 
@@ -244,7 +244,7 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.crisis.v1beta1
       obj.authority = message.authority;
     }
     if (message.constantFee !== undefined) {
-      obj.constantFee = Coin.toJSON(message.constantFee);
+      obj.constant_fee = Coin.toJSON(message.constantFee);
     }
     return obj;
   },

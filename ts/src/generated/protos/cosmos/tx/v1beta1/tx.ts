@@ -405,7 +405,7 @@ export const Tx: MessageFns<Tx, "cosmos.tx.v1beta1.Tx"> = {
   fromJSON(object: any): Tx {
     return {
       body: isSet(object.body) ? TxBody.fromJSON(object.body) : undefined,
-      authInfo: isSet(object.authInfo) ? AuthInfo.fromJSON(object.authInfo) : undefined,
+      authInfo: isSet(object.auth_info) ? AuthInfo.fromJSON(object.auth_info) : undefined,
       signatures: globalThis.Array.isArray(object?.signatures)
         ? object.signatures.map((e: any) => bytesFromBase64(e))
         : [],
@@ -418,7 +418,7 @@ export const Tx: MessageFns<Tx, "cosmos.tx.v1beta1.Tx"> = {
       obj.body = TxBody.toJSON(message.body);
     }
     if (message.authInfo !== undefined) {
-      obj.authInfo = AuthInfo.toJSON(message.authInfo);
+      obj.auth_info = AuthInfo.toJSON(message.authInfo);
     }
     if (message.signatures?.length) {
       obj.signatures = message.signatures.map((e) => base64FromBytes(e));
@@ -502,8 +502,8 @@ export const TxRaw: MessageFns<TxRaw, "cosmos.tx.v1beta1.TxRaw"> = {
 
   fromJSON(object: any): TxRaw {
     return {
-      bodyBytes: isSet(object.bodyBytes) ? bytesFromBase64(object.bodyBytes) : new Uint8Array(0),
-      authInfoBytes: isSet(object.authInfoBytes) ? bytesFromBase64(object.authInfoBytes) : new Uint8Array(0),
+      bodyBytes: isSet(object.body_bytes) ? bytesFromBase64(object.body_bytes) : new Uint8Array(0),
+      authInfoBytes: isSet(object.auth_info_bytes) ? bytesFromBase64(object.auth_info_bytes) : new Uint8Array(0),
       signatures: globalThis.Array.isArray(object?.signatures)
         ? object.signatures.map((e: any) => bytesFromBase64(e))
         : [],
@@ -513,10 +513,10 @@ export const TxRaw: MessageFns<TxRaw, "cosmos.tx.v1beta1.TxRaw"> = {
   toJSON(message: TxRaw): unknown {
     const obj: any = {};
     if (message.bodyBytes.length !== 0) {
-      obj.bodyBytes = base64FromBytes(message.bodyBytes);
+      obj.body_bytes = base64FromBytes(message.bodyBytes);
     }
     if (message.authInfoBytes.length !== 0) {
-      obj.authInfoBytes = base64FromBytes(message.authInfoBytes);
+      obj.auth_info_bytes = base64FromBytes(message.authInfoBytes);
     }
     if (message.signatures?.length) {
       obj.signatures = message.signatures.map((e) => base64FromBytes(e));
@@ -609,26 +609,26 @@ export const SignDoc: MessageFns<SignDoc, "cosmos.tx.v1beta1.SignDoc"> = {
 
   fromJSON(object: any): SignDoc {
     return {
-      bodyBytes: isSet(object.bodyBytes) ? bytesFromBase64(object.bodyBytes) : new Uint8Array(0),
-      authInfoBytes: isSet(object.authInfoBytes) ? bytesFromBase64(object.authInfoBytes) : new Uint8Array(0),
-      chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
-      accountNumber: isSet(object.accountNumber) ? Long.fromValue(object.accountNumber) : Long.UZERO,
+      bodyBytes: isSet(object.body_bytes) ? bytesFromBase64(object.body_bytes) : new Uint8Array(0),
+      authInfoBytes: isSet(object.auth_info_bytes) ? bytesFromBase64(object.auth_info_bytes) : new Uint8Array(0),
+      chainId: isSet(object.chain_id) ? globalThis.String(object.chain_id) : "",
+      accountNumber: isSet(object.account_number) ? Long.fromValue(object.account_number) : Long.UZERO,
     };
   },
 
   toJSON(message: SignDoc): unknown {
     const obj: any = {};
     if (message.bodyBytes.length !== 0) {
-      obj.bodyBytes = base64FromBytes(message.bodyBytes);
+      obj.body_bytes = base64FromBytes(message.bodyBytes);
     }
     if (message.authInfoBytes.length !== 0) {
-      obj.authInfoBytes = base64FromBytes(message.authInfoBytes);
+      obj.auth_info_bytes = base64FromBytes(message.authInfoBytes);
     }
     if (message.chainId !== "") {
-      obj.chainId = message.chainId;
+      obj.chain_id = message.chainId;
     }
     if (!message.accountNumber.equals(Long.UZERO)) {
-      obj.accountNumber = (message.accountNumber || Long.UZERO).toString();
+      obj.account_number = (message.accountNumber || Long.UZERO).toString();
     }
     return obj;
   },
@@ -750,10 +750,10 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
 
   fromJSON(object: any): SignDocDirectAux {
     return {
-      bodyBytes: isSet(object.bodyBytes) ? bytesFromBase64(object.bodyBytes) : new Uint8Array(0),
-      publicKey: isSet(object.publicKey) ? Any.fromJSON(object.publicKey) : undefined,
-      chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
-      accountNumber: isSet(object.accountNumber) ? Long.fromValue(object.accountNumber) : Long.UZERO,
+      bodyBytes: isSet(object.body_bytes) ? bytesFromBase64(object.body_bytes) : new Uint8Array(0),
+      publicKey: isSet(object.public_key) ? Any.fromJSON(object.public_key) : undefined,
+      chainId: isSet(object.chain_id) ? globalThis.String(object.chain_id) : "",
+      accountNumber: isSet(object.account_number) ? Long.fromValue(object.account_number) : Long.UZERO,
       sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
       tip: isSet(object.tip) ? Tip.fromJSON(object.tip) : undefined,
     };
@@ -762,16 +762,16 @@ export const SignDocDirectAux: MessageFns<SignDocDirectAux, "cosmos.tx.v1beta1.S
   toJSON(message: SignDocDirectAux): unknown {
     const obj: any = {};
     if (message.bodyBytes.length !== 0) {
-      obj.bodyBytes = base64FromBytes(message.bodyBytes);
+      obj.body_bytes = base64FromBytes(message.bodyBytes);
     }
     if (message.publicKey !== undefined) {
-      obj.publicKey = Any.toJSON(message.publicKey);
+      obj.public_key = Any.toJSON(message.publicKey);
     }
     if (message.chainId !== "") {
-      obj.chainId = message.chainId;
+      obj.chain_id = message.chainId;
     }
     if (!message.accountNumber.equals(Long.UZERO)) {
-      obj.accountNumber = (message.accountNumber || Long.UZERO).toString();
+      obj.account_number = (message.accountNumber || Long.UZERO).toString();
     }
     if (!message.sequence.equals(Long.UZERO)) {
       obj.sequence = (message.sequence || Long.UZERO).toString();
@@ -919,14 +919,14 @@ export const TxBody: MessageFns<TxBody, "cosmos.tx.v1beta1.TxBody"> = {
     return {
       messages: globalThis.Array.isArray(object?.messages) ? object.messages.map((e: any) => Any.fromJSON(e)) : [],
       memo: isSet(object.memo) ? globalThis.String(object.memo) : "",
-      timeoutHeight: isSet(object.timeoutHeight) ? Long.fromValue(object.timeoutHeight) : Long.UZERO,
+      timeoutHeight: isSet(object.timeout_height) ? Long.fromValue(object.timeout_height) : Long.UZERO,
       unordered: isSet(object.unordered) ? globalThis.Boolean(object.unordered) : false,
-      timeoutTimestamp: isSet(object.timeoutTimestamp) ? fromJsonTimestamp(object.timeoutTimestamp) : undefined,
-      extensionOptions: globalThis.Array.isArray(object?.extensionOptions)
-        ? object.extensionOptions.map((e: any) => Any.fromJSON(e))
+      timeoutTimestamp: isSet(object.timeout_timestamp) ? fromJsonTimestamp(object.timeout_timestamp) : undefined,
+      extensionOptions: globalThis.Array.isArray(object?.extension_options)
+        ? object.extension_options.map((e: any) => Any.fromJSON(e))
         : [],
-      nonCriticalExtensionOptions: globalThis.Array.isArray(object?.nonCriticalExtensionOptions)
-        ? object.nonCriticalExtensionOptions.map((e: any) => Any.fromJSON(e))
+      nonCriticalExtensionOptions: globalThis.Array.isArray(object?.non_critical_extension_options)
+        ? object.non_critical_extension_options.map((e: any) => Any.fromJSON(e))
         : [],
     };
   },
@@ -940,19 +940,19 @@ export const TxBody: MessageFns<TxBody, "cosmos.tx.v1beta1.TxBody"> = {
       obj.memo = message.memo;
     }
     if (!message.timeoutHeight.equals(Long.UZERO)) {
-      obj.timeoutHeight = (message.timeoutHeight || Long.UZERO).toString();
+      obj.timeout_height = (message.timeoutHeight || Long.UZERO).toString();
     }
     if (message.unordered !== false) {
       obj.unordered = message.unordered;
     }
     if (message.timeoutTimestamp !== undefined) {
-      obj.timeoutTimestamp = message.timeoutTimestamp.toISOString();
+      obj.timeout_timestamp = message.timeoutTimestamp.toISOString();
     }
     if (message.extensionOptions?.length) {
-      obj.extensionOptions = message.extensionOptions.map((e) => Any.toJSON(e));
+      obj.extension_options = message.extensionOptions.map((e) => Any.toJSON(e));
     }
     if (message.nonCriticalExtensionOptions?.length) {
-      obj.nonCriticalExtensionOptions = message.nonCriticalExtensionOptions.map((e) => Any.toJSON(e));
+      obj.non_critical_extension_options = message.nonCriticalExtensionOptions.map((e) => Any.toJSON(e));
     }
     return obj;
   },
@@ -1037,8 +1037,8 @@ export const AuthInfo: MessageFns<AuthInfo, "cosmos.tx.v1beta1.AuthInfo"> = {
 
   fromJSON(object: any): AuthInfo {
     return {
-      signerInfos: globalThis.Array.isArray(object?.signerInfos)
-        ? object.signerInfos.map((e: any) => SignerInfo.fromJSON(e))
+      signerInfos: globalThis.Array.isArray(object?.signer_infos)
+        ? object.signer_infos.map((e: any) => SignerInfo.fromJSON(e))
         : [],
       fee: isSet(object.fee) ? Fee.fromJSON(object.fee) : undefined,
       tip: isSet(object.tip) ? Tip.fromJSON(object.tip) : undefined,
@@ -1048,7 +1048,7 @@ export const AuthInfo: MessageFns<AuthInfo, "cosmos.tx.v1beta1.AuthInfo"> = {
   toJSON(message: AuthInfo): unknown {
     const obj: any = {};
     if (message.signerInfos?.length) {
-      obj.signerInfos = message.signerInfos.map((e) => SignerInfo.toJSON(e));
+      obj.signer_infos = message.signerInfos.map((e) => SignerInfo.toJSON(e));
     }
     if (message.fee !== undefined) {
       obj.fee = Fee.toJSON(message.fee);
@@ -1133,8 +1133,8 @@ export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> 
 
   fromJSON(object: any): SignerInfo {
     return {
-      publicKey: isSet(object.publicKey) ? Any.fromJSON(object.publicKey) : undefined,
-      modeInfo: isSet(object.modeInfo) ? ModeInfo.fromJSON(object.modeInfo) : undefined,
+      publicKey: isSet(object.public_key) ? Any.fromJSON(object.public_key) : undefined,
+      modeInfo: isSet(object.mode_info) ? ModeInfo.fromJSON(object.mode_info) : undefined,
       sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
     };
   },
@@ -1142,10 +1142,10 @@ export const SignerInfo: MessageFns<SignerInfo, "cosmos.tx.v1beta1.SignerInfo"> 
   toJSON(message: SignerInfo): unknown {
     const obj: any = {};
     if (message.publicKey !== undefined) {
-      obj.publicKey = Any.toJSON(message.publicKey);
+      obj.public_key = Any.toJSON(message.publicKey);
     }
     if (message.modeInfo !== undefined) {
-      obj.modeInfo = ModeInfo.toJSON(message.modeInfo);
+      obj.mode_info = ModeInfo.toJSON(message.modeInfo);
     }
     if (!message.sequence.equals(Long.UZERO)) {
       obj.sequence = (message.sequence || Long.UZERO).toString();
@@ -1365,8 +1365,8 @@ export const ModeInfo_Multi: MessageFns<ModeInfo_Multi, "cosmos.tx.v1beta1.ModeI
   fromJSON(object: any): ModeInfo_Multi {
     return {
       bitarray: isSet(object.bitarray) ? CompactBitArray.fromJSON(object.bitarray) : undefined,
-      modeInfos: globalThis.Array.isArray(object?.modeInfos)
-        ? object.modeInfos.map((e: any) => ModeInfo.fromJSON(e))
+      modeInfos: globalThis.Array.isArray(object?.mode_infos)
+        ? object.mode_infos.map((e: any) => ModeInfo.fromJSON(e))
         : [],
     };
   },
@@ -1377,7 +1377,7 @@ export const ModeInfo_Multi: MessageFns<ModeInfo_Multi, "cosmos.tx.v1beta1.ModeI
       obj.bitarray = CompactBitArray.toJSON(message.bitarray);
     }
     if (message.modeInfos?.length) {
-      obj.modeInfos = message.modeInfos.map((e) => ModeInfo.toJSON(e));
+      obj.mode_infos = message.modeInfos.map((e) => ModeInfo.toJSON(e));
     }
     return obj;
   },
@@ -1469,7 +1469,7 @@ export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
   fromJSON(object: any): Fee {
     return {
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
-      gasLimit: isSet(object.gasLimit) ? Long.fromValue(object.gasLimit) : Long.UZERO,
+      gasLimit: isSet(object.gas_limit) ? Long.fromValue(object.gas_limit) : Long.UZERO,
       payer: isSet(object.payer) ? globalThis.String(object.payer) : "",
       granter: isSet(object.granter) ? globalThis.String(object.granter) : "",
     };
@@ -1481,7 +1481,7 @@ export const Fee: MessageFns<Fee, "cosmos.tx.v1beta1.Fee"> = {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
     }
     if (!message.gasLimit.equals(Long.UZERO)) {
-      obj.gasLimit = (message.gasLimit || Long.UZERO).toString();
+      obj.gas_limit = (message.gasLimit || Long.UZERO).toString();
     }
     if (message.payer !== "") {
       obj.payer = message.payer;
@@ -1659,7 +1659,7 @@ export const AuxSignerData: MessageFns<AuxSignerData, "cosmos.tx.v1beta1.AuxSign
   fromJSON(object: any): AuxSignerData {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      signDoc: isSet(object.signDoc) ? SignDocDirectAux.fromJSON(object.signDoc) : undefined,
+      signDoc: isSet(object.sign_doc) ? SignDocDirectAux.fromJSON(object.sign_doc) : undefined,
       mode: isSet(object.mode) ? signModeFromJSON(object.mode) : 0,
       sig: isSet(object.sig) ? bytesFromBase64(object.sig) : new Uint8Array(0),
     };
@@ -1671,7 +1671,7 @@ export const AuxSignerData: MessageFns<AuxSignerData, "cosmos.tx.v1beta1.AuxSign
       obj.address = message.address;
     }
     if (message.signDoc !== undefined) {
-      obj.signDoc = SignDocDirectAux.toJSON(message.signDoc);
+      obj.sign_doc = SignDocDirectAux.toJSON(message.signDoc);
     }
     if (message.mode !== 0) {
       obj.mode = signModeToJSON(message.mode);

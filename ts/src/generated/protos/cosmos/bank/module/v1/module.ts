@@ -91,12 +91,12 @@ export const Module: MessageFns<Module, "cosmos.bank.module.v1.Module"> = {
 
   fromJSON(object: any): Module {
     return {
-      blockedModuleAccountsOverride: globalThis.Array.isArray(object?.blockedModuleAccountsOverride)
-        ? object.blockedModuleAccountsOverride.map((e: any) => globalThis.String(e))
+      blockedModuleAccountsOverride: globalThis.Array.isArray(object?.blocked_module_accounts_override)
+        ? object.blocked_module_accounts_override.map((e: any) => globalThis.String(e))
         : [],
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      restrictionsOrder: globalThis.Array.isArray(object?.restrictionsOrder)
-        ? object.restrictionsOrder.map((e: any) => globalThis.String(e))
+      restrictionsOrder: globalThis.Array.isArray(object?.restrictions_order)
+        ? object.restrictions_order.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -104,13 +104,13 @@ export const Module: MessageFns<Module, "cosmos.bank.module.v1.Module"> = {
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (message.blockedModuleAccountsOverride?.length) {
-      obj.blockedModuleAccountsOverride = message.blockedModuleAccountsOverride;
+      obj.blocked_module_accounts_override = message.blockedModuleAccountsOverride;
     }
     if (message.authority !== "") {
       obj.authority = message.authority;
     }
     if (message.restrictionsOrder?.length) {
-      obj.restrictionsOrder = message.restrictionsOrder;
+      obj.restrictions_order = message.restrictionsOrder;
     }
     return obj;
   },

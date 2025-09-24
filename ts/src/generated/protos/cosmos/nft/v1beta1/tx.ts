@@ -99,7 +99,7 @@ export const MsgSend: MessageFns<MsgSend, "cosmos.nft.v1beta1.MsgSend"> = {
 
   fromJSON(object: any): MsgSend {
     return {
-      classId: isSet(object.classId) ? globalThis.String(object.classId) : "",
+      classId: isSet(object.class_id) ? globalThis.String(object.class_id) : "",
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       sender: isSet(object.sender) ? globalThis.String(object.sender) : "",
       receiver: isSet(object.receiver) ? globalThis.String(object.receiver) : "",
@@ -109,7 +109,7 @@ export const MsgSend: MessageFns<MsgSend, "cosmos.nft.v1beta1.MsgSend"> = {
   toJSON(message: MsgSend): unknown {
     const obj: any = {};
     if (message.classId !== "") {
-      obj.classId = message.classId;
+      obj.class_id = message.classId;
     }
     if (message.id !== "") {
       obj.id = message.id;

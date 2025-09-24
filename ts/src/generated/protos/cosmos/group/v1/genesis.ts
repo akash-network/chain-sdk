@@ -166,16 +166,16 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
 
   fromJSON(object: any): GenesisState {
     return {
-      groupSeq: isSet(object.groupSeq) ? Long.fromValue(object.groupSeq) : Long.UZERO,
+      groupSeq: isSet(object.group_seq) ? Long.fromValue(object.group_seq) : Long.UZERO,
       groups: globalThis.Array.isArray(object?.groups) ? object.groups.map((e: any) => GroupInfo.fromJSON(e)) : [],
-      groupMembers: globalThis.Array.isArray(object?.groupMembers)
-        ? object.groupMembers.map((e: any) => GroupMember.fromJSON(e))
+      groupMembers: globalThis.Array.isArray(object?.group_members)
+        ? object.group_members.map((e: any) => GroupMember.fromJSON(e))
         : [],
-      groupPolicySeq: isSet(object.groupPolicySeq) ? Long.fromValue(object.groupPolicySeq) : Long.UZERO,
-      groupPolicies: globalThis.Array.isArray(object?.groupPolicies)
-        ? object.groupPolicies.map((e: any) => GroupPolicyInfo.fromJSON(e))
+      groupPolicySeq: isSet(object.group_policy_seq) ? Long.fromValue(object.group_policy_seq) : Long.UZERO,
+      groupPolicies: globalThis.Array.isArray(object?.group_policies)
+        ? object.group_policies.map((e: any) => GroupPolicyInfo.fromJSON(e))
         : [],
-      proposalSeq: isSet(object.proposalSeq) ? Long.fromValue(object.proposalSeq) : Long.UZERO,
+      proposalSeq: isSet(object.proposal_seq) ? Long.fromValue(object.proposal_seq) : Long.UZERO,
       proposals: globalThis.Array.isArray(object?.proposals)
         ? object.proposals.map((e: any) => Proposal.fromJSON(e))
         : [],
@@ -186,22 +186,22 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
     if (!message.groupSeq.equals(Long.UZERO)) {
-      obj.groupSeq = (message.groupSeq || Long.UZERO).toString();
+      obj.group_seq = (message.groupSeq || Long.UZERO).toString();
     }
     if (message.groups?.length) {
       obj.groups = message.groups.map((e) => GroupInfo.toJSON(e));
     }
     if (message.groupMembers?.length) {
-      obj.groupMembers = message.groupMembers.map((e) => GroupMember.toJSON(e));
+      obj.group_members = message.groupMembers.map((e) => GroupMember.toJSON(e));
     }
     if (!message.groupPolicySeq.equals(Long.UZERO)) {
-      obj.groupPolicySeq = (message.groupPolicySeq || Long.UZERO).toString();
+      obj.group_policy_seq = (message.groupPolicySeq || Long.UZERO).toString();
     }
     if (message.groupPolicies?.length) {
-      obj.groupPolicies = message.groupPolicies.map((e) => GroupPolicyInfo.toJSON(e));
+      obj.group_policies = message.groupPolicies.map((e) => GroupPolicyInfo.toJSON(e));
     }
     if (!message.proposalSeq.equals(Long.UZERO)) {
-      obj.proposalSeq = (message.proposalSeq || Long.UZERO).toString();
+      obj.proposal_seq = (message.proposalSeq || Long.UZERO).toString();
     }
     if (message.proposals?.length) {
       obj.proposals = message.proposals.map((e) => Proposal.toJSON(e));

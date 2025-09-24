@@ -138,7 +138,7 @@ export const Block: MessageFns<Block, "cosmos.base.tendermint.v1beta1.Block"> = 
       header: isSet(object.header) ? Header.fromJSON(object.header) : undefined,
       data: isSet(object.data) ? Data.fromJSON(object.data) : undefined,
       evidence: isSet(object.evidence) ? EvidenceList.fromJSON(object.evidence) : undefined,
-      lastCommit: isSet(object.lastCommit) ? Commit.fromJSON(object.lastCommit) : undefined,
+      lastCommit: isSet(object.last_commit) ? Commit.fromJSON(object.last_commit) : undefined,
     };
   },
 
@@ -154,7 +154,7 @@ export const Block: MessageFns<Block, "cosmos.base.tendermint.v1beta1.Block"> = 
       obj.evidence = EvidenceList.toJSON(message.evidence);
     }
     if (message.lastCommit !== undefined) {
-      obj.lastCommit = Commit.toJSON(message.lastCommit);
+      obj.last_commit = Commit.toJSON(message.lastCommit);
     }
     return obj;
   },
@@ -377,21 +377,21 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
   fromJSON(object: any): Header {
     return {
       version: isSet(object.version) ? Consensus.fromJSON(object.version) : undefined,
-      chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
+      chainId: isSet(object.chain_id) ? globalThis.String(object.chain_id) : "",
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      lastBlockId: isSet(object.lastBlockId) ? BlockID.fromJSON(object.lastBlockId) : undefined,
-      lastCommitHash: isSet(object.lastCommitHash) ? bytesFromBase64(object.lastCommitHash) : new Uint8Array(0),
-      dataHash: isSet(object.dataHash) ? bytesFromBase64(object.dataHash) : new Uint8Array(0),
-      validatorsHash: isSet(object.validatorsHash) ? bytesFromBase64(object.validatorsHash) : new Uint8Array(0),
-      nextValidatorsHash: isSet(object.nextValidatorsHash)
-        ? bytesFromBase64(object.nextValidatorsHash)
+      lastBlockId: isSet(object.last_block_id) ? BlockID.fromJSON(object.last_block_id) : undefined,
+      lastCommitHash: isSet(object.last_commit_hash) ? bytesFromBase64(object.last_commit_hash) : new Uint8Array(0),
+      dataHash: isSet(object.data_hash) ? bytesFromBase64(object.data_hash) : new Uint8Array(0),
+      validatorsHash: isSet(object.validators_hash) ? bytesFromBase64(object.validators_hash) : new Uint8Array(0),
+      nextValidatorsHash: isSet(object.next_validators_hash)
+        ? bytesFromBase64(object.next_validators_hash)
         : new Uint8Array(0),
-      consensusHash: isSet(object.consensusHash) ? bytesFromBase64(object.consensusHash) : new Uint8Array(0),
-      appHash: isSet(object.appHash) ? bytesFromBase64(object.appHash) : new Uint8Array(0),
-      lastResultsHash: isSet(object.lastResultsHash) ? bytesFromBase64(object.lastResultsHash) : new Uint8Array(0),
-      evidenceHash: isSet(object.evidenceHash) ? bytesFromBase64(object.evidenceHash) : new Uint8Array(0),
-      proposerAddress: isSet(object.proposerAddress) ? globalThis.String(object.proposerAddress) : "",
+      consensusHash: isSet(object.consensus_hash) ? bytesFromBase64(object.consensus_hash) : new Uint8Array(0),
+      appHash: isSet(object.app_hash) ? bytesFromBase64(object.app_hash) : new Uint8Array(0),
+      lastResultsHash: isSet(object.last_results_hash) ? bytesFromBase64(object.last_results_hash) : new Uint8Array(0),
+      evidenceHash: isSet(object.evidence_hash) ? bytesFromBase64(object.evidence_hash) : new Uint8Array(0),
+      proposerAddress: isSet(object.proposer_address) ? globalThis.String(object.proposer_address) : "",
     };
   },
 
@@ -401,7 +401,7 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
       obj.version = Consensus.toJSON(message.version);
     }
     if (message.chainId !== "") {
-      obj.chainId = message.chainId;
+      obj.chain_id = message.chainId;
     }
     if (!message.height.equals(Long.ZERO)) {
       obj.height = (message.height || Long.ZERO).toString();
@@ -410,34 +410,34 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
       obj.time = message.time.toISOString();
     }
     if (message.lastBlockId !== undefined) {
-      obj.lastBlockId = BlockID.toJSON(message.lastBlockId);
+      obj.last_block_id = BlockID.toJSON(message.lastBlockId);
     }
     if (message.lastCommitHash.length !== 0) {
-      obj.lastCommitHash = base64FromBytes(message.lastCommitHash);
+      obj.last_commit_hash = base64FromBytes(message.lastCommitHash);
     }
     if (message.dataHash.length !== 0) {
-      obj.dataHash = base64FromBytes(message.dataHash);
+      obj.data_hash = base64FromBytes(message.dataHash);
     }
     if (message.validatorsHash.length !== 0) {
-      obj.validatorsHash = base64FromBytes(message.validatorsHash);
+      obj.validators_hash = base64FromBytes(message.validatorsHash);
     }
     if (message.nextValidatorsHash.length !== 0) {
-      obj.nextValidatorsHash = base64FromBytes(message.nextValidatorsHash);
+      obj.next_validators_hash = base64FromBytes(message.nextValidatorsHash);
     }
     if (message.consensusHash.length !== 0) {
-      obj.consensusHash = base64FromBytes(message.consensusHash);
+      obj.consensus_hash = base64FromBytes(message.consensusHash);
     }
     if (message.appHash.length !== 0) {
-      obj.appHash = base64FromBytes(message.appHash);
+      obj.app_hash = base64FromBytes(message.appHash);
     }
     if (message.lastResultsHash.length !== 0) {
-      obj.lastResultsHash = base64FromBytes(message.lastResultsHash);
+      obj.last_results_hash = base64FromBytes(message.lastResultsHash);
     }
     if (message.evidenceHash.length !== 0) {
-      obj.evidenceHash = base64FromBytes(message.evidenceHash);
+      obj.evidence_hash = base64FromBytes(message.evidenceHash);
     }
     if (message.proposerAddress !== "") {
-      obj.proposerAddress = message.proposerAddress;
+      obj.proposer_address = message.proposerAddress;
     }
     return obj;
   },

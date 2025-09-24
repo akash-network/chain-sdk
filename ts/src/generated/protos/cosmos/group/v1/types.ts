@@ -519,7 +519,7 @@ export const Member: MessageFns<Member, "cosmos.group.v1.Member"> = {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
       weight: isSet(object.weight) ? globalThis.String(object.weight) : "",
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
-      addedAt: isSet(object.addedAt) ? fromJsonTimestamp(object.addedAt) : undefined,
+      addedAt: isSet(object.added_at) ? fromJsonTimestamp(object.added_at) : undefined,
     };
   },
 
@@ -535,7 +535,7 @@ export const Member: MessageFns<Member, "cosmos.group.v1.Member"> = {
       obj.metadata = message.metadata;
     }
     if (message.addedAt !== undefined) {
-      obj.addedAt = message.addedAt.toISOString();
+      obj.added_at = message.addedAt.toISOString();
     }
     return obj;
   },
@@ -861,18 +861,20 @@ export const DecisionPolicyWindows: MessageFns<DecisionPolicyWindows, "cosmos.gr
 
   fromJSON(object: any): DecisionPolicyWindows {
     return {
-      votingPeriod: isSet(object.votingPeriod) ? Duration.fromJSON(object.votingPeriod) : undefined,
-      minExecutionPeriod: isSet(object.minExecutionPeriod) ? Duration.fromJSON(object.minExecutionPeriod) : undefined,
+      votingPeriod: isSet(object.voting_period) ? Duration.fromJSON(object.voting_period) : undefined,
+      minExecutionPeriod: isSet(object.min_execution_period)
+        ? Duration.fromJSON(object.min_execution_period)
+        : undefined,
     };
   },
 
   toJSON(message: DecisionPolicyWindows): unknown {
     const obj: any = {};
     if (message.votingPeriod !== undefined) {
-      obj.votingPeriod = Duration.toJSON(message.votingPeriod);
+      obj.voting_period = Duration.toJSON(message.votingPeriod);
     }
     if (message.minExecutionPeriod !== undefined) {
-      obj.minExecutionPeriod = Duration.toJSON(message.minExecutionPeriod);
+      obj.min_execution_period = Duration.toJSON(message.minExecutionPeriod);
     }
     return obj;
   },
@@ -991,8 +993,8 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
       admin: isSet(object.admin) ? globalThis.String(object.admin) : "",
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
       version: isSet(object.version) ? Long.fromValue(object.version) : Long.UZERO,
-      totalWeight: isSet(object.totalWeight) ? globalThis.String(object.totalWeight) : "",
-      createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
+      totalWeight: isSet(object.total_weight) ? globalThis.String(object.total_weight) : "",
+      createdAt: isSet(object.created_at) ? fromJsonTimestamp(object.created_at) : undefined,
     };
   },
 
@@ -1011,10 +1013,10 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
       obj.version = (message.version || Long.UZERO).toString();
     }
     if (message.totalWeight !== "") {
-      obj.totalWeight = message.totalWeight;
+      obj.total_weight = message.totalWeight;
     }
     if (message.createdAt !== undefined) {
-      obj.createdAt = message.createdAt.toISOString();
+      obj.created_at = message.createdAt.toISOString();
     }
     return obj;
   },
@@ -1087,7 +1089,7 @@ export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember">
 
   fromJSON(object: any): GroupMember {
     return {
-      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
+      groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO,
       member: isSet(object.member) ? Member.fromJSON(object.member) : undefined,
     };
   },
@@ -1095,7 +1097,7 @@ export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember">
   toJSON(message: GroupMember): unknown {
     const obj: any = {};
     if (!message.groupId.equals(Long.UZERO)) {
-      obj.groupId = (message.groupId || Long.UZERO).toString();
+      obj.group_id = (message.groupId || Long.UZERO).toString();
     }
     if (message.member !== undefined) {
       obj.member = Member.toJSON(message.member);
@@ -1233,12 +1235,12 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
   fromJSON(object: any): GroupPolicyInfo {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
+      groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO,
       admin: isSet(object.admin) ? globalThis.String(object.admin) : "",
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
       version: isSet(object.version) ? Long.fromValue(object.version) : Long.UZERO,
-      decisionPolicy: isSet(object.decisionPolicy) ? Any.fromJSON(object.decisionPolicy) : undefined,
-      createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
+      decisionPolicy: isSet(object.decision_policy) ? Any.fromJSON(object.decision_policy) : undefined,
+      createdAt: isSet(object.created_at) ? fromJsonTimestamp(object.created_at) : undefined,
     };
   },
 
@@ -1248,7 +1250,7 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
       obj.address = message.address;
     }
     if (!message.groupId.equals(Long.UZERO)) {
-      obj.groupId = (message.groupId || Long.UZERO).toString();
+      obj.group_id = (message.groupId || Long.UZERO).toString();
     }
     if (message.admin !== "") {
       obj.admin = message.admin;
@@ -1260,10 +1262,10 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
       obj.version = (message.version || Long.UZERO).toString();
     }
     if (message.decisionPolicy !== undefined) {
-      obj.decisionPolicy = Any.toJSON(message.decisionPolicy);
+      obj.decision_policy = Any.toJSON(message.decisionPolicy);
     }
     if (message.createdAt !== undefined) {
-      obj.createdAt = message.createdAt.toISOString();
+      obj.created_at = message.createdAt.toISOString();
     }
     return obj;
   },
@@ -1489,18 +1491,18 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
   fromJSON(object: any): Proposal {
     return {
       id: isSet(object.id) ? Long.fromValue(object.id) : Long.UZERO,
-      groupPolicyAddress: isSet(object.groupPolicyAddress) ? globalThis.String(object.groupPolicyAddress) : "",
+      groupPolicyAddress: isSet(object.group_policy_address) ? globalThis.String(object.group_policy_address) : "",
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
       proposers: globalThis.Array.isArray(object?.proposers)
         ? object.proposers.map((e: any) => globalThis.String(e))
         : [],
-      submitTime: isSet(object.submitTime) ? fromJsonTimestamp(object.submitTime) : undefined,
-      groupVersion: isSet(object.groupVersion) ? Long.fromValue(object.groupVersion) : Long.UZERO,
-      groupPolicyVersion: isSet(object.groupPolicyVersion) ? Long.fromValue(object.groupPolicyVersion) : Long.UZERO,
+      submitTime: isSet(object.submit_time) ? fromJsonTimestamp(object.submit_time) : undefined,
+      groupVersion: isSet(object.group_version) ? Long.fromValue(object.group_version) : Long.UZERO,
+      groupPolicyVersion: isSet(object.group_policy_version) ? Long.fromValue(object.group_policy_version) : Long.UZERO,
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
-      finalTallyResult: isSet(object.finalTallyResult) ? TallyResult.fromJSON(object.finalTallyResult) : undefined,
-      votingPeriodEnd: isSet(object.votingPeriodEnd) ? fromJsonTimestamp(object.votingPeriodEnd) : undefined,
-      executorResult: isSet(object.executorResult) ? proposalExecutorResultFromJSON(object.executorResult) : 0,
+      finalTallyResult: isSet(object.final_tally_result) ? TallyResult.fromJSON(object.final_tally_result) : undefined,
+      votingPeriodEnd: isSet(object.voting_period_end) ? fromJsonTimestamp(object.voting_period_end) : undefined,
+      executorResult: isSet(object.executor_result) ? proposalExecutorResultFromJSON(object.executor_result) : 0,
       messages: globalThis.Array.isArray(object?.messages) ? object.messages.map((e: any) => Any.fromJSON(e)) : [],
       title: isSet(object.title) ? globalThis.String(object.title) : "",
       summary: isSet(object.summary) ? globalThis.String(object.summary) : "",
@@ -1513,7 +1515,7 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
       obj.id = (message.id || Long.UZERO).toString();
     }
     if (message.groupPolicyAddress !== "") {
-      obj.groupPolicyAddress = message.groupPolicyAddress;
+      obj.group_policy_address = message.groupPolicyAddress;
     }
     if (message.metadata !== "") {
       obj.metadata = message.metadata;
@@ -1522,25 +1524,25 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
       obj.proposers = message.proposers;
     }
     if (message.submitTime !== undefined) {
-      obj.submitTime = message.submitTime.toISOString();
+      obj.submit_time = message.submitTime.toISOString();
     }
     if (!message.groupVersion.equals(Long.UZERO)) {
-      obj.groupVersion = (message.groupVersion || Long.UZERO).toString();
+      obj.group_version = (message.groupVersion || Long.UZERO).toString();
     }
     if (!message.groupPolicyVersion.equals(Long.UZERO)) {
-      obj.groupPolicyVersion = (message.groupPolicyVersion || Long.UZERO).toString();
+      obj.group_policy_version = (message.groupPolicyVersion || Long.UZERO).toString();
     }
     if (message.status !== 0) {
       obj.status = proposalStatusToJSON(message.status);
     }
     if (message.finalTallyResult !== undefined) {
-      obj.finalTallyResult = TallyResult.toJSON(message.finalTallyResult);
+      obj.final_tally_result = TallyResult.toJSON(message.finalTallyResult);
     }
     if (message.votingPeriodEnd !== undefined) {
-      obj.votingPeriodEnd = message.votingPeriodEnd.toISOString();
+      obj.voting_period_end = message.votingPeriodEnd.toISOString();
     }
     if (message.executorResult !== 0) {
-      obj.executorResult = proposalExecutorResultToJSON(message.executorResult);
+      obj.executor_result = proposalExecutorResultToJSON(message.executorResult);
     }
     if (message.messages?.length) {
       obj.messages = message.messages.map((e) => Any.toJSON(e));
@@ -1656,26 +1658,26 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.group.v1.TallyResult">
 
   fromJSON(object: any): TallyResult {
     return {
-      yesCount: isSet(object.yesCount) ? globalThis.String(object.yesCount) : "",
-      abstainCount: isSet(object.abstainCount) ? globalThis.String(object.abstainCount) : "",
-      noCount: isSet(object.noCount) ? globalThis.String(object.noCount) : "",
-      noWithVetoCount: isSet(object.noWithVetoCount) ? globalThis.String(object.noWithVetoCount) : "",
+      yesCount: isSet(object.yes_count) ? globalThis.String(object.yes_count) : "",
+      abstainCount: isSet(object.abstain_count) ? globalThis.String(object.abstain_count) : "",
+      noCount: isSet(object.no_count) ? globalThis.String(object.no_count) : "",
+      noWithVetoCount: isSet(object.no_with_veto_count) ? globalThis.String(object.no_with_veto_count) : "",
     };
   },
 
   toJSON(message: TallyResult): unknown {
     const obj: any = {};
     if (message.yesCount !== "") {
-      obj.yesCount = message.yesCount;
+      obj.yes_count = message.yesCount;
     }
     if (message.abstainCount !== "") {
-      obj.abstainCount = message.abstainCount;
+      obj.abstain_count = message.abstainCount;
     }
     if (message.noCount !== "") {
-      obj.noCount = message.noCount;
+      obj.no_count = message.noCount;
     }
     if (message.noWithVetoCount !== "") {
-      obj.noWithVetoCount = message.noWithVetoCount;
+      obj.no_with_veto_count = message.noWithVetoCount;
     }
     return obj;
   },
@@ -1777,18 +1779,18 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
 
   fromJSON(object: any): Vote {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       option: isSet(object.option) ? voteOptionFromJSON(object.option) : 0,
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
-      submitTime: isSet(object.submitTime) ? fromJsonTimestamp(object.submitTime) : undefined,
+      submitTime: isSet(object.submit_time) ? fromJsonTimestamp(object.submit_time) : undefined,
     };
   },
 
   toJSON(message: Vote): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -1800,7 +1802,7 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
       obj.metadata = message.metadata;
     }
     if (message.submitTime !== undefined) {
-      obj.submitTime = message.submitTime.toISOString();
+      obj.submit_time = message.submitTime.toISOString();
     }
     return obj;
   },

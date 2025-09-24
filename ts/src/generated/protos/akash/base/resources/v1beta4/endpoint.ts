@@ -113,7 +113,7 @@ export const Endpoint: MessageFns<Endpoint, "akash.base.resources.v1beta4.Endpoi
   fromJSON(object: any): Endpoint {
     return {
       kind: isSet(object.kind) ? endpoint_KindFromJSON(object.kind) : 0,
-      sequenceNumber: isSet(object.sequenceNumber) ? globalThis.Number(object.sequenceNumber) : 0,
+      sequenceNumber: isSet(object.sequence_number) ? globalThis.Number(object.sequence_number) : 0,
     };
   },
 
@@ -123,7 +123,7 @@ export const Endpoint: MessageFns<Endpoint, "akash.base.resources.v1beta4.Endpoi
       obj.kind = endpoint_KindToJSON(message.kind);
     }
     if (message.sequenceNumber !== 0) {
-      obj.sequenceNumber = Math.round(message.sequenceNumber);
+      obj.sequence_number = Math.round(message.sequenceNumber);
     }
     return obj;
   },

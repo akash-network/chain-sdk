@@ -335,11 +335,11 @@ export const ServiceCommandDescriptor: MessageFns<
   fromJSON(object: any): ServiceCommandDescriptor {
     return {
       service: isSet(object.service) ? globalThis.String(object.service) : "",
-      rpcCommandOptions: globalThis.Array.isArray(object?.rpcCommandOptions)
-        ? object.rpcCommandOptions.map((e: any) => RpcCommandOptions.fromJSON(e))
+      rpcCommandOptions: globalThis.Array.isArray(object?.rpc_command_options)
+        ? object.rpc_command_options.map((e: any) => RpcCommandOptions.fromJSON(e))
         : [],
-      subCommands: isObject(object.subCommands)
-        ? Object.entries(object.subCommands).reduce<{ [key: string]: ServiceCommandDescriptor }>(
+      subCommands: isObject(object.sub_commands)
+        ? Object.entries(object.sub_commands).reduce<{ [key: string]: ServiceCommandDescriptor }>(
           (acc, [key, value]) => {
             acc[key] = ServiceCommandDescriptor.fromJSON(value);
             return acc;
@@ -347,8 +347,8 @@ export const ServiceCommandDescriptor: MessageFns<
           {},
         )
         : {},
-      enhanceCustomCommand: isSet(object.enhanceCustomCommand)
-        ? globalThis.Boolean(object.enhanceCustomCommand)
+      enhanceCustomCommand: isSet(object.enhance_custom_command)
+        ? globalThis.Boolean(object.enhance_custom_command)
         : false,
       short: isSet(object.short) ? globalThis.String(object.short) : "",
     };
@@ -360,19 +360,19 @@ export const ServiceCommandDescriptor: MessageFns<
       obj.service = message.service;
     }
     if (message.rpcCommandOptions?.length) {
-      obj.rpcCommandOptions = message.rpcCommandOptions.map((e) => RpcCommandOptions.toJSON(e));
+      obj.rpc_command_options = message.rpcCommandOptions.map((e) => RpcCommandOptions.toJSON(e));
     }
     if (message.subCommands) {
       const entries = Object.entries(message.subCommands);
       if (entries.length > 0) {
-        obj.subCommands = {};
+        obj.sub_commands = {};
         entries.forEach(([k, v]) => {
-          obj.subCommands[k] = ServiceCommandDescriptor.toJSON(v);
+          obj.sub_commands[k] = ServiceCommandDescriptor.toJSON(v);
         });
       }
     }
     if (message.enhanceCustomCommand !== false) {
-      obj.enhanceCustomCommand = message.enhanceCustomCommand;
+      obj.enhance_custom_command = message.enhanceCustomCommand;
     }
     if (message.short !== "") {
       obj.short = message.short;
@@ -676,35 +676,35 @@ export const RpcCommandOptions: MessageFns<RpcCommandOptions, "cosmos.autocli.v1
 
   fromJSON(object: any): RpcCommandOptions {
     return {
-      rpcMethod: isSet(object.rpcMethod) ? globalThis.String(object.rpcMethod) : "",
+      rpcMethod: isSet(object.rpc_method) ? globalThis.String(object.rpc_method) : "",
       use: isSet(object.use) ? globalThis.String(object.use) : "",
       long: isSet(object.long) ? globalThis.String(object.long) : "",
       short: isSet(object.short) ? globalThis.String(object.short) : "",
       example: isSet(object.example) ? globalThis.String(object.example) : "",
       alias: globalThis.Array.isArray(object?.alias) ? object.alias.map((e: any) => globalThis.String(e)) : [],
-      suggestFor: globalThis.Array.isArray(object?.suggestFor)
-        ? object.suggestFor.map((e: any) => globalThis.String(e))
+      suggestFor: globalThis.Array.isArray(object?.suggest_for)
+        ? object.suggest_for.map((e: any) => globalThis.String(e))
         : [],
       deprecated: isSet(object.deprecated) ? globalThis.String(object.deprecated) : "",
       version: isSet(object.version) ? globalThis.String(object.version) : "",
-      flagOptions: isObject(object.flagOptions)
-        ? Object.entries(object.flagOptions).reduce<{ [key: string]: FlagOptions }>((acc, [key, value]) => {
+      flagOptions: isObject(object.flag_options)
+        ? Object.entries(object.flag_options).reduce<{ [key: string]: FlagOptions }>((acc, [key, value]) => {
           acc[key] = FlagOptions.fromJSON(value);
           return acc;
         }, {})
         : {},
-      positionalArgs: globalThis.Array.isArray(object?.positionalArgs)
-        ? object.positionalArgs.map((e: any) => PositionalArgDescriptor.fromJSON(e))
+      positionalArgs: globalThis.Array.isArray(object?.positional_args)
+        ? object.positional_args.map((e: any) => PositionalArgDescriptor.fromJSON(e))
         : [],
       skip: isSet(object.skip) ? globalThis.Boolean(object.skip) : false,
-      govProposal: isSet(object.govProposal) ? globalThis.Boolean(object.govProposal) : false,
+      govProposal: isSet(object.gov_proposal) ? globalThis.Boolean(object.gov_proposal) : false,
     };
   },
 
   toJSON(message: RpcCommandOptions): unknown {
     const obj: any = {};
     if (message.rpcMethod !== "") {
-      obj.rpcMethod = message.rpcMethod;
+      obj.rpc_method = message.rpcMethod;
     }
     if (message.use !== "") {
       obj.use = message.use;
@@ -722,7 +722,7 @@ export const RpcCommandOptions: MessageFns<RpcCommandOptions, "cosmos.autocli.v1
       obj.alias = message.alias;
     }
     if (message.suggestFor?.length) {
-      obj.suggestFor = message.suggestFor;
+      obj.suggest_for = message.suggestFor;
     }
     if (message.deprecated !== "") {
       obj.deprecated = message.deprecated;
@@ -733,20 +733,20 @@ export const RpcCommandOptions: MessageFns<RpcCommandOptions, "cosmos.autocli.v1
     if (message.flagOptions) {
       const entries = Object.entries(message.flagOptions);
       if (entries.length > 0) {
-        obj.flagOptions = {};
+        obj.flag_options = {};
         entries.forEach(([k, v]) => {
-          obj.flagOptions[k] = FlagOptions.toJSON(v);
+          obj.flag_options[k] = FlagOptions.toJSON(v);
         });
       }
     }
     if (message.positionalArgs?.length) {
-      obj.positionalArgs = message.positionalArgs.map((e) => PositionalArgDescriptor.toJSON(e));
+      obj.positional_args = message.positionalArgs.map((e) => PositionalArgDescriptor.toJSON(e));
     }
     if (message.skip !== false) {
       obj.skip = message.skip;
     }
     if (message.govProposal !== false) {
-      obj.govProposal = message.govProposal;
+      obj.gov_proposal = message.govProposal;
     }
     return obj;
   },
@@ -981,9 +981,9 @@ export const FlagOptions: MessageFns<FlagOptions, "cosmos.autocli.v1.FlagOptions
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       shorthand: isSet(object.shorthand) ? globalThis.String(object.shorthand) : "",
       usage: isSet(object.usage) ? globalThis.String(object.usage) : "",
-      defaultValue: isSet(object.defaultValue) ? globalThis.String(object.defaultValue) : "",
+      defaultValue: isSet(object.default_value) ? globalThis.String(object.default_value) : "",
       deprecated: isSet(object.deprecated) ? globalThis.String(object.deprecated) : "",
-      shorthandDeprecated: isSet(object.shorthandDeprecated) ? globalThis.String(object.shorthandDeprecated) : "",
+      shorthandDeprecated: isSet(object.shorthand_deprecated) ? globalThis.String(object.shorthand_deprecated) : "",
       hidden: isSet(object.hidden) ? globalThis.Boolean(object.hidden) : false,
     };
   },
@@ -1000,13 +1000,13 @@ export const FlagOptions: MessageFns<FlagOptions, "cosmos.autocli.v1.FlagOptions
       obj.usage = message.usage;
     }
     if (message.defaultValue !== "") {
-      obj.defaultValue = message.defaultValue;
+      obj.default_value = message.defaultValue;
     }
     if (message.deprecated !== "") {
       obj.deprecated = message.deprecated;
     }
     if (message.shorthandDeprecated !== "") {
-      obj.shorthandDeprecated = message.shorthandDeprecated;
+      obj.shorthand_deprecated = message.shorthandDeprecated;
     }
     if (message.hidden !== false) {
       obj.hidden = message.hidden;
@@ -1093,7 +1093,7 @@ export const PositionalArgDescriptor: MessageFns<PositionalArgDescriptor, "cosmo
 
     fromJSON(object: any): PositionalArgDescriptor {
       return {
-        protoField: isSet(object.protoField) ? globalThis.String(object.protoField) : "",
+        protoField: isSet(object.proto_field) ? globalThis.String(object.proto_field) : "",
         varargs: isSet(object.varargs) ? globalThis.Boolean(object.varargs) : false,
         optional: isSet(object.optional) ? globalThis.Boolean(object.optional) : false,
       };
@@ -1102,7 +1102,7 @@ export const PositionalArgDescriptor: MessageFns<PositionalArgDescriptor, "cosmo
     toJSON(message: PositionalArgDescriptor): unknown {
       const obj: any = {};
       if (message.protoField !== "") {
-        obj.protoField = message.protoField;
+        obj.proto_field = message.protoField;
       }
       if (message.varargs !== false) {
         obj.varargs = message.varargs;

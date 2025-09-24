@@ -254,9 +254,9 @@ export const MsgCreateValidator: MessageFns<MsgCreateValidator, "cosmos.staking.
     return {
       description: isSet(object.description) ? Description.fromJSON(object.description) : undefined,
       commission: isSet(object.commission) ? CommissionRates.fromJSON(object.commission) : undefined,
-      minSelfDelegation: isSet(object.minSelfDelegation) ? globalThis.String(object.minSelfDelegation) : "",
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      minSelfDelegation: isSet(object.min_self_delegation) ? globalThis.String(object.min_self_delegation) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       pubkey: isSet(object.pubkey) ? Any.fromJSON(object.pubkey) : undefined,
       value: isSet(object.value) ? Coin.fromJSON(object.value) : undefined,
     };
@@ -271,13 +271,13 @@ export const MsgCreateValidator: MessageFns<MsgCreateValidator, "cosmos.staking.
       obj.commission = CommissionRates.toJSON(message.commission);
     }
     if (message.minSelfDelegation !== "") {
-      obj.minSelfDelegation = message.minSelfDelegation;
+      obj.min_self_delegation = message.minSelfDelegation;
     }
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.pubkey !== undefined) {
       obj.pubkey = Any.toJSON(message.pubkey);
@@ -432,9 +432,9 @@ export const MsgEditValidator: MessageFns<MsgEditValidator, "cosmos.staking.v1be
   fromJSON(object: any): MsgEditValidator {
     return {
       description: isSet(object.description) ? Description.fromJSON(object.description) : undefined,
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
-      commissionRate: isSet(object.commissionRate) ? globalThis.String(object.commissionRate) : "",
-      minSelfDelegation: isSet(object.minSelfDelegation) ? globalThis.String(object.minSelfDelegation) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
+      commissionRate: isSet(object.commission_rate) ? globalThis.String(object.commission_rate) : "",
+      minSelfDelegation: isSet(object.min_self_delegation) ? globalThis.String(object.min_self_delegation) : "",
     };
   },
 
@@ -444,13 +444,13 @@ export const MsgEditValidator: MessageFns<MsgEditValidator, "cosmos.staking.v1be
       obj.description = Description.toJSON(message.description);
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.commissionRate !== "") {
-      obj.commissionRate = message.commissionRate;
+      obj.commission_rate = message.commissionRate;
     }
     if (message.minSelfDelegation !== "") {
-      obj.minSelfDelegation = message.minSelfDelegation;
+      obj.min_self_delegation = message.minSelfDelegation;
     }
     return obj;
   },
@@ -580,8 +580,8 @@ export const MsgDelegate: MessageFns<MsgDelegate, "cosmos.staking.v1beta1.MsgDel
 
   fromJSON(object: any): MsgDelegate {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
     };
   },
@@ -589,10 +589,10 @@ export const MsgDelegate: MessageFns<MsgDelegate, "cosmos.staking.v1beta1.MsgDel
   toJSON(message: MsgDelegate): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.amount !== undefined) {
       obj.amount = Coin.toJSON(message.amount);
@@ -732,9 +732,9 @@ export const MsgBeginRedelegate: MessageFns<MsgBeginRedelegate, "cosmos.staking.
 
   fromJSON(object: any): MsgBeginRedelegate {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorSrcAddress: isSet(object.validatorSrcAddress) ? globalThis.String(object.validatorSrcAddress) : "",
-      validatorDstAddress: isSet(object.validatorDstAddress) ? globalThis.String(object.validatorDstAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorSrcAddress: isSet(object.validator_src_address) ? globalThis.String(object.validator_src_address) : "",
+      validatorDstAddress: isSet(object.validator_dst_address) ? globalThis.String(object.validator_dst_address) : "",
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
     };
   },
@@ -742,13 +742,13 @@ export const MsgBeginRedelegate: MessageFns<MsgBeginRedelegate, "cosmos.staking.
   toJSON(message: MsgBeginRedelegate): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorSrcAddress !== "") {
-      obj.validatorSrcAddress = message.validatorSrcAddress;
+      obj.validator_src_address = message.validatorSrcAddress;
     }
     if (message.validatorDstAddress !== "") {
-      obj.validatorDstAddress = message.validatorDstAddress;
+      obj.validator_dst_address = message.validatorDstAddress;
     }
     if (message.amount !== undefined) {
       obj.amount = Coin.toJSON(message.amount);
@@ -813,13 +813,13 @@ export const MsgBeginRedelegateResponse: MessageFns<
   },
 
   fromJSON(object: any): MsgBeginRedelegateResponse {
-    return { completionTime: isSet(object.completionTime) ? fromJsonTimestamp(object.completionTime) : undefined };
+    return { completionTime: isSet(object.completion_time) ? fromJsonTimestamp(object.completion_time) : undefined };
   },
 
   toJSON(message: MsgBeginRedelegateResponse): unknown {
     const obj: any = {};
     if (message.completionTime !== undefined) {
-      obj.completionTime = message.completionTime.toISOString();
+      obj.completion_time = message.completionTime.toISOString();
     }
     return obj;
   },
@@ -896,8 +896,8 @@ export const MsgUndelegate: MessageFns<MsgUndelegate, "cosmos.staking.v1beta1.Ms
 
   fromJSON(object: any): MsgUndelegate {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
     };
   },
@@ -905,10 +905,10 @@ export const MsgUndelegate: MessageFns<MsgUndelegate, "cosmos.staking.v1beta1.Ms
   toJSON(message: MsgUndelegate): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.amount !== undefined) {
       obj.amount = Coin.toJSON(message.amount);
@@ -982,7 +982,7 @@ export const MsgUndelegateResponse: MessageFns<MsgUndelegateResponse, "cosmos.st
 
     fromJSON(object: any): MsgUndelegateResponse {
       return {
-        completionTime: isSet(object.completionTime) ? fromJsonTimestamp(object.completionTime) : undefined,
+        completionTime: isSet(object.completion_time) ? fromJsonTimestamp(object.completion_time) : undefined,
         amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
       };
     },
@@ -990,7 +990,7 @@ export const MsgUndelegateResponse: MessageFns<MsgUndelegateResponse, "cosmos.st
     toJSON(message: MsgUndelegateResponse): unknown {
       const obj: any = {};
       if (message.completionTime !== undefined) {
-        obj.completionTime = message.completionTime.toISOString();
+        obj.completion_time = message.completionTime.toISOString();
       }
       if (message.amount !== undefined) {
         obj.amount = Coin.toJSON(message.amount);
@@ -1087,26 +1087,26 @@ export const MsgCancelUnbondingDelegation: MessageFns<
 
   fromJSON(object: any): MsgCancelUnbondingDelegation {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
-      creationHeight: isSet(object.creationHeight) ? Long.fromValue(object.creationHeight) : Long.ZERO,
+      creationHeight: isSet(object.creation_height) ? Long.fromValue(object.creation_height) : Long.ZERO,
     };
   },
 
   toJSON(message: MsgCancelUnbondingDelegation): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.amount !== undefined) {
       obj.amount = Coin.toJSON(message.amount);
     }
     if (!message.creationHeight.equals(Long.ZERO)) {
-      obj.creationHeight = (message.creationHeight || Long.ZERO).toString();
+      obj.creation_height = (message.creationHeight || Long.ZERO).toString();
     }
     return obj;
   },

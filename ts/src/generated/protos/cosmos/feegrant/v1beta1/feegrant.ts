@@ -131,8 +131,8 @@ export const BasicAllowance: MessageFns<BasicAllowance, "cosmos.feegrant.v1beta1
 
   fromJSON(object: any): BasicAllowance {
     return {
-      spendLimit: globalThis.Array.isArray(object?.spendLimit)
-        ? object.spendLimit.map((e: any) => Coin.fromJSON(e))
+      spendLimit: globalThis.Array.isArray(object?.spend_limit)
+        ? object.spend_limit.map((e: any) => Coin.fromJSON(e))
         : [],
       expiration: isSet(object.expiration) ? fromJsonTimestamp(object.expiration) : undefined,
     };
@@ -141,7 +141,7 @@ export const BasicAllowance: MessageFns<BasicAllowance, "cosmos.feegrant.v1beta1
   toJSON(message: BasicAllowance): unknown {
     const obj: any = {};
     if (message.spendLimit?.length) {
-      obj.spendLimit = message.spendLimit.map((e) => Coin.toJSON(e));
+      obj.spend_limit = message.spendLimit.map((e) => Coin.toJSON(e));
     }
     if (message.expiration !== undefined) {
       obj.expiration = message.expiration.toISOString();
@@ -246,13 +246,13 @@ export const PeriodicAllowance: MessageFns<PeriodicAllowance, "cosmos.feegrant.v
     return {
       basic: isSet(object.basic) ? BasicAllowance.fromJSON(object.basic) : undefined,
       period: isSet(object.period) ? Duration.fromJSON(object.period) : undefined,
-      periodSpendLimit: globalThis.Array.isArray(object?.periodSpendLimit)
-        ? object.periodSpendLimit.map((e: any) => Coin.fromJSON(e))
+      periodSpendLimit: globalThis.Array.isArray(object?.period_spend_limit)
+        ? object.period_spend_limit.map((e: any) => Coin.fromJSON(e))
         : [],
-      periodCanSpend: globalThis.Array.isArray(object?.periodCanSpend)
-        ? object.periodCanSpend.map((e: any) => Coin.fromJSON(e))
+      periodCanSpend: globalThis.Array.isArray(object?.period_can_spend)
+        ? object.period_can_spend.map((e: any) => Coin.fromJSON(e))
         : [],
-      periodReset: isSet(object.periodReset) ? fromJsonTimestamp(object.periodReset) : undefined,
+      periodReset: isSet(object.period_reset) ? fromJsonTimestamp(object.period_reset) : undefined,
     };
   },
 
@@ -265,13 +265,13 @@ export const PeriodicAllowance: MessageFns<PeriodicAllowance, "cosmos.feegrant.v
       obj.period = Duration.toJSON(message.period);
     }
     if (message.periodSpendLimit?.length) {
-      obj.periodSpendLimit = message.periodSpendLimit.map((e) => Coin.toJSON(e));
+      obj.period_spend_limit = message.periodSpendLimit.map((e) => Coin.toJSON(e));
     }
     if (message.periodCanSpend?.length) {
-      obj.periodCanSpend = message.periodCanSpend.map((e) => Coin.toJSON(e));
+      obj.period_can_spend = message.periodCanSpend.map((e) => Coin.toJSON(e));
     }
     if (message.periodReset !== undefined) {
-      obj.periodReset = message.periodReset.toISOString();
+      obj.period_reset = message.periodReset.toISOString();
     }
     return obj;
   },
@@ -346,8 +346,8 @@ export const AllowedMsgAllowance: MessageFns<AllowedMsgAllowance, "cosmos.feegra
   fromJSON(object: any): AllowedMsgAllowance {
     return {
       allowance: isSet(object.allowance) ? Any.fromJSON(object.allowance) : undefined,
-      allowedMessages: globalThis.Array.isArray(object?.allowedMessages)
-        ? object.allowedMessages.map((e: any) => globalThis.String(e))
+      allowedMessages: globalThis.Array.isArray(object?.allowed_messages)
+        ? object.allowed_messages.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -358,7 +358,7 @@ export const AllowedMsgAllowance: MessageFns<AllowedMsgAllowance, "cosmos.feegra
       obj.allowance = Any.toJSON(message.allowance);
     }
     if (message.allowedMessages?.length) {
-      obj.allowedMessages = message.allowedMessages;
+      obj.allowed_messages = message.allowedMessages;
     }
     return obj;
   },

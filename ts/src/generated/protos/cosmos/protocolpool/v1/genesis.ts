@@ -73,8 +73,8 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.protocolpool.v1.Gene
 
   fromJSON(object: any): GenesisState {
     return {
-      continuousFunds: globalThis.Array.isArray(object?.continuousFunds)
-        ? object.continuousFunds.map((e: any) => ContinuousFund.fromJSON(e))
+      continuousFunds: globalThis.Array.isArray(object?.continuous_funds)
+        ? object.continuous_funds.map((e: any) => ContinuousFund.fromJSON(e))
         : [],
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
     };
@@ -83,7 +83,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.protocolpool.v1.Gene
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
     if (message.continuousFunds?.length) {
-      obj.continuousFunds = message.continuousFunds.map((e) => ContinuousFund.toJSON(e));
+      obj.continuous_funds = message.continuousFunds.map((e) => ContinuousFund.toJSON(e));
     }
     if (message.params !== undefined) {
       obj.params = Params.toJSON(message.params);

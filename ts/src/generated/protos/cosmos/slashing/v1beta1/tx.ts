@@ -78,13 +78,13 @@ export const MsgUnjail: MessageFns<MsgUnjail, "cosmos.slashing.v1beta1.MsgUnjail
   },
 
   fromJSON(object: any): MsgUnjail {
-    return { validatorAddr: isSet(object.validatorAddr) ? globalThis.String(object.validatorAddr) : "" };
+    return { validatorAddr: isSet(object.validator_addr) ? globalThis.String(object.validator_addr) : "" };
   },
 
   toJSON(message: MsgUnjail): unknown {
     const obj: any = {};
     if (message.validatorAddr !== "") {
-      obj.validatorAddr = message.validatorAddr;
+      obj.validator_addr = message.validatorAddr;
     }
     return obj;
   },

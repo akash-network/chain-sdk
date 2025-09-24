@@ -73,8 +73,8 @@ export const LegacyAminoPubKey: MessageFns<LegacyAminoPubKey, "cosmos.crypto.mul
   fromJSON(object: any): LegacyAminoPubKey {
     return {
       threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
-      publicKeys: globalThis.Array.isArray(object?.publicKeys)
-        ? object.publicKeys.map((e: any) => Any.fromJSON(e))
+      publicKeys: globalThis.Array.isArray(object?.public_keys)
+        ? object.public_keys.map((e: any) => Any.fromJSON(e))
         : [],
     };
   },
@@ -85,7 +85,7 @@ export const LegacyAminoPubKey: MessageFns<LegacyAminoPubKey, "cosmos.crypto.mul
       obj.threshold = Math.round(message.threshold);
     }
     if (message.publicKeys?.length) {
-      obj.publicKeys = message.publicKeys.map((e) => Any.toJSON(e));
+      obj.public_keys = message.publicKeys.map((e) => Any.toJSON(e));
     }
     return obj;
   },

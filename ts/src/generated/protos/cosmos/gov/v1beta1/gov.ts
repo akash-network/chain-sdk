@@ -502,7 +502,7 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
 
   fromJSON(object: any): Deposit {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
@@ -511,7 +511,7 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
   toJSON(message: Deposit): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.depositor !== "") {
       obj.depositor = message.depositor;
@@ -674,24 +674,24 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
 
   fromJSON(object: any): Proposal {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       content: isSet(object.content) ? Any.fromJSON(object.content) : undefined,
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
-      finalTallyResult: isSet(object.finalTallyResult) ? TallyResult.fromJSON(object.finalTallyResult) : undefined,
-      submitTime: isSet(object.submitTime) ? fromJsonTimestamp(object.submitTime) : undefined,
-      depositEndTime: isSet(object.depositEndTime) ? fromJsonTimestamp(object.depositEndTime) : undefined,
-      totalDeposit: globalThis.Array.isArray(object?.totalDeposit)
-        ? object.totalDeposit.map((e: any) => Coin.fromJSON(e))
+      finalTallyResult: isSet(object.final_tally_result) ? TallyResult.fromJSON(object.final_tally_result) : undefined,
+      submitTime: isSet(object.submit_time) ? fromJsonTimestamp(object.submit_time) : undefined,
+      depositEndTime: isSet(object.deposit_end_time) ? fromJsonTimestamp(object.deposit_end_time) : undefined,
+      totalDeposit: globalThis.Array.isArray(object?.total_deposit)
+        ? object.total_deposit.map((e: any) => Coin.fromJSON(e))
         : [],
-      votingStartTime: isSet(object.votingStartTime) ? fromJsonTimestamp(object.votingStartTime) : undefined,
-      votingEndTime: isSet(object.votingEndTime) ? fromJsonTimestamp(object.votingEndTime) : undefined,
+      votingStartTime: isSet(object.voting_start_time) ? fromJsonTimestamp(object.voting_start_time) : undefined,
+      votingEndTime: isSet(object.voting_end_time) ? fromJsonTimestamp(object.voting_end_time) : undefined,
     };
   },
 
   toJSON(message: Proposal): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.content !== undefined) {
       obj.content = Any.toJSON(message.content);
@@ -700,22 +700,22 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
       obj.status = proposalStatusToJSON(message.status);
     }
     if (message.finalTallyResult !== undefined) {
-      obj.finalTallyResult = TallyResult.toJSON(message.finalTallyResult);
+      obj.final_tally_result = TallyResult.toJSON(message.finalTallyResult);
     }
     if (message.submitTime !== undefined) {
-      obj.submitTime = message.submitTime.toISOString();
+      obj.submit_time = message.submitTime.toISOString();
     }
     if (message.depositEndTime !== undefined) {
-      obj.depositEndTime = message.depositEndTime.toISOString();
+      obj.deposit_end_time = message.depositEndTime.toISOString();
     }
     if (message.totalDeposit?.length) {
-      obj.totalDeposit = message.totalDeposit.map((e) => Coin.toJSON(e));
+      obj.total_deposit = message.totalDeposit.map((e) => Coin.toJSON(e));
     }
     if (message.votingStartTime !== undefined) {
-      obj.votingStartTime = message.votingStartTime.toISOString();
+      obj.voting_start_time = message.votingStartTime.toISOString();
     }
     if (message.votingEndTime !== undefined) {
-      obj.votingEndTime = message.votingEndTime.toISOString();
+      obj.voting_end_time = message.votingEndTime.toISOString();
     }
     return obj;
   },
@@ -820,7 +820,7 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.gov.v1beta1.TallyResul
       yes: isSet(object.yes) ? globalThis.String(object.yes) : "",
       abstain: isSet(object.abstain) ? globalThis.String(object.abstain) : "",
       no: isSet(object.no) ? globalThis.String(object.no) : "",
-      noWithVeto: isSet(object.noWithVeto) ? globalThis.String(object.noWithVeto) : "",
+      noWithVeto: isSet(object.no_with_veto) ? globalThis.String(object.no_with_veto) : "",
     };
   },
 
@@ -836,7 +836,7 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.gov.v1beta1.TallyResul
       obj.no = message.no;
     }
     if (message.noWithVeto !== "") {
-      obj.noWithVeto = message.noWithVeto;
+      obj.no_with_veto = message.noWithVeto;
     }
     return obj;
   },
@@ -927,7 +927,7 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
 
   fromJSON(object: any): Vote {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       option: isSet(object.option) ? voteOptionFromJSON(object.option) : 0,
       options: globalThis.Array.isArray(object?.options)
@@ -939,7 +939,7 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
   toJSON(message: Vote): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -1019,20 +1019,20 @@ export const DepositParams: MessageFns<DepositParams, "cosmos.gov.v1beta1.Deposi
 
   fromJSON(object: any): DepositParams {
     return {
-      minDeposit: globalThis.Array.isArray(object?.minDeposit)
-        ? object.minDeposit.map((e: any) => Coin.fromJSON(e))
+      minDeposit: globalThis.Array.isArray(object?.min_deposit)
+        ? object.min_deposit.map((e: any) => Coin.fromJSON(e))
         : [],
-      maxDepositPeriod: isSet(object.maxDepositPeriod) ? Duration.fromJSON(object.maxDepositPeriod) : undefined,
+      maxDepositPeriod: isSet(object.max_deposit_period) ? Duration.fromJSON(object.max_deposit_period) : undefined,
     };
   },
 
   toJSON(message: DepositParams): unknown {
     const obj: any = {};
     if (message.minDeposit?.length) {
-      obj.minDeposit = message.minDeposit.map((e) => Coin.toJSON(e));
+      obj.min_deposit = message.minDeposit.map((e) => Coin.toJSON(e));
     }
     if (message.maxDepositPeriod !== undefined) {
-      obj.maxDepositPeriod = Duration.toJSON(message.maxDepositPeriod);
+      obj.max_deposit_period = Duration.toJSON(message.maxDepositPeriod);
     }
     return obj;
   },
@@ -1089,13 +1089,13 @@ export const VotingParams: MessageFns<VotingParams, "cosmos.gov.v1beta1.VotingPa
   },
 
   fromJSON(object: any): VotingParams {
-    return { votingPeriod: isSet(object.votingPeriod) ? Duration.fromJSON(object.votingPeriod) : undefined };
+    return { votingPeriod: isSet(object.voting_period) ? Duration.fromJSON(object.voting_period) : undefined };
   },
 
   toJSON(message: VotingParams): unknown {
     const obj: any = {};
     if (message.votingPeriod !== undefined) {
-      obj.votingPeriod = Duration.toJSON(message.votingPeriod);
+      obj.voting_period = Duration.toJSON(message.votingPeriod);
     }
     return obj;
   },
@@ -1176,7 +1176,7 @@ export const TallyParams: MessageFns<TallyParams, "cosmos.gov.v1beta1.TallyParam
     return {
       quorum: isSet(object.quorum) ? bytesFromBase64(object.quorum) : new Uint8Array(0),
       threshold: isSet(object.threshold) ? bytesFromBase64(object.threshold) : new Uint8Array(0),
-      vetoThreshold: isSet(object.vetoThreshold) ? bytesFromBase64(object.vetoThreshold) : new Uint8Array(0),
+      vetoThreshold: isSet(object.veto_threshold) ? bytesFromBase64(object.veto_threshold) : new Uint8Array(0),
     };
   },
 
@@ -1189,7 +1189,7 @@ export const TallyParams: MessageFns<TallyParams, "cosmos.gov.v1beta1.TallyParam
       obj.threshold = base64FromBytes(message.threshold);
     }
     if (message.vetoThreshold.length !== 0) {
-      obj.vetoThreshold = base64FromBytes(message.vetoThreshold);
+      obj.veto_threshold = base64FromBytes(message.vetoThreshold);
     }
     return obj;
   },

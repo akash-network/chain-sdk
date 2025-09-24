@@ -159,20 +159,20 @@ export const Params: MessageFns<Params, "cosmos.bank.v1beta1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      sendEnabled: globalThis.Array.isArray(object?.sendEnabled)
-        ? object.sendEnabled.map((e: any) => SendEnabled.fromJSON(e))
+      sendEnabled: globalThis.Array.isArray(object?.send_enabled)
+        ? object.send_enabled.map((e: any) => SendEnabled.fromJSON(e))
         : [],
-      defaultSendEnabled: isSet(object.defaultSendEnabled) ? globalThis.Boolean(object.defaultSendEnabled) : false,
+      defaultSendEnabled: isSet(object.default_send_enabled) ? globalThis.Boolean(object.default_send_enabled) : false,
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.sendEnabled?.length) {
-      obj.sendEnabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
+      obj.send_enabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
     }
     if (message.defaultSendEnabled !== false) {
-      obj.defaultSendEnabled = message.defaultSendEnabled;
+      obj.default_send_enabled = message.defaultSendEnabled;
     }
     return obj;
   },
@@ -694,15 +694,15 @@ export const Metadata: MessageFns<Metadata, "cosmos.bank.v1beta1.Metadata"> = {
   fromJSON(object: any): Metadata {
     return {
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      denomUnits: globalThis.Array.isArray(object?.denomUnits)
-        ? object.denomUnits.map((e: any) => DenomUnit.fromJSON(e))
+      denomUnits: globalThis.Array.isArray(object?.denom_units)
+        ? object.denom_units.map((e: any) => DenomUnit.fromJSON(e))
         : [],
       base: isSet(object.base) ? globalThis.String(object.base) : "",
       display: isSet(object.display) ? globalThis.String(object.display) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       symbol: isSet(object.symbol) ? globalThis.String(object.symbol) : "",
       uri: isSet(object.uri) ? globalThis.String(object.uri) : "",
-      uriHash: isSet(object.uriHash) ? globalThis.String(object.uriHash) : "",
+      uriHash: isSet(object.uri_hash) ? globalThis.String(object.uri_hash) : "",
     };
   },
 
@@ -712,7 +712,7 @@ export const Metadata: MessageFns<Metadata, "cosmos.bank.v1beta1.Metadata"> = {
       obj.description = message.description;
     }
     if (message.denomUnits?.length) {
-      obj.denomUnits = message.denomUnits.map((e) => DenomUnit.toJSON(e));
+      obj.denom_units = message.denomUnits.map((e) => DenomUnit.toJSON(e));
     }
     if (message.base !== "") {
       obj.base = message.base;
@@ -730,7 +730,7 @@ export const Metadata: MessageFns<Metadata, "cosmos.bank.v1beta1.Metadata"> = {
       obj.uri = message.uri;
     }
     if (message.uriHash !== "") {
-      obj.uriHash = message.uriHash;
+      obj.uri_hash = message.uriHash;
     }
     return obj;
   },

@@ -155,20 +155,20 @@ export const Params: MessageFns<Params, "akash.take.v1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      denomTakeRates: globalThis.Array.isArray(object?.denomTakeRates)
-        ? object.denomTakeRates.map((e: any) => DenomTakeRate.fromJSON(e))
+      denomTakeRates: globalThis.Array.isArray(object?.denom_take_rates)
+        ? object.denom_take_rates.map((e: any) => DenomTakeRate.fromJSON(e))
         : [],
-      defaultTakeRate: isSet(object.defaultTakeRate) ? globalThis.Number(object.defaultTakeRate) : 0,
+      defaultTakeRate: isSet(object.default_take_rate) ? globalThis.Number(object.default_take_rate) : 0,
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.denomTakeRates?.length) {
-      obj.denomTakeRates = message.denomTakeRates.map((e) => DenomTakeRate.toJSON(e));
+      obj.denom_take_rates = message.denomTakeRates.map((e) => DenomTakeRate.toJSON(e));
     }
     if (message.defaultTakeRate !== 0) {
-      obj.defaultTakeRate = Math.round(message.defaultTakeRate);
+      obj.default_take_rate = Math.round(message.defaultTakeRate);
     }
     return obj;
   },
