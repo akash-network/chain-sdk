@@ -118,12 +118,24 @@ function serializeParams(message: Record<string, unknown>, params: URLSearchPara
     }
 
     if (value instanceof Uint8Array) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      params.append(name, btoa(value as any));
+      params.append(name, base64FromBytes(value));
       return;
     }
 
     params.append(name, String(value));
   });
   return params;
+}
+
+function base64FromBytes(arr: Uint8Array): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((globalThis as any).Buffer) {
+    return globalThis.Buffer.from(arr).toString("base64");
+  } else {
+    let binary = "";
+    arr.forEach((byte) => {
+      binary += String.fromCharCode(byte);
+    });
+    return globalThis.btoa(binary);
+  }
 }
