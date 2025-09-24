@@ -73,7 +73,7 @@ describe(createGrpcGatewayTransport.name, () => {
       await expect(transport.unary(TestMethodSchema, message)).rejects.toThrow(
         expect.objectContaining({
           code: Code.InvalidArgument,
-          message: expect.stringContaining("doesn't not support http transport"),
+          message: expect.stringContaining("does not support grpc gateway transport"),
         }),
       );
     });
@@ -233,7 +233,7 @@ describe(createGrpcGatewayTransport.name, () => {
       await expect(transport.stream(TestServiceSchema.methods.testStreamMethod, createAsyncIterable([]))).rejects.toThrow(
         expect.objectContaining({
           code: Code.Unimplemented,
-          message: expect.stringMatching(/HTTP transport doesn't support streaming/i),
+          message: expect.stringMatching(/transport doesn't support streaming/i),
         }),
       );
     });
