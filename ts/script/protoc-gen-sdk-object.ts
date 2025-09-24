@@ -44,8 +44,10 @@ function generateTs(schema: Schema): void {
       const importPath = inputType.from.replace(/\.js$/, "");
       const isInputEmpty = method.input.fields.length === 0;
       imports.add(importPath);
+      let methodInputArgType = `${fileNameToScope(importPath)}.${inputType.name}`;
+      if (!isMsgService) methodInputArgType = `DeepPartial<${methodInputArgType}>`;
       const methodArgs = [
-        `input: ${fileNameToScope(importPath)}.${inputType.name}${isInputEmpty ? " = {}" : ""}`,
+        `input: ${methodInputArgType}${isInputEmpty ? " = {}" : ""}`,
         `options?: ${isMsgService ? "TxCallOptions" : "CallOptions"}`,
       ];
       const methodName = getSdkMethodName(method, hasMsgService && !isMsgService ? "get" : "");
@@ -82,6 +84,7 @@ function generateTs(schema: Schema): void {
 
   f.print(`import type { Transport, CallOptions${hasMsgService ? ", TxCallOptions" : ""} } from "../sdk/transport/types${importExtension}";`);
   f.print(`import { withMetadata } from "../sdk/client/sdkMetadata${importExtension}";`);
+  f.print(`import type { DeepPartial } from "../utils/types${importExtension}";`);
   f.print("\n");
   f.print(
     f.export("const", "serviceLoader"),

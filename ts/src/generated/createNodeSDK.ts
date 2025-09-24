@@ -22,6 +22,7 @@ import type * as akash_take_v1_paramsmsg from "./protos/akash/take/v1/paramsmsg.
 import { createClientFactory } from "../sdk/client/createClientFactory.ts";
 import type { Transport, CallOptions, TxCallOptions } from "../sdk/transport/types.ts";
 import { withMetadata } from "../sdk/client/sdkMetadata.ts";
+import type { DeepPartial } from "../utils/types.ts";
 
 
 export const serviceLoader= createServiceLoader([
@@ -50,28 +51,28 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * getAllProvidersAttributes queries all providers.
            */
-          getAllProvidersAttributes: withMetadata(async function getAllProvidersAttributes(input: akash_audit_v1_query.QueryAllProvidersAttributesRequest, options?: CallOptions) {
+          getAllProvidersAttributes: withMetadata(async function getAllProvidersAttributes(input: DeepPartial<akash_audit_v1_query.QueryAllProvidersAttributesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).allProvidersAttributes(input, options);
           }, { path: [0, 0] }),
           /**
            * getProviderAttributes queries all provider signed attributes.
            */
-          getProviderAttributes: withMetadata(async function getProviderAttributes(input: akash_audit_v1_query.QueryProviderAttributesRequest, options?: CallOptions) {
+          getProviderAttributes: withMetadata(async function getProviderAttributes(input: DeepPartial<akash_audit_v1_query.QueryProviderAttributesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).providerAttributes(input, options);
           }, { path: [0, 1] }),
           /**
            * getProviderAuditorAttributes queries provider signed attributes by specific auditor.
            */
-          getProviderAuditorAttributes: withMetadata(async function getProviderAuditorAttributes(input: akash_audit_v1_query.QueryProviderAuditorRequest, options?: CallOptions) {
+          getProviderAuditorAttributes: withMetadata(async function getProviderAuditorAttributes(input: DeepPartial<akash_audit_v1_query.QueryProviderAuditorRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).providerAuditorAttributes(input, options);
           }, { path: [0, 2] }),
           /**
            * getAuditorAttributes queries all providers signed by this auditor.
            */
-          getAuditorAttributes: withMetadata(async function getAuditorAttributes(input: akash_audit_v1_query.QueryAuditorAttributesRequest, options?: CallOptions) {
+          getAuditorAttributes: withMetadata(async function getAuditorAttributes(input: DeepPartial<akash_audit_v1_query.QueryAuditorAttributesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).auditorAttributes(input, options);
           }, { path: [0, 3] }),
@@ -96,7 +97,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * getCertificates queries certificates on-chain.
            */
-          getCertificates: withMetadata(async function getCertificates(input: akash_cert_v1_query.QueryCertificatesRequest, options?: CallOptions) {
+          getCertificates: withMetadata(async function getCertificates(input: DeepPartial<akash_cert_v1_query.QueryCertificatesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(2);
             return getClient(service).certificates(input, options);
           }, { path: [2, 0] }),
@@ -121,28 +122,28 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * getDeployments queries deployments.
            */
-          getDeployments: withMetadata(async function getDeployments(input: akash_deployment_v1beta4_query.QueryDeploymentsRequest, options?: CallOptions) {
+          getDeployments: withMetadata(async function getDeployments(input: DeepPartial<akash_deployment_v1beta4_query.QueryDeploymentsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getClient(service).deployments(input, options);
           }, { path: [4, 0] }),
           /**
            * getDeployment queries deployment details.
            */
-          getDeployment: withMetadata(async function getDeployment(input: akash_deployment_v1beta4_query.QueryDeploymentRequest, options?: CallOptions) {
+          getDeployment: withMetadata(async function getDeployment(input: DeepPartial<akash_deployment_v1beta4_query.QueryDeploymentRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getClient(service).deployment(input, options);
           }, { path: [4, 1] }),
           /**
            * getGroup queries group details.
            */
-          getGroup: withMetadata(async function getGroup(input: akash_deployment_v1beta4_query.QueryGroupRequest, options?: CallOptions) {
+          getGroup: withMetadata(async function getGroup(input: DeepPartial<akash_deployment_v1beta4_query.QueryGroupRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getClient(service).group(input, options);
           }, { path: [4, 2] }),
           /**
            * getParams returns the total set of minting parameters.
            */
-          getParams: withMetadata(async function getParams(input: akash_deployment_v1beta4_query.QueryParamsRequest = {}, options?: CallOptions) {
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_deployment_v1beta4_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getClient(service).params(input, options);
           }, { path: [4, 3] }),
@@ -205,14 +206,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * getAccounts queries all accounts.
            */
-          getAccounts: withMetadata(async function getAccounts(input: akash_escrow_v1_query.QueryAccountsRequest, options?: CallOptions) {
+          getAccounts: withMetadata(async function getAccounts(input: DeepPartial<akash_escrow_v1_query.QueryAccountsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(6);
             return getClient(service).accounts(input, options);
           }, { path: [6, 0] }),
           /**
            * getPayments queries all payments.
            */
-          getPayments: withMetadata(async function getPayments(input: akash_escrow_v1_query.QueryPaymentsRequest, options?: CallOptions) {
+          getPayments: withMetadata(async function getPayments(input: DeepPartial<akash_escrow_v1_query.QueryPaymentsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(6);
             return getClient(service).payments(input, options);
           }, { path: [6, 1] }),
@@ -230,49 +231,49 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * getOrders queries orders with filters.
            */
-          getOrders: withMetadata(async function getOrders(input: akash_market_v1beta5_query.QueryOrdersRequest, options?: CallOptions) {
+          getOrders: withMetadata(async function getOrders(input: DeepPartial<akash_market_v1beta5_query.QueryOrdersRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).orders(input, options);
           }, { path: [8, 0] }),
           /**
            * getOrder queries order details.
            */
-          getOrder: withMetadata(async function getOrder(input: akash_market_v1beta5_query.QueryOrderRequest, options?: CallOptions) {
+          getOrder: withMetadata(async function getOrder(input: DeepPartial<akash_market_v1beta5_query.QueryOrderRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).order(input, options);
           }, { path: [8, 1] }),
           /**
            * getBids queries bids with filters.
            */
-          getBids: withMetadata(async function getBids(input: akash_market_v1beta5_query.QueryBidsRequest, options?: CallOptions) {
+          getBids: withMetadata(async function getBids(input: DeepPartial<akash_market_v1beta5_query.QueryBidsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).bids(input, options);
           }, { path: [8, 2] }),
           /**
            * getBid queries bid details.
            */
-          getBid: withMetadata(async function getBid(input: akash_market_v1beta5_query.QueryBidRequest, options?: CallOptions) {
+          getBid: withMetadata(async function getBid(input: DeepPartial<akash_market_v1beta5_query.QueryBidRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).bid(input, options);
           }, { path: [8, 3] }),
           /**
            * getLeases queries leases with filters.
            */
-          getLeases: withMetadata(async function getLeases(input: akash_market_v1beta5_query.QueryLeasesRequest, options?: CallOptions) {
+          getLeases: withMetadata(async function getLeases(input: DeepPartial<akash_market_v1beta5_query.QueryLeasesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).leases(input, options);
           }, { path: [8, 4] }),
           /**
            * getLease queries lease details.
            */
-          getLease: withMetadata(async function getLease(input: akash_market_v1beta5_query.QueryLeaseRequest, options?: CallOptions) {
+          getLease: withMetadata(async function getLease(input: DeepPartial<akash_market_v1beta5_query.QueryLeaseRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).lease(input, options);
           }, { path: [8, 5] }),
           /**
            * getParams returns the total set of minting parameters.
            */
-          getParams: withMetadata(async function getParams(input: akash_market_v1beta5_query.QueryParamsRequest = {}, options?: CallOptions) {
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_market_v1beta5_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).params(input, options);
           }, { path: [8, 6] }),
@@ -328,14 +329,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * getProviders queries providers
            */
-          getProviders: withMetadata(async function getProviders(input: akash_provider_v1beta4_query.QueryProvidersRequest, options?: CallOptions) {
+          getProviders: withMetadata(async function getProviders(input: DeepPartial<akash_provider_v1beta4_query.QueryProvidersRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(10);
             return getClient(service).providers(input, options);
           }, { path: [10, 0] }),
           /**
            * getProvider queries provider details
            */
-          getProvider: withMetadata(async function getProvider(input: akash_provider_v1beta4_query.QueryProviderRequest, options?: CallOptions) {
+          getProvider: withMetadata(async function getProvider(input: DeepPartial<akash_provider_v1beta4_query.QueryProviderRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(10);
             return getClient(service).provider(input, options);
           }, { path: [10, 1] }),
@@ -367,7 +368,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * getParams returns the total set of minting parameters.
            */
-          getParams: withMetadata(async function getParams(input: akash_take_v1_query.QueryParamsRequest = {}, options?: CallOptions) {
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_take_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).params(input, options);
           }, { path: [12, 0] }),
