@@ -26,7 +26,7 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
       const timeoutMs = coerceTimeoutMs(callOptions?.timeoutMs, options.defaultTimeoutMs);
 
       if (!method.httpPath) {
-        throw new ConnectError(`Service ${method.parent.typeName} method "${method.name}" doesn't not support http transport`, Code.InvalidArgument);
+        throw new ConnectError(`Service ${method.parent.typeName} method "${method.name}" does not support grpc gateway transport`, Code.InvalidArgument);
       }
 
       const headers = requestHeaderWithCompression(
@@ -102,7 +102,7 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
       });
     },
     async stream<I extends MessageDesc, O extends MessageDesc>(): Promise<StreamResponse<I, O>> {
-      throw new ConnectError(`HTTP transport doesn't support streaming`, Code.Unimplemented);
+      throw new ConnectError(`GrpcGateway transport doesn't support streaming`, Code.Unimplemented);
     },
   };
 }
