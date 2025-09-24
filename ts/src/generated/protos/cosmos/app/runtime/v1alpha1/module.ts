@@ -248,36 +248,36 @@ export const Module: MessageFns<Module, "cosmos.app.runtime.v1alpha1.Module"> = 
 
   fromJSON(object: any): Module {
     return {
-      appName: isSet(object.appName) ? globalThis.String(object.appName) : "",
-      beginBlockers: globalThis.Array.isArray(object?.beginBlockers)
-        ? object.beginBlockers.map((e: any) => globalThis.String(e))
+      appName: isSet(object.app_name) ? globalThis.String(object.app_name) : "",
+      beginBlockers: globalThis.Array.isArray(object?.begin_blockers)
+        ? object.begin_blockers.map((e: any) => globalThis.String(e))
         : [],
-      endBlockers: globalThis.Array.isArray(object?.endBlockers)
-        ? object.endBlockers.map((e: any) => globalThis.String(e))
+      endBlockers: globalThis.Array.isArray(object?.end_blockers)
+        ? object.end_blockers.map((e: any) => globalThis.String(e))
         : [],
-      initGenesis: globalThis.Array.isArray(object?.initGenesis)
-        ? object.initGenesis.map((e: any) => globalThis.String(e))
+      initGenesis: globalThis.Array.isArray(object?.init_genesis)
+        ? object.init_genesis.map((e: any) => globalThis.String(e))
         : [],
-      exportGenesis: globalThis.Array.isArray(object?.exportGenesis)
-        ? object.exportGenesis.map((e: any) => globalThis.String(e))
+      exportGenesis: globalThis.Array.isArray(object?.export_genesis)
+        ? object.export_genesis.map((e: any) => globalThis.String(e))
         : [],
-      overrideStoreKeys: globalThis.Array.isArray(object?.overrideStoreKeys)
-        ? object.overrideStoreKeys.map((e: any) => StoreKeyConfig.fromJSON(e))
+      overrideStoreKeys: globalThis.Array.isArray(object?.override_store_keys)
+        ? object.override_store_keys.map((e: any) => StoreKeyConfig.fromJSON(e))
         : [],
-      skipStoreKeys: globalThis.Array.isArray(object?.skipStoreKeys)
-        ? object.skipStoreKeys.map((e: any) => globalThis.String(e))
+      skipStoreKeys: globalThis.Array.isArray(object?.skip_store_keys)
+        ? object.skip_store_keys.map((e: any) => globalThis.String(e))
         : [],
-      orderMigrations: globalThis.Array.isArray(object?.orderMigrations)
-        ? object.orderMigrations.map((e: any) => globalThis.String(e))
+      orderMigrations: globalThis.Array.isArray(object?.order_migrations)
+        ? object.order_migrations.map((e: any) => globalThis.String(e))
         : [],
       precommiters: globalThis.Array.isArray(object?.precommiters)
         ? object.precommiters.map((e: any) => globalThis.String(e))
         : [],
-      prepareCheckStaters: globalThis.Array.isArray(object?.prepareCheckStaters)
-        ? object.prepareCheckStaters.map((e: any) => globalThis.String(e))
+      prepareCheckStaters: globalThis.Array.isArray(object?.prepare_check_staters)
+        ? object.prepare_check_staters.map((e: any) => globalThis.String(e))
         : [],
-      preBlockers: globalThis.Array.isArray(object?.preBlockers)
-        ? object.preBlockers.map((e: any) => globalThis.String(e))
+      preBlockers: globalThis.Array.isArray(object?.pre_blockers)
+        ? object.pre_blockers.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -285,37 +285,37 @@ export const Module: MessageFns<Module, "cosmos.app.runtime.v1alpha1.Module"> = 
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (message.appName !== "") {
-      obj.appName = message.appName;
+      obj.app_name = message.appName;
     }
     if (message.beginBlockers?.length) {
-      obj.beginBlockers = message.beginBlockers;
+      obj.begin_blockers = message.beginBlockers;
     }
     if (message.endBlockers?.length) {
-      obj.endBlockers = message.endBlockers;
+      obj.end_blockers = message.endBlockers;
     }
     if (message.initGenesis?.length) {
-      obj.initGenesis = message.initGenesis;
+      obj.init_genesis = message.initGenesis;
     }
     if (message.exportGenesis?.length) {
-      obj.exportGenesis = message.exportGenesis;
+      obj.export_genesis = message.exportGenesis;
     }
     if (message.overrideStoreKeys?.length) {
-      obj.overrideStoreKeys = message.overrideStoreKeys.map((e) => StoreKeyConfig.toJSON(e));
+      obj.override_store_keys = message.overrideStoreKeys.map((e) => StoreKeyConfig.toJSON(e));
     }
     if (message.skipStoreKeys?.length) {
-      obj.skipStoreKeys = message.skipStoreKeys;
+      obj.skip_store_keys = message.skipStoreKeys;
     }
     if (message.orderMigrations?.length) {
-      obj.orderMigrations = message.orderMigrations;
+      obj.order_migrations = message.orderMigrations;
     }
     if (message.precommiters?.length) {
       obj.precommiters = message.precommiters;
     }
     if (message.prepareCheckStaters?.length) {
-      obj.prepareCheckStaters = message.prepareCheckStaters;
+      obj.prepare_check_staters = message.prepareCheckStaters;
     }
     if (message.preBlockers?.length) {
-      obj.preBlockers = message.preBlockers;
+      obj.pre_blockers = message.preBlockers;
     }
     return obj;
   },
@@ -391,18 +391,18 @@ export const StoreKeyConfig: MessageFns<StoreKeyConfig, "cosmos.app.runtime.v1al
 
   fromJSON(object: any): StoreKeyConfig {
     return {
-      moduleName: isSet(object.moduleName) ? globalThis.String(object.moduleName) : "",
-      kvStoreKey: isSet(object.kvStoreKey) ? globalThis.String(object.kvStoreKey) : "",
+      moduleName: isSet(object.module_name) ? globalThis.String(object.module_name) : "",
+      kvStoreKey: isSet(object.kv_store_key) ? globalThis.String(object.kv_store_key) : "",
     };
   },
 
   toJSON(message: StoreKeyConfig): unknown {
     const obj: any = {};
     if (message.moduleName !== "") {
-      obj.moduleName = message.moduleName;
+      obj.module_name = message.moduleName;
     }
     if (message.kvStoreKey !== "") {
-      obj.kvStoreKey = message.kvStoreKey;
+      obj.kv_store_key = message.kvStoreKey;
     }
     return obj;
   },

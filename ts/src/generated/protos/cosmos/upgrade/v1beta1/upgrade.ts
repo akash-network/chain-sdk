@@ -179,7 +179,7 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       info: isSet(object.info) ? globalThis.String(object.info) : "",
-      upgradedClientState: isSet(object.upgradedClientState) ? Any.fromJSON(object.upgradedClientState) : undefined,
+      upgradedClientState: isSet(object.upgraded_client_state) ? Any.fromJSON(object.upgraded_client_state) : undefined,
     };
   },
 
@@ -198,7 +198,7 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
       obj.info = message.info;
     }
     if (message.upgradedClientState !== undefined) {
-      obj.upgradedClientState = Any.toJSON(message.upgradedClientState);
+      obj.upgraded_client_state = Any.toJSON(message.upgradedClientState);
     }
     return obj;
   },

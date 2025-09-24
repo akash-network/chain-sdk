@@ -142,7 +142,7 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
       transferred: globalThis.Array.isArray(object?.transferred)
         ? object.transferred.map((e: any) => DecCoin.fromJSON(e))
         : [],
-      settledAt: isSet(object.settledAt) ? Long.fromValue(object.settledAt) : Long.ZERO,
+      settledAt: isSet(object.settled_at) ? Long.fromValue(object.settled_at) : Long.ZERO,
       funds: globalThis.Array.isArray(object?.funds) ? object.funds.map((e: any) => Balance.fromJSON(e)) : [],
       deposits: globalThis.Array.isArray(object?.deposits)
         ? object.deposits.map((e: any) => Depositor.fromJSON(e))
@@ -162,7 +162,7 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
       obj.transferred = message.transferred.map((e) => DecCoin.toJSON(e));
     }
     if (!message.settledAt.equals(Long.ZERO)) {
-      obj.settledAt = (message.settledAt || Long.ZERO).toString();
+      obj.settled_at = (message.settledAt || Long.ZERO).toString();
     }
     if (message.funds?.length) {
       obj.funds = message.funds.map((e) => Balance.toJSON(e));

@@ -155,11 +155,13 @@ export const ValidatorSigningInfo: MessageFns<ValidatorSigningInfo, "cosmos.slas
   fromJSON(object: any): ValidatorSigningInfo {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      startHeight: isSet(object.startHeight) ? Long.fromValue(object.startHeight) : Long.ZERO,
-      indexOffset: isSet(object.indexOffset) ? Long.fromValue(object.indexOffset) : Long.ZERO,
-      jailedUntil: isSet(object.jailedUntil) ? fromJsonTimestamp(object.jailedUntil) : undefined,
+      startHeight: isSet(object.start_height) ? Long.fromValue(object.start_height) : Long.ZERO,
+      indexOffset: isSet(object.index_offset) ? Long.fromValue(object.index_offset) : Long.ZERO,
+      jailedUntil: isSet(object.jailed_until) ? fromJsonTimestamp(object.jailed_until) : undefined,
       tombstoned: isSet(object.tombstoned) ? globalThis.Boolean(object.tombstoned) : false,
-      missedBlocksCounter: isSet(object.missedBlocksCounter) ? Long.fromValue(object.missedBlocksCounter) : Long.ZERO,
+      missedBlocksCounter: isSet(object.missed_blocks_counter)
+        ? Long.fromValue(object.missed_blocks_counter)
+        : Long.ZERO,
     };
   },
 
@@ -169,19 +171,19 @@ export const ValidatorSigningInfo: MessageFns<ValidatorSigningInfo, "cosmos.slas
       obj.address = message.address;
     }
     if (!message.startHeight.equals(Long.ZERO)) {
-      obj.startHeight = (message.startHeight || Long.ZERO).toString();
+      obj.start_height = (message.startHeight || Long.ZERO).toString();
     }
     if (!message.indexOffset.equals(Long.ZERO)) {
-      obj.indexOffset = (message.indexOffset || Long.ZERO).toString();
+      obj.index_offset = (message.indexOffset || Long.ZERO).toString();
     }
     if (message.jailedUntil !== undefined) {
-      obj.jailedUntil = message.jailedUntil.toISOString();
+      obj.jailed_until = message.jailedUntil.toISOString();
     }
     if (message.tombstoned !== false) {
       obj.tombstoned = message.tombstoned;
     }
     if (!message.missedBlocksCounter.equals(Long.ZERO)) {
-      obj.missedBlocksCounter = (message.missedBlocksCounter || Long.ZERO).toString();
+      obj.missed_blocks_counter = (message.missedBlocksCounter || Long.ZERO).toString();
     }
     return obj;
   },
@@ -297,18 +299,18 @@ export const Params: MessageFns<Params, "cosmos.slashing.v1beta1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      signedBlocksWindow: isSet(object.signedBlocksWindow) ? Long.fromValue(object.signedBlocksWindow) : Long.ZERO,
-      minSignedPerWindow: isSet(object.minSignedPerWindow)
-        ? bytesFromBase64(object.minSignedPerWindow)
+      signedBlocksWindow: isSet(object.signed_blocks_window) ? Long.fromValue(object.signed_blocks_window) : Long.ZERO,
+      minSignedPerWindow: isSet(object.min_signed_per_window)
+        ? bytesFromBase64(object.min_signed_per_window)
         : new Uint8Array(0),
-      downtimeJailDuration: isSet(object.downtimeJailDuration)
-        ? Duration.fromJSON(object.downtimeJailDuration)
+      downtimeJailDuration: isSet(object.downtime_jail_duration)
+        ? Duration.fromJSON(object.downtime_jail_duration)
         : undefined,
-      slashFractionDoubleSign: isSet(object.slashFractionDoubleSign)
-        ? bytesFromBase64(object.slashFractionDoubleSign)
+      slashFractionDoubleSign: isSet(object.slash_fraction_double_sign)
+        ? bytesFromBase64(object.slash_fraction_double_sign)
         : new Uint8Array(0),
-      slashFractionDowntime: isSet(object.slashFractionDowntime)
-        ? bytesFromBase64(object.slashFractionDowntime)
+      slashFractionDowntime: isSet(object.slash_fraction_downtime)
+        ? bytesFromBase64(object.slash_fraction_downtime)
         : new Uint8Array(0),
     };
   },
@@ -316,19 +318,19 @@ export const Params: MessageFns<Params, "cosmos.slashing.v1beta1.Params"> = {
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (!message.signedBlocksWindow.equals(Long.ZERO)) {
-      obj.signedBlocksWindow = (message.signedBlocksWindow || Long.ZERO).toString();
+      obj.signed_blocks_window = (message.signedBlocksWindow || Long.ZERO).toString();
     }
     if (message.minSignedPerWindow.length !== 0) {
-      obj.minSignedPerWindow = base64FromBytes(message.minSignedPerWindow);
+      obj.min_signed_per_window = base64FromBytes(message.minSignedPerWindow);
     }
     if (message.downtimeJailDuration !== undefined) {
-      obj.downtimeJailDuration = Duration.toJSON(message.downtimeJailDuration);
+      obj.downtime_jail_duration = Duration.toJSON(message.downtimeJailDuration);
     }
     if (message.slashFractionDoubleSign.length !== 0) {
-      obj.slashFractionDoubleSign = base64FromBytes(message.slashFractionDoubleSign);
+      obj.slash_fraction_double_sign = base64FromBytes(message.slashFractionDoubleSign);
     }
     if (message.slashFractionDowntime.length !== 0) {
-      obj.slashFractionDowntime = base64FromBytes(message.slashFractionDowntime);
+      obj.slash_fraction_downtime = base64FromBytes(message.slashFractionDowntime);
     }
     return obj;
   },

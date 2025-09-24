@@ -496,7 +496,7 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1.Deposit"> = {
 
   fromJSON(object: any): Deposit {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
@@ -505,7 +505,7 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1.Deposit"> = {
   toJSON(message: Deposit): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.depositor !== "") {
       obj.depositor = message.depositor;
@@ -743,20 +743,20 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1.Proposal"> = {
       id: isSet(object.id) ? Long.fromValue(object.id) : Long.UZERO,
       messages: globalThis.Array.isArray(object?.messages) ? object.messages.map((e: any) => Any.fromJSON(e)) : [],
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
-      finalTallyResult: isSet(object.finalTallyResult) ? TallyResult.fromJSON(object.finalTallyResult) : undefined,
-      submitTime: isSet(object.submitTime) ? fromJsonTimestamp(object.submitTime) : undefined,
-      depositEndTime: isSet(object.depositEndTime) ? fromJsonTimestamp(object.depositEndTime) : undefined,
-      totalDeposit: globalThis.Array.isArray(object?.totalDeposit)
-        ? object.totalDeposit.map((e: any) => Coin.fromJSON(e))
+      finalTallyResult: isSet(object.final_tally_result) ? TallyResult.fromJSON(object.final_tally_result) : undefined,
+      submitTime: isSet(object.submit_time) ? fromJsonTimestamp(object.submit_time) : undefined,
+      depositEndTime: isSet(object.deposit_end_time) ? fromJsonTimestamp(object.deposit_end_time) : undefined,
+      totalDeposit: globalThis.Array.isArray(object?.total_deposit)
+        ? object.total_deposit.map((e: any) => Coin.fromJSON(e))
         : [],
-      votingStartTime: isSet(object.votingStartTime) ? fromJsonTimestamp(object.votingStartTime) : undefined,
-      votingEndTime: isSet(object.votingEndTime) ? fromJsonTimestamp(object.votingEndTime) : undefined,
+      votingStartTime: isSet(object.voting_start_time) ? fromJsonTimestamp(object.voting_start_time) : undefined,
+      votingEndTime: isSet(object.voting_end_time) ? fromJsonTimestamp(object.voting_end_time) : undefined,
       metadata: isSet(object.metadata) ? globalThis.String(object.metadata) : "",
       title: isSet(object.title) ? globalThis.String(object.title) : "",
       summary: isSet(object.summary) ? globalThis.String(object.summary) : "",
       proposer: isSet(object.proposer) ? globalThis.String(object.proposer) : "",
       expedited: isSet(object.expedited) ? globalThis.Boolean(object.expedited) : false,
-      failedReason: isSet(object.failedReason) ? globalThis.String(object.failedReason) : "",
+      failedReason: isSet(object.failed_reason) ? globalThis.String(object.failed_reason) : "",
     };
   },
 
@@ -772,22 +772,22 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1.Proposal"> = {
       obj.status = proposalStatusToJSON(message.status);
     }
     if (message.finalTallyResult !== undefined) {
-      obj.finalTallyResult = TallyResult.toJSON(message.finalTallyResult);
+      obj.final_tally_result = TallyResult.toJSON(message.finalTallyResult);
     }
     if (message.submitTime !== undefined) {
-      obj.submitTime = message.submitTime.toISOString();
+      obj.submit_time = message.submitTime.toISOString();
     }
     if (message.depositEndTime !== undefined) {
-      obj.depositEndTime = message.depositEndTime.toISOString();
+      obj.deposit_end_time = message.depositEndTime.toISOString();
     }
     if (message.totalDeposit?.length) {
-      obj.totalDeposit = message.totalDeposit.map((e) => Coin.toJSON(e));
+      obj.total_deposit = message.totalDeposit.map((e) => Coin.toJSON(e));
     }
     if (message.votingStartTime !== undefined) {
-      obj.votingStartTime = message.votingStartTime.toISOString();
+      obj.voting_start_time = message.votingStartTime.toISOString();
     }
     if (message.votingEndTime !== undefined) {
-      obj.votingEndTime = message.votingEndTime.toISOString();
+      obj.voting_end_time = message.votingEndTime.toISOString();
     }
     if (message.metadata !== "") {
       obj.metadata = message.metadata;
@@ -805,7 +805,7 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1.Proposal"> = {
       obj.expedited = message.expedited;
     }
     if (message.failedReason !== "") {
-      obj.failedReason = message.failedReason;
+      obj.failed_reason = message.failedReason;
     }
     return obj;
   },
@@ -909,26 +909,26 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.gov.v1.TallyResult"> =
 
   fromJSON(object: any): TallyResult {
     return {
-      yesCount: isSet(object.yesCount) ? globalThis.String(object.yesCount) : "",
-      abstainCount: isSet(object.abstainCount) ? globalThis.String(object.abstainCount) : "",
-      noCount: isSet(object.noCount) ? globalThis.String(object.noCount) : "",
-      noWithVetoCount: isSet(object.noWithVetoCount) ? globalThis.String(object.noWithVetoCount) : "",
+      yesCount: isSet(object.yes_count) ? globalThis.String(object.yes_count) : "",
+      abstainCount: isSet(object.abstain_count) ? globalThis.String(object.abstain_count) : "",
+      noCount: isSet(object.no_count) ? globalThis.String(object.no_count) : "",
+      noWithVetoCount: isSet(object.no_with_veto_count) ? globalThis.String(object.no_with_veto_count) : "",
     };
   },
 
   toJSON(message: TallyResult): unknown {
     const obj: any = {};
     if (message.yesCount !== "") {
-      obj.yesCount = message.yesCount;
+      obj.yes_count = message.yesCount;
     }
     if (message.abstainCount !== "") {
-      obj.abstainCount = message.abstainCount;
+      obj.abstain_count = message.abstainCount;
     }
     if (message.noCount !== "") {
-      obj.noCount = message.noCount;
+      obj.no_count = message.noCount;
     }
     if (message.noWithVetoCount !== "") {
-      obj.noWithVetoCount = message.noWithVetoCount;
+      obj.no_with_veto_count = message.noWithVetoCount;
     }
     return obj;
   },
@@ -1019,7 +1019,7 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1.Vote"> = {
 
   fromJSON(object: any): Vote {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       options: globalThis.Array.isArray(object?.options)
         ? object.options.map((e: any) => WeightedVoteOption.fromJSON(e))
@@ -1031,7 +1031,7 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1.Vote"> = {
   toJSON(message: Vote): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -1111,20 +1111,20 @@ export const DepositParams: MessageFns<DepositParams, "cosmos.gov.v1.DepositPara
 
   fromJSON(object: any): DepositParams {
     return {
-      minDeposit: globalThis.Array.isArray(object?.minDeposit)
-        ? object.minDeposit.map((e: any) => Coin.fromJSON(e))
+      minDeposit: globalThis.Array.isArray(object?.min_deposit)
+        ? object.min_deposit.map((e: any) => Coin.fromJSON(e))
         : [],
-      maxDepositPeriod: isSet(object.maxDepositPeriod) ? Duration.fromJSON(object.maxDepositPeriod) : undefined,
+      maxDepositPeriod: isSet(object.max_deposit_period) ? Duration.fromJSON(object.max_deposit_period) : undefined,
     };
   },
 
   toJSON(message: DepositParams): unknown {
     const obj: any = {};
     if (message.minDeposit?.length) {
-      obj.minDeposit = message.minDeposit.map((e) => Coin.toJSON(e));
+      obj.min_deposit = message.minDeposit.map((e) => Coin.toJSON(e));
     }
     if (message.maxDepositPeriod !== undefined) {
-      obj.maxDepositPeriod = Duration.toJSON(message.maxDepositPeriod);
+      obj.max_deposit_period = Duration.toJSON(message.maxDepositPeriod);
     }
     return obj;
   },
@@ -1181,13 +1181,13 @@ export const VotingParams: MessageFns<VotingParams, "cosmos.gov.v1.VotingParams"
   },
 
   fromJSON(object: any): VotingParams {
-    return { votingPeriod: isSet(object.votingPeriod) ? Duration.fromJSON(object.votingPeriod) : undefined };
+    return { votingPeriod: isSet(object.voting_period) ? Duration.fromJSON(object.voting_period) : undefined };
   },
 
   toJSON(message: VotingParams): unknown {
     const obj: any = {};
     if (message.votingPeriod !== undefined) {
-      obj.votingPeriod = Duration.toJSON(message.votingPeriod);
+      obj.voting_period = Duration.toJSON(message.votingPeriod);
     }
     return obj;
   },
@@ -1268,7 +1268,7 @@ export const TallyParams: MessageFns<TallyParams, "cosmos.gov.v1.TallyParams"> =
     return {
       quorum: isSet(object.quorum) ? globalThis.String(object.quorum) : "",
       threshold: isSet(object.threshold) ? globalThis.String(object.threshold) : "",
-      vetoThreshold: isSet(object.vetoThreshold) ? globalThis.String(object.vetoThreshold) : "",
+      vetoThreshold: isSet(object.veto_threshold) ? globalThis.String(object.veto_threshold) : "",
     };
   },
 
@@ -1281,7 +1281,7 @@ export const TallyParams: MessageFns<TallyParams, "cosmos.gov.v1.TallyParams"> =
       obj.threshold = message.threshold;
     }
     if (message.vetoThreshold !== "") {
-      obj.vetoThreshold = message.vetoThreshold;
+      obj.veto_threshold = message.vetoThreshold;
     }
     return obj;
   },
@@ -1520,45 +1520,45 @@ export const Params: MessageFns<Params, "cosmos.gov.v1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      minDeposit: globalThis.Array.isArray(object?.minDeposit)
-        ? object.minDeposit.map((e: any) => Coin.fromJSON(e))
+      minDeposit: globalThis.Array.isArray(object?.min_deposit)
+        ? object.min_deposit.map((e: any) => Coin.fromJSON(e))
         : [],
-      maxDepositPeriod: isSet(object.maxDepositPeriod) ? Duration.fromJSON(object.maxDepositPeriod) : undefined,
-      votingPeriod: isSet(object.votingPeriod) ? Duration.fromJSON(object.votingPeriod) : undefined,
+      maxDepositPeriod: isSet(object.max_deposit_period) ? Duration.fromJSON(object.max_deposit_period) : undefined,
+      votingPeriod: isSet(object.voting_period) ? Duration.fromJSON(object.voting_period) : undefined,
       quorum: isSet(object.quorum) ? globalThis.String(object.quorum) : "",
       threshold: isSet(object.threshold) ? globalThis.String(object.threshold) : "",
-      vetoThreshold: isSet(object.vetoThreshold) ? globalThis.String(object.vetoThreshold) : "",
-      minInitialDepositRatio: isSet(object.minInitialDepositRatio)
-        ? globalThis.String(object.minInitialDepositRatio)
+      vetoThreshold: isSet(object.veto_threshold) ? globalThis.String(object.veto_threshold) : "",
+      minInitialDepositRatio: isSet(object.min_initial_deposit_ratio)
+        ? globalThis.String(object.min_initial_deposit_ratio)
         : "",
-      proposalCancelRatio: isSet(object.proposalCancelRatio) ? globalThis.String(object.proposalCancelRatio) : "",
-      proposalCancelDest: isSet(object.proposalCancelDest) ? globalThis.String(object.proposalCancelDest) : "",
-      expeditedVotingPeriod: isSet(object.expeditedVotingPeriod)
-        ? Duration.fromJSON(object.expeditedVotingPeriod)
+      proposalCancelRatio: isSet(object.proposal_cancel_ratio) ? globalThis.String(object.proposal_cancel_ratio) : "",
+      proposalCancelDest: isSet(object.proposal_cancel_dest) ? globalThis.String(object.proposal_cancel_dest) : "",
+      expeditedVotingPeriod: isSet(object.expedited_voting_period)
+        ? Duration.fromJSON(object.expedited_voting_period)
         : undefined,
-      expeditedThreshold: isSet(object.expeditedThreshold) ? globalThis.String(object.expeditedThreshold) : "",
-      expeditedMinDeposit: globalThis.Array.isArray(object?.expeditedMinDeposit)
-        ? object.expeditedMinDeposit.map((e: any) => Coin.fromJSON(e))
+      expeditedThreshold: isSet(object.expedited_threshold) ? globalThis.String(object.expedited_threshold) : "",
+      expeditedMinDeposit: globalThis.Array.isArray(object?.expedited_min_deposit)
+        ? object.expedited_min_deposit.map((e: any) => Coin.fromJSON(e))
         : [],
-      burnVoteQuorum: isSet(object.burnVoteQuorum) ? globalThis.Boolean(object.burnVoteQuorum) : false,
-      burnProposalDepositPrevote: isSet(object.burnProposalDepositPrevote)
-        ? globalThis.Boolean(object.burnProposalDepositPrevote)
+      burnVoteQuorum: isSet(object.burn_vote_quorum) ? globalThis.Boolean(object.burn_vote_quorum) : false,
+      burnProposalDepositPrevote: isSet(object.burn_proposal_deposit_prevote)
+        ? globalThis.Boolean(object.burn_proposal_deposit_prevote)
         : false,
-      burnVoteVeto: isSet(object.burnVoteVeto) ? globalThis.Boolean(object.burnVoteVeto) : false,
-      minDepositRatio: isSet(object.minDepositRatio) ? globalThis.String(object.minDepositRatio) : "",
+      burnVoteVeto: isSet(object.burn_vote_veto) ? globalThis.Boolean(object.burn_vote_veto) : false,
+      minDepositRatio: isSet(object.min_deposit_ratio) ? globalThis.String(object.min_deposit_ratio) : "",
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.minDeposit?.length) {
-      obj.minDeposit = message.minDeposit.map((e) => Coin.toJSON(e));
+      obj.min_deposit = message.minDeposit.map((e) => Coin.toJSON(e));
     }
     if (message.maxDepositPeriod !== undefined) {
-      obj.maxDepositPeriod = Duration.toJSON(message.maxDepositPeriod);
+      obj.max_deposit_period = Duration.toJSON(message.maxDepositPeriod);
     }
     if (message.votingPeriod !== undefined) {
-      obj.votingPeriod = Duration.toJSON(message.votingPeriod);
+      obj.voting_period = Duration.toJSON(message.votingPeriod);
     }
     if (message.quorum !== "") {
       obj.quorum = message.quorum;
@@ -1567,37 +1567,37 @@ export const Params: MessageFns<Params, "cosmos.gov.v1.Params"> = {
       obj.threshold = message.threshold;
     }
     if (message.vetoThreshold !== "") {
-      obj.vetoThreshold = message.vetoThreshold;
+      obj.veto_threshold = message.vetoThreshold;
     }
     if (message.minInitialDepositRatio !== "") {
-      obj.minInitialDepositRatio = message.minInitialDepositRatio;
+      obj.min_initial_deposit_ratio = message.minInitialDepositRatio;
     }
     if (message.proposalCancelRatio !== "") {
-      obj.proposalCancelRatio = message.proposalCancelRatio;
+      obj.proposal_cancel_ratio = message.proposalCancelRatio;
     }
     if (message.proposalCancelDest !== "") {
-      obj.proposalCancelDest = message.proposalCancelDest;
+      obj.proposal_cancel_dest = message.proposalCancelDest;
     }
     if (message.expeditedVotingPeriod !== undefined) {
-      obj.expeditedVotingPeriod = Duration.toJSON(message.expeditedVotingPeriod);
+      obj.expedited_voting_period = Duration.toJSON(message.expeditedVotingPeriod);
     }
     if (message.expeditedThreshold !== "") {
-      obj.expeditedThreshold = message.expeditedThreshold;
+      obj.expedited_threshold = message.expeditedThreshold;
     }
     if (message.expeditedMinDeposit?.length) {
-      obj.expeditedMinDeposit = message.expeditedMinDeposit.map((e) => Coin.toJSON(e));
+      obj.expedited_min_deposit = message.expeditedMinDeposit.map((e) => Coin.toJSON(e));
     }
     if (message.burnVoteQuorum !== false) {
-      obj.burnVoteQuorum = message.burnVoteQuorum;
+      obj.burn_vote_quorum = message.burnVoteQuorum;
     }
     if (message.burnProposalDepositPrevote !== false) {
-      obj.burnProposalDepositPrevote = message.burnProposalDepositPrevote;
+      obj.burn_proposal_deposit_prevote = message.burnProposalDepositPrevote;
     }
     if (message.burnVoteVeto !== false) {
-      obj.burnVoteVeto = message.burnVoteVeto;
+      obj.burn_vote_veto = message.burnVoteVeto;
     }
     if (message.minDepositRatio !== "") {
-      obj.minDepositRatio = message.minDepositRatio;
+      obj.min_deposit_ratio = message.minDepositRatio;
     }
     return obj;
   },

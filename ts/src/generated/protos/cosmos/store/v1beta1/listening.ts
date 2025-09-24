@@ -111,7 +111,7 @@ export const StoreKVPair: MessageFns<StoreKVPair, "cosmos.store.v1beta1.StoreKVP
 
   fromJSON(object: any): StoreKVPair {
     return {
-      storeKey: isSet(object.storeKey) ? globalThis.String(object.storeKey) : "",
+      storeKey: isSet(object.store_key) ? globalThis.String(object.store_key) : "",
       delete: isSet(object.delete) ? globalThis.Boolean(object.delete) : false,
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
@@ -121,7 +121,7 @@ export const StoreKVPair: MessageFns<StoreKVPair, "cosmos.store.v1beta1.StoreKVP
   toJSON(message: StoreKVPair): unknown {
     const obj: any = {};
     if (message.storeKey !== "") {
-      obj.storeKey = message.storeKey;
+      obj.store_key = message.storeKey;
     }
     if (message.delete !== false) {
       obj.delete = message.delete;
@@ -210,12 +210,12 @@ export const BlockMetadata: MessageFns<BlockMetadata, "cosmos.store.v1beta1.Bloc
 
   fromJSON(object: any): BlockMetadata {
     return {
-      responseCommit: isSet(object.responseCommit) ? ResponseCommit.fromJSON(object.responseCommit) : undefined,
-      requestFinalizeBlock: isSet(object.requestFinalizeBlock)
-        ? RequestFinalizeBlock.fromJSON(object.requestFinalizeBlock)
+      responseCommit: isSet(object.response_commit) ? ResponseCommit.fromJSON(object.response_commit) : undefined,
+      requestFinalizeBlock: isSet(object.request_finalize_block)
+        ? RequestFinalizeBlock.fromJSON(object.request_finalize_block)
         : undefined,
-      responseFinalizeBlock: isSet(object.responseFinalizeBlock)
-        ? ResponseFinalizeBlock.fromJSON(object.responseFinalizeBlock)
+      responseFinalizeBlock: isSet(object.response_finalize_block)
+        ? ResponseFinalizeBlock.fromJSON(object.response_finalize_block)
         : undefined,
     };
   },
@@ -223,13 +223,13 @@ export const BlockMetadata: MessageFns<BlockMetadata, "cosmos.store.v1beta1.Bloc
   toJSON(message: BlockMetadata): unknown {
     const obj: any = {};
     if (message.responseCommit !== undefined) {
-      obj.responseCommit = ResponseCommit.toJSON(message.responseCommit);
+      obj.response_commit = ResponseCommit.toJSON(message.responseCommit);
     }
     if (message.requestFinalizeBlock !== undefined) {
-      obj.requestFinalizeBlock = RequestFinalizeBlock.toJSON(message.requestFinalizeBlock);
+      obj.request_finalize_block = RequestFinalizeBlock.toJSON(message.requestFinalizeBlock);
     }
     if (message.responseFinalizeBlock !== undefined) {
-      obj.responseFinalizeBlock = ResponseFinalizeBlock.toJSON(message.responseFinalizeBlock);
+      obj.response_finalize_block = ResponseFinalizeBlock.toJSON(message.responseFinalizeBlock);
     }
     return obj;
   },

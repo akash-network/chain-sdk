@@ -104,7 +104,7 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       power: isSet(object.power) ? Long.fromValue(object.power) : Long.ZERO,
-      consensusAddress: isSet(object.consensusAddress) ? globalThis.String(object.consensusAddress) : "",
+      consensusAddress: isSet(object.consensus_address) ? globalThis.String(object.consensus_address) : "",
     };
   },
 
@@ -120,7 +120,7 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
       obj.power = (message.power || Long.ZERO).toString();
     }
     if (message.consensusAddress !== "") {
-      obj.consensusAddress = message.consensusAddress;
+      obj.consensus_address = message.consensusAddress;
     }
     return obj;
   },

@@ -183,18 +183,18 @@ export const MsgSetWithdrawAddress: MessageFns<
 
   fromJSON(object: any): MsgSetWithdrawAddress {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      withdrawAddress: isSet(object.withdrawAddress) ? globalThis.String(object.withdrawAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      withdrawAddress: isSet(object.withdraw_address) ? globalThis.String(object.withdraw_address) : "",
     };
   },
 
   toJSON(message: MsgSetWithdrawAddress): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.withdrawAddress !== "") {
-      obj.withdrawAddress = message.withdrawAddress;
+      obj.withdraw_address = message.withdrawAddress;
     }
     return obj;
   },
@@ -312,18 +312,18 @@ export const MsgWithdrawDelegatorReward: MessageFns<
 
   fromJSON(object: any): MsgWithdrawDelegatorReward {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
     };
   },
 
   toJSON(message: MsgWithdrawDelegatorReward): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     return obj;
   },
@@ -444,13 +444,13 @@ export const MsgWithdrawValidatorCommission: MessageFns<
   },
 
   fromJSON(object: any): MsgWithdrawValidatorCommission {
-    return { validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "" };
+    return { validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "" };
   },
 
   toJSON(message: MsgWithdrawValidatorCommission): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     return obj;
   },
@@ -996,7 +996,7 @@ export const MsgDepositValidatorRewardsPool: MessageFns<
   fromJSON(object: any): MsgDepositValidatorRewardsPool {
     return {
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
   },
@@ -1007,7 +1007,7 @@ export const MsgDepositValidatorRewardsPool: MessageFns<
       obj.depositor = message.depositor;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.amount?.length) {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));

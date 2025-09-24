@@ -112,10 +112,10 @@ export const BIP44Params: MessageFns<BIP44Params, "cosmos.crypto.hd.v1.BIP44Para
   fromJSON(object: any): BIP44Params {
     return {
       purpose: isSet(object.purpose) ? globalThis.Number(object.purpose) : 0,
-      coinType: isSet(object.coinType) ? globalThis.Number(object.coinType) : 0,
+      coinType: isSet(object.coin_type) ? globalThis.Number(object.coin_type) : 0,
       account: isSet(object.account) ? globalThis.Number(object.account) : 0,
       change: isSet(object.change) ? globalThis.Boolean(object.change) : false,
-      addressIndex: isSet(object.addressIndex) ? globalThis.Number(object.addressIndex) : 0,
+      addressIndex: isSet(object.address_index) ? globalThis.Number(object.address_index) : 0,
     };
   },
 
@@ -125,7 +125,7 @@ export const BIP44Params: MessageFns<BIP44Params, "cosmos.crypto.hd.v1.BIP44Para
       obj.purpose = Math.round(message.purpose);
     }
     if (message.coinType !== 0) {
-      obj.coinType = Math.round(message.coinType);
+      obj.coin_type = Math.round(message.coinType);
     }
     if (message.account !== 0) {
       obj.account = Math.round(message.account);
@@ -134,7 +134,7 @@ export const BIP44Params: MessageFns<BIP44Params, "cosmos.crypto.hd.v1.BIP44Para
       obj.change = message.change;
     }
     if (message.addressIndex !== 0) {
-      obj.addressIndex = Math.round(message.addressIndex);
+      obj.address_index = Math.round(message.addressIndex);
     }
     return obj;
   },

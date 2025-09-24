@@ -197,17 +197,17 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
   fromJSON(object: any): EpochInfo {
     return {
       identifier: isSet(object.identifier) ? globalThis.String(object.identifier) : "",
-      startTime: isSet(object.startTime) ? fromJsonTimestamp(object.startTime) : undefined,
+      startTime: isSet(object.start_time) ? fromJsonTimestamp(object.start_time) : undefined,
       duration: isSet(object.duration) ? Duration.fromJSON(object.duration) : undefined,
-      currentEpoch: isSet(object.currentEpoch) ? Long.fromValue(object.currentEpoch) : Long.ZERO,
-      currentEpochStartTime: isSet(object.currentEpochStartTime)
-        ? fromJsonTimestamp(object.currentEpochStartTime)
+      currentEpoch: isSet(object.current_epoch) ? Long.fromValue(object.current_epoch) : Long.ZERO,
+      currentEpochStartTime: isSet(object.current_epoch_start_time)
+        ? fromJsonTimestamp(object.current_epoch_start_time)
         : undefined,
-      epochCountingStarted: isSet(object.epochCountingStarted)
-        ? globalThis.Boolean(object.epochCountingStarted)
+      epochCountingStarted: isSet(object.epoch_counting_started)
+        ? globalThis.Boolean(object.epoch_counting_started)
         : false,
-      currentEpochStartHeight: isSet(object.currentEpochStartHeight)
-        ? Long.fromValue(object.currentEpochStartHeight)
+      currentEpochStartHeight: isSet(object.current_epoch_start_height)
+        ? Long.fromValue(object.current_epoch_start_height)
         : Long.ZERO,
     };
   },
@@ -218,22 +218,22 @@ export const EpochInfo: MessageFns<EpochInfo, "cosmos.epochs.v1beta1.EpochInfo">
       obj.identifier = message.identifier;
     }
     if (message.startTime !== undefined) {
-      obj.startTime = message.startTime.toISOString();
+      obj.start_time = message.startTime.toISOString();
     }
     if (message.duration !== undefined) {
       obj.duration = Duration.toJSON(message.duration);
     }
     if (!message.currentEpoch.equals(Long.ZERO)) {
-      obj.currentEpoch = (message.currentEpoch || Long.ZERO).toString();
+      obj.current_epoch = (message.currentEpoch || Long.ZERO).toString();
     }
     if (message.currentEpochStartTime !== undefined) {
-      obj.currentEpochStartTime = message.currentEpochStartTime.toISOString();
+      obj.current_epoch_start_time = message.currentEpochStartTime.toISOString();
     }
     if (message.epochCountingStarted !== false) {
-      obj.epochCountingStarted = message.epochCountingStarted;
+      obj.epoch_counting_started = message.epochCountingStarted;
     }
     if (!message.currentEpochStartHeight.equals(Long.ZERO)) {
-      obj.currentEpochStartHeight = (message.currentEpochStartHeight || Long.ZERO).toString();
+      obj.current_epoch_start_height = (message.currentEpochStartHeight || Long.ZERO).toString();
     }
     return obj;
   },

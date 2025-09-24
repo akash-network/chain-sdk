@@ -83,13 +83,13 @@ export const MsgCreateLease: MessageFns<MsgCreateLease, "akash.market.v1beta5.Ms
   },
 
   fromJSON(object: any): MsgCreateLease {
-    return { bidId: isSet(object.bidId) ? BidID.fromJSON(object.bidId) : undefined };
+    return { bidId: isSet(object.bid_id) ? BidID.fromJSON(object.bid_id) : undefined };
   },
 
   toJSON(message: MsgCreateLease): unknown {
     const obj: any = {};
     if (message.bidId !== undefined) {
-      obj.bidId = BidID.toJSON(message.bidId);
+      obj.bid_id = BidID.toJSON(message.bidId);
     }
     return obj;
   },

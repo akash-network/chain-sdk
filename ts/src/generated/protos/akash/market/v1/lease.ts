@@ -363,8 +363,8 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? lease_StateFromJSON(object.state) : 0,
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
-      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
-      closedOn: isSet(object.closedOn) ? Long.fromValue(object.closedOn) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
+      closedOn: isSet(object.closed_on) ? Long.fromValue(object.closed_on) : Long.ZERO,
       reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
     };
   },
@@ -381,10 +381,10 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       obj.price = DecCoin.toJSON(message.price);
     }
     if (!message.createdAt.equals(Long.ZERO)) {
-      obj.createdAt = (message.createdAt || Long.ZERO).toString();
+      obj.created_at = (message.createdAt || Long.ZERO).toString();
     }
     if (!message.closedOn.equals(Long.ZERO)) {
-      obj.closedOn = (message.closedOn || Long.ZERO).toString();
+      obj.closed_on = (message.closedOn || Long.ZERO).toString();
     }
     if (message.reason !== 0) {
       obj.reason = leaseClosedReasonToJSON(message.reason);

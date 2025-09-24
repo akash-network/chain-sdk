@@ -682,8 +682,8 @@ export const MsgCancelContinuousFundResponse: MessageFns<
 
   fromJSON(object: any): MsgCancelContinuousFundResponse {
     return {
-      canceledTime: isSet(object.canceledTime) ? fromJsonTimestamp(object.canceledTime) : undefined,
-      canceledHeight: isSet(object.canceledHeight) ? Long.fromValue(object.canceledHeight) : Long.UZERO,
+      canceledTime: isSet(object.canceled_time) ? fromJsonTimestamp(object.canceled_time) : undefined,
+      canceledHeight: isSet(object.canceled_height) ? Long.fromValue(object.canceled_height) : Long.UZERO,
       recipient: isSet(object.recipient) ? globalThis.String(object.recipient) : "",
     };
   },
@@ -691,10 +691,10 @@ export const MsgCancelContinuousFundResponse: MessageFns<
   toJSON(message: MsgCancelContinuousFundResponse): unknown {
     const obj: any = {};
     if (message.canceledTime !== undefined) {
-      obj.canceledTime = message.canceledTime.toISOString();
+      obj.canceled_time = message.canceledTime.toISOString();
     }
     if (!message.canceledHeight.equals(Long.UZERO)) {
-      obj.canceledHeight = (message.canceledHeight || Long.UZERO).toString();
+      obj.canceled_height = (message.canceledHeight || Long.UZERO).toString();
     }
     if (message.recipient !== "") {
       obj.recipient = message.recipient;

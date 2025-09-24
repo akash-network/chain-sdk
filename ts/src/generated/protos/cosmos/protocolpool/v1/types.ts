@@ -180,11 +180,11 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      enabledDistributionDenoms: globalThis.Array.isArray(object?.enabledDistributionDenoms)
-        ? object.enabledDistributionDenoms.map((e: any) => globalThis.String(e))
+      enabledDistributionDenoms: globalThis.Array.isArray(object?.enabled_distribution_denoms)
+        ? object.enabled_distribution_denoms.map((e: any) => globalThis.String(e))
         : [],
-      distributionFrequency: isSet(object.distributionFrequency)
-        ? Long.fromValue(object.distributionFrequency)
+      distributionFrequency: isSet(object.distribution_frequency)
+        ? Long.fromValue(object.distribution_frequency)
         : Long.UZERO,
     };
   },
@@ -192,10 +192,10 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.enabledDistributionDenoms?.length) {
-      obj.enabledDistributionDenoms = message.enabledDistributionDenoms;
+      obj.enabled_distribution_denoms = message.enabledDistributionDenoms;
     }
     if (!message.distributionFrequency.equals(Long.UZERO)) {
-      obj.distributionFrequency = (message.distributionFrequency || Long.UZERO).toString();
+      obj.distribution_frequency = (message.distributionFrequency || Long.UZERO).toString();
     }
     return obj;
   },

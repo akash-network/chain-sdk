@@ -343,7 +343,7 @@ export const AppDescriptor: MessageFns<AppDescriptor, "cosmos.base.reflection.v2
       chain: isSet(object.chain) ? ChainDescriptor.fromJSON(object.chain) : undefined,
       codec: isSet(object.codec) ? CodecDescriptor.fromJSON(object.codec) : undefined,
       configuration: isSet(object.configuration) ? ConfigurationDescriptor.fromJSON(object.configuration) : undefined,
-      queryServices: isSet(object.queryServices) ? QueryServicesDescriptor.fromJSON(object.queryServices) : undefined,
+      queryServices: isSet(object.query_services) ? QueryServicesDescriptor.fromJSON(object.query_services) : undefined,
       tx: isSet(object.tx) ? TxDescriptor.fromJSON(object.tx) : undefined,
     };
   },
@@ -363,7 +363,7 @@ export const AppDescriptor: MessageFns<AppDescriptor, "cosmos.base.reflection.v2
       obj.configuration = ConfigurationDescriptor.toJSON(message.configuration);
     }
     if (message.queryServices !== undefined) {
-      obj.queryServices = QueryServicesDescriptor.toJSON(message.queryServices);
+      obj.query_services = QueryServicesDescriptor.toJSON(message.queryServices);
     }
     if (message.tx !== undefined) {
       obj.tx = TxDescriptor.toJSON(message.tx);
@@ -514,8 +514,8 @@ export const AuthnDescriptor: MessageFns<AuthnDescriptor, "cosmos.base.reflectio
 
   fromJSON(object: any): AuthnDescriptor {
     return {
-      signModes: globalThis.Array.isArray(object?.signModes)
-        ? object.signModes.map((e: any) => SigningModeDescriptor.fromJSON(e))
+      signModes: globalThis.Array.isArray(object?.sign_modes)
+        ? object.sign_modes.map((e: any) => SigningModeDescriptor.fromJSON(e))
         : [],
     };
   },
@@ -523,7 +523,7 @@ export const AuthnDescriptor: MessageFns<AuthnDescriptor, "cosmos.base.reflectio
   toJSON(message: AuthnDescriptor): unknown {
     const obj: any = {};
     if (message.signModes?.length) {
-      obj.signModes = message.signModes.map((e) => SigningModeDescriptor.toJSON(e));
+      obj.sign_modes = message.signModes.map((e) => SigningModeDescriptor.toJSON(e));
     }
     return obj;
   },
@@ -605,8 +605,8 @@ export const SigningModeDescriptor: MessageFns<
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       number: isSet(object.number) ? globalThis.Number(object.number) : 0,
-      authnInfoProviderMethodFullname: isSet(object.authnInfoProviderMethodFullname)
-        ? globalThis.String(object.authnInfoProviderMethodFullname)
+      authnInfoProviderMethodFullname: isSet(object.authn_info_provider_method_fullname)
+        ? globalThis.String(object.authn_info_provider_method_fullname)
         : "",
     };
   },
@@ -620,7 +620,7 @@ export const SigningModeDescriptor: MessageFns<
       obj.number = Math.round(message.number);
     }
     if (message.authnInfoProviderMethodFullname !== "") {
-      obj.authnInfoProviderMethodFullname = message.authnInfoProviderMethodFullname;
+      obj.authn_info_provider_method_fullname = message.authnInfoProviderMethodFullname;
     }
     return obj;
   },
@@ -827,11 +827,11 @@ export const InterfaceDescriptor: MessageFns<
   fromJSON(object: any): InterfaceDescriptor {
     return {
       fullname: isSet(object.fullname) ? globalThis.String(object.fullname) : "",
-      interfaceAcceptingMessages: globalThis.Array.isArray(object?.interfaceAcceptingMessages)
-        ? object.interfaceAcceptingMessages.map((e: any) => InterfaceAcceptingMessageDescriptor.fromJSON(e))
+      interfaceAcceptingMessages: globalThis.Array.isArray(object?.interface_accepting_messages)
+        ? object.interface_accepting_messages.map((e: any) => InterfaceAcceptingMessageDescriptor.fromJSON(e))
         : [],
-      interfaceImplementers: globalThis.Array.isArray(object?.interfaceImplementers)
-        ? object.interfaceImplementers.map((e: any) => InterfaceImplementerDescriptor.fromJSON(e))
+      interfaceImplementers: globalThis.Array.isArray(object?.interface_implementers)
+        ? object.interface_implementers.map((e: any) => InterfaceImplementerDescriptor.fromJSON(e))
         : [],
     };
   },
@@ -842,12 +842,12 @@ export const InterfaceDescriptor: MessageFns<
       obj.fullname = message.fullname;
     }
     if (message.interfaceAcceptingMessages?.length) {
-      obj.interfaceAcceptingMessages = message.interfaceAcceptingMessages.map((e) =>
+      obj.interface_accepting_messages = message.interfaceAcceptingMessages.map((e) =>
         InterfaceAcceptingMessageDescriptor.toJSON(e)
       );
     }
     if (message.interfaceImplementers?.length) {
-      obj.interfaceImplementers = message.interfaceImplementers.map((e) => InterfaceImplementerDescriptor.toJSON(e));
+      obj.interface_implementers = message.interfaceImplementers.map((e) => InterfaceImplementerDescriptor.toJSON(e));
     }
     return obj;
   },
@@ -921,7 +921,7 @@ export const InterfaceImplementerDescriptor: MessageFns<
   fromJSON(object: any): InterfaceImplementerDescriptor {
     return {
       fullname: isSet(object.fullname) ? globalThis.String(object.fullname) : "",
-      typeUrl: isSet(object.typeUrl) ? globalThis.String(object.typeUrl) : "",
+      typeUrl: isSet(object.type_url) ? globalThis.String(object.type_url) : "",
     };
   },
 
@@ -931,7 +931,7 @@ export const InterfaceImplementerDescriptor: MessageFns<
       obj.fullname = message.fullname;
     }
     if (message.typeUrl !== "") {
-      obj.typeUrl = message.typeUrl;
+      obj.type_url = message.typeUrl;
     }
     return obj;
   },
@@ -1002,8 +1002,8 @@ export const InterfaceAcceptingMessageDescriptor: MessageFns<
   fromJSON(object: any): InterfaceAcceptingMessageDescriptor {
     return {
       fullname: isSet(object.fullname) ? globalThis.String(object.fullname) : "",
-      fieldDescriptorNames: globalThis.Array.isArray(object?.fieldDescriptorNames)
-        ? object.fieldDescriptorNames.map((e: any) => globalThis.String(e))
+      fieldDescriptorNames: globalThis.Array.isArray(object?.field_descriptor_names)
+        ? object.field_descriptor_names.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -1014,7 +1014,7 @@ export const InterfaceAcceptingMessageDescriptor: MessageFns<
       obj.fullname = message.fullname;
     }
     if (message.fieldDescriptorNames?.length) {
-      obj.fieldDescriptorNames = message.fieldDescriptorNames;
+      obj.field_descriptor_names = message.fieldDescriptorNames;
     }
     return obj;
   },
@@ -1073,8 +1073,8 @@ export const ConfigurationDescriptor: MessageFns<
 
   fromJSON(object: any): ConfigurationDescriptor {
     return {
-      bech32AccountAddressPrefix: isSet(object.bech32AccountAddressPrefix)
-        ? globalThis.String(object.bech32AccountAddressPrefix)
+      bech32AccountAddressPrefix: isSet(object.bech32_account_address_prefix)
+        ? globalThis.String(object.bech32_account_address_prefix)
         : "",
     };
   },
@@ -1082,7 +1082,7 @@ export const ConfigurationDescriptor: MessageFns<
   toJSON(message: ConfigurationDescriptor): unknown {
     const obj: any = {};
     if (message.bech32AccountAddressPrefix !== "") {
-      obj.bech32AccountAddressPrefix = message.bech32AccountAddressPrefix;
+      obj.bech32_account_address_prefix = message.bech32AccountAddressPrefix;
     }
     return obj;
   },
@@ -1136,13 +1136,13 @@ export const MsgDescriptor: MessageFns<MsgDescriptor, "cosmos.base.reflection.v2
   },
 
   fromJSON(object: any): MsgDescriptor {
-    return { msgTypeUrl: isSet(object.msgTypeUrl) ? globalThis.String(object.msgTypeUrl) : "" };
+    return { msgTypeUrl: isSet(object.msg_type_url) ? globalThis.String(object.msg_type_url) : "" };
   },
 
   toJSON(message: MsgDescriptor): unknown {
     const obj: any = {};
     if (message.msgTypeUrl !== "") {
-      obj.msgTypeUrl = message.msgTypeUrl;
+      obj.msg_type_url = message.msgTypeUrl;
     }
     return obj;
   },
@@ -1876,8 +1876,8 @@ export const QueryServicesDescriptor: MessageFns<
 
   fromJSON(object: any): QueryServicesDescriptor {
     return {
-      queryServices: globalThis.Array.isArray(object?.queryServices)
-        ? object.queryServices.map((e: any) => QueryServiceDescriptor.fromJSON(e))
+      queryServices: globalThis.Array.isArray(object?.query_services)
+        ? object.query_services.map((e: any) => QueryServiceDescriptor.fromJSON(e))
         : [],
     };
   },
@@ -1885,7 +1885,7 @@ export const QueryServicesDescriptor: MessageFns<
   toJSON(message: QueryServicesDescriptor): unknown {
     const obj: any = {};
     if (message.queryServices?.length) {
-      obj.queryServices = message.queryServices.map((e) => QueryServiceDescriptor.toJSON(e));
+      obj.query_services = message.queryServices.map((e) => QueryServiceDescriptor.toJSON(e));
     }
     return obj;
   },
@@ -1966,7 +1966,7 @@ export const QueryServiceDescriptor: MessageFns<
   fromJSON(object: any): QueryServiceDescriptor {
     return {
       fullname: isSet(object.fullname) ? globalThis.String(object.fullname) : "",
-      isModule: isSet(object.isModule) ? globalThis.Boolean(object.isModule) : false,
+      isModule: isSet(object.is_module) ? globalThis.Boolean(object.is_module) : false,
       methods: globalThis.Array.isArray(object?.methods)
         ? object.methods.map((e: any) => QueryMethodDescriptor.fromJSON(e))
         : [],
@@ -1979,7 +1979,7 @@ export const QueryServiceDescriptor: MessageFns<
       obj.fullname = message.fullname;
     }
     if (message.isModule !== false) {
-      obj.isModule = message.isModule;
+      obj.is_module = message.isModule;
     }
     if (message.methods?.length) {
       obj.methods = message.methods.map((e) => QueryMethodDescriptor.toJSON(e));
@@ -2054,7 +2054,7 @@ export const QueryMethodDescriptor: MessageFns<
   fromJSON(object: any): QueryMethodDescriptor {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      fullQueryPath: isSet(object.fullQueryPath) ? globalThis.String(object.fullQueryPath) : "",
+      fullQueryPath: isSet(object.full_query_path) ? globalThis.String(object.full_query_path) : "",
     };
   },
 
@@ -2064,7 +2064,7 @@ export const QueryMethodDescriptor: MessageFns<
       obj.name = message.name;
     }
     if (message.fullQueryPath !== "") {
-      obj.fullQueryPath = message.fullQueryPath;
+      obj.full_query_path = message.fullQueryPath;
     }
     return obj;
   },

@@ -451,7 +451,7 @@ export const BlockID: MessageFns<BlockID, "tendermint.types.BlockID"> = {
   fromJSON(object: any): BlockID {
     return {
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      partSetHeader: isSet(object.partSetHeader) ? PartSetHeader.fromJSON(object.partSetHeader) : undefined,
+      partSetHeader: isSet(object.part_set_header) ? PartSetHeader.fromJSON(object.part_set_header) : undefined,
     };
   },
 
@@ -461,7 +461,7 @@ export const BlockID: MessageFns<BlockID, "tendermint.types.BlockID"> = {
       obj.hash = base64FromBytes(message.hash);
     }
     if (message.partSetHeader !== undefined) {
-      obj.partSetHeader = PartSetHeader.toJSON(message.partSetHeader);
+      obj.part_set_header = PartSetHeader.toJSON(message.partSetHeader);
     }
     return obj;
   },
@@ -678,21 +678,21 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
   fromJSON(object: any): Header {
     return {
       version: isSet(object.version) ? Consensus.fromJSON(object.version) : undefined,
-      chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
+      chainId: isSet(object.chain_id) ? globalThis.String(object.chain_id) : "",
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      lastBlockId: isSet(object.lastBlockId) ? BlockID.fromJSON(object.lastBlockId) : undefined,
-      lastCommitHash: isSet(object.lastCommitHash) ? bytesFromBase64(object.lastCommitHash) : new Uint8Array(0),
-      dataHash: isSet(object.dataHash) ? bytesFromBase64(object.dataHash) : new Uint8Array(0),
-      validatorsHash: isSet(object.validatorsHash) ? bytesFromBase64(object.validatorsHash) : new Uint8Array(0),
-      nextValidatorsHash: isSet(object.nextValidatorsHash)
-        ? bytesFromBase64(object.nextValidatorsHash)
+      lastBlockId: isSet(object.last_block_id) ? BlockID.fromJSON(object.last_block_id) : undefined,
+      lastCommitHash: isSet(object.last_commit_hash) ? bytesFromBase64(object.last_commit_hash) : new Uint8Array(0),
+      dataHash: isSet(object.data_hash) ? bytesFromBase64(object.data_hash) : new Uint8Array(0),
+      validatorsHash: isSet(object.validators_hash) ? bytesFromBase64(object.validators_hash) : new Uint8Array(0),
+      nextValidatorsHash: isSet(object.next_validators_hash)
+        ? bytesFromBase64(object.next_validators_hash)
         : new Uint8Array(0),
-      consensusHash: isSet(object.consensusHash) ? bytesFromBase64(object.consensusHash) : new Uint8Array(0),
-      appHash: isSet(object.appHash) ? bytesFromBase64(object.appHash) : new Uint8Array(0),
-      lastResultsHash: isSet(object.lastResultsHash) ? bytesFromBase64(object.lastResultsHash) : new Uint8Array(0),
-      evidenceHash: isSet(object.evidenceHash) ? bytesFromBase64(object.evidenceHash) : new Uint8Array(0),
-      proposerAddress: isSet(object.proposerAddress) ? bytesFromBase64(object.proposerAddress) : new Uint8Array(0),
+      consensusHash: isSet(object.consensus_hash) ? bytesFromBase64(object.consensus_hash) : new Uint8Array(0),
+      appHash: isSet(object.app_hash) ? bytesFromBase64(object.app_hash) : new Uint8Array(0),
+      lastResultsHash: isSet(object.last_results_hash) ? bytesFromBase64(object.last_results_hash) : new Uint8Array(0),
+      evidenceHash: isSet(object.evidence_hash) ? bytesFromBase64(object.evidence_hash) : new Uint8Array(0),
+      proposerAddress: isSet(object.proposer_address) ? bytesFromBase64(object.proposer_address) : new Uint8Array(0),
     };
   },
 
@@ -702,7 +702,7 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
       obj.version = Consensus.toJSON(message.version);
     }
     if (message.chainId !== "") {
-      obj.chainId = message.chainId;
+      obj.chain_id = message.chainId;
     }
     if (!message.height.equals(Long.ZERO)) {
       obj.height = (message.height || Long.ZERO).toString();
@@ -711,34 +711,34 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
       obj.time = message.time.toISOString();
     }
     if (message.lastBlockId !== undefined) {
-      obj.lastBlockId = BlockID.toJSON(message.lastBlockId);
+      obj.last_block_id = BlockID.toJSON(message.lastBlockId);
     }
     if (message.lastCommitHash.length !== 0) {
-      obj.lastCommitHash = base64FromBytes(message.lastCommitHash);
+      obj.last_commit_hash = base64FromBytes(message.lastCommitHash);
     }
     if (message.dataHash.length !== 0) {
-      obj.dataHash = base64FromBytes(message.dataHash);
+      obj.data_hash = base64FromBytes(message.dataHash);
     }
     if (message.validatorsHash.length !== 0) {
-      obj.validatorsHash = base64FromBytes(message.validatorsHash);
+      obj.validators_hash = base64FromBytes(message.validatorsHash);
     }
     if (message.nextValidatorsHash.length !== 0) {
-      obj.nextValidatorsHash = base64FromBytes(message.nextValidatorsHash);
+      obj.next_validators_hash = base64FromBytes(message.nextValidatorsHash);
     }
     if (message.consensusHash.length !== 0) {
-      obj.consensusHash = base64FromBytes(message.consensusHash);
+      obj.consensus_hash = base64FromBytes(message.consensusHash);
     }
     if (message.appHash.length !== 0) {
-      obj.appHash = base64FromBytes(message.appHash);
+      obj.app_hash = base64FromBytes(message.appHash);
     }
     if (message.lastResultsHash.length !== 0) {
-      obj.lastResultsHash = base64FromBytes(message.lastResultsHash);
+      obj.last_results_hash = base64FromBytes(message.lastResultsHash);
     }
     if (message.evidenceHash.length !== 0) {
-      obj.evidenceHash = base64FromBytes(message.evidenceHash);
+      obj.evidence_hash = base64FromBytes(message.evidenceHash);
     }
     if (message.proposerAddress.length !== 0) {
-      obj.proposerAddress = base64FromBytes(message.proposerAddress);
+      obj.proposer_address = base64FromBytes(message.proposerAddress);
     }
     return obj;
   },
@@ -985,14 +985,14 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
       type: isSet(object.type) ? signedMsgTypeFromJSON(object.type) : 0,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
-      blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
+      blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      validatorAddress: isSet(object.validatorAddress) ? bytesFromBase64(object.validatorAddress) : new Uint8Array(0),
-      validatorIndex: isSet(object.validatorIndex) ? globalThis.Number(object.validatorIndex) : 0,
+      validatorAddress: isSet(object.validator_address) ? bytesFromBase64(object.validator_address) : new Uint8Array(0),
+      validatorIndex: isSet(object.validator_index) ? globalThis.Number(object.validator_index) : 0,
       signature: isSet(object.signature) ? bytesFromBase64(object.signature) : new Uint8Array(0),
       extension: isSet(object.extension) ? bytesFromBase64(object.extension) : new Uint8Array(0),
-      extensionSignature: isSet(object.extensionSignature)
-        ? bytesFromBase64(object.extensionSignature)
+      extensionSignature: isSet(object.extension_signature)
+        ? bytesFromBase64(object.extension_signature)
         : new Uint8Array(0),
     };
   },
@@ -1009,16 +1009,16 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
       obj.round = Math.round(message.round);
     }
     if (message.blockId !== undefined) {
-      obj.blockId = BlockID.toJSON(message.blockId);
+      obj.block_id = BlockID.toJSON(message.blockId);
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
     if (message.validatorAddress.length !== 0) {
-      obj.validatorAddress = base64FromBytes(message.validatorAddress);
+      obj.validator_address = base64FromBytes(message.validatorAddress);
     }
     if (message.validatorIndex !== 0) {
-      obj.validatorIndex = Math.round(message.validatorIndex);
+      obj.validator_index = Math.round(message.validatorIndex);
     }
     if (message.signature.length !== 0) {
       obj.signature = base64FromBytes(message.signature);
@@ -1027,7 +1027,7 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
       obj.extension = base64FromBytes(message.extension);
     }
     if (message.extensionSignature.length !== 0) {
-      obj.extensionSignature = base64FromBytes(message.extensionSignature);
+      obj.extension_signature = base64FromBytes(message.extensionSignature);
     }
     return obj;
   },
@@ -1130,7 +1130,7 @@ export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
     return {
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
-      blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
+      blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
       signatures: globalThis.Array.isArray(object?.signatures)
         ? object.signatures.map((e: any) => CommitSig.fromJSON(e))
         : [],
@@ -1146,7 +1146,7 @@ export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
       obj.round = Math.round(message.round);
     }
     if (message.blockId !== undefined) {
-      obj.blockId = BlockID.toJSON(message.blockId);
+      obj.block_id = BlockID.toJSON(message.blockId);
     }
     if (message.signatures?.length) {
       obj.signatures = message.signatures.map((e) => CommitSig.toJSON(e));
@@ -1244,8 +1244,8 @@ export const CommitSig: MessageFns<CommitSig, "tendermint.types.CommitSig"> = {
 
   fromJSON(object: any): CommitSig {
     return {
-      blockIdFlag: isSet(object.blockIdFlag) ? blockIDFlagFromJSON(object.blockIdFlag) : 0,
-      validatorAddress: isSet(object.validatorAddress) ? bytesFromBase64(object.validatorAddress) : new Uint8Array(0),
+      blockIdFlag: isSet(object.block_id_flag) ? blockIDFlagFromJSON(object.block_id_flag) : 0,
+      validatorAddress: isSet(object.validator_address) ? bytesFromBase64(object.validator_address) : new Uint8Array(0),
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       signature: isSet(object.signature) ? bytesFromBase64(object.signature) : new Uint8Array(0),
     };
@@ -1254,10 +1254,10 @@ export const CommitSig: MessageFns<CommitSig, "tendermint.types.CommitSig"> = {
   toJSON(message: CommitSig): unknown {
     const obj: any = {};
     if (message.blockIdFlag !== 0) {
-      obj.blockIdFlag = blockIDFlagToJSON(message.blockIdFlag);
+      obj.block_id_flag = blockIDFlagToJSON(message.blockIdFlag);
     }
     if (message.validatorAddress.length !== 0) {
-      obj.validatorAddress = base64FromBytes(message.validatorAddress);
+      obj.validator_address = base64FromBytes(message.validatorAddress);
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
@@ -1356,9 +1356,9 @@ export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.Extend
     return {
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
-      blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
-      extendedSignatures: globalThis.Array.isArray(object?.extendedSignatures)
-        ? object.extendedSignatures.map((e: any) => ExtendedCommitSig.fromJSON(e))
+      blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
+      extendedSignatures: globalThis.Array.isArray(object?.extended_signatures)
+        ? object.extended_signatures.map((e: any) => ExtendedCommitSig.fromJSON(e))
         : [],
     };
   },
@@ -1372,10 +1372,10 @@ export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.Extend
       obj.round = Math.round(message.round);
     }
     if (message.blockId !== undefined) {
-      obj.blockId = BlockID.toJSON(message.blockId);
+      obj.block_id = BlockID.toJSON(message.blockId);
     }
     if (message.extendedSignatures?.length) {
-      obj.extendedSignatures = message.extendedSignatures.map((e) => ExtendedCommitSig.toJSON(e));
+      obj.extended_signatures = message.extendedSignatures.map((e) => ExtendedCommitSig.toJSON(e));
     }
     return obj;
   },
@@ -1499,13 +1499,13 @@ export const ExtendedCommitSig: MessageFns<ExtendedCommitSig, "tendermint.types.
 
   fromJSON(object: any): ExtendedCommitSig {
     return {
-      blockIdFlag: isSet(object.blockIdFlag) ? blockIDFlagFromJSON(object.blockIdFlag) : 0,
-      validatorAddress: isSet(object.validatorAddress) ? bytesFromBase64(object.validatorAddress) : new Uint8Array(0),
+      blockIdFlag: isSet(object.block_id_flag) ? blockIDFlagFromJSON(object.block_id_flag) : 0,
+      validatorAddress: isSet(object.validator_address) ? bytesFromBase64(object.validator_address) : new Uint8Array(0),
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       signature: isSet(object.signature) ? bytesFromBase64(object.signature) : new Uint8Array(0),
       extension: isSet(object.extension) ? bytesFromBase64(object.extension) : new Uint8Array(0),
-      extensionSignature: isSet(object.extensionSignature)
-        ? bytesFromBase64(object.extensionSignature)
+      extensionSignature: isSet(object.extension_signature)
+        ? bytesFromBase64(object.extension_signature)
         : new Uint8Array(0),
     };
   },
@@ -1513,10 +1513,10 @@ export const ExtendedCommitSig: MessageFns<ExtendedCommitSig, "tendermint.types.
   toJSON(message: ExtendedCommitSig): unknown {
     const obj: any = {};
     if (message.blockIdFlag !== 0) {
-      obj.blockIdFlag = blockIDFlagToJSON(message.blockIdFlag);
+      obj.block_id_flag = blockIDFlagToJSON(message.blockIdFlag);
     }
     if (message.validatorAddress.length !== 0) {
-      obj.validatorAddress = base64FromBytes(message.validatorAddress);
+      obj.validator_address = base64FromBytes(message.validatorAddress);
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
@@ -1528,7 +1528,7 @@ export const ExtendedCommitSig: MessageFns<ExtendedCommitSig, "tendermint.types.
       obj.extension = base64FromBytes(message.extension);
     }
     if (message.extensionSignature.length !== 0) {
-      obj.extensionSignature = base64FromBytes(message.extensionSignature);
+      obj.extension_signature = base64FromBytes(message.extensionSignature);
     }
     return obj;
   },
@@ -1665,8 +1665,8 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
       type: isSet(object.type) ? signedMsgTypeFromJSON(object.type) : 0,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       round: isSet(object.round) ? globalThis.Number(object.round) : 0,
-      polRound: isSet(object.polRound) ? globalThis.Number(object.polRound) : 0,
-      blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
+      polRound: isSet(object.pol_round) ? globalThis.Number(object.pol_round) : 0,
+      blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       signature: isSet(object.signature) ? bytesFromBase64(object.signature) : new Uint8Array(0),
     };
@@ -1684,10 +1684,10 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
       obj.round = Math.round(message.round);
     }
     if (message.polRound !== 0) {
-      obj.polRound = Math.round(message.polRound);
+      obj.pol_round = Math.round(message.polRound);
     }
     if (message.blockId !== undefined) {
-      obj.blockId = BlockID.toJSON(message.blockId);
+      obj.block_id = BlockID.toJSON(message.blockId);
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
@@ -1851,18 +1851,18 @@ export const LightBlock: MessageFns<LightBlock, "tendermint.types.LightBlock"> =
 
   fromJSON(object: any): LightBlock {
     return {
-      signedHeader: isSet(object.signedHeader) ? SignedHeader.fromJSON(object.signedHeader) : undefined,
-      validatorSet: isSet(object.validatorSet) ? ValidatorSet.fromJSON(object.validatorSet) : undefined,
+      signedHeader: isSet(object.signed_header) ? SignedHeader.fromJSON(object.signed_header) : undefined,
+      validatorSet: isSet(object.validator_set) ? ValidatorSet.fromJSON(object.validator_set) : undefined,
     };
   },
 
   toJSON(message: LightBlock): unknown {
     const obj: any = {};
     if (message.signedHeader !== undefined) {
-      obj.signedHeader = SignedHeader.toJSON(message.signedHeader);
+      obj.signed_header = SignedHeader.toJSON(message.signedHeader);
     }
     if (message.validatorSet !== undefined) {
-      obj.validatorSet = ValidatorSet.toJSON(message.validatorSet);
+      obj.validator_set = ValidatorSet.toJSON(message.validatorSet);
     }
     return obj;
   },
@@ -1955,26 +1955,26 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
 
   fromJSON(object: any): BlockMeta {
     return {
-      blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
-      blockSize: isSet(object.blockSize) ? Long.fromValue(object.blockSize) : Long.ZERO,
+      blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
+      blockSize: isSet(object.block_size) ? Long.fromValue(object.block_size) : Long.ZERO,
       header: isSet(object.header) ? Header.fromJSON(object.header) : undefined,
-      numTxs: isSet(object.numTxs) ? Long.fromValue(object.numTxs) : Long.ZERO,
+      numTxs: isSet(object.num_txs) ? Long.fromValue(object.num_txs) : Long.ZERO,
     };
   },
 
   toJSON(message: BlockMeta): unknown {
     const obj: any = {};
     if (message.blockId !== undefined) {
-      obj.blockId = BlockID.toJSON(message.blockId);
+      obj.block_id = BlockID.toJSON(message.blockId);
     }
     if (!message.blockSize.equals(Long.ZERO)) {
-      obj.blockSize = (message.blockSize || Long.ZERO).toString();
+      obj.block_size = (message.blockSize || Long.ZERO).toString();
     }
     if (message.header !== undefined) {
       obj.header = Header.toJSON(message.header);
     }
     if (!message.numTxs.equals(Long.ZERO)) {
-      obj.numTxs = (message.numTxs || Long.ZERO).toString();
+      obj.num_txs = (message.numTxs || Long.ZERO).toString();
     }
     return obj;
   },
@@ -2062,7 +2062,7 @@ export const TxProof: MessageFns<TxProof, "tendermint.types.TxProof"> = {
 
   fromJSON(object: any): TxProof {
     return {
-      rootHash: isSet(object.rootHash) ? bytesFromBase64(object.rootHash) : new Uint8Array(0),
+      rootHash: isSet(object.root_hash) ? bytesFromBase64(object.root_hash) : new Uint8Array(0),
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(0),
       proof: isSet(object.proof) ? Proof.fromJSON(object.proof) : undefined,
     };
@@ -2071,7 +2071,7 @@ export const TxProof: MessageFns<TxProof, "tendermint.types.TxProof"> = {
   toJSON(message: TxProof): unknown {
     const obj: any = {};
     if (message.rootHash.length !== 0) {
-      obj.rootHash = base64FromBytes(message.rootHash);
+      obj.root_hash = base64FromBytes(message.rootHash);
     }
     if (message.data.length !== 0) {
       obj.data = base64FromBytes(message.data);

@@ -153,7 +153,7 @@ export const Record: MessageFns<Record, "cosmos.crypto.keyring.v1.Record"> = {
   fromJSON(object: any): Record {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      pubKey: isSet(object.pubKey) ? Any.fromJSON(object.pubKey) : undefined,
+      pubKey: isSet(object.pub_key) ? Any.fromJSON(object.pub_key) : undefined,
       local: isSet(object.local) ? Record_Local.fromJSON(object.local) : undefined,
       ledger: isSet(object.ledger) ? Record_Ledger.fromJSON(object.ledger) : undefined,
       multi: isSet(object.multi) ? Record_Multi.fromJSON(object.multi) : undefined,
@@ -167,7 +167,7 @@ export const Record: MessageFns<Record, "cosmos.crypto.keyring.v1.Record"> = {
       obj.name = message.name;
     }
     if (message.pubKey !== undefined) {
-      obj.pubKey = Any.toJSON(message.pubKey);
+      obj.pub_key = Any.toJSON(message.pubKey);
     }
     if (message.local !== undefined) {
       obj.local = Record_Local.toJSON(message.local);
@@ -248,13 +248,13 @@ export const Record_Local: MessageFns<Record_Local, "cosmos.crypto.keyring.v1.Re
   },
 
   fromJSON(object: any): Record_Local {
-    return { privKey: isSet(object.privKey) ? Any.fromJSON(object.privKey) : undefined };
+    return { privKey: isSet(object.priv_key) ? Any.fromJSON(object.priv_key) : undefined };
   },
 
   toJSON(message: Record_Local): unknown {
     const obj: any = {};
     if (message.privKey !== undefined) {
-      obj.privKey = Any.toJSON(message.privKey);
+      obj.priv_key = Any.toJSON(message.privKey);
     }
     return obj;
   },

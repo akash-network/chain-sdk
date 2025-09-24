@@ -152,18 +152,18 @@ export const MsgLoadTestResponse: MessageFns<MsgLoadTestResponse, "cosmos.benchm
 
   fromJSON(object: any): MsgLoadTestResponse {
     return {
-      totalTime: isSet(object.totalTime) ? Long.fromValue(object.totalTime) : Long.UZERO,
-      totalErrors: isSet(object.totalErrors) ? Long.fromValue(object.totalErrors) : Long.UZERO,
+      totalTime: isSet(object.total_time) ? Long.fromValue(object.total_time) : Long.UZERO,
+      totalErrors: isSet(object.total_errors) ? Long.fromValue(object.total_errors) : Long.UZERO,
     };
   },
 
   toJSON(message: MsgLoadTestResponse): unknown {
     const obj: any = {};
     if (!message.totalTime.equals(Long.UZERO)) {
-      obj.totalTime = (message.totalTime || Long.UZERO).toString();
+      obj.total_time = (message.totalTime || Long.UZERO).toString();
     }
     if (!message.totalErrors.equals(Long.UZERO)) {
-      obj.totalErrors = (message.totalErrors || Long.UZERO).toString();
+      obj.total_errors = (message.totalErrors || Long.UZERO).toString();
     }
     return obj;
   },

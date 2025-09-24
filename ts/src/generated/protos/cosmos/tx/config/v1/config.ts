@@ -75,18 +75,18 @@ export const Config: MessageFns<Config, "cosmos.tx.config.v1.Config"> = {
 
   fromJSON(object: any): Config {
     return {
-      skipAnteHandler: isSet(object.skipAnteHandler) ? globalThis.Boolean(object.skipAnteHandler) : false,
-      skipPostHandler: isSet(object.skipPostHandler) ? globalThis.Boolean(object.skipPostHandler) : false,
+      skipAnteHandler: isSet(object.skip_ante_handler) ? globalThis.Boolean(object.skip_ante_handler) : false,
+      skipPostHandler: isSet(object.skip_post_handler) ? globalThis.Boolean(object.skip_post_handler) : false,
     };
   },
 
   toJSON(message: Config): unknown {
     const obj: any = {};
     if (message.skipAnteHandler !== false) {
-      obj.skipAnteHandler = message.skipAnteHandler;
+      obj.skip_ante_handler = message.skipAnteHandler;
     }
     if (message.skipPostHandler !== false) {
-      obj.skipPostHandler = message.skipPostHandler;
+      obj.skip_post_handler = message.skipPostHandler;
     }
     return obj;
   },

@@ -166,7 +166,7 @@ export const ResourcesMetric: MessageFns<ResourcesMetric, "akash.provider.v1.Res
       cpu: isSet(object.cpu) ? Quantity.fromJSON(object.cpu) : undefined,
       memory: isSet(object.memory) ? Quantity.fromJSON(object.memory) : undefined,
       gpu: isSet(object.gpu) ? Quantity.fromJSON(object.gpu) : undefined,
-      ephemeralStorage: isSet(object.ephemeralStorage) ? Quantity.fromJSON(object.ephemeralStorage) : undefined,
+      ephemeralStorage: isSet(object.ephemeral_storage) ? Quantity.fromJSON(object.ephemeral_storage) : undefined,
       storage: isObject(object.storage)
         ? Object.entries(object.storage).reduce<{ [key: string]: Quantity }>((acc, [key, value]) => {
           acc[key] = Quantity.fromJSON(value);
@@ -188,7 +188,7 @@ export const ResourcesMetric: MessageFns<ResourcesMetric, "akash.provider.v1.Res
       obj.gpu = Quantity.toJSON(message.gpu);
     }
     if (message.ephemeralStorage !== undefined) {
-      obj.ephemeralStorage = Quantity.toJSON(message.ephemeralStorage);
+      obj.ephemeral_storage = Quantity.toJSON(message.ephemeralStorage);
     }
     if (message.storage) {
       const entries = Object.entries(message.storage);
@@ -918,10 +918,10 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
     return {
       errors: globalThis.Array.isArray(object?.errors) ? object.errors.map((e: any) => globalThis.String(e)) : [],
       cluster: isSet(object.cluster) ? ClusterStatus.fromJSON(object.cluster) : undefined,
-      bidEngine: isSet(object.bidEngine) ? BidEngineStatus.fromJSON(object.bidEngine) : undefined,
+      bidEngine: isSet(object.bid_engine) ? BidEngineStatus.fromJSON(object.bid_engine) : undefined,
       manifest: isSet(object.manifest) ? ManifestStatus.fromJSON(object.manifest) : undefined,
-      publicHostnames: globalThis.Array.isArray(object?.publicHostnames)
-        ? object.publicHostnames.map((e: any) => globalThis.String(e))
+      publicHostnames: globalThis.Array.isArray(object?.public_hostnames)
+        ? object.public_hostnames.map((e: any) => globalThis.String(e))
         : [],
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
     };
@@ -936,13 +936,13 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
       obj.cluster = ClusterStatus.toJSON(message.cluster);
     }
     if (message.bidEngine !== undefined) {
-      obj.bidEngine = BidEngineStatus.toJSON(message.bidEngine);
+      obj.bid_engine = BidEngineStatus.toJSON(message.bidEngine);
     }
     if (message.manifest !== undefined) {
       obj.manifest = ManifestStatus.toJSON(message.manifest);
     }
     if (message.publicHostnames?.length) {
-      obj.publicHostnames = message.publicHostnames;
+      obj.public_hostnames = message.publicHostnames;
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();

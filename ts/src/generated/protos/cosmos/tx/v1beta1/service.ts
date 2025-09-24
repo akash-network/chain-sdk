@@ -445,7 +445,7 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
     return {
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => globalThis.String(e)) : [],
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
-      orderBy: isSet(object.orderBy) ? orderByFromJSON(object.orderBy) : 0,
+      orderBy: isSet(object.order_by) ? orderByFromJSON(object.order_by) : 0,
       page: isSet(object.page) ? Long.fromValue(object.page) : Long.UZERO,
       limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
       query: isSet(object.query) ? globalThis.String(object.query) : "",
@@ -461,7 +461,7 @@ export const GetTxsEventRequest: MessageFns<GetTxsEventRequest, "cosmos.tx.v1bet
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     if (message.orderBy !== 0) {
-      obj.orderBy = orderByToJSON(message.orderBy);
+      obj.order_by = orderByToJSON(message.orderBy);
     }
     if (!message.page.equals(Long.UZERO)) {
       obj.page = (message.page || Long.UZERO).toString();
@@ -566,8 +566,8 @@ export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1b
   fromJSON(object: any): GetTxsEventResponse {
     return {
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => Tx.fromJSON(e)) : [],
-      txResponses: globalThis.Array.isArray(object?.txResponses)
-        ? object.txResponses.map((e: any) => TxResponse.fromJSON(e))
+      txResponses: globalThis.Array.isArray(object?.tx_responses)
+        ? object.tx_responses.map((e: any) => TxResponse.fromJSON(e))
         : [],
       pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
       total: isSet(object.total) ? Long.fromValue(object.total) : Long.UZERO,
@@ -580,7 +580,7 @@ export const GetTxsEventResponse: MessageFns<GetTxsEventResponse, "cosmos.tx.v1b
       obj.txs = message.txs.map((e) => Tx.toJSON(e));
     }
     if (message.txResponses?.length) {
-      obj.txResponses = message.txResponses.map((e) => TxResponse.toJSON(e));
+      obj.tx_responses = message.txResponses.map((e) => TxResponse.toJSON(e));
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageResponse.toJSON(message.pagination);
@@ -657,7 +657,7 @@ export const BroadcastTxRequest: MessageFns<BroadcastTxRequest, "cosmos.tx.v1bet
 
   fromJSON(object: any): BroadcastTxRequest {
     return {
-      txBytes: isSet(object.txBytes) ? bytesFromBase64(object.txBytes) : new Uint8Array(0),
+      txBytes: isSet(object.tx_bytes) ? bytesFromBase64(object.tx_bytes) : new Uint8Array(0),
       mode: isSet(object.mode) ? broadcastModeFromJSON(object.mode) : 0,
     };
   },
@@ -665,7 +665,7 @@ export const BroadcastTxRequest: MessageFns<BroadcastTxRequest, "cosmos.tx.v1bet
   toJSON(message: BroadcastTxRequest): unknown {
     const obj: any = {};
     if (message.txBytes.length !== 0) {
-      obj.txBytes = base64FromBytes(message.txBytes);
+      obj.tx_bytes = base64FromBytes(message.txBytes);
     }
     if (message.mode !== 0) {
       obj.mode = broadcastModeToJSON(message.mode);
@@ -723,13 +723,13 @@ export const BroadcastTxResponse: MessageFns<BroadcastTxResponse, "cosmos.tx.v1b
   },
 
   fromJSON(object: any): BroadcastTxResponse {
-    return { txResponse: isSet(object.txResponse) ? TxResponse.fromJSON(object.txResponse) : undefined };
+    return { txResponse: isSet(object.tx_response) ? TxResponse.fromJSON(object.tx_response) : undefined };
   },
 
   toJSON(message: BroadcastTxResponse): unknown {
     const obj: any = {};
     if (message.txResponse !== undefined) {
-      obj.txResponse = TxResponse.toJSON(message.txResponse);
+      obj.tx_response = TxResponse.toJSON(message.txResponse);
     }
     return obj;
   },
@@ -798,7 +798,7 @@ export const SimulateRequest: MessageFns<SimulateRequest, "cosmos.tx.v1beta1.Sim
   fromJSON(object: any): SimulateRequest {
     return {
       tx: isSet(object.tx) ? Tx.fromJSON(object.tx) : undefined,
-      txBytes: isSet(object.txBytes) ? bytesFromBase64(object.txBytes) : new Uint8Array(0),
+      txBytes: isSet(object.tx_bytes) ? bytesFromBase64(object.tx_bytes) : new Uint8Array(0),
     };
   },
 
@@ -808,7 +808,7 @@ export const SimulateRequest: MessageFns<SimulateRequest, "cosmos.tx.v1beta1.Sim
       obj.tx = Tx.toJSON(message.tx);
     }
     if (message.txBytes.length !== 0) {
-      obj.txBytes = base64FromBytes(message.txBytes);
+      obj.tx_bytes = base64FromBytes(message.txBytes);
     }
     return obj;
   },
@@ -875,7 +875,7 @@ export const SimulateResponse: MessageFns<SimulateResponse, "cosmos.tx.v1beta1.S
 
   fromJSON(object: any): SimulateResponse {
     return {
-      gasInfo: isSet(object.gasInfo) ? GasInfo.fromJSON(object.gasInfo) : undefined,
+      gasInfo: isSet(object.gas_info) ? GasInfo.fromJSON(object.gas_info) : undefined,
       result: isSet(object.result) ? Result.fromJSON(object.result) : undefined,
     };
   },
@@ -883,7 +883,7 @@ export const SimulateResponse: MessageFns<SimulateResponse, "cosmos.tx.v1beta1.S
   toJSON(message: SimulateResponse): unknown {
     const obj: any = {};
     if (message.gasInfo !== undefined) {
-      obj.gasInfo = GasInfo.toJSON(message.gasInfo);
+      obj.gas_info = GasInfo.toJSON(message.gasInfo);
     }
     if (message.result !== undefined) {
       obj.result = Result.toJSON(message.result);
@@ -1018,7 +1018,7 @@ export const GetTxResponse: MessageFns<GetTxResponse, "cosmos.tx.v1beta1.GetTxRe
   fromJSON(object: any): GetTxResponse {
     return {
       tx: isSet(object.tx) ? Tx.fromJSON(object.tx) : undefined,
-      txResponse: isSet(object.txResponse) ? TxResponse.fromJSON(object.txResponse) : undefined,
+      txResponse: isSet(object.tx_response) ? TxResponse.fromJSON(object.tx_response) : undefined,
     };
   },
 
@@ -1028,7 +1028,7 @@ export const GetTxResponse: MessageFns<GetTxResponse, "cosmos.tx.v1beta1.GetTxRe
       obj.tx = Tx.toJSON(message.tx);
     }
     if (message.txResponse !== undefined) {
-      obj.txResponse = TxResponse.toJSON(message.txResponse);
+      obj.tx_response = TxResponse.toJSON(message.txResponse);
     }
     return obj;
   },
@@ -1203,7 +1203,7 @@ export const GetBlockWithTxsResponse: MessageFns<GetBlockWithTxsResponse, "cosmo
     fromJSON(object: any): GetBlockWithTxsResponse {
       return {
         txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => Tx.fromJSON(e)) : [],
-        blockId: isSet(object.blockId) ? BlockID.fromJSON(object.blockId) : undefined,
+        blockId: isSet(object.block_id) ? BlockID.fromJSON(object.block_id) : undefined,
         block: isSet(object.block) ? Block.fromJSON(object.block) : undefined,
         pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
       };
@@ -1215,7 +1215,7 @@ export const GetBlockWithTxsResponse: MessageFns<GetBlockWithTxsResponse, "cosmo
         obj.txs = message.txs.map((e) => Tx.toJSON(e));
       }
       if (message.blockId !== undefined) {
-        obj.blockId = BlockID.toJSON(message.blockId);
+        obj.block_id = BlockID.toJSON(message.blockId);
       }
       if (message.block !== undefined) {
         obj.block = Block.toJSON(message.block);
@@ -1284,13 +1284,13 @@ export const TxDecodeRequest: MessageFns<TxDecodeRequest, "cosmos.tx.v1beta1.TxD
   },
 
   fromJSON(object: any): TxDecodeRequest {
-    return { txBytes: isSet(object.txBytes) ? bytesFromBase64(object.txBytes) : new Uint8Array(0) };
+    return { txBytes: isSet(object.tx_bytes) ? bytesFromBase64(object.tx_bytes) : new Uint8Array(0) };
   },
 
   toJSON(message: TxDecodeRequest): unknown {
     const obj: any = {};
     if (message.txBytes.length !== 0) {
-      obj.txBytes = base64FromBytes(message.txBytes);
+      obj.tx_bytes = base64FromBytes(message.txBytes);
     }
     return obj;
   },
@@ -1464,13 +1464,13 @@ export const TxEncodeResponse: MessageFns<TxEncodeResponse, "cosmos.tx.v1beta1.T
   },
 
   fromJSON(object: any): TxEncodeResponse {
-    return { txBytes: isSet(object.txBytes) ? bytesFromBase64(object.txBytes) : new Uint8Array(0) };
+    return { txBytes: isSet(object.tx_bytes) ? bytesFromBase64(object.tx_bytes) : new Uint8Array(0) };
   },
 
   toJSON(message: TxEncodeResponse): unknown {
     const obj: any = {};
     if (message.txBytes.length !== 0) {
-      obj.txBytes = base64FromBytes(message.txBytes);
+      obj.tx_bytes = base64FromBytes(message.txBytes);
     }
     return obj;
   },
@@ -1524,13 +1524,13 @@ export const TxEncodeAminoRequest: MessageFns<TxEncodeAminoRequest, "cosmos.tx.v
   },
 
   fromJSON(object: any): TxEncodeAminoRequest {
-    return { aminoJson: isSet(object.aminoJson) ? globalThis.String(object.aminoJson) : "" };
+    return { aminoJson: isSet(object.amino_json) ? globalThis.String(object.amino_json) : "" };
   },
 
   toJSON(message: TxEncodeAminoRequest): unknown {
     const obj: any = {};
     if (message.aminoJson !== "") {
-      obj.aminoJson = message.aminoJson;
+      obj.amino_json = message.aminoJson;
     }
     return obj;
   },
@@ -1584,13 +1584,13 @@ export const TxEncodeAminoResponse: MessageFns<TxEncodeAminoResponse, "cosmos.tx
   },
 
   fromJSON(object: any): TxEncodeAminoResponse {
-    return { aminoBinary: isSet(object.aminoBinary) ? bytesFromBase64(object.aminoBinary) : new Uint8Array(0) };
+    return { aminoBinary: isSet(object.amino_binary) ? bytesFromBase64(object.amino_binary) : new Uint8Array(0) };
   },
 
   toJSON(message: TxEncodeAminoResponse): unknown {
     const obj: any = {};
     if (message.aminoBinary.length !== 0) {
-      obj.aminoBinary = base64FromBytes(message.aminoBinary);
+      obj.amino_binary = base64FromBytes(message.aminoBinary);
     }
     return obj;
   },
@@ -1644,13 +1644,13 @@ export const TxDecodeAminoRequest: MessageFns<TxDecodeAminoRequest, "cosmos.tx.v
   },
 
   fromJSON(object: any): TxDecodeAminoRequest {
-    return { aminoBinary: isSet(object.aminoBinary) ? bytesFromBase64(object.aminoBinary) : new Uint8Array(0) };
+    return { aminoBinary: isSet(object.amino_binary) ? bytesFromBase64(object.amino_binary) : new Uint8Array(0) };
   },
 
   toJSON(message: TxDecodeAminoRequest): unknown {
     const obj: any = {};
     if (message.aminoBinary.length !== 0) {
-      obj.aminoBinary = base64FromBytes(message.aminoBinary);
+      obj.amino_binary = base64FromBytes(message.aminoBinary);
     }
     return obj;
   },
@@ -1704,13 +1704,13 @@ export const TxDecodeAminoResponse: MessageFns<TxDecodeAminoResponse, "cosmos.tx
   },
 
   fromJSON(object: any): TxDecodeAminoResponse {
-    return { aminoJson: isSet(object.aminoJson) ? globalThis.String(object.aminoJson) : "" };
+    return { aminoJson: isSet(object.amino_json) ? globalThis.String(object.amino_json) : "" };
   },
 
   toJSON(message: TxDecodeAminoResponse): unknown {
     const obj: any = {};
     if (message.aminoJson !== "") {
-      obj.aminoJson = message.aminoJson;
+      obj.amino_json = message.aminoJson;
     }
     return obj;
   },

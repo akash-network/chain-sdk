@@ -184,7 +184,7 @@ export const Any: MessageFns<Any, "google.protobuf.Any"> = {
 
   fromJSON(object: any): Any {
     return {
-      typeUrl: isSet(object.typeUrl) ? globalThis.String(object.typeUrl) : "",
+      typeUrl: isSet(object.type_url) ? globalThis.String(object.type_url) : "",
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
     };
   },
@@ -192,7 +192,7 @@ export const Any: MessageFns<Any, "google.protobuf.Any"> = {
   toJSON(message: Any): unknown {
     const obj: any = {};
     if (message.typeUrl !== "") {
-      obj.typeUrl = message.typeUrl;
+      obj.type_url = message.typeUrl;
     }
     if (message.value.length !== 0) {
       obj.value = base64FromBytes(message.value);

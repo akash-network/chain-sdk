@@ -129,11 +129,11 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.bank.v1beta1.Genesis
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
       balances: globalThis.Array.isArray(object?.balances) ? object.balances.map((e: any) => Balance.fromJSON(e)) : [],
       supply: globalThis.Array.isArray(object?.supply) ? object.supply.map((e: any) => Coin.fromJSON(e)) : [],
-      denomMetadata: globalThis.Array.isArray(object?.denomMetadata)
-        ? object.denomMetadata.map((e: any) => Metadata.fromJSON(e))
+      denomMetadata: globalThis.Array.isArray(object?.denom_metadata)
+        ? object.denom_metadata.map((e: any) => Metadata.fromJSON(e))
         : [],
-      sendEnabled: globalThis.Array.isArray(object?.sendEnabled)
-        ? object.sendEnabled.map((e: any) => SendEnabled.fromJSON(e))
+      sendEnabled: globalThis.Array.isArray(object?.send_enabled)
+        ? object.send_enabled.map((e: any) => SendEnabled.fromJSON(e))
         : [],
     };
   },
@@ -150,10 +150,10 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.bank.v1beta1.Genesis
       obj.supply = message.supply.map((e) => Coin.toJSON(e));
     }
     if (message.denomMetadata?.length) {
-      obj.denomMetadata = message.denomMetadata.map((e) => Metadata.toJSON(e));
+      obj.denom_metadata = message.denomMetadata.map((e) => Metadata.toJSON(e));
     }
     if (message.sendEnabled?.length) {
-      obj.sendEnabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
+      obj.send_enabled = message.sendEnabled.map((e) => SendEnabled.toJSON(e));
     }
     return obj;
   },

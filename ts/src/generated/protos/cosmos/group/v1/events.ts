@@ -136,13 +136,13 @@ export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.Eve
   },
 
   fromJSON(object: any): EventCreateGroup {
-    return { groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO };
+    return { groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO };
   },
 
   toJSON(message: EventCreateGroup): unknown {
     const obj: any = {};
     if (!message.groupId.equals(Long.UZERO)) {
-      obj.groupId = (message.groupId || Long.UZERO).toString();
+      obj.group_id = (message.groupId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -198,13 +198,13 @@ export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.Eve
   },
 
   fromJSON(object: any): EventUpdateGroup {
-    return { groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO };
+    return { groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO };
   },
 
   toJSON(message: EventUpdateGroup): unknown {
     const obj: any = {};
     if (!message.groupId.equals(Long.UZERO)) {
-      obj.groupId = (message.groupId || Long.UZERO).toString();
+      obj.group_id = (message.groupId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -380,13 +380,13 @@ export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.
   },
 
   fromJSON(object: any): EventSubmitProposal {
-    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
   },
 
   toJSON(message: EventSubmitProposal): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -442,13 +442,13 @@ export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.gr
   },
 
   fromJSON(object: any): EventWithdrawProposal {
-    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
   },
 
   toJSON(message: EventWithdrawProposal): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -504,13 +504,13 @@ export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
   },
 
   fromJSON(object: any): EventVote {
-    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
   },
 
   toJSON(message: EventVote): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -589,7 +589,7 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
 
   fromJSON(object: any): EventExec {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       result: isSet(object.result) ? proposalExecutorResultFromJSON(object.result) : 0,
       logs: isSet(object.logs) ? globalThis.String(object.logs) : "",
     };
@@ -598,7 +598,7 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
   toJSON(message: EventExec): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.result !== 0) {
       obj.result = proposalExecutorResultToJSON(message.result);
@@ -674,7 +674,7 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
 
   fromJSON(object: any): EventLeaveGroup {
     return {
-      groupId: isSet(object.groupId) ? Long.fromValue(object.groupId) : Long.UZERO,
+      groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO,
       address: isSet(object.address) ? globalThis.String(object.address) : "",
     };
   },
@@ -682,7 +682,7 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
   toJSON(message: EventLeaveGroup): unknown {
     const obj: any = {};
     if (!message.groupId.equals(Long.UZERO)) {
-      obj.groupId = (message.groupId || Long.UZERO).toString();
+      obj.group_id = (message.groupId || Long.UZERO).toString();
     }
     if (message.address !== "") {
       obj.address = message.address;
@@ -765,22 +765,22 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
 
   fromJSON(object: any): EventProposalPruned {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
-      tallyResult: isSet(object.tallyResult) ? TallyResult.fromJSON(object.tallyResult) : undefined,
+      tallyResult: isSet(object.tally_result) ? TallyResult.fromJSON(object.tally_result) : undefined,
     };
   },
 
   toJSON(message: EventProposalPruned): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.status !== 0) {
       obj.status = proposalStatusToJSON(message.status);
     }
     if (message.tallyResult !== undefined) {
-      obj.tallyResult = TallyResult.toJSON(message.tallyResult);
+      obj.tally_result = TallyResult.toJSON(message.tallyResult);
     }
     return obj;
   },
@@ -852,18 +852,18 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
 
   fromJSON(object: any): EventTallyError {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
-      errorMessage: isSet(object.errorMessage) ? globalThis.String(object.errorMessage) : "",
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      errorMessage: isSet(object.error_message) ? globalThis.String(object.error_message) : "",
     };
   },
 
   toJSON(message: EventTallyError): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.errorMessage !== "") {
-      obj.errorMessage = message.errorMessage;
+      obj.error_message = message.errorMessage;
     }
     return obj;
   },

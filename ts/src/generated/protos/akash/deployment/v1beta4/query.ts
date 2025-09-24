@@ -379,7 +379,7 @@ export const QueryDeploymentResponse: MessageFns<
     return {
       deployment: isSet(object.deployment) ? Deployment.fromJSON(object.deployment) : undefined,
       groups: globalThis.Array.isArray(object?.groups) ? object.groups.map((e: any) => Group.fromJSON(e)) : [],
-      escrowAccount: isSet(object.escrowAccount) ? Account.fromJSON(object.escrowAccount) : undefined,
+      escrowAccount: isSet(object.escrow_account) ? Account.fromJSON(object.escrow_account) : undefined,
     };
   },
 
@@ -392,7 +392,7 @@ export const QueryDeploymentResponse: MessageFns<
       obj.groups = message.groups.map((e) => Group.toJSON(e));
     }
     if (message.escrowAccount !== undefined) {
-      obj.escrowAccount = Account.toJSON(message.escrowAccount);
+      obj.escrow_account = Account.toJSON(message.escrowAccount);
     }
     return obj;
   },

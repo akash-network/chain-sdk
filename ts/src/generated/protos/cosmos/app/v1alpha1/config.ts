@@ -123,8 +123,8 @@ export const Config: MessageFns<Config, "cosmos.app.v1alpha1.Config"> = {
       modules: globalThis.Array.isArray(object?.modules)
         ? object.modules.map((e: any) => ModuleConfig.fromJSON(e))
         : [],
-      golangBindings: globalThis.Array.isArray(object?.golangBindings)
-        ? object.golangBindings.map((e: any) => GolangBinding.fromJSON(e))
+      golangBindings: globalThis.Array.isArray(object?.golang_bindings)
+        ? object.golang_bindings.map((e: any) => GolangBinding.fromJSON(e))
         : [],
     };
   },
@@ -135,7 +135,7 @@ export const Config: MessageFns<Config, "cosmos.app.v1alpha1.Config"> = {
       obj.modules = message.modules.map((e) => ModuleConfig.toJSON(e));
     }
     if (message.golangBindings?.length) {
-      obj.golangBindings = message.golangBindings.map((e) => GolangBinding.toJSON(e));
+      obj.golang_bindings = message.golangBindings.map((e) => GolangBinding.toJSON(e));
     }
     return obj;
   },
@@ -215,8 +215,8 @@ export const ModuleConfig: MessageFns<ModuleConfig, "cosmos.app.v1alpha1.ModuleC
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       config: isSet(object.config) ? Any.fromJSON(object.config) : undefined,
-      golangBindings: globalThis.Array.isArray(object?.golangBindings)
-        ? object.golangBindings.map((e: any) => GolangBinding.fromJSON(e))
+      golangBindings: globalThis.Array.isArray(object?.golang_bindings)
+        ? object.golang_bindings.map((e: any) => GolangBinding.fromJSON(e))
         : [],
     };
   },
@@ -230,7 +230,7 @@ export const ModuleConfig: MessageFns<ModuleConfig, "cosmos.app.v1alpha1.ModuleC
       obj.config = Any.toJSON(message.config);
     }
     if (message.golangBindings?.length) {
-      obj.golangBindings = message.golangBindings.map((e) => GolangBinding.toJSON(e));
+      obj.golang_bindings = message.golangBindings.map((e) => GolangBinding.toJSON(e));
     }
     return obj;
   },
@@ -300,7 +300,7 @@ export const GolangBinding: MessageFns<GolangBinding, "cosmos.app.v1alpha1.Golan
 
   fromJSON(object: any): GolangBinding {
     return {
-      interfaceType: isSet(object.interfaceType) ? globalThis.String(object.interfaceType) : "",
+      interfaceType: isSet(object.interface_type) ? globalThis.String(object.interface_type) : "",
       implementation: isSet(object.implementation) ? globalThis.String(object.implementation) : "",
     };
   },
@@ -308,7 +308,7 @@ export const GolangBinding: MessageFns<GolangBinding, "cosmos.app.v1alpha1.Golan
   toJSON(message: GolangBinding): unknown {
     const obj: any = {};
     if (message.interfaceType !== "") {
-      obj.interfaceType = message.interfaceType;
+      obj.interface_type = message.interfaceType;
     }
     if (message.implementation !== "") {
       obj.implementation = message.implementation;

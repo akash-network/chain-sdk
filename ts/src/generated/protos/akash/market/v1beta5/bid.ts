@@ -178,9 +178,9 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
       id: isSet(object.id) ? BidID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? bid_StateFromJSON(object.state) : 0,
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
-      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
-      resourcesOffer: globalThis.Array.isArray(object?.resourcesOffer)
-        ? object.resourcesOffer.map((e: any) => ResourceOffer.fromJSON(e))
+      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
+      resourcesOffer: globalThis.Array.isArray(object?.resources_offer)
+        ? object.resources_offer.map((e: any) => ResourceOffer.fromJSON(e))
         : [],
     };
   },
@@ -197,10 +197,10 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
       obj.price = DecCoin.toJSON(message.price);
     }
     if (!message.createdAt.equals(Long.ZERO)) {
-      obj.createdAt = (message.createdAt || Long.ZERO).toString();
+      obj.created_at = (message.createdAt || Long.ZERO).toString();
     }
     if (message.resourcesOffer?.length) {
-      obj.resourcesOffer = message.resourcesOffer.map((e) => ResourceOffer.toJSON(e));
+      obj.resources_offer = message.resourcesOffer.map((e) => ResourceOffer.toJSON(e));
     }
     return obj;
   },

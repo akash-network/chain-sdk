@@ -158,7 +158,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
       offset: isSet(object.offset) ? Long.fromValue(object.offset) : Long.UZERO,
       limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
-      countTotal: isSet(object.countTotal) ? globalThis.Boolean(object.countTotal) : false,
+      countTotal: isSet(object.count_total) ? globalThis.Boolean(object.count_total) : false,
       reverse: isSet(object.reverse) ? globalThis.Boolean(object.reverse) : false,
     };
   },
@@ -175,7 +175,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
       obj.limit = (message.limit || Long.UZERO).toString();
     }
     if (message.countTotal !== false) {
-      obj.countTotal = message.countTotal;
+      obj.count_total = message.countTotal;
     }
     if (message.reverse !== false) {
       obj.reverse = message.reverse;
@@ -250,7 +250,7 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
 
   fromJSON(object: any): PageResponse {
     return {
-      nextKey: isSet(object.nextKey) ? bytesFromBase64(object.nextKey) : new Uint8Array(0),
+      nextKey: isSet(object.next_key) ? bytesFromBase64(object.next_key) : new Uint8Array(0),
       total: isSet(object.total) ? Long.fromValue(object.total) : Long.UZERO,
     };
   },
@@ -258,7 +258,7 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
   toJSON(message: PageResponse): unknown {
     const obj: any = {};
     if (message.nextKey.length !== 0) {
-      obj.nextKey = base64FromBytes(message.nextKey);
+      obj.next_key = base64FromBytes(message.nextKey);
     }
     if (!message.total.equals(Long.UZERO)) {
       obj.total = (message.total || Long.UZERO).toString();

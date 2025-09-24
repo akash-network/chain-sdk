@@ -377,11 +377,11 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
       code: isSet(object.code) ? globalThis.Number(object.code) : 0,
       data: isSet(object.data) ? globalThis.String(object.data) : "",
-      rawLog: isSet(object.rawLog) ? globalThis.String(object.rawLog) : "",
+      rawLog: isSet(object.raw_log) ? globalThis.String(object.raw_log) : "",
       logs: globalThis.Array.isArray(object?.logs) ? object.logs.map((e: any) => ABCIMessageLog.fromJSON(e)) : [],
       info: isSet(object.info) ? globalThis.String(object.info) : "",
-      gasWanted: isSet(object.gasWanted) ? Long.fromValue(object.gasWanted) : Long.ZERO,
-      gasUsed: isSet(object.gasUsed) ? Long.fromValue(object.gasUsed) : Long.ZERO,
+      gasWanted: isSet(object.gas_wanted) ? Long.fromValue(object.gas_wanted) : Long.ZERO,
+      gasUsed: isSet(object.gas_used) ? Long.fromValue(object.gas_used) : Long.ZERO,
       tx: isSet(object.tx) ? Any.fromJSON(object.tx) : undefined,
       timestamp: isSet(object.timestamp) ? globalThis.String(object.timestamp) : "",
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => Event.fromJSON(e)) : [],
@@ -406,7 +406,7 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
       obj.data = message.data;
     }
     if (message.rawLog !== "") {
-      obj.rawLog = message.rawLog;
+      obj.raw_log = message.rawLog;
     }
     if (message.logs?.length) {
       obj.logs = message.logs.map((e) => ABCIMessageLog.toJSON(e));
@@ -415,10 +415,10 @@ export const TxResponse: MessageFns<TxResponse, "cosmos.base.abci.v1beta1.TxResp
       obj.info = message.info;
     }
     if (!message.gasWanted.equals(Long.ZERO)) {
-      obj.gasWanted = (message.gasWanted || Long.ZERO).toString();
+      obj.gas_wanted = (message.gasWanted || Long.ZERO).toString();
     }
     if (!message.gasUsed.equals(Long.ZERO)) {
-      obj.gasUsed = (message.gasUsed || Long.ZERO).toString();
+      obj.gas_used = (message.gasUsed || Long.ZERO).toString();
     }
     if (message.tx !== undefined) {
       obj.tx = Any.toJSON(message.tx);
@@ -522,7 +522,7 @@ export const ABCIMessageLog: MessageFns<ABCIMessageLog, "cosmos.base.abci.v1beta
 
   fromJSON(object: any): ABCIMessageLog {
     return {
-      msgIndex: isSet(object.msgIndex) ? globalThis.Number(object.msgIndex) : 0,
+      msgIndex: isSet(object.msg_index) ? globalThis.Number(object.msg_index) : 0,
       log: isSet(object.log) ? globalThis.String(object.log) : "",
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => StringEvent.fromJSON(e)) : [],
     };
@@ -531,7 +531,7 @@ export const ABCIMessageLog: MessageFns<ABCIMessageLog, "cosmos.base.abci.v1beta
   toJSON(message: ABCIMessageLog): unknown {
     const obj: any = {};
     if (message.msgIndex !== 0) {
-      obj.msgIndex = Math.round(message.msgIndex);
+      obj.msg_index = Math.round(message.msgIndex);
     }
     if (message.log !== "") {
       obj.log = message.log;
@@ -763,18 +763,18 @@ export const GasInfo: MessageFns<GasInfo, "cosmos.base.abci.v1beta1.GasInfo"> = 
 
   fromJSON(object: any): GasInfo {
     return {
-      gasWanted: isSet(object.gasWanted) ? Long.fromValue(object.gasWanted) : Long.UZERO,
-      gasUsed: isSet(object.gasUsed) ? Long.fromValue(object.gasUsed) : Long.UZERO,
+      gasWanted: isSet(object.gas_wanted) ? Long.fromValue(object.gas_wanted) : Long.UZERO,
+      gasUsed: isSet(object.gas_used) ? Long.fromValue(object.gas_used) : Long.UZERO,
     };
   },
 
   toJSON(message: GasInfo): unknown {
     const obj: any = {};
     if (!message.gasWanted.equals(Long.UZERO)) {
-      obj.gasWanted = (message.gasWanted || Long.UZERO).toString();
+      obj.gas_wanted = (message.gasWanted || Long.UZERO).toString();
     }
     if (!message.gasUsed.equals(Long.UZERO)) {
-      obj.gasUsed = (message.gasUsed || Long.UZERO).toString();
+      obj.gas_used = (message.gasUsed || Long.UZERO).toString();
     }
     return obj;
   },
@@ -870,8 +870,8 @@ export const Result: MessageFns<Result, "cosmos.base.abci.v1beta1.Result"> = {
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(0),
       log: isSet(object.log) ? globalThis.String(object.log) : "",
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => Event.fromJSON(e)) : [],
-      msgResponses: globalThis.Array.isArray(object?.msgResponses)
-        ? object.msgResponses.map((e: any) => Any.fromJSON(e))
+      msgResponses: globalThis.Array.isArray(object?.msg_responses)
+        ? object.msg_responses.map((e: any) => Any.fromJSON(e))
         : [],
     };
   },
@@ -888,7 +888,7 @@ export const Result: MessageFns<Result, "cosmos.base.abci.v1beta1.Result"> = {
       obj.events = message.events.map((e) => Event.toJSON(e));
     }
     if (message.msgResponses?.length) {
-      obj.msgResponses = message.msgResponses.map((e) => Any.toJSON(e));
+      obj.msg_responses = message.msgResponses.map((e) => Any.toJSON(e));
     }
     return obj;
   },
@@ -957,7 +957,7 @@ export const SimulationResponse: MessageFns<SimulationResponse, "cosmos.base.abc
 
   fromJSON(object: any): SimulationResponse {
     return {
-      gasInfo: isSet(object.gasInfo) ? GasInfo.fromJSON(object.gasInfo) : undefined,
+      gasInfo: isSet(object.gas_info) ? GasInfo.fromJSON(object.gas_info) : undefined,
       result: isSet(object.result) ? Result.fromJSON(object.result) : undefined,
     };
   },
@@ -965,7 +965,7 @@ export const SimulationResponse: MessageFns<SimulationResponse, "cosmos.base.abc
   toJSON(message: SimulationResponse): unknown {
     const obj: any = {};
     if (message.gasInfo !== undefined) {
-      obj.gasInfo = GasInfo.toJSON(message.gasInfo);
+      obj.gas_info = GasInfo.toJSON(message.gasInfo);
     }
     if (message.result !== undefined) {
       obj.result = Result.toJSON(message.result);
@@ -1039,7 +1039,7 @@ export const MsgData: MessageFns<MsgData, "cosmos.base.abci.v1beta1.MsgData"> = 
 
   fromJSON(object: any): MsgData {
     return {
-      msgType: isSet(object.msgType) ? globalThis.String(object.msgType) : "",
+      msgType: isSet(object.msg_type) ? globalThis.String(object.msg_type) : "",
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(0),
     };
   },
@@ -1047,7 +1047,7 @@ export const MsgData: MessageFns<MsgData, "cosmos.base.abci.v1beta1.MsgData"> = 
   toJSON(message: MsgData): unknown {
     const obj: any = {};
     if (message.msgType !== "") {
-      obj.msgType = message.msgType;
+      obj.msg_type = message.msgType;
     }
     if (message.data.length !== 0) {
       obj.data = base64FromBytes(message.data);
@@ -1118,8 +1118,8 @@ export const TxMsgData: MessageFns<TxMsgData, "cosmos.base.abci.v1beta1.TxMsgDat
   fromJSON(object: any): TxMsgData {
     return {
       data: globalThis.Array.isArray(object?.data) ? object.data.map((e: any) => MsgData.fromJSON(e)) : [],
-      msgResponses: globalThis.Array.isArray(object?.msgResponses)
-        ? object.msgResponses.map((e: any) => Any.fromJSON(e))
+      msgResponses: globalThis.Array.isArray(object?.msg_responses)
+        ? object.msg_responses.map((e: any) => Any.fromJSON(e))
         : [],
     };
   },
@@ -1130,7 +1130,7 @@ export const TxMsgData: MessageFns<TxMsgData, "cosmos.base.abci.v1beta1.TxMsgDat
       obj.data = message.data.map((e) => MsgData.toJSON(e));
     }
     if (message.msgResponses?.length) {
-      obj.msgResponses = message.msgResponses.map((e) => Any.toJSON(e));
+      obj.msg_responses = message.msgResponses.map((e) => Any.toJSON(e));
     }
     return obj;
   },
@@ -1248,10 +1248,10 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
 
   fromJSON(object: any): SearchTxsResult {
     return {
-      totalCount: isSet(object.totalCount) ? Long.fromValue(object.totalCount) : Long.UZERO,
+      totalCount: isSet(object.total_count) ? Long.fromValue(object.total_count) : Long.UZERO,
       count: isSet(object.count) ? Long.fromValue(object.count) : Long.UZERO,
-      pageNumber: isSet(object.pageNumber) ? Long.fromValue(object.pageNumber) : Long.UZERO,
-      pageTotal: isSet(object.pageTotal) ? Long.fromValue(object.pageTotal) : Long.UZERO,
+      pageNumber: isSet(object.page_number) ? Long.fromValue(object.page_number) : Long.UZERO,
+      pageTotal: isSet(object.page_total) ? Long.fromValue(object.page_total) : Long.UZERO,
       limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => TxResponse.fromJSON(e)) : [],
     };
@@ -1260,16 +1260,16 @@ export const SearchTxsResult: MessageFns<SearchTxsResult, "cosmos.base.abci.v1be
   toJSON(message: SearchTxsResult): unknown {
     const obj: any = {};
     if (!message.totalCount.equals(Long.UZERO)) {
-      obj.totalCount = (message.totalCount || Long.UZERO).toString();
+      obj.total_count = (message.totalCount || Long.UZERO).toString();
     }
     if (!message.count.equals(Long.UZERO)) {
       obj.count = (message.count || Long.UZERO).toString();
     }
     if (!message.pageNumber.equals(Long.UZERO)) {
-      obj.pageNumber = (message.pageNumber || Long.UZERO).toString();
+      obj.page_number = (message.pageNumber || Long.UZERO).toString();
     }
     if (!message.pageTotal.equals(Long.UZERO)) {
-      obj.pageTotal = (message.pageTotal || Long.UZERO).toString();
+      obj.page_total = (message.pageTotal || Long.UZERO).toString();
     }
     if (!message.limit.equals(Long.UZERO)) {
       obj.limit = (message.limit || Long.UZERO).toString();
@@ -1403,10 +1403,10 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
 
   fromJSON(object: any): SearchBlocksResult {
     return {
-      totalCount: isSet(object.totalCount) ? Long.fromValue(object.totalCount) : Long.ZERO,
+      totalCount: isSet(object.total_count) ? Long.fromValue(object.total_count) : Long.ZERO,
       count: isSet(object.count) ? Long.fromValue(object.count) : Long.ZERO,
-      pageNumber: isSet(object.pageNumber) ? Long.fromValue(object.pageNumber) : Long.ZERO,
-      pageTotal: isSet(object.pageTotal) ? Long.fromValue(object.pageTotal) : Long.ZERO,
+      pageNumber: isSet(object.page_number) ? Long.fromValue(object.page_number) : Long.ZERO,
+      pageTotal: isSet(object.page_total) ? Long.fromValue(object.page_total) : Long.ZERO,
       limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.ZERO,
       blocks: globalThis.Array.isArray(object?.blocks) ? object.blocks.map((e: any) => Block.fromJSON(e)) : [],
     };
@@ -1415,16 +1415,16 @@ export const SearchBlocksResult: MessageFns<SearchBlocksResult, "cosmos.base.abc
   toJSON(message: SearchBlocksResult): unknown {
     const obj: any = {};
     if (!message.totalCount.equals(Long.ZERO)) {
-      obj.totalCount = (message.totalCount || Long.ZERO).toString();
+      obj.total_count = (message.totalCount || Long.ZERO).toString();
     }
     if (!message.count.equals(Long.ZERO)) {
       obj.count = (message.count || Long.ZERO).toString();
     }
     if (!message.pageNumber.equals(Long.ZERO)) {
-      obj.pageNumber = (message.pageNumber || Long.ZERO).toString();
+      obj.page_number = (message.pageNumber || Long.ZERO).toString();
     }
     if (!message.pageTotal.equals(Long.ZERO)) {
-      obj.pageTotal = (message.pageTotal || Long.ZERO).toString();
+      obj.page_total = (message.pageTotal || Long.ZERO).toString();
     }
     if (!message.limit.equals(Long.ZERO)) {
       obj.limit = (message.limit || Long.ZERO).toString();

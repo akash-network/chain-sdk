@@ -143,7 +143,7 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
 
   fromJSON(object: any): DepositAuthorization {
     return {
-      spendLimit: isSet(object.spendLimit) ? Coin.fromJSON(object.spendLimit) : undefined,
+      spendLimit: isSet(object.spend_limit) ? Coin.fromJSON(object.spend_limit) : undefined,
       scopes: globalThis.Array.isArray(object?.scopes)
         ? object.scopes.map((e: any) => depositAuthorization_ScopeFromJSON(e))
         : [],
@@ -153,7 +153,7 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
   toJSON(message: DepositAuthorization): unknown {
     const obj: any = {};
     if (message.spendLimit !== undefined) {
-      obj.spendLimit = Coin.toJSON(message.spendLimit);
+      obj.spend_limit = Coin.toJSON(message.spendLimit);
     }
     if (message.scopes?.length) {
       obj.scopes = message.scopes.map((e) => depositAuthorization_ScopeToJSON(e));

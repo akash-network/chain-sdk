@@ -144,13 +144,13 @@ export const MsgIncreaseCountResponse: MessageFns<
   },
 
   fromJSON(object: any): MsgIncreaseCountResponse {
-    return { newCount: isSet(object.newCount) ? Long.fromValue(object.newCount) : Long.ZERO };
+    return { newCount: isSet(object.new_count) ? Long.fromValue(object.new_count) : Long.ZERO };
   },
 
   toJSON(message: MsgIncreaseCountResponse): unknown {
     const obj: any = {};
     if (!message.newCount.equals(Long.ZERO)) {
-      obj.newCount = (message.newCount || Long.ZERO).toString();
+      obj.new_count = (message.newCount || Long.ZERO).toString();
     }
     return obj;
   },

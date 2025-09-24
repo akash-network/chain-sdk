@@ -63,8 +63,8 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
 
   fromJSON(object: any): NodeCapabilities {
     return {
-      storageClasses: globalThis.Array.isArray(object?.storageClasses)
-        ? object.storageClasses.map((e: any) => globalThis.String(e))
+      storageClasses: globalThis.Array.isArray(object?.storage_classes)
+        ? object.storage_classes.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -72,7 +72,7 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
   toJSON(message: NodeCapabilities): unknown {
     const obj: any = {};
     if (message.storageClasses?.length) {
-      obj.storageClasses = message.storageClasses;
+      obj.storage_classes = message.storageClasses;
     }
     return obj;
   },

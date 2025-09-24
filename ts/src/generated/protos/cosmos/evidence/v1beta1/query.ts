@@ -102,7 +102,7 @@ export const QueryEvidenceRequest: MessageFns<QueryEvidenceRequest, "cosmos.evid
 
   fromJSON(object: any): QueryEvidenceRequest {
     return {
-      evidenceHash: isSet(object.evidenceHash) ? bytesFromBase64(object.evidenceHash) : new Uint8Array(0),
+      evidenceHash: isSet(object.evidence_hash) ? bytesFromBase64(object.evidence_hash) : new Uint8Array(0),
       hash: isSet(object.hash) ? globalThis.String(object.hash) : "",
     };
   },
@@ -110,7 +110,7 @@ export const QueryEvidenceRequest: MessageFns<QueryEvidenceRequest, "cosmos.evid
   toJSON(message: QueryEvidenceRequest): unknown {
     const obj: any = {};
     if (message.evidenceHash.length !== 0) {
-      obj.evidenceHash = base64FromBytes(message.evidenceHash);
+      obj.evidence_hash = base64FromBytes(message.evidenceHash);
     }
     if (message.hash !== "") {
       obj.hash = message.hash;

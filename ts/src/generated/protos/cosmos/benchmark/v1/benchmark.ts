@@ -137,8 +137,8 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
     return {
       seed: isSet(object.seed) ? Long.fromValue(object.seed) : Long.UZERO,
       actor: isSet(object.actor) ? globalThis.String(object.actor) : "",
-      keyLength: isSet(object.keyLength) ? Long.fromValue(object.keyLength) : Long.UZERO,
-      valueLength: isSet(object.valueLength) ? Long.fromValue(object.valueLength) : Long.UZERO,
+      keyLength: isSet(object.key_length) ? Long.fromValue(object.key_length) : Long.UZERO,
+      valueLength: isSet(object.value_length) ? Long.fromValue(object.value_length) : Long.UZERO,
       iterations: isSet(object.iterations) ? globalThis.Number(object.iterations) : 0,
       delete: isSet(object.delete) ? globalThis.Boolean(object.delete) : false,
       exists: isSet(object.exists) ? globalThis.Boolean(object.exists) : false,
@@ -154,10 +154,10 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
       obj.actor = message.actor;
     }
     if (!message.keyLength.equals(Long.UZERO)) {
-      obj.keyLength = (message.keyLength || Long.UZERO).toString();
+      obj.key_length = (message.keyLength || Long.UZERO).toString();
     }
     if (!message.valueLength.equals(Long.UZERO)) {
-      obj.valueLength = (message.valueLength || Long.UZERO).toString();
+      obj.value_length = (message.valueLength || Long.UZERO).toString();
     }
     if (message.iterations !== 0) {
       obj.iterations = Math.round(message.iterations);

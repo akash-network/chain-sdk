@@ -60,13 +60,13 @@ export const EventEpochEnd: MessageFns<EventEpochEnd, "cosmos.epochs.v1beta1.Eve
   },
 
   fromJSON(object: any): EventEpochEnd {
-    return { epochNumber: isSet(object.epochNumber) ? Long.fromValue(object.epochNumber) : Long.ZERO };
+    return { epochNumber: isSet(object.epoch_number) ? Long.fromValue(object.epoch_number) : Long.ZERO };
   },
 
   toJSON(message: EventEpochEnd): unknown {
     const obj: any = {};
     if (!message.epochNumber.equals(Long.ZERO)) {
-      obj.epochNumber = (message.epochNumber || Long.ZERO).toString();
+      obj.epoch_number = (message.epochNumber || Long.ZERO).toString();
     }
     return obj;
   },
@@ -134,18 +134,18 @@ export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1
 
   fromJSON(object: any): EventEpochStart {
     return {
-      epochNumber: isSet(object.epochNumber) ? Long.fromValue(object.epochNumber) : Long.ZERO,
-      epochStartTime: isSet(object.epochStartTime) ? Long.fromValue(object.epochStartTime) : Long.ZERO,
+      epochNumber: isSet(object.epoch_number) ? Long.fromValue(object.epoch_number) : Long.ZERO,
+      epochStartTime: isSet(object.epoch_start_time) ? Long.fromValue(object.epoch_start_time) : Long.ZERO,
     };
   },
 
   toJSON(message: EventEpochStart): unknown {
     const obj: any = {};
     if (!message.epochNumber.equals(Long.ZERO)) {
-      obj.epochNumber = (message.epochNumber || Long.ZERO).toString();
+      obj.epoch_number = (message.epochNumber || Long.ZERO).toString();
     }
     if (!message.epochStartTime.equals(Long.ZERO)) {
-      obj.epochStartTime = (message.epochStartTime || Long.ZERO).toString();
+      obj.epoch_start_time = (message.epochStartTime || Long.ZERO).toString();
     }
     return obj;
   },

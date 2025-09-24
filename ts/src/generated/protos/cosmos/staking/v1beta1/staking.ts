@@ -526,8 +526,8 @@ export const CommissionRates: MessageFns<CommissionRates, "cosmos.staking.v1beta
   fromJSON(object: any): CommissionRates {
     return {
       rate: isSet(object.rate) ? globalThis.String(object.rate) : "",
-      maxRate: isSet(object.maxRate) ? globalThis.String(object.maxRate) : "",
-      maxChangeRate: isSet(object.maxChangeRate) ? globalThis.String(object.maxChangeRate) : "",
+      maxRate: isSet(object.max_rate) ? globalThis.String(object.max_rate) : "",
+      maxChangeRate: isSet(object.max_change_rate) ? globalThis.String(object.max_change_rate) : "",
     };
   },
 
@@ -537,10 +537,10 @@ export const CommissionRates: MessageFns<CommissionRates, "cosmos.staking.v1beta
       obj.rate = message.rate;
     }
     if (message.maxRate !== "") {
-      obj.maxRate = message.maxRate;
+      obj.max_rate = message.maxRate;
     }
     if (message.maxChangeRate !== "") {
-      obj.maxChangeRate = message.maxChangeRate;
+      obj.max_change_rate = message.maxChangeRate;
     }
     return obj;
   },
@@ -608,18 +608,18 @@ export const Commission: MessageFns<Commission, "cosmos.staking.v1beta1.Commissi
 
   fromJSON(object: any): Commission {
     return {
-      commissionRates: isSet(object.commissionRates) ? CommissionRates.fromJSON(object.commissionRates) : undefined,
-      updateTime: isSet(object.updateTime) ? fromJsonTimestamp(object.updateTime) : undefined,
+      commissionRates: isSet(object.commission_rates) ? CommissionRates.fromJSON(object.commission_rates) : undefined,
+      updateTime: isSet(object.update_time) ? fromJsonTimestamp(object.update_time) : undefined,
     };
   },
 
   toJSON(message: Commission): unknown {
     const obj: any = {};
     if (message.commissionRates !== undefined) {
-      obj.commissionRates = CommissionRates.toJSON(message.commissionRates);
+      obj.commission_rates = CommissionRates.toJSON(message.commissionRates);
     }
     if (message.updateTime !== undefined) {
-      obj.updateTime = message.updateTime.toISOString();
+      obj.update_time = message.updateTime.toISOString();
     }
     return obj;
   },
@@ -724,7 +724,7 @@ export const Description: MessageFns<Description, "cosmos.staking.v1beta1.Descri
       moniker: isSet(object.moniker) ? globalThis.String(object.moniker) : "",
       identity: isSet(object.identity) ? globalThis.String(object.identity) : "",
       website: isSet(object.website) ? globalThis.String(object.website) : "",
-      securityContact: isSet(object.securityContact) ? globalThis.String(object.securityContact) : "",
+      securityContact: isSet(object.security_contact) ? globalThis.String(object.security_contact) : "",
       details: isSet(object.details) ? globalThis.String(object.details) : "",
     };
   },
@@ -741,7 +741,7 @@ export const Description: MessageFns<Description, "cosmos.staking.v1beta1.Descri
       obj.website = message.website;
     }
     if (message.securityContact !== "") {
-      obj.securityContact = message.securityContact;
+      obj.security_contact = message.securityContact;
     }
     if (message.details !== "") {
       obj.details = message.details;
@@ -961,22 +961,22 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
 
   fromJSON(object: any): Validator {
     return {
-      operatorAddress: isSet(object.operatorAddress) ? globalThis.String(object.operatorAddress) : "",
-      consensusPubkey: isSet(object.consensusPubkey) ? Any.fromJSON(object.consensusPubkey) : undefined,
+      operatorAddress: isSet(object.operator_address) ? globalThis.String(object.operator_address) : "",
+      consensusPubkey: isSet(object.consensus_pubkey) ? Any.fromJSON(object.consensus_pubkey) : undefined,
       jailed: isSet(object.jailed) ? globalThis.Boolean(object.jailed) : false,
       status: isSet(object.status) ? bondStatusFromJSON(object.status) : 0,
       tokens: isSet(object.tokens) ? globalThis.String(object.tokens) : "",
-      delegatorShares: isSet(object.delegatorShares) ? globalThis.String(object.delegatorShares) : "",
+      delegatorShares: isSet(object.delegator_shares) ? globalThis.String(object.delegator_shares) : "",
       description: isSet(object.description) ? Description.fromJSON(object.description) : undefined,
-      unbondingHeight: isSet(object.unbondingHeight) ? Long.fromValue(object.unbondingHeight) : Long.ZERO,
-      unbondingTime: isSet(object.unbondingTime) ? fromJsonTimestamp(object.unbondingTime) : undefined,
+      unbondingHeight: isSet(object.unbonding_height) ? Long.fromValue(object.unbonding_height) : Long.ZERO,
+      unbondingTime: isSet(object.unbonding_time) ? fromJsonTimestamp(object.unbonding_time) : undefined,
       commission: isSet(object.commission) ? Commission.fromJSON(object.commission) : undefined,
-      minSelfDelegation: isSet(object.minSelfDelegation) ? globalThis.String(object.minSelfDelegation) : "",
-      unbondingOnHoldRefCount: isSet(object.unbondingOnHoldRefCount)
-        ? Long.fromValue(object.unbondingOnHoldRefCount)
+      minSelfDelegation: isSet(object.min_self_delegation) ? globalThis.String(object.min_self_delegation) : "",
+      unbondingOnHoldRefCount: isSet(object.unbonding_on_hold_ref_count)
+        ? Long.fromValue(object.unbonding_on_hold_ref_count)
         : Long.ZERO,
-      unbondingIds: globalThis.Array.isArray(object?.unbondingIds)
-        ? object.unbondingIds.map((e: any) => Long.fromValue(e))
+      unbondingIds: globalThis.Array.isArray(object?.unbonding_ids)
+        ? object.unbonding_ids.map((e: any) => Long.fromValue(e))
         : [],
     };
   },
@@ -984,10 +984,10 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
   toJSON(message: Validator): unknown {
     const obj: any = {};
     if (message.operatorAddress !== "") {
-      obj.operatorAddress = message.operatorAddress;
+      obj.operator_address = message.operatorAddress;
     }
     if (message.consensusPubkey !== undefined) {
-      obj.consensusPubkey = Any.toJSON(message.consensusPubkey);
+      obj.consensus_pubkey = Any.toJSON(message.consensusPubkey);
     }
     if (message.jailed !== false) {
       obj.jailed = message.jailed;
@@ -999,28 +999,28 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
       obj.tokens = message.tokens;
     }
     if (message.delegatorShares !== "") {
-      obj.delegatorShares = message.delegatorShares;
+      obj.delegator_shares = message.delegatorShares;
     }
     if (message.description !== undefined) {
       obj.description = Description.toJSON(message.description);
     }
     if (!message.unbondingHeight.equals(Long.ZERO)) {
-      obj.unbondingHeight = (message.unbondingHeight || Long.ZERO).toString();
+      obj.unbonding_height = (message.unbondingHeight || Long.ZERO).toString();
     }
     if (message.unbondingTime !== undefined) {
-      obj.unbondingTime = message.unbondingTime.toISOString();
+      obj.unbonding_time = message.unbondingTime.toISOString();
     }
     if (message.commission !== undefined) {
       obj.commission = Commission.toJSON(message.commission);
     }
     if (message.minSelfDelegation !== "") {
-      obj.minSelfDelegation = message.minSelfDelegation;
+      obj.min_self_delegation = message.minSelfDelegation;
     }
     if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
-      obj.unbondingOnHoldRefCount = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
+      obj.unbonding_on_hold_ref_count = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
     }
     if (message.unbondingIds?.length) {
-      obj.unbondingIds = message.unbondingIds.map((e) => (e || Long.UZERO).toString());
+      obj.unbonding_ids = message.unbondingIds.map((e) => (e || Long.UZERO).toString());
     }
     return obj;
   },
@@ -1173,18 +1173,18 @@ export const DVPair: MessageFns<DVPair, "cosmos.staking.v1beta1.DVPair"> = {
 
   fromJSON(object: any): DVPair {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
     };
   },
 
   toJSON(message: DVPair): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     return obj;
   },
@@ -1322,22 +1322,22 @@ export const DVVTriplet: MessageFns<DVVTriplet, "cosmos.staking.v1beta1.DVVTripl
 
   fromJSON(object: any): DVVTriplet {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorSrcAddress: isSet(object.validatorSrcAddress) ? globalThis.String(object.validatorSrcAddress) : "",
-      validatorDstAddress: isSet(object.validatorDstAddress) ? globalThis.String(object.validatorDstAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorSrcAddress: isSet(object.validator_src_address) ? globalThis.String(object.validator_src_address) : "",
+      validatorDstAddress: isSet(object.validator_dst_address) ? globalThis.String(object.validator_dst_address) : "",
     };
   },
 
   toJSON(message: DVVTriplet): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorSrcAddress !== "") {
-      obj.validatorSrcAddress = message.validatorSrcAddress;
+      obj.validator_src_address = message.validatorSrcAddress;
     }
     if (message.validatorDstAddress !== "") {
-      obj.validatorDstAddress = message.validatorDstAddress;
+      obj.validator_dst_address = message.validatorDstAddress;
     }
     return obj;
   },
@@ -1480,8 +1480,8 @@ export const Delegation: MessageFns<Delegation, "cosmos.staking.v1beta1.Delegati
 
   fromJSON(object: any): Delegation {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       shares: isSet(object.shares) ? globalThis.String(object.shares) : "",
     };
   },
@@ -1489,10 +1489,10 @@ export const Delegation: MessageFns<Delegation, "cosmos.staking.v1beta1.Delegati
   toJSON(message: Delegation): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.shares !== "") {
       obj.shares = message.shares;
@@ -1574,8 +1574,8 @@ export const UnbondingDelegation: MessageFns<UnbondingDelegation, "cosmos.stakin
 
   fromJSON(object: any): UnbondingDelegation {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       entries: globalThis.Array.isArray(object?.entries)
         ? object.entries.map((e: any) => UnbondingDelegationEntry.fromJSON(e))
         : [],
@@ -1585,10 +1585,10 @@ export const UnbondingDelegation: MessageFns<UnbondingDelegation, "cosmos.stakin
   toJSON(message: UnbondingDelegation): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.entries?.length) {
       obj.entries = message.entries.map((e) => UnbondingDelegationEntry.toJSON(e));
@@ -1713,13 +1713,13 @@ export const UnbondingDelegationEntry: MessageFns<
 
   fromJSON(object: any): UnbondingDelegationEntry {
     return {
-      creationHeight: isSet(object.creationHeight) ? Long.fromValue(object.creationHeight) : Long.ZERO,
-      completionTime: isSet(object.completionTime) ? fromJsonTimestamp(object.completionTime) : undefined,
-      initialBalance: isSet(object.initialBalance) ? globalThis.String(object.initialBalance) : "",
+      creationHeight: isSet(object.creation_height) ? Long.fromValue(object.creation_height) : Long.ZERO,
+      completionTime: isSet(object.completion_time) ? fromJsonTimestamp(object.completion_time) : undefined,
+      initialBalance: isSet(object.initial_balance) ? globalThis.String(object.initial_balance) : "",
       balance: isSet(object.balance) ? globalThis.String(object.balance) : "",
-      unbondingId: isSet(object.unbondingId) ? Long.fromValue(object.unbondingId) : Long.UZERO,
-      unbondingOnHoldRefCount: isSet(object.unbondingOnHoldRefCount)
-        ? Long.fromValue(object.unbondingOnHoldRefCount)
+      unbondingId: isSet(object.unbonding_id) ? Long.fromValue(object.unbonding_id) : Long.UZERO,
+      unbondingOnHoldRefCount: isSet(object.unbonding_on_hold_ref_count)
+        ? Long.fromValue(object.unbonding_on_hold_ref_count)
         : Long.ZERO,
     };
   },
@@ -1727,22 +1727,22 @@ export const UnbondingDelegationEntry: MessageFns<
   toJSON(message: UnbondingDelegationEntry): unknown {
     const obj: any = {};
     if (!message.creationHeight.equals(Long.ZERO)) {
-      obj.creationHeight = (message.creationHeight || Long.ZERO).toString();
+      obj.creation_height = (message.creationHeight || Long.ZERO).toString();
     }
     if (message.completionTime !== undefined) {
-      obj.completionTime = message.completionTime.toISOString();
+      obj.completion_time = message.completionTime.toISOString();
     }
     if (message.initialBalance !== "") {
-      obj.initialBalance = message.initialBalance;
+      obj.initial_balance = message.initialBalance;
     }
     if (message.balance !== "") {
       obj.balance = message.balance;
     }
     if (!message.unbondingId.equals(Long.UZERO)) {
-      obj.unbondingId = (message.unbondingId || Long.UZERO).toString();
+      obj.unbonding_id = (message.unbondingId || Long.UZERO).toString();
     }
     if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
-      obj.unbondingOnHoldRefCount = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
+      obj.unbonding_on_hold_ref_count = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
     }
     return obj;
   },
@@ -1871,13 +1871,13 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
 
   fromJSON(object: any): RedelegationEntry {
     return {
-      creationHeight: isSet(object.creationHeight) ? Long.fromValue(object.creationHeight) : Long.ZERO,
-      completionTime: isSet(object.completionTime) ? fromJsonTimestamp(object.completionTime) : undefined,
-      initialBalance: isSet(object.initialBalance) ? globalThis.String(object.initialBalance) : "",
-      sharesDst: isSet(object.sharesDst) ? globalThis.String(object.sharesDst) : "",
-      unbondingId: isSet(object.unbondingId) ? Long.fromValue(object.unbondingId) : Long.UZERO,
-      unbondingOnHoldRefCount: isSet(object.unbondingOnHoldRefCount)
-        ? Long.fromValue(object.unbondingOnHoldRefCount)
+      creationHeight: isSet(object.creation_height) ? Long.fromValue(object.creation_height) : Long.ZERO,
+      completionTime: isSet(object.completion_time) ? fromJsonTimestamp(object.completion_time) : undefined,
+      initialBalance: isSet(object.initial_balance) ? globalThis.String(object.initial_balance) : "",
+      sharesDst: isSet(object.shares_dst) ? globalThis.String(object.shares_dst) : "",
+      unbondingId: isSet(object.unbonding_id) ? Long.fromValue(object.unbonding_id) : Long.UZERO,
+      unbondingOnHoldRefCount: isSet(object.unbonding_on_hold_ref_count)
+        ? Long.fromValue(object.unbonding_on_hold_ref_count)
         : Long.ZERO,
     };
   },
@@ -1885,22 +1885,22 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
   toJSON(message: RedelegationEntry): unknown {
     const obj: any = {};
     if (!message.creationHeight.equals(Long.ZERO)) {
-      obj.creationHeight = (message.creationHeight || Long.ZERO).toString();
+      obj.creation_height = (message.creationHeight || Long.ZERO).toString();
     }
     if (message.completionTime !== undefined) {
-      obj.completionTime = message.completionTime.toISOString();
+      obj.completion_time = message.completionTime.toISOString();
     }
     if (message.initialBalance !== "") {
-      obj.initialBalance = message.initialBalance;
+      obj.initial_balance = message.initialBalance;
     }
     if (message.sharesDst !== "") {
-      obj.sharesDst = message.sharesDst;
+      obj.shares_dst = message.sharesDst;
     }
     if (!message.unbondingId.equals(Long.UZERO)) {
-      obj.unbondingId = (message.unbondingId || Long.UZERO).toString();
+      obj.unbonding_id = (message.unbondingId || Long.UZERO).toString();
     }
     if (!message.unbondingOnHoldRefCount.equals(Long.ZERO)) {
-      obj.unbondingOnHoldRefCount = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
+      obj.unbonding_on_hold_ref_count = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
     }
     return obj;
   },
@@ -2000,9 +2000,9 @@ export const Redelegation: MessageFns<Redelegation, "cosmos.staking.v1beta1.Rede
 
   fromJSON(object: any): Redelegation {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorSrcAddress: isSet(object.validatorSrcAddress) ? globalThis.String(object.validatorSrcAddress) : "",
-      validatorDstAddress: isSet(object.validatorDstAddress) ? globalThis.String(object.validatorDstAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorSrcAddress: isSet(object.validator_src_address) ? globalThis.String(object.validator_src_address) : "",
+      validatorDstAddress: isSet(object.validator_dst_address) ? globalThis.String(object.validator_dst_address) : "",
       entries: globalThis.Array.isArray(object?.entries)
         ? object.entries.map((e: any) => RedelegationEntry.fromJSON(e))
         : [],
@@ -2012,13 +2012,13 @@ export const Redelegation: MessageFns<Redelegation, "cosmos.staking.v1beta1.Rede
   toJSON(message: Redelegation): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorSrcAddress !== "") {
-      obj.validatorSrcAddress = message.validatorSrcAddress;
+      obj.validator_src_address = message.validatorSrcAddress;
     }
     if (message.validatorDstAddress !== "") {
-      obj.validatorDstAddress = message.validatorDstAddress;
+      obj.validator_dst_address = message.validatorDstAddress;
     }
     if (message.entries?.length) {
       obj.entries = message.entries.map((e) => RedelegationEntry.toJSON(e));
@@ -2141,34 +2141,34 @@ export const Params: MessageFns<Params, "cosmos.staking.v1beta1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      unbondingTime: isSet(object.unbondingTime) ? Duration.fromJSON(object.unbondingTime) : undefined,
-      maxValidators: isSet(object.maxValidators) ? globalThis.Number(object.maxValidators) : 0,
-      maxEntries: isSet(object.maxEntries) ? globalThis.Number(object.maxEntries) : 0,
-      historicalEntries: isSet(object.historicalEntries) ? globalThis.Number(object.historicalEntries) : 0,
-      bondDenom: isSet(object.bondDenom) ? globalThis.String(object.bondDenom) : "",
-      minCommissionRate: isSet(object.minCommissionRate) ? globalThis.String(object.minCommissionRate) : "",
+      unbondingTime: isSet(object.unbonding_time) ? Duration.fromJSON(object.unbonding_time) : undefined,
+      maxValidators: isSet(object.max_validators) ? globalThis.Number(object.max_validators) : 0,
+      maxEntries: isSet(object.max_entries) ? globalThis.Number(object.max_entries) : 0,
+      historicalEntries: isSet(object.historical_entries) ? globalThis.Number(object.historical_entries) : 0,
+      bondDenom: isSet(object.bond_denom) ? globalThis.String(object.bond_denom) : "",
+      minCommissionRate: isSet(object.min_commission_rate) ? globalThis.String(object.min_commission_rate) : "",
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.unbondingTime !== undefined) {
-      obj.unbondingTime = Duration.toJSON(message.unbondingTime);
+      obj.unbonding_time = Duration.toJSON(message.unbondingTime);
     }
     if (message.maxValidators !== 0) {
-      obj.maxValidators = Math.round(message.maxValidators);
+      obj.max_validators = Math.round(message.maxValidators);
     }
     if (message.maxEntries !== 0) {
-      obj.maxEntries = Math.round(message.maxEntries);
+      obj.max_entries = Math.round(message.maxEntries);
     }
     if (message.historicalEntries !== 0) {
-      obj.historicalEntries = Math.round(message.historicalEntries);
+      obj.historical_entries = Math.round(message.historicalEntries);
     }
     if (message.bondDenom !== "") {
-      obj.bondDenom = message.bondDenom;
+      obj.bond_denom = message.bondDenom;
     }
     if (message.minCommissionRate !== "") {
-      obj.minCommissionRate = message.minCommissionRate;
+      obj.min_commission_rate = message.minCommissionRate;
     }
     return obj;
   },
@@ -2326,8 +2326,8 @@ export const RedelegationEntryResponse: MessageFns<
 
   fromJSON(object: any): RedelegationEntryResponse {
     return {
-      redelegationEntry: isSet(object.redelegationEntry)
-        ? RedelegationEntry.fromJSON(object.redelegationEntry)
+      redelegationEntry: isSet(object.redelegation_entry)
+        ? RedelegationEntry.fromJSON(object.redelegation_entry)
         : undefined,
       balance: isSet(object.balance) ? globalThis.String(object.balance) : "",
     };
@@ -2336,7 +2336,7 @@ export const RedelegationEntryResponse: MessageFns<
   toJSON(message: RedelegationEntryResponse): unknown {
     const obj: any = {};
     if (message.redelegationEntry !== undefined) {
-      obj.redelegationEntry = RedelegationEntry.toJSON(message.redelegationEntry);
+      obj.redelegation_entry = RedelegationEntry.toJSON(message.redelegationEntry);
     }
     if (message.balance !== "") {
       obj.balance = message.balance;
@@ -2490,18 +2490,18 @@ export const Pool: MessageFns<Pool, "cosmos.staking.v1beta1.Pool"> = {
 
   fromJSON(object: any): Pool {
     return {
-      notBondedTokens: isSet(object.notBondedTokens) ? globalThis.String(object.notBondedTokens) : "",
-      bondedTokens: isSet(object.bondedTokens) ? globalThis.String(object.bondedTokens) : "",
+      notBondedTokens: isSet(object.not_bonded_tokens) ? globalThis.String(object.not_bonded_tokens) : "",
+      bondedTokens: isSet(object.bonded_tokens) ? globalThis.String(object.bonded_tokens) : "",
     };
   },
 
   toJSON(message: Pool): unknown {
     const obj: any = {};
     if (message.notBondedTokens !== "") {
-      obj.notBondedTokens = message.notBondedTokens;
+      obj.not_bonded_tokens = message.notBondedTokens;
     }
     if (message.bondedTokens !== "") {
-      obj.bondedTokens = message.bondedTokens;
+      obj.bonded_tokens = message.bondedTokens;
     }
     return obj;
   },

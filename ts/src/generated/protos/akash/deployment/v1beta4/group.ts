@@ -160,8 +160,8 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     return {
       id: isSet(object.id) ? GroupID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? group_StateFromJSON(object.state) : 0,
-      groupSpec: isSet(object.groupSpec) ? GroupSpec.fromJSON(object.groupSpec) : undefined,
-      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
+      groupSpec: isSet(object.group_spec) ? GroupSpec.fromJSON(object.group_spec) : undefined,
+      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
     };
   },
 
@@ -174,10 +174,10 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
       obj.state = group_StateToJSON(message.state);
     }
     if (message.groupSpec !== undefined) {
-      obj.groupSpec = GroupSpec.toJSON(message.groupSpec);
+      obj.group_spec = GroupSpec.toJSON(message.groupSpec);
     }
     if (!message.createdAt.equals(Long.ZERO)) {
-      obj.createdAt = (message.createdAt || Long.ZERO).toString();
+      obj.created_at = (message.createdAt || Long.ZERO).toString();
     }
     return obj;
   },

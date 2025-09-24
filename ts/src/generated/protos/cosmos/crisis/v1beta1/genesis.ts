@@ -59,13 +59,13 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.crisis.v1beta1.Genes
   },
 
   fromJSON(object: any): GenesisState {
-    return { constantFee: isSet(object.constantFee) ? Coin.fromJSON(object.constantFee) : undefined };
+    return { constantFee: isSet(object.constant_fee) ? Coin.fromJSON(object.constant_fee) : undefined };
   },
 
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
     if (message.constantFee !== undefined) {
-      obj.constantFee = Coin.toJSON(message.constantFee);
+      obj.constant_fee = Coin.toJSON(message.constantFee);
     }
     return obj;
   },

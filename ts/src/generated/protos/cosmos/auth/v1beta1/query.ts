@@ -826,13 +826,13 @@ export const Bech32PrefixResponse: MessageFns<Bech32PrefixResponse, "cosmos.auth
   },
 
   fromJSON(object: any): Bech32PrefixResponse {
-    return { bech32Prefix: isSet(object.bech32Prefix) ? globalThis.String(object.bech32Prefix) : "" };
+    return { bech32Prefix: isSet(object.bech32_prefix) ? globalThis.String(object.bech32_prefix) : "" };
   },
 
   toJSON(message: Bech32PrefixResponse): unknown {
     const obj: any = {};
     if (message.bech32Prefix !== "") {
-      obj.bech32Prefix = message.bech32Prefix;
+      obj.bech32_prefix = message.bech32Prefix;
     }
     return obj;
   },
@@ -889,13 +889,13 @@ export const AddressBytesToStringRequest: MessageFns<
   },
 
   fromJSON(object: any): AddressBytesToStringRequest {
-    return { addressBytes: isSet(object.addressBytes) ? bytesFromBase64(object.addressBytes) : new Uint8Array(0) };
+    return { addressBytes: isSet(object.address_bytes) ? bytesFromBase64(object.address_bytes) : new Uint8Array(0) };
   },
 
   toJSON(message: AddressBytesToStringRequest): unknown {
     const obj: any = {};
     if (message.addressBytes.length !== 0) {
-      obj.addressBytes = base64FromBytes(message.addressBytes);
+      obj.address_bytes = base64FromBytes(message.addressBytes);
     }
     return obj;
   },
@@ -952,13 +952,13 @@ export const AddressBytesToStringResponse: MessageFns<
   },
 
   fromJSON(object: any): AddressBytesToStringResponse {
-    return { addressString: isSet(object.addressString) ? globalThis.String(object.addressString) : "" };
+    return { addressString: isSet(object.address_string) ? globalThis.String(object.address_string) : "" };
   },
 
   toJSON(message: AddressBytesToStringResponse): unknown {
     const obj: any = {};
     if (message.addressString !== "") {
-      obj.addressString = message.addressString;
+      obj.address_string = message.addressString;
     }
     return obj;
   },
@@ -1015,13 +1015,13 @@ export const AddressStringToBytesRequest: MessageFns<
   },
 
   fromJSON(object: any): AddressStringToBytesRequest {
-    return { addressString: isSet(object.addressString) ? globalThis.String(object.addressString) : "" };
+    return { addressString: isSet(object.address_string) ? globalThis.String(object.address_string) : "" };
   },
 
   toJSON(message: AddressStringToBytesRequest): unknown {
     const obj: any = {};
     if (message.addressString !== "") {
-      obj.addressString = message.addressString;
+      obj.address_string = message.addressString;
     }
     return obj;
   },
@@ -1078,13 +1078,13 @@ export const AddressStringToBytesResponse: MessageFns<
   },
 
   fromJSON(object: any): AddressStringToBytesResponse {
-    return { addressBytes: isSet(object.addressBytes) ? bytesFromBase64(object.addressBytes) : new Uint8Array(0) };
+    return { addressBytes: isSet(object.address_bytes) ? bytesFromBase64(object.address_bytes) : new Uint8Array(0) };
   },
 
   toJSON(message: AddressStringToBytesResponse): unknown {
     const obj: any = {};
     if (message.addressBytes.length !== 0) {
-      obj.addressBytes = base64FromBytes(message.addressBytes);
+      obj.address_bytes = base64FromBytes(message.addressBytes);
     }
     return obj;
   },
@@ -1154,7 +1154,7 @@ export const QueryAccountAddressByIDRequest: MessageFns<
   fromJSON(object: any): QueryAccountAddressByIDRequest {
     return {
       id: isSet(object.id) ? Long.fromValue(object.id) : Long.ZERO,
-      accountId: isSet(object.accountId) ? Long.fromValue(object.accountId) : Long.UZERO,
+      accountId: isSet(object.account_id) ? Long.fromValue(object.account_id) : Long.UZERO,
     };
   },
 
@@ -1164,7 +1164,7 @@ export const QueryAccountAddressByIDRequest: MessageFns<
       obj.id = (message.id || Long.ZERO).toString();
     }
     if (!message.accountId.equals(Long.UZERO)) {
-      obj.accountId = (message.accountId || Long.UZERO).toString();
+      obj.account_id = (message.accountId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -1224,13 +1224,13 @@ export const QueryAccountAddressByIDResponse: MessageFns<
   },
 
   fromJSON(object: any): QueryAccountAddressByIDResponse {
-    return { accountAddress: isSet(object.accountAddress) ? globalThis.String(object.accountAddress) : "" };
+    return { accountAddress: isSet(object.account_address) ? globalThis.String(object.account_address) : "" };
   },
 
   toJSON(message: QueryAccountAddressByIDResponse): unknown {
     const obj: any = {};
     if (message.accountAddress !== "") {
-      obj.accountAddress = message.accountAddress;
+      obj.account_address = message.accountAddress;
     }
     return obj;
   },

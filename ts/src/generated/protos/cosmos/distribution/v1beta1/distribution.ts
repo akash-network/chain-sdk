@@ -224,26 +224,28 @@ export const Params: MessageFns<Params, "cosmos.distribution.v1beta1.Params"> = 
 
   fromJSON(object: any): Params {
     return {
-      communityTax: isSet(object.communityTax) ? globalThis.String(object.communityTax) : "",
-      baseProposerReward: isSet(object.baseProposerReward) ? globalThis.String(object.baseProposerReward) : "",
-      bonusProposerReward: isSet(object.bonusProposerReward) ? globalThis.String(object.bonusProposerReward) : "",
-      withdrawAddrEnabled: isSet(object.withdrawAddrEnabled) ? globalThis.Boolean(object.withdrawAddrEnabled) : false,
+      communityTax: isSet(object.community_tax) ? globalThis.String(object.community_tax) : "",
+      baseProposerReward: isSet(object.base_proposer_reward) ? globalThis.String(object.base_proposer_reward) : "",
+      bonusProposerReward: isSet(object.bonus_proposer_reward) ? globalThis.String(object.bonus_proposer_reward) : "",
+      withdrawAddrEnabled: isSet(object.withdraw_addr_enabled)
+        ? globalThis.Boolean(object.withdraw_addr_enabled)
+        : false,
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.communityTax !== "") {
-      obj.communityTax = message.communityTax;
+      obj.community_tax = message.communityTax;
     }
     if (message.baseProposerReward !== "") {
-      obj.baseProposerReward = message.baseProposerReward;
+      obj.base_proposer_reward = message.baseProposerReward;
     }
     if (message.bonusProposerReward !== "") {
-      obj.bonusProposerReward = message.bonusProposerReward;
+      obj.bonus_proposer_reward = message.bonusProposerReward;
     }
     if (message.withdrawAddrEnabled !== false) {
-      obj.withdrawAddrEnabled = message.withdrawAddrEnabled;
+      obj.withdraw_addr_enabled = message.withdrawAddrEnabled;
     }
     return obj;
   },
@@ -315,20 +317,20 @@ export const ValidatorHistoricalRewards: MessageFns<
 
   fromJSON(object: any): ValidatorHistoricalRewards {
     return {
-      cumulativeRewardRatio: globalThis.Array.isArray(object?.cumulativeRewardRatio)
-        ? object.cumulativeRewardRatio.map((e: any) => DecCoin.fromJSON(e))
+      cumulativeRewardRatio: globalThis.Array.isArray(object?.cumulative_reward_ratio)
+        ? object.cumulative_reward_ratio.map((e: any) => DecCoin.fromJSON(e))
         : [],
-      referenceCount: isSet(object.referenceCount) ? globalThis.Number(object.referenceCount) : 0,
+      referenceCount: isSet(object.reference_count) ? globalThis.Number(object.reference_count) : 0,
     };
   },
 
   toJSON(message: ValidatorHistoricalRewards): unknown {
     const obj: any = {};
     if (message.cumulativeRewardRatio?.length) {
-      obj.cumulativeRewardRatio = message.cumulativeRewardRatio.map((e) => DecCoin.toJSON(e));
+      obj.cumulative_reward_ratio = message.cumulativeRewardRatio.map((e) => DecCoin.toJSON(e));
     }
     if (message.referenceCount !== 0) {
-      obj.referenceCount = Math.round(message.referenceCount);
+      obj.reference_count = Math.round(message.referenceCount);
     }
     return obj;
   },
@@ -610,7 +612,7 @@ export const ValidatorSlashEvent: MessageFns<ValidatorSlashEvent, "cosmos.distri
 
   fromJSON(object: any): ValidatorSlashEvent {
     return {
-      validatorPeriod: isSet(object.validatorPeriod) ? Long.fromValue(object.validatorPeriod) : Long.UZERO,
+      validatorPeriod: isSet(object.validator_period) ? Long.fromValue(object.validator_period) : Long.UZERO,
       fraction: isSet(object.fraction) ? globalThis.String(object.fraction) : "",
     };
   },
@@ -618,7 +620,7 @@ export const ValidatorSlashEvent: MessageFns<ValidatorSlashEvent, "cosmos.distri
   toJSON(message: ValidatorSlashEvent): unknown {
     const obj: any = {};
     if (!message.validatorPeriod.equals(Long.UZERO)) {
-      obj.validatorPeriod = (message.validatorPeriod || Long.UZERO).toString();
+      obj.validator_period = (message.validatorPeriod || Long.UZERO).toString();
     }
     if (message.fraction !== "") {
       obj.fraction = message.fraction;
@@ -682,8 +684,8 @@ export const ValidatorSlashEvents: MessageFns<
 
   fromJSON(object: any): ValidatorSlashEvents {
     return {
-      validatorSlashEvents: globalThis.Array.isArray(object?.validatorSlashEvents)
-        ? object.validatorSlashEvents.map((e: any) => ValidatorSlashEvent.fromJSON(e))
+      validatorSlashEvents: globalThis.Array.isArray(object?.validator_slash_events)
+        ? object.validator_slash_events.map((e: any) => ValidatorSlashEvent.fromJSON(e))
         : [],
     };
   },
@@ -691,7 +693,7 @@ export const ValidatorSlashEvents: MessageFns<
   toJSON(message: ValidatorSlashEvents): unknown {
     const obj: any = {};
     if (message.validatorSlashEvents?.length) {
-      obj.validatorSlashEvents = message.validatorSlashEvents.map((e) => ValidatorSlashEvent.toJSON(e));
+      obj.validator_slash_events = message.validatorSlashEvents.map((e) => ValidatorSlashEvent.toJSON(e));
     }
     return obj;
   },
@@ -746,8 +748,8 @@ export const FeePool: MessageFns<FeePool, "cosmos.distribution.v1beta1.FeePool">
 
   fromJSON(object: any): FeePool {
     return {
-      communityPool: globalThis.Array.isArray(object?.communityPool)
-        ? object.communityPool.map((e: any) => DecCoin.fromJSON(e))
+      communityPool: globalThis.Array.isArray(object?.community_pool)
+        ? object.community_pool.map((e: any) => DecCoin.fromJSON(e))
         : [],
     };
   },
@@ -755,7 +757,7 @@ export const FeePool: MessageFns<FeePool, "cosmos.distribution.v1beta1.FeePool">
   toJSON(message: FeePool): unknown {
     const obj: any = {};
     if (message.communityPool?.length) {
-      obj.communityPool = message.communityPool.map((e) => DecCoin.toJSON(e));
+      obj.community_pool = message.communityPool.map((e) => DecCoin.toJSON(e));
     }
     return obj;
   },
@@ -948,7 +950,7 @@ export const DelegatorStartingInfo: MessageFns<
 
   fromJSON(object: any): DelegatorStartingInfo {
     return {
-      previousPeriod: isSet(object.previousPeriod) ? Long.fromValue(object.previousPeriod) : Long.UZERO,
+      previousPeriod: isSet(object.previous_period) ? Long.fromValue(object.previous_period) : Long.UZERO,
       stake: isSet(object.stake) ? globalThis.String(object.stake) : "",
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
     };
@@ -957,7 +959,7 @@ export const DelegatorStartingInfo: MessageFns<
   toJSON(message: DelegatorStartingInfo): unknown {
     const obj: any = {};
     if (!message.previousPeriod.equals(Long.UZERO)) {
-      obj.previousPeriod = (message.previousPeriod || Long.UZERO).toString();
+      obj.previous_period = (message.previousPeriod || Long.UZERO).toString();
     }
     if (message.stake !== "") {
       obj.stake = message.stake;
@@ -1038,7 +1040,7 @@ export const DelegationDelegatorReward: MessageFns<
 
   fromJSON(object: any): DelegationDelegatorReward {
     return {
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       reward: globalThis.Array.isArray(object?.reward) ? object.reward.map((e: any) => DecCoin.fromJSON(e)) : [],
     };
   },
@@ -1046,7 +1048,7 @@ export const DelegationDelegatorReward: MessageFns<
   toJSON(message: DelegationDelegatorReward): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.reward?.length) {
       obj.reward = message.reward.map((e) => DecCoin.toJSON(e));

@@ -95,7 +95,7 @@ export const Block: MessageFns<Block, "tendermint.types.Block"> = {
       header: isSet(object.header) ? Header.fromJSON(object.header) : undefined,
       data: isSet(object.data) ? Data.fromJSON(object.data) : undefined,
       evidence: isSet(object.evidence) ? EvidenceList.fromJSON(object.evidence) : undefined,
-      lastCommit: isSet(object.lastCommit) ? Commit.fromJSON(object.lastCommit) : undefined,
+      lastCommit: isSet(object.last_commit) ? Commit.fromJSON(object.last_commit) : undefined,
     };
   },
 
@@ -111,7 +111,7 @@ export const Block: MessageFns<Block, "tendermint.types.Block"> = {
       obj.evidence = EvidenceList.toJSON(message.evidence);
     }
     if (message.lastCommit !== undefined) {
-      obj.lastCommit = Commit.toJSON(message.lastCommit);
+      obj.last_commit = Commit.toJSON(message.lastCommit);
     }
     return obj;
   },

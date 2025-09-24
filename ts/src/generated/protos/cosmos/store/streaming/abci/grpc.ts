@@ -229,10 +229,10 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
 
   fromJSON(object: any): ListenCommitRequest {
     return {
-      blockHeight: isSet(object.blockHeight) ? Long.fromValue(object.blockHeight) : Long.ZERO,
+      blockHeight: isSet(object.block_height) ? Long.fromValue(object.block_height) : Long.ZERO,
       res: isSet(object.res) ? ResponseCommit.fromJSON(object.res) : undefined,
-      changeSet: globalThis.Array.isArray(object?.changeSet)
-        ? object.changeSet.map((e: any) => StoreKVPair.fromJSON(e))
+      changeSet: globalThis.Array.isArray(object?.change_set)
+        ? object.change_set.map((e: any) => StoreKVPair.fromJSON(e))
         : [],
     };
   },
@@ -240,13 +240,13 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
   toJSON(message: ListenCommitRequest): unknown {
     const obj: any = {};
     if (!message.blockHeight.equals(Long.ZERO)) {
-      obj.blockHeight = (message.blockHeight || Long.ZERO).toString();
+      obj.block_height = (message.blockHeight || Long.ZERO).toString();
     }
     if (message.res !== undefined) {
       obj.res = ResponseCommit.toJSON(message.res);
     }
     if (message.changeSet?.length) {
-      obj.changeSet = message.changeSet.map((e) => StoreKVPair.toJSON(e));
+      obj.change_set = message.changeSet.map((e) => StoreKVPair.toJSON(e));
     }
     return obj;
   },

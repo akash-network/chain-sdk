@@ -92,7 +92,7 @@ export const EventGrant: MessageFns<EventGrant, "cosmos.authz.v1beta1.EventGrant
 
   fromJSON(object: any): EventGrant {
     return {
-      msgTypeUrl: isSet(object.msgTypeUrl) ? globalThis.String(object.msgTypeUrl) : "",
+      msgTypeUrl: isSet(object.msg_type_url) ? globalThis.String(object.msg_type_url) : "",
       granter: isSet(object.granter) ? globalThis.String(object.granter) : "",
       grantee: isSet(object.grantee) ? globalThis.String(object.grantee) : "",
     };
@@ -101,7 +101,7 @@ export const EventGrant: MessageFns<EventGrant, "cosmos.authz.v1beta1.EventGrant
   toJSON(message: EventGrant): unknown {
     const obj: any = {};
     if (message.msgTypeUrl !== "") {
-      obj.msgTypeUrl = message.msgTypeUrl;
+      obj.msg_type_url = message.msgTypeUrl;
     }
     if (message.granter !== "") {
       obj.granter = message.granter;
@@ -186,7 +186,7 @@ export const EventRevoke: MessageFns<EventRevoke, "cosmos.authz.v1beta1.EventRev
 
   fromJSON(object: any): EventRevoke {
     return {
-      msgTypeUrl: isSet(object.msgTypeUrl) ? globalThis.String(object.msgTypeUrl) : "",
+      msgTypeUrl: isSet(object.msg_type_url) ? globalThis.String(object.msg_type_url) : "",
       granter: isSet(object.granter) ? globalThis.String(object.granter) : "",
       grantee: isSet(object.grantee) ? globalThis.String(object.grantee) : "",
     };
@@ -195,7 +195,7 @@ export const EventRevoke: MessageFns<EventRevoke, "cosmos.authz.v1beta1.EventRev
   toJSON(message: EventRevoke): unknown {
     const obj: any = {};
     if (message.msgTypeUrl !== "") {
-      obj.msgTypeUrl = message.msgTypeUrl;
+      obj.msg_type_url = message.msgTypeUrl;
     }
     if (message.granter !== "") {
       obj.granter = message.granter;

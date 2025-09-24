@@ -685,7 +685,7 @@ export const QueryBidResponse: MessageFns<QueryBidResponse, "akash.market.v1beta
   fromJSON(object: any): QueryBidResponse {
     return {
       bid: isSet(object.bid) ? Bid.fromJSON(object.bid) : undefined,
-      escrowAccount: isSet(object.escrowAccount) ? Account.fromJSON(object.escrowAccount) : undefined,
+      escrowAccount: isSet(object.escrow_account) ? Account.fromJSON(object.escrow_account) : undefined,
     };
   },
 
@@ -695,7 +695,7 @@ export const QueryBidResponse: MessageFns<QueryBidResponse, "akash.market.v1beta
       obj.bid = Bid.toJSON(message.bid);
     }
     if (message.escrowAccount !== undefined) {
-      obj.escrowAccount = Account.toJSON(message.escrowAccount);
+      obj.escrow_account = Account.toJSON(message.escrowAccount);
     }
     return obj;
   },
@@ -989,7 +989,7 @@ export const QueryLeaseResponse: MessageFns<QueryLeaseResponse, "akash.market.v1
   fromJSON(object: any): QueryLeaseResponse {
     return {
       lease: isSet(object.lease) ? Lease.fromJSON(object.lease) : undefined,
-      escrowPayment: isSet(object.escrowPayment) ? Payment.fromJSON(object.escrowPayment) : undefined,
+      escrowPayment: isSet(object.escrow_payment) ? Payment.fromJSON(object.escrow_payment) : undefined,
     };
   },
 
@@ -999,7 +999,7 @@ export const QueryLeaseResponse: MessageFns<QueryLeaseResponse, "akash.market.v1
       obj.lease = Lease.toJSON(message.lease);
     }
     if (message.escrowPayment !== undefined) {
-      obj.escrowPayment = Payment.toJSON(message.escrowPayment);
+      obj.escrow_payment = Payment.toJSON(message.escrowPayment);
     }
     return obj;
   },

@@ -86,7 +86,7 @@ export const Minter: MessageFns<Minter, "cosmos.mint.v1beta1.Minter"> = {
   fromJSON(object: any): Minter {
     return {
       inflation: isSet(object.inflation) ? globalThis.String(object.inflation) : "",
-      annualProvisions: isSet(object.annualProvisions) ? globalThis.String(object.annualProvisions) : "",
+      annualProvisions: isSet(object.annual_provisions) ? globalThis.String(object.annual_provisions) : "",
     };
   },
 
@@ -96,7 +96,7 @@ export const Minter: MessageFns<Minter, "cosmos.mint.v1beta1.Minter"> = {
       obj.inflation = message.inflation;
     }
     if (message.annualProvisions !== "") {
-      obj.annualProvisions = message.annualProvisions;
+      obj.annual_provisions = message.annualProvisions;
     }
     return obj;
   },
@@ -214,34 +214,34 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      mintDenom: isSet(object.mintDenom) ? globalThis.String(object.mintDenom) : "",
-      inflationRateChange: isSet(object.inflationRateChange) ? globalThis.String(object.inflationRateChange) : "",
-      inflationMax: isSet(object.inflationMax) ? globalThis.String(object.inflationMax) : "",
-      inflationMin: isSet(object.inflationMin) ? globalThis.String(object.inflationMin) : "",
-      goalBonded: isSet(object.goalBonded) ? globalThis.String(object.goalBonded) : "",
-      blocksPerYear: isSet(object.blocksPerYear) ? Long.fromValue(object.blocksPerYear) : Long.UZERO,
+      mintDenom: isSet(object.mint_denom) ? globalThis.String(object.mint_denom) : "",
+      inflationRateChange: isSet(object.inflation_rate_change) ? globalThis.String(object.inflation_rate_change) : "",
+      inflationMax: isSet(object.inflation_max) ? globalThis.String(object.inflation_max) : "",
+      inflationMin: isSet(object.inflation_min) ? globalThis.String(object.inflation_min) : "",
+      goalBonded: isSet(object.goal_bonded) ? globalThis.String(object.goal_bonded) : "",
+      blocksPerYear: isSet(object.blocks_per_year) ? Long.fromValue(object.blocks_per_year) : Long.UZERO,
     };
   },
 
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.mintDenom !== "") {
-      obj.mintDenom = message.mintDenom;
+      obj.mint_denom = message.mintDenom;
     }
     if (message.inflationRateChange !== "") {
-      obj.inflationRateChange = message.inflationRateChange;
+      obj.inflation_rate_change = message.inflationRateChange;
     }
     if (message.inflationMax !== "") {
-      obj.inflationMax = message.inflationMax;
+      obj.inflation_max = message.inflationMax;
     }
     if (message.inflationMin !== "") {
-      obj.inflationMin = message.inflationMin;
+      obj.inflation_min = message.inflationMin;
     }
     if (message.goalBonded !== "") {
-      obj.goalBonded = message.goalBonded;
+      obj.goal_bonded = message.goalBonded;
     }
     if (!message.blocksPerYear.equals(Long.UZERO)) {
-      obj.blocksPerYear = (message.blocksPerYear || Long.UZERO).toString();
+      obj.blocks_per_year = (message.blocksPerYear || Long.UZERO).toString();
     }
     return obj;
   },

@@ -298,7 +298,7 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
 
   fromJSON(object: any): SignatureDescriptor {
     return {
-      publicKey: isSet(object.publicKey) ? Any.fromJSON(object.publicKey) : undefined,
+      publicKey: isSet(object.public_key) ? Any.fromJSON(object.public_key) : undefined,
       data: isSet(object.data) ? SignatureDescriptor_Data.fromJSON(object.data) : undefined,
       sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO,
     };
@@ -307,7 +307,7 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
   toJSON(message: SignatureDescriptor): unknown {
     const obj: any = {};
     if (message.publicKey !== undefined) {
-      obj.publicKey = Any.toJSON(message.publicKey);
+      obj.public_key = Any.toJSON(message.publicKey);
     }
     if (message.data !== undefined) {
       obj.data = SignatureDescriptor_Data.toJSON(message.data);

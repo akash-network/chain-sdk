@@ -123,11 +123,11 @@ export const GPUInfo: MessageFns<GPUInfo, "akash.inventory.v1.GPUInfo"> = {
   fromJSON(object: any): GPUInfo {
     return {
       vendor: isSet(object.vendor) ? globalThis.String(object.vendor) : "",
-      vendorId: isSet(object.vendorId) ? globalThis.String(object.vendorId) : "",
+      vendorId: isSet(object.vendor_id) ? globalThis.String(object.vendor_id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       modelid: isSet(object.modelid) ? globalThis.String(object.modelid) : "",
       interface: isSet(object.interface) ? globalThis.String(object.interface) : "",
-      memorySize: isSet(object.memorySize) ? globalThis.String(object.memorySize) : "",
+      memorySize: isSet(object.memory_size) ? globalThis.String(object.memory_size) : "",
     };
   },
 
@@ -137,7 +137,7 @@ export const GPUInfo: MessageFns<GPUInfo, "akash.inventory.v1.GPUInfo"> = {
       obj.vendor = message.vendor;
     }
     if (message.vendorId !== "") {
-      obj.vendorId = message.vendorId;
+      obj.vendor_id = message.vendorId;
     }
     if (message.name !== "") {
       obj.name = message.name;
@@ -149,7 +149,7 @@ export const GPUInfo: MessageFns<GPUInfo, "akash.inventory.v1.GPUInfo"> = {
       obj.interface = message.interface;
     }
     if (message.memorySize !== "") {
-      obj.memorySize = message.memorySize;
+      obj.memory_size = message.memorySize;
     }
     return obj;
   },

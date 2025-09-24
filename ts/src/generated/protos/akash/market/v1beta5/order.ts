@@ -147,7 +147,7 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
       id: isSet(object.id) ? OrderID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? order_StateFromJSON(object.state) : 0,
       spec: isSet(object.spec) ? GroupSpec.fromJSON(object.spec) : undefined,
-      createdAt: isSet(object.createdAt) ? Long.fromValue(object.createdAt) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
     };
   },
 
@@ -163,7 +163,7 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
       obj.spec = GroupSpec.toJSON(message.spec);
     }
     if (!message.createdAt.equals(Long.ZERO)) {
-      obj.createdAt = (message.createdAt || Long.ZERO).toString();
+      obj.created_at = (message.createdAt || Long.ZERO).toString();
     }
     return obj;
   },

@@ -176,18 +176,18 @@ export const DelegatorWithdrawInfo: MessageFns<
 
   fromJSON(object: any): DelegatorWithdrawInfo {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      withdrawAddress: isSet(object.withdrawAddress) ? globalThis.String(object.withdrawAddress) : "",
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      withdrawAddress: isSet(object.withdraw_address) ? globalThis.String(object.withdraw_address) : "",
     };
   },
 
   toJSON(message: DelegatorWithdrawInfo): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.withdrawAddress !== "") {
-      obj.withdrawAddress = message.withdrawAddress;
+      obj.withdraw_address = message.withdrawAddress;
     }
     return obj;
   },
@@ -257,9 +257,9 @@ export const ValidatorOutstandingRewardsRecord: MessageFns<
 
   fromJSON(object: any): ValidatorOutstandingRewardsRecord {
     return {
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
-      outstandingRewards: globalThis.Array.isArray(object?.outstandingRewards)
-        ? object.outstandingRewards.map((e: any) => DecCoin.fromJSON(e))
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
+      outstandingRewards: globalThis.Array.isArray(object?.outstanding_rewards)
+        ? object.outstanding_rewards.map((e: any) => DecCoin.fromJSON(e))
         : [],
     };
   },
@@ -267,10 +267,10 @@ export const ValidatorOutstandingRewardsRecord: MessageFns<
   toJSON(message: ValidatorOutstandingRewardsRecord): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.outstandingRewards?.length) {
-      obj.outstandingRewards = message.outstandingRewards.map((e) => DecCoin.toJSON(e));
+      obj.outstanding_rewards = message.outstandingRewards.map((e) => DecCoin.toJSON(e));
     }
     return obj;
   },
@@ -340,7 +340,7 @@ export const ValidatorAccumulatedCommissionRecord: MessageFns<
 
   fromJSON(object: any): ValidatorAccumulatedCommissionRecord {
     return {
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       accumulated: isSet(object.accumulated) ? ValidatorAccumulatedCommission.fromJSON(object.accumulated) : undefined,
     };
   },
@@ -348,7 +348,7 @@ export const ValidatorAccumulatedCommissionRecord: MessageFns<
   toJSON(message: ValidatorAccumulatedCommissionRecord): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.accumulated !== undefined) {
       obj.accumulated = ValidatorAccumulatedCommission.toJSON(message.accumulated);
@@ -434,7 +434,7 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
 
   fromJSON(object: any): ValidatorHistoricalRewardsRecord {
     return {
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       period: isSet(object.period) ? Long.fromValue(object.period) : Long.UZERO,
       rewards: isSet(object.rewards) ? ValidatorHistoricalRewards.fromJSON(object.rewards) : undefined,
     };
@@ -443,7 +443,7 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
   toJSON(message: ValidatorHistoricalRewardsRecord): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (!message.period.equals(Long.UZERO)) {
       obj.period = (message.period || Long.UZERO).toString();
@@ -524,7 +524,7 @@ export const ValidatorCurrentRewardsRecord: MessageFns<
 
   fromJSON(object: any): ValidatorCurrentRewardsRecord {
     return {
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       rewards: isSet(object.rewards) ? ValidatorCurrentRewards.fromJSON(object.rewards) : undefined,
     };
   },
@@ -532,7 +532,7 @@ export const ValidatorCurrentRewardsRecord: MessageFns<
   toJSON(message: ValidatorCurrentRewardsRecord): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.rewards !== undefined) {
       obj.rewards = ValidatorCurrentRewards.toJSON(message.rewards);
@@ -618,22 +618,22 @@ export const DelegatorStartingInfoRecord: MessageFns<
 
   fromJSON(object: any): DelegatorStartingInfoRecord {
     return {
-      delegatorAddress: isSet(object.delegatorAddress) ? globalThis.String(object.delegatorAddress) : "",
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
-      startingInfo: isSet(object.startingInfo) ? DelegatorStartingInfo.fromJSON(object.startingInfo) : undefined,
+      delegatorAddress: isSet(object.delegator_address) ? globalThis.String(object.delegator_address) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
+      startingInfo: isSet(object.starting_info) ? DelegatorStartingInfo.fromJSON(object.starting_info) : undefined,
     };
   },
 
   toJSON(message: DelegatorStartingInfoRecord): unknown {
     const obj: any = {};
     if (message.delegatorAddress !== "") {
-      obj.delegatorAddress = message.delegatorAddress;
+      obj.delegator_address = message.delegatorAddress;
     }
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (message.startingInfo !== undefined) {
-      obj.startingInfo = DelegatorStartingInfo.toJSON(message.startingInfo);
+      obj.starting_info = DelegatorStartingInfo.toJSON(message.startingInfo);
     }
     return obj;
   },
@@ -728,11 +728,11 @@ export const ValidatorSlashEventRecord: MessageFns<
 
   fromJSON(object: any): ValidatorSlashEventRecord {
     return {
-      validatorAddress: isSet(object.validatorAddress) ? globalThis.String(object.validatorAddress) : "",
+      validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
       period: isSet(object.period) ? Long.fromValue(object.period) : Long.UZERO,
-      validatorSlashEvent: isSet(object.validatorSlashEvent)
-        ? ValidatorSlashEvent.fromJSON(object.validatorSlashEvent)
+      validatorSlashEvent: isSet(object.validator_slash_event)
+        ? ValidatorSlashEvent.fromJSON(object.validator_slash_event)
         : undefined,
     };
   },
@@ -740,7 +740,7 @@ export const ValidatorSlashEventRecord: MessageFns<
   toJSON(message: ValidatorSlashEventRecord): unknown {
     const obj: any = {};
     if (message.validatorAddress !== "") {
-      obj.validatorAddress = message.validatorAddress;
+      obj.validator_address = message.validatorAddress;
     }
     if (!message.height.equals(Long.UZERO)) {
       obj.height = (message.height || Long.UZERO).toString();
@@ -749,7 +749,7 @@ export const ValidatorSlashEventRecord: MessageFns<
       obj.period = (message.period || Long.UZERO).toString();
     }
     if (message.validatorSlashEvent !== undefined) {
-      obj.validatorSlashEvent = ValidatorSlashEvent.toJSON(message.validatorSlashEvent);
+      obj.validator_slash_event = ValidatorSlashEvent.toJSON(message.validatorSlashEvent);
     }
     return obj;
   },
@@ -926,28 +926,28 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.distribution.v1beta1
   fromJSON(object: any): GenesisState {
     return {
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
-      feePool: isSet(object.feePool) ? FeePool.fromJSON(object.feePool) : undefined,
-      delegatorWithdrawInfos: globalThis.Array.isArray(object?.delegatorWithdrawInfos)
-        ? object.delegatorWithdrawInfos.map((e: any) => DelegatorWithdrawInfo.fromJSON(e))
+      feePool: isSet(object.fee_pool) ? FeePool.fromJSON(object.fee_pool) : undefined,
+      delegatorWithdrawInfos: globalThis.Array.isArray(object?.delegator_withdraw_infos)
+        ? object.delegator_withdraw_infos.map((e: any) => DelegatorWithdrawInfo.fromJSON(e))
         : [],
-      previousProposer: isSet(object.previousProposer) ? globalThis.String(object.previousProposer) : "",
-      outstandingRewards: globalThis.Array.isArray(object?.outstandingRewards)
-        ? object.outstandingRewards.map((e: any) => ValidatorOutstandingRewardsRecord.fromJSON(e))
+      previousProposer: isSet(object.previous_proposer) ? globalThis.String(object.previous_proposer) : "",
+      outstandingRewards: globalThis.Array.isArray(object?.outstanding_rewards)
+        ? object.outstanding_rewards.map((e: any) => ValidatorOutstandingRewardsRecord.fromJSON(e))
         : [],
-      validatorAccumulatedCommissions: globalThis.Array.isArray(object?.validatorAccumulatedCommissions)
-        ? object.validatorAccumulatedCommissions.map((e: any) => ValidatorAccumulatedCommissionRecord.fromJSON(e))
+      validatorAccumulatedCommissions: globalThis.Array.isArray(object?.validator_accumulated_commissions)
+        ? object.validator_accumulated_commissions.map((e: any) => ValidatorAccumulatedCommissionRecord.fromJSON(e))
         : [],
-      validatorHistoricalRewards: globalThis.Array.isArray(object?.validatorHistoricalRewards)
-        ? object.validatorHistoricalRewards.map((e: any) => ValidatorHistoricalRewardsRecord.fromJSON(e))
+      validatorHistoricalRewards: globalThis.Array.isArray(object?.validator_historical_rewards)
+        ? object.validator_historical_rewards.map((e: any) => ValidatorHistoricalRewardsRecord.fromJSON(e))
         : [],
-      validatorCurrentRewards: globalThis.Array.isArray(object?.validatorCurrentRewards)
-        ? object.validatorCurrentRewards.map((e: any) => ValidatorCurrentRewardsRecord.fromJSON(e))
+      validatorCurrentRewards: globalThis.Array.isArray(object?.validator_current_rewards)
+        ? object.validator_current_rewards.map((e: any) => ValidatorCurrentRewardsRecord.fromJSON(e))
         : [],
-      delegatorStartingInfos: globalThis.Array.isArray(object?.delegatorStartingInfos)
-        ? object.delegatorStartingInfos.map((e: any) => DelegatorStartingInfoRecord.fromJSON(e))
+      delegatorStartingInfos: globalThis.Array.isArray(object?.delegator_starting_infos)
+        ? object.delegator_starting_infos.map((e: any) => DelegatorStartingInfoRecord.fromJSON(e))
         : [],
-      validatorSlashEvents: globalThis.Array.isArray(object?.validatorSlashEvents)
-        ? object.validatorSlashEvents.map((e: any) => ValidatorSlashEventRecord.fromJSON(e))
+      validatorSlashEvents: globalThis.Array.isArray(object?.validator_slash_events)
+        ? object.validator_slash_events.map((e: any) => ValidatorSlashEventRecord.fromJSON(e))
         : [],
     };
   },
@@ -958,35 +958,37 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.distribution.v1beta1
       obj.params = Params.toJSON(message.params);
     }
     if (message.feePool !== undefined) {
-      obj.feePool = FeePool.toJSON(message.feePool);
+      obj.fee_pool = FeePool.toJSON(message.feePool);
     }
     if (message.delegatorWithdrawInfos?.length) {
-      obj.delegatorWithdrawInfos = message.delegatorWithdrawInfos.map((e) => DelegatorWithdrawInfo.toJSON(e));
+      obj.delegator_withdraw_infos = message.delegatorWithdrawInfos.map((e) => DelegatorWithdrawInfo.toJSON(e));
     }
     if (message.previousProposer !== "") {
-      obj.previousProposer = message.previousProposer;
+      obj.previous_proposer = message.previousProposer;
     }
     if (message.outstandingRewards?.length) {
-      obj.outstandingRewards = message.outstandingRewards.map((e) => ValidatorOutstandingRewardsRecord.toJSON(e));
+      obj.outstanding_rewards = message.outstandingRewards.map((e) => ValidatorOutstandingRewardsRecord.toJSON(e));
     }
     if (message.validatorAccumulatedCommissions?.length) {
-      obj.validatorAccumulatedCommissions = message.validatorAccumulatedCommissions.map((e) =>
+      obj.validator_accumulated_commissions = message.validatorAccumulatedCommissions.map((e) =>
         ValidatorAccumulatedCommissionRecord.toJSON(e)
       );
     }
     if (message.validatorHistoricalRewards?.length) {
-      obj.validatorHistoricalRewards = message.validatorHistoricalRewards.map((e) =>
+      obj.validator_historical_rewards = message.validatorHistoricalRewards.map((e) =>
         ValidatorHistoricalRewardsRecord.toJSON(e)
       );
     }
     if (message.validatorCurrentRewards?.length) {
-      obj.validatorCurrentRewards = message.validatorCurrentRewards.map((e) => ValidatorCurrentRewardsRecord.toJSON(e));
+      obj.validator_current_rewards = message.validatorCurrentRewards.map((e) =>
+        ValidatorCurrentRewardsRecord.toJSON(e)
+      );
     }
     if (message.delegatorStartingInfos?.length) {
-      obj.delegatorStartingInfos = message.delegatorStartingInfos.map((e) => DelegatorStartingInfoRecord.toJSON(e));
+      obj.delegator_starting_infos = message.delegatorStartingInfos.map((e) => DelegatorStartingInfoRecord.toJSON(e));
     }
     if (message.validatorSlashEvents?.length) {
-      obj.validatorSlashEvents = message.validatorSlashEvents.map((e) => ValidatorSlashEventRecord.toJSON(e));
+      obj.validator_slash_events = message.validatorSlashEvents.map((e) => ValidatorSlashEventRecord.toJSON(e));
     }
     return obj;
   },

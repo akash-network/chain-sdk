@@ -57,8 +57,8 @@ export const Params: MessageFns<Params, "akash.deployment.v1beta4.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      minDeposits: globalThis.Array.isArray(object?.minDeposits)
-        ? object.minDeposits.map((e: any) => Coin.fromJSON(e))
+      minDeposits: globalThis.Array.isArray(object?.min_deposits)
+        ? object.min_deposits.map((e: any) => Coin.fromJSON(e))
         : [],
     };
   },
@@ -66,7 +66,7 @@ export const Params: MessageFns<Params, "akash.deployment.v1beta4.Params"> = {
   toJSON(message: Params): unknown {
     const obj: any = {};
     if (message.minDeposits?.length) {
-      obj.minDeposits = message.minDeposits.map((e) => Coin.toJSON(e));
+      obj.min_deposits = message.minDeposits.map((e) => Coin.toJSON(e));
     }
     return obj;
   },

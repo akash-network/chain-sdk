@@ -330,13 +330,13 @@ export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.gov.
   },
 
   fromJSON(object: any): QueryProposalRequest {
-    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
   },
 
   toJSON(message: QueryProposalRequest): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },
@@ -488,7 +488,7 @@ export const QueryProposalsRequest: MessageFns<QueryProposalsRequest, "cosmos.go
 
   fromJSON(object: any): QueryProposalsRequest {
     return {
-      proposalStatus: isSet(object.proposalStatus) ? proposalStatusFromJSON(object.proposalStatus) : 0,
+      proposalStatus: isSet(object.proposal_status) ? proposalStatusFromJSON(object.proposal_status) : 0,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
@@ -498,7 +498,7 @@ export const QueryProposalsRequest: MessageFns<QueryProposalsRequest, "cosmos.go
   toJSON(message: QueryProposalsRequest): unknown {
     const obj: any = {};
     if (message.proposalStatus !== 0) {
-      obj.proposalStatus = proposalStatusToJSON(message.proposalStatus);
+      obj.proposal_status = proposalStatusToJSON(message.proposalStatus);
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -660,7 +660,7 @@ export const QueryVoteRequest: MessageFns<QueryVoteRequest, "cosmos.gov.v1.Query
 
   fromJSON(object: any): QueryVoteRequest {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
     };
   },
@@ -668,7 +668,7 @@ export const QueryVoteRequest: MessageFns<QueryVoteRequest, "cosmos.gov.v1.Query
   toJSON(message: QueryVoteRequest): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -800,7 +800,7 @@ export const QueryVotesRequest: MessageFns<QueryVotesRequest, "cosmos.gov.v1.Que
 
   fromJSON(object: any): QueryVotesRequest {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -808,7 +808,7 @@ export const QueryVotesRequest: MessageFns<QueryVotesRequest, "cosmos.gov.v1.Que
   toJSON(message: QueryVotesRequest): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -950,13 +950,13 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "cosmos.gov.v1.Q
   },
 
   fromJSON(object: any): QueryParamsRequest {
-    return { paramsType: isSet(object.paramsType) ? globalThis.String(object.paramsType) : "" };
+    return { paramsType: isSet(object.params_type) ? globalThis.String(object.params_type) : "" };
   },
 
   toJSON(message: QueryParamsRequest): unknown {
     const obj: any = {};
     if (message.paramsType !== "") {
-      obj.paramsType = message.paramsType;
+      obj.params_type = message.paramsType;
     }
     return obj;
   },
@@ -1044,9 +1044,9 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.gov.v1
 
   fromJSON(object: any): QueryParamsResponse {
     return {
-      votingParams: isSet(object.votingParams) ? VotingParams.fromJSON(object.votingParams) : undefined,
-      depositParams: isSet(object.depositParams) ? DepositParams.fromJSON(object.depositParams) : undefined,
-      tallyParams: isSet(object.tallyParams) ? TallyParams.fromJSON(object.tallyParams) : undefined,
+      votingParams: isSet(object.voting_params) ? VotingParams.fromJSON(object.voting_params) : undefined,
+      depositParams: isSet(object.deposit_params) ? DepositParams.fromJSON(object.deposit_params) : undefined,
+      tallyParams: isSet(object.tally_params) ? TallyParams.fromJSON(object.tally_params) : undefined,
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
     };
   },
@@ -1054,13 +1054,13 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.gov.v1
   toJSON(message: QueryParamsResponse): unknown {
     const obj: any = {};
     if (message.votingParams !== undefined) {
-      obj.votingParams = VotingParams.toJSON(message.votingParams);
+      obj.voting_params = VotingParams.toJSON(message.votingParams);
     }
     if (message.depositParams !== undefined) {
-      obj.depositParams = DepositParams.toJSON(message.depositParams);
+      obj.deposit_params = DepositParams.toJSON(message.depositParams);
     }
     if (message.tallyParams !== undefined) {
-      obj.tallyParams = TallyParams.toJSON(message.tallyParams);
+      obj.tally_params = TallyParams.toJSON(message.tallyParams);
     }
     if (message.params !== undefined) {
       obj.params = Params.toJSON(message.params);
@@ -1140,7 +1140,7 @@ export const QueryDepositRequest: MessageFns<QueryDepositRequest, "cosmos.gov.v1
 
   fromJSON(object: any): QueryDepositRequest {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
     };
   },
@@ -1148,7 +1148,7 @@ export const QueryDepositRequest: MessageFns<QueryDepositRequest, "cosmos.gov.v1
   toJSON(message: QueryDepositRequest): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.depositor !== "") {
       obj.depositor = message.depositor;
@@ -1282,7 +1282,7 @@ export const QueryDepositsRequest: MessageFns<QueryDepositsRequest, "cosmos.gov.
 
   fromJSON(object: any): QueryDepositsRequest {
     return {
-      proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -1290,7 +1290,7 @@ export const QueryDepositsRequest: MessageFns<QueryDepositsRequest, "cosmos.gov.
   toJSON(message: QueryDepositsRequest): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1432,13 +1432,13 @@ export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmo
   },
 
   fromJSON(object: any): QueryTallyResultRequest {
-    return { proposalId: isSet(object.proposalId) ? Long.fromValue(object.proposalId) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
   },
 
   toJSON(message: QueryTallyResultRequest): unknown {
     const obj: any = {};
     if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposalId = (message.proposalId || Long.UZERO).toString();
+      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
   },

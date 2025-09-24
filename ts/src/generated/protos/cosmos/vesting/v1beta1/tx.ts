@@ -149,10 +149,10 @@ export const MsgCreateVestingAccount: MessageFns<
 
   fromJSON(object: any): MsgCreateVestingAccount {
     return {
-      fromAddress: isSet(object.fromAddress) ? globalThis.String(object.fromAddress) : "",
-      toAddress: isSet(object.toAddress) ? globalThis.String(object.toAddress) : "",
+      fromAddress: isSet(object.from_address) ? globalThis.String(object.from_address) : "",
+      toAddress: isSet(object.to_address) ? globalThis.String(object.to_address) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
-      endTime: isSet(object.endTime) ? Long.fromValue(object.endTime) : Long.ZERO,
+      endTime: isSet(object.end_time) ? Long.fromValue(object.end_time) : Long.ZERO,
       delayed: isSet(object.delayed) ? globalThis.Boolean(object.delayed) : false,
     };
   },
@@ -160,16 +160,16 @@ export const MsgCreateVestingAccount: MessageFns<
   toJSON(message: MsgCreateVestingAccount): unknown {
     const obj: any = {};
     if (message.fromAddress !== "") {
-      obj.fromAddress = message.fromAddress;
+      obj.from_address = message.fromAddress;
     }
     if (message.toAddress !== "") {
-      obj.toAddress = message.toAddress;
+      obj.to_address = message.toAddress;
     }
     if (message.amount?.length) {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
     }
     if (!message.endTime.equals(Long.ZERO)) {
-      obj.endTime = (message.endTime || Long.ZERO).toString();
+      obj.end_time = (message.endTime || Long.ZERO).toString();
     }
     if (message.delayed !== false) {
       obj.delayed = message.delayed;
@@ -306,8 +306,8 @@ export const MsgCreatePermanentLockedAccount: MessageFns<
 
   fromJSON(object: any): MsgCreatePermanentLockedAccount {
     return {
-      fromAddress: isSet(object.fromAddress) ? globalThis.String(object.fromAddress) : "",
-      toAddress: isSet(object.toAddress) ? globalThis.String(object.toAddress) : "",
+      fromAddress: isSet(object.from_address) ? globalThis.String(object.from_address) : "",
+      toAddress: isSet(object.to_address) ? globalThis.String(object.to_address) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
     };
   },
@@ -315,10 +315,10 @@ export const MsgCreatePermanentLockedAccount: MessageFns<
   toJSON(message: MsgCreatePermanentLockedAccount): unknown {
     const obj: any = {};
     if (message.fromAddress !== "") {
-      obj.fromAddress = message.fromAddress;
+      obj.from_address = message.fromAddress;
     }
     if (message.toAddress !== "") {
-      obj.toAddress = message.toAddress;
+      obj.to_address = message.toAddress;
     }
     if (message.amount?.length) {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
@@ -462,11 +462,11 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
 
   fromJSON(object: any): MsgCreatePeriodicVestingAccount {
     return {
-      fromAddress: isSet(object.fromAddress) ? globalThis.String(object.fromAddress) : "",
-      toAddress: isSet(object.toAddress) ? globalThis.String(object.toAddress) : "",
-      startTime: isSet(object.startTime) ? Long.fromValue(object.startTime) : Long.ZERO,
-      vestingPeriods: globalThis.Array.isArray(object?.vestingPeriods)
-        ? object.vestingPeriods.map((e: any) => Period.fromJSON(e))
+      fromAddress: isSet(object.from_address) ? globalThis.String(object.from_address) : "",
+      toAddress: isSet(object.to_address) ? globalThis.String(object.to_address) : "",
+      startTime: isSet(object.start_time) ? Long.fromValue(object.start_time) : Long.ZERO,
+      vestingPeriods: globalThis.Array.isArray(object?.vesting_periods)
+        ? object.vesting_periods.map((e: any) => Period.fromJSON(e))
         : [],
     };
   },
@@ -474,16 +474,16 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
   toJSON(message: MsgCreatePeriodicVestingAccount): unknown {
     const obj: any = {};
     if (message.fromAddress !== "") {
-      obj.fromAddress = message.fromAddress;
+      obj.from_address = message.fromAddress;
     }
     if (message.toAddress !== "") {
-      obj.toAddress = message.toAddress;
+      obj.to_address = message.toAddress;
     }
     if (!message.startTime.equals(Long.ZERO)) {
-      obj.startTime = (message.startTime || Long.ZERO).toString();
+      obj.start_time = (message.startTime || Long.ZERO).toString();
     }
     if (message.vestingPeriods?.length) {
-      obj.vestingPeriods = message.vestingPeriods.map((e) => Period.toJSON(e));
+      obj.vesting_periods = message.vestingPeriods.map((e) => Period.toJSON(e));
     }
     return obj;
   },

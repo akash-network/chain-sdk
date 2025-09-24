@@ -221,11 +221,11 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
       available: isSet(object.available) ? globalThis.Number(object.available) : 0,
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
       uris: globalThis.Array.isArray(object?.uris) ? object.uris.map((e: any) => globalThis.String(e)) : [],
-      observedGeneration: isSet(object.observedGeneration) ? Long.fromValue(object.observedGeneration) : Long.ZERO,
+      observedGeneration: isSet(object.observed_generation) ? Long.fromValue(object.observed_generation) : Long.ZERO,
       replicas: isSet(object.replicas) ? globalThis.Number(object.replicas) : 0,
-      updatedReplicas: isSet(object.updatedReplicas) ? globalThis.Number(object.updatedReplicas) : 0,
-      readyReplicas: isSet(object.readyReplicas) ? globalThis.Number(object.readyReplicas) : 0,
-      availableReplicas: isSet(object.availableReplicas) ? globalThis.Number(object.availableReplicas) : 0,
+      updatedReplicas: isSet(object.updated_replicas) ? globalThis.Number(object.updated_replicas) : 0,
+      readyReplicas: isSet(object.ready_replicas) ? globalThis.Number(object.ready_replicas) : 0,
+      availableReplicas: isSet(object.available_replicas) ? globalThis.Number(object.available_replicas) : 0,
     };
   },
 
@@ -241,19 +241,19 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
       obj.uris = message.uris;
     }
     if (!message.observedGeneration.equals(Long.ZERO)) {
-      obj.observedGeneration = (message.observedGeneration || Long.ZERO).toString();
+      obj.observed_generation = (message.observedGeneration || Long.ZERO).toString();
     }
     if (message.replicas !== 0) {
       obj.replicas = Math.round(message.replicas);
     }
     if (message.updatedReplicas !== 0) {
-      obj.updatedReplicas = Math.round(message.updatedReplicas);
+      obj.updated_replicas = Math.round(message.updatedReplicas);
     }
     if (message.readyReplicas !== 0) {
-      obj.readyReplicas = Math.round(message.readyReplicas);
+      obj.ready_replicas = Math.round(message.readyReplicas);
     }
     if (message.availableReplicas !== 0) {
-      obj.availableReplicas = Math.round(message.availableReplicas);
+      obj.available_replicas = Math.round(message.availableReplicas);
     }
     return obj;
   },
@@ -351,7 +351,7 @@ export const LeaseIPStatus: MessageFns<LeaseIPStatus, "akash.provider.lease.v1.L
   fromJSON(object: any): LeaseIPStatus {
     return {
       port: isSet(object.port) ? globalThis.Number(object.port) : 0,
-      externalPort: isSet(object.externalPort) ? globalThis.Number(object.externalPort) : 0,
+      externalPort: isSet(object.external_port) ? globalThis.Number(object.external_port) : 0,
       protocol: isSet(object.protocol) ? globalThis.String(object.protocol) : "",
       ip: isSet(object.ip) ? globalThis.String(object.ip) : "",
     };
@@ -363,7 +363,7 @@ export const LeaseIPStatus: MessageFns<LeaseIPStatus, "akash.provider.lease.v1.L
       obj.port = Math.round(message.port);
     }
     if (message.externalPort !== 0) {
-      obj.externalPort = Math.round(message.externalPort);
+      obj.external_port = Math.round(message.externalPort);
     }
     if (message.protocol !== "") {
       obj.protocol = message.protocol;
@@ -473,7 +473,7 @@ export const ForwarderPortStatus: MessageFns<ForwarderPortStatus, "akash.provide
     return {
       host: isSet(object.host) ? globalThis.String(object.host) : "",
       port: isSet(object.port) ? globalThis.Number(object.port) : 0,
-      externalPort: isSet(object.externalPort) ? globalThis.Number(object.externalPort) : 0,
+      externalPort: isSet(object.external_port) ? globalThis.Number(object.external_port) : 0,
       proto: isSet(object.proto) ? globalThis.String(object.proto) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
     };
@@ -488,7 +488,7 @@ export const ForwarderPortStatus: MessageFns<ForwarderPortStatus, "akash.provide
       obj.port = Math.round(message.port);
     }
     if (message.externalPort !== 0) {
-      obj.externalPort = Math.round(message.externalPort);
+      obj.external_port = Math.round(message.externalPort);
     }
     if (message.proto !== "") {
       obj.proto = message.proto;
@@ -678,7 +678,7 @@ export const SendManifestRequest: MessageFns<SendManifestRequest, "akash.provide
 
   fromJSON(object: any): SendManifestRequest {
     return {
-      leaseId: isSet(object.leaseId) ? LeaseID.fromJSON(object.leaseId) : undefined,
+      leaseId: isSet(object.lease_id) ? LeaseID.fromJSON(object.lease_id) : undefined,
       manifest: globalThis.Array.isArray(object?.manifest) ? object.manifest.map((e: any) => Group.fromJSON(e)) : [],
     };
   },
@@ -686,7 +686,7 @@ export const SendManifestRequest: MessageFns<SendManifestRequest, "akash.provide
   toJSON(message: SendManifestRequest): unknown {
     const obj: any = {};
     if (message.leaseId !== undefined) {
-      obj.leaseId = LeaseID.toJSON(message.leaseId);
+      obj.lease_id = LeaseID.toJSON(message.leaseId);
     }
     if (message.manifest?.length) {
       obj.manifest = message.manifest.map((e) => Group.toJSON(e));
@@ -803,7 +803,7 @@ export const ServiceLogsRequest: MessageFns<ServiceLogsRequest, "akash.provider.
 
   fromJSON(object: any): ServiceLogsRequest {
     return {
-      leaseId: isSet(object.leaseId) ? LeaseID.fromJSON(object.leaseId) : undefined,
+      leaseId: isSet(object.lease_id) ? LeaseID.fromJSON(object.lease_id) : undefined,
       services: globalThis.Array.isArray(object?.services) ? object.services.map((e: any) => globalThis.String(e)) : [],
     };
   },
@@ -811,7 +811,7 @@ export const ServiceLogsRequest: MessageFns<ServiceLogsRequest, "akash.provider.
   toJSON(message: ServiceLogsRequest): unknown {
     const obj: any = {};
     if (message.leaseId !== undefined) {
-      obj.leaseId = LeaseID.toJSON(message.leaseId);
+      obj.lease_id = LeaseID.toJSON(message.leaseId);
     }
     if (message.services?.length) {
       obj.services = message.services;
@@ -1013,13 +1013,13 @@ export const ShellRequest: MessageFns<ShellRequest, "akash.provider.lease.v1.She
   },
 
   fromJSON(object: any): ShellRequest {
-    return { leaseId: isSet(object.leaseId) ? LeaseID.fromJSON(object.leaseId) : undefined };
+    return { leaseId: isSet(object.lease_id) ? LeaseID.fromJSON(object.lease_id) : undefined };
   },
 
   toJSON(message: ShellRequest): unknown {
     const obj: any = {};
     if (message.leaseId !== undefined) {
-      obj.leaseId = LeaseID.toJSON(message.leaseId);
+      obj.lease_id = LeaseID.toJSON(message.leaseId);
     }
     return obj;
   },
@@ -1087,7 +1087,7 @@ export const ServiceStatusRequest: MessageFns<ServiceStatusRequest, "akash.provi
 
   fromJSON(object: any): ServiceStatusRequest {
     return {
-      leaseId: isSet(object.leaseId) ? LeaseID.fromJSON(object.leaseId) : undefined,
+      leaseId: isSet(object.lease_id) ? LeaseID.fromJSON(object.lease_id) : undefined,
       services: globalThis.Array.isArray(object?.services) ? object.services.map((e: any) => globalThis.String(e)) : [],
     };
   },
@@ -1095,7 +1095,7 @@ export const ServiceStatusRequest: MessageFns<ServiceStatusRequest, "akash.provi
   toJSON(message: ServiceStatusRequest): unknown {
     const obj: any = {};
     if (message.leaseId !== undefined) {
-      obj.leaseId = LeaseID.toJSON(message.leaseId);
+      obj.lease_id = LeaseID.toJSON(message.leaseId);
     }
     if (message.services?.length) {
       obj.services = message.services;

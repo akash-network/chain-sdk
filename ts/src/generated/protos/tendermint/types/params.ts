@@ -290,18 +290,18 @@ export const BlockParams: MessageFns<BlockParams, "tendermint.types.BlockParams"
 
   fromJSON(object: any): BlockParams {
     return {
-      maxBytes: isSet(object.maxBytes) ? Long.fromValue(object.maxBytes) : Long.ZERO,
-      maxGas: isSet(object.maxGas) ? Long.fromValue(object.maxGas) : Long.ZERO,
+      maxBytes: isSet(object.max_bytes) ? Long.fromValue(object.max_bytes) : Long.ZERO,
+      maxGas: isSet(object.max_gas) ? Long.fromValue(object.max_gas) : Long.ZERO,
     };
   },
 
   toJSON(message: BlockParams): unknown {
     const obj: any = {};
     if (!message.maxBytes.equals(Long.ZERO)) {
-      obj.maxBytes = (message.maxBytes || Long.ZERO).toString();
+      obj.max_bytes = (message.maxBytes || Long.ZERO).toString();
     }
     if (!message.maxGas.equals(Long.ZERO)) {
-      obj.maxGas = (message.maxGas || Long.ZERO).toString();
+      obj.max_gas = (message.maxGas || Long.ZERO).toString();
     }
     return obj;
   },
@@ -383,22 +383,22 @@ export const EvidenceParams: MessageFns<EvidenceParams, "tendermint.types.Eviden
 
   fromJSON(object: any): EvidenceParams {
     return {
-      maxAgeNumBlocks: isSet(object.maxAgeNumBlocks) ? Long.fromValue(object.maxAgeNumBlocks) : Long.ZERO,
-      maxAgeDuration: isSet(object.maxAgeDuration) ? Duration.fromJSON(object.maxAgeDuration) : undefined,
-      maxBytes: isSet(object.maxBytes) ? Long.fromValue(object.maxBytes) : Long.ZERO,
+      maxAgeNumBlocks: isSet(object.max_age_num_blocks) ? Long.fromValue(object.max_age_num_blocks) : Long.ZERO,
+      maxAgeDuration: isSet(object.max_age_duration) ? Duration.fromJSON(object.max_age_duration) : undefined,
+      maxBytes: isSet(object.max_bytes) ? Long.fromValue(object.max_bytes) : Long.ZERO,
     };
   },
 
   toJSON(message: EvidenceParams): unknown {
     const obj: any = {};
     if (!message.maxAgeNumBlocks.equals(Long.ZERO)) {
-      obj.maxAgeNumBlocks = (message.maxAgeNumBlocks || Long.ZERO).toString();
+      obj.max_age_num_blocks = (message.maxAgeNumBlocks || Long.ZERO).toString();
     }
     if (message.maxAgeDuration !== undefined) {
-      obj.maxAgeDuration = Duration.toJSON(message.maxAgeDuration);
+      obj.max_age_duration = Duration.toJSON(message.maxAgeDuration);
     }
     if (!message.maxBytes.equals(Long.ZERO)) {
-      obj.maxBytes = (message.maxBytes || Long.ZERO).toString();
+      obj.max_bytes = (message.maxBytes || Long.ZERO).toString();
     }
     return obj;
   },
@@ -461,8 +461,8 @@ export const ValidatorParams: MessageFns<ValidatorParams, "tendermint.types.Vali
 
   fromJSON(object: any): ValidatorParams {
     return {
-      pubKeyTypes: globalThis.Array.isArray(object?.pubKeyTypes)
-        ? object.pubKeyTypes.map((e: any) => globalThis.String(e))
+      pubKeyTypes: globalThis.Array.isArray(object?.pub_key_types)
+        ? object.pub_key_types.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -470,7 +470,7 @@ export const ValidatorParams: MessageFns<ValidatorParams, "tendermint.types.Vali
   toJSON(message: ValidatorParams): unknown {
     const obj: any = {};
     if (message.pubKeyTypes?.length) {
-      obj.pubKeyTypes = message.pubKeyTypes;
+      obj.pub_key_types = message.pubKeyTypes;
     }
     return obj;
   },
@@ -596,18 +596,18 @@ export const HashedParams: MessageFns<HashedParams, "tendermint.types.HashedPara
 
   fromJSON(object: any): HashedParams {
     return {
-      blockMaxBytes: isSet(object.blockMaxBytes) ? Long.fromValue(object.blockMaxBytes) : Long.ZERO,
-      blockMaxGas: isSet(object.blockMaxGas) ? Long.fromValue(object.blockMaxGas) : Long.ZERO,
+      blockMaxBytes: isSet(object.block_max_bytes) ? Long.fromValue(object.block_max_bytes) : Long.ZERO,
+      blockMaxGas: isSet(object.block_max_gas) ? Long.fromValue(object.block_max_gas) : Long.ZERO,
     };
   },
 
   toJSON(message: HashedParams): unknown {
     const obj: any = {};
     if (!message.blockMaxBytes.equals(Long.ZERO)) {
-      obj.blockMaxBytes = (message.blockMaxBytes || Long.ZERO).toString();
+      obj.block_max_bytes = (message.blockMaxBytes || Long.ZERO).toString();
     }
     if (!message.blockMaxGas.equals(Long.ZERO)) {
-      obj.blockMaxGas = (message.blockMaxGas || Long.ZERO).toString();
+      obj.block_max_gas = (message.blockMaxGas || Long.ZERO).toString();
     }
     return obj;
   },
@@ -667,8 +667,8 @@ export const ABCIParams: MessageFns<ABCIParams, "tendermint.types.ABCIParams"> =
 
   fromJSON(object: any): ABCIParams {
     return {
-      voteExtensionsEnableHeight: isSet(object.voteExtensionsEnableHeight)
-        ? Long.fromValue(object.voteExtensionsEnableHeight)
+      voteExtensionsEnableHeight: isSet(object.vote_extensions_enable_height)
+        ? Long.fromValue(object.vote_extensions_enable_height)
         : Long.ZERO,
     };
   },
@@ -676,7 +676,7 @@ export const ABCIParams: MessageFns<ABCIParams, "tendermint.types.ABCIParams"> =
   toJSON(message: ABCIParams): unknown {
     const obj: any = {};
     if (!message.voteExtensionsEnableHeight.equals(Long.ZERO)) {
-      obj.voteExtensionsEnableHeight = (message.voteExtensionsEnableHeight || Long.ZERO).toString();
+      obj.vote_extensions_enable_height = (message.voteExtensionsEnableHeight || Long.ZERO).toString();
     }
     return obj;
   },

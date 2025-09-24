@@ -172,18 +172,18 @@ export const SignedBy: MessageFns<SignedBy, "akash.base.attributes.v1.SignedBy">
 
   fromJSON(object: any): SignedBy {
     return {
-      allOf: globalThis.Array.isArray(object?.allOf) ? object.allOf.map((e: any) => globalThis.String(e)) : [],
-      anyOf: globalThis.Array.isArray(object?.anyOf) ? object.anyOf.map((e: any) => globalThis.String(e)) : [],
+      allOf: globalThis.Array.isArray(object?.all_of) ? object.all_of.map((e: any) => globalThis.String(e)) : [],
+      anyOf: globalThis.Array.isArray(object?.any_of) ? object.any_of.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
   toJSON(message: SignedBy): unknown {
     const obj: any = {};
     if (message.allOf?.length) {
-      obj.allOf = message.allOf;
+      obj.all_of = message.allOf;
     }
     if (message.anyOf?.length) {
-      obj.anyOf = message.anyOf;
+      obj.any_of = message.anyOf;
     }
     return obj;
   },
@@ -253,7 +253,7 @@ export const PlacementRequirements: MessageFns<
 
   fromJSON(object: any): PlacementRequirements {
     return {
-      signedBy: isSet(object.signedBy) ? SignedBy.fromJSON(object.signedBy) : undefined,
+      signedBy: isSet(object.signed_by) ? SignedBy.fromJSON(object.signed_by) : undefined,
       attributes: globalThis.Array.isArray(object?.attributes)
         ? object.attributes.map((e: any) => Attribute.fromJSON(e))
         : [],
@@ -263,7 +263,7 @@ export const PlacementRequirements: MessageFns<
   toJSON(message: PlacementRequirements): unknown {
     const obj: any = {};
     if (message.signedBy !== undefined) {
-      obj.signedBy = SignedBy.toJSON(message.signedBy);
+      obj.signed_by = SignedBy.toJSON(message.signedBy);
     }
     if (message.attributes?.length) {
       obj.attributes = message.attributes.map((e) => Attribute.toJSON(e));

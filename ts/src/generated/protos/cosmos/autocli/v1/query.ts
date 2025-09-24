@@ -114,8 +114,8 @@ export const AppOptionsResponse: MessageFns<AppOptionsResponse, "cosmos.autocli.
 
   fromJSON(object: any): AppOptionsResponse {
     return {
-      moduleOptions: isObject(object.moduleOptions)
-        ? Object.entries(object.moduleOptions).reduce<{ [key: string]: ModuleOptions }>((acc, [key, value]) => {
+      moduleOptions: isObject(object.module_options)
+        ? Object.entries(object.module_options).reduce<{ [key: string]: ModuleOptions }>((acc, [key, value]) => {
           acc[key] = ModuleOptions.fromJSON(value);
           return acc;
         }, {})
@@ -128,9 +128,9 @@ export const AppOptionsResponse: MessageFns<AppOptionsResponse, "cosmos.autocli.
     if (message.moduleOptions) {
       const entries = Object.entries(message.moduleOptions);
       if (entries.length > 0) {
-        obj.moduleOptions = {};
+        obj.module_options = {};
         entries.forEach(([k, v]) => {
-          obj.moduleOptions[k] = ModuleOptions.toJSON(v);
+          obj.module_options[k] = ModuleOptions.toJSON(v);
         });
       }
     }

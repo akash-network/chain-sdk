@@ -229,8 +229,8 @@ export const Metadata: MessageFns<Metadata, "cosmos.store.snapshots.v1.Metadata"
 
   fromJSON(object: any): Metadata {
     return {
-      chunkHashes: globalThis.Array.isArray(object?.chunkHashes)
-        ? object.chunkHashes.map((e: any) => bytesFromBase64(e))
+      chunkHashes: globalThis.Array.isArray(object?.chunk_hashes)
+        ? object.chunk_hashes.map((e: any) => bytesFromBase64(e))
         : [],
     };
   },
@@ -238,7 +238,7 @@ export const Metadata: MessageFns<Metadata, "cosmos.store.snapshots.v1.Metadata"
   toJSON(message: Metadata): unknown {
     const obj: any = {};
     if (message.chunkHashes?.length) {
-      obj.chunkHashes = message.chunkHashes.map((e) => base64FromBytes(e));
+      obj.chunk_hashes = message.chunkHashes.map((e) => base64FromBytes(e));
     }
     return obj;
   },
@@ -329,8 +329,8 @@ export const SnapshotItem: MessageFns<SnapshotItem, "cosmos.store.snapshots.v1.S
       store: isSet(object.store) ? SnapshotStoreItem.fromJSON(object.store) : undefined,
       iavl: isSet(object.iavl) ? SnapshotIAVLItem.fromJSON(object.iavl) : undefined,
       extension: isSet(object.extension) ? SnapshotExtensionMeta.fromJSON(object.extension) : undefined,
-      extensionPayload: isSet(object.extensionPayload)
-        ? SnapshotExtensionPayload.fromJSON(object.extensionPayload)
+      extensionPayload: isSet(object.extension_payload)
+        ? SnapshotExtensionPayload.fromJSON(object.extension_payload)
         : undefined,
     };
   },
@@ -347,7 +347,7 @@ export const SnapshotItem: MessageFns<SnapshotItem, "cosmos.store.snapshots.v1.S
       obj.extension = SnapshotExtensionMeta.toJSON(message.extension);
     }
     if (message.extensionPayload !== undefined) {
-      obj.extensionPayload = SnapshotExtensionPayload.toJSON(message.extensionPayload);
+      obj.extension_payload = SnapshotExtensionPayload.toJSON(message.extensionPayload);
     }
     return obj;
   },

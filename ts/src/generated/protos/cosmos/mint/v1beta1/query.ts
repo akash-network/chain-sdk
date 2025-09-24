@@ -354,14 +354,14 @@ export const QueryAnnualProvisionsResponse: MessageFns<
 
   fromJSON(object: any): QueryAnnualProvisionsResponse {
     return {
-      annualProvisions: isSet(object.annualProvisions) ? bytesFromBase64(object.annualProvisions) : new Uint8Array(0),
+      annualProvisions: isSet(object.annual_provisions) ? bytesFromBase64(object.annual_provisions) : new Uint8Array(0),
     };
   },
 
   toJSON(message: QueryAnnualProvisionsResponse): unknown {
     const obj: any = {};
     if (message.annualProvisions.length !== 0) {
-      obj.annualProvisions = base64FromBytes(message.annualProvisions);
+      obj.annual_provisions = base64FromBytes(message.annualProvisions);
     }
     return obj;
   },

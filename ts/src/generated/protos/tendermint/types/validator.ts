@@ -145,7 +145,7 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
         ? object.validators.map((e: any) => Validator.fromJSON(e))
         : [],
       proposer: isSet(object.proposer) ? Validator.fromJSON(object.proposer) : undefined,
-      totalVotingPower: isSet(object.totalVotingPower) ? Long.fromValue(object.totalVotingPower) : Long.ZERO,
+      totalVotingPower: isSet(object.total_voting_power) ? Long.fromValue(object.total_voting_power) : Long.ZERO,
     };
   },
 
@@ -158,7 +158,7 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
       obj.proposer = Validator.toJSON(message.proposer);
     }
     if (!message.totalVotingPower.equals(Long.ZERO)) {
-      obj.totalVotingPower = (message.totalVotingPower || Long.ZERO).toString();
+      obj.total_voting_power = (message.totalVotingPower || Long.ZERO).toString();
     }
     return obj;
   },
@@ -253,9 +253,9 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
   fromJSON(object: any): Validator {
     return {
       address: isSet(object.address) ? bytesFromBase64(object.address) : new Uint8Array(0),
-      pubKey: isSet(object.pubKey) ? PublicKey.fromJSON(object.pubKey) : undefined,
-      votingPower: isSet(object.votingPower) ? Long.fromValue(object.votingPower) : Long.ZERO,
-      proposerPriority: isSet(object.proposerPriority) ? Long.fromValue(object.proposerPriority) : Long.ZERO,
+      pubKey: isSet(object.pub_key) ? PublicKey.fromJSON(object.pub_key) : undefined,
+      votingPower: isSet(object.voting_power) ? Long.fromValue(object.voting_power) : Long.ZERO,
+      proposerPriority: isSet(object.proposer_priority) ? Long.fromValue(object.proposer_priority) : Long.ZERO,
     };
   },
 
@@ -265,13 +265,13 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
       obj.address = base64FromBytes(message.address);
     }
     if (message.pubKey !== undefined) {
-      obj.pubKey = PublicKey.toJSON(message.pubKey);
+      obj.pub_key = PublicKey.toJSON(message.pubKey);
     }
     if (!message.votingPower.equals(Long.ZERO)) {
-      obj.votingPower = (message.votingPower || Long.ZERO).toString();
+      obj.voting_power = (message.votingPower || Long.ZERO).toString();
     }
     if (!message.proposerPriority.equals(Long.ZERO)) {
-      obj.proposerPriority = (message.proposerPriority || Long.ZERO).toString();
+      obj.proposer_priority = (message.proposerPriority || Long.ZERO).toString();
     }
     return obj;
   },
@@ -346,18 +346,18 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
 
   fromJSON(object: any): SimpleValidator {
     return {
-      pubKey: isSet(object.pubKey) ? PublicKey.fromJSON(object.pubKey) : undefined,
-      votingPower: isSet(object.votingPower) ? Long.fromValue(object.votingPower) : Long.ZERO,
+      pubKey: isSet(object.pub_key) ? PublicKey.fromJSON(object.pub_key) : undefined,
+      votingPower: isSet(object.voting_power) ? Long.fromValue(object.voting_power) : Long.ZERO,
     };
   },
 
   toJSON(message: SimpleValidator): unknown {
     const obj: any = {};
     if (message.pubKey !== undefined) {
-      obj.pubKey = PublicKey.toJSON(message.pubKey);
+      obj.pub_key = PublicKey.toJSON(message.pubKey);
     }
     if (!message.votingPower.equals(Long.ZERO)) {
-      obj.votingPower = (message.votingPower || Long.ZERO).toString();
+      obj.voting_power = (message.votingPower || Long.ZERO).toString();
     }
     return obj;
   },

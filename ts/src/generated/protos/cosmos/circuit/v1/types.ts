@@ -153,8 +153,8 @@ export const Permissions: MessageFns<Permissions, "cosmos.circuit.v1.Permissions
   fromJSON(object: any): Permissions {
     return {
       level: isSet(object.level) ? permissions_LevelFromJSON(object.level) : 0,
-      limitTypeUrls: globalThis.Array.isArray(object?.limitTypeUrls)
-        ? object.limitTypeUrls.map((e: any) => globalThis.String(e))
+      limitTypeUrls: globalThis.Array.isArray(object?.limit_type_urls)
+        ? object.limit_type_urls.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -165,7 +165,7 @@ export const Permissions: MessageFns<Permissions, "cosmos.circuit.v1.Permissions
       obj.level = permissions_LevelToJSON(message.level);
     }
     if (message.limitTypeUrls?.length) {
-      obj.limitTypeUrls = message.limitTypeUrls;
+      obj.limit_type_urls = message.limitTypeUrls;
     }
     return obj;
   },
@@ -315,11 +315,11 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.circuit.v1.GenesisSt
 
   fromJSON(object: any): GenesisState {
     return {
-      accountPermissions: globalThis.Array.isArray(object?.accountPermissions)
-        ? object.accountPermissions.map((e: any) => GenesisAccountPermissions.fromJSON(e))
+      accountPermissions: globalThis.Array.isArray(object?.account_permissions)
+        ? object.account_permissions.map((e: any) => GenesisAccountPermissions.fromJSON(e))
         : [],
-      disabledTypeUrls: globalThis.Array.isArray(object?.disabledTypeUrls)
-        ? object.disabledTypeUrls.map((e: any) => globalThis.String(e))
+      disabledTypeUrls: globalThis.Array.isArray(object?.disabled_type_urls)
+        ? object.disabled_type_urls.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -327,10 +327,10 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.circuit.v1.GenesisSt
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
     if (message.accountPermissions?.length) {
-      obj.accountPermissions = message.accountPermissions.map((e) => GenesisAccountPermissions.toJSON(e));
+      obj.account_permissions = message.accountPermissions.map((e) => GenesisAccountPermissions.toJSON(e));
     }
     if (message.disabledTypeUrls?.length) {
-      obj.disabledTypeUrls = message.disabledTypeUrls;
+      obj.disabled_type_urls = message.disabledTypeUrls;
     }
     return obj;
   },

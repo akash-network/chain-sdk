@@ -102,8 +102,8 @@ export const CommitInfo: MessageFns<CommitInfo, "cosmos.store.v1beta1.CommitInfo
   fromJSON(object: any): CommitInfo {
     return {
       version: isSet(object.version) ? Long.fromValue(object.version) : Long.ZERO,
-      storeInfos: globalThis.Array.isArray(object?.storeInfos)
-        ? object.storeInfos.map((e: any) => StoreInfo.fromJSON(e))
+      storeInfos: globalThis.Array.isArray(object?.store_infos)
+        ? object.store_infos.map((e: any) => StoreInfo.fromJSON(e))
         : [],
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
     };
@@ -115,7 +115,7 @@ export const CommitInfo: MessageFns<CommitInfo, "cosmos.store.v1beta1.CommitInfo
       obj.version = (message.version || Long.ZERO).toString();
     }
     if (message.storeInfos?.length) {
-      obj.storeInfos = message.storeInfos.map((e) => StoreInfo.toJSON(e));
+      obj.store_infos = message.storeInfos.map((e) => StoreInfo.toJSON(e));
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
@@ -189,7 +189,7 @@ export const StoreInfo: MessageFns<StoreInfo, "cosmos.store.v1beta1.StoreInfo"> 
   fromJSON(object: any): StoreInfo {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      commitId: isSet(object.commitId) ? CommitID.fromJSON(object.commitId) : undefined,
+      commitId: isSet(object.commit_id) ? CommitID.fromJSON(object.commit_id) : undefined,
     };
   },
 
@@ -199,7 +199,7 @@ export const StoreInfo: MessageFns<StoreInfo, "cosmos.store.v1beta1.StoreInfo"> 
       obj.name = message.name;
     }
     if (message.commitId !== undefined) {
-      obj.commitId = CommitID.toJSON(message.commitId);
+      obj.commit_id = CommitID.toJSON(message.commitId);
     }
     return obj;
   },

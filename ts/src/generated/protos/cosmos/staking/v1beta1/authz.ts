@@ -170,26 +170,26 @@ export const StakeAuthorization: MessageFns<StakeAuthorization, "cosmos.staking.
 
   fromJSON(object: any): StakeAuthorization {
     return {
-      maxTokens: isSet(object.maxTokens) ? Coin.fromJSON(object.maxTokens) : undefined,
-      allowList: isSet(object.allowList) ? StakeAuthorization_Validators.fromJSON(object.allowList) : undefined,
-      denyList: isSet(object.denyList) ? StakeAuthorization_Validators.fromJSON(object.denyList) : undefined,
-      authorizationType: isSet(object.authorizationType) ? authorizationTypeFromJSON(object.authorizationType) : 0,
+      maxTokens: isSet(object.max_tokens) ? Coin.fromJSON(object.max_tokens) : undefined,
+      allowList: isSet(object.allow_list) ? StakeAuthorization_Validators.fromJSON(object.allow_list) : undefined,
+      denyList: isSet(object.deny_list) ? StakeAuthorization_Validators.fromJSON(object.deny_list) : undefined,
+      authorizationType: isSet(object.authorization_type) ? authorizationTypeFromJSON(object.authorization_type) : 0,
     };
   },
 
   toJSON(message: StakeAuthorization): unknown {
     const obj: any = {};
     if (message.maxTokens !== undefined) {
-      obj.maxTokens = Coin.toJSON(message.maxTokens);
+      obj.max_tokens = Coin.toJSON(message.maxTokens);
     }
     if (message.allowList !== undefined) {
-      obj.allowList = StakeAuthorization_Validators.toJSON(message.allowList);
+      obj.allow_list = StakeAuthorization_Validators.toJSON(message.allowList);
     }
     if (message.denyList !== undefined) {
-      obj.denyList = StakeAuthorization_Validators.toJSON(message.denyList);
+      obj.deny_list = StakeAuthorization_Validators.toJSON(message.denyList);
     }
     if (message.authorizationType !== 0) {
-      obj.authorizationType = authorizationTypeToJSON(message.authorizationType);
+      obj.authorization_type = authorizationTypeToJSON(message.authorizationType);
     }
     return obj;
   },

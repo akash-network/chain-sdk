@@ -118,13 +118,13 @@ export const ServiceExposeHTTPOptions: MessageFns<
 
   fromJSON(object: any): ServiceExposeHTTPOptions {
     return {
-      maxBodySize: isSet(object.maxBodySize) ? globalThis.Number(object.maxBodySize) : 0,
-      readTimeout: isSet(object.readTimeout) ? globalThis.Number(object.readTimeout) : 0,
-      sendTimeout: isSet(object.sendTimeout) ? globalThis.Number(object.sendTimeout) : 0,
-      nextTries: isSet(object.nextTries) ? globalThis.Number(object.nextTries) : 0,
-      nextTimeout: isSet(object.nextTimeout) ? globalThis.Number(object.nextTimeout) : 0,
-      nextCases: globalThis.Array.isArray(object?.nextCases)
-        ? object.nextCases.map((e: any) => globalThis.String(e))
+      maxBodySize: isSet(object.max_body_size) ? globalThis.Number(object.max_body_size) : 0,
+      readTimeout: isSet(object.read_timeout) ? globalThis.Number(object.read_timeout) : 0,
+      sendTimeout: isSet(object.send_timeout) ? globalThis.Number(object.send_timeout) : 0,
+      nextTries: isSet(object.next_tries) ? globalThis.Number(object.next_tries) : 0,
+      nextTimeout: isSet(object.next_timeout) ? globalThis.Number(object.next_timeout) : 0,
+      nextCases: globalThis.Array.isArray(object?.next_cases)
+        ? object.next_cases.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -132,22 +132,22 @@ export const ServiceExposeHTTPOptions: MessageFns<
   toJSON(message: ServiceExposeHTTPOptions): unknown {
     const obj: any = {};
     if (message.maxBodySize !== 0) {
-      obj.maxBodySize = Math.round(message.maxBodySize);
+      obj.max_body_size = Math.round(message.maxBodySize);
     }
     if (message.readTimeout !== 0) {
-      obj.readTimeout = Math.round(message.readTimeout);
+      obj.read_timeout = Math.round(message.readTimeout);
     }
     if (message.sendTimeout !== 0) {
-      obj.sendTimeout = Math.round(message.sendTimeout);
+      obj.send_timeout = Math.round(message.sendTimeout);
     }
     if (message.nextTries !== 0) {
-      obj.nextTries = Math.round(message.nextTries);
+      obj.next_tries = Math.round(message.nextTries);
     }
     if (message.nextTimeout !== 0) {
-      obj.nextTimeout = Math.round(message.nextTimeout);
+      obj.next_timeout = Math.round(message.nextTimeout);
     }
     if (message.nextCases?.length) {
-      obj.nextCases = message.nextCases;
+      obj.next_cases = message.nextCases;
     }
     return obj;
   },

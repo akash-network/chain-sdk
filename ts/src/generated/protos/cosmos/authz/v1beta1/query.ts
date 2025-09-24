@@ -135,7 +135,7 @@ export const QueryGrantsRequest: MessageFns<QueryGrantsRequest, "cosmos.authz.v1
     return {
       granter: isSet(object.granter) ? globalThis.String(object.granter) : "",
       grantee: isSet(object.grantee) ? globalThis.String(object.grantee) : "",
-      msgTypeUrl: isSet(object.msgTypeUrl) ? globalThis.String(object.msgTypeUrl) : "",
+      msgTypeUrl: isSet(object.msg_type_url) ? globalThis.String(object.msg_type_url) : "",
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -149,7 +149,7 @@ export const QueryGrantsRequest: MessageFns<QueryGrantsRequest, "cosmos.authz.v1
       obj.grantee = message.grantee;
     }
     if (message.msgTypeUrl !== "") {
-      obj.msgTypeUrl = message.msgTypeUrl;
+      obj.msg_type_url = message.msgTypeUrl;
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);

@@ -254,8 +254,8 @@ export const ScalarDescriptor: MessageFns<ScalarDescriptor, "cosmos_proto.Scalar
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      fieldType: globalThis.Array.isArray(object?.fieldType)
-        ? object.fieldType.map((e: any) => scalarTypeFromJSON(e))
+      fieldType: globalThis.Array.isArray(object?.field_type)
+        ? object.field_type.map((e: any) => scalarTypeFromJSON(e))
         : [],
     };
   },
@@ -269,7 +269,7 @@ export const ScalarDescriptor: MessageFns<ScalarDescriptor, "cosmos_proto.Scalar
       obj.description = message.description;
     }
     if (message.fieldType?.length) {
-      obj.fieldType = message.fieldType.map((e) => scalarTypeToJSON(e));
+      obj.field_type = message.fieldType.map((e) => scalarTypeToJSON(e));
     }
     return obj;
   },

@@ -947,29 +947,29 @@ export const Request: MessageFns<Request, "tendermint.abci.Request"> = {
       echo: isSet(object.echo) ? RequestEcho.fromJSON(object.echo) : undefined,
       flush: isSet(object.flush) ? RequestFlush.fromJSON(object.flush) : undefined,
       info: isSet(object.info) ? RequestInfo.fromJSON(object.info) : undefined,
-      initChain: isSet(object.initChain) ? RequestInitChain.fromJSON(object.initChain) : undefined,
+      initChain: isSet(object.init_chain) ? RequestInitChain.fromJSON(object.init_chain) : undefined,
       query: isSet(object.query) ? RequestQuery.fromJSON(object.query) : undefined,
-      checkTx: isSet(object.checkTx) ? RequestCheckTx.fromJSON(object.checkTx) : undefined,
+      checkTx: isSet(object.check_tx) ? RequestCheckTx.fromJSON(object.check_tx) : undefined,
       commit: isSet(object.commit) ? RequestCommit.fromJSON(object.commit) : undefined,
-      listSnapshots: isSet(object.listSnapshots) ? RequestListSnapshots.fromJSON(object.listSnapshots) : undefined,
-      offerSnapshot: isSet(object.offerSnapshot) ? RequestOfferSnapshot.fromJSON(object.offerSnapshot) : undefined,
-      loadSnapshotChunk: isSet(object.loadSnapshotChunk)
-        ? RequestLoadSnapshotChunk.fromJSON(object.loadSnapshotChunk)
+      listSnapshots: isSet(object.list_snapshots) ? RequestListSnapshots.fromJSON(object.list_snapshots) : undefined,
+      offerSnapshot: isSet(object.offer_snapshot) ? RequestOfferSnapshot.fromJSON(object.offer_snapshot) : undefined,
+      loadSnapshotChunk: isSet(object.load_snapshot_chunk)
+        ? RequestLoadSnapshotChunk.fromJSON(object.load_snapshot_chunk)
         : undefined,
-      applySnapshotChunk: isSet(object.applySnapshotChunk)
-        ? RequestApplySnapshotChunk.fromJSON(object.applySnapshotChunk)
+      applySnapshotChunk: isSet(object.apply_snapshot_chunk)
+        ? RequestApplySnapshotChunk.fromJSON(object.apply_snapshot_chunk)
         : undefined,
-      prepareProposal: isSet(object.prepareProposal)
-        ? RequestPrepareProposal.fromJSON(object.prepareProposal)
+      prepareProposal: isSet(object.prepare_proposal)
+        ? RequestPrepareProposal.fromJSON(object.prepare_proposal)
         : undefined,
-      processProposal: isSet(object.processProposal)
-        ? RequestProcessProposal.fromJSON(object.processProposal)
+      processProposal: isSet(object.process_proposal)
+        ? RequestProcessProposal.fromJSON(object.process_proposal)
         : undefined,
-      extendVote: isSet(object.extendVote) ? RequestExtendVote.fromJSON(object.extendVote) : undefined,
-      verifyVoteExtension: isSet(object.verifyVoteExtension)
-        ? RequestVerifyVoteExtension.fromJSON(object.verifyVoteExtension)
+      extendVote: isSet(object.extend_vote) ? RequestExtendVote.fromJSON(object.extend_vote) : undefined,
+      verifyVoteExtension: isSet(object.verify_vote_extension)
+        ? RequestVerifyVoteExtension.fromJSON(object.verify_vote_extension)
         : undefined,
-      finalizeBlock: isSet(object.finalizeBlock) ? RequestFinalizeBlock.fromJSON(object.finalizeBlock) : undefined,
+      finalizeBlock: isSet(object.finalize_block) ? RequestFinalizeBlock.fromJSON(object.finalize_block) : undefined,
     };
   },
 
@@ -985,43 +985,43 @@ export const Request: MessageFns<Request, "tendermint.abci.Request"> = {
       obj.info = RequestInfo.toJSON(message.info);
     }
     if (message.initChain !== undefined) {
-      obj.initChain = RequestInitChain.toJSON(message.initChain);
+      obj.init_chain = RequestInitChain.toJSON(message.initChain);
     }
     if (message.query !== undefined) {
       obj.query = RequestQuery.toJSON(message.query);
     }
     if (message.checkTx !== undefined) {
-      obj.checkTx = RequestCheckTx.toJSON(message.checkTx);
+      obj.check_tx = RequestCheckTx.toJSON(message.checkTx);
     }
     if (message.commit !== undefined) {
       obj.commit = RequestCommit.toJSON(message.commit);
     }
     if (message.listSnapshots !== undefined) {
-      obj.listSnapshots = RequestListSnapshots.toJSON(message.listSnapshots);
+      obj.list_snapshots = RequestListSnapshots.toJSON(message.listSnapshots);
     }
     if (message.offerSnapshot !== undefined) {
-      obj.offerSnapshot = RequestOfferSnapshot.toJSON(message.offerSnapshot);
+      obj.offer_snapshot = RequestOfferSnapshot.toJSON(message.offerSnapshot);
     }
     if (message.loadSnapshotChunk !== undefined) {
-      obj.loadSnapshotChunk = RequestLoadSnapshotChunk.toJSON(message.loadSnapshotChunk);
+      obj.load_snapshot_chunk = RequestLoadSnapshotChunk.toJSON(message.loadSnapshotChunk);
     }
     if (message.applySnapshotChunk !== undefined) {
-      obj.applySnapshotChunk = RequestApplySnapshotChunk.toJSON(message.applySnapshotChunk);
+      obj.apply_snapshot_chunk = RequestApplySnapshotChunk.toJSON(message.applySnapshotChunk);
     }
     if (message.prepareProposal !== undefined) {
-      obj.prepareProposal = RequestPrepareProposal.toJSON(message.prepareProposal);
+      obj.prepare_proposal = RequestPrepareProposal.toJSON(message.prepareProposal);
     }
     if (message.processProposal !== undefined) {
-      obj.processProposal = RequestProcessProposal.toJSON(message.processProposal);
+      obj.process_proposal = RequestProcessProposal.toJSON(message.processProposal);
     }
     if (message.extendVote !== undefined) {
-      obj.extendVote = RequestExtendVote.toJSON(message.extendVote);
+      obj.extend_vote = RequestExtendVote.toJSON(message.extendVote);
     }
     if (message.verifyVoteExtension !== undefined) {
-      obj.verifyVoteExtension = RequestVerifyVoteExtension.toJSON(message.verifyVoteExtension);
+      obj.verify_vote_extension = RequestVerifyVoteExtension.toJSON(message.verifyVoteExtension);
     }
     if (message.finalizeBlock !== undefined) {
-      obj.finalizeBlock = RequestFinalizeBlock.toJSON(message.finalizeBlock);
+      obj.finalize_block = RequestFinalizeBlock.toJSON(message.finalizeBlock);
     }
     return obj;
   },
@@ -1262,9 +1262,9 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
   fromJSON(object: any): RequestInfo {
     return {
       version: isSet(object.version) ? globalThis.String(object.version) : "",
-      blockVersion: isSet(object.blockVersion) ? Long.fromValue(object.blockVersion) : Long.UZERO,
-      p2pVersion: isSet(object.p2pVersion) ? Long.fromValue(object.p2pVersion) : Long.UZERO,
-      abciVersion: isSet(object.abciVersion) ? globalThis.String(object.abciVersion) : "",
+      blockVersion: isSet(object.block_version) ? Long.fromValue(object.block_version) : Long.UZERO,
+      p2pVersion: isSet(object.p2p_version) ? Long.fromValue(object.p2p_version) : Long.UZERO,
+      abciVersion: isSet(object.abci_version) ? globalThis.String(object.abci_version) : "",
     };
   },
 
@@ -1274,13 +1274,13 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
       obj.version = message.version;
     }
     if (!message.blockVersion.equals(Long.UZERO)) {
-      obj.blockVersion = (message.blockVersion || Long.UZERO).toString();
+      obj.block_version = (message.blockVersion || Long.UZERO).toString();
     }
     if (!message.p2pVersion.equals(Long.UZERO)) {
-      obj.p2pVersion = (message.p2pVersion || Long.UZERO).toString();
+      obj.p2p_version = (message.p2pVersion || Long.UZERO).toString();
     }
     if (message.abciVersion !== "") {
-      obj.abciVersion = message.abciVersion;
+      obj.abci_version = message.abciVersion;
     }
     return obj;
   },
@@ -1405,13 +1405,13 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
   fromJSON(object: any): RequestInitChain {
     return {
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      chainId: isSet(object.chainId) ? globalThis.String(object.chainId) : "",
-      consensusParams: isSet(object.consensusParams) ? ConsensusParams.fromJSON(object.consensusParams) : undefined,
+      chainId: isSet(object.chain_id) ? globalThis.String(object.chain_id) : "",
+      consensusParams: isSet(object.consensus_params) ? ConsensusParams.fromJSON(object.consensus_params) : undefined,
       validators: globalThis.Array.isArray(object?.validators)
         ? object.validators.map((e: any) => ValidatorUpdate.fromJSON(e))
         : [],
-      appStateBytes: isSet(object.appStateBytes) ? bytesFromBase64(object.appStateBytes) : new Uint8Array(0),
-      initialHeight: isSet(object.initialHeight) ? Long.fromValue(object.initialHeight) : Long.ZERO,
+      appStateBytes: isSet(object.app_state_bytes) ? bytesFromBase64(object.app_state_bytes) : new Uint8Array(0),
+      initialHeight: isSet(object.initial_height) ? Long.fromValue(object.initial_height) : Long.ZERO,
     };
   },
 
@@ -1421,19 +1421,19 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
       obj.time = message.time.toISOString();
     }
     if (message.chainId !== "") {
-      obj.chainId = message.chainId;
+      obj.chain_id = message.chainId;
     }
     if (message.consensusParams !== undefined) {
-      obj.consensusParams = ConsensusParams.toJSON(message.consensusParams);
+      obj.consensus_params = ConsensusParams.toJSON(message.consensusParams);
     }
     if (message.validators?.length) {
       obj.validators = message.validators.map((e) => ValidatorUpdate.toJSON(e));
     }
     if (message.appStateBytes.length !== 0) {
-      obj.appStateBytes = base64FromBytes(message.appStateBytes);
+      obj.app_state_bytes = base64FromBytes(message.appStateBytes);
     }
     if (!message.initialHeight.equals(Long.ZERO)) {
-      obj.initialHeight = (message.initialHeight || Long.ZERO).toString();
+      obj.initial_height = (message.initialHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -1789,7 +1789,7 @@ export const RequestOfferSnapshot: MessageFns<RequestOfferSnapshot, "tendermint.
   fromJSON(object: any): RequestOfferSnapshot {
     return {
       snapshot: isSet(object.snapshot) ? Snapshot.fromJSON(object.snapshot) : undefined,
-      appHash: isSet(object.appHash) ? bytesFromBase64(object.appHash) : new Uint8Array(0),
+      appHash: isSet(object.app_hash) ? bytesFromBase64(object.app_hash) : new Uint8Array(0),
     };
   },
 
@@ -1799,7 +1799,7 @@ export const RequestOfferSnapshot: MessageFns<RequestOfferSnapshot, "tendermint.
       obj.snapshot = Snapshot.toJSON(message.snapshot);
     }
     if (message.appHash.length !== 0) {
-      obj.appHash = base64FromBytes(message.appHash);
+      obj.app_hash = base64FromBytes(message.appHash);
     }
     return obj;
   },
@@ -2139,31 +2139,33 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
 
   fromJSON(object: any): RequestPrepareProposal {
     return {
-      maxTxBytes: isSet(object.maxTxBytes) ? Long.fromValue(object.maxTxBytes) : Long.ZERO,
+      maxTxBytes: isSet(object.max_tx_bytes) ? Long.fromValue(object.max_tx_bytes) : Long.ZERO,
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => bytesFromBase64(e)) : [],
-      localLastCommit: isSet(object.localLastCommit) ? ExtendedCommitInfo.fromJSON(object.localLastCommit) : undefined,
+      localLastCommit: isSet(object.local_last_commit)
+        ? ExtendedCommitInfo.fromJSON(object.local_last_commit)
+        : undefined,
       misbehavior: globalThis.Array.isArray(object?.misbehavior)
         ? object.misbehavior.map((e: any) => Misbehavior.fromJSON(e))
         : [],
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      nextValidatorsHash: isSet(object.nextValidatorsHash)
-        ? bytesFromBase64(object.nextValidatorsHash)
+      nextValidatorsHash: isSet(object.next_validators_hash)
+        ? bytesFromBase64(object.next_validators_hash)
         : new Uint8Array(0),
-      proposerAddress: isSet(object.proposerAddress) ? bytesFromBase64(object.proposerAddress) : new Uint8Array(0),
+      proposerAddress: isSet(object.proposer_address) ? bytesFromBase64(object.proposer_address) : new Uint8Array(0),
     };
   },
 
   toJSON(message: RequestPrepareProposal): unknown {
     const obj: any = {};
     if (!message.maxTxBytes.equals(Long.ZERO)) {
-      obj.maxTxBytes = (message.maxTxBytes || Long.ZERO).toString();
+      obj.max_tx_bytes = (message.maxTxBytes || Long.ZERO).toString();
     }
     if (message.txs?.length) {
       obj.txs = message.txs.map((e) => base64FromBytes(e));
     }
     if (message.localLastCommit !== undefined) {
-      obj.localLastCommit = ExtendedCommitInfo.toJSON(message.localLastCommit);
+      obj.local_last_commit = ExtendedCommitInfo.toJSON(message.localLastCommit);
     }
     if (message.misbehavior?.length) {
       obj.misbehavior = message.misbehavior.map((e) => Misbehavior.toJSON(e));
@@ -2175,10 +2177,10 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
       obj.time = message.time.toISOString();
     }
     if (message.nextValidatorsHash.length !== 0) {
-      obj.nextValidatorsHash = base64FromBytes(message.nextValidatorsHash);
+      obj.next_validators_hash = base64FromBytes(message.nextValidatorsHash);
     }
     if (message.proposerAddress.length !== 0) {
-      obj.proposerAddress = base64FromBytes(message.proposerAddress);
+      obj.proposer_address = base64FromBytes(message.proposerAddress);
     }
     return obj;
   },
@@ -2333,17 +2335,19 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
   fromJSON(object: any): RequestProcessProposal {
     return {
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => bytesFromBase64(e)) : [],
-      proposedLastCommit: isSet(object.proposedLastCommit) ? CommitInfo.fromJSON(object.proposedLastCommit) : undefined,
+      proposedLastCommit: isSet(object.proposed_last_commit)
+        ? CommitInfo.fromJSON(object.proposed_last_commit)
+        : undefined,
       misbehavior: globalThis.Array.isArray(object?.misbehavior)
         ? object.misbehavior.map((e: any) => Misbehavior.fromJSON(e))
         : [],
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      nextValidatorsHash: isSet(object.nextValidatorsHash)
-        ? bytesFromBase64(object.nextValidatorsHash)
+      nextValidatorsHash: isSet(object.next_validators_hash)
+        ? bytesFromBase64(object.next_validators_hash)
         : new Uint8Array(0),
-      proposerAddress: isSet(object.proposerAddress) ? bytesFromBase64(object.proposerAddress) : new Uint8Array(0),
+      proposerAddress: isSet(object.proposer_address) ? bytesFromBase64(object.proposer_address) : new Uint8Array(0),
     };
   },
 
@@ -2353,7 +2357,7 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
       obj.txs = message.txs.map((e) => base64FromBytes(e));
     }
     if (message.proposedLastCommit !== undefined) {
-      obj.proposedLastCommit = CommitInfo.toJSON(message.proposedLastCommit);
+      obj.proposed_last_commit = CommitInfo.toJSON(message.proposedLastCommit);
     }
     if (message.misbehavior?.length) {
       obj.misbehavior = message.misbehavior.map((e) => Misbehavior.toJSON(e));
@@ -2368,10 +2372,10 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
       obj.time = message.time.toISOString();
     }
     if (message.nextValidatorsHash.length !== 0) {
-      obj.nextValidatorsHash = base64FromBytes(message.nextValidatorsHash);
+      obj.next_validators_hash = base64FromBytes(message.nextValidatorsHash);
     }
     if (message.proposerAddress.length !== 0) {
-      obj.proposerAddress = base64FromBytes(message.proposerAddress);
+      obj.proposer_address = base64FromBytes(message.proposerAddress);
     }
     return obj;
   },
@@ -2527,14 +2531,16 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => bytesFromBase64(e)) : [],
-      proposedLastCommit: isSet(object.proposedLastCommit) ? CommitInfo.fromJSON(object.proposedLastCommit) : undefined,
+      proposedLastCommit: isSet(object.proposed_last_commit)
+        ? CommitInfo.fromJSON(object.proposed_last_commit)
+        : undefined,
       misbehavior: globalThis.Array.isArray(object?.misbehavior)
         ? object.misbehavior.map((e: any) => Misbehavior.fromJSON(e))
         : [],
-      nextValidatorsHash: isSet(object.nextValidatorsHash)
-        ? bytesFromBase64(object.nextValidatorsHash)
+      nextValidatorsHash: isSet(object.next_validators_hash)
+        ? bytesFromBase64(object.next_validators_hash)
         : new Uint8Array(0),
-      proposerAddress: isSet(object.proposerAddress) ? bytesFromBase64(object.proposerAddress) : new Uint8Array(0),
+      proposerAddress: isSet(object.proposer_address) ? bytesFromBase64(object.proposer_address) : new Uint8Array(0),
     };
   },
 
@@ -2553,16 +2559,16 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
       obj.txs = message.txs.map((e) => base64FromBytes(e));
     }
     if (message.proposedLastCommit !== undefined) {
-      obj.proposedLastCommit = CommitInfo.toJSON(message.proposedLastCommit);
+      obj.proposed_last_commit = CommitInfo.toJSON(message.proposedLastCommit);
     }
     if (message.misbehavior?.length) {
       obj.misbehavior = message.misbehavior.map((e) => Misbehavior.toJSON(e));
     }
     if (message.nextValidatorsHash.length !== 0) {
-      obj.nextValidatorsHash = base64FromBytes(message.nextValidatorsHash);
+      obj.next_validators_hash = base64FromBytes(message.nextValidatorsHash);
     }
     if (message.proposerAddress.length !== 0) {
-      obj.proposerAddress = base64FromBytes(message.proposerAddress);
+      obj.proposer_address = base64FromBytes(message.proposerAddress);
     }
     return obj;
   },
@@ -2670,9 +2676,9 @@ export const RequestVerifyVoteExtension: MessageFns<
   fromJSON(object: any): RequestVerifyVoteExtension {
     return {
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      validatorAddress: isSet(object.validatorAddress) ? bytesFromBase64(object.validatorAddress) : new Uint8Array(0),
+      validatorAddress: isSet(object.validator_address) ? bytesFromBase64(object.validator_address) : new Uint8Array(0),
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
-      voteExtension: isSet(object.voteExtension) ? bytesFromBase64(object.voteExtension) : new Uint8Array(0),
+      voteExtension: isSet(object.vote_extension) ? bytesFromBase64(object.vote_extension) : new Uint8Array(0),
     };
   },
 
@@ -2682,13 +2688,13 @@ export const RequestVerifyVoteExtension: MessageFns<
       obj.hash = base64FromBytes(message.hash);
     }
     if (message.validatorAddress.length !== 0) {
-      obj.validatorAddress = base64FromBytes(message.validatorAddress);
+      obj.validator_address = base64FromBytes(message.validatorAddress);
     }
     if (!message.height.equals(Long.ZERO)) {
       obj.height = (message.height || Long.ZERO).toString();
     }
     if (message.voteExtension.length !== 0) {
-      obj.voteExtension = base64FromBytes(message.voteExtension);
+      obj.vote_extension = base64FromBytes(message.voteExtension);
     }
     return obj;
   },
@@ -2835,17 +2841,19 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
   fromJSON(object: any): RequestFinalizeBlock {
     return {
       txs: globalThis.Array.isArray(object?.txs) ? object.txs.map((e: any) => bytesFromBase64(e)) : [],
-      decidedLastCommit: isSet(object.decidedLastCommit) ? CommitInfo.fromJSON(object.decidedLastCommit) : undefined,
+      decidedLastCommit: isSet(object.decided_last_commit)
+        ? CommitInfo.fromJSON(object.decided_last_commit)
+        : undefined,
       misbehavior: globalThis.Array.isArray(object?.misbehavior)
         ? object.misbehavior.map((e: any) => Misbehavior.fromJSON(e))
         : [],
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      nextValidatorsHash: isSet(object.nextValidatorsHash)
-        ? bytesFromBase64(object.nextValidatorsHash)
+      nextValidatorsHash: isSet(object.next_validators_hash)
+        ? bytesFromBase64(object.next_validators_hash)
         : new Uint8Array(0),
-      proposerAddress: isSet(object.proposerAddress) ? bytesFromBase64(object.proposerAddress) : new Uint8Array(0),
+      proposerAddress: isSet(object.proposer_address) ? bytesFromBase64(object.proposer_address) : new Uint8Array(0),
     };
   },
 
@@ -2855,7 +2863,7 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
       obj.txs = message.txs.map((e) => base64FromBytes(e));
     }
     if (message.decidedLastCommit !== undefined) {
-      obj.decidedLastCommit = CommitInfo.toJSON(message.decidedLastCommit);
+      obj.decided_last_commit = CommitInfo.toJSON(message.decidedLastCommit);
     }
     if (message.misbehavior?.length) {
       obj.misbehavior = message.misbehavior.map((e) => Misbehavior.toJSON(e));
@@ -2870,10 +2878,10 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
       obj.time = message.time.toISOString();
     }
     if (message.nextValidatorsHash.length !== 0) {
-      obj.nextValidatorsHash = base64FromBytes(message.nextValidatorsHash);
+      obj.next_validators_hash = base64FromBytes(message.nextValidatorsHash);
     }
     if (message.proposerAddress.length !== 0) {
-      obj.proposerAddress = base64FromBytes(message.proposerAddress);
+      obj.proposer_address = base64FromBytes(message.proposerAddress);
     }
     return obj;
   },
@@ -3137,29 +3145,29 @@ export const Response: MessageFns<Response, "tendermint.abci.Response"> = {
       echo: isSet(object.echo) ? ResponseEcho.fromJSON(object.echo) : undefined,
       flush: isSet(object.flush) ? ResponseFlush.fromJSON(object.flush) : undefined,
       info: isSet(object.info) ? ResponseInfo.fromJSON(object.info) : undefined,
-      initChain: isSet(object.initChain) ? ResponseInitChain.fromJSON(object.initChain) : undefined,
+      initChain: isSet(object.init_chain) ? ResponseInitChain.fromJSON(object.init_chain) : undefined,
       query: isSet(object.query) ? ResponseQuery.fromJSON(object.query) : undefined,
-      checkTx: isSet(object.checkTx) ? ResponseCheckTx.fromJSON(object.checkTx) : undefined,
+      checkTx: isSet(object.check_tx) ? ResponseCheckTx.fromJSON(object.check_tx) : undefined,
       commit: isSet(object.commit) ? ResponseCommit.fromJSON(object.commit) : undefined,
-      listSnapshots: isSet(object.listSnapshots) ? ResponseListSnapshots.fromJSON(object.listSnapshots) : undefined,
-      offerSnapshot: isSet(object.offerSnapshot) ? ResponseOfferSnapshot.fromJSON(object.offerSnapshot) : undefined,
-      loadSnapshotChunk: isSet(object.loadSnapshotChunk)
-        ? ResponseLoadSnapshotChunk.fromJSON(object.loadSnapshotChunk)
+      listSnapshots: isSet(object.list_snapshots) ? ResponseListSnapshots.fromJSON(object.list_snapshots) : undefined,
+      offerSnapshot: isSet(object.offer_snapshot) ? ResponseOfferSnapshot.fromJSON(object.offer_snapshot) : undefined,
+      loadSnapshotChunk: isSet(object.load_snapshot_chunk)
+        ? ResponseLoadSnapshotChunk.fromJSON(object.load_snapshot_chunk)
         : undefined,
-      applySnapshotChunk: isSet(object.applySnapshotChunk)
-        ? ResponseApplySnapshotChunk.fromJSON(object.applySnapshotChunk)
+      applySnapshotChunk: isSet(object.apply_snapshot_chunk)
+        ? ResponseApplySnapshotChunk.fromJSON(object.apply_snapshot_chunk)
         : undefined,
-      prepareProposal: isSet(object.prepareProposal)
-        ? ResponsePrepareProposal.fromJSON(object.prepareProposal)
+      prepareProposal: isSet(object.prepare_proposal)
+        ? ResponsePrepareProposal.fromJSON(object.prepare_proposal)
         : undefined,
-      processProposal: isSet(object.processProposal)
-        ? ResponseProcessProposal.fromJSON(object.processProposal)
+      processProposal: isSet(object.process_proposal)
+        ? ResponseProcessProposal.fromJSON(object.process_proposal)
         : undefined,
-      extendVote: isSet(object.extendVote) ? ResponseExtendVote.fromJSON(object.extendVote) : undefined,
-      verifyVoteExtension: isSet(object.verifyVoteExtension)
-        ? ResponseVerifyVoteExtension.fromJSON(object.verifyVoteExtension)
+      extendVote: isSet(object.extend_vote) ? ResponseExtendVote.fromJSON(object.extend_vote) : undefined,
+      verifyVoteExtension: isSet(object.verify_vote_extension)
+        ? ResponseVerifyVoteExtension.fromJSON(object.verify_vote_extension)
         : undefined,
-      finalizeBlock: isSet(object.finalizeBlock) ? ResponseFinalizeBlock.fromJSON(object.finalizeBlock) : undefined,
+      finalizeBlock: isSet(object.finalize_block) ? ResponseFinalizeBlock.fromJSON(object.finalize_block) : undefined,
     };
   },
 
@@ -3178,43 +3186,43 @@ export const Response: MessageFns<Response, "tendermint.abci.Response"> = {
       obj.info = ResponseInfo.toJSON(message.info);
     }
     if (message.initChain !== undefined) {
-      obj.initChain = ResponseInitChain.toJSON(message.initChain);
+      obj.init_chain = ResponseInitChain.toJSON(message.initChain);
     }
     if (message.query !== undefined) {
       obj.query = ResponseQuery.toJSON(message.query);
     }
     if (message.checkTx !== undefined) {
-      obj.checkTx = ResponseCheckTx.toJSON(message.checkTx);
+      obj.check_tx = ResponseCheckTx.toJSON(message.checkTx);
     }
     if (message.commit !== undefined) {
       obj.commit = ResponseCommit.toJSON(message.commit);
     }
     if (message.listSnapshots !== undefined) {
-      obj.listSnapshots = ResponseListSnapshots.toJSON(message.listSnapshots);
+      obj.list_snapshots = ResponseListSnapshots.toJSON(message.listSnapshots);
     }
     if (message.offerSnapshot !== undefined) {
-      obj.offerSnapshot = ResponseOfferSnapshot.toJSON(message.offerSnapshot);
+      obj.offer_snapshot = ResponseOfferSnapshot.toJSON(message.offerSnapshot);
     }
     if (message.loadSnapshotChunk !== undefined) {
-      obj.loadSnapshotChunk = ResponseLoadSnapshotChunk.toJSON(message.loadSnapshotChunk);
+      obj.load_snapshot_chunk = ResponseLoadSnapshotChunk.toJSON(message.loadSnapshotChunk);
     }
     if (message.applySnapshotChunk !== undefined) {
-      obj.applySnapshotChunk = ResponseApplySnapshotChunk.toJSON(message.applySnapshotChunk);
+      obj.apply_snapshot_chunk = ResponseApplySnapshotChunk.toJSON(message.applySnapshotChunk);
     }
     if (message.prepareProposal !== undefined) {
-      obj.prepareProposal = ResponsePrepareProposal.toJSON(message.prepareProposal);
+      obj.prepare_proposal = ResponsePrepareProposal.toJSON(message.prepareProposal);
     }
     if (message.processProposal !== undefined) {
-      obj.processProposal = ResponseProcessProposal.toJSON(message.processProposal);
+      obj.process_proposal = ResponseProcessProposal.toJSON(message.processProposal);
     }
     if (message.extendVote !== undefined) {
-      obj.extendVote = ResponseExtendVote.toJSON(message.extendVote);
+      obj.extend_vote = ResponseExtendVote.toJSON(message.extendVote);
     }
     if (message.verifyVoteExtension !== undefined) {
-      obj.verifyVoteExtension = ResponseVerifyVoteExtension.toJSON(message.verifyVoteExtension);
+      obj.verify_vote_extension = ResponseVerifyVoteExtension.toJSON(message.verifyVoteExtension);
     }
     if (message.finalizeBlock !== undefined) {
-      obj.finalizeBlock = ResponseFinalizeBlock.toJSON(message.finalizeBlock);
+      obj.finalize_block = ResponseFinalizeBlock.toJSON(message.finalizeBlock);
     }
     return obj;
   },
@@ -3536,9 +3544,11 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
     return {
       data: isSet(object.data) ? globalThis.String(object.data) : "",
       version: isSet(object.version) ? globalThis.String(object.version) : "",
-      appVersion: isSet(object.appVersion) ? Long.fromValue(object.appVersion) : Long.UZERO,
-      lastBlockHeight: isSet(object.lastBlockHeight) ? Long.fromValue(object.lastBlockHeight) : Long.ZERO,
-      lastBlockAppHash: isSet(object.lastBlockAppHash) ? bytesFromBase64(object.lastBlockAppHash) : new Uint8Array(0),
+      appVersion: isSet(object.app_version) ? Long.fromValue(object.app_version) : Long.UZERO,
+      lastBlockHeight: isSet(object.last_block_height) ? Long.fromValue(object.last_block_height) : Long.ZERO,
+      lastBlockAppHash: isSet(object.last_block_app_hash)
+        ? bytesFromBase64(object.last_block_app_hash)
+        : new Uint8Array(0),
     };
   },
 
@@ -3551,13 +3561,13 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
       obj.version = message.version;
     }
     if (!message.appVersion.equals(Long.UZERO)) {
-      obj.appVersion = (message.appVersion || Long.UZERO).toString();
+      obj.app_version = (message.appVersion || Long.UZERO).toString();
     }
     if (!message.lastBlockHeight.equals(Long.ZERO)) {
-      obj.lastBlockHeight = (message.lastBlockHeight || Long.ZERO).toString();
+      obj.last_block_height = (message.lastBlockHeight || Long.ZERO).toString();
     }
     if (message.lastBlockAppHash.length !== 0) {
-      obj.lastBlockAppHash = base64FromBytes(message.lastBlockAppHash);
+      obj.last_block_app_hash = base64FromBytes(message.lastBlockAppHash);
     }
     return obj;
   },
@@ -3642,24 +3652,24 @@ export const ResponseInitChain: MessageFns<ResponseInitChain, "tendermint.abci.R
 
   fromJSON(object: any): ResponseInitChain {
     return {
-      consensusParams: isSet(object.consensusParams) ? ConsensusParams.fromJSON(object.consensusParams) : undefined,
+      consensusParams: isSet(object.consensus_params) ? ConsensusParams.fromJSON(object.consensus_params) : undefined,
       validators: globalThis.Array.isArray(object?.validators)
         ? object.validators.map((e: any) => ValidatorUpdate.fromJSON(e))
         : [],
-      appHash: isSet(object.appHash) ? bytesFromBase64(object.appHash) : new Uint8Array(0),
+      appHash: isSet(object.app_hash) ? bytesFromBase64(object.app_hash) : new Uint8Array(0),
     };
   },
 
   toJSON(message: ResponseInitChain): unknown {
     const obj: any = {};
     if (message.consensusParams !== undefined) {
-      obj.consensusParams = ConsensusParams.toJSON(message.consensusParams);
+      obj.consensus_params = ConsensusParams.toJSON(message.consensusParams);
     }
     if (message.validators?.length) {
       obj.validators = message.validators.map((e) => ValidatorUpdate.toJSON(e));
     }
     if (message.appHash.length !== 0) {
-      obj.appHash = base64FromBytes(message.appHash);
+      obj.app_hash = base64FromBytes(message.appHash);
     }
     return obj;
   },
@@ -3822,7 +3832,7 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
       index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
-      proofOps: isSet(object.proofOps) ? ProofOps.fromJSON(object.proofOps) : undefined,
+      proofOps: isSet(object.proof_ops) ? ProofOps.fromJSON(object.proof_ops) : undefined,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
     };
@@ -3849,7 +3859,7 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
       obj.value = base64FromBytes(message.value);
     }
     if (message.proofOps !== undefined) {
-      obj.proofOps = ProofOps.toJSON(message.proofOps);
+      obj.proof_ops = ProofOps.toJSON(message.proofOps);
     }
     if (!message.height.equals(Long.ZERO)) {
       obj.height = (message.height || Long.ZERO).toString();
@@ -4108,13 +4118,13 @@ export const ResponseCommit: MessageFns<ResponseCommit, "tendermint.abci.Respons
   },
 
   fromJSON(object: any): ResponseCommit {
-    return { retainHeight: isSet(object.retainHeight) ? Long.fromValue(object.retainHeight) : Long.ZERO };
+    return { retainHeight: isSet(object.retain_height) ? Long.fromValue(object.retain_height) : Long.ZERO };
   },
 
   toJSON(message: ResponseCommit): unknown {
     const obj: any = {};
     if (!message.retainHeight.equals(Long.ZERO)) {
-      obj.retainHeight = (message.retainHeight || Long.ZERO).toString();
+      obj.retain_height = (message.retainHeight || Long.ZERO).toString();
     }
     return obj;
   },
@@ -4396,11 +4406,11 @@ export const ResponseApplySnapshotChunk: MessageFns<
   fromJSON(object: any): ResponseApplySnapshotChunk {
     return {
       result: isSet(object.result) ? responseApplySnapshotChunk_ResultFromJSON(object.result) : 0,
-      refetchChunks: globalThis.Array.isArray(object?.refetchChunks)
-        ? object.refetchChunks.map((e: any) => globalThis.Number(e))
+      refetchChunks: globalThis.Array.isArray(object?.refetch_chunks)
+        ? object.refetch_chunks.map((e: any) => globalThis.Number(e))
         : [],
-      rejectSenders: globalThis.Array.isArray(object?.rejectSenders)
-        ? object.rejectSenders.map((e: any) => globalThis.String(e))
+      rejectSenders: globalThis.Array.isArray(object?.reject_senders)
+        ? object.reject_senders.map((e: any) => globalThis.String(e))
         : [],
     };
   },
@@ -4411,10 +4421,10 @@ export const ResponseApplySnapshotChunk: MessageFns<
       obj.result = responseApplySnapshotChunk_ResultToJSON(message.result);
     }
     if (message.refetchChunks?.length) {
-      obj.refetchChunks = message.refetchChunks.map((e) => Math.round(e));
+      obj.refetch_chunks = message.refetchChunks.map((e) => Math.round(e));
     }
     if (message.rejectSenders?.length) {
-      obj.rejectSenders = message.rejectSenders;
+      obj.reject_senders = message.rejectSenders;
     }
     return obj;
   },
@@ -4590,13 +4600,13 @@ export const ResponseExtendVote: MessageFns<ResponseExtendVote, "tendermint.abci
   },
 
   fromJSON(object: any): ResponseExtendVote {
-    return { voteExtension: isSet(object.voteExtension) ? bytesFromBase64(object.voteExtension) : new Uint8Array(0) };
+    return { voteExtension: isSet(object.vote_extension) ? bytesFromBase64(object.vote_extension) : new Uint8Array(0) };
   },
 
   toJSON(message: ResponseExtendVote): unknown {
     const obj: any = {};
     if (message.voteExtension.length !== 0) {
-      obj.voteExtension = base64FromBytes(message.voteExtension);
+      obj.vote_extension = base64FromBytes(message.voteExtension);
     }
     return obj;
   },
@@ -4765,16 +4775,16 @@ export const ResponseFinalizeBlock: MessageFns<ResponseFinalizeBlock, "tendermin
   fromJSON(object: any): ResponseFinalizeBlock {
     return {
       events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => Event.fromJSON(e)) : [],
-      txResults: globalThis.Array.isArray(object?.txResults)
-        ? object.txResults.map((e: any) => ExecTxResult.fromJSON(e))
+      txResults: globalThis.Array.isArray(object?.tx_results)
+        ? object.tx_results.map((e: any) => ExecTxResult.fromJSON(e))
         : [],
-      validatorUpdates: globalThis.Array.isArray(object?.validatorUpdates)
-        ? object.validatorUpdates.map((e: any) => ValidatorUpdate.fromJSON(e))
+      validatorUpdates: globalThis.Array.isArray(object?.validator_updates)
+        ? object.validator_updates.map((e: any) => ValidatorUpdate.fromJSON(e))
         : [],
-      consensusParamUpdates: isSet(object.consensusParamUpdates)
-        ? ConsensusParams.fromJSON(object.consensusParamUpdates)
+      consensusParamUpdates: isSet(object.consensus_param_updates)
+        ? ConsensusParams.fromJSON(object.consensus_param_updates)
         : undefined,
-      appHash: isSet(object.appHash) ? bytesFromBase64(object.appHash) : new Uint8Array(0),
+      appHash: isSet(object.app_hash) ? bytesFromBase64(object.app_hash) : new Uint8Array(0),
     };
   },
 
@@ -4784,16 +4794,16 @@ export const ResponseFinalizeBlock: MessageFns<ResponseFinalizeBlock, "tendermin
       obj.events = message.events.map((e) => Event.toJSON(e));
     }
     if (message.txResults?.length) {
-      obj.txResults = message.txResults.map((e) => ExecTxResult.toJSON(e));
+      obj.tx_results = message.txResults.map((e) => ExecTxResult.toJSON(e));
     }
     if (message.validatorUpdates?.length) {
-      obj.validatorUpdates = message.validatorUpdates.map((e) => ValidatorUpdate.toJSON(e));
+      obj.validator_updates = message.validatorUpdates.map((e) => ValidatorUpdate.toJSON(e));
     }
     if (message.consensusParamUpdates !== undefined) {
-      obj.consensusParamUpdates = ConsensusParams.toJSON(message.consensusParamUpdates);
+      obj.consensus_param_updates = ConsensusParams.toJSON(message.consensusParamUpdates);
     }
     if (message.appHash.length !== 0) {
-      obj.appHash = base64FromBytes(message.appHash);
+      obj.app_hash = base64FromBytes(message.appHash);
     }
     return obj;
   },
@@ -5575,7 +5585,7 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
 
   fromJSON(object: any): ValidatorUpdate {
     return {
-      pubKey: isSet(object.pubKey) ? PublicKey.fromJSON(object.pubKey) : undefined,
+      pubKey: isSet(object.pub_key) ? PublicKey.fromJSON(object.pub_key) : undefined,
       power: isSet(object.power) ? Long.fromValue(object.power) : Long.ZERO,
     };
   },
@@ -5583,7 +5593,7 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
   toJSON(message: ValidatorUpdate): unknown {
     const obj: any = {};
     if (message.pubKey !== undefined) {
-      obj.pubKey = PublicKey.toJSON(message.pubKey);
+      obj.pub_key = PublicKey.toJSON(message.pubKey);
     }
     if (!message.power.equals(Long.ZERO)) {
       obj.power = (message.power || Long.ZERO).toString();
@@ -5656,7 +5666,7 @@ export const VoteInfo: MessageFns<VoteInfo, "tendermint.abci.VoteInfo"> = {
   fromJSON(object: any): VoteInfo {
     return {
       validator: isSet(object.validator) ? Validator.fromJSON(object.validator) : undefined,
-      blockIdFlag: isSet(object.blockIdFlag) ? blockIDFlagFromJSON(object.blockIdFlag) : 0,
+      blockIdFlag: isSet(object.block_id_flag) ? blockIDFlagFromJSON(object.block_id_flag) : 0,
     };
   },
 
@@ -5666,7 +5676,7 @@ export const VoteInfo: MessageFns<VoteInfo, "tendermint.abci.VoteInfo"> = {
       obj.validator = Validator.toJSON(message.validator);
     }
     if (message.blockIdFlag !== 0) {
-      obj.blockIdFlag = blockIDFlagToJSON(message.blockIdFlag);
+      obj.block_id_flag = blockIDFlagToJSON(message.blockIdFlag);
     }
     return obj;
   },
@@ -5763,11 +5773,11 @@ export const ExtendedVoteInfo: MessageFns<ExtendedVoteInfo, "tendermint.abci.Ext
   fromJSON(object: any): ExtendedVoteInfo {
     return {
       validator: isSet(object.validator) ? Validator.fromJSON(object.validator) : undefined,
-      voteExtension: isSet(object.voteExtension) ? bytesFromBase64(object.voteExtension) : new Uint8Array(0),
-      extensionSignature: isSet(object.extensionSignature)
-        ? bytesFromBase64(object.extensionSignature)
+      voteExtension: isSet(object.vote_extension) ? bytesFromBase64(object.vote_extension) : new Uint8Array(0),
+      extensionSignature: isSet(object.extension_signature)
+        ? bytesFromBase64(object.extension_signature)
         : new Uint8Array(0),
-      blockIdFlag: isSet(object.blockIdFlag) ? blockIDFlagFromJSON(object.blockIdFlag) : 0,
+      blockIdFlag: isSet(object.block_id_flag) ? blockIDFlagFromJSON(object.block_id_flag) : 0,
     };
   },
 
@@ -5777,13 +5787,13 @@ export const ExtendedVoteInfo: MessageFns<ExtendedVoteInfo, "tendermint.abci.Ext
       obj.validator = Validator.toJSON(message.validator);
     }
     if (message.voteExtension.length !== 0) {
-      obj.voteExtension = base64FromBytes(message.voteExtension);
+      obj.vote_extension = base64FromBytes(message.voteExtension);
     }
     if (message.extensionSignature.length !== 0) {
-      obj.extensionSignature = base64FromBytes(message.extensionSignature);
+      obj.extension_signature = base64FromBytes(message.extensionSignature);
     }
     if (message.blockIdFlag !== 0) {
-      obj.blockIdFlag = blockIDFlagToJSON(message.blockIdFlag);
+      obj.block_id_flag = blockIDFlagToJSON(message.blockIdFlag);
     }
     return obj;
   },
@@ -5891,7 +5901,7 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
       validator: isSet(object.validator) ? Validator.fromJSON(object.validator) : undefined,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
-      totalVotingPower: isSet(object.totalVotingPower) ? Long.fromValue(object.totalVotingPower) : Long.ZERO,
+      totalVotingPower: isSet(object.total_voting_power) ? Long.fromValue(object.total_voting_power) : Long.ZERO,
     };
   },
 
@@ -5910,7 +5920,7 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
       obj.time = message.time.toISOString();
     }
     if (!message.totalVotingPower.equals(Long.ZERO)) {
-      obj.totalVotingPower = (message.totalVotingPower || Long.ZERO).toString();
+      obj.total_voting_power = (message.totalVotingPower || Long.ZERO).toString();
     }
     return obj;
   },

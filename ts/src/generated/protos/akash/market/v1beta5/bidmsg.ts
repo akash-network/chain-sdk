@@ -123,8 +123,8 @@ export const MsgCreateBid: MessageFns<MsgCreateBid, "akash.market.v1beta5.MsgCre
       id: isSet(object.id) ? BidID.fromJSON(object.id) : undefined,
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
       deposit: isSet(object.deposit) ? Deposit.fromJSON(object.deposit) : undefined,
-      resourcesOffer: globalThis.Array.isArray(object?.resourcesOffer)
-        ? object.resourcesOffer.map((e: any) => ResourceOffer.fromJSON(e))
+      resourcesOffer: globalThis.Array.isArray(object?.resources_offer)
+        ? object.resources_offer.map((e: any) => ResourceOffer.fromJSON(e))
         : [],
     };
   },
@@ -141,7 +141,7 @@ export const MsgCreateBid: MessageFns<MsgCreateBid, "akash.market.v1beta5.MsgCre
       obj.deposit = Deposit.toJSON(message.deposit);
     }
     if (message.resourcesOffer?.length) {
-      obj.resourcesOffer = message.resourcesOffer.map((e) => ResourceOffer.toJSON(e));
+      obj.resources_offer = message.resourcesOffer.map((e) => ResourceOffer.toJSON(e));
     }
     return obj;
   },

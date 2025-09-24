@@ -99,28 +99,32 @@ export const Module: MessageFns<Module, "cosmos.staking.module.v1.Module"> = {
 
   fromJSON(object: any): Module {
     return {
-      hooksOrder: globalThis.Array.isArray(object?.hooksOrder)
-        ? object.hooksOrder.map((e: any) => globalThis.String(e))
+      hooksOrder: globalThis.Array.isArray(object?.hooks_order)
+        ? object.hooks_order.map((e: any) => globalThis.String(e))
         : [],
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      bech32PrefixValidator: isSet(object.bech32PrefixValidator) ? globalThis.String(object.bech32PrefixValidator) : "",
-      bech32PrefixConsensus: isSet(object.bech32PrefixConsensus) ? globalThis.String(object.bech32PrefixConsensus) : "",
+      bech32PrefixValidator: isSet(object.bech32_prefix_validator)
+        ? globalThis.String(object.bech32_prefix_validator)
+        : "",
+      bech32PrefixConsensus: isSet(object.bech32_prefix_consensus)
+        ? globalThis.String(object.bech32_prefix_consensus)
+        : "",
     };
   },
 
   toJSON(message: Module): unknown {
     const obj: any = {};
     if (message.hooksOrder?.length) {
-      obj.hooksOrder = message.hooksOrder;
+      obj.hooks_order = message.hooksOrder;
     }
     if (message.authority !== "") {
       obj.authority = message.authority;
     }
     if (message.bech32PrefixValidator !== "") {
-      obj.bech32PrefixValidator = message.bech32PrefixValidator;
+      obj.bech32_prefix_validator = message.bech32PrefixValidator;
     }
     if (message.bech32PrefixConsensus !== "") {
-      obj.bech32PrefixConsensus = message.bech32PrefixConsensus;
+      obj.bech32_prefix_consensus = message.bech32PrefixConsensus;
     }
     return obj;
   },
