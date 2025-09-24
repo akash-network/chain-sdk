@@ -1,7 +1,7 @@
+import type { DescMethodStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import { Code } from "@connectrpc/connect";
 import { describe, expect, it, jest } from "@jest/globals";
 
-import { DescMethodStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import { proto } from "../../../../test/helpers/proto.ts";
 import { createAsyncIterable } from "../../client/stream.ts";
 import { createGrpcGatewayTransport, type GrpcGatewayTransportOptions } from "./createGrpcGatewayTransport.ts";
@@ -23,7 +23,7 @@ describe(createGrpcGatewayTransport.name, () => {
           method: "GET",
           headers: expect.any(Headers),
           signal: expect.any(AbortSignal),
-        })
+        }),
       );
 
       const url = fetch.mock.calls[0][0] as URL;
@@ -47,7 +47,7 @@ describe(createGrpcGatewayTransport.name, () => {
           method: "POST",
           headers: expect.any(Headers),
           body: JSON.stringify({ name: "test", value: 42 }),
-        })
+        }),
       );
     });
 
@@ -74,7 +74,7 @@ describe(createGrpcGatewayTransport.name, () => {
         expect.objectContaining({
           code: Code.InvalidArgument,
           message: expect.stringContaining("doesn't not support http transport"),
-        })
+        }),
       );
     });
 
@@ -88,7 +88,7 @@ describe(createGrpcGatewayTransport.name, () => {
         expect.objectContaining({
           code: Code.InvalidArgument,
           message: expect.stringContaining("resourceId"),
-        })
+        }),
       );
     });
 
@@ -134,7 +134,7 @@ describe(createGrpcGatewayTransport.name, () => {
         expect.any(URL),
         expect.objectContaining({
           signal: expect.any(AbortSignal),
-        })
+        }),
       );
     });
 
@@ -152,7 +152,7 @@ describe(createGrpcGatewayTransport.name, () => {
         expect.any(URL),
         expect.objectContaining({
           signal: expect.any(AbortSignal),
-        })
+        }),
       );
     });
 
@@ -207,8 +207,10 @@ describe(createGrpcGatewayTransport.name, () => {
           bool created = 3;
         }
       `;
-      const TestInputSchema = def.getMessage<"TestInput", { userId: string, resourceId: string, status: string, name: string, value: number, test: string }>("TestInput");
-      const TestOutputSchema = def.getMessage<"TestOutput", { result: string, id: string, created: boolean }>("TestOutput");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const TestInputSchema = def.getMessage<"TestInput", { userId: string; resourceId: string; status: string; name: string; value: number; test: string }>("TestInput");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const TestOutputSchema = def.getMessage<"TestOutput", { result: string; id: string; created: boolean }>("TestOutput");
       const TestServiceSchema = def.getTsProtoService<{
         testMethod: DescMethodUnary<typeof TestInputSchema, typeof TestOutputSchema>;
       }>("TestService");
@@ -232,7 +234,7 @@ describe(createGrpcGatewayTransport.name, () => {
         expect.objectContaining({
           code: Code.Unimplemented,
           message: expect.stringMatching(/HTTP transport doesn't support streaming/i),
-        })
+        }),
       );
     });
 
@@ -255,7 +257,9 @@ describe(createGrpcGatewayTransport.name, () => {
           string result = 1;
         }
       `;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const TestInputSchema = def.getMessage<"TestInput", { test: string }>("TestInput");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const TestOutputSchema = def.getMessage<"TestOutput", { result: string }>("TestOutput");
       const TestServiceSchema = def.getTsProtoService<{
         testStreamMethod: DescMethodStreaming<typeof TestInputSchema, typeof TestOutputSchema>;

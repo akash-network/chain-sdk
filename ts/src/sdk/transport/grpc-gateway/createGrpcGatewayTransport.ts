@@ -93,7 +93,7 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
   };
 }
 
-function serializeParams(message: Record<string, unknown>, params: URLSearchParams, prefix = '') {
+function serializeParams(message: Record<string, unknown>, params: URLSearchParams, prefix = "") {
   Object.keys(message).forEach((key) => {
     const name = prefix + key;
     const value = message[key];
@@ -104,6 +104,7 @@ function serializeParams(message: Record<string, unknown>, params: URLSearchPara
     }
 
     if (value instanceof Uint8Array) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params.append(name, btoa(value as any));
       return;
     }

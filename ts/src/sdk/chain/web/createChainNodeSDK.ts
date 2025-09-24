@@ -1,9 +1,8 @@
-import { createGrpcGatewayTransport } from "../../transport/grpc-gateway/createGrpcGatewayTransport.ts";
-import { serviceLoader as cosmosServiceLoader, createSDK as createCosmosSDK } from "../../../generated/createCosmosSDK.ts";
+import { createSDK as createCosmosSDK, serviceLoader as cosmosServiceLoader } from "../../../generated/createCosmosSDK.ts";
 import { createSDK as createNodeSDK, serviceLoader as nodeServiceLoader } from "../../../generated/createNodeSDK.ts";
-import { createGrpcWebTransport } from "../../transport/grpc-web/createGrpcWebTransport.ts";
+import { createGrpcGatewayTransport } from "../../transport/grpc-gateway/createGrpcGatewayTransport.ts";
 import { createTxTransport } from "../../transport/tx/createTxTransport.ts";
-import { TxClient } from "../../transport/tx/TxClient.ts";
+import type { TxClient } from "../../transport/tx/TxClient.ts";
 
 export type { PayloadOf, ResponseOf } from "../../types.ts";
 
@@ -27,5 +26,5 @@ export interface ChainNodeSDKOptions {
   };
   tx: {
     signer: TxClient;
-  }
+  };
 }
