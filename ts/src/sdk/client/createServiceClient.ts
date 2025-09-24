@@ -31,7 +31,7 @@ export function createServiceClient<TSchema extends ServiceDesc, TCallOptions>(
   const methodNames = Object.keys(service.methods);
   for (let i = 0; i < methodNames.length; i++) {
     const methodDesc = service.methods[methodNames[i]];
-    client[methodNames[i]] = createMethod(methodDesc, transport, methodOptions);
+    client[methodNames[i]] = createMethod(methodDesc as MethodDesc, transport, methodOptions);
   }
 
   return client as Client<TSchema, TCallOptions>;

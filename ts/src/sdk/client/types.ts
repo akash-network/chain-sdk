@@ -5,7 +5,7 @@ import type { DeepPartial } from "../../utils/types.ts";
 
 export interface ServiceDesc {
   typeName: string;
-  methods: Record<string, MethodDesc>;
+  methods: Record<string, MethodDesc | Omit<MethodDesc, "kind">>;
 }
 
 export interface MethodDesc<
@@ -13,7 +13,7 @@ export interface MethodDesc<
   TInputMessageDesc extends MessageDesc = MessageDesc,
   TOutputMessageDesc extends MessageDesc = MessageDesc,
 > {
-  kind?: TMethodKind;
+  kind: TMethodKind;
   name: string;
   httpPath?: string;
   httpMethod?: string;
