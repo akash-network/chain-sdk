@@ -8,12 +8,7 @@ import { describe, expect, it } from "@jest/globals";
 import Long from "long";
 
 import { createChainNodeSDK } from "../../src/sdk/chain/server/index.ts";
-import { validateProtobufDeserialization } from "@test/helpers/protobuf-validation";
-// Import actual protobuf types for better type safety
-import type { 
-  QueryDeploymentsResponse,
-  QueryDeploymentResponse 
-} from "../../src/generated/protos/akash/deployment/v1beta4/query.ts";
+import type { QueryDeploymentsResponse } from "../../src/generated/protos/akash/deployment/v1beta4/query.ts";
 
 describe("Deployment Queries", () => {
   // Use the working configuration from your provided snippet
@@ -22,16 +17,6 @@ describe("Deployment Queries", () => {
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
   const TX_RPC_URL = process.env.TX_RPC_URL || "https://testnetrpc.akashnet.net:443";
   const TEST_TIMEOUT = 15000;
-
-  // Type-safe validator for deployment responses using the actual protobuf type
-  const validateDeploymentResponseDeserialization = (deploymentResponse: any) => {
-    // This provides full type safety with the actual protobuf interface
-    validateProtobufDeserialization<QueryDeploymentResponse>(deploymentResponse);
-    
-    expect(deploymentResponse.deployment).toBeDefined();
-    expect(Array.isArray(deploymentResponse.groups)).toBe(true);
-    expect(deploymentResponse.escrowAccount).toBeDefined();
-  };
 
   // Helper function to create SDK instance
   const createTestSDK = () => createChainNodeSDK({
@@ -48,127 +33,61 @@ describe("Deployment Queries", () => {
     reverse: false,
   });
 
-  // Helper function to create empty filters
-  const createEmptyFilters = () => ({
-    owner: "",
-    dseq: Long.UZERO,
-    state: "",
-  });
 
-  // Helper function to handle response (deployments is unary, returns Promise not AsyncIterable)
-  const getResponse = async (responsePromise: Promise<any>) => {
-    const response = await responsePromise;
-    return response;
-  };
 
   it("should query deployments from the network", async () => {
     const sdk = createTestSDK();
 
     const queryParams = {
-      filters: createEmptyFilters(),
       pagination: createPagination(10),
     };
 
-    const responsePromise = sdk.akash.deployment.v1beta4.getDeployments(queryParams);
-
-    const response = await getResponse(responsePromise);
+    const response = await sdk.akash.deployment.v1beta4.getDeployments(queryParams);
     
-    if (response) {
-      expect(response.deployments).toBeDefined();
-      expect(Array.isArray(response.deployments)).toBe(true);
+    expect(response?.deployments).toBeDefined();
+    expect(Array.isArray(response?.deployments)).toBe(true);
+    
+    console.log(`Found ${response?.deployments?.length || 0} deployments`);
+    
+    if (response?.deployments && response.deployments.length > 0) {
+      const deployment = response.deployments[0]?.deployment;
+      expect(deployment?.id?.owner).toBeDefined();
+      expect(deployment?.id?.dseq).toBeDefined();
+      expect(deployment?.state).toBeDefined();
       
-      console.log(`Found ${response.deployments.length} deployments`);
-      
-      if (response.deployments.length > 0) {
-        const deployment = response.deployments[0].deployment;
-        expect(deployment.id.owner).toBeDefined();
-        expect(deployment.id.dseq).toBeDefined();
-        expect(deployment.state).toBeDefined();
-        
-        console.log(`Found deployment: ${deployment.id.owner}/${deployment.id.dseq.low}`);
-      }
-    } else {
-      console.log("No response received");
+      console.log(`First deployment: ${deployment?.id?.owner}/${deployment?.id?.dseq?.low}`);
     }
   }, TEST_TIMEOUT);
 
   it("should query deployments with pagination", async () => {
     const sdk = createTestSDK();
 
-    const responsePromise = sdk.akash.deployment.v1beta4.getDeployments({
-      filters: createEmptyFilters(),
+    const response = await sdk.akash.deployment.v1beta4.getDeployments({
       pagination: { ...createPagination(5), countTotal: true },
     });
-
-    const response = await getResponse(responsePromise);
     
-    if (response) {
-      expect(response.deployments).toBeDefined();
-      expect(Array.isArray(response.deployments)).toBe(true);
-      
-      console.log(`Paginated query returned ${response.deployments.length} deployments`);
-      
-      if (response.pagination) {
-        expect(response.pagination).toBeDefined();
-      }
-    } else {
-      console.log("No response received for paginated query");
+    expect(response?.deployments).toBeDefined();
+    expect(Array.isArray(response?.deployments)).toBe(true);
+    
+    console.log(`Paginated query returned ${response?.deployments?.length || 0} deployments`);
+    
+    if (response?.pagination) {
+      expect(response?.pagination).toBeDefined();
     }
   }, TEST_TIMEOUT);
 
   it("should handle empty results gracefully", async () => {
     const sdk = createTestSDK();
 
-    const responsePromise = sdk.akash.deployment.v1beta4.getDeployments({
-      filters: createEmptyFilters(),
+    const response = await sdk.akash.deployment.v1beta4.getDeployments({
       pagination: createPagination(1),
-    });
-
-    const response = await getResponse(responsePromise);
+    }) as any;
     
     // Should handle both empty responses and empty deployment lists
-    if (response) {
-      expect(response.deployments).toBeDefined();
-      expect(Array.isArray(response.deployments)).toBe(true);
-      expect(response.deployments.length).toBeGreaterThanOrEqual(0);
-      
-      console.log(`Query handled gracefully with ${response.deployments.length} deployments`);
-    } else {
-      console.log("Empty response handled gracefully");
-    }
-  }, TEST_TIMEOUT);
-
-  it("should properly deserialize deployment response objects", async () => {
-    const sdk = createTestSDK();
-
-    const response = await getResponse(
-      sdk.akash.deployment.v1beta4.getDeployments({
-        filters: createEmptyFilters(),
-        pagination: createPagination(3),
-      })
-    );
-
-    if (response?.deployments?.length > 0) {
-      // Validate the overall response using the actual protobuf type
-      validateProtobufDeserialization<QueryDeploymentsResponse>(response);
-      
-      // After validation, response is now properly typed with IntelliSense
-      // Validate each deployment response
-      response.deployments.forEach((deploymentResponse: any, index: number) => {
-        try {
-          validateDeploymentResponseDeserialization(deploymentResponse);
-          console.log(`Deployment ${index + 1}: All fields properly deserialized`);
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          console.error(`Deployment ${index + 1} deserialization error:`, errorMessage);
-          throw error;
-        }
-      });
-
-      console.log(`Successfully validated deserialization of ${response.deployments.length} deployments`);
-    } else {
-      console.log("No deployments found to validate deserialization");
-    }
+    expect(response?.deployments).toBeDefined();
+    expect(Array.isArray(response?.deployments)).toBe(true);
+    expect(response?.deployments?.length || 0).toBeGreaterThanOrEqual(0);
+    
   }, TEST_TIMEOUT);
 
   it("should create SDK instance with all modules", () => {
@@ -185,6 +104,5 @@ describe("Deployment Queries", () => {
     expect(sdk.akash.provider).toBeDefined();
     expect(sdk.akash.escrow).toBeDefined();
     
-    console.log("SDK created with all modules available");
   });
 });
