@@ -155,17 +155,23 @@ func NewClient(ctx context.Context, qclient aclient.QueryClient, addr sdk.Addres
 	}
 
 	cl.tlsCfg = &tls.Config{
-		InsecureSkipVerify:    true, // nolint: gosec
-		VerifyPeerCertificate: cl.verifyPeerCertificate,
 		MinVersion:            tls.VersionTLS13,
 		RootCAs:               certPool,
+		VerifyPeerCertificate: cl.verifyPeerCertificate,
+		InsecureSkipVerify:    true, // nolint: gosec
 	}
 
+	// must use Hostname rather than Host field as a certificate is issued for host without port
+
+	// logic here defaults to normal TLS behavior and mTLS is being used only when explicitly called
+	// by user by providing auth certificate.
+	// this allows read-only calls like get provider status to proceed with normal TLS flow without need
+	// to provider cert or token
 	if len(cl.opts.certs) > 0 {
 		cl.tlsCfg.Certificates = cl.opts.certs
-	} else if cl.opts.signer != nil || cl.opts.token != "" {
-		// must use Hostname rather than Host field as a certificate is issued for host without port
-		cl.tlsCfg.ServerName = uri.Host
+		cl.tlsCfg.ServerName = fmt.Sprintf("mtls.%s", uri.Hostname())
+	} else {
+		cl.tlsCfg.ServerName = uri.Hostname()
 	}
 
 	return cl, nil
@@ -187,15 +193,38 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 		return atls.CertificateInvalidError{Reason: atls.EmptyPeerCertificate}
 	}
 
-	// if the server provides just 1 certificate, it is most likely then not it is mTLS
-	if len(peerCerts) == 1 {
+	// Build intermediates from the presented chain (exclude leaf at index 0).
+	intermediates := x509.NewCertPool()
+	for _, ic := range peerCerts[1:] {
+		intermediates.AddCert(ic)
+	}
+
+	opts := x509.VerifyOptions{
+		Roots:                     c.tlsCfg.RootCAs,
+		Intermediates:             intermediates,
+		CurrentTime:               time.Now(),
+		KeyUsages:                 []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		MaxConstraintComparisions: 0,
+		// Enable strict hostname validation.
+		// mTLS usecase will drop this requirement if the server provides a self-signed certificate
+		DNSName: c.tlsCfg.ServerName,
+	}
+
+	// Fast-path: try standard PKI verification first.
+	leaf := peerCerts[0]
+	if _, err := leaf.Verify(opts); err == nil {
+		return nil
+	}
+
+	// Only attempt an on-chain/self-signed path when mTLS client certs are in use and a single cert was presented.
+	if len(c.tlsCfg.Certificates) > 0 && len(peerCerts) == 1 {
 		cert := peerCerts[0]
 		// validation
 		var owner sdk.Address
 		var err error
 
 		if owner, err = sdk.AccAddressFromBech32(cert.Subject.CommonName); err != nil {
-			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.EmptyPeerCertificate}, err)
+			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.InvalidCN}, err)
 		}
 
 		// 1. CommonName in issuer and Subject must match and be as Bech32 format
@@ -214,20 +243,17 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.Expired}, err)
 		}
 
-		c.tlsCfg.RootCAs.AddCert(onChainCert)
+		// Use a per-handshake roots pool to avoid mutating shared state.
+		roots := x509.NewCertPool()
+		roots.AddCert(onChainCert)
+		opts.Roots = roots
+		// Relax hostname validation for on-chain/self-signed flow.
+		opts.DNSName = ""
 	}
 
-	opts := x509.VerifyOptions{
-		Roots:                     c.tlsCfg.RootCAs,
-		CurrentTime:               time.Now(),
-		KeyUsages:                 []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		MaxConstraintComparisions: 0,
-	}
-
-	for _, cert := range peerCerts {
-		if _, err := cert.Verify(opts); err != nil {
-			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.Verify}, err)
-		}
+	// Verify with the possibly adjusted options (on-chain or standard).
+	if _, err := leaf.Verify(opts); err != nil {
+		return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: leaf, Reason: atls.Verify}, err)
 	}
 
 	return nil
