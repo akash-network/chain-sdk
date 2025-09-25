@@ -155,17 +155,23 @@ func NewClient(ctx context.Context, qclient aclient.QueryClient, addr sdk.Addres
 	}
 
 	cl.tlsCfg = &tls.Config{
-		InsecureSkipVerify:    true, // nolint: gosec
-		VerifyPeerCertificate: cl.verifyPeerCertificate,
 		MinVersion:            tls.VersionTLS13,
 		RootCAs:               certPool,
+		VerifyPeerCertificate: cl.verifyPeerCertificate,
+		InsecureSkipVerify:    true, // nolint: gosec
 	}
 
+	// must use Hostname rather than Host field as a certificate is issued for host without port
+
+	// logic here defaults to normal TLS behavior and mTLS is being used only when explicitly called
+	// by user by providing auth certificate.
+	// this allows read-only calls like get provider status to proceed with normal TLS flow without need
+	// to provider cert or token
 	if len(cl.opts.certs) > 0 {
 		cl.tlsCfg.Certificates = cl.opts.certs
-	} else if cl.opts.signer != nil || cl.opts.token != "" {
-		// must use Hostname rather than Host field as a certificate is issued for host without port
-		cl.tlsCfg.ServerName = uri.Host
+		cl.tlsCfg.ServerName = fmt.Sprintf("mtls.%s", uri.Hostname())
+	} else {
+		cl.tlsCfg.ServerName = uri.Hostname()
 	}
 
 	return cl, nil
@@ -185,6 +191,16 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 
 	if len(peerCerts) == 0 {
 		return atls.CertificateInvalidError{Reason: atls.EmptyPeerCertificate}
+	}
+
+	opts := x509.VerifyOptions{
+		Roots:                     c.tlsCfg.RootCAs,
+		CurrentTime:               time.Now(),
+		KeyUsages:                 []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		MaxConstraintComparisions: 0,
+		// Enable strict hostname validation.
+		// mTLS usecase will drop this requirement if the server provides a self-signed certificate
+		DNSName: c.tlsCfg.ServerName,
 	}
 
 	// if the server provides just 1 certificate, it is most likely then not it is mTLS
@@ -215,13 +231,7 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 		}
 
 		c.tlsCfg.RootCAs.AddCert(onChainCert)
-	}
-
-	opts := x509.VerifyOptions{
-		Roots:                     c.tlsCfg.RootCAs,
-		CurrentTime:               time.Now(),
-		KeyUsages:                 []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		MaxConstraintComparisions: 0,
+		opts.DNSName = ""
 	}
 
 	for _, cert := range peerCerts {
