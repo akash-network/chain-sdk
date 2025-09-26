@@ -66,7 +66,8 @@ function generateTs(schema: Schema): void {
     const packageParts = file.proto.package.split('.');
     const namespace = packageParts[0];
     const version = packageParts.at(-1);
-    const path = `index.${namespace}.${version}.ts`;
+    const protoSource = process.env.PROTO_SOURCE === 'provider' ? 'provider.' : '';
+    const path = `${protoSource}index.${namespace}.${version}.ts`;
     indexFiles[path] ??= {
       file: schema.generateFile(path),
       symbols: new Set(),
@@ -100,6 +101,7 @@ function generateTs(schema: Schema): void {
       indexFile.print(`import { ${symbolsToPatch} } from "./${file.name}.ts";`);
       for (const type of typesToPatch) {
         indexFile.print(`export const ${type.exportedName} = `, indexFile.import('patched', `./${patchesFileName}`),`(_${type.exportedName});`);
+        indexFile.print(`export type ${type.exportedName} = _${type.exportedName}`);
       }
     }
   });
