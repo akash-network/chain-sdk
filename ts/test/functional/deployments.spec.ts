@@ -7,6 +7,7 @@
 import { describe, expect, it } from "@jest/globals";
 import Long from "long";
 import { BinaryWriter } from "@bufbuild/protobuf/wire";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 import { createChainNodeSDK } from "../../src/sdk/chain/server/index.ts";
 import type { QueryDeploymentsResponse } from "../../src/generated/protos/akash/deployment/v1beta4/query.ts";
@@ -15,8 +16,9 @@ import { DeploymentID } from "../../src/generated/protos/akash/deployment/v1/dep
 import { GroupSpec } from "../../src/generated/protos/akash/deployment/v1beta4/groupspec.ts";
 import { ResourceUnit } from "../../src/generated/protos/akash/deployment/v1beta4/resourceunit.ts";
 import { Resources } from "../../src/generated/protos/akash/base/resources/v1beta4/resources.ts";
+import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { PlacementRequirements } from "../../src/generated/protos/akash/base/attributes/v1/attribute.ts";
-import { Deposit } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
+import { Deposit, Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
 
 describe("Deployment Queries", () => {
@@ -24,7 +26,7 @@ describe("Deployment Queries", () => {
   // Query and TX endpoints are different!
   // Note: These are gRPC endpoints that need proper URL schemes
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
-  const TX_RPC_URL = process.env.TX_RPC_URL || "https://testnetrpc.akashnet.net:443";
+  const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.testnet.akt.dev:443/rpc";
   const TEST_TIMEOUT = 15000;
 
   // Helper function to create SDK instance
@@ -191,4 +193,116 @@ describe("Deployment Queries", () => {
     expect(decoded.groups).toHaveLength(1);
     expect(decoded.groups[0]?.name).toBe("test-group");
   });
+
+  it("should create a deployment transaction", async () => {
+    // Test mnemonic for deterministic testing (DO NOT use in production)
+    const testMnemonic = "armed execute bleak say cage switch income license left dismiss crime humble";
+    
+    // Create a test wallet
+    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
+    const [account] = await wallet.getAccounts();
+    
+    // Print the test account address for funding if needed
+    console.log(`\nTest Account Address: ${account.address}`);
+    console.log(`To fund this account, send some AKT tokens to: ${account.address}`);
+    console.log(`You can use a testnet faucet or transfer from another account\n`);
+    
+    // Helper function to create readable resource values from strings
+    const createResourceValue = (value: string): { val: Uint8Array } => ({
+      val: new TextEncoder().encode(value)
+    });
+
+    // Create SDK with test wallet
+    const sdk = createChainNodeSDK({
+      query: { baseUrl: QUERY_RPC_URL },
+      tx: { baseUrl: TX_RPC_URL, signer: wallet },
+    });
+
+    // Create deployment message
+    const deploymentMessage: MsgCreateDeployment = {
+      id: {
+        owner: account.address,
+        dseq: Long.fromNumber(Date.now()) // Use timestamp for uniqueness
+      },
+      groups: [{
+        name: "web-service",
+        requirements: {
+          signedBy: {
+            allOf: [],
+            anyOf: []
+          },
+          attributes: []
+        },
+        resources: [{
+          resource: {
+            id: 1,
+            cpu: {
+              units: createResourceValue("500"), // 0.5 CPU
+              attributes: []
+            },
+            memory: {
+              quantity: createResourceValue("268435456"), // 256Mi memory
+              attributes: []
+            },
+            storage: [{
+              name: "default",
+              quantity: createResourceValue("1073741824"), // 1Gi storage
+              attributes: []
+            } as Storage],
+            gpu: {
+              units: createResourceValue("0"), // No GPU
+              attributes: []
+            },
+            endpoints: []
+          },
+          count: 1,
+          price: {
+            denom: "uakt",
+            amount: "1000"
+          } as DecCoin
+        }]
+      }],
+      hash: new Uint8Array(32), // 32-byte hash (all zeros for test)
+      deposit: {
+        amount: {
+          denom: "uakt",
+          amount: "5000000" // 5 AKT deposit
+        } as Coin,
+        sources: [Source.balance] // Use account balance as deposit source
+      }
+    };
+
+    
+    const result = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
+      memo: "Test deployment creation - Akash Chain SDK",
+      // Set afterSign callback to verify transaction structure
+      afterSign: (txRaw) => {
+        expect(txRaw).toBeDefined();
+        expect(txRaw.bodyBytes).toBeDefined();
+        expect(txRaw.authInfoBytes).toBeDefined();
+        expect(txRaw.signatures).toBeDefined();
+        expect(txRaw.signatures.length).toBeGreaterThan(0);
+      },
+      // Set afterBroadcast callback to capture transaction hash
+      afterBroadcast: (txResponse) => {
+        // Verify transaction was successful
+        expect(txResponse.code).toBe(0); // 0 means success
+        expect(txResponse.transactionHash).toBeDefined();
+      }
+    });
+    
+    // Transaction completed successfully
+    console.log("Deployment transaction completed successfully!");
+    console.log(`   - Transaction result:`, result);
+    
+    // Verify the response structure - these assertions are required for test to pass
+    expect(result).toBeDefined();
+
+    // Verify wallet and account structure
+    expect(account.address).toMatch(/^akash1[a-z0-9]{38}$/);
+    expect(account.pubkey).toHaveLength(33); // Compressed secp256k1 pubkey
+    expect(deploymentMessage.id?.owner).toBe(account.address);
+    expect(deploymentMessage.groups).toHaveLength(1);
+    expect(deploymentMessage.groups[0]?.name).toBe("web-service");
+  }, TEST_TIMEOUT);
 });
