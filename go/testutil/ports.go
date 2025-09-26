@@ -5,8 +5,8 @@ import (
 	"sync"
 )
 
-// GetFreePorts asks the kernel for free open ports that are ready to use.
-func GetFreePorts(count int) ([]int, error) {
+// GetUsablePorts asks the kernel for unused TCP ports
+func GetUsablePorts(count int) (*UsablePorts, error) {
 	var ports []int
 	listeners := make([]*net.TCPListener, 0, count)
 
@@ -31,23 +31,25 @@ func GetFreePorts(count int) ([]int, error) {
 		ports = append(ports, l.Addr().(*net.TCPAddr).Port)
 	}
 
-	return ports, nil
+	return usablePorts(ports), nil
 }
 
-type freePorts struct {
+// UsablePorts yields a finite sequence of ephemeral TCP port numbers discovered at creation time.
+// Safe for concurrent use; do not copy this struct after first use.
+type UsablePorts struct {
 	lock  sync.Mutex
 	idx   int
 	ports []int
 }
 
-func newFreePorts(ports []int) *freePorts {
-	return &freePorts{
+func usablePorts(ports []int) *UsablePorts {
+	return &UsablePorts{
 		idx:   0,
 		ports: ports,
 	}
 }
 
-func (p *freePorts) mustGetPort() int {
+func (p *UsablePorts) MustGetPort() int {
 	defer p.lock.Unlock()
 	p.lock.Lock()
 

@@ -49,26 +49,7 @@ type ClientOptions struct {
 	SignMode         string
 }
 
-type BroadcastOptions struct {
-	generateOnly     *bool
-	timeoutHeight    *uint64
-	gasAdjustment    *float64
-	gas              *GasSetting
-	gasPrices        *string
-	fees             *string
-	note             *string
-	broadcastTimeout time.Duration
-	resultAsError    bool
-	skipConfirm      *bool
-	confirmFn        ConfirmFn
-	broadcastMode    *string
-}
-
 type ConfirmFn func(string) (bool, error)
-
-// BroadcastOption is a function that takes as first argument a pointer to BroadcastOptions and returns an error
-// if the option cannot be configured. A number of BroadcastOption functions are available in this package.
-type BroadcastOption func(*BroadcastOptions) error
 
 type ClientOption func(options *ClientOptions) error
 
