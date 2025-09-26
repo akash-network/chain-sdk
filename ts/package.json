@@ -22,10 +22,15 @@
       "require": "./dist/web/cjs/sdk/chain/web/index.js",
       "types": "./dist/types/sdk/chain/web/index.d.ts"
     },
-    "./types/*": {
+    "./chain/types/*": {
       "import": "./dist/nodejs/esm/generated/protos/index.*.js",
       "require": "./dist/nodejs/cjs/generated/protos/index.*.js",
       "types": "./dist/types/generated/protos/index.*.d.ts"
+    },
+    "./provider/types/*": {
+      "import": "./dist/nodejs/esm/generated/protos/index.provider.*.js",
+      "require": "./dist/nodejs/cjs/generated/protos/index.provider.*.js",
+      "types": "./dist/types/generated/protos/index.provider.*.d.ts"
     },
     "./provider": {
       "import": "./dist/nodejs/esm/sdk/provider/server/index.js",
