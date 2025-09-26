@@ -1,7 +1,16 @@
 /**
- * Functional tests for querying deployments using the Akash Chain SDK
+ * Functional tests for deployment operations using the Akash Chain SDK
  * 
- * These tests demonstrate how to query live deployment data from the Akash network.
+ * These tests demonstrate how to:
+ * - Query live deployment data from the Akash network
+ * - Serialize deployment messages for API consistency testing  
+ * - Create actual deployment transactions on testnet
+ * 
+ * Environment Variables:
+ * - TEST_MNEMONIC: A funded testnet account mnemonic for deployment transaction tests
+ *   Example: export TEST_MNEMONIC="word1 word2 word3 ... word12"
+ * 
+ * Note: Never use production mnemonics in tests!
  */
 
 import { describe, expect, it } from "@jest/globals";
@@ -195,8 +204,14 @@ describe("Deployment Queries", () => {
   });
 
   it("should create a deployment transaction", async () => {
-    // Test mnemonic for deterministic testing (DO NOT use in production)
-    const testMnemonic = "armed execute bleak say cage switch income license left dismiss crime humble";
+    // Get test mnemonic from environment variable
+    const testMnemonic = process.env.TEST_MNEMONIC;
+    
+    if (!testMnemonic) {
+      console.log("Skipping deployment transaction test - TEST_MNEMONIC environment variable not set");
+      console.log("To run this test, set TEST_MNEMONIC with a funded testnet account mnemonic");
+      return;
+    }
     
     // Create a test wallet
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
