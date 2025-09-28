@@ -29,7 +29,9 @@ func TestDepositAuthorizationAccept(t *testing.T) {
 	// Try to deposit too much coin, expect an error
 	spendReq := limit.Add(sdk.NewInt64Coin(testutil.CoinDenom, 1))
 
-	msg = v1.NewMsgAccountDeposit(testutil.DeploymentID(t).ToEscrowAccountID(), deposit.Deposit{
+	did := testutil.DeploymentID(t)
+
+	msg = v1.NewMsgAccountDeposit(did.Owner, did.ToEscrowAccountID(), deposit.Deposit{
 		Amount:  spendReq,
 		Sources: deposit.Sources{deposit.SourceGrant},
 	})
@@ -38,8 +40,9 @@ func TestDepositAuthorizationAccept(t *testing.T) {
 	require.ErrorIs(t, err, sdkerrors.ErrInsufficientFunds)
 	require.Zero(t, response)
 
+	did = testutil.DeploymentID(t)
 	// Deposit 1 less than the limit, expect an updated deposit
-	msg = v1.NewMsgAccountDeposit(testutil.DeploymentID(t).ToEscrowAccountID(), deposit.Deposit{
+	msg = v1.NewMsgAccountDeposit(did.Owner, did.ToEscrowAccountID(), deposit.Deposit{
 		Amount:  limit.Sub(sdk.NewInt64Coin(testutil.CoinDenom, 1)),
 		Sources: deposit.Sources{deposit.SourceGrant},
 	})
@@ -52,8 +55,9 @@ func TestDepositAuthorizationAccept(t *testing.T) {
 	dda, ok = response.Updated.(*v1.DepositAuthorization)
 	require.True(t, ok)
 
+	did = testutil.DeploymentID(t)
 	// Deposit the limit (now 1), expect that it is not to be deleted
-	msg = v1.NewMsgAccountDeposit(testutil.DeploymentID(t).ToEscrowAccountID(), deposit.Deposit{
+	msg = v1.NewMsgAccountDeposit(did.Owner, did.ToEscrowAccountID(), deposit.Deposit{
 		Amount:  sdk.NewInt64Coin(testutil.CoinDenom, 1),
 		Sources: deposit.Sources{deposit.SourceGrant},
 	})

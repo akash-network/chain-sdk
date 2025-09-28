@@ -16,17 +16,18 @@ option go_package = "pkg.akt.dev/go/node/escrow/v1";
 // deployment-related resources.
 message MsgAccountDeposit {
   option (gogoproto.equal) = false;
-  option (cosmos.msg.v1.signer) = "owner";
+  option (cosmos.msg.v1.signer) = "signer";
 
-  // Owner is the account bech32 address of the user who owns the deployment.
+  // Signer is the account bech32 address of the user who wants to deposit into
+  // an escrow account. Does not necessarily needs to be an owner of the deployment.
   // It is a string representing a valid bech32 account address.
   //
   // Example:
   //   "akash1..."
-  string owner = 1 [
+  string signer = 1 [
     (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "owner",
-    (gogoproto.moretags)  = "yaml:\"owner\""
+    (gogoproto.jsontag)   = "signer",
+    (gogoproto.moretags)  = "yaml:\"signer\""
   ];
 
   // ID is the unique identifier of the account.

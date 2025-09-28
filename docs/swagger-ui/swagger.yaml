@@ -1406,6 +1406,21 @@ paths:
                               title: >-
                                 Height blockchain height at which deposit was
                                 created
+                            source:
+                              title: Source indicated origination of the funds
+                              type: string
+                              enum:
+                                - invalid
+                                - balance
+                                - grant
+                              default: invalid
+                              description: >-
+                                Source is an enum which lists source of funds
+                                for deployment deposit.
+
+                                 - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                                 - balance: DepositSourceBalance denotes account balance as source of funds
+                                 - grant: DepositSourceGrant denotes authz grants as source of funds
                             balance:
                               type: object
                               properties:
@@ -2043,6 +2058,21 @@ paths:
                                     title: >-
                                       Height blockchain height at which deposit
                                       was created
+                                  source:
+                                    title: Source indicated origination of the funds
+                                    type: string
+                                    enum:
+                                      - invalid
+                                      - balance
+                                      - grant
+                                    default: invalid
+                                    description: >-
+                                      Source is an enum which lists source of
+                                      funds for deployment deposit.
+
+                                       - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                                       - balance: DepositSourceBalance denotes account balance as source of funds
+                                       - grant: DepositSourceGrant denotes authz grants as source of funds
                                   balance:
                                     type: object
                                     properties:
@@ -2762,6 +2792,13 @@ paths:
 
                           Example:
                             "akash1..."
+                      bseq:
+                        type: integer
+                        format: int64
+                        description: >-
+                          BSeq (bid sequence) distinguishes multiple bids
+                          associated with a single deployment from same
+                          provider.
                   state:
                     description: State represents the state of the Bid.
                     type: string
@@ -3140,6 +3177,21 @@ paths:
                               title: >-
                                 Height blockchain height at which deposit was
                                 created
+                            source:
+                              title: Source indicated origination of the funds
+                              type: string
+                              enum:
+                                - invalid
+                                - balance
+                                - grant
+                              default: invalid
+                              description: >-
+                                Source is an enum which lists source of funds
+                                for deployment deposit.
+
+                                 - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                                 - balance: DepositSourceBalance denotes account balance as source of funds
+                                 - grant: DepositSourceGrant denotes authz grants as source of funds
                             balance:
                               type: object
                               properties:
@@ -3241,6 +3293,14 @@ paths:
           in: query
           required: false
           type: string
+        - name: id.bseq
+          description: >-
+            BSeq (bid sequence) distinguishes multiple bids associated with a
+            single deployment from same provider.
+          in: query
+          required: false
+          type: integer
+          format: int64
       tags:
         - Query
   /akash/market/v1beta5/bids/list:
@@ -3320,6 +3380,13 @@ paths:
 
                                 Example:
                                   "akash1..."
+                            bseq:
+                              type: integer
+                              format: int64
+                              description: >-
+                                BSeq (bid sequence) distinguishes multiple bids
+                                associated with a single deployment from same
+                                provider.
                         state:
                           description: State represents the state of the Bid.
                           type: string
@@ -3711,6 +3778,21 @@ paths:
                                     title: >-
                                       Height blockchain height at which deposit
                                       was created
+                                  source:
+                                    title: Source indicated origination of the funds
+                                    type: string
+                                    enum:
+                                      - invalid
+                                      - balance
+                                      - grant
+                                    default: invalid
+                                    description: >-
+                                      Source is an enum which lists source of
+                                      funds for deployment deposit.
+
+                                       - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                                       - balance: DepositSourceBalance denotes account balance as source of funds
+                                       - grant: DepositSourceGrant denotes authz grants as source of funds
                                   balance:
                                     type: object
                                     properties:
@@ -3840,6 +3922,14 @@ paths:
           in: query
           required: false
           type: string
+        - name: filters.bseq
+          description: >-
+            BSeq (bid sequence) distinguishes multiple bids associated with a
+            single deployment from same provider.
+          in: query
+          required: false
+          type: integer
+          format: int64
         - name: pagination.key
           description: |-
             key is a value returned in PageResponse.next_key to begin
@@ -3965,6 +4055,13 @@ paths:
 
                           Example:
                             "akash1..."
+                      bseq:
+                        type: integer
+                        format: int64
+                        description: >-
+                          BSeq (bid sequence) distinguishes multiple bids
+                          associated with a single deployment from same
+                          provider.
                   state:
                     description: State represents the state of the Lease.
                     type: string
@@ -4002,6 +4099,32 @@ paths:
                     description: >-
                       ClosedOn is the block height at which the Lease was
                       closed.
+                  reason:
+                    type: string
+                    enum:
+                      - lease_closed_invalid
+                      - lease_closed_owner
+                      - lease_closed_reason_unstable
+                      - lease_closed_reason_decommission
+                      - lease_closed_reason_unspecified
+                      - lease_closed_reason_insufficient_funds
+                    default: lease_closed_invalid
+                    description: >-
+                      - lease_closed_invalid: LeaseClosedReasonInvalid
+                      represents the default zero value for LeaseClosedReason.
+
+                      This value indicates an uninitialized or invalid lease
+                      closure reason and should not
+
+                      be used
+                       - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+                       - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                      lease_closed_reason_unstable lease workloads have been
+                      unstable
+                       - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                       - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                       - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                    title: LeaseClosedReason indicates reason bid was closed
               escrow_payment:
                 description: >-
                   EscrowPayment holds information about the Lease's fractional
@@ -4202,6 +4325,14 @@ paths:
           in: query
           required: false
           type: string
+        - name: id.bseq
+          description: >-
+            BSeq (bid sequence) distinguishes multiple bids associated with a
+            single deployment from same provider.
+          in: query
+          required: false
+          type: integer
+          format: int64
       tags:
         - Query
   /akash/market/v1beta5/leases/list:
@@ -4279,6 +4410,13 @@ paths:
 
                                 Example:
                                   "akash1..."
+                            bseq:
+                              type: integer
+                              format: int64
+                              description: >-
+                                BSeq (bid sequence) distinguishes multiple bids
+                                associated with a single deployment from same
+                                provider.
                         state:
                           description: State represents the state of the Lease.
                           type: string
@@ -4316,6 +4454,33 @@ paths:
                           description: >-
                             ClosedOn is the block height at which the Lease was
                             closed.
+                        reason:
+                          type: string
+                          enum:
+                            - lease_closed_invalid
+                            - lease_closed_owner
+                            - lease_closed_reason_unstable
+                            - lease_closed_reason_decommission
+                            - lease_closed_reason_unspecified
+                            - lease_closed_reason_insufficient_funds
+                          default: lease_closed_invalid
+                          description: >-
+                            - lease_closed_invalid: LeaseClosedReasonInvalid
+                            represents the default zero value for
+                            LeaseClosedReason.
+
+                            This value indicates an uninitialized or invalid
+                            lease closure reason and should not
+
+                            be used
+                             - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+                             - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                            lease_closed_reason_unstable lease workloads have
+                            been unstable
+                             - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                             - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                             - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                          title: LeaseClosedReason indicates reason bid was closed
                     escrow_payment:
                       description: >-
                         EscrowPayment holds information about the Lease's
@@ -4548,6 +4713,14 @@ paths:
           in: query
           required: false
           type: string
+        - name: filters.bseq
+          description: >-
+            BSeq (bid sequence) distinguishes multiple bids associated with a
+            single deployment from same provider.
+          in: query
+          required: false
+          type: integer
+          format: int64
         - name: pagination.key
           description: |-
             key is a value returned in PageResponse.next_key to begin
@@ -45473,6 +45646,19 @@ definitions:
       regardless to how many
 
       entries there.
+  akash.base.deposit.v1.Source:
+    type: string
+    enum:
+      - invalid
+      - balance
+      - grant
+    default: invalid
+    description: |-
+      Source is an enum which lists source of funds for deployment deposit.
+
+       - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+       - balance: DepositSourceBalance denotes account balance as source of funds
+       - grant: DepositSourceGrant denotes authz grants as source of funds
   akash.base.resources.v1beta4.CPU:
     type: object
     properties:
@@ -47176,6 +47362,21 @@ definitions:
                       type: string
                       format: int64
                       title: Height blockchain height at which deposit was created
+                    source:
+                      title: Source indicated origination of the funds
+                      type: string
+                      enum:
+                        - invalid
+                        - balance
+                        - grant
+                      default: invalid
+                      description: >-
+                        Source is an enum which lists source of funds for
+                        deployment deposit.
+
+                         - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                         - balance: DepositSourceBalance denotes account balance as source of funds
+                         - grant: DepositSourceGrant denotes authz grants as source of funds
                     balance:
                       type: object
                       properties:
@@ -47744,6 +47945,21 @@ definitions:
                             title: >-
                               Height blockchain height at which deposit was
                               created
+                          source:
+                            title: Source indicated origination of the funds
+                            type: string
+                            enum:
+                              - invalid
+                              - balance
+                              - grant
+                            default: invalid
+                            description: >-
+                              Source is an enum which lists source of funds for
+                              deployment deposit.
+
+                               - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                               - balance: DepositSourceBalance denotes account balance as source of funds
+                               - grant: DepositSourceGrant denotes authz grants as source of funds
                           balance:
                             type: object
                             properties:
@@ -48535,6 +48751,21 @@ definitions:
                   type: string
                   format: int64
                   title: Height blockchain height at which deposit was created
+                source:
+                  title: Source indicated origination of the funds
+                  type: string
+                  enum:
+                    - invalid
+                    - balance
+                    - grant
+                  default: invalid
+                  description: >-
+                    Source is an enum which lists source of funds for deployment
+                    deposit.
+
+                     - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                     - balance: DepositSourceBalance denotes account balance as source of funds
+                     - grant: DepositSourceGrant denotes authz grants as source of funds
                 balance:
                   type: object
                   properties:
@@ -48635,6 +48866,21 @@ definitions:
               type: string
               format: int64
               title: Height blockchain height at which deposit was created
+            source:
+              title: Source indicated origination of the funds
+              type: string
+              enum:
+                - invalid
+                - balance
+                - grant
+              default: invalid
+              description: >-
+                Source is an enum which lists source of funds for deployment
+                deposit.
+
+                 - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                 - balance: DepositSourceBalance denotes account balance as source of funds
+                 - grant: DepositSourceGrant denotes authz grants as source of funds
             balance:
               type: object
               properties:
@@ -48683,6 +48929,20 @@ definitions:
         type: string
         format: int64
         title: Height blockchain height at which deposit was created
+      source:
+        title: Source indicated origination of the funds
+        type: string
+        enum:
+          - invalid
+          - balance
+          - grant
+        default: invalid
+        description: |-
+          Source is an enum which lists source of funds for deployment deposit.
+
+           - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+           - balance: DepositSourceBalance denotes account balance as source of funds
+           - grant: DepositSourceGrant denotes authz grants as source of funds
       balance:
         type: object
         properties:
@@ -48768,19 +49028,6 @@ definitions:
     description: >-
       Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment
       and MsgCreateBid to indicate source of the deposit.
-  akash.base.deposit.v1.Source:
-    type: string
-    enum:
-      - invalid
-      - balance
-      - grant
-    default: invalid
-    description: |-
-      Source is an enum which lists source of funds for deployment deposit.
-
-       - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-       - balance: DepositSourceBalance denotes account balance as source of funds
-       - grant: DepositSourceGrant denotes authz grants as source of funds
   akash.deployment.v1beta4.MsgCloseDeploymentResponse:
     type: object
     description: MsgCloseDeploymentResponse defines the Msg/CloseDeployment response type.
@@ -49065,6 +49312,12 @@ definitions:
 
           Example:
             "akash1..."
+      bseq:
+        type: integer
+        format: int64
+        description: >-
+          BSeq (bid sequence) distinguishes multiple bids associated with a
+          single deployment from same provider.
     description: |-
       BidID stores owner and all other seq numbers.
       A successful bid becomes a Lease(ID).
@@ -49123,6 +49376,12 @@ definitions:
 
               Example:
                 "akash1..."
+          bseq:
+            type: integer
+            format: int64
+            description: >-
+              BSeq (bid sequence) distinguishes multiple bids associated with a
+              single deployment from same provider.
       state:
         description: State represents the state of the Lease.
         type: string
@@ -49152,6 +49411,31 @@ definitions:
         type: string
         format: int64
         description: ClosedOn is the block height at which the Lease was closed.
+      reason:
+        type: string
+        enum:
+          - lease_closed_invalid
+          - lease_closed_owner
+          - lease_closed_reason_unstable
+          - lease_closed_reason_decommission
+          - lease_closed_reason_unspecified
+          - lease_closed_reason_insufficient_funds
+        default: lease_closed_invalid
+        description: >-
+          - lease_closed_invalid: LeaseClosedReasonInvalid represents the
+          default zero value for LeaseClosedReason.
+
+          This value indicates an uninitialized or invalid lease closure reason
+          and should not
+
+          be used
+           - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+          lease_closed_reason_unstable lease workloads have been unstable
+           - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+           - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+        title: LeaseClosedReason indicates reason bid was closed
     description: >-
       Lease stores LeaseID, state of lease and price.
 
@@ -49177,6 +49461,31 @@ definitions:
        - active: LeaseActive denotes state for lease active.
        - insufficient_funds: LeaseInsufficientFunds denotes state for lease insufficient_funds.
        - closed: LeaseClosed denotes state for lease closed.
+  akash.market.v1.LeaseClosedReason:
+    type: string
+    enum:
+      - lease_closed_invalid
+      - lease_closed_owner
+      - lease_closed_reason_unstable
+      - lease_closed_reason_decommission
+      - lease_closed_reason_unspecified
+      - lease_closed_reason_insufficient_funds
+    default: lease_closed_invalid
+    description: >-
+      - lease_closed_invalid: LeaseClosedReasonInvalid represents the default
+      zero value for LeaseClosedReason.
+
+      This value indicates an uninitialized or invalid lease closure reason and
+      should not
+
+      be used
+       - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+       - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+      lease_closed_reason_unstable lease workloads have been unstable
+       - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+       - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+       - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+    title: LeaseClosedReason indicates reason bid was closed
   akash.market.v1.LeaseFilters:
     type: object
     properties:
@@ -49228,6 +49537,12 @@ definitions:
       state:
         type: string
         description: State represents the state of the lease.
+      bseq:
+        type: integer
+        format: int64
+        description: >-
+          BSeq (bid sequence) distinguishes multiple bids associated with a
+          single deployment from same provider.
     description: LeaseFilters defines flags for lease list filtering.
   akash.market.v1.LeaseID:
     type: object
@@ -49277,6 +49592,12 @@ definitions:
 
           Example:
             "akash1..."
+      bseq:
+        type: integer
+        format: int64
+        description: >-
+          BSeq (bid sequence) distinguishes multiple bids associated with a
+          single deployment from same provider.
     description: LeaseID stores bid details of lease.
   akash.market.v1.OrderID:
     type: object
@@ -49376,6 +49697,12 @@ definitions:
 
               Example:
                 "akash1..."
+          bseq:
+            type: integer
+            format: int64
+            description: >-
+              BSeq (bid sequence) distinguishes multiple bids associated with a
+              single deployment from same provider.
       state:
         description: State represents the state of the Bid.
         type: string
@@ -49697,6 +50024,12 @@ definitions:
       state:
         type: string
         description: State represents the state of the lease.
+      bseq:
+        type: integer
+        format: int64
+        description: >-
+          BSeq (bid sequence) distinguishes multiple bids associated with a
+          single deployment from same provider.
     description: BidFilters defines flags for bid list filter.
   akash.market.v1beta5.Order:
     type: object
@@ -50214,6 +50547,12 @@ definitions:
 
                   Example:
                     "akash1..."
+              bseq:
+                type: integer
+                format: int64
+                description: >-
+                  BSeq (bid sequence) distinguishes multiple bids associated
+                  with a single deployment from same provider.
           state:
             description: State represents the state of the Bid.
             type: string
@@ -50578,6 +50917,21 @@ definitions:
                       type: string
                       format: int64
                       title: Height blockchain height at which deposit was created
+                    source:
+                      title: Source indicated origination of the funds
+                      type: string
+                      enum:
+                        - invalid
+                        - balance
+                        - grant
+                      default: invalid
+                      description: >-
+                        Source is an enum which lists source of funds for
+                        deployment deposit.
+
+                         - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                         - balance: DepositSourceBalance denotes account balance as source of funds
+                         - grant: DepositSourceGrant denotes authz grants as source of funds
                     balance:
                       type: object
                       properties:
@@ -50668,6 +51022,12 @@ definitions:
 
                         Example:
                           "akash1..."
+                    bseq:
+                      type: integer
+                      format: int64
+                      description: >-
+                        BSeq (bid sequence) distinguishes multiple bids
+                        associated with a single deployment from same provider.
                 state:
                   description: State represents the state of the Bid.
                   type: string
@@ -51042,6 +51402,21 @@ definitions:
                             title: >-
                               Height blockchain height at which deposit was
                               created
+                          source:
+                            title: Source indicated origination of the funds
+                            type: string
+                            enum:
+                              - invalid
+                              - balance
+                              - grant
+                            default: invalid
+                            description: >-
+                              Source is an enum which lists source of funds for
+                              deployment deposit.
+
+                               - invalid: Prefix should start with 0 in enum. So declaring dummy state.
+                               - balance: DepositSourceBalance denotes account balance as source of funds
+                               - grant: DepositSourceGrant denotes authz grants as source of funds
                           balance:
                             type: object
                             properties:
@@ -51143,6 +51518,12 @@ definitions:
 
                   Example:
                     "akash1..."
+              bseq:
+                type: integer
+                format: int64
+                description: >-
+                  BSeq (bid sequence) distinguishes multiple bids associated
+                  with a single deployment from same provider.
           state:
             description: State represents the state of the Lease.
             type: string
@@ -51175,6 +51556,31 @@ definitions:
             type: string
             format: int64
             description: ClosedOn is the block height at which the Lease was closed.
+          reason:
+            type: string
+            enum:
+              - lease_closed_invalid
+              - lease_closed_owner
+              - lease_closed_reason_unstable
+              - lease_closed_reason_decommission
+              - lease_closed_reason_unspecified
+              - lease_closed_reason_insufficient_funds
+            default: lease_closed_invalid
+            description: >-
+              - lease_closed_invalid: LeaseClosedReasonInvalid represents the
+              default zero value for LeaseClosedReason.
+
+              This value indicates an uninitialized or invalid lease closure
+              reason and should not
+
+              be used
+               - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+               - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+              lease_closed_reason_unstable lease workloads have been unstable
+               - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+               - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+               - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+            title: LeaseClosedReason indicates reason bid was closed
       escrow_payment:
         description: EscrowPayment holds information about the Lease's fractional payment.
         type: object
@@ -51359,6 +51765,12 @@ definitions:
 
                         Example:
                           "akash1..."
+                    bseq:
+                      type: integer
+                      format: int64
+                      description: >-
+                        BSeq (bid sequence) distinguishes multiple bids
+                        associated with a single deployment from same provider.
                 state:
                   description: State represents the state of the Lease.
                   type: string
@@ -51394,6 +51806,32 @@ definitions:
                   type: string
                   format: int64
                   description: ClosedOn is the block height at which the Lease was closed.
+                reason:
+                  type: string
+                  enum:
+                    - lease_closed_invalid
+                    - lease_closed_owner
+                    - lease_closed_reason_unstable
+                    - lease_closed_reason_decommission
+                    - lease_closed_reason_unspecified
+                    - lease_closed_reason_insufficient_funds
+                  default: lease_closed_invalid
+                  description: >-
+                    - lease_closed_invalid: LeaseClosedReasonInvalid represents
+                    the default zero value for LeaseClosedReason.
+
+                    This value indicates an uninitialized or invalid lease
+                    closure reason and should not
+
+                    be used
+                     - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+                     - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                    lease_closed_reason_unstable lease workloads have been
+                    unstable
+                     - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                     - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                     - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                  title: LeaseClosedReason indicates reason bid was closed
             escrow_payment:
               description: >-
                 EscrowPayment holds information about the Lease's fractional

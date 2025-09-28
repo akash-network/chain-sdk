@@ -63,8 +63,8 @@ func GetTxEscrowDeposit() *cobra.Command {
 			}
 
 			msg := &ev1.MsgAccountDeposit{
-				ID:    aid,
-				Owner: cctx.FromAddress.String(),
+				ID:     aid,
+				Signer: cctx.FromAddress.String(),
 				Deposit: deposit.Deposit{
 					Amount:  amount,
 					Sources: sources,
@@ -81,7 +81,7 @@ func GetTxEscrowDeposit() *cobra.Command {
 	}
 
 	cflags.AddTxFlagsToCmd(cmd)
-	cflags.AddDeploymentIDFlags(cmd.Flags(), cflags.DeploymentIDOptionNoOwner(true))
+	cflags.AddDeploymentIDFlags(cmd.Flags())
 	cflags.AddDepositSourcesFlags(cmd.Flags())
 
 	return cmd

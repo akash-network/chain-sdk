@@ -19,13 +19,14 @@ export const protobufPackage = "akash.escrow.v1";
  */
 export interface MsgAccountDeposit {
   /**
-   * Owner is the account bech32 address of the user who owns the deployment.
+   * Signer is the account bech32 address of the user who wants to deposit into
+   * an escrow account. Does not necessarily needs to be an owner of the deployment.
    * It is a string representing a valid bech32 account address.
    *
    * Example:
    *   "akash1..."
    */
-  owner: string;
+  signer: string;
   /** ID is the unique identifier of the account. */
   id:
     | Account
@@ -39,15 +40,15 @@ export interface MsgAccountDepositResponse {
 }
 
 function createBaseMsgAccountDeposit(): MsgAccountDeposit {
-  return { owner: "", id: undefined, deposit: undefined };
+  return { signer: "", id: undefined, deposit: undefined };
 }
 
 export const MsgAccountDeposit: MessageFns<MsgAccountDeposit, "akash.escrow.v1.MsgAccountDeposit"> = {
   $type: "akash.escrow.v1.MsgAccountDeposit" as const,
 
   encode(message: MsgAccountDeposit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.owner !== "") {
-      writer.uint32(10).string(message.owner);
+    if (message.signer !== "") {
+      writer.uint32(10).string(message.signer);
     }
     if (message.id !== undefined) {
       Account.encode(message.id, writer.uint32(18).fork()).join();
@@ -70,7 +71,7 @@ export const MsgAccountDeposit: MessageFns<MsgAccountDeposit, "akash.escrow.v1.M
             break;
           }
 
-          message.owner = reader.string();
+          message.signer = reader.string();
           continue;
         }
         case 2: {
@@ -100,7 +101,7 @@ export const MsgAccountDeposit: MessageFns<MsgAccountDeposit, "akash.escrow.v1.M
 
   fromJSON(object: any): MsgAccountDeposit {
     return {
-      owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
+      signer: isSet(object.signer) ? globalThis.String(object.signer) : "",
       id: isSet(object.id) ? Account.fromJSON(object.id) : undefined,
       deposit: isSet(object.deposit) ? Deposit.fromJSON(object.deposit) : undefined,
     };
@@ -108,8 +109,8 @@ export const MsgAccountDeposit: MessageFns<MsgAccountDeposit, "akash.escrow.v1.M
 
   toJSON(message: MsgAccountDeposit): unknown {
     const obj: any = {};
-    if (message.owner !== "") {
-      obj.owner = message.owner;
+    if (message.signer !== "") {
+      obj.signer = message.signer;
     }
     if (message.id !== undefined) {
       obj.id = Account.toJSON(message.id);
@@ -125,7 +126,7 @@ export const MsgAccountDeposit: MessageFns<MsgAccountDeposit, "akash.escrow.v1.M
   },
   fromPartial(object: DeepPartial<MsgAccountDeposit>): MsgAccountDeposit {
     const message = createBaseMsgAccountDeposit();
-    message.owner = object.owner ?? "";
+    message.signer = object.signer ?? "";
     message.id = (object.id !== undefined && object.id !== null) ? Account.fromPartial(object.id) : undefined;
     message.deposit = (object.deposit !== undefined && object.deposit !== null)
       ? Deposit.fromPartial(object.deposit)

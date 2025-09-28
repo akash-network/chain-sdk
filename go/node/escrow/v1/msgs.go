@@ -25,8 +25,9 @@ func init() {
 }
 
 // NewMsgAccountDeposit creates a new MsgDepositDeployment instance
-func NewMsgAccountDeposit(id idv1.Account, dep deposit.Deposit) *MsgAccountDeposit {
+func NewMsgAccountDeposit(signer string, id idv1.Account, dep deposit.Deposit) *MsgAccountDeposit {
 	return &MsgAccountDeposit{
+		Signer:  signer,
 		ID:      id,
 		Deposit: dep,
 	}
@@ -46,7 +47,7 @@ func (msg *MsgAccountDeposit) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg *MsgAccountDeposit) GetSigners() []sdk.AccAddress {
-	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	owner, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +57,7 @@ func (msg *MsgAccountDeposit) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does basic validation like check owner and groups length
 func (msg *MsgAccountDeposit) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Owner); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.Signer); err != nil {
 		return err
 	}
 
