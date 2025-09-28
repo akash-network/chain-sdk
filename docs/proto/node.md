@@ -229,6 +229,9 @@
  - [akash/market/v1/order.proto](#akash/market/v1/order.proto)
      - [OrderID](#akash.market.v1.OrderID)
    
+ - [akash/market/v1/types.proto](#akash/market/v1/types.proto)
+     - [LeaseClosedReason](#akash.market.v1.LeaseClosedReason)
+   
  - [akash/market/v1/lease.proto](#akash/market/v1/lease.proto)
      - [Lease](#akash.market.v1.Lease)
      - [LeaseID](#akash.market.v1.LeaseID)
@@ -2254,6 +2257,7 @@ Since: akash v1.0.0
 
 Example: "akash1..." If depositor is same as the owner, then any incoming coins are added to the Balance. If depositor isn't same as the owner, then any incoming coins are added to the Funds. |
  | `height` | [int64](#int64) |  | Height blockchain height at which deposit was created |
+ | `source` | [akash.base.deposit.v1.Source](#akash.base.deposit.v1.Source) |  | Source indicated origination of the funds |
  | `balance` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Balance amount of funds available to spend in this deposit. |
  
  
@@ -2752,7 +2756,7 @@ deployment-related resources.
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `owner` | [string](#string) |  | Owner is the account bech32 address of the user who owns the deployment. It is a string representing a valid bech32 account address.
+ | `signer` | [string](#string) |  | Signer is the account bech32 address of the user who wants to deposit into an escrow account. Does not necessarily needs to be an owner of the deployment. It is a string representing a valid bech32 account address.
 
 Example: "akash1..." |
  | `id` | [akash.escrow.id.v1.Account](#akash.escrow.id.v1.Account) |  | ID is the unique identifier of the account. |
@@ -2926,6 +2930,7 @@ Example: "akash1..." |
  | `provider` | [string](#string) |  | Provider is the account bech32 address of the provider making the bid. It is a string representing a valid account bech32 address.
 
 Example: "akash1..." |
+ | `bseq` | [uint32](#uint32) |  | BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. |
  
  
 
@@ -2977,6 +2982,38 @@ Example: "akash1..." |
 
  
  
+ <a name="akash/market/v1/types.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/market/v1/types.proto
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.market.v1.LeaseClosedReason"></a>
+
+ ### LeaseClosedReason
+ LeaseClosedReason indicates reason bid was closed
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | lease_closed_invalid | 0 | LeaseClosedReasonInvalid represents the default zero value for LeaseClosedReason. This value indicates an uninitialized or invalid lease closure reason and should not be used |
+ | lease_closed_owner | 1 | values between 1..9999 indicate owner‑initiated close |
+ | lease_closed_reason_unstable | 10000 | values between 10000..19999 are indicating provider initiated close lease_closed_reason_unstable lease workloads have been unstable |
+ | lease_closed_reason_decommission | 10001 | lease_closed_reason_decommission provider is being decommissioned |
+ | lease_closed_reason_unspecified | 10002 | lease_closed_reason_unspecified provider did not specify reason |
+ | lease_closed_reason_insufficient_funds | 20000 | values between 20000..29999 indicate network‑initiated close |
+ 
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/market/v1/lease.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -3000,6 +3037,7 @@ Leases are paid from the tenant to the provider through a deposit and withdraw m
  | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price holds the settled price for the Lease. |
  | `created_at` | [int64](#int64) |  | CreatedAt is the block height at which the Lease was created. |
  | `closed_on` | [int64](#int64) |  | ClosedOn is the block height at which the Lease was closed. |
+ | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  |  |
  
  
 
@@ -3023,6 +3061,7 @@ Example: "akash1..." |
  | `provider` | [string](#string) |  | Provider is the account bech32 address of the provider making the bid. It is a string representing a valid account bech32 address.
 
 Example: "akash1..." |
+ | `bseq` | [uint32](#uint32) |  | BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. |
  
  
 
@@ -3102,6 +3141,7 @@ It contains all the information required to identify a lease.
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [LeaseID](#akash.market.v1.LeaseID) |  | Id is the unique identifier of the Lease. |
+ | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  |  |
  
  
 
@@ -3191,6 +3231,7 @@ Example: "akash1..." |
 
 Example: "akash1..." |
  | `state` | [string](#string) |  | State represents the state of the lease. |
+ | `bseq` | [uint32](#uint32) |  | BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. |
  
  
 
@@ -3305,6 +3346,7 @@ for deployment.
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [akash.market.v1.BidID](#akash.market.v1.BidID) |  | Id is the unique identifier of the Bid. |
+ | `reason` | [akash.market.v1.LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  |  |
  
  
 
@@ -3383,6 +3425,7 @@ Example: "akash1..." |
 
 Example: "akash1..." |
  | `state` | [string](#string) |  | State represents the state of the lease. |
+ | `bseq` | [uint32](#uint32) |  | BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. |
  
  
 
@@ -3549,6 +3592,7 @@ Example: "akash1..." |
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  | LeaseID is the unique identifier of the Lease. |
+ | `reason` | [akash.market.v1.LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  |  |
  
  
 
