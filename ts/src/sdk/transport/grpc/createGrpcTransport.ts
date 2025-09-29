@@ -1,4 +1,4 @@
-import { Code, ConnectError, createContextValues } from "@connectrpc/connect";
+import { createContextValues } from "@connectrpc/connect";
 import {
   createAsyncIterable,
   pipe,
@@ -15,7 +15,7 @@ import { createNodeHttpClient, type GrpcTransportOptions as ConnectGrpcTransport
 
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
 import { runStreamingCall, runUnaryCall } from "../runCall.ts";
-import { coerceTimeoutMs, createMethodUrl, createSerialization } from "../transportUtils.ts";
+import { coerceTimeoutMs, createMethodUrl, createSerialization, TransportError } from "../transportUtils.ts";
 import type { CallOptions, StreamRequest, StreamResponse, Transport, UnaryRequest, UnaryResponse } from "../types.ts";
 
 export type GrpcCallOptions = Omit<CallOptions, "onHeader" | "onTrailer"> & {
@@ -104,9 +104,9 @@ export function createGrpcTransport(options: GrpcTransportOptions): Transport<Gr
               let message: MessageShape<O> | undefined;
               for await (const chunk of iterable) {
                 if (message !== undefined) {
-                  throw new ConnectError(
+                  throw new TransportError(
                     "protocol error: received extra output message for unary method",
-                    Code.Unimplemented,
+                    TransportError.Code.Unimplemented,
                   );
                 }
                 message = chunk;
@@ -119,19 +119,19 @@ export function createGrpcTransport(options: GrpcTransportOptions): Transport<Gr
           if (message === undefined) {
             // Trailers only response
             if (headerError) {
-              throw headerError;
+              throw TransportError.from(headerError);
             }
-            throw new ConnectError(
+            throw new TransportError(
               "protocol error: missing output message for unary method",
               uRes.trailer.has(headerGrpcStatus)
-                ? Code.Unimplemented
-                : Code.Unknown,
+                ? TransportError.Code.Unimplemented
+                : TransportError.Code.Unknown,
             );
           }
           if (headerError) {
-            throw new ConnectError(
+            throw new TransportError(
               "protocol error: received output message for unary method with error status",
-              Code.Unknown,
+              TransportError.Code.Unknown,
             );
           }
           return {
@@ -194,7 +194,7 @@ export function createGrpcTransport(options: GrpcTransportOptions): Transport<Gr
               uRes.header,
             );
           if (headerError) {
-            throw headerError;
+            throw TransportError.from(headerError);
           }
           return {
             ...req,

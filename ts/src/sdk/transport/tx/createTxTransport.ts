@@ -1,7 +1,7 @@
-import { Code, ConnectError } from "@connectrpc/connect";
 import type { GeneratedType } from "@cosmjs/proto-signing";
 
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
+import { TransportError } from "../transportUtils.ts";
 import type { Transport, TxCallOptions, UnaryResponse } from "../types.ts";
 import type { TxClient } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";
@@ -40,7 +40,7 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
       };
     },
     async stream() {
-      throw new ConnectError(`Transaction transport doesn't support streaming`, Code.Unimplemented);
+      throw new TransportError(`Transaction transport doesn't support streaming`, TransportError.Code.Unimplemented);
     },
   };
 }
