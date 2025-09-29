@@ -328,7 +328,37 @@ message MsgCreateBid {
 }
 ```
 
-### 3. Provider Module Changes (v1beta3 → v1beta4)
+### 3. Escrow Module Changes (v1)
+
+```protobuf
+// akash/escrow/v1/msg.proto
+message MsgAccountDeposit {
+  option (cosmos.msg.v1.signer) = "signer";
+  
+  // Signer is the account bech32 address of the user who wants to deposit into
+  // an escrow account. Does not necessarily need to be an owner of the deployment.
+  string signer = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "signer",
+    (gogoproto.moretags)  = "yaml:\"signer\""
+  ];
+  
+  akash.escrow.id.v1.Account id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+  
+  akash.base.deposit.v1.Deposit deposit = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "deposit",
+    (gogoproto.moretags) = "yaml:\"deposit\""
+  ];
+}
+```
+
+### 4. Provider Module Changes (v1beta3 → v1beta4)
 
 #### Provider Info Structure Update
 
@@ -468,7 +498,16 @@ import "akash/market/v1/bid.proto";
 import "akash/base/deposit/v1/deposit.proto";
 ```
 
-### 3. Provider Module Imports
+### 3. Escrow Module Imports
+
+**New v1 Escrow Imports:**
+```protobuf
+import "akash/escrow/v1/msg.proto";
+import "akash/escrow/id/v1/account.proto";
+import "akash/base/deposit/v1/deposit.proto";
+```
+
+### 4. Provider Module Imports
 
 **Before (v1beta3):**
 ```protobuf
@@ -481,11 +520,11 @@ import "cosmos_proto/cosmos.proto";
 import "akash/base/attributes/v1/attribute.proto";
 ```
 
-### 4. New v1 Proto Modules
+### 5. New v1 Proto Modules
 
 The migration introduces several new v1 modules with enhanced functionality and improved structure:
 
-#### 4.1. Core v1 Modules
+#### 5.1. Core v1 Modules
 
 **akash/deployment/v1/deployment.proto** - Stable deployment types:
 ```protobuf
@@ -532,15 +571,15 @@ message PlacementRequirements {
 }
 ```
 
-#### 4.2. New Service Modules
+#### 5.2. New Service Modules
 
 **akash/escrow/v1/** - Dedicated escrow management:
 ```protobuf
 // MsgAccountDeposit for escrow account deposits
 message MsgAccountDeposit {
-  option (cosmos.msg.v1.signer) = "owner";
+  option (cosmos.msg.v1.signer) = "signer";
   
-  string owner = 1 [
+  string signer = 1 [
     (cosmos_proto.scalar) = "cosmos.AddressString"
   ];
   
@@ -587,7 +626,7 @@ message Akash {
 }
 ```
 
-#### 4.3. Enhanced Certificate Management
+#### 5.3. Enhanced Certificate Management
 
 **akash/cert/v1/cert.proto** - Improved certificate handling:
 ```protobuf
@@ -613,7 +652,7 @@ enum State {
 }
 ```
 
-#### 4.4. Enhanced Audit System
+#### 5.4. Enhanced Audit System
 
 **akash/audit/v1/audit.proto** - Improved auditing:
 ```protobuf
