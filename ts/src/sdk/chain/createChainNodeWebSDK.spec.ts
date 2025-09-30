@@ -1,12 +1,12 @@
 import { describe, expect, it } from "@jest/globals";
 import { mock } from "jest-mock-extended";
 
-import type { TxClient } from "../server/index.ts";
-import { createChainNodeSDK } from "./createChainNodeSDK.ts";
+import type { TxClient } from "../transport/tx/TxClient.ts";
+import { createChainNodeWebSDK } from "./createChainNodeWebSDK.ts";
 
-describe(`${createChainNodeSDK.name} (web)`, () => {
+describe(createChainNodeWebSDK.name, () => {
   it("creates ChainNodeSDK with tx transport", () => {
-    const sdk = createChainNodeSDK({
+    const sdk = createChainNodeWebSDK({
       query: { baseUrl: "http://localhost:1317" },
       tx: {
         signer: mock<TxClient>(),
@@ -18,7 +18,7 @@ describe(`${createChainNodeSDK.name} (web)`, () => {
   });
 
   it("creates ChainNodeSDK without tx transport", async () => {
-    const sdk = createChainNodeSDK({
+    const sdk = createChainNodeWebSDK({
       query: { baseUrl: "http://localhost:1317" },
     });
 

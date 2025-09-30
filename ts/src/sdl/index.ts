@@ -22,4 +22,4 @@
  * const manifest = sdl.manifest();
  * ```
  */
-export * from "./SDL/SDL.ts";
+export { SDL } from "./SDL/SDL.ts";
