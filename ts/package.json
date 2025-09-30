@@ -1,6 +1,7 @@
 {
   "name": "@akashnetwork/chain-sdk",
   "version": "0.0.0",
+  "type": "module",
   "description": "Akash API TypeScript client",
   "keywords": [],
   "repository": {
@@ -10,44 +11,43 @@
   },
   "license": "Apache-2.0",
   "author": "Akash Network Team",
-  "type": "module",
   "exports": {
     "./chain": {
-      "import": "./dist/nodejs/esm/sdk/chain/server/index.js",
-      "require": "./dist/nodejs/cjs/sdk/chain/server/index.js",
-      "types": "./dist/types/sdk/chain/server/index.d.ts"
+      "types": "./dist/types/sdk/chain/server/index.d.ts",
+      "require": "./dist/nodejs/cjs/sdk/chain/server/index.cjs",
+      "import": "./dist/nodejs/esm/sdk/chain/server/index.js"
     },
     "./chain/web": {
-      "import": "./dist/web/esm/sdk/chain/web/index.js",
-      "require": "./dist/web/cjs/sdk/chain/web/index.js",
-      "types": "./dist/types/sdk/chain/web/index.d.ts"
+      "types": "./dist/types/sdk/chain/web/index.d.ts",
+      "require": "./dist/web/cjs/sdk/chain/web/index.cjs",
+      "import": "./dist/web/esm/sdk/chain/web/index.js"
     },
     "./chain/types/*": {
-      "import": "./dist/nodejs/esm/generated/protos/index.*.js",
-      "require": "./dist/nodejs/cjs/generated/protos/index.*.js",
-      "types": "./dist/types/generated/protos/index.*.d.ts"
+      "types": "./dist/types/generated/protos/index.*.d.ts",
+      "require": "./dist/nodejs/cjs/generated/protos/index.*.cjs",
+      "import": "./dist/nodejs/esm/generated/protos/index.*.js"
     },
     "./provider/types/*": {
-      "import": "./dist/nodejs/esm/generated/protos/index.provider.*.js",
-      "require": "./dist/nodejs/cjs/generated/protos/index.provider.*.js",
-      "types": "./dist/types/generated/protos/index.provider.*.d.ts"
+      "types": "./dist/types/generated/protos/index.provider.*.d.ts",
+      "require": "./dist/nodejs/cjs/generated/protos/index.provider.*.cjs",
+      "import": "./dist/nodejs/esm/generated/protos/index.provider.*.js"
     },
     "./provider": {
-      "import": "./dist/nodejs/esm/sdk/provider/server/index.js",
-      "require": "./dist/nodejs/cjs/sdk/provider/server/index.js",
-      "types": "./dist/types/sdk/provider/server/index.d.ts"
+      "types": "./dist/types/sdk/provider/server/index.d.ts",
+      "require": "./dist/nodejs/cjs/sdk/provider/server/index.cjs",
+      "import": "./dist/nodejs/esm/sdk/provider/server/index.js"
     },
     "./sdl": {
-      "import": "./dist/nodejs/esm/sdl/index.js",
-      "require": "./dist/nodejs/cjs/sdl/index.js",
-      "types": "./dist/types/sdl/index.d.ts"
+      "types": "./dist/types/sdl/index.d.ts",
+      "require": "./dist/nodejs/cjs/sdl/index.cjs",
+      "import": "./dist/nodejs/esm/sdl/index.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs && ./script/validate-package-exports.ts",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
     "test": "jest --selectProjects unit functional",
