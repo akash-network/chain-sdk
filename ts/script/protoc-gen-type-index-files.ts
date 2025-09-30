@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --experimental-strip-types
+#!/usr/bin/env -S node --experimental-strip-types --no-warnings
 
 import { type DescEnum, type DescField, type DescMessage } from "@bufbuild/protobuf";
 import {
@@ -62,12 +62,12 @@ function generateTs(schema: Schema): void {
     file: GeneratedFile;
     symbols: Set<string>;
   }> = {};
+  const namespacePrefix = protoSource === 'provider' ? 'provider.' : '';
   schema.files.forEach((file) => {
     const packageParts = file.proto.package.split('.');
-    const namespace = packageParts[0];
+    const namespace = namespacePrefix + packageParts[0];
     const version = packageParts.at(-1);
-    const protoSource = process.env.PROTO_SOURCE === 'provider' ? 'provider.' : '';
-    const path = `${protoSource}index.${namespace}.${version}.ts`;
+    const path = `index.${namespace}.${version}.ts`;
     indexFiles[path] ??= {
       file: schema.generateFile(path),
       symbols: new Set(),

@@ -34,7 +34,7 @@ export class JwtTokenManager {
    * );
    * const token = await jwtToken.generateToken({
    *   version: "v1",
-   *   iss: "https://example.com",
+   *   iss: "akash...",
    *   exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
    *   iat: Math.floor(Date.now() / 1000), // current timestamp
    * });
