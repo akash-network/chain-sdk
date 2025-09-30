@@ -1,12 +1,6 @@
-import type { ErrorObject, Plugin, ValidateFunction } from "ajv";
-import { Ajv } from "ajv";
-import addFormats from "ajv-formats";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore it requires import tags which is supported by esbuild/ts/nodejs but not by jest
-import jwtSchemaData from "../../../../../../specs/jwt-schema.json";
 import { base64Decode } from "./base64.ts";
 import type { AnyRecord, JwtTokenPayload } from "./types.ts";
+import { schema as tokenPayloadSchema, validate as validatePayload } from "./validate-payload.ts";
 
 export interface JwtValidationResult {
   isValid: boolean;
@@ -19,19 +13,13 @@ export interface JwtValidationResult {
 }
 
 export class JwtValidator {
-  private ajv: Ajv;
-  private compiledSchema: ValidateFunction;
-
-  constructor() {
-    this.ajv = new Ajv({
-      allErrors: true,
-      strict: false,
-      strictTypes: false,
-      strictSchema: false,
-    });
-    (addFormats as unknown as Plugin<unknown>)(this.ajv);
-    this.compiledSchema = this.ajv.compile(jwtSchemaData);
-  }
+  private compiledSchema = validatePayload as {
+    (data: unknown): boolean;
+    errors: Array<{
+      keywordLocation: string;
+      instanceLocation: string;
+    }>;
+  };
 
   /**
    * Validate a JWT token against the Akash JWT schema
@@ -89,23 +77,25 @@ export class JwtValidator {
 
       if (!valid) {
         result.errors
-          = this.compiledSchema.errors?.map((error: ErrorObject) => {
-            if (error.keyword === "required") {
-              return `Missing required field: ${(error.params as { missingProperty: string }).missingProperty}`;
+          = this.compiledSchema.errors?.map((error) => {
+            const field = getFieldName(error.instanceLocation);
+
+            if (error.keywordLocation.endsWith("/required")) {
+              return `Missing required field: ${field}`;
             }
-            if (error.keyword === "pattern") {
-              return `Invalid format: ${error.schemaPath.slice(1)} does not match pattern "${(error.params as { pattern: string }).pattern}"`;
+            if (error.keywordLocation.endsWith("/pattern")) {
+              return `Invalid format: ${field} does not match pattern "${getSchemaFieldByPath(error.keywordLocation)}"`;
             }
-            if (error.keyword === "additionalProperties") {
+            if (error.keywordLocation.endsWith("/additionalProperties")) {
               return "Additional properties are not allowed";
             }
-            if (error.keyword === "type") {
-              return `${error.schemaPath.slice(1) || "Field"} should be ${(error.params as { type: string }).type}`;
+            if (error.keywordLocation.endsWith("/type")) {
+              return `${field} should be ${getSchemaFieldByPath(error.keywordLocation)}`;
             }
-            if (error.keyword === "enum") {
-              return `${error.schemaPath.slice(1) || "Field"} should be one of: ${(error.params as { allowedValues: string[] }).allowedValues.join(", ")}`;
+            if (error.keywordLocation.endsWith("/enum")) {
+              return `${field} should be one of: ${getSchemaFieldByPath<string[]>(error.keywordLocation).join(", ")}`;
             }
-            return `${error.schemaPath.slice(1) || "Field"}: ${error.message}`;
+            return `${field}: does not satisfy ${getSchemaFieldByPath(error.keywordLocation)}`;
           }) || [];
       }
 
@@ -124,7 +114,9 @@ export class JwtValidator {
               break;
             }
             providers.add(perm.provider);
+          }
 
+          for (const perm of payload.leases.permissions) {
             // Validate access type specific rules
             if (perm.access === "scoped") {
               if (!perm.scope) {
@@ -141,19 +133,6 @@ export class JwtValidator {
               } else if (perm.scope) {
                 result.errors.push("Scope not allowed for granular access");
                 valid = false;
-              }
-            }
-
-            // Check for duplicate scopes within each permission
-            if (perm.scope) {
-              const scopes = new Set<string>();
-              for (const scope of perm.scope) {
-                if (scopes.has(scope)) {
-                  result.errors.push(`Duplicate scope in permission: ${scope}`);
-                  valid = false;
-                  continue;
-                }
-                scopes.add(scope);
               }
             }
 
@@ -190,17 +169,6 @@ export class JwtValidator {
   private validateDeployment(deployment: AnyRecord, result: JwtValidationResult): boolean {
     let valid = true;
 
-    // Check for duplicate scopes within deployment
-    const scopes = new Set<string>();
-    for (const scope of deployment.scope) {
-      if (scopes.has(scope)) {
-        result.errors.push("Duplicate scope in deployment");
-        valid = false;
-        break;
-      }
-      scopes.add(scope);
-    }
-
     // Validate deployment dependencies
     if (deployment.gseq && !deployment.dseq) {
       result.errors.push("gseq requires dseq");
@@ -219,19 +187,29 @@ export class JwtValidator {
       valid = false;
     }
 
-    // Check for duplicate services
-    if (deployment.services) {
-      const services = new Set<string>();
-      for (const service of deployment.services) {
-        if (services.has(service)) {
-          result.errors.push("Duplicate service in deployment");
-          valid = false;
-          break;
-        }
-        services.add(service);
-      }
-    }
-
     return valid;
   }
+}
+
+function getFieldName(instanceLocation: string): string {
+  const lastPart = basename(instanceLocation);
+  return Number.isNaN(Number(lastPart)) ? lastPart : `${basename(dirname(instanceLocation))} ${lastPart}`;
+}
+
+function basename(path: string): string {
+  const lastPartIndex = path.lastIndexOf("/");
+  if (lastPartIndex === -1) return path;
+  return path.slice(lastPartIndex + 1);
+}
+
+function dirname(path: string): string {
+  const lastPartIndex = path.lastIndexOf("/");
+  if (lastPartIndex === -1) return path;
+  return path.slice(0, lastPartIndex);
+}
+
+function getSchemaFieldByPath<T = string>(keywordLocation: string): T {
+  return keywordLocation.split("/").slice(1)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .reduce<T>((schema, key) => (schema as Record<string, any>)[key], tokenPayloadSchema as T);
 }
