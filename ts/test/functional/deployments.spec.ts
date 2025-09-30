@@ -149,7 +149,11 @@ describe("Deployment Queries", () => {
               quantity: createResourceValue("134217728"), // 128Mi memory
               attributes: []
             },
-            storage: [],
+            storage: [{
+              name: "main",
+              quantity: createResourceValue("2147483648"),
+              attributes: []
+            } as Storage],
             gpu: {
               units: createResourceValue("0"), // No GPU
               attributes: []
@@ -159,7 +163,7 @@ describe("Deployment Queries", () => {
           count: 1,
           price: {
             denom: "uakt",
-            amount: "1000"
+            amount: "10000"
           } as DecCoin
         }]
       }],
@@ -184,7 +188,7 @@ describe("Deployment Queries", () => {
     // Expected base64 - this will be the reference value to detect serialization changes
     // This is a snapshot test - if the serialization format changes, this test will fail
     // indicating a potential breaking change in the API
-    const expectedBase64 = "CjIKLWFrYXNoMXRlc3QxMjM0NTY3ODlhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ehDSCRJFCgp0ZXN0LWdyb3VwEgIKABozCiEIARIHCgUKAzEwMBoNCgsKCTEzNDIxNzcyOCoFCgMKATAQARoMCgR1YWt0EgQxMDAwGgQBAgMEIhEKDwoEdWFrdBIHNTAwMDAwMA==";
+    const expectedBase64 = "CjIKLWFrYXNoMXRlc3QxMjM0NTY3ODlhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ehDSCRJcCgp0ZXN0LWdyb3VwEgIKABpKCjcIARIHCgUKAzEwMBoNCgsKCTEzNDIxNzcyOCIUCgRtYWluEgwKCjIxNDc0ODM2NDgqBQoDCgEwEAEaDQoEdWFrdBIFMTAwMDAaBAECAwQiEQoPCgR1YWt0Egc1MDAwMDAw";
     
     // Assert the serialization matches expected value
     expect(base64Encoded).toBe(expectedBase64);

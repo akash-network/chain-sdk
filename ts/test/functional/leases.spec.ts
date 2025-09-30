@@ -147,7 +147,7 @@ describe("Lease Operations", () => {
               attributes: []
             },
             storage: [{
-              name: "beta3",
+              name: "main",
               quantity: createResourceValue("2147483648"),
               attributes: []
             } as Storage],
