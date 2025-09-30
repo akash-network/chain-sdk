@@ -4,7 +4,8 @@ import { type GrpcTransportOptions as ConnectGrpcTransportOptions } from "@conne
 
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
 import { runUnaryCall } from "../runCall.ts";
-import { coerceTimeoutMs, TransportError } from "../transportUtils.ts";
+import { TransportError } from "../TransportError.ts";
+import { coerceTimeoutMs } from "../transportUtils.ts";
 import type { CallOptions, StreamResponse, Transport, UnaryRequest, UnaryResponse } from "../types.ts";
 
 export type GrpcGatewayCallOptions = Omit<CallOptions, "onHeader" | "onTrailer"> & {

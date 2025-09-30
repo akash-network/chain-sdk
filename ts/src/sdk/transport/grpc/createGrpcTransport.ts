@@ -15,7 +15,8 @@ import { createNodeHttpClient, type GrpcTransportOptions as ConnectGrpcTransport
 
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
 import { runStreamingCall, runUnaryCall } from "../runCall.ts";
-import { coerceTimeoutMs, createMethodUrl, createSerialization, TransportError } from "../transportUtils.ts";
+import { TransportError } from "../TransportError.ts";
+import { coerceTimeoutMs, createMethodUrl, createSerialization } from "../transportUtils.ts";
 import type { CallOptions, StreamRequest, StreamResponse, Transport, UnaryRequest, UnaryResponse } from "../types.ts";
 
 export type GrpcCallOptions = Omit<CallOptions, "onHeader" | "onTrailer"> & {

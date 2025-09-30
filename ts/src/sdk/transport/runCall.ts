@@ -4,7 +4,7 @@ import { getAbortSignalReason } from "@connectrpc/connect/protocol";
 import type { DeepPartial } from "../../utils/types.ts";
 import { mapStream } from "../client/stream.ts";
 import type { MessageDesc, MessageInitShape, MessageShape } from "../client/types.ts";
-import { TransportError } from "./transportUtils.ts";
+import { TransportError } from "./TransportError.ts";
 import type { StreamRequest, StreamResponse, UnaryRequest, UnaryResponse } from "./types.ts";
 
 /**

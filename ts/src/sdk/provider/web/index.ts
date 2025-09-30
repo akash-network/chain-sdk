@@ -1,2 +1,2 @@
 // TODO: Implement web SDK for provider API
-export { TransportError as ChainSDKError } from "../../transport/transportUtils.ts";
+export { TransportError as SDKError } from "../../transport/TransportError.ts";

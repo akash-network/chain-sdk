@@ -1,7 +1,7 @@
 import type { GeneratedType } from "@cosmjs/proto-signing";
 
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
-import { TransportError } from "../transportUtils.ts";
+import { TransportError } from "../TransportError.ts";
 import type { Transport, TxCallOptions, UnaryResponse } from "../types.ts";
 import type { TxClient } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";

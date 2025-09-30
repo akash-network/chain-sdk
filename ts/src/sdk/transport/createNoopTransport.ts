@@ -1,4 +1,4 @@
-import { TransportError } from "./transportUtils.ts";
+import { TransportError } from "./TransportError.ts";
 import type { Transport, TxCallOptions } from "./types.ts";
 
 export function createNoopTransport(options: NoopTransportOptions): Transport<TxCallOptions> {

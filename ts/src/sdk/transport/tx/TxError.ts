@@ -1,6 +1,6 @@
 import type { DeliverTxResponse } from "@cosmjs/stargate";
 
-import { TransportError } from "../transportUtils.ts";
+import { TransportError } from "../TransportError.ts";
 
 export class TxError extends TransportError {
   readonly txResponse: DeliverTxResponse;
