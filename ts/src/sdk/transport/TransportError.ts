@@ -1,6 +1,6 @@
 import { Code, ConnectError } from "@connectrpc/connect";
 
-enum TransportErrorCode {
+export enum TransportErrorCode {
   /**
    * Canceled, usually be the user
    */
@@ -86,7 +86,7 @@ export class TransportError extends Error {
    * The original value will be used for the "cause" property for the new
    * TransportError.
    */
-  static from(cause: unknown, code: number = TransportError.Code.Unknown) {
+  static from(cause: unknown, code = TransportError.Code.Unknown) {
     if (cause instanceof this) return cause;
     if (cause instanceof ConnectError) {
       const key = Code[cause.code];
@@ -121,7 +121,7 @@ export class TransportError extends Error {
   }
 }
 
-function stringifyCode(value: typeof TransportErrorCode[keyof typeof TransportErrorCode]) {
+function stringifyCode(value: TransportErrorCode) {
   const name = TransportErrorCode[value];
   if (typeof name !== "string") return value.toString();
   return (name[0].toLowerCase() + name.slice(1).replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`));

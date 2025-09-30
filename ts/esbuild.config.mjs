@@ -19,6 +19,7 @@ const baseConfig = (type, config) => ({
   external: [
     "node:*",
   ],
+  outExtension: config.format === 'cjs' ? { '.js': '.cjs' } : undefined
 });
 
 /**
