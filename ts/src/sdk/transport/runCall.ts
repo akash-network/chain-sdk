@@ -1,10 +1,10 @@
 import type { Interceptor } from "@connectrpc/connect";
-import { ConnectError } from "@connectrpc/connect";
 import { getAbortSignalReason } from "@connectrpc/connect/protocol";
 
 import type { DeepPartial } from "../../utils/types.ts";
 import { mapStream } from "../client/stream.ts";
 import type { MessageDesc, MessageInitShape, MessageShape } from "../client/types.ts";
+import { TransportError } from "./TransportError.ts";
 import type { StreamRequest, StreamResponse, UnaryRequest, UnaryResponse } from "./types.ts";
 
 /**
@@ -147,9 +147,9 @@ function createAbortSignal(options: {
     abort(reason: unknown): Promise<never> {
       // We peek at the deadline signal because fetch() will throw an error on
       // abort that discards the signal reason.
-      const error = ConnectError.from(
-        timeoutSignal?.aborted ? getAbortSignalReason(timeoutSignal) : reason,
-      );
+      const error = timeoutSignal?.aborted
+        ? TransportError.from(getAbortSignalReason(timeoutSignal), TransportError.Code.DeadlineExceeded)
+        : TransportError.from(reason);
       controller.abort(error);
       return Promise.reject(error);
     },

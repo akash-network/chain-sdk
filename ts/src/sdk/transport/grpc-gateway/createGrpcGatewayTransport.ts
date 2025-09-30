@@ -1,9 +1,10 @@
-import { Code, ConnectError, createContextValues } from "@connectrpc/connect";
+import { createContextValues } from "@connectrpc/connect";
 import { requestHeaderWithCompression } from "@connectrpc/connect/protocol-grpc";
 import { type GrpcTransportOptions as ConnectGrpcTransportOptions } from "@connectrpc/connect-node";
 
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
 import { runUnaryCall } from "../runCall.ts";
+import { TransportError } from "../TransportError.ts";
 import { coerceTimeoutMs } from "../transportUtils.ts";
 import type { CallOptions, StreamResponse, Transport, UnaryRequest, UnaryResponse } from "../types.ts";
 
@@ -26,7 +27,7 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
       const timeoutMs = coerceTimeoutMs(callOptions?.timeoutMs, options.defaultTimeoutMs);
 
       if (!method.httpPath) {
-        throw new ConnectError(`Service ${method.parent.typeName} method "${method.name}" does not support grpc gateway transport`, Code.InvalidArgument);
+        throw new TransportError(`Service ${method.parent.typeName} method "${method.name}" does not support grpc gateway transport`, TransportError.Code.InvalidArgument);
       }
 
       const headers = requestHeaderWithCompression(
@@ -52,7 +53,7 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
             const data = message as Record<string, unknown> | undefined;
             const key = interpolation.slice(1, -1).trim();
             if (!data || !Object.hasOwn(data, key)) {
-              throw new ConnectError(`Cannot construct url for ${method.parent.typeName}.${method.name}: "${key}" is not specified in message`, Code.InvalidArgument);
+              throw new TransportError(`Cannot construct url for ${method.parent.typeName}.${method.name}: "${key}" is not specified in message`, TransportError.Code.InvalidArgument);
             }
             return String(data[key]);
           }),
@@ -85,9 +86,9 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
             } catch {
               // ignore
             }
-            const code = typeof jsonBody?.code === "number" ? jsonBody.code : Code.Unknown;
+            const code = typeof jsonBody?.code === "number" ? jsonBody.code : TransportError.Code.Unknown;
             const message = jsonBody?.message || errBody || `HTTP ${response.status} ${response.statusText}`;
-            throw new ConnectError(message, code);
+            throw new TransportError(message, code);
           }
 
           const body = await response.json();
@@ -102,7 +103,7 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
       });
     },
     async stream<I extends MessageDesc, O extends MessageDesc>(): Promise<StreamResponse<I, O>> {
-      throw new ConnectError(`GrpcGateway transport doesn't support streaming`, Code.Unimplemented);
+      throw new TransportError(`GrpcGateway transport doesn't support streaming`, TransportError.Code.Unimplemented);
     },
   };
 }
