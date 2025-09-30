@@ -31,12 +31,11 @@ export function createChainNodeSDK(options: ChainNodeSDKOptions) {
     : createNoopTransport({
         unaryErrorMessage: `Unable to sign transaction. "tx" option is not provided during chain SDK creation`,
       });
-  const typePatches = { ...nodePatches, ...cosmosPatches };
   const nodeSDK = createNodeSDK(queryTransport, txTransport, {
-    clientOptions: { typePatches },
+    clientOptions: { typePatches: { ...cosmosPatches, ...nodePatches } },
   });
   const cosmosSDK = createCosmosSDK(queryTransport, txTransport, {
-    clientOptions: { typePatches },
+    clientOptions: { typePatches: cosmosPatches },
   });
   return { ...nodeSDK, ...cosmosSDK };
 }
