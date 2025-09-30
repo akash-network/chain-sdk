@@ -19,15 +19,9 @@ import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 import { createChainNodeSDK } from "../../src/sdk/chain/server/index.ts";
-import type { QueryDeploymentsResponse } from "../../src/generated/protos/akash/deployment/v1beta4/query.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
-import { DeploymentID } from "../../src/generated/protos/akash/deployment/v1/deployment.ts";
-import { GroupSpec } from "../../src/generated/protos/akash/deployment/v1beta4/groupspec.ts";
-import { ResourceUnit } from "../../src/generated/protos/akash/deployment/v1beta4/resourceunit.ts";
-import { Resources } from "../../src/generated/protos/akash/base/resources/v1beta4/resources.ts";
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
-import { PlacementRequirements } from "../../src/generated/protos/akash/base/attributes/v1/attribute.ts";
-import { Deposit, Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
+import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
 
 describe("Deployment Queries", () => {
@@ -260,7 +254,7 @@ describe("Deployment Queries", () => {
               attributes: []
             },
             storage: [{
-              name: "default",
+              name: "beta3",
               quantity: createResourceValue("1073741824"), // 1Gi storage
               attributes: []
             } as Storage],
@@ -281,7 +275,7 @@ describe("Deployment Queries", () => {
       deposit: {
         amount: {
           denom: "uakt",
-          amount: "5000000" // 5 AKT deposit
+          amount: "500000" // 5 AKT deposit
         } as Coin,
         sources: [Source.balance] // Use account balance as deposit source
       }

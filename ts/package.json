@@ -1,7 +1,6 @@
 {
   "name": "@akashnetwork/chain-sdk",
   "version": "0.0.0",
-  "type": "module",
   "description": "Akash API TypeScript client",
   "keywords": [],
   "repository": {
@@ -11,35 +10,50 @@
   },
   "license": "Apache-2.0",
   "author": "Akash Network Team",
+  "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "require": "./dist/cjs/index.cjs",
-      "import": "./dist/esm/index.js"
+    "./chain": {
+      "import": "./dist/nodejs/esm/sdk/chain/server/index.js",
+      "require": "./dist/nodejs/cjs/sdk/chain/server/index.js",
+      "types": "./dist/types/sdk/chain/server/index.d.ts"
     },
-    "./web": {
-      "types": "./dist/types/index.web.d.ts",
-      "require": "./dist/cjs/index.web.cjs",
-      "import": "./dist/esm/index.web.js"
+    "./chain/web": {
+      "import": "./dist/web/esm/sdk/chain/web/index.js",
+      "require": "./dist/web/cjs/sdk/chain/web/index.js",
+      "types": "./dist/types/sdk/chain/web/index.d.ts"
     },
-    "./private-types/*": {
-      "types": "./dist/types/generated/protos/index.*.d.ts",
-      "require": "./dist/cjs/generated/protos/index.*.cjs",
-      "import": "./dist/esm/generated/protos/index.*.js"
+    "./chain/types/*": {
+      "import": "./dist/nodejs/esm/generated/protos/index.*.js",
+      "require": "./dist/nodejs/cjs/generated/protos/index.*.js",
+      "types": "./dist/types/generated/protos/index.*.d.ts"
+    },
+    "./provider/types/*": {
+      "import": "./dist/nodejs/esm/generated/protos/index.provider.*.js",
+      "require": "./dist/nodejs/cjs/generated/protos/index.provider.*.js",
+      "types": "./dist/types/generated/protos/index.provider.*.d.ts"
+    },
+    "./provider": {
+      "import": "./dist/nodejs/esm/sdk/provider/server/index.js",
+      "require": "./dist/nodejs/cjs/sdk/provider/server/index.js",
+      "types": "./dist/types/sdk/provider/server/index.d.ts"
+    },
+    "./sdl": {
+      "import": "./dist/nodejs/esm/sdl/index.js",
+      "require": "./dist/nodejs/cjs/sdl/index.js",
+      "types": "./dist/types/sdl/index.d.ts"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "npm run compile:jwt-validator && rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs && ./script/validate-package-exports.ts",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
-    "test": "jest --selectProjects unit functional",
-    "test:cov": "jest --selectProjects unit functional --coverage",
-    "test:functional": "jest --selectProjects functional",
-    "test:unit": "jest --selectProjects unit",
-    "compile:jwt-validator": "./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts"
+    "test": "jest --selectProjects unit functional --runInBand",
+    "test:cov": "jest --selectProjects unit functional --coverage --runInBand",
+    "test:functional": "jest --selectProjects functional --runInBand",
+    "test:unit": "jest --selectProjects unit"
   },
   "lint-staged": {
     "*.json": [
@@ -60,6 +74,8 @@
     "@cosmjs/math": "^0.33.1",
     "@cosmjs/proto-signing": "^0.33.1",
     "@cosmjs/stargate": "^0.33.1",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^2.1.1",
     "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.3.0",
     "jsrsasign": "^11.1.0",
@@ -69,7 +85,6 @@
     "@bufbuild/protoc-gen-es": "^2.2.3",
     "@bufbuild/protoplugin": "^2.2.3",
     "@eslint/js": "^9.21.0",
-    "@exodus/schemasafe": "^1.3.0",
     "@faker-js/faker": "^9.7.0",
     "@jest/globals": "^29.7.0",
     "@stylistic/eslint-plugin": "^4.0.1",
@@ -84,7 +99,6 @@
     "husky": "^9.1.7",
     "immutability-helper": "^3.1.1",
     "jest": "^29.7.0",
-    "jest-mock-extended": "^4.0.0",
     "lint-staged": "^15.4.3",
     "sort-json": "^2.0.1",
     "sort-package-json": "^3.0.0",
