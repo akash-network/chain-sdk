@@ -15,7 +15,7 @@ console.log(`Validating package exports for ${packageJson.name} in node ${proces
 for (const [subPath, config] of packageExports) {
   if (subPath.includes('*')) continue;
 
-  console.log(`Validating export ${subPath === '.' ? 'root' : subPath}...`);
+  console.log(`Validating export ${subPath}...`);
   // Test commonjs require in commonjs runtime
   const exportPathCommonjs = joinPath(PACKAGE_ROOT, config.require);
   accessSync(exportPathCommonjs, fsConstants.R_OK);
