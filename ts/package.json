@@ -39,8 +39,7 @@
     "test:cov": "jest --selectProjects unit functional --coverage",
     "test:functional": "jest --selectProjects functional",
     "test:unit": "jest --selectProjects unit",
-    "compile:jwt-validator": "./script/compile-json-schema-to-ts.ts",
-    "prepare": "npm run compile:jwt-validator"
+    "compile:jwt-validator": "./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts"
   },
   "lint-staged": {
     "*.json": [

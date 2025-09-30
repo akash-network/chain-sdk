@@ -50,5 +50,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup env
         uses: HatsuneMiku3939/direnv-action@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
       - name: lint-ts
         run: make lint-ts
