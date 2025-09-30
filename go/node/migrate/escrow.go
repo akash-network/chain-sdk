@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	sdkmath "cosmossdk.io/math"
@@ -42,12 +43,16 @@ func AccountIDFromV1beta3(key []byte) eid.Account {
 	key = key[1:]
 
 	parts := strings.Split(string(key), "/")
-	if len(parts) != 3 {
+	if len(parts) != 3 && len(parts) != 6 {
 		panic("invalid escrow.v1beta3 account xid")
 	}
 
+	scope := parts[0]
+	if scope != "deployment" && scope != "bid" {
+		panic(fmt.Sprintf("invalid escrow account scope \"%s\"", scope))
+	}
 	return eid.Account{
-		Scope: eid.Scope(eid.Scope_value[parts[0]]),
+		Scope: eid.Scope(eid.Scope_value[scope]),
 		XID:   strings.Join(parts[1:], "/"),
 	}
 }
@@ -56,23 +61,23 @@ func PaymentIDFromV1beta3(key []byte) eid.Payment {
 	prefix := v1beta3.PaymentKeyPrefix()
 
 	if len(key) < len(prefix)+1 {
-		panic("invalid escrow.v1beta3 key")
+		panic("invalid escrow.v1beta3 payment key")
 	}
 
 	if !bytes.Equal(prefix, key[:len(prefix)]) {
-		panic("invalid escrow.v1beta3 account prefix")
+		panic("invalid escrow.v1beta3 payment prefix")
 	}
 
 	key = key[len(prefix):]
 	if key[0] != '/' {
-		panic("invalid escrow.v1beta3 account separator")
+		panic("invalid escrow.v1beta3 payment separator")
 	}
 
 	key = key[1:]
 
 	parts := strings.Split(string(key), "/")
 	if len(parts) != 6 {
-		panic("invalid escrow.v1beta3 account xid")
+		panic("invalid escrow.v1beta3 payment xid")
 	}
 
 	return eid.Payment{
