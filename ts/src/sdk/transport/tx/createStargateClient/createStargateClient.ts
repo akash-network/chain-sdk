@@ -18,15 +18,15 @@ import {
 import type { TxClient } from "../TxClient.ts";
 
 const DEFAULT_FEE_AMOUNT = "2500";
-const GAS_MULTIPLIER = 1.2;
+const DEFAULT_GAS_MULTIPLIER = 1.3;
 
 export function createStargateClient(options: StargateClientOptions): TxClient {
   const builtInTypes = options.builtInTypes?.map((type) => [type.typeUrl, type] as [string, GeneratedType]) || [];
   const registry = new Registry([...defaultRegistryTypes, ...builtInTypes]);
   const createStargateClient = options.createClient ?? SigningStargateClient.connectWithSigner;
 
-  let stargateClient: SigningStargateClient | undefined;
-  const getStargateClient = async () => stargateClient ??= await createStargateClient(
+  let stargateClientPromise: Promise<SigningStargateClient> | undefined;
+  const getStargateClient = () => stargateClientPromise ??= createStargateClient(
     options.baseUrl,
     options.signer,
     {
@@ -36,6 +36,7 @@ export function createStargateClient(options: StargateClientOptions): TxClient {
   );
 
   const getAccount = options.getAccount ?? (() => getDefaultAccount(options.signer));
+  const gasMultiplier = options.gasMultiplier ?? DEFAULT_GAS_MULTIPLIER;
   const preloadMessageTypes = (messages: EncodeObject[]) => {
     for (const message of messages) {
       if (registry.lookupType(message.typeUrl)) continue;
@@ -57,7 +58,7 @@ export function createStargateClient(options: StargateClientOptions): TxClient {
             amount: options.defaultFeeAmount ?? DEFAULT_FEE_AMOUNT,
           },
         ],
-        gas: Math.floor(GAS_MULTIPLIER * gas).toString(),
+        gas: Math.floor(gasMultiplier * gas).toString(),
         granter: account,
       };
     },
@@ -82,8 +83,18 @@ export function createStargateClient(options: StargateClientOptions): TxClient {
 }
 
 export interface StargateClientOptions {
+  /**
+   * Blockchain RPC endpoint
+   */
   baseUrl: string;
+
   signer: OfflineSigner;
+
+  /**
+   * Gas multiplier
+   * @default 1.3
+   */
+  gasMultiplier?: number;
   /**
    * @default "2500" uakt
    */

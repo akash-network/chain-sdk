@@ -90,7 +90,7 @@ export class SDL {
    * Creates an SDL instance from a YAML string.
    *
    * @param {string} yaml - The YAML string containing the SDL definition.
-   * @param {NetworkVersion} [version="beta2"] - The SDL version (beta2 or beta3).
+   * @param {NetworkVersion} [version="beta3"] - The SDL version (beta2 or beta3).
    * @param {NetworkId} [networkId=MAINNET_ID] - The network ID to validate against.
    * @returns {SDL} An instance of the SDL class.
    *
@@ -110,7 +110,7 @@ export class SDL {
    * const sdl = SDL.fromString(yaml);
    * ```
    */
-  static fromString(yaml: string, version: NetworkVersion = "beta2", networkId: NetworkId = MAINNET_ID) {
+  static fromString(yaml: string, version: NetworkVersion = "beta3", networkId: NetworkId = MAINNET_ID) {
     const data = YAML.load(yaml) as v3Sdl;
     return new SDL(data, version, networkId);
   }

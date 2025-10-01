@@ -1,5 +1,7 @@
 import { createSDK as createCosmosSDK, serviceLoader as cosmosServiceLoader } from "../../generated/createCosmosSDK.ts";
 import { createSDK as createNodeSDK, serviceLoader as nodeServiceLoader } from "../../generated/createNodeSDK.ts";
+import { patches as cosmosPatches } from "../../generated/patches/cosmosCustomTypePatches.ts";
+import { patches as nodePatches } from "../../generated/patches/nodeCustomTypePatches.ts";
 import { TxRaw } from "../../generated/protos/cosmos/tx/v1beta1/tx.ts";
 import { createMessageType } from "../client/createServiceLoader.ts";
 import { createNoopTransport } from "../transport/createNoopTransport.ts";
@@ -29,13 +31,20 @@ export function createChainNodeSDK(options: ChainNodeSDKOptions) {
     : createNoopTransport({
         unaryErrorMessage: `Unable to sign transaction. "tx" option is not provided during chain SDK creation`,
       });
-  const nodeSDK = createNodeSDK(queryTransport, txTransport);
-  const cosmosSDK = createCosmosSDK(queryTransport, txTransport);
+  const nodeSDK = createNodeSDK(queryTransport, txTransport, {
+    clientOptions: { typePatches: { ...cosmosPatches, ...nodePatches } },
+  });
+  const cosmosSDK = createCosmosSDK(queryTransport, txTransport, {
+    clientOptions: { typePatches: cosmosPatches },
+  });
   return { ...nodeSDK, ...cosmosSDK };
 }
 
 export interface ChainNodeSDKOptions {
   query: {
+    /**
+     * Blockchain gRPC endpoint
+     */
     baseUrl: string;
   };
   tx?: Omit<StargateClientOptions, "getMessageType" | "builtInTypes">;

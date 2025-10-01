@@ -4,6 +4,7 @@ import type {
 } from "@cosmjs/proto-signing";
 import type { SigningStargateClient, StdFee } from "@cosmjs/stargate";
 import { describe, expect, it, jest } from "@jest/globals";
+import { mock } from "jest-mock-extended";
 
 import type { TxClient } from "../TxClient.ts";
 import { createStargateClient } from "./createStargateClient.ts";
@@ -23,6 +24,48 @@ describe(createStargateClient.name, () => {
     includeSigningTests(async (client) => {
       const messages: EncodeObject[] = [{ typeUrl: MESSAGE_TYPE, value: {} }];
       await client.estimateFee(messages, "test memo");
+    });
+
+    it("uses specified gas multiplier", async () => {
+      const client = createStargateClient({
+        baseUrl: "https://rpc.akash.network",
+        signer: createOfflineSigner(),
+        gasMultiplier: 2,
+        getMessageType: () => ({
+          typeUrl: MESSAGE_TYPE,
+          encode: () => new Uint8Array(0),
+          decode: () => ({}),
+          fromPartial: () => ({}),
+        }),
+        createClient: async () => mock<SigningStargateClient>({
+          simulate: jest.fn(async () => 1),
+        } as unknown as SigningStargateClient),
+      });
+
+      const messages: EncodeObject[] = [{ typeUrl: MESSAGE_TYPE, value: {} }];
+      const fee = await client.estimateFee(messages, "test memo");
+      expect(fee.gas).toBe("2");
+    });
+
+    it("floors the final gas value", async () => {
+      const client = createStargateClient({
+        baseUrl: "https://rpc.akash.network",
+        signer: createOfflineSigner(),
+        gasMultiplier: 1.9,
+        getMessageType: () => ({
+          typeUrl: MESSAGE_TYPE,
+          encode: () => new Uint8Array(0),
+          decode: () => ({}),
+          fromPartial: () => ({}),
+        }),
+        createClient: async () => mock<SigningStargateClient>({
+          simulate: jest.fn(async () => 2),
+        } as unknown as SigningStargateClient),
+      });
+
+      const messages: EncodeObject[] = [{ typeUrl: MESSAGE_TYPE, value: {} }];
+      const fee = await client.estimateFee(messages, "test memo");
+      expect(fee.gas).toBe("3"); // 1.9 * 2 = 3.8, floored to 3
     });
   });
 
