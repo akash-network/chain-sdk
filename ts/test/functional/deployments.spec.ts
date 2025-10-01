@@ -18,7 +18,7 @@ import Long from "long";
 import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
-import { createChainNodeSDK } from "../../src/sdk/chain/server/index.ts";
+import { createChainNodeSDK } from "../../src/sdk/chain/createChainNodeSDK.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
@@ -289,7 +289,7 @@ describe("Deployment Queries", () => {
     const result = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
       memo: "Test deployment creation - Akash Chain SDK",
       // Set afterSign callback to verify transaction structure
-      afterSign: (txRaw) => {
+      afterSign: (txRaw: any) => {
         expect(txRaw).toBeDefined();
         expect(txRaw.bodyBytes).toBeDefined();
         expect(txRaw.authInfoBytes).toBeDefined();
@@ -297,7 +297,7 @@ describe("Deployment Queries", () => {
         expect(txRaw.signatures.length).toBeGreaterThan(0);
       },
       // Set afterBroadcast callback to capture transaction hash
-      afterBroadcast: (txResponse) => {
+      afterBroadcast: (txResponse: any) => {
         // Verify transaction was successful
         expect(txResponse.code).toBe(0); // 0 means success
         expect(txResponse.transactionHash).toBeDefined();

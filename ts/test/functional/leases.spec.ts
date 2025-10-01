@@ -3,7 +3,7 @@ import { describe, expect, it, afterAll } from "@jest/globals";
 import Long from "long";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
-import { createChainNodeSDK } from "../../src/sdk/chain/server/index.ts";
+import { createChainNodeSDK } from "../../src/sdk/chain/createChainNodeSDK.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
 import { MsgCreateLease } from "../../src/generated/protos/akash/market/v1beta5/leasemsg.ts";
 import { MsgCloseDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
@@ -227,7 +227,7 @@ describe("Lease Operations", () => {
     
     expect(bidsResponse!.bids!.length).toBeGreaterThan(0);
     
-    bidsResponse!.bids!.forEach((bidResponse, index) => {
+    bidsResponse!.bids!.forEach((bidResponse: any, index: number) => {
       const bid = bidResponse.bid;
       console.log(`  Bid ${index + 1}: Provider ${bid?.id?.provider}, Price: ${bid?.price?.amount}${bid?.price?.denom}`);
     });
