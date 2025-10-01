@@ -13,16 +13,17 @@
  * Note: Never use production mnemonics in tests!
  */
 
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, afterAll, beforeAll } from "@jest/globals";
 import Long from "long";
 import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 import { createChainNodeSDK } from "../../src/sdk/chain/createChainNodeSDK.ts";
-import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
+import { MsgCreateDeployment, MsgCloseDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
+import { testUtils } from "../helpers/testOrchestrator.js";
 
 describe("Deployment Queries", () => {
   // Use the working configuration from your provided snippet
@@ -33,10 +34,91 @@ describe("Deployment Queries", () => {
   const TEST_TIMEOUT = 15000;
 
   // Helper function to create SDK instance
-  const createTestSDK = () => createChainNodeSDK({
+  const createTestSDK = (wallet?: DirectSecp256k1HdWallet) => createChainNodeSDK({
     query: { baseUrl: QUERY_RPC_URL },
-    tx: { baseUrl: TX_RPC_URL, signer: null as any },
+    tx: { baseUrl: TX_RPC_URL, signer: wallet || null as any },
   });
+
+  const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const cleanupDeployments = async () => {
+    const testMnemonic = process.env.TEST_MNEMONIC;
+    
+    if (!testMnemonic) {
+      console.log("Skipping deployment cleanup - TEST_MNEMONIC not set");
+      return;
+    }
+
+    try {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
+      const [account] = await wallet.getAccounts();
+      const sdk = createTestSDK(wallet);
+
+      console.log(`\nCleaning up deployments for account: ${account.address}`);
+
+      const deploymentsResponse = await sdk.akash.deployment.v1beta4.getDeployments({
+        filters: {
+          owner: account.address,
+          state: "active",
+          dseq: Long.UZERO
+        },
+        pagination: { limit: 100 }
+      });
+
+      if (!deploymentsResponse?.deployments || deploymentsResponse.deployments.length === 0) {
+        console.log("No deployments found to clean up");
+        return;
+      }
+
+      console.log(`Found ${deploymentsResponse.deployments.length} open deployments to clean up`);
+
+      for (const deploymentResponse of deploymentsResponse.deployments) {
+        const deployment = deploymentResponse.deployment;
+        if (!deployment?.id) continue;
+
+        console.log(`Processing deployment ${deployment.id.dseq} (state: ${deployment.state})`);
+
+        try {
+          const closeMessage: MsgCloseDeployment = {
+            id: {
+              owner: deployment.id.owner,
+              dseq: deployment.id.dseq
+            }
+          };
+
+          console.log(`Closing deployment ${deployment.id.owner}/${deployment.id.dseq}`);
+          
+          await sdk.akash.deployment.v1beta4.closeDeployment(closeMessage, {
+            memo: "Test cleanup - closing deployment"
+          });
+
+          console.log(`Successfully closed deployment ${deployment.id.dseq}`);
+          
+          console.log("Waiting 6 seconds before next closure...");
+          await wait(6000);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          if (errorMessage.includes("Deployment closed") || errorMessage.includes("already closed")) {
+            console.log(`Deployment ${deployment.id.dseq} is already closed, skipping`);
+          } else {
+            console.log(`Failed to close deployment ${deployment.id.dseq}:`, errorMessage);
+          }
+        }
+      }
+
+      console.log("Deployment cleanup completed");
+    } catch (error) {
+      console.log("Error during deployment cleanup:", error);
+    }
+  };
+
+  beforeAll(async () => {
+    testUtils.reset();
+  });
+
+  afterAll(async () => {
+    await cleanupDeployments();
+  }, 300000);
 
   it("should query deployments from the network", async () => {
     const sdk = createTestSDK();
@@ -285,8 +367,10 @@ describe("Deployment Queries", () => {
       }
     };
 
-    
-    const result = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
+    await testUtils.acquireTransactionLock();
+    let result;
+    try {
+      result = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
       memo: "Test deployment creation - Akash Chain SDK",
       // Set afterSign callback to verify transaction structure
       afterSign: (txRaw: any) => {
@@ -302,11 +386,14 @@ describe("Deployment Queries", () => {
         expect(txResponse.code).toBe(0); // 0 means success
         expect(txResponse.transactionHash).toBeDefined();
       }
-    });
-    
-    // Transaction completed successfully
-    console.log("Deployment transaction completed successfully!");
-    console.log(`   - Transaction result:`, result);
+      });
+      
+      // Transaction completed successfully
+      console.log("Deployment transaction completed successfully!");
+      console.log(`   - Transaction result:`, result);
+    } finally {
+      testUtils.releaseTransactionLock();
+    }
     
     // Verify the response structure - these assertions are required for test to pass
     expect(result).toBeDefined();
@@ -318,4 +405,10 @@ describe("Deployment Queries", () => {
     expect(deploymentMessage.groups).toHaveLength(1);
     expect(deploymentMessage.groups[0]?.name).toBe("web-service");
   }, TEST_TIMEOUT);
+
+  it("should cleanup all deployments for the test account", async () => {
+    await testUtils.withTransactionLock(async () => {
+      await cleanupDeployments();
+    });
+  }, 300000);
 });

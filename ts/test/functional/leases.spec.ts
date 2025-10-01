@@ -1,16 +1,16 @@
 
-import { describe, expect, it, afterAll } from "@jest/globals";
+import { describe, expect, it, beforeAll } from "@jest/globals";
 import Long from "long";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 import { createChainNodeSDK } from "../../src/sdk/chain/createChainNodeSDK.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
 import { MsgCreateLease } from "../../src/generated/protos/akash/market/v1beta5/leasemsg.ts";
-import { MsgCloseDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
 import { BidID } from "../../src/generated/protos/akash/market/v1/bid.ts";
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
+import { testUtils } from "../helpers/testOrchestrator.js";
 
 describe("Lease Operations", () => {
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
@@ -28,80 +28,9 @@ describe("Lease Operations", () => {
 
   const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  const cleanupDeployments = async () => {
-    const testMnemonic = process.env.TEST_MNEMONIC;
-    
-    if (!testMnemonic) {
-      console.log("Skipping deployment cleanup - TEST_MNEMONIC not set");
-      return;
-    }
-
-    try {
-      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
-      const [account] = await wallet.getAccounts();
-      const sdk = createTestSDK(wallet);
-
-      console.log(`\nCleaning up deployments for account: ${account.address}`);
-
-      const deploymentsResponse = await sdk.akash.deployment.v1beta4.getDeployments({
-        filters: {
-          owner: account.address,
-          state: "active",
-          dseq: Long.UZERO
-        },
-        pagination: { limit: 100 }
-      });
-
-      if (!deploymentsResponse?.deployments || deploymentsResponse.deployments.length === 0) {
-        console.log("No deployments found to clean up");
-        return;
-      }
-
-      console.log(`Found ${deploymentsResponse.deployments.length} open deployments to clean up`);
-
-      for (const deploymentResponse of deploymentsResponse.deployments) {
-        const deployment = deploymentResponse.deployment;
-        if (!deployment?.id) continue;
-
-        console.log(`Processing deployment ${deployment.id.dseq} (state: ${deployment.state})`);
-
-        try {
-          const closeMessage: MsgCloseDeployment = {
-            id: {
-              owner: deployment.id.owner,
-              dseq: deployment.id.dseq
-            }
-          };
-
-          console.log(`Closing deployment ${deployment.id.owner}/${deployment.id.dseq}`);
-          
-          await sdk.akash.deployment.v1beta4.closeDeployment(closeMessage, {
-            memo: "Test cleanup - closing deployment"
-          });
-
-          console.log(`Successfully closed deployment ${deployment.id.dseq}`);
-          
-          console.log("Waiting 6 seconds before next closure...");
-          await wait(6000);
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          if (errorMessage.includes("Deployment closed") || errorMessage.includes("already closed")) {
-            console.log(`Deployment ${deployment.id.dseq} is already closed, skipping`);
-          } else {
-            console.log(`Failed to close deployment ${deployment.id.dseq}:`, errorMessage);
-          }
-        }
-      }
-
-      console.log("Deployment cleanup completed");
-    } catch (error) {
-      console.log("Error during deployment cleanup:", error);
-    }
-  };
-
-  // afterAll(async () => {
-  //   await cleanupDeployments();
-  // }, 120000);
+  beforeAll(async () => {
+    testUtils.reset();
+  });
 
   it("should create a deployment, wait for bids, select first bid and create a lease", async () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
@@ -121,6 +50,7 @@ describe("Lease Operations", () => {
     const sdk = createTestSDK(wallet);
 
     console.log("Step 1: Creating deployment...");
+    
     const deploymentMessage: MsgCreateDeployment = {
       id: {
         owner: account.address,
@@ -174,12 +104,18 @@ describe("Lease Operations", () => {
       }
     };
 
-    const deploymentResult = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
-      memo: "Test deployment for lease creation - Akash Chain SDK"
-    });
-    
-    console.log("Deployment created successfully!");
-    expect(deploymentResult).toBeDefined();
+    await testUtils.acquireTransactionLock();
+    let deploymentResult;
+    try {
+      deploymentResult = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
+        memo: "Test deployment for lease creation - Akash Chain SDK"
+      });
+      
+      console.log("Deployment created successfully!");
+      expect(deploymentResult).toBeDefined();
+    } finally {
+      testUtils.releaseTransactionLock();
+    }
     console.log(deploymentResult);
 
     const deploymentId = {
@@ -191,10 +127,10 @@ describe("Lease Operations", () => {
     console.log(`Deployment ID: ${deploymentId.owner}/${deploymentId.dseq}`);
     let bidsResponse;
     let attempts = 0;
-    const maxAttempts = 18;
+    const maxAttempts = 3;
     
     do {
-      await wait(10000);
+      await wait(6000);
       attempts++;
       
       console.log(`Checking for bids (attempt ${attempts}/${maxAttempts})...`);
@@ -251,6 +187,8 @@ describe("Lease Operations", () => {
       } as BidID
     };
 
+    console.log(leaseMessage);
+
     const leaseResult = await sdk.akash.market.v1beta5.createLease(leaseMessage, {
       memo: "Test lease creation from bid - Akash Chain SDK"
     });
@@ -266,8 +204,6 @@ describe("Lease Operations", () => {
         gseq: 1,
         oseq: 1,
         provider: firstBid.id!.provider,
-        state: "",
-        bseq: 0
       }
     });
 
@@ -280,11 +216,10 @@ describe("Lease Operations", () => {
     expect(createdLease.id?.dseq.toString()).toBe(deploymentId.dseq.toString());
     expect(createdLease.id?.provider).toBe(firstBid.id!.provider);
     
-    console.log("Lease verification completed successfully!");
-    console.log(`Lease ID: ${createdLease.id?.owner}/${createdLease.id?.dseq}/${createdLease.id?.gseq}/${createdLease.id?.oseq}/${createdLease.id?.provider}`);
-    console.log(`Lease State: ${createdLease.state}`);
-    console.log(`Lease Price: ${createdLease.price?.amount}${createdLease.price?.denom}`);
-
+      console.log("Lease verification completed successfully!");
+      console.log(`Lease ID: ${createdLease.id?.owner}/${createdLease.id?.dseq}/${createdLease.id?.gseq}/${createdLease.id?.oseq}/${createdLease.id?.provider}`);
+      console.log(`Lease State: ${createdLease.state}`);
+      console.log(`Lease Price: ${createdLease.price?.amount}${createdLease.price?.denom}`);
   }, TEST_TIMEOUT);
 
   it("should query existing leases from the network", async () => {
@@ -360,8 +295,4 @@ describe("Lease Operations", () => {
       console.log(`First bid: ${bid?.id?.owner}/${bid?.id?.dseq?.low} Provider: ${bid?.id?.provider}, Price: ${bid?.price?.amount}${bid?.price?.denom}`);
     }
   }, 15000);
-
-  it("should cleanup all deployments for the test account", async () => {
-    await cleanupDeployments();
-  }, 300000);
 });
