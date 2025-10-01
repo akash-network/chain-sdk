@@ -13,7 +13,7 @@ interface LockRequest {
 export class TestOrchestrator {
   private static instance: TestOrchestrator;
   private lastTransactionTime: number = 0;
-  private readonly minDelayBetweenTransactions: number = 12000; // 12 seconds for account sequence safety
+  private readonly minDelayBetweenTransactions: number = 6000; // 12 seconds for account sequence safety
   private lockQueue: LockRequest[] = [];
   private isLocked: boolean = false;
   private lockTimeout?: NodeJS.Timeout;
