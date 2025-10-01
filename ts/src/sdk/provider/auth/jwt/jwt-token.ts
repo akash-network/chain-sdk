@@ -47,10 +47,10 @@ export class JwtTokenManager {
       exp: options.exp ? options.exp : now + 3600, // Default to 1 hour expiration
       nbf: options.nbf || now,
       iat: options.iat || now,
-      jti: options.jti,
       version: options.version,
       leases: options.leases || { access: "full" },
     };
+    if (options.jti) inputPayload.jti = options.jti;
 
     const validationResult = this.validatePayload(inputPayload);
     if (!validationResult.isValid) {

@@ -32,13 +32,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs && ./script/validate-package-exports.ts",
+    "build": "npm run compile:jwt-validator && rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs && ./script/validate-package-exports.ts",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
     "test": "jest --selectProjects unit functional",
     "test:cov": "jest --selectProjects unit functional --coverage",
     "test:functional": "jest --selectProjects functional",
-    "test:unit": "jest --selectProjects unit"
+    "test:unit": "jest --selectProjects unit",
+    "compile:jwt-validator": "./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts"
   },
   "lint-staged": {
     "*.json": [
@@ -59,8 +60,6 @@
     "@cosmjs/math": "^0.33.1",
     "@cosmjs/proto-signing": "^0.33.1",
     "@cosmjs/stargate": "^0.33.1",
-    "ajv": "^8.17.1",
-    "ajv-formats": "^2.1.1",
     "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.3.0",
     "jsrsasign": "^11.1.0",
@@ -70,6 +69,7 @@
     "@bufbuild/protoc-gen-es": "^2.2.3",
     "@bufbuild/protoplugin": "^2.2.3",
     "@eslint/js": "^9.21.0",
+    "@exodus/schemasafe": "^1.3.0",
     "@faker-js/faker": "^9.7.0",
     "@jest/globals": "^29.7.0",
     "@stylistic/eslint-plugin": "^4.0.1",
