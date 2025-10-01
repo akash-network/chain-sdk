@@ -25,8 +25,8 @@ export function createStargateClient(options: StargateClientOptions): TxClient {
   const registry = new Registry([...defaultRegistryTypes, ...builtInTypes]);
   const createStargateClient = options.createClient ?? SigningStargateClient.connectWithSigner;
 
-  let stargateClient: SigningStargateClient | undefined;
-  const getStargateClient = async () => stargateClient ??= await createStargateClient(
+  let stargateClientPromise: Promise<SigningStargateClient> | undefined;
+  const getStargateClient = () => stargateClientPromise ??= createStargateClient(
     options.baseUrl,
     options.signer,
     {
