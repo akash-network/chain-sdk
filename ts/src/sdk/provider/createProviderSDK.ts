@@ -7,7 +7,7 @@ export type { PayloadOf, ResponseOf } from "../types.ts";
 type ProviderSDK = PickByPath<ReturnType<typeof createSDK>, "akash.provider.v1">;
 
 export function createProviderSDK(options: ProviderSDKOptions): ProviderSDK {
-  const certificateOptions = options.authentication?.type === "certificate"
+  const certificateOptions = options.authentication?.type === "mtls"
     ? {
         cert: options.authentication?.cert,
         key: options.authentication?.key,
@@ -26,9 +26,15 @@ export function createProviderSDK(options: ProviderSDKOptions): ProviderSDK {
 }
 
 export interface ProviderSDKOptions {
+  /**
+   * Provider gRPC endpoint
+   */
   baseUrl: string;
+  /**
+   * Authentication options
+   */
   authentication?: {
-    type: "certificate";
+    type: "mtls";
     cert: string;
     key: string;
   };

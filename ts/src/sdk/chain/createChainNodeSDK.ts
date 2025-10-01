@@ -42,6 +42,9 @@ export function createChainNodeSDK(options: ChainNodeSDKOptions) {
 
 export interface ChainNodeSDKOptions {
   query: {
+    /**
+     * Blockchain gRPC endpoint
+     */
     baseUrl: string;
   };
   tx?: Omit<StargateClientOptions, "getMessageType" | "builtInTypes">;

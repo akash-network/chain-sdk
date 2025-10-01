@@ -33,6 +33,9 @@ export function createChainNodeWebSDK(options: ChainNodeWebSDKOptions) {
 
 export interface ChainNodeWebSDKOptions {
   query: {
+    /**
+     * Blockchain gRPC gateway endpoint (also known as REST endpoint)
+     */
     baseUrl: string;
   };
   tx?: {
