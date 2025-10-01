@@ -12,35 +12,20 @@
   "license": "Apache-2.0",
   "author": "Akash Network Team",
   "exports": {
-    "./chain": {
-      "types": "./dist/types/sdk/chain/server/index.d.ts",
-      "require": "./dist/nodejs/cjs/sdk/chain/server/index.cjs",
-      "import": "./dist/nodejs/esm/sdk/chain/server/index.js"
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.cjs",
+      "import": "./dist/esm/index.js"
     },
-    "./chain/web": {
-      "types": "./dist/types/sdk/chain/web/index.d.ts",
-      "require": "./dist/web/cjs/sdk/chain/web/index.cjs",
-      "import": "./dist/web/esm/sdk/chain/web/index.js"
+    "./web": {
+      "types": "./dist/types/index.web.d.ts",
+      "require": "./dist/cjs/index.web.cjs",
+      "import": "./dist/esm/index.web.js"
     },
-    "./chain/types/*": {
+    "./private-types/*": {
       "types": "./dist/types/generated/protos/index.*.d.ts",
-      "require": "./dist/nodejs/cjs/generated/protos/index.*.cjs",
-      "import": "./dist/nodejs/esm/generated/protos/index.*.js"
-    },
-    "./provider/types/*": {
-      "types": "./dist/types/generated/protos/index.provider.*.d.ts",
-      "require": "./dist/nodejs/cjs/generated/protos/index.provider.*.cjs",
-      "import": "./dist/nodejs/esm/generated/protos/index.provider.*.js"
-    },
-    "./provider": {
-      "types": "./dist/types/sdk/provider/server/index.d.ts",
-      "require": "./dist/nodejs/cjs/sdk/provider/server/index.cjs",
-      "import": "./dist/nodejs/esm/sdk/provider/server/index.js"
-    },
-    "./sdl": {
-      "types": "./dist/types/sdl/index.d.ts",
-      "require": "./dist/nodejs/cjs/sdl/index.cjs",
-      "import": "./dist/nodejs/esm/sdl/index.js"
+      "require": "./dist/cjs/generated/protos/index.*.cjs",
+      "import": "./dist/esm/generated/protos/index.*.js"
     }
   },
   "files": [
@@ -99,6 +84,7 @@
     "husky": "^9.1.7",
     "immutability-helper": "^3.1.1",
     "jest": "^29.7.0",
+    "jest-mock-extended": "^4.0.0",
     "lint-staged": "^15.4.3",
     "sort-json": "^2.0.1",
     "sort-package-json": "^3.0.0",
