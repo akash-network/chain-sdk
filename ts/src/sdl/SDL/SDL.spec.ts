@@ -682,7 +682,7 @@ describe("SDL", () => {
 
     describe("fromString", () => {
       it("should create an SDL instance with data", () => {
-        const sdl = SDL.fromString(testSDL);
+        const sdl = SDL.fromString(testSDL, "beta2");
 
         expect(sdl).toBeInstanceOf(SDL);
         expect(sdl.data).not.toBeNull();
@@ -691,7 +691,7 @@ describe("SDL", () => {
 
     describe("Manifest", () => {
       it("should generate the correct manifest", () => {
-        const sdl = SDL.fromString(testSDL);
+        const sdl = SDL.fromString(testSDL, "beta2");
         const result = sdl.manifest(true);
 
         expect(result).toEqual(expectedManifest);
@@ -700,7 +700,7 @@ describe("SDL", () => {
 
     describe("DeploymentGroups", () => {
       it("should generate the correct deployment groups", () => {
-        const sdl = SDL.fromString(testSDL);
+        const sdl = SDL.fromString(testSDL, "beta2");
         const result = JSON.parse(JSON.stringify(sdl.groups()));
 
         expect(result).toEqual(expectedGroups);
@@ -709,7 +709,7 @@ describe("SDL", () => {
 
     describe("Version", () => {
       it("should return the correct manifest version", async () => {
-        const sdl = SDL.fromString(testSDL);
+        const sdl = SDL.fromString(testSDL, "beta2");
         const result = await sdl.manifestVersion();
 
         expect(result).toEqual(expectedVersion);
@@ -834,7 +834,7 @@ describe("SDL", () => {
     ];
 
     it("should generate the correct manifest", () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
       const result = sdl.manifest(true);
 
       expect(result).toEqual(testManifest);
@@ -1079,7 +1079,7 @@ describe("SDL", () => {
     ];
 
     it("should generate correct manifest", () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
       const result = sdl.manifest(true);
 
       expect(result).toEqual(testManifest);
@@ -1191,21 +1191,21 @@ describe("SDL", () => {
     ]);
 
     it("should create SDL instance from string", () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
 
       expect(sdl).toBeInstanceOf(SDL);
       expect(sdl.data).not.toBeNull();
     });
 
     it("should generate correct manifest", () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
       const result = sdl.manifest(true);
 
       expect(result).toEqual(expectedManifest);
     });
 
     it("should generate correct manifest version", async () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
       const preversionJson = sdl.manifestSortedJSON();
       const result = await sdl.manifestVersion();
 
@@ -1375,28 +1375,28 @@ describe("SDL", () => {
     ]);
 
     it("should create SDL instance from string", () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
 
       expect(sdl).toBeInstanceOf(SDL);
       expect(sdl.data).not.toBeNull();
     });
 
     it("should generate correct manifest", () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
       const result = sdl.manifest(true);
 
       expect(result).toEqual(expectedManifest);
     });
 
     it("should generate correct deployment groups", () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
       const result = sdl.groups();
 
       expect(result).toEqual(expectedGroups);
     });
 
     it("should generate correct manifest version", async () => {
-      const sdl = SDL.fromString(testSDL);
+      const sdl = SDL.fromString(testSDL, "beta2");
       const preversionJson = sdl.manifestSortedJSON();
       const result = await sdl.manifestVersion();
 
