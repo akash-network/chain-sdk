@@ -136,7 +136,6 @@ describe("Deployment Queries", () => {
     
     console.log(`Found ${response?.deployments?.length || 0} deployments`);
     
-    expect(response?.deployments).toBeDefined();
     expect(response.deployments.length).toBeGreaterThan(0);
     const deployment = response.deployments[0]?.deployment;
     expect(deployment?.id?.owner).toBeDefined();
