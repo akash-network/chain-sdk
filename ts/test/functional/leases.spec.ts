@@ -10,7 +10,6 @@ import { BidID } from "../../src/generated/protos/akash/market/v1/bid.ts";
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
-import { testUtils } from "../helpers/testOrchestrator.js";
 
 describe("Lease Operations", () => {
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
@@ -28,9 +27,6 @@ describe("Lease Operations", () => {
 
   const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  beforeAll(async () => {
-    testUtils.reset();
-  });
 
   it("should create a deployment, wait for bids, select first bid and create a lease", async () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
@@ -104,18 +100,12 @@ describe("Lease Operations", () => {
       }
     };
 
-    await testUtils.acquireTransactionLock();
-    let deploymentResult;
-    try {
-      deploymentResult = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
-        memo: "Test deployment for lease creation - Akash Chain SDK"
-      });
-      
-      console.log("Deployment created successfully!");
-      expect(deploymentResult).toBeDefined();
-    } finally {
-      testUtils.releaseTransactionLock();
-    }
+    const deploymentResult = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
+      memo: "Test deployment for lease creation - Akash Chain SDK"
+    });
+    
+    console.log("Deployment created successfully!");
+    expect(deploymentResult).toBeDefined();
     console.log(deploymentResult);
 
     const deploymentId = {

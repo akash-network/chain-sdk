@@ -23,7 +23,6 @@ import { MsgCreateDeployment, MsgCloseDeployment } from "../../src/generated/pro
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
-import { testUtils } from "../helpers/testOrchestrator.js";
 
 describe("Deployment Queries", () => {
   // Use the working configuration from your provided snippet
@@ -112,9 +111,6 @@ describe("Deployment Queries", () => {
     }
   };
 
-  beforeAll(async () => {
-    testUtils.reset();
-  });
 
   afterAll(async () => {
     await cleanupDeployments();
@@ -366,10 +362,7 @@ describe("Deployment Queries", () => {
       }
     };
 
-    await testUtils.acquireTransactionLock();
-    let result;
-    try {
-      result = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
+    const result = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
       memo: "Test deployment creation - Akash Chain SDK",
       // Set afterSign callback to verify transaction structure
       afterSign: (txRaw: any) => {
@@ -385,14 +378,11 @@ describe("Deployment Queries", () => {
         expect(txResponse.code).toBe(0); // 0 means success
         expect(txResponse.transactionHash).toBeDefined();
       }
-      });
-      
-      // Transaction completed successfully
-      console.log("Deployment transaction completed successfully!");
-      console.log(`   - Transaction result:`, result);
-    } finally {
-      testUtils.releaseTransactionLock();
-    }
+    });
+    
+    // Transaction completed successfully
+    console.log("Deployment transaction completed successfully!");
+    console.log(`   - Transaction result:`, result);
     
     // Verify the response structure - these assertions are required for test to pass
     expect(result).toBeDefined();
@@ -406,8 +396,6 @@ describe("Deployment Queries", () => {
   }, TEST_TIMEOUT);
 
   it("should cleanup all deployments for the test account", async () => {
-    await testUtils.withTransactionLock(async () => {
-      await cleanupDeployments();
-    });
+    await cleanupDeployments();
   }, 300000);
 });
