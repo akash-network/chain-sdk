@@ -136,14 +136,14 @@ describe("Deployment Queries", () => {
     
     console.log(`Found ${response?.deployments?.length || 0} deployments`);
     
-    if (response?.deployments && response.deployments.length > 0) {
-      const deployment = response.deployments[0]?.deployment;
-      expect(deployment?.id?.owner).toBeDefined();
-      expect(deployment?.id?.dseq).toBeDefined();
-      expect(deployment?.state).toBeDefined();
-      
-      console.log(`First deployment: ${deployment?.id?.owner}/${deployment?.id?.dseq?.low}`);
-    }
+    expect(response?.deployments).toBeDefined();
+    expect(response.deployments.length).toBeGreaterThan(0);
+    const deployment = response.deployments[0]?.deployment;
+    expect(deployment?.id?.owner).toBeDefined();
+    expect(deployment?.id?.dseq).toBeDefined();
+    expect(deployment?.state).toBeDefined();
+
+    console.log(`First deployment: ${deployment?.id?.owner}/${deployment?.id?.dseq?.low}`);
   }, TEST_TIMEOUT);
 
   it("should query deployments with pagination", async () => {

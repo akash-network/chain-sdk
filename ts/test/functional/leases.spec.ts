@@ -249,14 +249,15 @@ describe("Lease Operations", () => {
     
     console.log(`Found ${response?.leases?.length || 0} leases`);
     
-    if (response?.leases && response.leases.length > 0) {
-      const lease = response.leases[0]?.lease;
-      expect(lease?.id?.owner).toBeDefined();
-      expect(lease?.id?.dseq).toBeDefined();
-      expect(lease?.state).toBeDefined();
-      
-      console.log(`First lease: ${lease?.id?.owner}/${lease?.id?.dseq?.low} State: ${lease?.state}`);
-    }
+    expect(response?.leases).toBeDefined();
+    expect(response.leases.length).toBeGreaterThan(0);
+    
+    const lease = response.leases[0]?.lease;
+    expect(lease?.id?.owner).toBeDefined();
+    expect(lease?.id?.dseq).toBeDefined();
+    expect(lease?.state).toBeDefined();
+    
+    console.log(`First lease: ${lease?.id?.owner}/${lease?.id?.dseq?.low} State: ${lease?.state}`);
   }, 15000);
 
   it("should query existing bids from the network", async () => {
@@ -285,14 +286,15 @@ describe("Lease Operations", () => {
     expect(Array.isArray(response?.bids)).toBe(true);
     
     console.log(`Found ${response?.bids?.length || 0} bids`);
+
+    expect(response?.bids).toBeDefined();
+    expect(response.bids.length).toBeGreaterThan(0);
     
-    if (response?.bids && response.bids.length > 0) {
-      const bid = response.bids[0]?.bid;
-      expect(bid?.id?.owner).toBeDefined();
-      expect(bid?.id?.dseq).toBeDefined();
-      expect(bid?.state).toBeDefined();
-      
-      console.log(`First bid: ${bid?.id?.owner}/${bid?.id?.dseq?.low} Provider: ${bid?.id?.provider}, Price: ${bid?.price?.amount}${bid?.price?.denom}`);
-    }
+    const bid = response.bids[0]?.bid;
+    expect(bid?.id?.owner).toBeDefined();
+    expect(bid?.id?.dseq).toBeDefined();
+    expect(bid?.state).toBeDefined();
+
+    console.log(`First bid: ${bid?.id?.owner}/${bid?.id?.dseq?.low} Provider: ${bid?.id?.provider}, Price: ${bid?.price?.amount}${bid?.price?.denom}`);
   }, 15000);
 });
