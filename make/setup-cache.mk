@@ -108,8 +108,8 @@ $(PROTOC_GEN_GRPC_GATEWAY_VERSION_FILE): $(AKASH_DEVCACHE)
 $(PROTOC_GEN_GRPC_GATEWAY): $(PROTOC_GEN_GRPC_GATEWAY_VERSION_FILE)
 
 $(PROTOC_GEN_SWAGGER_VERSION_FILE): $(AKASH_DEVCACHE)
-	@echo "Installing protoc-gen-grpc-gateway $(PROTOC_GEN_SWAGGER_VERSION) ..."
-	rm -f $(PROTOC_GEN_GRPC_GATEWAY)
+	@echo "Installing protoc-gen-swagger $(PROTOC_GEN_SWAGGER_VERSION) ..."
+	rm -f $(PROTOC_GEN_SWAGGER)
 	(cd $(GO_ROOT); GOBIN=$(AKASH_DEVCACHE_BIN) $(GO) install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@$(PROTOC_GEN_SWAGGER_VERSION))
 	rm -rf "$(dir $@)"
 	mkdir -p "$(dir $@)"
