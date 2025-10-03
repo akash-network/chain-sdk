@@ -26,6 +26,8 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Balance holds the unspent coin received from all deposits with same denom
+// DecCoin is not being used here as it does not support negative values,
+// and balance may go negative if account is overdrawn.
 type Balance struct {
 	Denom  string                      `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 	Amount cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=amount,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"amount"`

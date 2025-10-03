@@ -41,7 +41,7 @@ type AccountState struct {
 	Transferred github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,3,rep,name=transferred,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"transferred" yaml:"transferred"`
 	// SettledAt represents the block height at which this account was last settled.
 	SettledAt int64 `protobuf:"varint,4,opt,name=settled_at,json=settledAt,proto3" json:"settledAt" yaml:"settledAt"`
-	// Balance holds the unspent coins received from all deposits
+	// Funds holds the unspent coins received from all deposits
 	Funds    []Balance   `protobuf:"bytes,5,rep,name=funds,proto3" json:"funds" yaml:"funds"`
 	Deposits []Depositor `protobuf:"bytes,6,rep,name=deposits,proto3" json:"deposits" yaml:"deposits"`
 }
