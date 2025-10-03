@@ -217,38 +217,37 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 	}
 
 	// Only attempt an on-chain/self-signed path when mTLS client certs are in use and a single cert was presented.
-	if len(c.tlsCfg.Certificates) > 0 && len(peerCerts) == 1 {
+	if len(peerCerts) == 1 {
 		cert := peerCerts[0]
 		// validation
 		var owner sdk.Address
 		var err error
 
-		if owner, err = sdk.AccAddressFromBech32(cert.Subject.CommonName); err != nil {
-			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.InvalidCN}, err)
-		}
+		// if the common name is not akash address, do not proceed with mTLS validation and keep the normal handshake flow
+		if owner, err = sdk.AccAddressFromBech32(cert.Subject.CommonName); err == nil {
+			// 1. CommonName in issuer and Subject must match and be as Bech32 format
+			if cert.Subject.CommonName != cert.Issuer.CommonName {
+				return atls.CertificateInvalidError{Cert: cert, Reason: atls.InvalidCN}
+			}
 
-		// 1. CommonName in issuer and Subject must match and be as Bech32 format
-		if cert.Subject.CommonName != cert.Issuer.CommonName {
-			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.InvalidCN}, err)
-		}
+			// 2. serial number must be in
+			if cert.SerialNumber == nil {
+				return atls.CertificateInvalidError{Cert: cert, Reason: atls.InvalidSN}
+			}
 
-		// 2. serial number must be in
-		if cert.SerialNumber == nil {
-			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.InvalidSN}, err)
-		}
+			// 3. look up the certificate on the chain
+			onChainCert, _, err := c.GetAccountCertificate(c.ctx, owner, cert.SerialNumber)
+			if err != nil {
+				return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.Expired}, err)
+			}
 
-		// 3. look up the certificate on the chain
-		onChainCert, _, err := c.GetAccountCertificate(c.ctx, owner, cert.SerialNumber)
-		if err != nil {
-			return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: cert, Reason: atls.Expired}, err)
+			// Use a per-handshake roots pool to avoid mutating shared state.
+			roots := x509.NewCertPool()
+			roots.AddCert(onChainCert)
+			opts.Roots = roots
+			// Relax hostname validation for on-chain/self-signed flow.
+			opts.DNSName = ""
 		}
-
-		// Use a per-handshake roots pool to avoid mutating shared state.
-		roots := x509.NewCertPool()
-		roots.AddCert(onChainCert)
-		opts.Roots = roots
-		// Relax hostname validation for on-chain/self-signed flow.
-		opts.DNSName = ""
 	}
 
 	// Verify with the possibly adjusted options (on-chain or standard).
