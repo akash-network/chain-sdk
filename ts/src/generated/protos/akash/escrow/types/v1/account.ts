@@ -31,7 +31,7 @@ export interface AccountState {
   transferred: DecCoin[];
   /** SettledAt represents the block height at which this account was last settled. */
   settledAt: Long;
-  /** Balance holds the unspent coins received from all deposits */
+  /** Funds holds the unspent coins received from all deposits */
   funds: Balance[];
   deposits: Depositor[];
 }

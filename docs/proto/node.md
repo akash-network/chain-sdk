@@ -2217,6 +2217,8 @@ Since: akash v1.0.0
 
  ### Balance
  Balance holds the unspent coin received from all deposits with same denom
+DecCoin is not being used here as it does not support negative values,
+and balance may go negative if account is overdrawn.
 
  
  | Field | Type | Label | Description |
@@ -2341,7 +2343,7 @@ Example: "akash1..." |
  | `state` | [State](#akash.escrow.types.v1.State) |  | State represents the current state of an Account. |
  | `transferred` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | Transferred total coins spent by this account. |
  | `settled_at` | [int64](#int64) |  | SettledAt represents the block height at which this account was last settled. |
- | `funds` | [Balance](#akash.escrow.types.v1.Balance) | repeated | Balance holds the unspent coins received from all deposits |
+ | `funds` | [Balance](#akash.escrow.types.v1.Balance) | repeated | Funds holds the unspent coins received from all deposits |
  | `deposits` | [Depositor](#akash.escrow.types.v1.Depositor) | repeated |  |
  
  

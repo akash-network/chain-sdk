@@ -49,7 +49,7 @@ message AccountState {
     (gogoproto.customname) = "SettledAt"
   ];
 
-  // Balance holds the unspent coins received from all deposits
+  // Funds holds the unspent coins received from all deposits
   repeated Balance funds = 5 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "funds",

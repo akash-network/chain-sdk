@@ -10,7 +10,11 @@ import Long from "long";
 
 export const protobufPackage = "akash.escrow.types.v1";
 
-/** Balance holds the unspent coin received from all deposits with same denom */
+/**
+ * Balance holds the unspent coin received from all deposits with same denom
+ * DecCoin is not being used here as it does not support negative values,
+ * and balance may go negative if account is overdrawn.
+ */
 export interface Balance {
   denom: string;
   amount: string;
