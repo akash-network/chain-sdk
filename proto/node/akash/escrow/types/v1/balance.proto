@@ -7,6 +7,8 @@ import "cosmos_proto/cosmos.proto";
 option go_package = "pkg.akt.dev/go/node/escrow/types/v1";
 
 // Balance holds the unspent coin received from all deposits with same denom
+// DecCoin is not being used here as it does not support negative values,
+// and balance may go negative if account is overdrawn.
 message Balance {
   option (gogoproto.equal) = true;
 
@@ -16,17 +18,4 @@ message Balance {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable)   = false
   ];
-
-//  // Balance holds the unspent coins received from all deposits
-//  cosmos.base.v1beta1.DecCoin balance = 1 [
-//    (gogoproto.nullable) = false,
-//    (gogoproto.jsontag)  = "balance",
-//    (gogoproto.moretags) = "yaml:\"balance\""
-//  ];
-//
-//  string overdraft = 2 [
-//    (cosmos_proto.scalar)  = "cosmos.Dec",
-//    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-//    (gogoproto.nullable)   = false
-//  ];
 }

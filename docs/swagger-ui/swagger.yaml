@@ -1373,11 +1373,16 @@ paths:
                               type: string
                             amount:
                               type: string
-                          title: >-
+                          description: >-
                             Balance holds the unspent coin received from all
                             deposits with same denom
+
+                            DecCoin is not being used here as it does not
+                            support negative values,
+
+                            and balance may go negative if account is overdrawn.
                         title: >-
-                          Balance holds the unspent coins received from all
+                          Funds holds the unspent coins received from all
                           deposits
                       deposits:
                         type: array
@@ -2023,12 +2028,18 @@ paths:
                                     type: string
                                   amount:
                                     type: string
-                                title: >-
+                                description: >-
                                   Balance holds the unspent coin received from
                                   all deposits with same denom
+
+                                  DecCoin is not being used here as it does not
+                                  support negative values,
+
+                                  and balance may go negative if account is
+                                  overdrawn.
                               title: >-
-                                Balance holds the unspent coins received from
-                                all deposits
+                                Funds holds the unspent coins received from all
+                                deposits
                             deposits:
                               type: array
                               items:
@@ -3144,11 +3155,16 @@ paths:
                               type: string
                             amount:
                               type: string
-                          title: >-
+                          description: >-
                             Balance holds the unspent coin received from all
                             deposits with same denom
+
+                            DecCoin is not being used here as it does not
+                            support negative values,
+
+                            and balance may go negative if account is overdrawn.
                         title: >-
-                          Balance holds the unspent coins received from all
+                          Funds holds the unspent coins received from all
                           deposits
                       deposits:
                         type: array
@@ -3743,12 +3759,18 @@ paths:
                                     type: string
                                   amount:
                                     type: string
-                                title: >-
+                                description: >-
                                   Balance holds the unspent coin received from
                                   all deposits with same denom
+
+                                  DecCoin is not being used here as it does not
+                                  support negative values,
+
+                                  and balance may go negative if account is
+                                  overdrawn.
                               title: >-
-                                Balance holds the unspent coins received from
-                                all deposits
+                                Funds holds the unspent coins received from all
+                                deposits
                             deposits:
                               type: array
                               items:
@@ -47334,10 +47356,15 @@ definitions:
                       type: string
                     amount:
                       type: string
-                  title: >-
+                  description: >-
                     Balance holds the unspent coin received from all deposits
                     with same denom
-                title: Balance holds the unspent coins received from all deposits
+
+                    DecCoin is not being used here as it does not support
+                    negative values,
+
+                    and balance may go negative if account is overdrawn.
+                title: Funds holds the unspent coins received from all deposits
               deposits:
                 type: array
                 items:
@@ -47912,12 +47939,15 @@ definitions:
                             type: string
                           amount:
                             type: string
-                        title: >-
+                        description: >-
                           Balance holds the unspent coin received from all
                           deposits with same denom
-                      title: >-
-                        Balance holds the unspent coins received from all
-                        deposits
+
+                          DecCoin is not being used here as it does not support
+                          negative values,
+
+                          and balance may go negative if account is overdrawn.
+                      title: Funds holds the unspent coins received from all deposits
                     deposits:
                       type: array
                       items:
@@ -48723,10 +48753,15 @@ definitions:
                   type: string
                 amount:
                   type: string
-              title: >-
+              description: >-
                 Balance holds the unspent coin received from all deposits with
                 same denom
-            title: Balance holds the unspent coins received from all deposits
+
+                DecCoin is not being used here as it does not support negative
+                values,
+
+                and balance may go negative if account is overdrawn.
+            title: Funds holds the unspent coins received from all deposits
           deposits:
             type: array
             items:
@@ -48838,10 +48873,15 @@ definitions:
               type: string
             amount:
               type: string
-          title: >-
+          description: >-
             Balance holds the unspent coin received from all deposits with same
             denom
-        title: Balance holds the unspent coins received from all deposits
+
+            DecCoin is not being used here as it does not support negative
+            values,
+
+            and balance may go negative if account is overdrawn.
+        title: Funds holds the unspent coins received from all deposits
       deposits:
         type: array
         items:
@@ -48906,7 +48946,10 @@ definitions:
         type: string
       amount:
         type: string
-    title: Balance holds the unspent coin received from all deposits with same denom
+    description: |-
+      Balance holds the unspent coin received from all deposits with same denom
+      DecCoin is not being used here as it does not support negative values,
+      and balance may go negative if account is overdrawn.
   akash.escrow.types.v1.Depositor:
     type: object
     properties:
@@ -50889,10 +50932,15 @@ definitions:
                       type: string
                     amount:
                       type: string
-                  title: >-
+                  description: >-
                     Balance holds the unspent coin received from all deposits
                     with same denom
-                title: Balance holds the unspent coins received from all deposits
+
+                    DecCoin is not being used here as it does not support
+                    negative values,
+
+                    and balance may go negative if account is overdrawn.
+                title: Funds holds the unspent coins received from all deposits
               deposits:
                 type: array
                 items:
@@ -51369,12 +51417,15 @@ definitions:
                             type: string
                           amount:
                             type: string
-                        title: >-
+                        description: >-
                           Balance holds the unspent coin received from all
                           deposits with same denom
-                      title: >-
-                        Balance holds the unspent coins received from all
-                        deposits
+
+                          DecCoin is not being used here as it does not support
+                          negative values,
+
+                          and balance may go negative if account is overdrawn.
+                      title: Funds holds the unspent coins received from all deposits
                     deposits:
                       type: array
                       items:

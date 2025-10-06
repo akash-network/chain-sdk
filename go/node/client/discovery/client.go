@@ -25,7 +25,7 @@ func DiscoverQueryClient(ctx context.Context, cctx sdkclient.Context) (aclient.Q
 		var valid bool
 
 		if cl, valid = i.(v1beta3.QueryClient); !valid {
-			return fmt.Errorf("%w: expected %s, actual %s", ErrInvalidClient, reflect.TypeOf(cl), reflect.TypeOf(i))
+			return fmt.Errorf("%w: expected %s, actual %T", ErrInvalidClient, reflect.TypeOf((*v1beta3.QueryClient)(nil)).Elem(), i)
 		}
 
 		return nil
@@ -44,7 +44,7 @@ func DiscoverLightClient(ctx context.Context, cctx sdkclient.Context) (aclient.L
 		var valid bool
 
 		if cl, valid = i.(v1beta3.LightClient); !valid {
-			return fmt.Errorf("%w: expected %s, actual %s", ErrInvalidClient, reflect.TypeOf(cl), reflect.TypeOf(i))
+			return fmt.Errorf("%w: expected %s, actual %T", ErrInvalidClient, reflect.TypeOf((*v1beta3.LightClient)(nil)).Elem(), i)
 		}
 
 		return nil
@@ -64,7 +64,7 @@ func DiscoverClient(ctx context.Context, cctx sdkclient.Context, opts ...cltypes
 		var valid bool
 
 		if cl, valid = i.(v1beta3.Client); !valid {
-			return fmt.Errorf("%w: expected %s, actual %s", ErrInvalidClient, reflect.TypeOf(cl), reflect.TypeOf(i))
+			return fmt.Errorf("%w: expected %s, actual %T", ErrInvalidClient, reflect.TypeOf((*v1beta3.Client)(nil)).Elem(), i)
 		}
 
 		return nil
