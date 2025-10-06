@@ -29,7 +29,7 @@ describe("Deployment Queries", () => {
   // Query and TX endpoints are different!
   // Note: These are gRPC endpoints that need proper URL schemes
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
-  const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.testnet.akt.dev:443/rpc";
+  const TX_RPC_URL = process.env.TX_RPC_URL || "https://testnetrpc.akashnet.net:443";
   const TEST_TIMEOUT = 15000;
 
   // Helper function to create SDK instance

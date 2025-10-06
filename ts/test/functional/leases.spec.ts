@@ -13,7 +13,7 @@ import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/co
 
 describe("Lease Operations", () => {
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
-  const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.testnet.akt.dev:443/rpc";
+  const TX_RPC_URL = process.env.TX_RPC_URL || "https://testnetrpc.akashnet.net:443";
   const TEST_TIMEOUT = 60000;
 
   const createTestSDK = (wallet?: DirectSecp256k1HdWallet) => createChainNodeSDK({
