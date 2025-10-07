@@ -30,12 +30,23 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
       }
 
       const response = txResponse.msgResponses[0];
+      let responseMessage: MessageShape<O>;
+      if (response) {
+        const MessageType = transportOptions.getMessageType(response.typeUrl);
+        if (!MessageType) {
+          throw new Error(`Cannot find message type ${response.typeUrl} in type registry. `
+            + `If you use cosmos.authz.v1beta1.exec(), then provide this type in tx options.`);
+        }
+        responseMessage = MessageType.decode(response.value);
+      } else {
+        responseMessage = {} as MessageShape<O>;
+      }
 
       return {
         stream: false,
         header: new Headers(),
         trailer: new Headers(),
-        message: (response ? transportOptions.getMessageType(response.typeUrl).decode(response.value) : {}) as MessageShape<O>,
+        message: responseMessage,
         method,
       };
     },
@@ -47,5 +58,5 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
 
 export interface TransactionTransportOptions {
   client: TxClient;
-  getMessageType: (typeUrl: string) => GeneratedType;
+  getMessageType: (typeUrl: string) => GeneratedType | undefined;
 }

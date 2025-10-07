@@ -11,11 +11,7 @@ export function createServiceLoader<T extends ReadonlyArray<LoadGrpcService>>(fn
   const loadedTypes: Record<string, GRPCMessageType> = {};
   return {
     getLoadedType(typeUrl) {
-      const type = loadedTypes[typeUrl];
-      if (!type) {
-        throw new Error(`Cannot find message type ${typeUrl} in service loader. Probably it's not loaded yet.`);
-      }
-      return type;
+      return loadedTypes[typeUrl];
     },
     async loadAt(index) {
       const service = await fns[index]() as ServiceDesc;
@@ -49,5 +45,5 @@ export interface GRPCMessageType<T extends MessageDesc = MessageDesc> {
 
 export interface ServiceLoader<T extends ReadonlyArray<LoadGrpcService>> {
   loadAt<TIndex extends keyof T & number>(index: TIndex): ReturnType<T[TIndex]>;
-  getLoadedType(typeUrl: string): GRPCMessageType;
+  getLoadedType(typeUrl: string): GRPCMessageType | undefined;
 }
