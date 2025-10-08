@@ -40,6 +40,9 @@ export function createStargateClient(options: StargateClientOptions): TxClient {
     for (const message of messages) {
       if (registry.lookupType(message.typeUrl)) continue;
       const type = options.getMessageType(message.typeUrl);
+      if (!type) {
+        throw new Error(`Cannot find message type ${message.typeUrl} in type registry. Probably it's not loaded yet.`);
+      }
       registry.register(message.typeUrl, type);
     }
     return messages;
@@ -67,9 +70,10 @@ export function createStargateClient(options: StargateClientOptions): TxClient {
       return client.sign(account, messages, fee, memo);
     },
     async broadcast(txRaw) {
-      const TxRawType = registry.lookupType("/cosmos.tx.v1beta1.TxRaw");
+      const txTypeUrl = "/cosmos.tx.v1beta1.TxRaw";
+      const TxRawType = registry.lookupType(txTypeUrl) || options.getMessageType(txTypeUrl);
       if (!TxRawType) {
-        throw new Error("Cannot broadcast transaction: TxRaw type is not registered");
+        throw new Error("Cannot broadcast transaction: TxRaw type is not registered in transaction client");
       }
       const client = await getStargateClient();
       return client.broadcastTx(
@@ -104,7 +108,7 @@ export interface StargateClientOptions {
   getAccount?(messages: EncodeObject[]): Promise<string>;
   stargateOptions?: SigningStargateClientOptions;
   builtInTypes?: Array<GeneratedType & { typeUrl: string }>;
-  getMessageType: (typeUrl: string) => GeneratedType;
+  getMessageType: (typeUrl: string) => GeneratedType | undefined;
   /**
    * @default `SigningStargateClient.connectWithSigner`
    */
