@@ -91,6 +91,9 @@ export interface StargateClientOptions {
    */
   baseUrl: string;
 
+  /**
+   * Signer to use for transactions
+   */
   signer: OfflineSigner;
 
   /**
@@ -103,13 +106,18 @@ export interface StargateClientOptions {
    */
   defaultFeeAmount?: string;
   /**
+   * Retrieves the account to use for transactions
    * @default returns the first account from the signer
    */
   getAccount?(messages: EncodeObject[]): Promise<string>;
   stargateOptions?: SigningStargateClientOptions;
+  /**
+   * Additional protobuf message types to register with the transaction transport
+   */
   builtInTypes?: Array<GeneratedType & { typeUrl: string }>;
   getMessageType: (typeUrl: string) => GeneratedType | undefined;
   /**
+   * Allows to use a custom Stargate client implementation.
    * @default `SigningStargateClient.connectWithSigner`
    */
   createClient?: (endpoint: string | HttpEndpoint, signer: OfflineSigner, options?: SigningStargateClientOptions) => Promise<SigningStargateClient>;

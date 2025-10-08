@@ -11,7 +11,7 @@ export interface TxCallOptions {
   afterSign?: (tx: TxRaw) => void;
   afterBroadcast?: (tx: DeliverTxResponse) => void;
   memo?: string;
-  fee?: StdFee;
+  fee?: Partial<StdFee>;
 }
 
 export interface Transport<TCallOptions = unknown> {
