@@ -11,6 +11,9 @@ const (
 	DenomUakt = "uakt" // 10^-6akt
 	BondDenom = DenomUakt
 
+	DenomMaktExponent = 3
+	DenomUaktExponent = 6
+
 	Bech32PrefixAccAddr = "akash"
 	Bech32PrefixAccPub  = "akashpub"
 
@@ -22,9 +25,9 @@ const (
 )
 
 func init() {
-	aktUnit := math.LegacyOneDec()              // 1 (base denom unit)
-	maktUnit := math.LegacyNewDecWithPrec(1, 3) // 10^-6 (micro)
-	uaktUnit := math.LegacyNewDecWithPrec(1, 6) // 10^-6 (micro)
+	aktUnit := math.LegacyOneDec()                              // 1 (base denom unit)
+	maktUnit := math.LegacyNewDecWithPrec(1, DenomMaktExponent) // 10^-6 (micro)
+	uaktUnit := math.LegacyNewDecWithPrec(1, DenomUaktExponent) // 10^-6 (micro)
 
 	err := sdktypes.RegisterDenom(DenomAkt, aktUnit)
 	if err != nil {
