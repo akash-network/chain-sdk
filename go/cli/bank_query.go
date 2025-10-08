@@ -67,7 +67,7 @@ Example:
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -122,7 +122,7 @@ func GetQueryBankSpendableBalancesCmd() *cobra.Command {
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -235,7 +235,7 @@ To query for the total supply of a specific coin denomination use:
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -290,7 +290,7 @@ Getting all entries:
 		),
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			reqPag, err := client.ReadPageRequest(client.MustFlagSetWithPageKeyDecoded(cmd.Flags()))
+			reqPag, err := ReadPageRequest(client.MustFlagSetWithPageKeyDecoded(cmd.Flags()))
 			if err != nil {
 				return err
 			}

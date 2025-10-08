@@ -70,7 +70,7 @@ $ %[1]s query %[2]s grants akash1skjw.. akash1skjwj.. %[3]s
 			if len(args) >= 3 {
 				msgAuthorized = args[2]
 			}
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -121,7 +121,7 @@ $ %s q %s grants-by-granter akash1skj..
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -170,7 +170,7 @@ $ %s q %s grants-by-grantee akash1skj..
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}

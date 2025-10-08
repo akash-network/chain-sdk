@@ -165,7 +165,7 @@ func GetQueryAuthAccountsCmd() *cobra.Command {
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}

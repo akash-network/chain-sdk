@@ -47,8 +47,8 @@ github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/
 github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5/go.mod h1:SkGFH1ia65gfNATL8TAiHDNxPzPdmEL5uirI2Uyuz6c=
 github.com/akash-network/cometbft v0.38.17-akash.2 h1:ZSlROvuSOUd3f6Jld43Wp5cgAmTY/BgKpSKi3228R7Y=
 github.com/akash-network/cometbft v0.38.17-akash.2/go.mod h1:5l0SkgeLRXi6bBfQuevXjKqML1jjfJJlvI1Ulp02/o4=
-github.com/akash-network/cosmos-sdk v0.53.4-akash.3 h1:7T22u8TA4VY8ZjOHqKWQ7AoQeMol0v7CnGb5D8WzVnY=
-github.com/akash-network/cosmos-sdk v0.53.4-akash.3/go.mod h1:UJNjxvMQqI15nc5G2rhPIV/+ol3xDDoE+tif3v/W1pA=
+github.com/akash-network/cosmos-sdk v0.53.4-akash.4 h1:yZEw0sBocmd9WQfDG71rvS9gOKPXysSUVh1MOHFPDP4=
+github.com/akash-network/cosmos-sdk v0.53.4-akash.4/go.mod h1:UJNjxvMQqI15nc5G2rhPIV/+ol3xDDoE+tif3v/W1pA=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

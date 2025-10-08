@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"cosmossdk.io/x/evidence/types"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/version"
 
 	cflags "pkg.akt.dev/go/cli/flags"
@@ -46,7 +45,7 @@ $ %s query %s --page=2 --limit=50
 				return cl.PrintMessage(res.Evidence)
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}

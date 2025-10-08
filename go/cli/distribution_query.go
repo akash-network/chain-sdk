@@ -232,7 +232,7 @@ $ %s query distribution slashes %svaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 				return fmt.Errorf("end-height %s not a valid uint, please input a valid end-height", args[2])
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
