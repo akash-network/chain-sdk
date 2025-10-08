@@ -11,7 +11,6 @@ import type {
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
 import {
-  defaultRegistryTypes,
   SigningStargateClient,
 } from "@cosmjs/stargate";
 
@@ -22,7 +21,7 @@ const DEFAULT_GAS_MULTIPLIER = 1.3;
 
 export function createStargateClient(options: StargateClientOptions): TxClient {
   const builtInTypes = options.builtInTypes?.map((type) => [type.typeUrl, type] as [string, GeneratedType]) || [];
-  const registry = new Registry([...defaultRegistryTypes, ...builtInTypes]);
+  const registry = new Registry(builtInTypes);
   const createStargateClient = options.createClient ?? SigningStargateClient.connectWithSigner;
 
   let stargateClientPromise: Promise<SigningStargateClient> | undefined;
