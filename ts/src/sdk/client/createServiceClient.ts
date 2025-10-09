@@ -21,7 +21,7 @@ const defaultEncoder: MethodOptions = {
 
 export function createServiceClient<TSchema extends ServiceDesc, TCallOptions>(
   service: TSchema,
-  transport: Transport,
+  transport: Transport<TCallOptions>,
   options?: ServiceClientOptions,
 ): Client<TSchema, TCallOptions> {
   const methodOptions: MethodOptions = options?.typePatches

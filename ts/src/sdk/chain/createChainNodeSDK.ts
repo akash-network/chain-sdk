@@ -61,6 +61,9 @@ export interface ChainNodeSDKOptions {
     baseUrl: string;
   };
   tx?: Omit<StargateClientOptions, "getMessageType" | "builtInTypes"> & {
+    /**
+     * Additional protobuf message types to register with the transaction transport
+     */
     builtInTypes?: MessageDesc[];
   };
 }
