@@ -521,7 +521,7 @@ export class SDL {
   }
 
   serviceResourceMemory(resource: v2ResourceMemory, asString: boolean) {
-    const key = asString ? "quantity" : "size";
+    const key = "size";
 
     return resource.attributes
       ? {
@@ -534,7 +534,7 @@ export class SDL {
   }
 
   serviceResourceStorage(resource: v2ResourceStorageArray | v2ResourceStorage, asString: boolean) {
-    const key = asString ? "quantity" : "size";
+    const key = "size";
     const storage = isArray(resource) ? resource : [resource];
 
     return storage.map((storage) =>
@@ -654,8 +654,8 @@ export class SDL {
       cpu: this.serviceResourceCpu(profile.resources.cpu),
       memory: this.serviceResourceMemory(profile.resources.memory, asString),
       storage: this.serviceResourceStorage(profile.resources.storage, asString),
-      endpoints: this.v3ServiceResourceEndpoints(service),
       gpu: this.serviceResourceGpu(profile.resources.gpu, asString),
+      endpoints: this.v3ServiceResourceEndpoints(service),
     };
   }
 
@@ -870,7 +870,7 @@ export class SDL {
       credentials.email = "";
     }
 
-    return {
+    const manifestService: v3ManifestService = {
       name: name,
       image: service.image,
       command: service.command || null,
@@ -882,6 +882,12 @@ export class SDL {
       params: this.v3ManifestServiceParams(service.params),
       credentials,
     };
+
+    if (!manifestService.params) {
+      delete manifestService.params;
+    }
+
+    return manifestService;
   }
 
   v2Manifest(asString: boolean = false): v2Manifest {

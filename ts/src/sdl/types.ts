@@ -34,7 +34,7 @@ export type v3ManifestService = {
   resources: ResourceUnits;
   count: number;
   expose: v3ServiceExpose[];
-  params: v3ManifestServiceParams | null;
+  params?: v3ManifestServiceParams | null;
   credentials: v2ServiceImageCredentials | null;
 };
 
