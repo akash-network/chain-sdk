@@ -521,7 +521,7 @@ export class SDL {
   }
 
   serviceResourceMemory(resource: v2ResourceMemory, asString: boolean) {
-    const key = "size";
+    const key = asString ? "quantity" : "size";
 
     return resource.attributes
       ? {
@@ -534,7 +534,7 @@ export class SDL {
   }
 
   serviceResourceStorage(resource: v2ResourceStorageArray | v2ResourceStorage, asString: boolean) {
-    const key = "size";
+    const key = asString ? "quantity" : "size";
     const storage = isArray(resource) ? resource : [resource];
 
     return storage.map((storage) =>
