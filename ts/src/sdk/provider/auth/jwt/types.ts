@@ -14,13 +14,17 @@ export interface JwtTokenPayload {
   /** Unique identifier for the JWT, used to prevent token reuse. */
   jti?: string;
   /** Access level for the lease: 'full' for unrestricted access to all actions, 'granular' for provider-specific permissions. */
-  leases: FullAccess | GranularAccess;
+  leases: FullAccess | ScopedAccess | GranularAccess;
 }
 
 interface FullAccess {
   access: "full";
+}
+
+interface ScopedAccess {
+  access: "scoped";
   /** Global list of permitted actions across all owned leases (no duplicates). */
-  scope?: AccessScope[];
+  scope: AccessScope[];
 }
 
 interface GranularAccess {
