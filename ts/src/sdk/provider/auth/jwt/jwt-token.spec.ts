@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 
+import { toBase64Url } from "./base64.ts";
 import type { CreateJWTOptions } from "./jwt-token.ts";
 import { JwtTokenManager } from "./jwt-token.ts";
 import type { ClaimsTestCase, SigningTestCase } from "./test/test-utils.ts";
@@ -63,11 +64,12 @@ describe("JWT Claims Validation", () => {
 
     // Sign using the mock wallet's signArbitrary method
     const signResponse = await akashWallet.signArbitrary(akashWallet.address, signingString);
+    const signature = toBase64Url(signResponse.signature);
 
     if (!testCase.mustFail) {
-      expect(signResponse.signature).toBe(expectedSignature);
+      expect(signature).toBe(expectedSignature);
     } else {
-      expect(signResponse.signature).not.toBe(expectedSignature);
+      expect(signature).not.toBe(expectedSignature);
     }
   });
 });

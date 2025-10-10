@@ -1,7 +1,14 @@
 export function base64UrlEncode(value: string | Uint8Array): string {
   const str = typeof value === "string" ? value : String.fromCharCode(...value);
   const base64 = btoa(str);
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return toBase64Url(base64);
+}
+
+/**
+ * Converts a base64 encoded string to a base64url encoded string
+ */
+export function toBase64Url(base64Encoded: string): string {
+  return base64Encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 export function base64UrlDecode(value: string): string {

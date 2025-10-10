@@ -656,5 +656,25 @@
             "signFail": false,
             "verifyFail": true
         }
+    },
+    {
+        "description": "sign valid/verify scoped top level access",
+        "claims": {
+            "iss": "{{.Issuer}}",
+            "iat": "{{.IatCurr}}",
+            "nbf": "{{.NbfCurr}}",
+            "exp": "{{.Exp48h}}",
+            "version": "v1",
+            "leases": {
+                "access": "scoped",
+                "scope": [
+                    "send-manifest"
+                ]
+            }
+        },
+        "expected": {
+            "signFail": false,
+            "verifyFail": false
+        }
     }
 ]

@@ -65,8 +65,9 @@ export const schema = {
           enum: [
             "full",
             "granular",
+            "scoped",
           ],
-          description: "Access level for the lease: 'full' for unrestricted access to all actions, 'granular' for provider-specific permissions.",
+          description: "Access level for the lease: 'full' for unrestricted access to all actions, 'scoped' for specific actions across all provider leases,'granular' for provider-specific permissions.",
         },
         scope: {
           type: "array",
@@ -86,7 +87,7 @@ export const schema = {
               "ip-migrate",
             ],
           },
-          description: "Global list of permitted actions across all owned leases (no duplicates). Optional when access is 'full'.",
+          description: "Global list of permitted actions across all owned leases (no duplicates). Required when access is 'scoped'.",
         },
         permissions: {
           type: "array",
@@ -275,6 +276,27 @@ export const schema = {
           },
           then: {
             properties: {
+              permissions: false,
+              scope: false,
+            },
+          },
+        },
+        {
+          if: {
+            properties: {
+              access: {
+                const: "scoped",
+              },
+            },
+          },
+          then: {
+            required: [
+              "scope",
+            ],
+            properties: {
+              scope: {
+                minItems: 1,
+              },
               permissions: false,
             },
           },
@@ -555,7 +577,7 @@ export const validate = (function () {
               validate.errors.push({ keywordLocation: "#/properties/leases/properties/access/type", instanceLocation: "#/leases/access" });
               errorCount++;
             } else {
-              if (!(data.leases.access === "full" || data.leases.access === "granular")) {
+              if (!(data.leases.access === "full" || data.leases.access === "granular" || data.leases.access === "scoped")) {
                 if (validate.errors === null) validate.errors = [];
                 validate.errors.push({ keywordLocation: "#/properties/leases/properties/access/enum", instanceLocation: "#/leases/access" });
                 errorCount++;
@@ -960,8 +982,41 @@ export const validate = (function () {
               validate.errors.push({ keywordLocation: "#/properties/leases/allOf/0/then/properties/permissions", instanceLocation: "#/leases/permissions" });
               errorCount++;
             }
+            if ("scope" in data.leases && hasOwn(data.leases, "scope")) {
+              if (validate.errors === null) validate.errors = [];
+              validate.errors.push({ keywordLocation: "#/properties/leases/allOf/0/then/properties/scope", instanceLocation: "#/leases/scope" });
+              errorCount++;
+            }
           }
           const sub4 = (() => {
+            let errorCount = 0;
+            if ("access" in data.leases && hasOwn(data.leases, "access")) {
+              if (!(data.leases.access === "scoped")) errorCount++;
+            }
+            return errorCount === 0;
+          })();
+          if (sub4) {
+            if (!("scope" in data.leases && hasOwn(data.leases, "scope"))) {
+              if (validate.errors === null) validate.errors = [];
+              validate.errors.push({ keywordLocation: "#/properties/leases/allOf/1/then/required", instanceLocation: "#/leases/scope" });
+              errorCount++;
+            }
+            if ("scope" in data.leases && hasOwn(data.leases, "scope")) {
+              if (Array.isArray(data.leases.scope)) {
+                if (data.leases.scope.length < 1) {
+                  if (validate.errors === null) validate.errors = [];
+                  validate.errors.push({ keywordLocation: "#/properties/leases/allOf/1/then/properties/scope/minItems", instanceLocation: "#/leases/scope" });
+                  errorCount++;
+                }
+              }
+            }
+            if ("permissions" in data.leases && hasOwn(data.leases, "permissions")) {
+              if (validate.errors === null) validate.errors = [];
+              validate.errors.push({ keywordLocation: "#/properties/leases/allOf/1/then/properties/permissions", instanceLocation: "#/leases/permissions" });
+              errorCount++;
+            }
+          }
+          const sub5 = (() => {
             let errorCount = 0;
             if (!("access" in data.leases && hasOwn(data.leases, "access"))) errorCount++;
             if ("access" in data.leases && hasOwn(data.leases, "access")) {
@@ -969,15 +1024,15 @@ export const validate = (function () {
             }
             return errorCount === 0;
           })();
-          if (sub4) {
+          if (sub5) {
             if (!("permissions" in data.leases && hasOwn(data.leases, "permissions"))) {
               if (validate.errors === null) validate.errors = [];
-              validate.errors.push({ keywordLocation: "#/properties/leases/allOf/1/then/required", instanceLocation: "#/leases/permissions" });
+              validate.errors.push({ keywordLocation: "#/properties/leases/allOf/2/then/required", instanceLocation: "#/leases/permissions" });
               errorCount++;
             }
             if ("scope" in data.leases && hasOwn(data.leases, "scope")) {
               if (validate.errors === null) validate.errors = [];
-              validate.errors.push({ keywordLocation: "#/properties/leases/allOf/1/then/properties/scope", instanceLocation: "#/leases/scope" });
+              validate.errors.push({ keywordLocation: "#/properties/leases/allOf/2/then/properties/scope", instanceLocation: "#/leases/scope" });
               errorCount++;
             }
           }
@@ -990,7 +1045,7 @@ export const validate = (function () {
           errorCount++;
         }
       }
-      const sub5 = (() => {
+      const sub6 = (() => {
         let errorCount = 0;
         if (!("leases" in data && hasOwn(data, "leases"))) errorCount++;
         if ("leases" in data && hasOwn(data, "leases")) {
@@ -1003,7 +1058,7 @@ export const validate = (function () {
         }
         return errorCount === 0;
       })();
-      if (sub5) {
+      if (sub6) {
         if ("leases" in data && hasOwn(data, "leases")) {
           if (typeof data.leases === "object" && data.leases && !Array.isArray(data.leases)) {
             if (!("permissions" in data.leases && hasOwn(data.leases, "permissions"))) {
@@ -1019,7 +1074,7 @@ export const validate = (function () {
           }
         }
       }
-      const sub6 = (() => {
+      const sub7 = (() => {
         let errorCount = 0;
         if (!("leases" in data && hasOwn(data, "leases"))) errorCount++;
         if ("leases" in data && hasOwn(data, "leases")) {
@@ -1036,7 +1091,7 @@ export const validate = (function () {
         }
         return errorCount === 0;
       })();
-      if (sub6) {
+      if (sub7) {
         if ("leases" in data && hasOwn(data, "leases")) {
           if (typeof data.leases === "object" && data.leases && !Array.isArray(data.leases)) {
             if (!("access" in data.leases && hasOwn(data.leases, "access"))) {
