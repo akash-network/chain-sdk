@@ -2,10 +2,7 @@ import { encodeSecp256k1Signature, type StdSignature } from "@cosmjs/amino";
 import { Bip39, EnglishMnemonic, Secp256k1, sha256, Slip10, Slip10Curve, stringToPath } from "@cosmjs/crypto";
 import type { DirectSecp256k1HdWallet, DirectSecp256k1HdWalletOptions } from "@cosmjs/proto-signing";
 
-import { base64UrlEncode } from "./base64.ts";
-
 export interface SignArbitraryAkashWallet {
-  pubkey: Uint8Array;
   address: string;
   signArbitrary: (signer: string, data: string | Uint8Array, accountIndex?: number) => Promise<StdSignature>;
 }
@@ -21,7 +18,6 @@ export async function createSignArbitraryAkashWallet(wallet: DirectSecp256k1HdWa
   const [account] = await wallet.getAccounts();
 
   return {
-    pubkey: account.pubkey,
     address: account.address,
     signArbitrary: async (signer: string, data: string | Uint8Array): Promise<StdSignature> => {
       const message = typeof data === "string" ? new TextEncoder().encode(data) : data;
@@ -30,12 +26,7 @@ export async function createSignArbitraryAkashWallet(wallet: DirectSecp256k1HdWa
       const { privkey } = Slip10.derivePath(Slip10Curve.Secp256k1, seed, stringToPath(`${BASE_HD_PATH}${accountIndex}`));
       const signature = await Secp256k1.createSignature(hashedMessage, privkey);
       const signatureBytes = new Uint8Array([...signature.r(32), ...signature.s(32)]);
-      const stdSignature = encodeSecp256k1Signature(account.pubkey, signatureBytes);
-
-      return {
-        ...stdSignature,
-        signature: base64UrlEncode(signatureBytes),
-      };
+      return encodeSecp256k1Signature(account.pubkey, signatureBytes);
     },
   };
 }

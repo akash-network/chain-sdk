@@ -1,4 +1,4 @@
-import { base64UrlDecode, base64UrlEncode } from "./base64.ts";
+import { base64UrlDecode, base64UrlEncode, toBase64Url } from "./base64.ts";
 import { JwtValidator } from "./jwt-validator.ts";
 import type { JwtTokenPayload } from "./types.ts";
 import type { SignArbitraryAkashWallet } from "./wallet-utils.ts";
@@ -60,10 +60,9 @@ export class JwtTokenManager {
     const header = base64UrlEncode(JSON.stringify({ alg: "ES256K", typ: "JWT" }));
     const stringPayload = base64UrlEncode(JSON.stringify(inputPayload));
     const { signature } = await this.wallet.signArbitrary(this.wallet.address, `${header}.${stringPayload}`);
+    const token = `${header}.${stringPayload}.${toBase64Url(signature)}`;
 
-    const reorderedJWT = `${header}.${stringPayload}.${signature}`;
-
-    return reorderedJWT;
+    return token;
   }
 
   /**

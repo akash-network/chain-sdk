@@ -1,3 +1,4 @@
+import type { CreateJWTOptions } from "../jwt-token.ts";
 import type { JwtTokenPayload } from "../types.ts";
 import { createAkashAddress } from "./seeders/akash-address.seeder.ts";
 
@@ -59,6 +60,12 @@ export interface ClaimsTestCase {
   };
 }
 
-export interface SigningTestCase extends ClaimsTestCase {
-  mustFail?: boolean;
+export interface SigningTestCase {
+  description: string;
+  tokenString: string;
+  expected: {
+    alg: string;
+    claims: CreateJWTOptions;
+  };
+  mustFail: boolean;
 }
