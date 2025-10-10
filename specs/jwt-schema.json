@@ -57,9 +57,10 @@
                     "type": "string",
                     "enum": [
                         "full",
-                        "granular"
+                        "granular",
+                        "scoped"
                     ],
-                    "description": "Access level for the lease: 'full' for unrestricted access to all actions, 'granular' for provider-specific permissions."
+                    "description": "Access level for the lease: 'full' for unrestricted access to all actions, 'scoped' for specific actions across all provider leases,'granular' for provider-specific permissions."
                 },
                 "scope": {
                     "type": "array",
@@ -79,7 +80,7 @@
                             "ip-migrate"
                         ]
                     },
-                    "description": "Global list of permitted actions across all owned leases (no duplicates). Optional when access is 'full'."
+                    "description": "Global list of permitted actions across all owned leases (no duplicates). Required when access is 'scoped'."
                 },
                 "permissions": {
                     "type": "array",
@@ -268,6 +269,27 @@
                     },
                     "then": {
                         "properties": {
+                            "permissions": false,
+                            "scope": false
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "access": {
+                                "const": "scoped"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "scope"
+                        ],
+                        "properties": {
+                            "scope": {
+                                "minItems": 1
+                            },
                             "permissions": false
                         }
                     }
