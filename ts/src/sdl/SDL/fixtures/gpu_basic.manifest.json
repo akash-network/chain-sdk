@@ -56,7 +56,6 @@
         ],
         "image": "nginx",
         "name": "web",
-        "params": null,
         "resources": {
           "cpu": {
             "units": {

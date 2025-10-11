@@ -33,7 +33,6 @@
         ],
         "image": "akashlytics/hello-akash-world:0.2.0",
         "name": "web",
-        "params": null,
         "resources": {
           "cpu": {
             "units": {
