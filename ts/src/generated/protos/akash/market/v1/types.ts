@@ -27,6 +27,8 @@ export enum LeaseClosedReason {
   lease_closed_reason_decommission = 10001,
   /** lease_closed_reason_unspecified - lease_closed_reason_unspecified provider did not specify reason */
   lease_closed_reason_unspecified = 10002,
+  /** lease_closed_reason_manifest_timeout - lease_closed_reason_manifest_timeout provider closed leases due to manifest not received */
+  lease_closed_reason_manifest_timeout = 10003,
   /** lease_closed_reason_insufficient_funds - values between 20000..29999 indicate network‑initiated close */
   lease_closed_reason_insufficient_funds = 20000,
   UNRECOGNIZED = -1,
@@ -49,6 +51,9 @@ export function leaseClosedReasonFromJSON(object: any): LeaseClosedReason {
     case 10002:
     case "lease_closed_reason_unspecified":
       return LeaseClosedReason.lease_closed_reason_unspecified;
+    case 10003:
+    case "lease_closed_reason_manifest_timeout":
+      return LeaseClosedReason.lease_closed_reason_manifest_timeout;
     case 20000:
     case "lease_closed_reason_insufficient_funds":
       return LeaseClosedReason.lease_closed_reason_insufficient_funds;
@@ -71,6 +76,8 @@ export function leaseClosedReasonToJSON(object: LeaseClosedReason): string {
       return "lease_closed_reason_decommission";
     case LeaseClosedReason.lease_closed_reason_unspecified:
       return "lease_closed_reason_unspecified";
+    case LeaseClosedReason.lease_closed_reason_manifest_timeout:
+      return "lease_closed_reason_manifest_timeout";
     case LeaseClosedReason.lease_closed_reason_insufficient_funds:
       return "lease_closed_reason_insufficient_funds";
     case LeaseClosedReason.UNRECOGNIZED:

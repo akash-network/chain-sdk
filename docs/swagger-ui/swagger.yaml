@@ -4129,6 +4129,7 @@ paths:
                       - lease_closed_reason_unstable
                       - lease_closed_reason_decommission
                       - lease_closed_reason_unspecified
+                      - lease_closed_reason_manifest_timeout
                       - lease_closed_reason_insufficient_funds
                     default: lease_closed_invalid
                     description: >-
@@ -4145,6 +4146,7 @@ paths:
                       unstable
                        - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                        - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                       - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                        - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
                     title: LeaseClosedReason indicates reason bid was closed
               escrow_payment:
@@ -4484,6 +4486,7 @@ paths:
                             - lease_closed_reason_unstable
                             - lease_closed_reason_decommission
                             - lease_closed_reason_unspecified
+                            - lease_closed_reason_manifest_timeout
                             - lease_closed_reason_insufficient_funds
                           default: lease_closed_invalid
                           description: >-
@@ -4501,6 +4504,7 @@ paths:
                             been unstable
                              - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                              - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                             - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                              - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
                           title: LeaseClosedReason indicates reason bid was closed
                     escrow_payment:
@@ -49462,6 +49466,7 @@ definitions:
           - lease_closed_reason_unstable
           - lease_closed_reason_decommission
           - lease_closed_reason_unspecified
+          - lease_closed_reason_manifest_timeout
           - lease_closed_reason_insufficient_funds
         default: lease_closed_invalid
         description: >-
@@ -49477,6 +49482,7 @@ definitions:
           lease_closed_reason_unstable lease workloads have been unstable
            - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
            - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+           - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
            - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
         title: LeaseClosedReason indicates reason bid was closed
     description: >-
@@ -49512,6 +49518,7 @@ definitions:
       - lease_closed_reason_unstable
       - lease_closed_reason_decommission
       - lease_closed_reason_unspecified
+      - lease_closed_reason_manifest_timeout
       - lease_closed_reason_insufficient_funds
     default: lease_closed_invalid
     description: >-
@@ -49527,6 +49534,7 @@ definitions:
       lease_closed_reason_unstable lease workloads have been unstable
        - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
        - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+       - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
        - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
     title: LeaseClosedReason indicates reason bid was closed
   akash.market.v1.LeaseFilters:
@@ -51615,6 +51623,7 @@ definitions:
               - lease_closed_reason_unstable
               - lease_closed_reason_decommission
               - lease_closed_reason_unspecified
+              - lease_closed_reason_manifest_timeout
               - lease_closed_reason_insufficient_funds
             default: lease_closed_invalid
             description: >-
@@ -51630,6 +51639,7 @@ definitions:
               lease_closed_reason_unstable lease workloads have been unstable
                - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+               - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
             title: LeaseClosedReason indicates reason bid was closed
       escrow_payment:
@@ -51865,6 +51875,7 @@ definitions:
                     - lease_closed_reason_unstable
                     - lease_closed_reason_decommission
                     - lease_closed_reason_unspecified
+                    - lease_closed_reason_manifest_timeout
                     - lease_closed_reason_insufficient_funds
                   default: lease_closed_invalid
                   description: >-
@@ -51881,6 +51892,7 @@ definitions:
                     unstable
                      - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                      - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                     - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                      - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
                   title: LeaseClosedReason indicates reason bid was closed
             escrow_payment:

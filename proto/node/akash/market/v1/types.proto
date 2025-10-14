@@ -34,6 +34,10 @@ enum LeaseClosedReason {
   lease_closed_reason_unspecified = 10002 [
     (gogoproto.enumvalue_customname) = "LeaseClosedReasonUnspecified"
   ];
+  // lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+  lease_closed_reason_manifest_timeout = 10003 [
+    (gogoproto.enumvalue_customname) = "LeaseClosedReasonManifestTimeout"
+  ];
 
   // values between 20000..29999 indicate network‑initiated close
   lease_closed_reason_insufficient_funds = 20000 [
