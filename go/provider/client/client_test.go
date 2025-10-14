@@ -7,6 +7,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	_ "pkg.akt.dev/go/sdkutil"
 )
 
 func TestNewClientWithProviderURL(t *testing.T) {
