@@ -1,6 +1,3 @@
-## 🌟 PR Title
-[Use a clear, concise title that reflects the change]
-
 ## 📝 Description
 [Explain what this PR does in 2-3 sentences. Include context about the feature or problem being solved]
 
