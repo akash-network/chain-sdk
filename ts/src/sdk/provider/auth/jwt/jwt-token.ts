@@ -1,4 +1,5 @@
 import type { OfflineAminoSigner } from "@cosmjs/amino";
+import { default as stableStringify } from "json-stable-stringify";
 
 import { base64UrlDecode, base64UrlEncode, toBase64Url } from "./base64.ts";
 import { JwtValidator } from "./jwt-validator.ts";
@@ -52,8 +53,8 @@ export class JwtTokenManager {
       throw new Error(`Invalid payload: ${validationResult.errors?.join(", ")}`);
     }
 
-    const header = base64UrlEncode(JSON.stringify({ alg: this.signer.algorithm || "ES256KADR36", typ: "JWT" }));
-    const stringPayload = base64UrlEncode(JSON.stringify(inputPayload));
+    const header = base64UrlEncode(stableStringify({ alg: this.signer.algorithm || "ES256KADR36", typ: "JWT" })!);
+    const stringPayload = base64UrlEncode(stableStringify(inputPayload)!);
     const { signature } = await this.signer.signArbitrary(options.iss, `${header}.${stringPayload}`);
     const token = `${header}.${stringPayload}.${toBase64Url(signature)}`;
 

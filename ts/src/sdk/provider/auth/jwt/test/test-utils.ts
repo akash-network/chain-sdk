@@ -1,5 +1,6 @@
 import type { CreateJWTOptions } from "../jwt-token.ts";
 import type { JwtTokenPayload } from "../types.ts";
+import type { OfflineDataSigner } from "../wallet-utils.ts";
 import { createAkashAddress } from "./seeders/akash-address.seeder.ts";
 
 const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
@@ -53,6 +54,7 @@ export interface ClaimsTestCase {
   tokenString: string;
   claims: Record<keyof JwtTokenPayload, string>;
   expected: {
+    alg?: OfflineDataSigner["algorithm"];
     error: string;
     signFail: boolean;
     verifyFail: boolean;

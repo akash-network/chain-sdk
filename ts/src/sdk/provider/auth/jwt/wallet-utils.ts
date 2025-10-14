@@ -1,11 +1,13 @@
 import { type OfflineAminoSigner, type StdSignature } from "@cosmjs/amino";
 
+import { base64Encode } from "./base64.ts";
+
 export interface OfflineDataSigner {
   /**
    * The algorithm used to sign the data.
    * @default "ES256KADR36"
    */
-  algorithm?: "ES256KADR36";
+  algorithm?: "ES256KADR36" | "ES256K";
   signArbitrary: (signer: string, data: string | Uint8Array) => Promise<StdSignature>;
 }
 
@@ -26,7 +28,7 @@ export function createOfflineDataSigner(wallet: OfflineAminoSigner): OfflineData
             type: "sign/MsgSignData",
             value: {
               signer,
-              data: typeof data === "string" ? new TextEncoder().encode(data) : data,
+              data: base64Encode(data),
             },
           },
         ],

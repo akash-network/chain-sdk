@@ -30,7 +30,7 @@ describe("JWT Claims Validation", () => {
     jwtToken = new JwtTokenManager(testWallet);
   });
 
-  it.each(jwtClaimsTestCases)("$description", async (testCase) => {
+  it.each(jwtClaimsTestCases.filter(isSigningWithES256KADR36))("$description", async (testCase) => {
     const { claims, tokenString } = replaceTemplateValues(testCase, { iss: testAccount.address });
 
     // For test cases that should fail, we need to validate the payload first
@@ -56,7 +56,7 @@ describe("JWT Claims Validation", () => {
     }
   });
 
-  it.each(jwtSigningTestCases)("$description", async (testCase) => {
+  it.each(jwtSigningTestCases.filter(isSigningWithES256KADR36))("$description", async (testCase) => {
     const [expectedHeader, expectedPayload, expectedSignature] = testCase.tokenString.split(".");
     expect(expectedHeader).toBeDefined();
     expect(expectedPayload).toBeDefined();
@@ -75,4 +75,8 @@ describe("JWT Claims Validation", () => {
       expect(signature).not.toBe(expectedSignature);
     }
   });
+
+  function isSigningWithES256KADR36(testCase: SigningTestCase | ClaimsTestCase): boolean {
+    return !testCase.expected.alg || testCase.expected.alg === "ES256KADR36";
+  }
 });
