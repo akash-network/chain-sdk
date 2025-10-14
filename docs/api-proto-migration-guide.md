@@ -116,6 +116,50 @@ message MsgCreateDeployment {
 }
 ```
 
+#### MsgUpdateDeployment Proto Definition Updates
+
+**Before (v1beta3):**
+```protobuf
+// akash/deployment/v1beta3/deploymentmsg.proto
+message MsgUpdateDeployment {
+  option (gogoproto.equal) = false;
+
+  DeploymentID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+  
+  bytes version = 3 [
+    (gogoproto.jsontag)  = "version",
+    (gogoproto.moretags) = "yaml:\"version\""
+  ];
+}
+```
+
+**After (v1beta4):**
+```protobuf
+// akash/deployment/v1beta4/deploymentmsg.proto
+message MsgUpdateDeployment {
+  option (gogoproto.equal) = false;
+
+  // ID is the unique identifier of the deployment.
+  akash.deployment.v1.DeploymentID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Hash of the deployment (renamed from version).
+  bytes hash = 3 [
+    (gogoproto.jsontag)  = "hash",
+    (gogoproto.moretags) = "yaml:\"hash\""
+  ];
+}
+```
+
 #### New Deposit Proto Definition
 
 The new deposit structure requires a separate proto file:
@@ -274,9 +318,41 @@ message Bid {
 
 **Before (v1beta4):**
 ```protobuf
-// Note: v1beta4 used different message structure
+// akash/market/v1beta4/bid.proto
 message MsgCreateBid {
-  // Used local BidID and cosmos.base.v1beta1.Coin for deposit
+  option (gogoproto.equal) = false;
+
+  OrderID order = 1 [
+    (gogoproto.customname) = "Order",
+    (gogoproto.nullable)   = false,
+    (gogoproto.jsontag)    = "order",
+    (gogoproto.moretags)   = 'yaml:"order"'
+  ];
+  
+  string provider = 2 [
+    (gogoproto.jsontag)  = "provider",
+    (gogoproto.moretags) = 'yaml:"provider"'
+  ];
+  
+  cosmos.base.v1beta1.DecCoin price = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "price",
+    (gogoproto.moretags) = 'yaml:"price"'
+  ];
+  
+  cosmos.base.v1beta1.Coin deposit = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "deposit",
+    (gogoproto.moretags) = 'yaml:"deposit"'
+  ];
+  
+  repeated ResourceOffer resources_offer = 5 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "ResourcesOffer",
+    (gogoproto.customname)   = "ResourcesOffer",
+    (gogoproto.jsontag)      = "resources_offer",
+    (gogoproto.moretags)     = 'yaml:"resources_offer"'
+  ];
 }
 ```
 
@@ -291,6 +367,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "akash/market/v1beta5/resourcesoffer.proto";
 import "akash/market/v1/bid.proto";
 import "akash/base/deposit/v1/deposit.proto";
+import "akash/market/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
@@ -324,6 +401,39 @@ message MsgCreateBid {
     (gogoproto.customname)   = "ResourcesOffer",
     (gogoproto.jsontag)      = "resources_offer",
     (gogoproto.moretags)     = "yaml:\"resources_offer\""
+  ];
+}
+```
+
+#### MsgWithdrawLease Proto Updates
+
+**Before (v1beta4):**
+```protobuf
+// akash/market/v1beta4/lease.proto
+message MsgWithdrawLease {
+  option (gogoproto.equal) = false;
+
+  LeaseID bid_id = 1 [
+    (gogoproto.customname) = "LeaseID",
+    (gogoproto.nullable)   = false,
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = 'yaml:"id"'
+  ];
+}
+```
+
+**After (v1beta5):**
+```protobuf
+// akash/market/v1beta5/leasemsg.proto
+message MsgWithdrawLease {
+  option (gogoproto.equal) = false;
+
+  // BidId is the unique identifier of the Bid.
+  akash.market.v1.LeaseID id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.nullable)   = false,
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
   ];
 }
 ```
