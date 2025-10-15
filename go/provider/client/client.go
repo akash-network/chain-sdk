@@ -213,16 +213,12 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 		if owner, err = sdk.AccAddressFromBech32(leaf.Subject.CommonName); err == nil {
 			// 1. CommonName in issuer and Subject must match and be as Bech32 format
 			if leaf.Subject.CommonName != leaf.Issuer.CommonName {
-				return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: leaf, Reason: atls.InvalidCN}, err)
+				return atls.CertificateInvalidError{Cert: leaf, Reason: atls.InvalidCN}
 			}
 
 			// 2. serial number must be in
 			if leaf.SerialNumber == nil {
-				return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: leaf, Reason: atls.InvalidSN}, err)
-			}
-
-			if c.opts.certQuerier == nil {
-				return fmt.Errorf("%w: unable to fetch certificate from chain", atls.CertificateInvalidError{Cert: leaf, Reason: atls.Expired})
+				return atls.CertificateInvalidError{Cert: leaf, Reason: atls.InvalidSN}
 			}
 
 			// 3. look up the certificate on the chain
@@ -238,7 +234,7 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 		}
 	}
 
-	// Verify with the possibly adjusted options (on-chain or standard).
+	// Verify with the possibly adjusted options (on-chain).
 	if _, err := leaf.Verify(opts); err != nil {
 		return fmt.Errorf("%w: (%w)", atls.CertificateInvalidError{Cert: leaf, Reason: atls.Verify}, err)
 	}

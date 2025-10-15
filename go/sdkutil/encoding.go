@@ -8,6 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+
+	offchain "pkg.akt.dev/go/node/types/offchain/sign"
 )
 
 // EncodingConfig specifies the concrete encoding types to use for a given app.
@@ -29,6 +31,8 @@ func MakeEncodingConfig(modules ...module.AppModuleBasic) EncodingConfig {
 
 	std.RegisterLegacyAminoCodec(aminoCodec)
 	std.RegisterInterfaces(interfaceRegistry)
+
+	aminoCodec.RegisterConcrete(&offchain.MsgSignData{}, "sign/"+(&offchain.MsgSignData{}).Type(), nil)
 
 	if len(modules) > 0 {
 		mb := module.NewBasicManager(modules...)

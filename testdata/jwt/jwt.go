@@ -5,7 +5,6 @@ import (
 	"os"
 )
 
-
 //go:embed mnemonic cases_es256k.json cases_jwt.json.tmpl
 var jwtTestdata embed.FS
 
