@@ -45,8 +45,8 @@
    
      - [Source](#akash.base.deposit.v1.Source)
    
- - [akash/base/offchain/sign/sign.proto](#akash/base/offchain/sign/sign.proto)
-     - [MsgSignData](#akash.base.offchain.sign.MsgSignData)
+ - [akash/base/offchain/sign/v1/sign.proto](#akash/base/offchain/sign/v1/sign.proto)
+     - [MsgSignData](#akash.base.offchain.sign.v1.MsgSignData)
    
  - [akash/base/resources/v1beta4/resourcevalue.proto](#akash/base/resources/v1beta4/resourcevalue.proto)
      - [ResourceValue](#akash.base.resources.v1beta4.ResourceValue)
@@ -883,14 +883,14 @@ Example: "akash1..." |
 
  
  
- <a name="akash/base/offchain/sign/sign.proto"></a>
+ <a name="akash/base/offchain/sign/v1/sign.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
- ## akash/base/offchain/sign/sign.proto
+ ## akash/base/offchain/sign/v1/sign.proto
  
 
  
- <a name="akash.base.offchain.sign.MsgSignData"></a>
+ <a name="akash.base.offchain.sign.v1.MsgSignData"></a>
 
  ### MsgSignData
  MsgSignData defines an arbitrary, general-purpose, off-chain message
