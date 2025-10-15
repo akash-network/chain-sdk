@@ -70,6 +70,9 @@ replace (
 	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
 	// stick with compatible version of rapid in v0.47.x line
 	pgregory.net/rapid => pgregory.net/rapid v0.5.5
+	pkg.akt.dev/specs => ../specs
+
+	pkg.akt.dev/testdata => ../testdata
 )
 
 exclude (

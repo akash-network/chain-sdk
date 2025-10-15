@@ -1,5 +1,5 @@
 syntax = "proto3";
-package akash.base.offchain.sign;
+package akash.base.offchain.sign.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";

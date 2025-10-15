@@ -7,6 +7,7 @@ export { GenesisState } from "./akash/audit/v1/genesis.ts";
 export { MsgSignProviderAttributes, MsgSignProviderAttributesResponse, MsgDeleteProviderAttributes, MsgDeleteProviderAttributesResponse } from "./akash/audit/v1/msg.ts";
 export { QueryProvidersResponse, QueryProviderRequest, QueryAllProvidersAttributesRequest, QueryProviderAttributesRequest, QueryProviderAuditorRequest, QueryAuditorAttributesRequest } from "./akash/audit/v1/query.ts";
 export { Deposit, Source } from "./akash/base/deposit/v1/deposit.ts";
+export { MsgSignData } from "./akash/base/offchain/sign/v1/sign.ts";
 export { ID, Certificate, State } from "./akash/cert/v1/cert.ts";
 export { CertificateFilter } from "./akash/cert/v1/filters.ts";
 export { GenesisCertificate, GenesisState as Cert_GenesisState } from "./akash/cert/v1/genesis.ts";

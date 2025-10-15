@@ -139,7 +139,7 @@ func (s *JWTTestSuite) TestSchema() {
 				require.False(s.T(), res.Valid())
 				require.Greater(s.T(), len(res.Errors()), 0)
 			} else {
-				require.True(s.T(), res.Valid(), res.Errors())
+				require.True(s.T(), res.Valid())
 				require.Len(s.T(), res.Errors(), 0)
 			}
 		})

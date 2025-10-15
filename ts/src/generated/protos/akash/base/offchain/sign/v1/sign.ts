@@ -2,13 +2,13 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: akash/base/offchain/sign/sign.proto
+// source: akash/base/offchain/sign/v1/sign.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 
-export const protobufPackage = "akash.base.offchain.sign";
+export const protobufPackage = "akash.base.offchain.sign.v1";
 
 /** MsgSignData defines an arbitrary, general-purpose, off-chain message */
 export interface MsgSignData {
@@ -22,8 +22,8 @@ function createBaseMsgSignData(): MsgSignData {
   return { signer: "", data: new Uint8Array(0) };
 }
 
-export const MsgSignData: MessageFns<MsgSignData, "akash.base.offchain.sign.MsgSignData"> = {
-  $type: "akash.base.offchain.sign.MsgSignData" as const,
+export const MsgSignData: MessageFns<MsgSignData, "akash.base.offchain.sign.v1.MsgSignData"> = {
+  $type: "akash.base.offchain.sign.v1.MsgSignData" as const,
 
   encode(message: MsgSignData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.signer !== "") {
