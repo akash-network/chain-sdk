@@ -112,7 +112,7 @@ func GetQueryAuthAccountCmd() *cobra.Command {
 				return err
 			}
 
-			return cl.PrintMessage(&res.Account)
+			return cl.PrintMessage(res)
 		},
 	}
 
