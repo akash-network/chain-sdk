@@ -83,9 +83,9 @@ func PaymentIDFromV1beta3(key []byte) eid.Payment {
 	return eid.Payment{
 		AID: eid.Account{
 			Scope: eid.Scope(eid.Scope_value[parts[0]]),
-			XID:   strings.Join(parts[1:2], "/"),
+			XID:   strings.Join(parts[1:3], "/"),
 		},
-		XID: strings.Join(parts[3:5], "/"),
+		XID: strings.Join(parts[3:], "/"),
 	}
 }
 
