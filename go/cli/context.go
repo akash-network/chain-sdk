@@ -84,7 +84,7 @@ func MustLightClientFromContext(ctx context.Context) aclient.LightClient {
 func MustAddressCodecFromContext(ctx context.Context) address.Codec {
 	val := ctx.Value(ContextTypeAddressCodec)
 	if val == nil {
-		panic(fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeAddressCodec))
+		panic(fmt.Sprintf("%w: %s", ErrContextValueNotSet, ContextTypeAddressCodec))
 	}
 
 	res, valid := val.(address.Codec)
@@ -98,7 +98,7 @@ func MustAddressCodecFromContext(ctx context.Context) address.Codec {
 func MustValidatorCodecFromContext(ctx context.Context) address.Codec {
 	val := ctx.Value(ContextTypeValidatorCodec)
 	if val == nil {
-		panic(fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeValidatorCodec))
+		panic(fmt.Sprintf("%w: %s", ErrContextValueNotSet, ContextTypeValidatorCodec))
 	}
 
 	res, valid := val.(address.Codec)
