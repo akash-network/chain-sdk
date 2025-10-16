@@ -134,6 +134,9 @@ func DiscoverLightClient(ctx context.Context, cctx sdkclient.Context, setup Setu
 // An error is returned if client discovery is not successful.
 func DiscoverQueryClient(ctx context.Context, cctx sdkclient.Context, setup SetupFn) error {
 	result, err := queryClientInfo(ctx, cctx)
+	if err != nil {
+		return err
+	}
 
 	var cl interface{}
 

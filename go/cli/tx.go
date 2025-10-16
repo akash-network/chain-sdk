@@ -7,7 +7,8 @@ import (
 	"github.com/spf13/cobra"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	aclient "pkg.akt.dev/go/node/client/discovery"
+	aclient "pkg.akt.dev/go/node/client"
+	discovery "pkg.akt.dev/go/node/client/discovery"
 )
 
 func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
@@ -16,6 +17,12 @@ func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 	rpcURI, _ := cmd.Flags().GetString(cflags.FlagNode)
 	if rpcURI != "" {
 		ctx = context.WithValue(ctx, ContextTypeRPCURI, rpcURI)
+		cmd.SetContext(ctx)
+	}
+
+	providerURL, _ := cmd.Flags().GetString(cflags.FlagProviderURL)
+	if providerURL != "" {
+		ctx = context.WithValue(ctx, ContextTypeProviderURL, providerURL)
 		cmd.SetContext(ctx)
 	}
 
@@ -38,12 +45,22 @@ func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 			return err
 		}
 
-		cl, err := aclient.DiscoverClient(ctx, cctx, opts...)
-		if err != nil {
-			return err
+		var cl aclient.Client
+		var qcl aclient.QueryClient
+		if !cctx.Offline {
+			cl, err = discovery.DiscoverClient(ctx, cctx, opts...)
+			if err != nil {
+				return err
+			}
+
+			qcl, err = discovery.DiscoverQueryClient(ctx, cctx)
+			if err != nil {
+				return err
+			}
 		}
 
 		ctx = context.WithValue(ctx, ContextTypeClient, cl)
+		ctx = context.WithValue(ctx, ContextTypeQueryClient, qcl)
 
 		cmd.SetContext(ctx)
 	}

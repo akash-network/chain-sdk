@@ -26,17 +26,34 @@ const (
 	ContextTypeValidatorCodec = ContextType("validator-codec")
 	ContextTypeRPCURI         = ContextType("rpc-uri")
 	ContextTypeRPCClient      = ContextType("rpc-client")
+	ContextTypeProviderURL    = ContextType("provider-url")
 )
+
+var ErrContextValueNotSet = errors.New("context does not have value set")
 
 func ClientFromContext(ctx context.Context) (aclient.Client, error) {
 	val := ctx.Value(ContextTypeClient)
 	if val == nil {
-		return nil, errors.New("context does not have client set")
+		return nil, fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeClient)
 	}
 
 	res, valid := val.(aclient.Client)
 	if !valid {
 		return nil, fmt.Errorf("invalid context value, expected \"aclient.Client\", actual \"%s\"", reflect.TypeOf(val))
+	}
+
+	return res, nil
+}
+
+func QueryClientFromContext(ctx context.Context) (aclient.QueryClient, error) {
+	val := ctx.Value(ContextTypeQueryClient)
+	if val == nil {
+		return nil, fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeQueryClient)
+	}
+
+	res, valid := val.(aclient.QueryClient)
+	if !valid {
+		return nil, fmt.Errorf("invalid context value, expected \"aclient.QueryClient\", actual \"%s\"", reflect.TypeOf(val))
 	}
 
 	return res, nil
@@ -56,7 +73,7 @@ func LightClientFromContext(ctx context.Context) (aclient.LightClient, error) {
 	if val == nil {
 		val = ctx.Value(ContextTypeClient)
 		if val == nil {
-			return nil, errors.New("context does not have client set")
+			return nil, fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeClient)
 		}
 	}
 
@@ -82,7 +99,7 @@ func MustLightClientFromContext(ctx context.Context) aclient.LightClient {
 func MustAddressCodecFromContext(ctx context.Context) address.Codec {
 	val := ctx.Value(ContextTypeAddressCodec)
 	if val == nil {
-		panic("context does not have address codec set")
+		panic(fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeAddressCodec))
 	}
 
 	res, valid := val.(address.Codec)
@@ -96,7 +113,7 @@ func MustAddressCodecFromContext(ctx context.Context) address.Codec {
 func MustValidatorCodecFromContext(ctx context.Context) address.Codec {
 	val := ctx.Value(ContextTypeValidatorCodec)
 	if val == nil {
-		panic("context does not have validator codec set")
+		panic(fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeValidatorCodec))
 	}
 
 	res, valid := val.(address.Codec)

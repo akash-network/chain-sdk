@@ -18,6 +18,12 @@ func QueryPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 		cmd.SetContext(ctx)
 	}
 
+	providerURL, _ := cmd.Flags().GetString(cflags.FlagProviderURL)
+	if providerURL != "" {
+		ctx = context.WithValue(ctx, ContextTypeProviderURL, providerURL)
+		cmd.SetContext(ctx)
+	}
+
 	cctx, err := GetClientQueryContext(cmd)
 	if err != nil {
 		return err

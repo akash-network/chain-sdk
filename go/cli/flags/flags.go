@@ -86,6 +86,7 @@ const (
 	FlagGSeq                      = "gseq"
 	FlagOSeq                      = "oseq"
 	FlagProvider                  = "provider"
+	FlagProviderURL               = "provider-url"
 	FlagSerial                    = "serial"
 	FlagPrice                     = "price"
 	FlagDeposit                   = "deposit"
@@ -308,6 +309,11 @@ func AddQueryFlagsToCmd(cmd *cobra.Command) {
 	// some base commands does not require chainID e.g `simd testnet` while subcommands do
 	// hence the flag should not be required for those commands
 	_ = cmd.MarkFlagRequired(FlagChainID)
+}
+
+func AddProviderOperationFlagsToCmd(cmd *cobra.Command) {
+	cmd.Flags().String(FlagProviderURL, "", "Provider URL for off-chain operations")
+	cmd.Flags().Bool(FlagOffline, false, "Offline mode (does not allow any online functionality)")
 }
 
 // AddTxFlagsToCmd adds common flags to a module tx command.

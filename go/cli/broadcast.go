@@ -28,8 +28,10 @@ $ <appd> tx broadcast ./mytxn.json
 		PreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cl := MustClientFromContext(ctx)
-			cctx := cl.ClientContext()
+			cctx, err := GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			if cctx.Offline {
 				return errors.New("cannot broadcast tx during offline mode")
@@ -40,6 +42,7 @@ $ <appd> tx broadcast ./mytxn.json
 				return err
 			}
 
+			cl := MustClientFromContext(ctx)
 			resp, err := cl.Tx().BroadcastTx(ctx, stdTx)
 			if err != nil {
 				return err
