@@ -114,13 +114,6 @@ func GetRPCURIFromContext(ctx context.Context) string {
 	return res
 }
 
-func GetProviderURLFromContext(ctx context.Context) string {
-	val := ctx.Value(ContextTypeProviderURL)
-	res, _ := val.(string)
-
-	return res
-}
-
 // ReadPersistentCommandFlags returns a Context with fields set for "persistent"
 // or common flags that do not necessarily change with context.
 //

@@ -20,12 +20,6 @@ func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 		cmd.SetContext(ctx)
 	}
 
-	providerURL, _ := cmd.Flags().GetString(cflags.FlagProviderURL)
-	if providerURL != "" {
-		ctx = context.WithValue(ctx, ContextTypeProviderURL, providerURL)
-		cmd.SetContext(ctx)
-	}
-
 	cctx, err := GetClientTxContext(cmd)
 	if err != nil {
 		return err
@@ -46,21 +40,15 @@ func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 		}
 
 		var cl aclient.Client
-		var qcl aclient.QueryClient
 		if !cctx.Offline {
 			cl, err = discovery.DiscoverClient(ctx, cctx, opts...)
 			if err != nil {
 				return err
 			}
 
-			qcl, err = discovery.DiscoverQueryClient(ctx, cctx)
-			if err != nil {
-				return err
-			}
 		}
 
 		ctx = context.WithValue(ctx, ContextTypeClient, cl)
-		ctx = context.WithValue(ctx, ContextTypeQueryClient, qcl)
 
 		cmd.SetContext(ctx)
 	}

@@ -517,7 +517,7 @@ func (s *AuthCLITestSuite) TestCLISendGenerateSignAndBroadcast() {
 			With(signedTxFile.Name()).
 			WithFrom(s.val.String()).
 			WithOffline()...)
-	s.Require().EqualError(err, "cannot broadcast tx during offline mode")
+	s.Require().EqualError(err, "context does not have value set: context-client")
 
 	// Broadcast correct transaction.
 	_, err = clitestutil.TxBroadcastExec(
@@ -1066,7 +1066,7 @@ func (s *AuthCLITestSuite) TestGetBroadcastCommandOfflineFlag() {
 			With("fsdf").
 			WithOffline()...,
 	)
-	s.Require().EqualError(err, "cannot broadcast tx during offline mode")
+	s.Require().EqualError(err, "context does not have value set: context-client")
 }
 
 func (s *AuthCLITestSuite) TestQueryParamsCmd() {

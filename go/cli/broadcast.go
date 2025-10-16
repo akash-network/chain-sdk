@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,21 +27,17 @@ $ <appd> tx broadcast ./mytxn.json
 		PreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			cctx, err := GetClientTxContext(cmd)
+			cl, err := ClientFromContext(ctx)
 			if err != nil {
 				return err
 			}
-
-			if cctx.Offline {
-				return errors.New("cannot broadcast tx during offline mode")
-			}
+			cctx := cl.ClientContext()
 
 			stdTx, err := authclient.ReadTxFromFile(cctx, args[0])
 			if err != nil {
 				return err
 			}
 
-			cl := MustClientFromContext(ctx)
 			resp, err := cl.Tx().BroadcastTx(ctx, stdTx)
 			if err != nil {
 				return err

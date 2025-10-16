@@ -26,7 +26,6 @@ const (
 	ContextTypeValidatorCodec = ContextType("validator-codec")
 	ContextTypeRPCURI         = ContextType("rpc-uri")
 	ContextTypeRPCClient      = ContextType("rpc-client")
-	ContextTypeProviderURL    = ContextType("provider-url")
 )
 
 var ErrContextValueNotSet = errors.New("context does not have value set")
@@ -40,20 +39,6 @@ func ClientFromContext(ctx context.Context) (aclient.Client, error) {
 	res, valid := val.(aclient.Client)
 	if !valid {
 		return nil, fmt.Errorf("invalid context value, expected \"aclient.Client\", actual \"%s\"", reflect.TypeOf(val))
-	}
-
-	return res, nil
-}
-
-func QueryClientFromContext(ctx context.Context) (aclient.QueryClient, error) {
-	val := ctx.Value(ContextTypeQueryClient)
-	if val == nil {
-		return nil, fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeQueryClient)
-	}
-
-	res, valid := val.(aclient.QueryClient)
-	if !valid {
-		return nil, fmt.Errorf("invalid context value, expected \"aclient.QueryClient\", actual \"%s\"", reflect.TypeOf(val))
 	}
 
 	return res, nil
