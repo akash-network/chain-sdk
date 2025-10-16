@@ -7,7 +7,8 @@ import (
 	"github.com/spf13/cobra"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	aclient "pkg.akt.dev/go/node/client/discovery"
+	aclient "pkg.akt.dev/go/node/client"
+	discovery "pkg.akt.dev/go/node/client/discovery"
 )
 
 func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
@@ -38,9 +39,13 @@ func TxPersistentPreRunE(cmd *cobra.Command, _ []string) error {
 			return err
 		}
 
-		cl, err := aclient.DiscoverClient(ctx, cctx, opts...)
-		if err != nil {
-			return err
+		var cl aclient.Client
+		if !cctx.Offline {
+			cl, err = discovery.DiscoverClient(ctx, cctx, opts...)
+			if err != nil {
+				return err
+			}
+
 		}
 
 		ctx = context.WithValue(ctx, ContextTypeClient, cl)
