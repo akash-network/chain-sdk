@@ -65,9 +65,8 @@ func TestNewClientWithProviderURL(t *testing.T) {
 		require.NoError(t, err)
 
 		c := cl.(*client)
-		require.Nil(t, c.opts.certQuerier) // Should be nil when no cert querier provided
-		require.Nil(t, c.opts.signer)      // Should be nil when no signer provided
-		require.Empty(t, c.opts.token)     // Should be empty when no token provided
+		require.Nil(t, c.opts.signer)  // Should be nil when no signer provided
+		require.Empty(t, c.opts.token) // Should be empty when no token provided
 	})
 
 }

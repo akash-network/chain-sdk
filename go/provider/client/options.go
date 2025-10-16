@@ -2,6 +2,7 @@ package rest
 
 import (
 	"crypto/tls"
+	"fmt"
 
 	ajwt "pkg.akt.dev/go/util/jwt"
 	atls "pkg.akt.dev/go/util/tls"
@@ -64,6 +65,10 @@ func WithProviderURL(providerURL string) ClientOption {
 // WithCertQuerier configures the client to use the specified certificate querier for certificate validation.
 func WithCertQuerier(certQuerier atls.CertificateQuerier) ClientOption {
 	return func(options *clientOptions) error {
+		if certQuerier == nil {
+			return fmt.Errorf("certQuerier must not be nil")
+		}
+
 		options.certQuerier = certQuerier
 		return nil
 	}
