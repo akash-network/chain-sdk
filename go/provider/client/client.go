@@ -3,12 +3,14 @@ package rest
 import (
 	"bytes"
 	"context"
+	"crypto"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -94,6 +96,12 @@ type reqClient struct {
 	addr     sdk.Address
 }
 
+type defaultCertQuerier struct{}
+
+func (_ *defaultCertQuerier) GetAccountCertificate(_ context.Context, _ sdk.Address, _ *big.Int) (*x509.Certificate, crypto.PublicKey, error) {
+	return nil, nil, atls.CertificateInvalidError{Reason: atls.OnChainCertsNotAvailable}
+}
+
 // NewClient creates and returns a new Client instance for interacting with the Akash provider.
 //
 // It takes a context.Context for managing the lifecycle of operations, a QueryClient for making
@@ -126,6 +134,11 @@ func NewClient(ctx context.Context, addr sdk.Address, opts ...ClientOption) (Cli
 	cl := &client{
 		ctx:  ctx,
 		addr: addr,
+		opts: clientOptions{
+			// initialize with a default cert querier which always returns an error when remote
+			// counterpart provides self-signed certificate
+			certQuerier: &defaultCertQuerier{},
+		},
 	}
 
 	for _, opt := range opts {

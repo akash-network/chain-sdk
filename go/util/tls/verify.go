@@ -24,6 +24,7 @@ const (
 	Decode
 	X509Parse
 	Verify
+	OnChainCertsNotAvailable
 )
 
 type CertificateInvalidError struct {
@@ -49,6 +50,8 @@ func (e CertificateInvalidError) Error() string {
 		return "tls: failed to parse certificate"
 	case Verify:
 		return "tls: unable to verify certificate"
+	case OnChainCertsNotAvailable:
+		return "tls: on-chain certificates are not available"
 	}
 
 	return "tls: unknown error"
