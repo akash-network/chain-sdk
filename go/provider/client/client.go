@@ -221,10 +221,6 @@ func (c *client) verifyPeerCertificate(certificates [][]byte, _ [][]*x509.Certif
 				return atls.CertificateInvalidError{Cert: leaf, Reason: atls.InvalidSN}
 			}
 
-			if c.opts.certQuerier == nil {
-				return fmt.Errorf("unable to fetch certificate from chain: no certificate querier set")
-			}
-
 			// 3. look up the certificate on the chain
 			onChainCert, _, err := c.opts.certQuerier.GetAccountCertificate(c.ctx, owner, leaf.SerialNumber)
 			if err != nil {
