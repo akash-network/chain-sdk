@@ -1,5 +1,6 @@
 import type { CreateJWTOptions } from "../jwt-token.ts";
 import type { JwtTokenPayload } from "../types.ts";
+import type { OfflineDataSigner } from "../wallet-utils.ts";
 import { createAkashAddress } from "./seeders/akash-address.seeder.ts";
 
 const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
@@ -19,19 +20,18 @@ const TWO_DAYS_IN_SECONDS = 2 * ONE_DAY_IN_SECONDS;
  * @param testCase - The test case containing template values
  * @returns The test case with template values replaced
  */
-export function replaceTemplateValues(testCase: ClaimsTestCase) {
+export function replaceTemplateValues(testCase: ClaimsTestCase, payload?: Partial<JwtTokenPayload>) {
   const now = Math.floor(Date.now() / 1000);
-  const issuer = createAkashAddress();
   const provider = createAkashAddress();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const claims = { ...testCase.claims } as unknown as Record<string, any>;
-  if (claims.iss === "{{.Issuer}}") claims.iss = issuer;
-  if (claims.iat === "{{.IatCurr}}") claims.iat = now;
-  if (claims.iat === "{{.Iat24h}}") claims.iat = now + ONE_DAY_IN_SECONDS;
-  if (claims.nbf === "{{.NbfCurr}}") claims.nbf = now;
-  if (claims.nbf === "{{.Nbf24h}}") claims.nbf = now + ONE_DAY_IN_SECONDS;
-  if (claims.exp === "{{.Exp48h}}") claims.exp = now + TWO_DAYS_IN_SECONDS;
+  if (claims.iss === "{{.Issuer}}") claims.iss = payload?.iss ?? createAkashAddress();
+  if (claims.iat === "{{.IatCurr}}") claims.iat = payload?.iat ?? now;
+  if (claims.iat === "{{.Iat24h}}") claims.iat = payload?.iat ?? now + ONE_DAY_IN_SECONDS;
+  if (claims.nbf === "{{.NbfCurr}}") claims.nbf = payload?.nbf ?? now;
+  if (claims.nbf === "{{.Nbf24h}}") claims.nbf = payload?.nbf ?? now + ONE_DAY_IN_SECONDS;
+  if (claims.exp === "{{.Exp48h}}") claims.exp = payload?.exp ?? now + TWO_DAYS_IN_SECONDS;
 
   // Convert string timestamps to numbers
   if (typeof claims.iat === "string") claims.iat = parseInt(claims.iat, 10);
@@ -52,8 +52,9 @@ export function replaceTemplateValues(testCase: ClaimsTestCase) {
 export interface ClaimsTestCase {
   description: string;
   tokenString: string;
-  claims: JwtTokenPayload;
+  claims: Record<keyof JwtTokenPayload, string>;
   expected: {
+    alg?: OfflineDataSigner["algorithm"];
     error: string;
     signFail: boolean;
     verifyFail: boolean;

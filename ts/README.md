@@ -100,13 +100,12 @@ This is the recommended method for getting authorized access to your resources o
 **Generating a JWT Token**
 
 ```ts
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { JwtTokenManager, createSignArbitraryAkashWallet } from "@akashnetwork/chain-sdk"
+import { Secp256k1HdWallet } from "@cosmjs/amino";
+import { JwtTokenManager } from "@akashnetwork/chain-sdk"
 
-const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
+const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
 const accounts = await wallet.getAccounts();
-const signer = await createSignArbitraryAkashWallet(wallet);
-const tokenManager = new JwtTokenManager(signer);
+const tokenManager = new JwtTokenManager(wallet);
 
 // See https://akash.network/roadmap/aep-64/ for details
 const token = await tokenManager.generateToken({
