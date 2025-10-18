@@ -1,7 +1,7 @@
 #!/usr/bin/env -S node --experimental-strip-types --no-warnings
 
 import { execSync } from 'child_process';
-import { accessSync, constants as fsConstants, readFileSync } from 'fs';
+import { accessSync, constants as fsConstants, readFileSync, globSync } from 'fs';
 import { join as joinPath, dirname } from 'path';
 import type PackageJson from '../package.json';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,26 @@ const packageJson = JSON.parse(readFileSync(joinPath(PACKAGE_ROOT, 'package.json
 const packageExports = Object.entries(packageJson.exports);
 
 console.log(`Validating package exports for ${packageJson.name} in node ${process.version}...`);
-for (const [subPath, config] of packageExports) {
+const expandedExports = packageExports.reduce<typeof packageExports>((all, [subPath, config]) => {
+  if (subPath.includes('*')) {
+    const regex = new RegExp(escapeRegExp(config.import.slice(2)).replace('\\*', '([\\w.-]+)'));
+    const files = globSync(joinPath(PACKAGE_ROOT, config.import))
+      .map(path => {
+        const matches = path.match(regex);
+        if (!matches) throw new Error(`File ${path} does not match regex ${regex}`);
+        return [subPath.replace('*', matches[1]), {
+          types: config.types.replace('*', matches[1]),
+          require: config.require.replace('*', matches[1]),
+          import: config.import.replace('*', matches[1]),
+        }] as typeof packageExports[number];
+      });
+
+    return all.concat(files);
+  }
+  all.push([subPath, config]);
+  return all;
+}, []);
+for (const [subPath, config] of expandedExports) {
   if (subPath.includes('*')) continue;
 
   console.log(`Validating export ${subPath === '.' ? 'root' : subPath}...`);
@@ -54,4 +73,8 @@ function testExport(importType: 'commonjs' | 'module' | 'dynamic-module', subPat
   if (result !== 'true') {
     throw new Error(`Export ${subPath} is not valid for ${importType} runtime`);
   }
+}
+
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
