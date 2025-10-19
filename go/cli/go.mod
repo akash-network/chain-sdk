@@ -38,8 +38,8 @@ require (
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.2
-	pkg.akt.dev/go v0.0.3-rc32
-	pkg.akt.dev/go/sdl v0.0.2-rc7
+	pkg.akt.dev/go v0.1.0
+	pkg.akt.dev/go/sdl v0.1.0
 	sigs.k8s.io/yaml v1.6.0
 )
 
