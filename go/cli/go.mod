@@ -39,7 +39,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.2
 	pkg.akt.dev/go v0.1.1
-	pkg.akt.dev/go/sdl v0.1.0
+	pkg.akt.dev/go/sdl v0.1.1
 	sigs.k8s.io/yaml v1.6.0
 )
 
