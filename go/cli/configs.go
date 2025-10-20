@@ -17,13 +17,13 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	cflags "pkg.akt.dev/go/cli/flags"
-
-	tmcfg "github.com/cometbft/cometbft/config"
-	tmlog "github.com/cometbft/cometbft/libs/log"
+	cmtcfg "github.com/cometbft/cometbft/config"
+	cmtlog "github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/config"
+
+	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 var (
@@ -187,37 +187,26 @@ func InterceptConfigsPreRunHandler(
 		return fmt.Errorf("failed to merge configuration: %w", err) // nolint: goerr113
 	}
 
-	// return value is a tendermint configuration object
+	// the return value is a tendermint configuration object
 	serverCtx.Config = cfg
 
 	var opts []log.Option
 
-	logFmt := serverCtx.Viper.GetString(cflags.FlagLogFormat)
-	switch logFmt {
-	case tmcfg.LogFormatJSON:
-		opts = append(opts, log.OutputJSONOption())
-	case "":
-		fallthrough
-	case tmcfg.LogFormatPlain:
-	// 	cl := zerolog.ConsoleWriter{
-	// 		Out:        os.Stdout,
-	// 		NoColor:    !serverCtx.Viper.GetBool(cflags.FlagLogColor),
-	// 		TimeFormat: logTimeFmt,
-	// 	}
-	//
-	// 	if logTimeFmt == "" {
-	// 		cl.PartsExclude = []string{
-	// 			zerolog.TimestampFieldName,
-	// 		}
-	// 	}
-	// 	logWriter = cl
-	default:
-		return fmt.Errorf("unsupported value \"%s\" for log_format flag. can be either plain|json", logFmt)
-	}
-
 	logTimeFmt, err := parseTimestampFormat(serverCtx.Viper.GetString(cflags.FlagLogTimestamp))
 	if err != nil {
 		return err
+	}
+
+	logFmt := serverCtx.Viper.GetString(cflags.FlagLogFormat)
+	switch logFmt {
+	case cmtcfg.LogFormatJSON:
+		opts = append(opts, log.OutputJSONOption())
+	case "":
+		fallthrough
+	case cmtcfg.LogFormatPlain:
+		// NewLogger function called below configures console writer
+	default:
+		return fmt.Errorf("unsupported value \"%s\" for log_format flag. can be either plain|json", logFmt)
 	}
 
 	opts = append(opts,
@@ -244,9 +233,14 @@ func InterceptConfigsPreRunHandler(
 		}
 	}
 
-	logger := NewLogger(tmlog.NewSyncWriter(os.Stdout), opts...).With(log.ModuleKey, "server")
+	logger := NewLogger(cmtlog.NewSyncWriter(os.Stdout), opts...).With(log.ModuleKey, "server")
 
 	serverCtx.Logger = logger
+
+	if serverCtx.Viper.GetString("minimum-gas-prices") == "" {
+		logger.Warn("minimum-gas-prices is not set. applying default value 0.0025uakt. To disable this warning set minimum-gas-prices to non empty value in either app.toml, via environment variable or cli flag")
+		serverCtx.Viper.Set("minimum-gas-prices", "0.0025uakt")
+	}
 
 	return server.SetCmdServerContext(cmd, serverCtx)
 }
@@ -308,16 +302,16 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper, envPrefixes []string) error {
 // configuration file. The Tendermint configuration file is parsed given a root
 // Viper object, whereas the application is parsed with the private package-aware
 // viperCfg object.
-func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customConfig interface{}) (*tmcfg.Config, error) {
+func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customConfig interface{}) (*cmtcfg.Config, error) {
 	rootDir := rootViper.GetString(cflags.FlagHome)
 	configPath := filepath.Join(rootDir, "config")
 	tmCfgFile := filepath.Join(configPath, "config.toml")
 
-	conf := tmcfg.DefaultConfig()
+	conf := cmtcfg.DefaultConfig()
 
 	switch _, err := os.Stat(tmCfgFile); {
 	case os.IsNotExist(err):
-		tmcfg.EnsureRoot(rootDir)
+		cmtcfg.EnsureRoot(rootDir)
 
 		if err = conf.ValidateBasic(); err != nil {
 			return nil, fmt.Errorf("error in config file: %v", err) // nolint: goerr113
@@ -327,8 +321,7 @@ func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customCo
 		conf.P2P.RecvRate = 5120000
 		conf.P2P.SendRate = 5120000
 		conf.Consensus.TimeoutCommit = 5 * time.Second
-		tmcfg.WriteConfigFile(tmCfgFile, conf)
-
+		cmtcfg.WriteConfigFile(tmCfgFile, conf)
 	case err != nil:
 		return nil, err
 
@@ -363,7 +356,7 @@ func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customCo
 			config.WriteConfigFile(appCfgFilePath, customConfig)
 		} else {
 			appConf, err := config.ParseConfig(rootViper)
-			appConf.MinGasPrices = "0.025uakt"
+			appConf.MinGasPrices = "0.0025uakt"
 			appConf.API.Enable = true
 			appConf.API.Address = "tcp://localhost:1317"
 
