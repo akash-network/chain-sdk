@@ -1,5 +1,6 @@
 import { createSDK } from "../../generated/createProviderSDK.ts";
 import type { PickByPath } from "../../utils/types.ts";
+import type { GrpcTransportOptions } from "../transport/grpc/createGrpcTransport.ts";
 import { createGrpcTransport } from "../transport/grpc/createGrpcTransport.ts";
 
 export type { PayloadOf, ResponseOf } from "../types.ts";
@@ -16,6 +17,7 @@ export function createProviderSDK(options: ProviderSDKOptions): ProviderSDK {
 
   return createSDK(
     createGrpcTransport({
+      ...options.transportOptions,
       baseUrl: options.baseUrl,
       nodeOptions: {
         ...certificateOptions,
@@ -30,6 +32,7 @@ export interface ProviderSDKOptions {
    * Provider gRPC endpoint
    */
   baseUrl: string;
+
   /**
    * Authentication options
    */
@@ -38,4 +41,9 @@ export interface ProviderSDKOptions {
     cert: string;
     key: string;
   };
+
+  /**
+   * Options for the gRPC transport
+   */
+  transportOptions?: Pick<GrpcTransportOptions, "pingIdleConnection" | "pingIntervalMs" | "pingTimeoutMs" | "idleConnectionTimeoutMs" | "defaultTimeoutMs">;
 }

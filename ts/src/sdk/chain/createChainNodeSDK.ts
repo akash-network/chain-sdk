@@ -8,6 +8,7 @@ import { TxRaw } from "../../generated/protos/cosmos/tx/v1beta1/tx.ts";
 import { createMessageType } from "../client/createServiceLoader.ts";
 import type { MessageDesc } from "../client/types.ts";
 import { createNoopTransport } from "../transport/createNoopTransport.ts";
+import type { GrpcTransportOptions } from "../transport/grpc/createGrpcTransport.ts";
 import { createGrpcTransport } from "../transport/grpc/createGrpcTransport.ts";
 import type { StargateClientOptions } from "../transport/tx/createStargateClient/createStargateClient.ts";
 import { createStargateClient } from "../transport/tx/createStargateClient/createStargateClient.ts";
@@ -18,6 +19,7 @@ export type { PayloadOf, ResponseOf } from "../types.ts";
 
 export function createChainNodeSDK(options: ChainNodeSDKOptions) {
   const queryTransport = createGrpcTransport({
+    ...options.query.transportOptions,
     baseUrl: options.query.baseUrl,
   });
   let txTransport: Transport<TxCallOptions>;
@@ -59,6 +61,12 @@ export interface ChainNodeSDKOptions {
      * Blockchain gRPC endpoint
      */
     baseUrl: string;
+
+    /**
+     * Options for the gRPC transport
+     */
+    transportOptions?: Pick<GrpcTransportOptions, "pingIdleConnection" | "pingIntervalMs" | "pingTimeoutMs" | "idleConnectionTimeoutMs" | "defaultTimeoutMs">;
+
   };
   tx?: Omit<StargateClientOptions, "getMessageType" | "builtInTypes"> & {
     /**
