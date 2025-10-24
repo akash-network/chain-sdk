@@ -6,6 +6,7 @@ import (
 	v1 "pkg.akt.dev/go/node/market/v1"
 	"pkg.akt.dev/go/node/market/v1beta4"
 	"pkg.akt.dev/go/node/market/v1beta5"
+	rv1beta4 "pkg.akt.dev/go/node/types/resources/v1beta4"
 )
 
 func NewLeaseV1beta4() v1beta4.Lease {
@@ -77,9 +78,22 @@ func LeaseFromV1beta4(cdc codec.BinaryCodec, fromBz []byte) v1.Lease {
 }
 
 func ResourcesOfferFromV1beta4(from v1beta4.ResourcesOffer) v1beta5.ResourcesOffer {
-	res := make(v1beta5.ResourcesOffer, 0, len(from))
+	ro := make(v1beta5.ResourcesOffer, 0, len(from))
 
-	return res
+	for _, val := range from {
+		ro = append(ro, v1beta5.ResourceOffer{
+			Resources: rv1beta4.Resources{
+				ID:        val.Resources.ID,
+				CPU:       CPUFromV1Beta3(val.Resources.CPU),
+				Memory:    MemoryFromV1Beta3(val.Resources.Memory),
+				Storage:   VolumesFromV1Beta3(val.Resources.Storage),
+				GPU:       GPUFromV1Beta3(val.Resources.GPU),
+				Endpoints: EndpointsFromV1Beta3(val.Resources.Endpoints),
+			},
+			Count: val.Count,
+		})
+	}
+	return ro
 }
 
 func BidStateFromV1beta4(from v1beta4.Bid_State) v1beta5.Bid_State {
