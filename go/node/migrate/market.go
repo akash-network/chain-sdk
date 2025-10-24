@@ -67,13 +67,23 @@ func LeaseFromV1beta4(cdc codec.BinaryCodec, fromBz []byte) v1.Lease {
 	var from v1beta4.Lease
 	cdc.MustUnmarshal(fromBz, &from)
 
+	reason := v1.LeaseClosedReasonInvalid
+	state := v1.Lease_State(from.State)
+
+	switch state {
+	case v1.LeaseInsufficientFunds:
+		reason = v1.LeaseClosedReasonInsufficientFunds
+	case v1.LeaseClosed:
+		reason = v1.LeaseClosedReasonUnspecified
+	}
+
 	return v1.Lease{
 		ID:        LeaseIDFromV1beta4(from.LeaseID),
-		State:     v1.Lease_State(from.State),
+		State:     state,
 		Price:     from.Price,
 		CreatedAt: from.CreatedAt,
 		ClosedOn:  from.ClosedOn,
-		Reason:    v1.LeaseClosedReasonUnspecified,
+		Reason:    reason,
 	}
 }
 
