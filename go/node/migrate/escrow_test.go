@@ -4,10 +4,16 @@ import (
 	"bytes"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	eid "pkg.akt.dev/go/node/escrow/id/v1"
+	etypes "pkg.akt.dev/go/node/escrow/types/v1"
 	"pkg.akt.dev/go/node/escrow/v1beta3"
+	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 )
 
 func TestAccountIDFromV1beta3(t *testing.T) {
@@ -101,4 +107,195 @@ func TestAccountIDFromV1beta3(t *testing.T) {
 		result := AccountIDFromV1beta3(key)
 		require.Equal(t, expected, result)
 	})
+}
+
+func TestAccountFromV1beta3(t *testing.T) {
+	// Create a codec for marshaling/unmarshaling
+	interfaceRegistry := types.NewInterfaceRegistry()
+	cdc := codec.NewProtoCodec(interfaceRegistry)
+
+	// Helper function to create a valid account key
+	createAccountKey := func(scope string, xid string) []byte {
+		prefix := v1beta3.AccountKeyPrefix()
+		return append(prefix, []byte("/"+scope+"/"+xid)...)
+	}
+
+	// Helper function to create test account data
+	createTestAccount := func(owner, depositor string, balance, funds sdk.DecCoin, state v1beta3.Account_State) []byte {
+		account := v1beta3.Account{
+			ID: v1beta3.AccountID{
+				Scope: "deployment",
+				XID:   "akash1test/1000",
+			},
+			Owner:       owner,
+			Depositor:   depositor,
+			Balance:     balance,
+			Funds:       funds,
+			State:       state,
+			Transferred: sdk.NewDecCoin("uakt", sdkmath.NewInt(0)),
+			SettledAt:   1000,
+		}
+		data, err := cdc.Marshal(&account)
+		require.NoError(t, err)
+		return data
+	}
+
+	// Test cases for different scenarios
+	testCases := []struct {
+		name             string
+		owner            string
+		depositor        string
+		balance          sdk.DecCoin
+		funds            sdk.DecCoin
+		state            v1beta3.Account_State
+		expectedDeposits int
+		expectedSources  []deposit.Source
+		expectedOwners   []string
+		expectedBalances []sdk.DecCoin
+	}{
+		{
+			name:             "funds_only_depositor_different_from_owner",
+			owner:            "akash1owner",
+			depositor:        "akash1depositor",
+			balance:          sdk.NewDecCoin("uakt", sdkmath.NewInt(0)),
+			funds:            sdk.NewDecCoin("uakt", sdkmath.NewInt(1000)),
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 1,
+			expectedSources:  []deposit.Source{deposit.SourceGrant},
+			expectedOwners:   []string{"akash1depositor"},
+			expectedBalances: []sdk.DecCoin{sdk.NewDecCoin("uakt", sdkmath.NewInt(1000))},
+		},
+		{
+			name:             "balance_only_depositor_same_as_owner",
+			owner:            "akash1owner",
+			depositor:        "akash1owner",
+			balance:          sdk.NewDecCoin("uakt", sdkmath.NewInt(2000)),
+			funds:            sdk.NewDecCoin("uakt", sdkmath.NewInt(0)),
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 1,
+			expectedSources:  []deposit.Source{deposit.SourceBalance},
+			expectedOwners:   []string{"akash1owner"},
+			expectedBalances: []sdk.DecCoin{sdk.NewDecCoin("uakt", sdkmath.NewInt(2000))},
+		},
+		{
+			name:             "both_funds_and_balance_present",
+			owner:            "akash1owner",
+			depositor:        "akash1depositor",
+			balance:          sdk.NewDecCoin("uakt", sdkmath.NewInt(1500)),
+			funds:            sdk.NewDecCoin("uakt", sdkmath.NewInt(500)),
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 2,
+			expectedSources:  []deposit.Source{deposit.SourceGrant, deposit.SourceBalance},
+			expectedOwners:   []string{"akash1depositor", "akash1owner"},
+			expectedBalances: []sdk.DecCoin{sdk.NewDecCoin("uakt", sdkmath.NewInt(500)), sdk.NewDecCoin("uakt", sdkmath.NewInt(1500))},
+		},
+		{
+			name:             "zero_balance_zero_funds",
+			owner:            "akash1owner",
+			depositor:        "akash1depositor",
+			balance:          sdk.NewDecCoin("uakt", sdkmath.NewInt(0)),
+			funds:            sdk.NewDecCoin("uakt", sdkmath.NewInt(0)),
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 0,
+			expectedSources:  []deposit.Source{},
+			expectedOwners:   []string{},
+			expectedBalances: []sdk.DecCoin{},
+		},
+		{
+			name:             "negative_balance_zero_funds",
+			owner:            "akash1owner",
+			depositor:        "akash1owner",
+			balance:          sdk.DecCoin{Denom: "uakt", Amount: sdkmath.LegacyNewDec(-100)},
+			funds:            sdk.NewDecCoin("uakt", sdkmath.NewInt(0)),
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 0,
+			expectedSources:  []deposit.Source{},
+			expectedOwners:   []string{},
+			expectedBalances: []sdk.DecCoin{},
+		},
+		{
+			name:             "zero_balance_negative_funds",
+			owner:            "akash1owner",
+			depositor:        "akash1depositor",
+			balance:          sdk.NewDecCoin("uakt", sdkmath.NewInt(0)),
+			funds:            sdk.DecCoin{Denom: "uakt", Amount: sdkmath.LegacyNewDec(-50)},
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 0,
+			expectedSources:  []deposit.Source{},
+			expectedOwners:   []string{},
+			expectedBalances: []sdk.DecCoin{},
+		},
+		{
+			name:             "small_positive_amounts",
+			owner:            "akash1owner",
+			depositor:        "akash1depositor",
+			balance:          sdk.NewDecCoinFromDec("uakt", sdkmath.LegacyNewDecWithPrec(1, 1)), // 0.1
+			funds:            sdk.NewDecCoinFromDec("uakt", sdkmath.LegacyNewDecWithPrec(1, 2)), // 0.01
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 2,
+			expectedSources:  []deposit.Source{deposit.SourceGrant, deposit.SourceBalance},
+			expectedOwners:   []string{"akash1depositor", "akash1owner"},
+			expectedBalances: []sdk.DecCoin{sdk.NewDecCoinFromDec("uakt", sdkmath.LegacyNewDecWithPrec(1, 2)), sdk.NewDecCoinFromDec("uakt", sdkmath.LegacyNewDecWithPrec(1, 1))},
+		},
+		{
+			name:             "large_amounts",
+			owner:            "akash1owner",
+			depositor:        "akash1depositor",
+			balance:          sdk.NewDecCoin("uakt", sdkmath.NewInt(1000000000)),
+			funds:            sdk.NewDecCoin("uakt", sdkmath.NewInt(500000000)),
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 2,
+			expectedSources:  []deposit.Source{deposit.SourceGrant, deposit.SourceBalance},
+			expectedOwners:   []string{"akash1depositor", "akash1owner"},
+			expectedBalances: []sdk.DecCoin{sdk.NewDecCoin("uakt", sdkmath.NewInt(500000000)), sdk.NewDecCoin("uakt", sdkmath.NewInt(1000000000))},
+		},
+		{
+			name:             "different_denomination",
+			owner:            "akash1owner",
+			depositor:        "akash1depositor",
+			balance:          sdk.NewDecCoin("ibc/123", sdkmath.NewInt(1000)),
+			funds:            sdk.NewDecCoin("ibc/123", sdkmath.NewInt(500)),
+			state:            v1beta3.AccountOpen,
+			expectedDeposits: 2,
+			expectedSources:  []deposit.Source{deposit.SourceGrant, deposit.SourceBalance},
+			expectedOwners:   []string{"akash1depositor", "akash1owner"},
+			expectedBalances: []sdk.DecCoin{sdk.NewDecCoin("ibc/123", sdkmath.NewInt(500)), sdk.NewDecCoin("ibc/123", sdkmath.NewInt(1000))},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Create test account data
+			accountData := createTestAccount(tc.owner, tc.depositor, tc.balance, tc.funds, tc.state)
+
+			// Create account key
+			key := createAccountKey("deployment", "akash1test/1000")
+
+			// Call the migration function
+			result := AccountFromV1beta3(cdc, key, accountData)
+
+			// Verify basic account structure
+			require.Equal(t, tc.owner, result.State.Owner)
+			require.Equal(t, etypes.State(tc.state), result.State.State)
+			require.Equal(t, int64(1000), result.State.SettledAt)
+
+			// Verify deposits length
+			require.Len(t, result.State.Deposits, tc.expectedDeposits, "Expected %d deposits, got %d", tc.expectedDeposits, len(result.State.Deposits))
+
+			// Verify deposits content
+			for i, deposit := range result.State.Deposits {
+				require.Equal(t, tc.expectedOwners[i], deposit.Owner, "Deposit %d owner mismatch", i)
+				require.Equal(t, tc.expectedSources[i], deposit.Source, "Deposit %d source mismatch", i)
+				require.Equal(t, tc.expectedBalances[i], deposit.Balance, "Deposit %d balance mismatch", i)
+				require.Equal(t, int64(0), deposit.Height, "Deposit %d height should be 0", i)
+			}
+
+			// Verify funds calculation (Balance + Funds)
+			expectedTotalAmount := tc.balance.Amount.Add(tc.funds.Amount)
+			require.Len(t, result.State.Funds, 1, "Expected 1 fund entry")
+			require.Equal(t, tc.balance.Denom, result.State.Funds[0].Denom, "Fund denom mismatch")
+			require.True(t, expectedTotalAmount.Equal(result.State.Funds[0].Amount),
+				"Fund amount mismatch: expected %s, got %s", expectedTotalAmount.String(), result.State.Funds[0].Amount.String())
+		})
+	}
 }
