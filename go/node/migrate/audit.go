@@ -12,7 +12,7 @@ func AuditedAttributesV1beta3Prefix() []byte {
 }
 
 func AuditedProviderFromV1beta3(cdc codec.BinaryCodec, fromBz []byte) v1.AuditedProvider {
-	var from v1beta3.AuditedAttributes
+	var from v1beta3.Provider
 	cdc.MustUnmarshal(fromBz, &from)
 
 	to := v1.AuditedProvider{
