@@ -1,7 +1,8 @@
 package migrate
 
 import (
-	"cosmossdk.io/math"
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -59,13 +60,15 @@ func DeploymentFromV1beta3(cdc codec.BinaryCodec, fromBz []byte) v1.Deployment {
 }
 
 func ResourceUnitFromV1Beta3(id uint32, from v1beta3.ResourceUnit) v1beta4.ResourceUnit {
+	price, err := sdk.ParseDecCoin(from.Price.String())
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse price for resource unit id %d: %v", id, err))
+	}
+
 	return v1beta4.ResourceUnit{
 		Resources: ResourcesFromV1Beta3(id, from.Resources),
 		Count:     from.Count,
-		Price: sdk.DecCoin{
-			Denom:  from.Price.Denom,
-			Amount: math.LegacyNewDecFromInt(math.NewIntFromBigInt(from.Price.Amount.BigInt())),
-		},
+		Price:     price,
 	}
 }
 
