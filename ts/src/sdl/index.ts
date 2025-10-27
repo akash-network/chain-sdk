@@ -23,3 +23,6 @@
  * ```
  */
 export { SDL } from "./SDL/SDL.ts";
+
+export * from "./types.ts";
+export { SdlValidationError } from "./SDL/SdlValidationError.ts";
