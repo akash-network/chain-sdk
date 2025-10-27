@@ -22,7 +22,7 @@ import type * as akash_take_v1_paramsmsg from "./protos/akash/take/v1/paramsmsg.
 import { createClientFactory } from "../sdk/client/createClientFactory.ts";
 import type { Transport, CallOptions, TxCallOptions } from "../sdk/transport/types.ts";
 import { withMetadata } from "../sdk/client/sdkMetadata.ts";
-import type { DeepPartial } from "../utils/types.ts";
+import type { DeepPartial, DeepSimplify } from "../encoding/typeEncodingHelpers.ts";
 
 
 export const serviceLoader= createServiceLoader([
@@ -79,14 +79,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * signProviderAttributes defines a method that signs provider attributes.
            */
-          signProviderAttributes: withMetadata(async function signProviderAttributes(input: akash_audit_v1_msg.MsgSignProviderAttributes, options?: TxCallOptions) {
+          signProviderAttributes: withMetadata(async function signProviderAttributes(input: DeepSimplify<akash_audit_v1_msg.MsgSignProviderAttributes>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(1);
             return getMsgClient(service).signProviderAttributes(input, options);
           }, { path: [1, 0] }),
           /**
            * deleteProviderAttributes defines a method that deletes provider attributes.
            */
-          deleteProviderAttributes: withMetadata(async function deleteProviderAttributes(input: akash_audit_v1_msg.MsgDeleteProviderAttributes, options?: TxCallOptions) {
+          deleteProviderAttributes: withMetadata(async function deleteProviderAttributes(input: DeepSimplify<akash_audit_v1_msg.MsgDeleteProviderAttributes>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(1);
             return getMsgClient(service).deleteProviderAttributes(input, options);
           }, { path: [1, 1] })
@@ -104,14 +104,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * createCertificate defines a method to create new certificate given proper inputs.
            */
-          createCertificate: withMetadata(async function createCertificate(input: akash_cert_v1_msg.MsgCreateCertificate, options?: TxCallOptions) {
+          createCertificate: withMetadata(async function createCertificate(input: DeepSimplify<akash_cert_v1_msg.MsgCreateCertificate>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).createCertificate(input, options);
           }, { path: [3, 0] }),
           /**
            * revokeCertificate defines a method to revoke the certificate.
            */
-          revokeCertificate: withMetadata(async function revokeCertificate(input: akash_cert_v1_msg.MsgRevokeCertificate, options?: TxCallOptions) {
+          revokeCertificate: withMetadata(async function revokeCertificate(input: DeepSimplify<akash_cert_v1_msg.MsgRevokeCertificate>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).revokeCertificate(input, options);
           }, { path: [3, 1] })
@@ -150,42 +150,42 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * createDeployment defines a method to create new deployment given proper inputs.
            */
-          createDeployment: withMetadata(async function createDeployment(input: akash_deployment_v1beta4_deploymentmsg.MsgCreateDeployment, options?: TxCallOptions) {
+          createDeployment: withMetadata(async function createDeployment(input: DeepSimplify<akash_deployment_v1beta4_deploymentmsg.MsgCreateDeployment>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).createDeployment(input, options);
           }, { path: [5, 0] }),
           /**
            * updateDeployment defines a method to update a deployment given proper inputs.
            */
-          updateDeployment: withMetadata(async function updateDeployment(input: akash_deployment_v1beta4_deploymentmsg.MsgUpdateDeployment, options?: TxCallOptions) {
+          updateDeployment: withMetadata(async function updateDeployment(input: DeepSimplify<akash_deployment_v1beta4_deploymentmsg.MsgUpdateDeployment>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).updateDeployment(input, options);
           }, { path: [5, 1] }),
           /**
            * closeDeployment defines a method to close a deployment given proper inputs.
            */
-          closeDeployment: withMetadata(async function closeDeployment(input: akash_deployment_v1beta4_deploymentmsg.MsgCloseDeployment, options?: TxCallOptions) {
+          closeDeployment: withMetadata(async function closeDeployment(input: DeepSimplify<akash_deployment_v1beta4_deploymentmsg.MsgCloseDeployment>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).closeDeployment(input, options);
           }, { path: [5, 2] }),
           /**
            * closeGroup defines a method to close a group of a deployment given proper inputs.
            */
-          closeGroup: withMetadata(async function closeGroup(input: akash_deployment_v1beta4_groupmsg.MsgCloseGroup, options?: TxCallOptions) {
+          closeGroup: withMetadata(async function closeGroup(input: DeepSimplify<akash_deployment_v1beta4_groupmsg.MsgCloseGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).closeGroup(input, options);
           }, { path: [5, 3] }),
           /**
            * pauseGroup defines a method to pause a group of a deployment given proper inputs.
            */
-          pauseGroup: withMetadata(async function pauseGroup(input: akash_deployment_v1beta4_groupmsg.MsgPauseGroup, options?: TxCallOptions) {
+          pauseGroup: withMetadata(async function pauseGroup(input: DeepSimplify<akash_deployment_v1beta4_groupmsg.MsgPauseGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).pauseGroup(input, options);
           }, { path: [5, 4] }),
           /**
            * startGroup defines a method to start a group of a deployment given proper inputs.
            */
-          startGroup: withMetadata(async function startGroup(input: akash_deployment_v1beta4_groupmsg.MsgStartGroup, options?: TxCallOptions) {
+          startGroup: withMetadata(async function startGroup(input: DeepSimplify<akash_deployment_v1beta4_groupmsg.MsgStartGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).startGroup(input, options);
           }, { path: [5, 5] }),
@@ -195,7 +195,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            *
            * Since: akash v1.0.0
            */
-          updateParams: withMetadata(async function updateParams(input: akash_deployment_v1beta4_paramsmsg.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_deployment_v1beta4_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [5, 6] })
@@ -220,7 +220,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * accountDeposit deposits more funds into the escrow account.
            */
-          accountDeposit: withMetadata(async function accountDeposit(input: akash_escrow_v1_msg.MsgAccountDeposit, options?: TxCallOptions) {
+          accountDeposit: withMetadata(async function accountDeposit(input: DeepSimplify<akash_escrow_v1_msg.MsgAccountDeposit>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).accountDeposit(input, options);
           }, { path: [7, 0] })
@@ -280,35 +280,35 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * createBid defines a method to create a bid given proper inputs.
            */
-          createBid: withMetadata(async function createBid(input: akash_market_v1beta5_bidmsg.MsgCreateBid, options?: TxCallOptions) {
+          createBid: withMetadata(async function createBid(input: DeepSimplify<akash_market_v1beta5_bidmsg.MsgCreateBid>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getMsgClient(service).createBid(input, options);
           }, { path: [9, 0] }),
           /**
            * closeBid defines a method to close a bid given proper inputs.
            */
-          closeBid: withMetadata(async function closeBid(input: akash_market_v1beta5_bidmsg.MsgCloseBid, options?: TxCallOptions) {
+          closeBid: withMetadata(async function closeBid(input: DeepSimplify<akash_market_v1beta5_bidmsg.MsgCloseBid>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getMsgClient(service).closeBid(input, options);
           }, { path: [9, 1] }),
           /**
            * withdrawLease withdraws accrued funds from the lease payment
            */
-          withdrawLease: withMetadata(async function withdrawLease(input: akash_market_v1beta5_leasemsg.MsgWithdrawLease, options?: TxCallOptions) {
+          withdrawLease: withMetadata(async function withdrawLease(input: DeepSimplify<akash_market_v1beta5_leasemsg.MsgWithdrawLease>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getMsgClient(service).withdrawLease(input, options);
           }, { path: [9, 2] }),
           /**
            * createLease creates a new lease
            */
-          createLease: withMetadata(async function createLease(input: akash_market_v1beta5_leasemsg.MsgCreateLease, options?: TxCallOptions) {
+          createLease: withMetadata(async function createLease(input: DeepSimplify<akash_market_v1beta5_leasemsg.MsgCreateLease>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getMsgClient(service).createLease(input, options);
           }, { path: [9, 3] }),
           /**
            * closeLease defines a method to close an order given proper inputs.
            */
-          closeLease: withMetadata(async function closeLease(input: akash_market_v1beta5_leasemsg.MsgCloseLease, options?: TxCallOptions) {
+          closeLease: withMetadata(async function closeLease(input: DeepSimplify<akash_market_v1beta5_leasemsg.MsgCloseLease>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getMsgClient(service).closeLease(input, options);
           }, { path: [9, 4] }),
@@ -318,7 +318,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            *
            * Since: akash v1.0.0
            */
-          updateParams: withMetadata(async function updateParams(input: akash_market_v1beta5_paramsmsg.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_market_v1beta5_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [9, 5] })
@@ -343,21 +343,21 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * createProvider defines a method that creates a provider given the proper inputs.
            */
-          createProvider: withMetadata(async function createProvider(input: akash_provider_v1beta4_msg.MsgCreateProvider, options?: TxCallOptions) {
+          createProvider: withMetadata(async function createProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgCreateProvider>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(11);
             return getMsgClient(service).createProvider(input, options);
           }, { path: [11, 0] }),
           /**
            * updateProvider defines a method that updates a provider given the proper inputs.
            */
-          updateProvider: withMetadata(async function updateProvider(input: akash_provider_v1beta4_msg.MsgUpdateProvider, options?: TxCallOptions) {
+          updateProvider: withMetadata(async function updateProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgUpdateProvider>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(11);
             return getMsgClient(service).updateProvider(input, options);
           }, { path: [11, 1] }),
           /**
            * deleteProvider defines a method that deletes a provider given the proper inputs.
            */
-          deleteProvider: withMetadata(async function deleteProvider(input: akash_provider_v1beta4_msg.MsgDeleteProvider, options?: TxCallOptions) {
+          deleteProvider: withMetadata(async function deleteProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgDeleteProvider>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(11);
             return getMsgClient(service).deleteProvider(input, options);
           }, { path: [11, 2] })
@@ -378,7 +378,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            *
            * Since: akash v1.0.0
            */
-          updateParams: withMetadata(async function updateParams(input: akash_take_v1_paramsmsg.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_take_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [13, 0] })

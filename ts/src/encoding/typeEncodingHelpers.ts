@@ -4,7 +4,7 @@ import Long from "long";
 import { Timestamp } from "../generated/protos/google/protobuf/timestamp.ts";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | bigint | boolean | undefined | null;
 
 export type DeepPartial<T> = T extends Builtin ? T
   : T extends Long ? string | number | bigint | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
@@ -12,6 +12,11 @@ export type DeepPartial<T> = T extends Builtin ? T
       // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
         : Partial<T>;
+
+export type DeepSimplify<T> = T extends Builtin ? T
+  : T extends Long ? string | number | bigint | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepSimplify<U>>
+    : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepSimplify<U>>
+      : { [K in keyof T]: DeepSimplify<T[K]> };
 
 export interface MessageFns<T, V extends string> {
   readonly $type: V;

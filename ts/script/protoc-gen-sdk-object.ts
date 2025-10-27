@@ -45,7 +45,7 @@ function generateTs(schema: Schema): void {
       const isInputEmpty = method.input.fields.length === 0;
       imports.add(importPath);
       let methodInputArgType = `${fileNameToScope(importPath)}.${inputType.name}`;
-      if (!isMsgService) methodInputArgType = `DeepPartial<${methodInputArgType}>`;
+      methodInputArgType = isMsgService ? `DeepSimplify<${methodInputArgType}>` : `DeepPartial<${methodInputArgType}>`;
       const methodArgs = [
         `input: ${methodInputArgType}${isInputEmpty ? " = {}" : ""}`,
         `options?: ${isMsgService ? "TxCallOptions" : "CallOptions"}`,
@@ -84,7 +84,7 @@ function generateTs(schema: Schema): void {
 
   f.print(`import type { Transport, CallOptions${hasMsgService ? ", TxCallOptions" : ""} } from "../sdk/transport/types${importExtension}";`);
   f.print(`import { withMetadata } from "../sdk/client/sdkMetadata${importExtension}";`);
-  f.print(`import type { DeepPartial } from "../utils/types${importExtension}";`);
+  f.print(`import type { DeepPartial${hasMsgService ? ", DeepSimplify" : ""} } from "../encoding/typeEncodingHelpers${importExtension}";`);
   f.print("\n");
   f.print(
     f.export("const", "serviceLoader"),
