@@ -6,7 +6,7 @@ plugins:
     out: ./ts/src/generated/protos
     include_imports: true
     opt:
-      - ts_proto_opt=outputClientImpl=false,outputServices=false,useExactTypes=false,importSuffix=.ts,outputTypeAnnotations=static-only,forceLong=long,esModuleInterop=true,snakeToCamel=keys
+      - ts_proto_opt=outputClientImpl=false,outputServices=false,useExactTypes=false,importSuffix=.ts,outputTypeAnnotations=static-only,forceLong=long,esModuleInterop=true,snakeToCamel=keys,exportCommonSymbols=false
   - local: protoc-gen-sdk-object.ts
     out: ./ts/src/generated
     strategy: all

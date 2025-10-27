@@ -6,8 +6,6 @@
 
 /* eslint-disable */
 
-export const protobufPackage = "akash.escrow.types.v1";
-
 /** State stores state for an escrow account. */
 export enum State {
   /** invalid - AccountStateInvalid is an invalid state. */

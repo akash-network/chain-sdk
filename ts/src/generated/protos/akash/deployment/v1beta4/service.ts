@@ -6,4 +6,4 @@
 
 /* eslint-disable */
 
-export const protobufPackage = "akash.deployment.v1beta4";
+export {};

@@ -51,6 +51,7 @@ function gen_ts() {
 	PROTO_SOURCE=node buf generate --template buf.gen.ts.yaml ./proto/node
 	PROTO_SOURCE=cosmos buf generate --template buf.gen.ts.yaml ./go/vendor/github.com/cosmos/cosmos-sdk/proto
 	PROTO_SOURCE=provider buf generate --template buf.gen.ts.yaml ./proto/provider
+	node --experimental-strip-types --no-warnings ts/script/fix-ts-proto-generated-types.ts
 }
 
 function gen_doc() {

@@ -6,4 +6,4 @@
 
 /* eslint-disable */
 
-export const protobufPackage = "akash.escrow.v1";
+export {};

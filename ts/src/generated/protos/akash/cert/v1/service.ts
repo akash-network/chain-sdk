@@ -6,4 +6,4 @@
 
 /* eslint-disable */
 
-export const protobufPackage = "akash.cert.v1";
+export {};
