@@ -60,7 +60,7 @@ import { createChainNodeSDK, createStargateClient } from "@akashnetwork/chain-sd
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 const mnemonic = "your mnemonic here";
-const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
+const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
 
 const signer = createStargateClient({
   baseUrl: 'https://rpc.sandbox-2.aksh.pw:443', // blockchain rpc endpoint
