@@ -1,7 +1,7 @@
-import type { OfflineSigner } from "@cosmjs/proto-signing";
 import { describe, expect, it } from "@jest/globals";
 import { mock } from "jest-mock-extended";
 
+import type { TxClient } from "../transport/tx/TxClient.ts";
 import { createChainNodeSDK } from "./createChainNodeSDK.ts";
 
 describe(createChainNodeSDK.name, () => {
@@ -9,8 +9,7 @@ describe(createChainNodeSDK.name, () => {
     const sdk = createChainNodeSDK({
       query: { baseUrl: "http://localhost:1317" },
       tx: {
-        baseUrl: "http://localhost:26657",
-        signer: mock<OfflineSigner>(),
+        signer: mock<TxClient>(),
       },
     });
 

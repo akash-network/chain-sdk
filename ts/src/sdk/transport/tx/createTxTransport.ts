@@ -44,7 +44,7 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
         const MessageType = transportOptions.getMessageType(response.typeUrl);
         if (!MessageType) {
           throw new Error(`Cannot find message type ${response.typeUrl} in type registry. `
-            + `If you use cosmos.authz.v1beta1.exec(), then provide this type in tx options.`);
+            + `If you use cosmos.authz.v1beta1.exec(), then provide custom message types to TxClient.`);
         }
         responseMessage = MessageType.decode(response.value);
       } else {
