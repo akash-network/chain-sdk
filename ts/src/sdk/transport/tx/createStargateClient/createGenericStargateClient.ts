@@ -39,7 +39,7 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
     },
   ));
 
-  const getAccount = options.getAccount ?? (() => getOfflineSigner().then(getDefaultAccount));
+  const getAccount = (messsages: EncodeObject[]) => getOfflineSigner().then((signer) => (options.getAccount ?? getDefaultAccount)(signer, messsages));
   const gasMultiplier = options.gasMultiplier ?? DEFAULT_GAS_MULTIPLIER;
   const preloadMessageTypes = (messages: EncodeObject[]) => {
     for (const message of messages) {
@@ -140,7 +140,7 @@ export interface BaseGenericStargateClientOptions {
    * Retrieves the account to use for transactions
    * @default returns the first account from the signer
    */
-  getAccount?(messages: EncodeObject[]): Promise<string>;
+  getAccount?(signer: OfflineSigner, messages: EncodeObject[]): Promise<string>;
   stargateOptions?: Omit<SigningStargateClientOptions, "registry">;
   /**
    * Additional protobuf message types to register with the transaction transport
