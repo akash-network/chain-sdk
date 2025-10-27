@@ -45,6 +45,7 @@ export function createGrpcTransport(options: GrpcTransportOptions): Transport<Gr
   const httpClient = options.httpClient ?? createDefaultHttpClient(options);
 
   return {
+    requiresTypePatching: true,
     async unary<I extends MessageDesc, O extends MessageDesc>(
       method: MethodDesc<"unary", I, O>,
       message: MessageInitShape<I>,
