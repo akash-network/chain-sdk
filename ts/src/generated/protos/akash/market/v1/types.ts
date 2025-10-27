@@ -6,8 +6,6 @@
 
 /* eslint-disable */
 
-export const protobufPackage = "akash.market.v1";
-
 /** LeaseClosedReason indicates reason bid was closed */
 export enum LeaseClosedReason {
   /**
