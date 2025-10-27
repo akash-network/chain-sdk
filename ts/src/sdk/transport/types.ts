@@ -15,6 +15,7 @@ export interface TxCallOptions {
 }
 
 export interface Transport<TCallOptions = unknown> {
+  requiresTypePatching?: boolean;
   /**
    * Call a unary RPC - a method that takes a single input message, and
    * responds with a single output message.

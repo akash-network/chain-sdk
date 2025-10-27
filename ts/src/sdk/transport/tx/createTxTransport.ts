@@ -8,6 +8,7 @@ import { TxError } from "./TxError.ts";
 
 export function createTxTransport(transportOptions: TransactionTransportOptions): Transport<TxCallOptions> {
   return {
+    requiresTypePatching: true,
     async unary<I extends MessageDesc, O extends MessageDesc>(
       method: MethodDesc<"unary", I, O>,
       input: MessageInitShape<I>,
