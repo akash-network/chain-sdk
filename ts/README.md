@@ -22,21 +22,24 @@ This package supports commonjs and ESM environments.
 
 #### Node.js/Server Environment
 
+This implementation uses gRPC transport to fetch data from blockchain
+
 ```typescript
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { createChainNodeSDK } from "@akashnetwork/chain-sdk";
+import { createChainNodeSDK, createStargateClient } from "@akashnetwork/chain-sdk";
 
 const mnemonic = "your mnemonic here";
-const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
+const signer = createStargateClient({
+  baseUrl: 'https://rpc.sandbox-2.aksh.pw:443', // blockchain rpc endpoint
+  signerMnemonic: mnemonic
+});
 
 // endpoints can be found in https://github.com/akash-network/net
 const chainSdk = createChainNodeSDK({
   query: {
-    baseUrl: "http://rpc.dev.akash.pub:31317", // blockchain grpc endpoint url
+    baseUrl: "http://grpc.sandbox-2.aksh.pw:9090", // blockchain gRPC endpoint url
   },
   tx: {
-    baseUrl: 'https://testnetrpc.akashnet.net:443', // blockchain rpc endpoint
-    signer: wallet,
+    signer,
   },
 });
 
@@ -50,7 +53,24 @@ const deployments = await chainSdk.akash.deployment.v1beta4.getDeployments({
 console.log(deployments);
 ```
 
+It's also possible to create `StargateClient` from a `DirectSecp256k1HdWallet` instance:
+
+```ts
+import { createChainNodeSDK, createStargateClient } from "@akashnetwork/chain-sdk";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+
+const mnemonic = "your mnemonic here";
+const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
+
+const signer = createStargateClient({
+  baseUrl: 'https://rpc.sandbox-2.aksh.pw:443', // blockchain rpc endpoint
+  signer: wallet
+});
+```
+
 #### Web Environment
+
+This implementation can be used in both browser and nodejs, since it uses gRPC Gateway transport to fetch data from blockchain
 
 ```typescript
 import { createChainNodeWebSDK, type TxClient } from "@akashnetwork/chain-sdk/web";
@@ -58,7 +78,7 @@ import { createChainNodeWebSDK, type TxClient } from "@akashnetwork/chain-sdk/we
 const wallet: TxClient = // kplr or leap wallet object in browser exposed by corresponding extension
 const sdk = createChainNodeWebSDK({
   query: {
-    baseUrl: "http://rpc.dev.akash.pub:31317", // grpc gateway api url
+    baseUrl: "https://api.sandbox-2.aksh.pw:443", // gRPC Gateway api url
   },
   tx: {
     signer: wallet,
