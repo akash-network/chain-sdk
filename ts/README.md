@@ -1,6 +1,6 @@
 # Akash API TypeScript Bindings
 
-[![npm version](https://badge.fury.io/js/%40akashnetwork%2Fakash-api.svg)](https://badge.fury.io/js/%40akashnetwork%2Fakash-api)
+[![npm version](https://badge.fury.io/js/%40akashnetwork%2Fchain-sdk.svg)](https://badge.fury.io/js/%40akashnetwork%2Fchain-sdk)
 [![License: Apache-2.0](https://img.shields.io/badge/License-apache2.0-yellow.svg)](https://opensource.org/license/apache-2-0)
 [![semantic-release: conventionalcommits](https://img.shields.io/badge/semantic--release-conventionalcommits?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
