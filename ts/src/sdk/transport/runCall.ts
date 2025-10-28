@@ -1,7 +1,7 @@
 import type { Interceptor } from "@connectrpc/connect";
 import { getAbortSignalReason } from "@connectrpc/connect/protocol";
 
-import type { DeepPartial } from "../../utils/types.ts";
+import type { DeepPartial } from "../../encoding/typeEncodingHelpers.ts";
 import { mapStream } from "../client/stream.ts";
 import type { MessageDesc, MessageInitShape, MessageShape } from "../client/types.ts";
 import { TransportError } from "./TransportError.ts";
