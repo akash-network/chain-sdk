@@ -8,10 +8,20 @@ This package provides TypeScript bindings for the Akash API, generated from prot
 
 ## Installation
 
+⚠️ **NOTICE:** 
+
+The new Chain SDK for TypeScript is currently in alpha. As such, small breaking changes may occur between versions.
+To ensure stability of your own scripts, pin a specific version of the SDK in your package.json (avoid using `^` or `~` in front of version). 
+
+We are actively gathering developer feedback and improving the DX (Developer Experience).
+Please report any issues or suggestions via:
+* GitHub Issues (preferred)
+* [Discord](https://akash.network/docs/getting-started/technical-support/)
+
 To install the package, run:
 
 ```bash
-npm install @akashnetwork/chain-sdk
+npm install @akashnetwork/chain-sdk@alpha
 ```
 
 ## Usage
