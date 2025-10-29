@@ -64,10 +64,7 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
       const minGas = Math.floor(gasMultiplier * estimatedGas);
       const fee = calculateFee(minGas, gasPrice);
 
-      return {
-        ...fee,
-        granter: account,
-      };
+      return fee;
     },
     async sign(messages, fee, memo) {
       const account = await getAccount(preloadMessageTypes(messages));
