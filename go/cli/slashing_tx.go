@@ -43,9 +43,9 @@ $ <appd> tx slashing unjail --from mykey
 			cl := MustClientFromContext(ctx)
 			cctx := cl.ClientContext()
 
-			valAddr := cctx.GetFromAddress()
+			operatorAddr := cctx.GetFromAddress()
 
-			msg := types.NewMsgUnjail(valAddr.String())
+			msg := types.NewMsgUnjail(sdk.ValAddress(operatorAddr).String())
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
 			if err != nil {
