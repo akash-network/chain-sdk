@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	v1 "pkg.akt.dev/go/node/market/v1"
+	marketv1 "pkg.akt.dev/go/node/market/v1"
 	"pkg.akt.dev/go/node/market/v1beta5"
 )
 
@@ -32,16 +32,16 @@ func MarkReqProviderFlag(cmd *cobra.Command) {
 }
 
 // OrderIDFromFlags returns OrderID with given flags and error if occurred
-func OrderIDFromFlags(flags *pflag.FlagSet, opts ...MarketOption) (v1.OrderID, error) {
+func OrderIDFromFlags(flags *pflag.FlagSet, opts ...MarketOption) (marketv1.OrderID, error) {
 	prev, err := GroupIDFromFlags(flags, opts...)
 	if err != nil {
-		return v1.OrderID{}, err
+		return marketv1.OrderID{}, err
 	}
 	val, err := flags.GetUint32(FlagOSeq)
 	if err != nil {
-		return v1.OrderID{}, err
+		return marketv1.OrderID{}, err
 	}
-	return v1.MakeOrderID(prev, val), nil
+	return marketv1.MakeOrderID(prev, val), nil
 }
 
 // AddBidIDFlags add flags for bid
@@ -64,10 +64,10 @@ func MarkReqBidIDFlags(cmd *cobra.Command, opts ...DeploymentIDOption) {
 
 // BidIDFromFlags returns BidID with given flags and error if occurred
 // Here provider value is taken from flags
-func BidIDFromFlags(flags *pflag.FlagSet, opts ...MarketOption) (v1.BidID, error) {
+func BidIDFromFlags(flags *pflag.FlagSet, opts ...MarketOption) (marketv1.BidID, error) {
 	prev, err := OrderIDFromFlags(flags, opts...)
 	if err != nil {
-		return v1.BidID{}, err
+		return marketv1.BidID{}, err
 	}
 
 	opt := &MarketOptions{}
@@ -79,15 +79,15 @@ func BidIDFromFlags(flags *pflag.FlagSet, opts ...MarketOption) (v1.BidID, error
 	if opt.Provider.Empty() {
 		provider, err := flags.GetString(FlagProvider)
 		if err != nil {
-			return v1.BidID{}, err
+			return marketv1.BidID{}, err
 		}
 
 		if opt.Provider, err = sdk.AccAddressFromBech32(provider); err != nil {
-			return v1.BidID{}, err
+			return marketv1.BidID{}, err
 		}
 	}
 
-	return v1.MakeBidID(prev, opt.Provider), nil
+	return marketv1.MakeBidID(prev, opt.Provider), nil
 }
 
 func AddLeaseIDFlags(flags *pflag.FlagSet, opts ...DeploymentIDOption) {
@@ -102,10 +102,10 @@ func MarkReqLeaseIDFlags(cmd *cobra.Command, opts ...DeploymentIDOption) {
 
 // LeaseIDFromFlags returns LeaseID with given flags and error if occurred
 // Here provider value is taken from flags
-func LeaseIDFromFlags(flags *pflag.FlagSet, opts ...MarketOption) (v1.LeaseID, error) {
+func LeaseIDFromFlags(flags *pflag.FlagSet, opts ...MarketOption) (marketv1.LeaseID, error) {
 	bid, err := BidIDFromFlags(flags, opts...)
 	if err != nil {
-		return v1.LeaseID{}, err
+		return marketv1.LeaseID{}, err
 	}
 
 	return bid.LeaseID(), nil
@@ -194,12 +194,12 @@ func AddLeaseFilterFlags(flags *pflag.FlagSet) {
 }
 
 // LeaseFiltersFromFlags returns LeaseFilters with given flags and error if occurred
-func LeaseFiltersFromFlags(flags *pflag.FlagSet) (v1.LeaseFilters, error) {
+func LeaseFiltersFromFlags(flags *pflag.FlagSet) (marketv1.LeaseFilters, error) {
 	bfilters, err := BidFiltersFromFlags(flags)
 	if err != nil {
-		return v1.LeaseFilters{}, err
+		return marketv1.LeaseFilters{}, err
 	}
-	return v1.LeaseFilters(bfilters), nil
+	return marketv1.LeaseFilters(bfilters), nil
 }
 
 // AddCloseReasonFlag add reason flag for lease close command
@@ -208,11 +208,11 @@ func AddLeaseCloseReasonFlag(flags *pflag.FlagSet) {
 }
 
 // LeaseCloseReasonFromFlags returns LeaseClosedReason from flags or returns default value if not set
-func LeaseCloseReasonFromFlags(flags *pflag.FlagSet) (v1.LeaseClosedReason, error) {
+func LeaseCloseReasonFromFlags(flags *pflag.FlagSet) (marketv1.LeaseClosedReason, error) {
 	reason, err := flags.GetInt32(FlagReason)
 	if err != nil {
-		return v1.LeaseClosedReasonInvalid, err
+		return marketv1.LeaseClosedReasonInvalid, err
 	}
 
-	return v1.LeaseClosedReason(reason), nil
+	return marketv1.LeaseClosedReason(reason), nil
 }
