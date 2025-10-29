@@ -6,7 +6,7 @@ lint:
   use:
     - DEFAULT
   ignore:
-    - ibc
+    - ibc-go
     - cosmos
     - tendermint
     - gogoproto
@@ -16,10 +16,13 @@ lint:
     - k8s.io
 endef
 
+.PHONY: buf-deps
+buf-deps:
+	$(BUF) dep update
+
 .PHONY: mod-tidy
 mod-tidy:
 	@$(TOOLS) go-mod-tidy "$(GO_MODULES)"
-
 
 .PHONY: deps-tidy
 deps-tidy:
@@ -39,6 +42,7 @@ modvendor: $(MODVENDOR) modsensure
 	@(cd $(GO_ROOT); \
 		$(MODVENDOR) -copy="**/*.proto" -include=k8s.io/apimachinery; \
 		$(MODVENDOR) -copy="**/*.proto" -include=github.com/cosmos/cosmos-sdk/proto; \
+		$(MODVENDOR) -copy="**/*.proto" -include=github.com/cosmos/ibc-go/v10/proto; \
 		$(MODVENDOR) -copy="**/swagger.yaml" -include=github.com/cosmos/cosmos-sdk/client/docs/swagger-ui \
 	)
 	@(cd .cache/include; \

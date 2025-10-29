@@ -182,7 +182,6 @@ func InterceptConfigsPreRunHandler(
 	if err := bindFlags(cmd, serverCtx.Viper, envPrefixes); err != nil {
 		return err
 	}
-
 	if err := serverCtx.Viper.MergeInConfig(); err != nil {
 		return fmt.Errorf("failed to merge configuration: %w", err) // nolint: goerr113
 	}
