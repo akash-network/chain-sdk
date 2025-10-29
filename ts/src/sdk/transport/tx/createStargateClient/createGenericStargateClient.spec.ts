@@ -86,7 +86,7 @@ describe(createGenericStargateClient.name, () => {
         getMessageType,
         createClient: async () => ({
           sign: jest.fn(),
-          simulate: jest.fn(),
+          simulate: jest.fn(async () => 1),
           broadcastTx: jest.fn(),
         } as unknown as SigningStargateClient),
       });
@@ -109,7 +109,7 @@ describe(createGenericStargateClient.name, () => {
         getMessageType,
         createClient: async () => ({
           sign: jest.fn(),
-          simulate: jest.fn(),
+          simulate: jest.fn(async () => 1),
           broadcastTx: jest.fn(),
         } as unknown as SigningStargateClient),
       });

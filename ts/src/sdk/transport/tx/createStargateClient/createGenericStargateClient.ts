@@ -13,12 +13,14 @@ import type {
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
 import {
+  calculateFee,
+  GasPrice,
   SigningStargateClient,
 } from "@cosmjs/stargate";
 
 import type { TxClient } from "../TxClient.ts";
 
-const DEFAULT_FEE_AMOUNT = "2500";
+const DEFAULT_AVERAGE_GAS_PRICE = "0.025uakt";
 const DEFAULT_GAS_MULTIPLIER = 1.3;
 
 export function createGenericStargateClient(options: WithSigner<BaseGenericStargateClientOptions>): StargateTxClient {
@@ -52,22 +54,17 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
     }
     return messages;
   };
+  const gasPrice = GasPrice.fromString(options.defaultGasPrice ?? DEFAULT_AVERAGE_GAS_PRICE);
 
   return {
     async estimateFee(messages, memo) {
       const account = await getAccount(preloadMessageTypes(messages));
       const client = await getStargateClient();
-      const gas = await client.simulate(account, messages, memo);
-      return {
-        amount: [
-          {
-            denom: "uakt",
-            amount: options.defaultFeeAmount ?? DEFAULT_FEE_AMOUNT,
-          },
-        ],
-        gas: Math.floor(gasMultiplier * gas).toString(),
-        granter: account,
-      };
+      const estimatedGas = await client.simulate(account, messages, memo);
+      const minGas = Math.floor(gasMultiplier * estimatedGas);
+      const fee = calculateFee(minGas, gasPrice);
+
+      return fee;
     },
     async sign(messages, fee, memo) {
       const account = await getAccount(preloadMessageTypes(messages));
@@ -133,9 +130,9 @@ export interface BaseGenericStargateClientOptions {
    */
   gasMultiplier?: number;
   /**
-   * @default "2500" uakt
+   * @default "0.025uakt"
    */
-  defaultFeeAmount?: string;
+  defaultGasPrice?: string;
   /**
    * Retrieves the account to use for transactions
    * @default returns the first account from the signer
