@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.akt.dev/go/node/market/v1"
+	v1 "pkg.akt.dev/go/node/market/v1"
 	"pkg.akt.dev/go/node/market/v1beta5"
 )
 
@@ -200,4 +200,19 @@ func LeaseFiltersFromFlags(flags *pflag.FlagSet) (v1.LeaseFilters, error) {
 		return v1.LeaseFilters{}, err
 	}
 	return v1.LeaseFilters(bfilters), nil
+}
+
+// AddLeaseCloseReasonFlag add reason flag for lease close command
+func AddLeaseCloseReasonFlag(flags *pflag.FlagSet) {
+	flags.Int32(FlagCloseReason, 10001, "Numeric reason for closing the lease (0=invalid, 1=owner, 10000=unstable, 10001=decommission, 10002=unspecified, 10003=manifest_timeout, 20000=insufficient_funds)")
+}
+
+// LeaseCloseReasonFromFlags returns LeaseClosedReason from flags or returns default value if not set
+func LeaseCloseReasonFromFlags(flags *pflag.FlagSet) (v1.LeaseClosedReason, error) {
+	reason, err := flags.GetInt32(FlagCloseReason)
+	if err != nil {
+		return v1.LeaseClosedReasonInvalid, err
+	}
+
+	return v1.LeaseClosedReason(reason), nil
 }
