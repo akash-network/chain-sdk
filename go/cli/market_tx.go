@@ -115,7 +115,7 @@ func GetTxMarketBidCloseCmd() *cobra.Command {
 				return err
 			}
 
-			reason, err := cflags.LeaseCloseReasonFromFlags(cmd.Flags())
+			reason, err := cflags.BidClosedReasonFromFlags(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -140,7 +140,7 @@ func GetTxMarketBidCloseCmd() *cobra.Command {
 
 	cflags.AddTxFlagsToCmd(cmd)
 	cflags.AddBidIDFlags(cmd.Flags())
-	cflags.AddLeaseCloseReasonFlag(cmd.Flags())
+	cflags.AddBidClosedReasonFlag(cmd.Flags())
 
 	return cmd
 }
@@ -259,14 +259,10 @@ func GetTxMarketLeaseCloseCmd() *cobra.Command {
 				return err
 			}
 
-			reason, err := cflags.LeaseCloseReasonFromFlags(cmd.Flags())
-			if err != nil {
-				return err
-			}
-
+			// for lease closed tx reason is always owner
 			msg := &types.MsgCloseLease{
 				ID:     id,
-				Reason: reason,
+				Reason: mtypes.LeaseClosedReasonOwner,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
@@ -284,7 +280,6 @@ func GetTxMarketLeaseCloseCmd() *cobra.Command {
 
 	cflags.AddTxFlagsToCmd(cmd)
 	cflags.AddLeaseIDFlags(cmd.Flags())
-	cflags.AddLeaseCloseReasonFlag(cmd.Flags())
 	cflags.MarkReqLeaseIDFlags(cmd, cflags.DeploymentIDOptionNoOwner(true))
 
 	return cmd

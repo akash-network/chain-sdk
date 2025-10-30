@@ -1,12 +1,14 @@
 package flags
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	v1 "pkg.akt.dev/go/node/market/v1"
+	"pkg.akt.dev/go/node/market/v1"
 	"pkg.akt.dev/go/node/market/v1beta5"
 )
 
@@ -183,7 +185,7 @@ func BidFiltersFromFlags(flags *pflag.FlagSet) (v1beta5.BidFilters, error) {
 	return bfilters, nil
 }
 
-// AddLeaseFilterFlags add flags to filter for lease list
+// AddLeaseFilterFlags add flags to filter for a lease list
 func AddLeaseFilterFlags(flags *pflag.FlagSet) {
 	flags.String(FlagOwner, "", "lease owner address to filter")
 	flags.String(FlagState, "", "lease state to filter (active,insufficient_funds,closed)")
@@ -202,17 +204,22 @@ func LeaseFiltersFromFlags(flags *pflag.FlagSet) (v1.LeaseFilters, error) {
 	return v1.LeaseFilters(bfilters), nil
 }
 
-// AddLeaseCloseReasonFlag add reason flag for lease close command
-func AddLeaseCloseReasonFlag(flags *pflag.FlagSet) {
-	flags.Int32(FlagCloseReason, 10001, "Numeric reason for closing the lease (0=invalid, 1=owner, 10000=unstable, 10001=decommission, 10002=unspecified, 10003=manifest_timeout, 20000=insufficient_funds)")
+// AddBidClosedReasonFlag add the reason flag when the provider initiates lease close
+func AddBidClosedReasonFlag(flags *pflag.FlagSet) {
+	flags.Int32(FlagClosedReason, int32(v1.LeaseClosedReasonUnspecified), "Numeric reason for closing the bid (10000=unstable, 10001=decommission, 10002=unspecified, 10003=manifest_timeout)")
 }
 
-// LeaseCloseReasonFromFlags returns LeaseClosedReason from flags or returns default value if not set
-func LeaseCloseReasonFromFlags(flags *pflag.FlagSet) (v1.LeaseClosedReason, error) {
-	reason, err := flags.GetInt32(FlagCloseReason)
+// BidClosedReasonFromFlags returns LeaseClosedReason from flags or returns the default value if not set
+func BidClosedReasonFromFlags(flags *pflag.FlagSet) (v1.LeaseClosedReason, error) {
+	val, err := flags.GetInt32(FlagClosedReason)
 	if err != nil {
 		return v1.LeaseClosedReasonInvalid, err
 	}
 
-	return v1.LeaseClosedReason(reason), nil
+	reason := v1.LeaseClosedReason(val)
+	if !reason.IsRange(v1.LeaseClosedReasonRangeProvider) {
+		return v1.LeaseClosedReasonInvalid, fmt.Errorf("invalid --reason value. expected range 10000..19999")
+	}
+
+	return reason, nil
 }
