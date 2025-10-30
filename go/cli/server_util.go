@@ -46,6 +46,7 @@ func ServerCmds(rootCmd *cobra.Command, defaultNodeHome string, appCreator types
 		cmtcmd.ResetAllCmd,
 		cmtcmd.ResetStateCmd,
 		BootstrapStateCmd(appCreator),
+		GetValidatorSetCmd(),
 	)
 
 	startCmd := StartCmd(appCreator, defaultNodeHome)
