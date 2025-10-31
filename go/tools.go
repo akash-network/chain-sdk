@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/pseudomuto/protoc-gen-doc"
 
+	_ "github.com/cosmos/ibc-go/v10/modules/core/02-client"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "github.com/cosmos/gogoproto/protoc-gen-combo"
 	_ "github.com/cosmos/gogoproto/protoc-gen-gocosmos"
