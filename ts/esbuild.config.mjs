@@ -30,7 +30,12 @@ const baseConfig = (config) => ({
 
 await Promise.all([
   esbuild.build(baseConfig({ format: 'esm' })),
-  esbuild.build(baseConfig({ format: 'cjs' })),
+  esbuild.build(baseConfig({
+    format: 'cjs',
+    supported: {
+      'dynamic-import': false
+    }
+  })),
 ]);
 console.log('Building JS SDK finished');
 
