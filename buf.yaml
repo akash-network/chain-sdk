@@ -10,6 +10,7 @@ modules:
   - path: go/vendor/github.com/cosmos/gogoproto/proto
   - path: go/vendor/github.com/cosmos/cosmos-sdk/proto
   - path: go/vendor/github.com/cosmos/cosmos-proto/proto
+  - path: go/vendor/github.com/cosmos/ibc-go/v10/proto
   - path: proto/node
     excludes:
       - proto/node/akash/audit/v1beta3
@@ -52,5 +53,6 @@ modules:
         - ENUM_ZERO_VALUE_SUFFIX
         - RPC_REQUEST_STANDARD_NAME
 deps:
+  - buf.build/cosmos/ics23
   - buf.build/googleapis/googleapis
   - buf.build/protocolbuffers/wellknowntypes
