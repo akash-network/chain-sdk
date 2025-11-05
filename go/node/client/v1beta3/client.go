@@ -13,6 +13,7 @@ import (
 	evdtypes "cosmossdk.io/x/evidence/types"
 	feegranttypes "cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -56,6 +57,7 @@ type QueryClient interface {
 	Staking() staketypes.QueryClient
 	Upgrade() upgradetypes.QueryClient
 	Params() paramstypes.QueryClient
+	Wasm() wasmtypes.QueryClient
 
 	ClientContext() sdkclient.Context
 }

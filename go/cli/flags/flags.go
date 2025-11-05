@@ -258,6 +258,27 @@ const (
 	KeyIsTestnet             = "is-testnet"
 	KeyTestnetConfig         = "testnet-config"
 	KeyTestnetTriggerUpgrade = "testnet-trigger-upgrade"
+
+	FlagLabel                     = "label"
+	FlagSource                    = "code-source-url"
+	FlagBuilder                   = "builder"
+	FlagCodeHash                  = "code-hash"
+	FlagAdmin                     = "admin"
+	FlagNoAdmin                   = "no-admin"
+	FlagFixMsg                    = "fix-msg"
+	FlagRunAs                     = "run-as"
+	FlagInstantiateByEverybody    = "instantiate-everybody"
+	FlagInstantiateNobody         = "instantiate-nobody"
+	FlagInstantiateByAddress      = "instantiate-only-address"
+	FlagInstantiateByAnyOfAddress = "instantiate-anyof-addresses"
+	FlagUnpinCode                 = "unpin-code"
+	FlagAllowedMsgKeys            = "allow-msg-keys"
+	FlagAllowedRawMsgs            = "allow-raw-msgs"
+	FlagMaxCalls                  = "max-calls"
+	FlagMaxFunds                  = "max-funds"
+	FlagAllowAllMsgs              = "allow-all-messages"
+	FlagNoTokenTransfer           = "no-token-transfer"
+	FlagExpedite                  = "expedite"
 )
 
 // List of supported output formats
