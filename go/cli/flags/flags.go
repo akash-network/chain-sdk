@@ -279,6 +279,13 @@ const (
 	FlagAllowAllMsgs              = "allow-all-messages"
 	FlagNoTokenTransfer           = "no-token-transfer"
 	FlagExpedite                  = "expedite"
+
+	// wasm flags
+
+	FlagWasmMemoryCacheSize        = "wasm.memory_cache_size"
+	FlagWasmQueryGasLimit          = "wasm.query_gas_limit"
+	FlagWasmSimulationGasLimit     = "wasm.simulation_gas_limit"
+	FlagWasmSkipWasmVMVersionCheck = "wasm.skip_wasmvm_version_check"
 )
 
 // List of supported output formats
