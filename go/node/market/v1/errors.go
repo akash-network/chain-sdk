@@ -38,6 +38,7 @@ const (
 	errInvalidBid
 	errCodeCapabilitiesMismatch
 	errInvalidLeaseClosedReason
+	errInvalidEscrowID
 )
 
 var (
@@ -107,4 +108,5 @@ var (
 	ErrInvalidBid = sdkerrors.Register(ModuleName, errInvalidBid, "unknown provider")
 	// ErrInvalidLeaseClosedReason indicates reason for lease close does not match context
 	ErrInvalidLeaseClosedReason = sdkerrors.Register(ModuleName, errInvalidLeaseClosedReason, "invalid lease closed reason")
+	ErrInvalidEscrowID          = sdkerrors.Register(ModuleName, errInvalidEscrowID, "invalid escrow id")
 )

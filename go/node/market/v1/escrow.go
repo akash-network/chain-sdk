@@ -1,9 +1,10 @@
 package v1
 
 import (
-	"errors"
 	"fmt"
 	"strings"
+
+	cerrors "cosmossdk.io/errors"
 
 	ev1 "pkg.akt.dev/go/node/escrow/id/v1"
 )
@@ -24,12 +25,13 @@ func (id LeaseID) ToEscrowPaymentID() ev1.Payment {
 
 func LeaseIDFromPaymentID(id ev1.Payment) (LeaseID, error) {
 	if id.AID.Scope != ev1.ScopeDeployment {
-		return LeaseID{}, errors.New("")
+		return LeaseID{}, ErrInvalidEscrowID
 	}
 
-	parts := strings.Split(strings.Join([]string{id.AID.XID, id.XID}, "/"), "/")
-	if len(parts) != 3 {
-		return LeaseID{}, errors.New("")
+	xid := strings.Join([]string{id.AID.XID, id.XID}, "/")
+	parts := strings.Split(xid, "/")
+	if len(parts) != 5 {
+		return LeaseID{}, cerrors.Wrapf(ErrInvalidEscrowID, "invalid payment id %s", xid)
 	}
 
 	return ParseLeasePath(parts)
