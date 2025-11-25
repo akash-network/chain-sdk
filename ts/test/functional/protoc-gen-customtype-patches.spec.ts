@@ -7,35 +7,59 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
+async function vendorExists(vendorPath: string): Promise<boolean> {
+  try {
+    await access(vendorPath, fsConst.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 describe("protoc-gen-customtype-patches plugin", () => {
   const config = {
     version: "v2",
     clean: true,
-    plugins: [
-      {
-        local: "ts/script/protoc-gen-customtype-patches.ts",
-        strategy: "all",
-        out: ".",
-        opt: [
-          "target=ts",
-          "import_extension=ts"
-        ],
-      },
-    ],
+      plugins: [
+        {
+          local: "ts/script/protoc-gen-customtype-patches-wrapper.sh",
+          strategy: "all",
+          out: ".",
+          opt: [
+            "target=ts",
+            "import_extension=ts"
+          ],
+        },
+      ],
   };
 
   it("generates `Set` instance with all the types that have reference to fields with custom type option", async () => {
+    const repoRoot = joinPath(__dirname, "..", "..", "..");
+    const gogoprotoVendor = joinPath(repoRoot, "go/vendor/github.com/cosmos/gogoproto");
+    
     const outputDir = joinPath(tmpdir(), `ts-bufplugin-${process.pid.toString()}`);
     const protoDir = "./ts/test/functional/proto";
-    const command = [
-      `buf generate`,
-      `--config '${JSON.stringify({
+    
+    let bufConfig;
+    if (await vendorExists(gogoprotoVendor)) {
+      bufConfig = {
         version: "v2",
         modules: [
           { path: "go/vendor/github.com/cosmos/gogoproto" },
-          { path: "./ts/test/functional/proto" },
+          { path: protoDir },
         ],
-      })}'`,
+        deps: [
+          "buf.build/googleapis/googleapis",
+          "buf.build/protocolbuffers/wellknowntypes",
+        ],
+      };
+    } else {
+      console.log("Skipping test - vendor directory not found. Run 'make modvendor' to set up vendor.");
+      return;
+    }
+    const command = [
+      `npx --package=@bufbuild/buf buf generate`,
+      `--config '${JSON.stringify(bufConfig)}'`,
       `--template '${JSON.stringify(config)}'`,
       `-o '${outputDir}'`,
       `--path ${protoDir}/customtype.proto`,

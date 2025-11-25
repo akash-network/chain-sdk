@@ -19,24 +19,31 @@ import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 import { createChainNodeSDK } from "../../src/sdk/chain/createChainNodeSDK.ts";
+import { createStargateClient } from "../../src/sdk/transport/tx/createStargateClient/createStargateClient.ts";
 import { MsgCreateDeployment, MsgCloseDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
 
 describe("Deployment Queries", () => {
-  // Use the working configuration from your provided snippet
-  // Query and TX endpoints are different!
-  // Note: These are gRPC endpoints that need proper URL schemes
-  const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
-  const TX_RPC_URL = process.env.TX_RPC_URL || "https://testnetrpc.akashnet.net:443";
+  // Query and TX can use the same RPC endpoint
+  // If QUERY_RPC_URL is not set, fall back to TX_RPC_URL, then to sandbox default
+  const QUERY_RPC_URL = process.env.QUERY_RPC_URL || process.env.TX_RPC_URL || "http://grpc.sandbox-2.aksh.pw:9090";
+  const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.sandbox-2.aksh.pw:443";
   const TEST_TIMEOUT = 15000;
 
   // Helper function to create SDK instance
-  const createTestSDK = (wallet?: DirectSecp256k1HdWallet) => createChainNodeSDK({
-    query: { baseUrl: QUERY_RPC_URL },
-    tx: { baseUrl: TX_RPC_URL, signer: wallet || null as any },
-  });
+  const createTestSDK = async (wallet?: DirectSecp256k1HdWallet) => {
+    const txClient = wallet ? await createStargateClient({
+      baseUrl: TX_RPC_URL,
+      signer: wallet,
+    }) : undefined;
+    
+    return createChainNodeSDK({
+      query: { baseUrl: QUERY_RPC_URL },
+      tx: txClient ? { signer: txClient } : undefined,
+    });
+  };
 
   const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -51,7 +58,7 @@ describe("Deployment Queries", () => {
     try {
       const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
       const [account] = await wallet.getAccounts();
-      const sdk = createTestSDK(wallet);
+      const sdk = await createTestSDK(wallet);
 
       console.log(`\nCleaning up deployments for account: ${account.address}`);
 
@@ -117,7 +124,7 @@ describe("Deployment Queries", () => {
   }, 300000);
 
   it("should query deployments from the network", async () => {
-    const sdk = createTestSDK();
+    const sdk = await createTestSDK();
 
     const queryParams = {
       pagination: {
@@ -142,7 +149,7 @@ describe("Deployment Queries", () => {
   }, TEST_TIMEOUT);
 
   it("should query deployments with pagination", async () => {
-    const sdk = createTestSDK();
+    const sdk = await createTestSDK();
 
     const response = await sdk.akash.deployment.v1beta4.getDeployments({
       pagination: { limit: 5, countTotal: true },
@@ -159,7 +166,7 @@ describe("Deployment Queries", () => {
   }, TEST_TIMEOUT);
 
   it("should handle empty results gracefully", async () => {
-    const sdk = createTestSDK();
+    const sdk = await createTestSDK();
 
     const response = await sdk.akash.deployment.v1beta4.getDeployments({
       pagination: { limit: 1 },
@@ -172,8 +179,8 @@ describe("Deployment Queries", () => {
     
   }, TEST_TIMEOUT);
 
-  it("should create SDK instance with all modules", () => {
-    const sdk = createTestSDK();
+  it("should create SDK instance with all modules", async () => {
+    const sdk = await createTestSDK();
 
     // Verify core SDK structure
     expect(typeof sdk.akash.deployment.v1beta4.getDeployments).toBe('function');
@@ -303,9 +310,13 @@ describe("Deployment Queries", () => {
     });
 
     // Create SDK with test wallet
+    const txClient = await createStargateClient({
+      baseUrl: TX_RPC_URL,
+      signer: wallet,
+    });
     const sdk = createChainNodeSDK({
       query: { baseUrl: QUERY_RPC_URL },
-      tx: { baseUrl: TX_RPC_URL, signer: wallet },
+      tx: { signer: txClient },
     });
 
     // Create deployment message

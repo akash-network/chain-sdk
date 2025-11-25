@@ -1,5 +1,29 @@
 #!/usr/bin/env -S node --experimental-strip-types --no-warnings
 
+const localStoragePolyfill = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+  clear: () => {},
+  length: 0,
+  key: () => null,
+};
+
+if (typeof globalThis.localStorage === "undefined" || typeof globalThis.localStorage.getItem !== "function") {
+  Object.defineProperty(globalThis, "localStorage", {
+    value: localStoragePolyfill,
+    writable: true,
+    configurable: true,
+  });
+}
+if (typeof global !== "undefined" && (typeof global.localStorage === "undefined" || typeof global.localStorage.getItem !== "function")) {
+  Object.defineProperty(global, "localStorage", {
+    value: localStoragePolyfill,
+    writable: true,
+    configurable: true,
+  });
+}
+
 import { type DescField, type DescMessage, ScalarType } from "@bufbuild/protobuf";
 import {
   createEcmaScriptPlugin,

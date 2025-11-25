@@ -67,6 +67,7 @@
     "long": "^5.3.2"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.60.0",
     "@bufbuild/protoc-gen-es": "^2.2.3",
     "@bufbuild/protoplugin": "^2.2.3",
     "@eslint/js": "^9.21.0",

@@ -4,6 +4,7 @@ import Long from "long";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 import { createChainNodeSDK } from "../../src/sdk/chain/createChainNodeSDK.ts";
+import { createStargateClient } from "../../src/sdk/transport/tx/createStargateClient/createStargateClient.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
 import { MsgCreateLease } from "../../src/generated/protos/akash/market/v1beta5/leasemsg.ts";
 import { BidID } from "../../src/generated/protos/akash/market/v1/bid.ts";
@@ -12,14 +13,21 @@ import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
 
 describe("Lease Operations", () => {
-  const QUERY_RPC_URL = process.env.QUERY_RPC_URL || "http://rpc.dev.akash.pub:30090";
-  const TX_RPC_URL = process.env.TX_RPC_URL || "https://testnetrpc.akashnet.net:443";
+  const QUERY_RPC_URL = process.env.QUERY_RPC_URL || process.env.TX_RPC_URL || "http://grpc.sandbox-2.aksh.pw:9090";
+  const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.sandbox-2.aksh.pw:443";
   const TEST_TIMEOUT = 60000;
 
-  const createTestSDK = (wallet?: DirectSecp256k1HdWallet) => createChainNodeSDK({
-    query: { baseUrl: QUERY_RPC_URL },
-    tx: { baseUrl: TX_RPC_URL, signer: wallet || null as any },
-  });
+  const createTestSDK = async (wallet?: DirectSecp256k1HdWallet) => {
+    const txClient = wallet ? await createStargateClient({
+      baseUrl: TX_RPC_URL,
+      signer: wallet,
+    }) : undefined;
+    
+    return createChainNodeSDK({
+      query: { baseUrl: QUERY_RPC_URL },
+      tx: txClient ? { signer: txClient } : undefined,
+    });
+  };
 
   const createResourceValue = (value: string): { val: Uint8Array } => ({
     val: new TextEncoder().encode(value)
@@ -43,7 +51,7 @@ describe("Lease Operations", () => {
     console.log(`Test Account Address: ${account.address}`);
     console.log(`To fund this account, send some AKT tokens to: ${account.address}`);
     
-    const sdk = createTestSDK(wallet);
+    const sdk = await createTestSDK(wallet);
 
     console.log("Step 1: Creating deployment...");
     
@@ -213,7 +221,7 @@ describe("Lease Operations", () => {
   }, TEST_TIMEOUT);
 
   it("should query existing leases from the network", async () => {
-    const sdk = createTestSDK();
+    const sdk = await createTestSDK();
 
     const queryParams = {
       pagination: {
@@ -251,7 +259,7 @@ describe("Lease Operations", () => {
   }, 15000);
 
   it("should query existing bids from the network", async () => {
-    const sdk = createTestSDK();
+    const sdk = await createTestSDK();
 
     const queryParams = {
       pagination: {
