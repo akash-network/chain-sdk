@@ -86,6 +86,7 @@ const (
 	FlagGSeq                      = "gseq"
 	FlagOSeq                      = "oseq"
 	FlagProvider                  = "provider"
+	FlagClosedReason              = "reason"
 	FlagSerial                    = "serial"
 	FlagPrice                     = "price"
 	FlagDeposit                   = "deposit"

@@ -11,10 +11,11 @@ export interface TxCallOptions {
   afterSign?: (tx: TxRaw) => void;
   afterBroadcast?: (tx: DeliverTxResponse) => void;
   memo?: string;
-  fee?: StdFee;
+  fee?: Partial<StdFee>;
 }
 
 export interface Transport<TCallOptions = unknown> {
+  requiresTypePatching?: boolean;
   /**
    * Call a unary RPC - a method that takes a single input message, and
    * responds with a single output message.

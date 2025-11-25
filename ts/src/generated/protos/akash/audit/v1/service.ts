@@ -6,4 +6,4 @@
 
 /* eslint-disable */
 
-export const protobufPackage = "akash.audit.v1";
+export {};

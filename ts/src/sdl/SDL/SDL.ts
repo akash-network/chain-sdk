@@ -654,8 +654,8 @@ export class SDL {
       cpu: this.serviceResourceCpu(profile.resources.cpu),
       memory: this.serviceResourceMemory(profile.resources.memory, asString),
       storage: this.serviceResourceStorage(profile.resources.storage, asString),
-      endpoints: this.v3ServiceResourceEndpoints(service),
       gpu: this.serviceResourceGpu(profile.resources.gpu, asString),
+      endpoints: this.v3ServiceResourceEndpoints(service),
     };
   }
 
@@ -870,7 +870,7 @@ export class SDL {
       credentials.email = "";
     }
 
-    return {
+    const manifestService: v3ManifestService = {
       name: name,
       image: service.image,
       command: service.command || null,
@@ -882,6 +882,12 @@ export class SDL {
       params: this.v3ManifestServiceParams(service.params),
       credentials,
     };
+
+    if (!manifestService.params) {
+      delete manifestService.params;
+    }
+
+    return manifestService;
   }
 
   v2Manifest(asString: boolean = false): v2Manifest {

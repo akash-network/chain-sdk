@@ -5,6 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -12,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	jwttests "pkg.akt.dev/testdata/jwt"
 
 	"pkg.akt.dev/go/sdkutil"
@@ -27,6 +31,8 @@ type IntegrationTestSuite struct {
 }
 
 func (s *IntegrationTestSuite) SetupSuite() {
+	legacytx.RegressionTestingAminoCodec = codec.NewLegacyAmino()
+
 	s.T().Log("setting up integration test suite")
 
 	mnemonic, err := jwttests.GetTestsFile("mnemonic")
@@ -65,4 +71,18 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 func TestJWTTestSuite(t *testing.T) {
 	suite.Run(t, new(ES256kTest))
 	suite.Run(t, new(JWTTestSuite))
+}
+
+func decodeSegment(t interface{ Fatalf(string, ...any) }, seg string) (sig []byte) {
+	var err error
+	sig, err = jwt.NewParser().DecodeSegment(seg)
+	if err != nil {
+		t.Fatalf("could not decode segment: %v", err)
+	}
+
+	return
+}
+
+func encodeSegment(sig []byte) string {
+	return (&jwt.Token{}).EncodeSegment(sig)
 }

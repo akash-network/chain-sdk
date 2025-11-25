@@ -50,7 +50,10 @@ function gen_ts() {
 	rm -rf ts/src/generated
 	PROTO_SOURCE=node buf generate --template buf.gen.ts.yaml ./proto/node
 	PROTO_SOURCE=cosmos buf generate --template buf.gen.ts.yaml ./go/vendor/github.com/cosmos/cosmos-sdk/proto
+	PROTO_SOURCE=ibc-go buf generate --template buf.gen.ts.yaml ./go/vendor/github.com/cosmos/ibc-go/v10/proto
+#	PROTO_SOURCE=ics23 buf generate --template buf.gen.ts.yaml ./go/vendor/github.com/cosmos/ics23/proto
 	PROTO_SOURCE=provider buf generate --template buf.gen.ts.yaml ./proto/provider
+	node --experimental-strip-types --no-warnings ts/script/fix-ts-proto-generated-types.ts
 }
 
 function gen_doc() {

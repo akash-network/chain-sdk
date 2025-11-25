@@ -1,6 +1,6 @@
 module pkg.akt.dev/go
 
-go 1.24.3
+go 1.25.0
 
 require (
 	cosmossdk.io/api v0.9.2
@@ -19,6 +19,7 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.53.3
 	github.com/cosmos/gogoproto v1.7.0
+	github.com/cosmos/ibc-go/v10 v10.3.0
 	github.com/edwingeng/deque/v2 v2.1.1
 	github.com/go-logr/logr v1.4.2
 	github.com/gogo/protobuf v1.3.2
@@ -46,11 +47,12 @@ require (
 replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	github.com/bytedance/sonic => github.com/bytedance/sonic v1.14.1
 
 	// use akash fork of cometbft
-	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.17-akash.2
+	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.19-akash.1
 	// use akash fork of cosmos sdk
-	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.4-akash.3
+	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.4-akash.b.10
 
 	github.com/cosmos/gogoproto => github.com/akash-network/gogoproto v1.7.0-akash.2
 
@@ -70,6 +72,9 @@ replace (
 	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
 	// stick with compatible version of rapid in v0.47.x line
 	pgregory.net/rapid => pgregory.net/rapid v0.5.5
+	pkg.akt.dev/specs => ../specs
+
+	pkg.akt.dev/testdata => ../testdata
 )
 
 exclude (
@@ -112,18 +117,21 @@ require (
 	cosmossdk.io/store v1.1.2 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
-	github.com/DataDog/datadog-go v3.2.0+incompatible // indirect
+	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.15.0+incompatible // indirect
+	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.2.0 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.13.2 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.5 // indirect
+	github.com/chzyer/readline v1.5.1 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cockroachdb/errors v1.12.0 // indirect
 	github.com/cockroachdb/fifo v0.0.0-20240816210425-c5d0cb0b6fc0 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20241215232642-bb51bb14a506 // indirect
@@ -138,16 +146,16 @@ require (
 	github.com/cosmos/iavl v1.2.2 // indirect
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.14.0 // indirect
-	github.com/danieljoos/wincred v1.1.2 // indirect
+	github.com/danieljoos/wincred v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
-	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/desertbit/timer v1.0.1 // indirect
 	github.com/dgraph-io/badger/v4 v4.6.0 // indirect
 	github.com/dgraph-io/ristretto/v2 v2.1.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
+	github.com/dvsekhvalnov/jose2go v1.7.0 // indirect
 	github.com/emicklei/dot v1.6.2 // indirect
-	github.com/fatih/color v1.15.0 // indirect
+	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
@@ -159,7 +167,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
-	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
+	github.com/golang/snappy v0.0.5-0.20231225225746-43d5d4cd4e0e // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/flatbuffers v25.2.10+incompatible // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -192,6 +200,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/linxGnu/grocksdb v1.9.8 // indirect
+	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/minio/highwayhash v1.0.3 // indirect
@@ -257,7 +266,7 @@ require (
 	gotest.tools/v3 v3.5.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
-	nhooyr.io/websocket v1.8.6 // indirect
+	nhooyr.io/websocket v1.8.11 // indirect
 	pgregory.net/rapid v1.2.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.2 // indirect

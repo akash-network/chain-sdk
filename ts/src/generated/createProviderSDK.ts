@@ -6,7 +6,7 @@ import type * as akash_provider_lease_v1_service from "./protos/akash/provider/l
 import { createClientFactory } from "../sdk/client/createClientFactory.ts";
 import type { Transport, CallOptions } from "../sdk/transport/types.ts";
 import { withMetadata } from "../sdk/client/sdkMetadata.ts";
-import type { DeepPartial } from "../utils/types.ts";
+import type { DeepPartial } from "../encoding/typeEncodingHelpers.ts";
 
 
 export const serviceLoader= createServiceLoader([

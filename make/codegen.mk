@@ -3,7 +3,7 @@ ts \
 doc
 
 .PHONY: proto-gen
-proto-gen: $(patsubst %, proto-gen-%,$(PROTO_GEN_MODS))
+proto-gen: buf-deps $(patsubst %, proto-gen-%,$(PROTO_GEN_MODS))
 
 .PHONY: proto-gen-go
 proto-gen-go: $(BUF) $(PROTOC) $(GOGOPROTO) $(PROTOC_GEN_GOCOSMOS) $(PROTOC_GEN_GRPC_GATEWAY) $(PROTOC_GEN_GO) $(PROTOC_GEN_GOGO)

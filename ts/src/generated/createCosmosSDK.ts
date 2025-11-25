@@ -55,7 +55,7 @@ import type * as cosmos_vesting_v1beta1_tx from "./protos/cosmos/vesting/v1beta1
 import { createClientFactory } from "../sdk/client/createClientFactory.ts";
 import type { Transport, CallOptions, TxCallOptions } from "../sdk/transport/types.ts";
 import { withMetadata } from "../sdk/client/sdkMetadata.ts";
-import type { DeepPartial } from "../utils/types.ts";
+import type { DeepPartial, DeepSimplify } from "../encoding/typeEncodingHelpers.ts";
 
 
 export const serviceLoader= createServiceLoader([
@@ -207,7 +207,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a (governance) operation for updating the x/auth module
            * parameters. The authority defaults to the x/gov module account.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_auth_v1beta1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_auth_v1beta1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(2);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [2, 0] })
@@ -242,7 +242,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * for the given (granter, grantee, Authorization) triple, then the grant
            * will be overwritten.
            */
-          grant: withMetadata(async function grant(input: cosmos_authz_v1beta1_tx.MsgGrant, options?: TxCallOptions) {
+          grant: withMetadata(async function grant(input: DeepSimplify<cosmos_authz_v1beta1_tx.MsgGrant>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getMsgClient(service).grant(input, options);
           }, { path: [4, 0] }),
@@ -251,7 +251,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * authorizations granted to the grantee. Each message should have only
            * one signer corresponding to the granter of the authorization.
            */
-          exec: withMetadata(async function exec(input: cosmos_authz_v1beta1_tx.MsgExec, options?: TxCallOptions) {
+          exec: withMetadata(async function exec(input: DeepSimplify<cosmos_authz_v1beta1_tx.MsgExec>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getMsgClient(service).exec(input, options);
           }, { path: [4, 1] }),
@@ -259,7 +259,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * revoke revokes any authorization corresponding to the provided method name on the
            * granter's account that has been granted to the grantee.
            */
-          revoke: withMetadata(async function revoke(input: cosmos_authz_v1beta1_tx.MsgRevoke, options?: TxCallOptions) {
+          revoke: withMetadata(async function revoke(input: DeepSimplify<cosmos_authz_v1beta1_tx.MsgRevoke>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getMsgClient(service).revoke(input, options);
           }, { path: [4, 2] })
@@ -399,14 +399,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * send defines a method for sending coins from one account to another account.
            */
-          send: withMetadata(async function send(input: cosmos_bank_v1beta1_tx.MsgSend, options?: TxCallOptions) {
+          send: withMetadata(async function send(input: DeepSimplify<cosmos_bank_v1beta1_tx.MsgSend>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).send(input, options);
           }, { path: [7, 0] }),
           /**
            * multiSend defines a method for sending coins from some accounts to other accounts.
            */
-          multiSend: withMetadata(async function multiSend(input: cosmos_bank_v1beta1_tx.MsgMultiSend, options?: TxCallOptions) {
+          multiSend: withMetadata(async function multiSend(input: DeepSimplify<cosmos_bank_v1beta1_tx.MsgMultiSend>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).multiSend(input, options);
           }, { path: [7, 1] }),
@@ -414,7 +414,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/bank module parameters.
            * The authority is defined in the keeper.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_bank_v1beta1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_bank_v1beta1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [7, 2] }),
@@ -424,7 +424,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * included. Entries that already exist in the store, but that aren't
            * included in this message, will be left unchanged.
            */
-          setSendEnabled: withMetadata(async function setSendEnabled(input: cosmos_bank_v1beta1_tx.MsgSetSendEnabled, options?: TxCallOptions) {
+          setSendEnabled: withMetadata(async function setSendEnabled(input: DeepSimplify<cosmos_bank_v1beta1_tx.MsgSetSendEnabled>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).setSendEnabled(input, options);
           }, { path: [7, 3] })
@@ -576,7 +576,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * loadTest defines a method for executing a sequence of load test operations.
            */
-          loadTest: withMetadata(async function loadTest(input: cosmos_benchmark_v1_tx.MsgLoadTest, options?: TxCallOptions) {
+          loadTest: withMetadata(async function loadTest(input: DeepSimplify<cosmos_benchmark_v1_tx.MsgLoadTest>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).loadTest(input, options);
           }, { path: [13, 0] })
@@ -609,14 +609,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * authorizeCircuitBreaker allows a super-admin to grant (or revoke) another
            * account's circuit breaker permissions.
            */
-          authorizeCircuitBreaker: withMetadata(async function authorizeCircuitBreaker(input: cosmos_circuit_v1_tx.MsgAuthorizeCircuitBreaker, options?: TxCallOptions) {
+          authorizeCircuitBreaker: withMetadata(async function authorizeCircuitBreaker(input: DeepSimplify<cosmos_circuit_v1_tx.MsgAuthorizeCircuitBreaker>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(15);
             return getMsgClient(service).authorizeCircuitBreaker(input, options);
           }, { path: [15, 0] }),
           /**
            * tripCircuitBreaker pauses processing of Msg's in the state machine.
            */
-          tripCircuitBreaker: withMetadata(async function tripCircuitBreaker(input: cosmos_circuit_v1_tx.MsgTripCircuitBreaker, options?: TxCallOptions) {
+          tripCircuitBreaker: withMetadata(async function tripCircuitBreaker(input: DeepSimplify<cosmos_circuit_v1_tx.MsgTripCircuitBreaker>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(15);
             return getMsgClient(service).tripCircuitBreaker(input, options);
           }, { path: [15, 1] }),
@@ -624,7 +624,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * resetCircuitBreaker resumes processing of Msg's in the state machine that
            * have been been paused using TripCircuitBreaker.
            */
-          resetCircuitBreaker: withMetadata(async function resetCircuitBreaker(input: cosmos_circuit_v1_tx.MsgResetCircuitBreaker, options?: TxCallOptions) {
+          resetCircuitBreaker: withMetadata(async function resetCircuitBreaker(input: DeepSimplify<cosmos_circuit_v1_tx.MsgResetCircuitBreaker>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(15);
             return getMsgClient(service).resetCircuitBreaker(input, options);
           }, { path: [15, 2] })
@@ -643,7 +643,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/consensus module parameters.
            * The authority is defined in the keeper.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_consensus_v1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_consensus_v1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(17);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [17, 0] })
@@ -661,7 +661,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * increaseCount increments the counter by the specified amount.
            */
-          increaseCount: withMetadata(async function increaseCount(input: cosmos_counter_v1_tx.MsgIncreaseCounter, options?: TxCallOptions) {
+          increaseCount: withMetadata(async function increaseCount(input: DeepSimplify<cosmos_counter_v1_tx.MsgIncreaseCounter>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(19);
             return getMsgClient(service).increaseCount(input, options);
           }, { path: [19, 0] })
@@ -672,7 +672,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * verifyInvariant defines a method to verify a particular invariant.
            */
-          verifyInvariant: withMetadata(async function verifyInvariant(input: cosmos_crisis_v1beta1_tx.MsgVerifyInvariant, options?: TxCallOptions) {
+          verifyInvariant: withMetadata(async function verifyInvariant(input: DeepSimplify<cosmos_crisis_v1beta1_tx.MsgVerifyInvariant>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(20);
             return getMsgClient(service).verifyInvariant(input, options);
           }, { path: [20, 0] }),
@@ -680,7 +680,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/crisis module
            * parameters. The authority is defined in the keeper.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_crisis_v1beta1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_crisis_v1beta1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(20);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [20, 1] })
@@ -765,7 +765,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * setWithdrawAddress defines a method to change the withdraw address
            * for a delegator (or validator self-delegation).
            */
-          setWithdrawAddress: withMetadata(async function setWithdrawAddress(input: cosmos_distribution_v1beta1_tx.MsgSetWithdrawAddress, options?: TxCallOptions) {
+          setWithdrawAddress: withMetadata(async function setWithdrawAddress(input: DeepSimplify<cosmos_distribution_v1beta1_tx.MsgSetWithdrawAddress>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).setWithdrawAddress(input, options);
           }, { path: [22, 0] }),
@@ -773,7 +773,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * withdrawDelegatorReward defines a method to withdraw rewards of delegator
            * from a single validator.
            */
-          withdrawDelegatorReward: withMetadata(async function withdrawDelegatorReward(input: cosmos_distribution_v1beta1_tx.MsgWithdrawDelegatorReward, options?: TxCallOptions) {
+          withdrawDelegatorReward: withMetadata(async function withdrawDelegatorReward(input: DeepSimplify<cosmos_distribution_v1beta1_tx.MsgWithdrawDelegatorReward>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).withdrawDelegatorReward(input, options);
           }, { path: [22, 1] }),
@@ -781,7 +781,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * withdrawValidatorCommission defines a method to withdraw the
            * full commission to the validator address.
            */
-          withdrawValidatorCommission: withMetadata(async function withdrawValidatorCommission(input: cosmos_distribution_v1beta1_tx.MsgWithdrawValidatorCommission, options?: TxCallOptions) {
+          withdrawValidatorCommission: withMetadata(async function withdrawValidatorCommission(input: DeepSimplify<cosmos_distribution_v1beta1_tx.MsgWithdrawValidatorCommission>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).withdrawValidatorCommission(input, options);
           }, { path: [22, 2] }),
@@ -791,7 +791,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            *
            * WARNING: This method will fail if an external community pool is used.
            */
-          fundCommunityPool: withMetadata(async function fundCommunityPool(input: cosmos_distribution_v1beta1_tx.MsgFundCommunityPool, options?: TxCallOptions) {
+          fundCommunityPool: withMetadata(async function fundCommunityPool(input: DeepSimplify<cosmos_distribution_v1beta1_tx.MsgFundCommunityPool>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).fundCommunityPool(input, options);
           }, { path: [22, 3] }),
@@ -799,7 +799,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/distribution
            * module parameters. The authority is defined in the keeper.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_distribution_v1beta1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_distribution_v1beta1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [22, 4] }),
@@ -811,7 +811,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            *
            * WARNING: This method will fail if an external community pool is used.
            */
-          communityPoolSpend: withMetadata(async function communityPoolSpend(input: cosmos_distribution_v1beta1_tx.MsgCommunityPoolSpend, options?: TxCallOptions) {
+          communityPoolSpend: withMetadata(async function communityPoolSpend(input: DeepSimplify<cosmos_distribution_v1beta1_tx.MsgCommunityPoolSpend>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).communityPoolSpend(input, options);
           }, { path: [22, 5] }),
@@ -819,7 +819,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * depositValidatorRewardsPool defines a method to provide additional rewards
            * to delegators to a specific validator.
            */
-          depositValidatorRewardsPool: withMetadata(async function depositValidatorRewardsPool(input: cosmos_distribution_v1beta1_tx.MsgDepositValidatorRewardsPool, options?: TxCallOptions) {
+          depositValidatorRewardsPool: withMetadata(async function depositValidatorRewardsPool(input: DeepSimplify<cosmos_distribution_v1beta1_tx.MsgDepositValidatorRewardsPool>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).depositValidatorRewardsPool(input, options);
           }, { path: [22, 6] })
@@ -863,7 +863,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * submitEvidence submits an arbitrary Evidence of misbehavior such as equivocation or
            * counterfactual signing.
            */
-          submitEvidence: withMetadata(async function submitEvidence(input: cosmos_evidence_v1beta1_tx.MsgSubmitEvidence, options?: TxCallOptions) {
+          submitEvidence: withMetadata(async function submitEvidence(input: DeepSimplify<cosmos_evidence_v1beta1_tx.MsgSubmitEvidence>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(25);
             return getMsgClient(service).submitEvidence(input, options);
           }, { path: [25, 0] })
@@ -896,7 +896,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * grantAllowance grants fee allowance to the grantee on the granter's
            * account with the provided expiration time.
            */
-          grantAllowance: withMetadata(async function grantAllowance(input: cosmos_feegrant_v1beta1_tx.MsgGrantAllowance, options?: TxCallOptions) {
+          grantAllowance: withMetadata(async function grantAllowance(input: DeepSimplify<cosmos_feegrant_v1beta1_tx.MsgGrantAllowance>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(27);
             return getMsgClient(service).grantAllowance(input, options);
           }, { path: [27, 0] }),
@@ -904,14 +904,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * revokeAllowance revokes any fee allowance of granter's account that
            * has been granted to the grantee.
            */
-          revokeAllowance: withMetadata(async function revokeAllowance(input: cosmos_feegrant_v1beta1_tx.MsgRevokeAllowance, options?: TxCallOptions) {
+          revokeAllowance: withMetadata(async function revokeAllowance(input: DeepSimplify<cosmos_feegrant_v1beta1_tx.MsgRevokeAllowance>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(27);
             return getMsgClient(service).revokeAllowance(input, options);
           }, { path: [27, 1] }),
           /**
            * pruneAllowances prunes expired fee allowances, currently up to 75 at a time.
            */
-          pruneAllowances: withMetadata(async function pruneAllowances(input: cosmos_feegrant_v1beta1_tx.MsgPruneAllowances, options?: TxCallOptions) {
+          pruneAllowances: withMetadata(async function pruneAllowances(input: DeepSimplify<cosmos_feegrant_v1beta1_tx.MsgPruneAllowances>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(27);
             return getMsgClient(service).pruneAllowances(input, options);
           }, { path: [27, 2] })
@@ -985,7 +985,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * submitProposal defines a method to create new proposal given the messages.
            */
-          submitProposal: withMetadata(async function submitProposal(input: cosmos_gov_v1_tx.MsgSubmitProposal, options?: TxCallOptions) {
+          submitProposal: withMetadata(async function submitProposal(input: DeepSimplify<cosmos_gov_v1_tx.MsgSubmitProposal>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(29);
             return getMsgClient(service).submitProposal(input, options);
           }, { path: [29, 0] }),
@@ -993,28 +993,28 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * execLegacyContent defines a Msg to be in included in a MsgSubmitProposal
            * to execute a legacy content-based proposal.
            */
-          execLegacyContent: withMetadata(async function execLegacyContent(input: cosmos_gov_v1_tx.MsgExecLegacyContent, options?: TxCallOptions) {
+          execLegacyContent: withMetadata(async function execLegacyContent(input: DeepSimplify<cosmos_gov_v1_tx.MsgExecLegacyContent>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(29);
             return getMsgClient(service).execLegacyContent(input, options);
           }, { path: [29, 1] }),
           /**
            * vote defines a method to add a vote on a specific proposal.
            */
-          vote: withMetadata(async function vote(input: cosmos_gov_v1_tx.MsgVote, options?: TxCallOptions) {
+          vote: withMetadata(async function vote(input: DeepSimplify<cosmos_gov_v1_tx.MsgVote>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(29);
             return getMsgClient(service).vote(input, options);
           }, { path: [29, 2] }),
           /**
            * voteWeighted defines a method to add a weighted vote on a specific proposal.
            */
-          voteWeighted: withMetadata(async function voteWeighted(input: cosmos_gov_v1_tx.MsgVoteWeighted, options?: TxCallOptions) {
+          voteWeighted: withMetadata(async function voteWeighted(input: DeepSimplify<cosmos_gov_v1_tx.MsgVoteWeighted>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(29);
             return getMsgClient(service).voteWeighted(input, options);
           }, { path: [29, 3] }),
           /**
            * deposit defines a method to add deposit on a specific proposal.
            */
-          deposit: withMetadata(async function deposit(input: cosmos_gov_v1_tx.MsgDeposit, options?: TxCallOptions) {
+          deposit: withMetadata(async function deposit(input: DeepSimplify<cosmos_gov_v1_tx.MsgDeposit>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(29);
             return getMsgClient(service).deposit(input, options);
           }, { path: [29, 4] }),
@@ -1022,14 +1022,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/gov module
            * parameters. The authority is defined in the keeper.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_gov_v1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_gov_v1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(29);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [29, 5] }),
           /**
            * cancelProposal defines a method to cancel governance proposal
            */
-          cancelProposal: withMetadata(async function cancelProposal(input: cosmos_gov_v1_tx.MsgCancelProposal, options?: TxCallOptions) {
+          cancelProposal: withMetadata(async function cancelProposal(input: DeepSimplify<cosmos_gov_v1_tx.MsgCancelProposal>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(29);
             return getMsgClient(service).cancelProposal(input, options);
           }, { path: [29, 6] })
@@ -1094,28 +1094,28 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * submitProposal defines a method to create new proposal given a content.
            */
-          submitProposal: withMetadata(async function submitProposal(input: cosmos_gov_v1beta1_tx.MsgSubmitProposal, options?: TxCallOptions) {
+          submitProposal: withMetadata(async function submitProposal(input: DeepSimplify<cosmos_gov_v1beta1_tx.MsgSubmitProposal>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(31);
             return getMsgClient(service).submitProposal(input, options);
           }, { path: [31, 0] }),
           /**
            * vote defines a method to add a vote on a specific proposal.
            */
-          vote: withMetadata(async function vote(input: cosmos_gov_v1beta1_tx.MsgVote, options?: TxCallOptions) {
+          vote: withMetadata(async function vote(input: DeepSimplify<cosmos_gov_v1beta1_tx.MsgVote>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(31);
             return getMsgClient(service).vote(input, options);
           }, { path: [31, 1] }),
           /**
            * voteWeighted defines a method to add a weighted vote on a specific proposal.
            */
-          voteWeighted: withMetadata(async function voteWeighted(input: cosmos_gov_v1beta1_tx.MsgVoteWeighted, options?: TxCallOptions) {
+          voteWeighted: withMetadata(async function voteWeighted(input: DeepSimplify<cosmos_gov_v1beta1_tx.MsgVoteWeighted>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(31);
             return getMsgClient(service).voteWeighted(input, options);
           }, { path: [31, 2] }),
           /**
            * deposit defines a method to add deposit on a specific proposal.
            */
-          deposit: withMetadata(async function deposit(input: cosmos_gov_v1beta1_tx.MsgDeposit, options?: TxCallOptions) {
+          deposit: withMetadata(async function deposit(input: DeepSimplify<cosmos_gov_v1beta1_tx.MsgDeposit>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(31);
             return getMsgClient(service).deposit(input, options);
           }, { path: [31, 3] })
@@ -1228,98 +1228,98 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * createGroup creates a new group with an admin account address, a list of members and some optional metadata.
            */
-          createGroup: withMetadata(async function createGroup(input: cosmos_group_v1_tx.MsgCreateGroup, options?: TxCallOptions) {
+          createGroup: withMetadata(async function createGroup(input: DeepSimplify<cosmos_group_v1_tx.MsgCreateGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).createGroup(input, options);
           }, { path: [33, 0] }),
           /**
            * updateGroupMembers updates the group members with given group id and admin address.
            */
-          updateGroupMembers: withMetadata(async function updateGroupMembers(input: cosmos_group_v1_tx.MsgUpdateGroupMembers, options?: TxCallOptions) {
+          updateGroupMembers: withMetadata(async function updateGroupMembers(input: DeepSimplify<cosmos_group_v1_tx.MsgUpdateGroupMembers>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).updateGroupMembers(input, options);
           }, { path: [33, 1] }),
           /**
            * updateGroupAdmin updates the group admin with given group id and previous admin address.
            */
-          updateGroupAdmin: withMetadata(async function updateGroupAdmin(input: cosmos_group_v1_tx.MsgUpdateGroupAdmin, options?: TxCallOptions) {
+          updateGroupAdmin: withMetadata(async function updateGroupAdmin(input: DeepSimplify<cosmos_group_v1_tx.MsgUpdateGroupAdmin>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).updateGroupAdmin(input, options);
           }, { path: [33, 2] }),
           /**
            * updateGroupMetadata updates the group metadata with given group id and admin address.
            */
-          updateGroupMetadata: withMetadata(async function updateGroupMetadata(input: cosmos_group_v1_tx.MsgUpdateGroupMetadata, options?: TxCallOptions) {
+          updateGroupMetadata: withMetadata(async function updateGroupMetadata(input: DeepSimplify<cosmos_group_v1_tx.MsgUpdateGroupMetadata>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).updateGroupMetadata(input, options);
           }, { path: [33, 3] }),
           /**
            * createGroupPolicy creates a new group policy using given DecisionPolicy.
            */
-          createGroupPolicy: withMetadata(async function createGroupPolicy(input: cosmos_group_v1_tx.MsgCreateGroupPolicy, options?: TxCallOptions) {
+          createGroupPolicy: withMetadata(async function createGroupPolicy(input: DeepSimplify<cosmos_group_v1_tx.MsgCreateGroupPolicy>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).createGroupPolicy(input, options);
           }, { path: [33, 4] }),
           /**
            * createGroupWithPolicy creates a new group with policy.
            */
-          createGroupWithPolicy: withMetadata(async function createGroupWithPolicy(input: cosmos_group_v1_tx.MsgCreateGroupWithPolicy, options?: TxCallOptions) {
+          createGroupWithPolicy: withMetadata(async function createGroupWithPolicy(input: DeepSimplify<cosmos_group_v1_tx.MsgCreateGroupWithPolicy>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).createGroupWithPolicy(input, options);
           }, { path: [33, 5] }),
           /**
            * updateGroupPolicyAdmin updates a group policy admin.
            */
-          updateGroupPolicyAdmin: withMetadata(async function updateGroupPolicyAdmin(input: cosmos_group_v1_tx.MsgUpdateGroupPolicyAdmin, options?: TxCallOptions) {
+          updateGroupPolicyAdmin: withMetadata(async function updateGroupPolicyAdmin(input: DeepSimplify<cosmos_group_v1_tx.MsgUpdateGroupPolicyAdmin>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).updateGroupPolicyAdmin(input, options);
           }, { path: [33, 6] }),
           /**
            * updateGroupPolicyDecisionPolicy allows a group policy's decision policy to be updated.
            */
-          updateGroupPolicyDecisionPolicy: withMetadata(async function updateGroupPolicyDecisionPolicy(input: cosmos_group_v1_tx.MsgUpdateGroupPolicyDecisionPolicy, options?: TxCallOptions) {
+          updateGroupPolicyDecisionPolicy: withMetadata(async function updateGroupPolicyDecisionPolicy(input: DeepSimplify<cosmos_group_v1_tx.MsgUpdateGroupPolicyDecisionPolicy>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).updateGroupPolicyDecisionPolicy(input, options);
           }, { path: [33, 7] }),
           /**
            * updateGroupPolicyMetadata updates a group policy metadata.
            */
-          updateGroupPolicyMetadata: withMetadata(async function updateGroupPolicyMetadata(input: cosmos_group_v1_tx.MsgUpdateGroupPolicyMetadata, options?: TxCallOptions) {
+          updateGroupPolicyMetadata: withMetadata(async function updateGroupPolicyMetadata(input: DeepSimplify<cosmos_group_v1_tx.MsgUpdateGroupPolicyMetadata>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).updateGroupPolicyMetadata(input, options);
           }, { path: [33, 8] }),
           /**
            * submitProposal submits a new proposal.
            */
-          submitProposal: withMetadata(async function submitProposal(input: cosmos_group_v1_tx.MsgSubmitProposal, options?: TxCallOptions) {
+          submitProposal: withMetadata(async function submitProposal(input: DeepSimplify<cosmos_group_v1_tx.MsgSubmitProposal>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).submitProposal(input, options);
           }, { path: [33, 9] }),
           /**
            * withdrawProposal withdraws a proposal.
            */
-          withdrawProposal: withMetadata(async function withdrawProposal(input: cosmos_group_v1_tx.MsgWithdrawProposal, options?: TxCallOptions) {
+          withdrawProposal: withMetadata(async function withdrawProposal(input: DeepSimplify<cosmos_group_v1_tx.MsgWithdrawProposal>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).withdrawProposal(input, options);
           }, { path: [33, 10] }),
           /**
            * vote allows a voter to vote on a proposal.
            */
-          vote: withMetadata(async function vote(input: cosmos_group_v1_tx.MsgVote, options?: TxCallOptions) {
+          vote: withMetadata(async function vote(input: DeepSimplify<cosmos_group_v1_tx.MsgVote>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).vote(input, options);
           }, { path: [33, 11] }),
           /**
            * exec executes a proposal.
            */
-          exec: withMetadata(async function exec(input: cosmos_group_v1_tx.MsgExec, options?: TxCallOptions) {
+          exec: withMetadata(async function exec(input: DeepSimplify<cosmos_group_v1_tx.MsgExec>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).exec(input, options);
           }, { path: [33, 12] }),
           /**
            * leaveGroup allows a group member to leave the group.
            */
-          leaveGroup: withMetadata(async function leaveGroup(input: cosmos_group_v1_tx.MsgLeaveGroup, options?: TxCallOptions) {
+          leaveGroup: withMetadata(async function leaveGroup(input: DeepSimplify<cosmos_group_v1_tx.MsgLeaveGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(33);
             return getMsgClient(service).leaveGroup(input, options);
           }, { path: [33, 13] })
@@ -1352,7 +1352,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/mint module
            * parameters. The authority is defaults to the x/gov module account.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_mint_v1beta1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_mint_v1beta1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(35);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [35, 0] })
@@ -1413,7 +1413,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * send defines a method to send a nft from one account to another account.
            */
-          send: withMetadata(async function send(input: cosmos_nft_v1beta1_tx.MsgSend, options?: TxCallOptions) {
+          send: withMetadata(async function send(input: DeepSimplify<cosmos_nft_v1beta1_tx.MsgSend>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(37);
             return getMsgClient(service).send(input, options);
           }, { path: [37, 0] })
@@ -1472,7 +1472,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * fundCommunityPool defines a method to allow an account to directly
            * fund the community pool.
            */
-          fundCommunityPool: withMetadata(async function fundCommunityPool(input: cosmos_protocolpool_v1_tx.MsgFundCommunityPool, options?: TxCallOptions) {
+          fundCommunityPool: withMetadata(async function fundCommunityPool(input: DeepSimplify<cosmos_protocolpool_v1_tx.MsgFundCommunityPool>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(40);
             return getMsgClient(service).fundCommunityPool(input, options);
           }, { path: [40, 0] }),
@@ -1482,7 +1482,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * could be the governance module itself. The authority is defined in the
            * keeper.
            */
-          communityPoolSpend: withMetadata(async function communityPoolSpend(input: cosmos_protocolpool_v1_tx.MsgCommunityPoolSpend, options?: TxCallOptions) {
+          communityPoolSpend: withMetadata(async function communityPoolSpend(input: DeepSimplify<cosmos_protocolpool_v1_tx.MsgCommunityPoolSpend>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(40);
             return getMsgClient(service).communityPoolSpend(input, options);
           }, { path: [40, 1] }),
@@ -1492,14 +1492,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * Funds come from validator block rewards from x/distribution, but may also come from
            * any user who funds the ProtocolPoolEscrow module account directly through x/bank.
            */
-          createContinuousFund: withMetadata(async function createContinuousFund(input: cosmos_protocolpool_v1_tx.MsgCreateContinuousFund, options?: TxCallOptions) {
+          createContinuousFund: withMetadata(async function createContinuousFund(input: DeepSimplify<cosmos_protocolpool_v1_tx.MsgCreateContinuousFund>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(40);
             return getMsgClient(service).createContinuousFund(input, options);
           }, { path: [40, 2] }),
           /**
            * cancelContinuousFund defines a method for cancelling continuous fund.
            */
-          cancelContinuousFund: withMetadata(async function cancelContinuousFund(input: cosmos_protocolpool_v1_tx.MsgCancelContinuousFund, options?: TxCallOptions) {
+          cancelContinuousFund: withMetadata(async function cancelContinuousFund(input: DeepSimplify<cosmos_protocolpool_v1_tx.MsgCancelContinuousFund>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(40);
             return getMsgClient(service).cancelContinuousFund(input, options);
           }, { path: [40, 3] }),
@@ -1507,7 +1507,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/protocolpool module parameters.
            * The authority is defined in the keeper.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_protocolpool_v1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_protocolpool_v1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(40);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [40, 4] })
@@ -1553,7 +1553,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * them into the bonded validator set, so they can begin receiving provisions
            * and rewards again.
            */
-          unjail: withMetadata(async function unjail(input: cosmos_slashing_v1beta1_tx.MsgUnjail, options?: TxCallOptions) {
+          unjail: withMetadata(async function unjail(input: DeepSimplify<cosmos_slashing_v1beta1_tx.MsgUnjail>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(43);
             return getMsgClient(service).unjail(input, options);
           }, { path: [43, 0] }),
@@ -1561,7 +1561,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines a governance operation for updating the x/slashing module
            * parameters. The authority defaults to the x/gov module account.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_slashing_v1beta1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_slashing_v1beta1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(43);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [43, 1] })
@@ -1695,14 +1695,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * createValidator defines a method for creating a new validator.
            */
-          createValidator: withMetadata(async function createValidator(input: cosmos_staking_v1beta1_tx.MsgCreateValidator, options?: TxCallOptions) {
+          createValidator: withMetadata(async function createValidator(input: DeepSimplify<cosmos_staking_v1beta1_tx.MsgCreateValidator>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(45);
             return getMsgClient(service).createValidator(input, options);
           }, { path: [45, 0] }),
           /**
            * editValidator defines a method for editing an existing validator.
            */
-          editValidator: withMetadata(async function editValidator(input: cosmos_staking_v1beta1_tx.MsgEditValidator, options?: TxCallOptions) {
+          editValidator: withMetadata(async function editValidator(input: DeepSimplify<cosmos_staking_v1beta1_tx.MsgEditValidator>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(45);
             return getMsgClient(service).editValidator(input, options);
           }, { path: [45, 1] }),
@@ -1710,7 +1710,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * delegate defines a method for performing a delegation of coins
            * from a delegator to a validator.
            */
-          delegate: withMetadata(async function delegate(input: cosmos_staking_v1beta1_tx.MsgDelegate, options?: TxCallOptions) {
+          delegate: withMetadata(async function delegate(input: DeepSimplify<cosmos_staking_v1beta1_tx.MsgDelegate>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(45);
             return getMsgClient(service).delegate(input, options);
           }, { path: [45, 2] }),
@@ -1718,7 +1718,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * beginRedelegate defines a method for performing a redelegation
            * of coins from a delegator and source validator to a destination validator.
            */
-          beginRedelegate: withMetadata(async function beginRedelegate(input: cosmos_staking_v1beta1_tx.MsgBeginRedelegate, options?: TxCallOptions) {
+          beginRedelegate: withMetadata(async function beginRedelegate(input: DeepSimplify<cosmos_staking_v1beta1_tx.MsgBeginRedelegate>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(45);
             return getMsgClient(service).beginRedelegate(input, options);
           }, { path: [45, 3] }),
@@ -1726,7 +1726,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * undelegate defines a method for performing an undelegation from a
            * delegate and a validator.
            */
-          undelegate: withMetadata(async function undelegate(input: cosmos_staking_v1beta1_tx.MsgUndelegate, options?: TxCallOptions) {
+          undelegate: withMetadata(async function undelegate(input: DeepSimplify<cosmos_staking_v1beta1_tx.MsgUndelegate>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(45);
             return getMsgClient(service).undelegate(input, options);
           }, { path: [45, 4] }),
@@ -1734,7 +1734,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * cancelUnbondingDelegation defines a method for performing canceling the unbonding delegation
            * and delegate back to previous validator.
            */
-          cancelUnbondingDelegation: withMetadata(async function cancelUnbondingDelegation(input: cosmos_staking_v1beta1_tx.MsgCancelUnbondingDelegation, options?: TxCallOptions) {
+          cancelUnbondingDelegation: withMetadata(async function cancelUnbondingDelegation(input: DeepSimplify<cosmos_staking_v1beta1_tx.MsgCancelUnbondingDelegation>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(45);
             return getMsgClient(service).cancelUnbondingDelegation(input, options);
           }, { path: [45, 5] }),
@@ -1742,7 +1742,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * updateParams defines an operation for updating the x/staking module
            * parameters.
            */
-          updateParams: withMetadata(async function updateParams(input: cosmos_staking_v1beta1_tx.MsgUpdateParams, options?: TxCallOptions) {
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<cosmos_staking_v1beta1_tx.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(45);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [45, 6] })
@@ -1881,7 +1881,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
           /**
            * softwareUpgrade is a governance operation for initiating a software upgrade.
            */
-          softwareUpgrade: withMetadata(async function softwareUpgrade(input: cosmos_upgrade_v1beta1_tx.MsgSoftwareUpgrade, options?: TxCallOptions) {
+          softwareUpgrade: withMetadata(async function softwareUpgrade(input: DeepSimplify<cosmos_upgrade_v1beta1_tx.MsgSoftwareUpgrade>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(49);
             return getMsgClient(service).softwareUpgrade(input, options);
           }, { path: [49, 0] }),
@@ -1889,7 +1889,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * cancelUpgrade is a governance operation for cancelling a previously
            * approved software upgrade.
            */
-          cancelUpgrade: withMetadata(async function cancelUpgrade(input: cosmos_upgrade_v1beta1_tx.MsgCancelUpgrade, options?: TxCallOptions) {
+          cancelUpgrade: withMetadata(async function cancelUpgrade(input: DeepSimplify<cosmos_upgrade_v1beta1_tx.MsgCancelUpgrade>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(49);
             return getMsgClient(service).cancelUpgrade(input, options);
           }, { path: [49, 1] })
@@ -1901,7 +1901,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * createVestingAccount defines a method that enables creating a vesting
            * account.
            */
-          createVestingAccount: withMetadata(async function createVestingAccount(input: cosmos_vesting_v1beta1_tx.MsgCreateVestingAccount, options?: TxCallOptions) {
+          createVestingAccount: withMetadata(async function createVestingAccount(input: DeepSimplify<cosmos_vesting_v1beta1_tx.MsgCreateVestingAccount>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(50);
             return getMsgClient(service).createVestingAccount(input, options);
           }, { path: [50, 0] }),
@@ -1909,7 +1909,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * createPermanentLockedAccount defines a method that enables creating a permanent
            * locked account.
            */
-          createPermanentLockedAccount: withMetadata(async function createPermanentLockedAccount(input: cosmos_vesting_v1beta1_tx.MsgCreatePermanentLockedAccount, options?: TxCallOptions) {
+          createPermanentLockedAccount: withMetadata(async function createPermanentLockedAccount(input: DeepSimplify<cosmos_vesting_v1beta1_tx.MsgCreatePermanentLockedAccount>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(50);
             return getMsgClient(service).createPermanentLockedAccount(input, options);
           }, { path: [50, 1] }),
@@ -1917,7 +1917,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
            * createPeriodicVestingAccount defines a method that enables creating a
            * periodic vesting account.
            */
-          createPeriodicVestingAccount: withMetadata(async function createPeriodicVestingAccount(input: cosmos_vesting_v1beta1_tx.MsgCreatePeriodicVestingAccount, options?: TxCallOptions) {
+          createPeriodicVestingAccount: withMetadata(async function createPeriodicVestingAccount(input: DeepSimplify<cosmos_vesting_v1beta1_tx.MsgCreatePeriodicVestingAccount>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(50);
             return getMsgClient(service).createPeriodicVestingAccount(input, options);
           }, { path: [50, 2] })

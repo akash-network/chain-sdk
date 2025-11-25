@@ -28,10 +28,12 @@ const (
 	ContextTypeRPCClient      = ContextType("rpc-client")
 )
 
+var ErrContextValueNotSet = errors.New("context does not have value set")
+
 func ClientFromContext(ctx context.Context) (aclient.Client, error) {
 	val := ctx.Value(ContextTypeClient)
 	if val == nil {
-		return nil, errors.New("context does not have client set")
+		return nil, fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeClient)
 	}
 
 	res, valid := val.(aclient.Client)
@@ -56,7 +58,7 @@ func LightClientFromContext(ctx context.Context) (aclient.LightClient, error) {
 	if val == nil {
 		val = ctx.Value(ContextTypeClient)
 		if val == nil {
-			return nil, errors.New("context does not have client set")
+			return nil, fmt.Errorf("%w: %s", ErrContextValueNotSet, ContextTypeClient)
 		}
 	}
 
@@ -82,7 +84,7 @@ func MustLightClientFromContext(ctx context.Context) aclient.LightClient {
 func MustAddressCodecFromContext(ctx context.Context) address.Codec {
 	val := ctx.Value(ContextTypeAddressCodec)
 	if val == nil {
-		panic("context does not have address codec set")
+		panic(fmt.Sprintf("%s: %s", ErrContextValueNotSet, ContextTypeAddressCodec))
 	}
 
 	res, valid := val.(address.Codec)
@@ -96,7 +98,7 @@ func MustAddressCodecFromContext(ctx context.Context) address.Codec {
 func MustValidatorCodecFromContext(ctx context.Context) address.Codec {
 	val := ctx.Value(ContextTypeValidatorCodec)
 	if val == nil {
-		panic("context does not have validator codec set")
+		panic(fmt.Sprintf("%s: %s", ErrContextValueNotSet, ContextTypeValidatorCodec))
 	}
 
 	res, valid := val.(address.Codec)

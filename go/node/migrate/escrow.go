@@ -14,6 +14,7 @@ import (
 	etypes "pkg.akt.dev/go/node/escrow/types/v1"
 	ev1 "pkg.akt.dev/go/node/escrow/v1"
 	"pkg.akt.dev/go/node/escrow/v1beta3"
+	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 )
 
 func AccountV1beta3Prefix() []byte {
@@ -83,9 +84,9 @@ func PaymentIDFromV1beta3(key []byte) eid.Payment {
 	return eid.Payment{
 		AID: eid.Account{
 			Scope: eid.Scope(eid.Scope_value[parts[0]]),
-			XID:   strings.Join(parts[1:2], "/"),
+			XID:   strings.Join(parts[1:3], "/"),
 		},
-		XID: strings.Join(parts[3:5], "/"),
+		XID: strings.Join(parts[3:], "/"),
 	}
 }
 
@@ -97,19 +98,21 @@ func AccountFromV1beta3(cdc codec.BinaryCodec, key []byte, val []byte) etypes.Ac
 
 	deposits := make([]etypes.Depositor, 0)
 
-	if from.Balance.IsPositive() {
-		deposits = append(deposits, etypes.Depositor{
-			Owner:   from.Owner,
-			Height:  0,
-			Balance: from.Balance,
-		})
-	}
-
 	if from.Funds.IsPositive() {
 		deposits = append(deposits, etypes.Depositor{
 			Owner:   from.Depositor,
 			Height:  0,
 			Balance: from.Funds,
+			Source:  deposit.SourceGrant,
+		})
+	}
+
+	if from.Balance.IsPositive() {
+		deposits = append(deposits, etypes.Depositor{
+			Owner:   from.Owner,
+			Height:  0,
+			Balance: from.Balance,
+			Source:  deposit.SourceBalance,
 		})
 	}
 

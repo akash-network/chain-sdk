@@ -1,16 +1,24 @@
+import { fromByteArray } from "base64-js";
+
 export function base64UrlEncode(value: string | Uint8Array): string {
-  const str = typeof value === "string" ? value : String.fromCharCode(...value);
-  const base64 = btoa(str);
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return toBase64Url(base64Encode(value));
 }
 
+/**
+ * Converts a base64 encoded string to a base64url encoded string
+ */
+export function toBase64Url(base64Encoded: string): string {
+  return base64Encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+const textDecoder = new TextDecoder();
 export function base64UrlDecode(value: string): string {
   let str = value;
   // Convert from base64url → base64
   str = str.replace(/-/g, "+").replace(/_/g, "/");
   str = str.padEnd(str.length + (4 - (str.length % 4)) % 4, "=");
 
-  return new TextDecoder().decode(Uint8Array.from(atob(str), (c) => c.charCodeAt(0)));
+  return textDecoder.decode(Uint8Array.from(atob(str), (c) => c.charCodeAt(0)));
 }
 
 /**
@@ -21,4 +29,10 @@ export function base64UrlDecode(value: string): string {
 export function base64Decode(base64String: string): Record<string, unknown> {
   const decoded = atob(base64String);
   return JSON.parse(decoded);
+}
+
+const textEncoder = new TextEncoder();
+export function base64Encode(value: string | Uint8Array): string {
+  const data = typeof value === "string" ? textEncoder.encode(value) : value;
+  return fromByteArray(data);
 }

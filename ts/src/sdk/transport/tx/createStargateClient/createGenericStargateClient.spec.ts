@@ -7,9 +7,9 @@ import { describe, expect, it, jest } from "@jest/globals";
 import { mock } from "jest-mock-extended";
 
 import type { TxClient } from "../TxClient.ts";
-import { createStargateClient } from "./createStargateClient.ts";
+import { createGenericStargateClient } from "./createGenericStargateClient.ts";
 
-describe(createStargateClient.name, () => {
+describe(createGenericStargateClient.name, () => {
   const MESSAGE_TYPE = "/test.type";
 
   describe("sign", () => {
@@ -27,7 +27,7 @@ describe(createStargateClient.name, () => {
     });
 
     it("uses specified gas multiplier", async () => {
-      const client = createStargateClient({
+      const client = createGenericStargateClient({
         baseUrl: "https://rpc.akash.network",
         signer: createOfflineSigner(),
         gasMultiplier: 2,
@@ -48,7 +48,7 @@ describe(createStargateClient.name, () => {
     });
 
     it("floors the final gas value", async () => {
-      const client = createStargateClient({
+      const client = createGenericStargateClient({
         baseUrl: "https://rpc.akash.network",
         signer: createOfflineSigner(),
         gasMultiplier: 1.9,
@@ -74,7 +74,7 @@ describe(createStargateClient.name, () => {
       const getMessageType = jest.fn(() => {
         throw new Error("no types");
       });
-      const client = createStargateClient({
+      const client = createGenericStargateClient({
         baseUrl: "https://rpc.akash.network",
         signer: createOfflineSigner(),
         builtInTypes: [{
@@ -86,7 +86,7 @@ describe(createStargateClient.name, () => {
         getMessageType,
         createClient: async () => ({
           sign: jest.fn(),
-          simulate: jest.fn(),
+          simulate: jest.fn(async () => 1),
           broadcastTx: jest.fn(),
         } as unknown as SigningStargateClient),
       });
@@ -103,13 +103,13 @@ describe(createStargateClient.name, () => {
         decode: () => ({}),
         fromPartial: () => ({}),
       }));
-      const client = createStargateClient({
+      const client = createGenericStargateClient({
         baseUrl: "https://rpc.akash.network",
         signer: createOfflineSigner(),
         getMessageType,
         createClient: async () => ({
           sign: jest.fn(),
-          simulate: jest.fn(),
+          simulate: jest.fn(async () => 1),
           broadcastTx: jest.fn(),
         } as unknown as SigningStargateClient),
       });

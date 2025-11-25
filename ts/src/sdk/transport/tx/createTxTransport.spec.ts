@@ -40,6 +40,29 @@ describe(createTxTransport.name, () => {
       expect(client.sign).toHaveBeenCalledWith(expect.anything(), fee, expect.anything());
     });
 
+    it("calls `estimateFee` if provided only granter", async () => {
+      const { TestServiceSchema } = await setup();
+      const fee: Partial<StdFee> = {
+        granter: "akash1234567890",
+      };
+      const estimatedFee: StdFee = {
+        amount: [{ denom: "uakt", amount: "100000" }],
+        gas: "100000",
+      };
+      const client = createMockTxClient({
+        estimateFee: jest.fn(() => Promise.resolve(estimatedFee)),
+      });
+      const transport = createTxTransport({
+        client,
+        getMessageType,
+      });
+
+      await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" }, { fee });
+
+      expect(client.estimateFee).toHaveBeenCalled();
+      expect(client.sign).toHaveBeenCalledWith(expect.anything(), { ...estimatedFee, ...fee }, expect.anything());
+    });
+
     it("does not `estimateFee` if a fee is provided", async () => {
       const { TestServiceSchema } = await setup();
       const client = createMockTxClient();

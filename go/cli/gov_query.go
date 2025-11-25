@@ -139,7 +139,7 @@ $ %s query gov proposals --page=2 --limit=100
 				}
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -301,7 +301,7 @@ $ %[1]s query gov votes 1 --page=2 --limit=100
 
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -413,7 +413,7 @@ $ %s query gov deposits 1
 				return fmt.Errorf("failed to fetch proposal-id %d: %s", proposalID, err)
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}

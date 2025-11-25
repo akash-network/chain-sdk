@@ -589,6 +589,7 @@ describe(createServiceClient.name, () => {
     });
 
     return {
+      requiresTypePatching: true,
       unary: notImplemented,
       stream: notImplemented,
       [responseType]: method,

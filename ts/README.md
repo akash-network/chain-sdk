@@ -1,6 +1,6 @@
 # Akash API TypeScript Bindings
 
-[![npm version](https://badge.fury.io/js/%40akashnetwork%2Fakash-api.svg)](https://badge.fury.io/js/%40akashnetwork%2Fakash-api)
+[![npm version](https://badge.fury.io/js/%40akashnetwork%2Fchain-sdk.svg)](https://badge.fury.io/js/%40akashnetwork%2Fchain-sdk)
 [![License: Apache-2.0](https://img.shields.io/badge/License-apache2.0-yellow.svg)](https://opensource.org/license/apache-2-0)
 [![semantic-release: conventionalcommits](https://img.shields.io/badge/semantic--release-conventionalcommits?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
@@ -8,10 +8,20 @@ This package provides TypeScript bindings for the Akash API, generated from prot
 
 ## Installation
 
+⚠️ **NOTICE:** 
+
+The new Chain SDK for TypeScript is currently in alpha. As such, small breaking changes may occur between versions.
+To ensure stability of your own scripts, pin a specific version of the SDK in your package.json (avoid using `^` or `~` in front of version). 
+
+We are actively gathering developer feedback and improving the DX (Developer Experience).
+Please report any issues or suggestions via:
+* GitHub Issues (preferred)
+* [Discord](https://akash.network/docs/getting-started/technical-support/)
+
 To install the package, run:
 
 ```bash
-npm install @akashnetwork/chain-sdk
+npm install @akashnetwork/chain-sdk@alpha
 ```
 
 ## Usage
@@ -22,21 +32,24 @@ This package supports commonjs and ESM environments.
 
 #### Node.js/Server Environment
 
+This implementation uses gRPC transport to fetch data from blockchain
+
 ```typescript
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { createChainNodeSDK } from "@akashnetwork/chain-sdk";
+import { createChainNodeSDK, createStargateClient } from "@akashnetwork/chain-sdk";
 
 const mnemonic = "your mnemonic here";
-const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
+const signer = createStargateClient({
+  baseUrl: 'https://rpc.sandbox-2.aksh.pw:443', // blockchain rpc endpoint
+  signerMnemonic: mnemonic
+});
 
 // endpoints can be found in https://github.com/akash-network/net
 const chainSdk = createChainNodeSDK({
   query: {
-    baseUrl: "http://rpc.dev.akash.pub:31317", // blockchain grpc endpoint url
+    baseUrl: "http://grpc.sandbox-2.aksh.pw:9090", // blockchain gRPC endpoint url
   },
   tx: {
-    baseUrl: 'https://testnetrpc.akashnet.net:443', // blockchain rpc endpoint
-    signer: wallet,
+    signer,
   },
 });
 
@@ -50,7 +63,24 @@ const deployments = await chainSdk.akash.deployment.v1beta4.getDeployments({
 console.log(deployments);
 ```
 
+It's also possible to create `StargateClient` from a `DirectSecp256k1HdWallet` instance:
+
+```ts
+import { createChainNodeSDK, createStargateClient } from "@akashnetwork/chain-sdk";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+
+const mnemonic = "your mnemonic here";
+const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
+
+const signer = createStargateClient({
+  baseUrl: 'https://rpc.sandbox-2.aksh.pw:443', // blockchain rpc endpoint
+  signer: wallet
+});
+```
+
 #### Web Environment
+
+This implementation can be used in both browser and nodejs, since it uses gRPC Gateway transport to fetch data from blockchain
 
 ```typescript
 import { createChainNodeWebSDK, type TxClient } from "@akashnetwork/chain-sdk/web";
@@ -58,7 +88,7 @@ import { createChainNodeWebSDK, type TxClient } from "@akashnetwork/chain-sdk/we
 const wallet: TxClient = // kplr or leap wallet object in browser exposed by corresponding extension
 const sdk = createChainNodeWebSDK({
   query: {
-    baseUrl: "http://rpc.dev.akash.pub:31317", // grpc gateway api url
+    baseUrl: "https://api.sandbox-2.aksh.pw:443", // gRPC Gateway api url
   },
   tx: {
     signer: wallet,
@@ -100,13 +130,12 @@ This is the recommended method for getting authorized access to your resources o
 **Generating a JWT Token**
 
 ```ts
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { JwtTokenManager, createSignArbitraryAkashWallet } from "@akashnetwork/chain-sdk"
+import { Secp256k1HdWallet } from "@cosmjs/amino";
+import { JwtTokenManager } from "@akashnetwork/chain-sdk"
 
-const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
+const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, { prefix: "akash" });
 const accounts = await wallet.getAccounts();
-const signer = await createSignArbitraryAkashWallet(wallet);
-const tokenManager = new JwtTokenManager(signer);
+const tokenManager = new JwtTokenManager(wallet);
 
 // See https://akash.network/roadmap/aep-64/ for details
 const token = await tokenManager.generateToken({

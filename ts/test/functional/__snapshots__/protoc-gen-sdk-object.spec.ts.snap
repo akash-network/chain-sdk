@@ -9,7 +9,7 @@ import type * as query from "./protos/query.ts";
 import { createClientFactory } from "../sdk/client/createClientFactory.ts";
 import type { Transport, CallOptions, TxCallOptions } from "../sdk/transport/types.ts";
 import { withMetadata } from "../sdk/client/sdkMetadata.ts";
-import type { DeepPartial } from "../utils/types.ts";
+import type { DeepPartial, DeepSimplify } from "../encoding/typeEncodingHelpers.ts";
 
 
 export const serviceLoader= createServiceLoader([
@@ -23,7 +23,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
     akash: {
       test: {
         functional: {
-          send: withMetadata(async function send(input: msg.SendRequest, options?: TxCallOptions) {
+          send: withMetadata(async function send(input: DeepSimplify<msg.SendRequest>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getMsgClient(service).send(input, options);
           }, { path: [0, 0] }),

@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import { promises as fs } from "node:fs";
+import { promises as fs, globSync } from "node:fs";
 import { join, extname } from "node:path";
 
 /**
@@ -11,7 +11,7 @@ const baseConfig = (config) => ({
     `src/index.ts`,
     `src/index.web.ts`,
     'src/generated/protos/index.*',
-  ] : ["src/**/*.ts"],
+  ] : globSync(["src/**/*.ts"], { exclude: (filename) => filename.endsWith('.spec.ts') }),
   bundle: config.format === 'esm',
   sourcemap: true,
   packages: "external",
@@ -23,13 +23,19 @@ const baseConfig = (config) => ({
   splitting: config.format === 'esm',
   outdir: `dist/${config.format}`,
   metafile: true,
+  tsconfig: './tsconfig.build.json',
   plugins: config.format === 'cjs' ? [replaceTsToCjsPlugin()] : []
 });
 
 
 await Promise.all([
   esbuild.build(baseConfig({ format: 'esm' })),
-  esbuild.build(baseConfig({ format: 'cjs' })),
+  esbuild.build(baseConfig({
+    format: 'cjs',
+    supported: {
+      'dynamic-import': false
+    }
+  })),
 ]);
 console.log('Building JS SDK finished');
 

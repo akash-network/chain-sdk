@@ -1,15 +1,19 @@
-import { base64UrlDecode, base64UrlEncode } from "./base64.ts";
+import type { OfflineAminoSigner } from "@cosmjs/amino";
+import { default as stableStringify } from "json-stable-stringify";
+
+import { base64UrlDecode, base64UrlEncode, toBase64Url } from "./base64.ts";
 import { JwtValidator } from "./jwt-validator.ts";
 import type { JwtTokenPayload } from "./types.ts";
-import type { SignArbitraryAkashWallet } from "./wallet-utils.ts";
+import type { OfflineDataSigner } from "./wallet-utils.ts";
+import { createOfflineDataSigner } from "./wallet-utils.ts";
 
 export class JwtTokenManager {
-  private validator: JwtValidator;
-  private wallet: SignArbitraryAkashWallet;
+  private readonly validator: JwtValidator;
+  private readonly signer: OfflineDataSigner;
 
-  constructor(wallet: SignArbitraryAkashWallet) {
+  constructor(signer: OfflineDataSigner | OfflineAminoSigner) {
     this.validator = new JwtValidator();
-    this.wallet = wallet;
+    this.signer = "signAmino" in signer ? createOfflineDataSigner(signer) : signer;
   }
 
   /**
@@ -17,24 +21,16 @@ export class JwtTokenManager {
    * @param options - JWT token options
    * @returns The signed JWT token
    * @example
-   * const wallet = await DirectSecp256k1HdWallet.fromMnemonic(jwtMnemonic, {
+   * const wallet = await Secp256k1HdWallet.fromMnemonic(jwtMnemonic, {
    *   prefix: "akash"
    * });
-   * const akashWallet = await createSignArbitraryAkashWallet(wallet);
-   * const jwtToken = new JwtToken(akashWallet);
+   * const jwtToken = new JwtTokenManager(wallet);
    * // OR ON FRONTEND
-   * const { getAccount, signArbitrary } = useSelectedChain();
-   * const { address, pubkey } = await getAccount();
-   * const jwt = new JwtToken(
-   *   {
-   *     signArbitrary,
-   *     address,
-   *     pubkey
-   *   }
-   * );
+   * const wallet = useSelectedChain();
+   * const jwt = new JwtTokenManager(wallet);
    * const token = await jwtToken.generateToken({
    *   version: "v1",
-   *   iss: "akash...",
+   *   iss: wallet.address, // akash1...
    *   exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
    *   iat: Math.floor(Date.now() / 1000), // current timestamp
    * });
@@ -57,13 +53,12 @@ export class JwtTokenManager {
       throw new Error(`Invalid payload: ${validationResult.errors?.join(", ")}`);
     }
 
-    const header = base64UrlEncode(JSON.stringify({ alg: "ES256K", typ: "JWT" }));
-    const stringPayload = base64UrlEncode(JSON.stringify(inputPayload));
-    const { signature } = await this.wallet.signArbitrary(this.wallet.address, `${header}.${stringPayload}`);
+    const header = base64UrlEncode(stableStringify({ alg: this.signer.algorithm || "ES256KADR36", typ: "JWT" })!);
+    const stringPayload = base64UrlEncode(stableStringify(inputPayload)!);
+    const { signature } = await this.signer.signArbitrary(options.iss, `${header}.${stringPayload}`);
+    const token = `${header}.${stringPayload}.${toBase64Url(signature)}`;
 
-    const reorderedJWT = `${header}.${stringPayload}.${signature}`;
-
-    return reorderedJWT;
+    return token;
   }
 
   /**

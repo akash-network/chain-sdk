@@ -1,13 +1,15 @@
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { Secp256k1HdWallet } from "@cosmjs/amino";
+import type { AccountData } from "@cosmjs/proto-signing";
 import { beforeAll, describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 
+import { toBase64Url } from "./base64.ts";
 import type { CreateJWTOptions } from "./jwt-token.ts";
 import { JwtTokenManager } from "./jwt-token.ts";
 import type { ClaimsTestCase, SigningTestCase } from "./test/test-utils.ts";
 import { replaceTemplateValues } from "./test/test-utils.ts";
-import { createSignArbitraryAkashWallet, type SignArbitraryAkashWallet } from "./wallet-utils.ts";
+import { createOfflineDataSigner } from "./wallet-utils.ts";
 
 describe("JWT Claims Validation", () => {
   const testdataPath = path.join(__dirname, "../../../../../..", "testdata", "jwt");
@@ -15,20 +17,21 @@ describe("JWT Claims Validation", () => {
   const jwtSigningTestCases = JSON.parse(fs.readFileSync(path.join(testdataPath, "cases_es256k.json"), "utf-8")) as SigningTestCase[];
   const jwtClaimsTestCases = JSON.parse(fs.readFileSync(path.join(testdataPath, "cases_jwt.json.tmpl"), "utf-8")) as ClaimsTestCase[];
 
-  let testWallet: DirectSecp256k1HdWallet;
+  let testWallet: Secp256k1HdWallet;
   let jwtToken: JwtTokenManager;
-  let akashWallet: SignArbitraryAkashWallet;
+  let testAccount: AccountData;
 
   beforeAll(async () => {
-    testWallet = await DirectSecp256k1HdWallet.fromMnemonic(jwtMnemonic, {
+    testWallet = await Secp256k1HdWallet.fromMnemonic(jwtMnemonic, {
       prefix: "akash",
     });
-    akashWallet = await createSignArbitraryAkashWallet(testWallet);
-    jwtToken = new JwtTokenManager(akashWallet);
+    const [account] = await testWallet.getAccounts();
+    testAccount = account;
+    jwtToken = new JwtTokenManager(testWallet);
   });
 
-  it.each(jwtClaimsTestCases)("$description", async (testCase) => {
-    const { claims, tokenString } = replaceTemplateValues(testCase);
+  it.each(jwtClaimsTestCases.filter(isSigningWithES256KADR36))("$description", async (testCase) => {
+    const { claims, tokenString } = replaceTemplateValues(testCase, { iss: testAccount.address });
 
     // For test cases that should fail, we need to validate the payload first
     if (testCase.expected.signFail || testCase.expected.verifyFail) {
@@ -53,7 +56,7 @@ describe("JWT Claims Validation", () => {
     }
   });
 
-  it.each(jwtSigningTestCases)("$description", async (testCase) => {
+  it.each(jwtSigningTestCases.filter(isSigningWithES256KADR36))("$description", async (testCase) => {
     const [expectedHeader, expectedPayload, expectedSignature] = testCase.tokenString.split(".");
     expect(expectedHeader).toBeDefined();
     expect(expectedPayload).toBeDefined();
@@ -61,13 +64,19 @@ describe("JWT Claims Validation", () => {
 
     const signingString = `${expectedHeader}.${expectedPayload}`;
 
-    // Sign using the mock wallet's signArbitrary method
-    const signResponse = await akashWallet.signArbitrary(akashWallet.address, signingString);
+    const signer = createOfflineDataSigner(testWallet);
+    const [account] = await testWallet.getAccounts();
+    const signResponse = await signer.signArbitrary(account.address, signingString);
+    const signature = toBase64Url(signResponse.signature);
 
     if (!testCase.mustFail) {
-      expect(signResponse.signature).toBe(expectedSignature);
+      expect(signature).toBe(expectedSignature);
     } else {
-      expect(signResponse.signature).not.toBe(expectedSignature);
+      expect(signature).not.toBe(expectedSignature);
     }
   });
+
+  function isSigningWithES256KADR36(testCase: SigningTestCase | ClaimsTestCase): boolean {
+    return !testCase.expected.alg || testCase.expected.alg === "ES256KADR36";
+  }
 });

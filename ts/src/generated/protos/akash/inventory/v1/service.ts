@@ -6,4 +6,4 @@
 
 /* eslint-disable */
 
-export const protobufPackage = "akash.inventory.v1";
+export {};

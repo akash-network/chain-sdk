@@ -4,7 +4,6 @@ import { LegacyDec } from "./LegacyDec.ts";
 
 describe(`Custom type: ${LegacyDec.typeName}`, () => {
   // @see https://github.com/cosmos/cosmos-sdk/blob/main/math/testdata/decimals.json
-  // import('@cosmjs/math').Decimal supports only non-negative decimals
   it.each([
     ["", ""],
     ["0", "0"],
@@ -13,7 +12,7 @@ describe(`Custom type: ${LegacyDec.typeName}`, () => {
     ["123", "123"],
     ["1234", "1'234"],
     ["01234", "1234"],
-    [".1234", "0.1234"],
+    ["0.1234", "0.1234"],
     ["0.1", "0.1"],
     ["0.01", "0.01"],
     ["0.001", "0.001"],
@@ -50,6 +49,10 @@ describe(`Custom type: ${LegacyDec.typeName}`, () => {
     ["0.000000000000000100", "0.0000000000000001"],
     ["0.000000000000000010", "0.00000000000000001"],
     ["0.000000000000000001", "0.000000000000000001"],
+    ["-10.0", "-10"],
+    ["-10000", "-10'000"],
+    ["-9999", "-9'999"],
+    ["-999999999999", "-999'999'999'999"],
     [Number.MAX_SAFE_INTEGER.toString(), Number.MAX_SAFE_INTEGER.toString()],
   ])("should properly decode %s", (amount, expected) => {
     const encodedAmount = LegacyDec.encode(amount);

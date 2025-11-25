@@ -105,7 +105,7 @@ $ %s query feegrant grants-by-grantee [grantee]
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -154,7 +154,7 @@ $ %s query feegrant grants-by-granter [granter]
 				return err
 			}
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}

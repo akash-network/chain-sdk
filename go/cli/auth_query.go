@@ -112,7 +112,7 @@ func GetQueryAuthAccountCmd() *cobra.Command {
 				return err
 			}
 
-			return cl.PrintMessage(&res.Account)
+			return cl.PrintMessage(res)
 		},
 	}
 
@@ -165,7 +165,7 @@ func GetQueryAuthAccountsCmd() *cobra.Command {
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
 
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			pageReq, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}

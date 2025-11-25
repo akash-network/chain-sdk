@@ -3,11 +3,12 @@ import type { GeneratedType } from "@cosmjs/proto-signing";
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
 import { TransportError } from "../TransportError.ts";
 import type { Transport, TxCallOptions, UnaryResponse } from "../types.ts";
-import type { TxClient } from "./TxClient.ts";
+import type { StdFee, TxClient } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";
 
 export function createTxTransport(transportOptions: TransactionTransportOptions): Transport<TxCallOptions> {
   return {
+    requiresTypePatching: true,
     async unary<I extends MessageDesc, O extends MessageDesc>(
       method: MethodDesc<"unary", I, O>,
       input: MessageInitShape<I>,
@@ -18,7 +19,15 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
         value: input,
       }];
       const memo = options?.memo ?? `akash: ${method.name}`;
-      const fee = options?.fee ?? await transportOptions.client.estimateFee(messages, memo);
+
+      let fee: StdFee;
+      const providedFee = options?.fee;
+      if (!providedFee?.amount || !providedFee?.gas) {
+        const estimatedFee = await transportOptions.client.estimateFee(messages, memo);
+        fee = providedFee ? { ...estimatedFee, ...providedFee } : estimatedFee;
+      } else {
+        fee = providedFee as StdFee;
+      }
 
       const txRaw = await transportOptions.client.sign(messages, fee, memo);
       options?.afterSign?.(txRaw);
@@ -30,12 +39,23 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
       }
 
       const response = txResponse.msgResponses[0];
+      let responseMessage: MessageShape<O>;
+      if (response) {
+        const MessageType = transportOptions.getMessageType(response.typeUrl);
+        if (!MessageType) {
+          throw new Error(`Cannot find message type ${response.typeUrl} in type registry. `
+            + `If you use cosmos.authz.v1beta1.exec(), then provide custom message types to TxClient.`);
+        }
+        responseMessage = MessageType.decode(response.value);
+      } else {
+        responseMessage = {} as MessageShape<O>;
+      }
 
       return {
         stream: false,
         header: new Headers(),
         trailer: new Headers(),
-        message: (response ? transportOptions.getMessageType(response.typeUrl).decode(response.value) : {}) as MessageShape<O>,
+        message: responseMessage,
         method,
       };
     },
@@ -47,5 +67,5 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
 
 export interface TransactionTransportOptions {
   client: TxClient;
-  getMessageType: (typeUrl: string) => GeneratedType;
+  getMessageType: (typeUrl: string) => GeneratedType | undefined;
 }

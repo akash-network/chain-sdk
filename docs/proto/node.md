@@ -45,6 +45,9 @@
    
      - [Source](#akash.base.deposit.v1.Source)
    
+ - [akash/base/offchain/sign/v1/sign.proto](#akash/base/offchain/sign/v1/sign.proto)
+     - [MsgSignData](#akash.base.offchain.sign.v1.MsgSignData)
+   
  - [akash/base/resources/v1beta4/resourcevalue.proto](#akash/base/resources/v1beta4/resourcevalue.proto)
      - [ResourceValue](#akash.base.resources.v1beta4.ResourceValue)
    
@@ -871,6 +874,38 @@ Example: "akash1..." |
  | balance | 1 | DepositSourceBalance denotes account balance as source of funds |
  | grant | 2 | DepositSourceGrant denotes authz grants as source of funds |
  
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/base/offchain/sign/v1/sign.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/base/offchain/sign/v1/sign.proto
+ 
+
+ 
+ <a name="akash.base.offchain.sign.v1.MsgSignData"></a>
+
+ ### MsgSignData
+ MsgSignData defines an arbitrary, general-purpose, off-chain message
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `signer` | [string](#string) |  | Signer is the sdk.AccAddress of the message signer |
+ | `data` | [bytes](#bytes) |  | Data represents the raw bytes of the content that is signed (text, json, etc) |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
 
   <!-- end enums -->
 
@@ -3005,6 +3040,7 @@ Example: "akash1..." |
  | lease_closed_reason_unstable | 10000 | values between 10000..19999 are indicating provider initiated close lease_closed_reason_unstable lease workloads have been unstable |
  | lease_closed_reason_decommission | 10001 | lease_closed_reason_decommission provider is being decommissioned |
  | lease_closed_reason_unspecified | 10002 | lease_closed_reason_unspecified provider did not specify reason |
+ | lease_closed_reason_manifest_timeout | 10003 | lease_closed_reason_manifest_timeout provider closed leases due to manifest not received |
  | lease_closed_reason_insufficient_funds | 20000 | values between 20000..29999 indicate network‑initiated close |
  
 
