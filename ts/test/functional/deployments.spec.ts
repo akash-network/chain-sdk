@@ -37,8 +37,8 @@ describe("Deployment Queries", () => {
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || process.env.TX_RPC_URL || "http://grpc.sandbox-2.aksh.pw:9090";
   const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.sandbox-2.aksh.pw:443";
 
-  const createTestSDK = async (wallet?: DirectSecp256k1HdWallet) => {
-    const txClient = wallet ? await createStargateClient({
+  const createTestSDK = (wallet?: DirectSecp256k1HdWallet) => {
+    const txClient = wallet ? createStargateClient({
       baseUrl: TX_RPC_URL,
       signer: wallet,
     }) : undefined;
@@ -55,16 +55,13 @@ describe("Deployment Queries", () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
     
     if (!testMnemonic) {
-      console.log("Skipping deployment cleanup - TEST_MNEMONIC not set");
       return;
     }
 
     try {
       const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
       const [account] = await wallet.getAccounts();
-      const sdk = await createTestSDK(wallet);
-
-      console.log(`\nCleaning up deployments for account: ${account.address}`);
+      const sdk = createTestSDK(wallet);
 
       const deploymentsResponse = await sdk.akash.deployment.v1beta4.getDeployments({
         filters: {
@@ -76,17 +73,12 @@ describe("Deployment Queries", () => {
       });
 
       if (!deploymentsResponse?.deployments || deploymentsResponse.deployments.length === 0) {
-        console.log("No deployments found to clean up");
         return;
       }
-
-      console.log(`Found ${deploymentsResponse.deployments.length} open deployments to clean up`);
 
       for (const deploymentResponse of deploymentsResponse.deployments) {
         const deployment = deploymentResponse.deployment;
         if (!deployment?.id) continue;
-
-        console.log(`Processing deployment ${deployment.id.dseq} (state: ${deployment.state})`);
 
         try {
           const closeMessage: MsgCloseDeployment = {
@@ -96,29 +88,20 @@ describe("Deployment Queries", () => {
             }
           };
 
-          console.log(`Closing deployment ${deployment.id.owner}/${deployment.id.dseq}`);
-          
           await sdk.akash.deployment.v1beta4.closeDeployment(closeMessage, {
             memo: "Test cleanup - closing deployment"
           });
 
-          console.log(`Successfully closed deployment ${deployment.id.dseq}`);
-          
-          console.log("Waiting 6 seconds before next closure...");
           await wait(6000);
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
-          if (errorMessage.includes("Deployment closed") || errorMessage.includes("already closed")) {
-            console.log(`Deployment ${deployment.id.dseq} is already closed, skipping`);
-          } else {
-            console.log(`Failed to close deployment ${deployment.id.dseq}:`, errorMessage);
+          if (!errorMessage.includes("Deployment closed") && !errorMessage.includes("already closed")) {
+            throw error;
           }
         }
       }
-
-      console.log("Deployment cleanup completed");
     } catch (error) {
-      console.log("Error during deployment cleanup:", error);
+      // Silently fail cleanup - don't break tests
     }
   };
 
@@ -128,7 +111,7 @@ describe("Deployment Queries", () => {
   }, 300000);
 
   it("should query deployments from the network", async () => {
-    const sdk = await createTestSDK();
+    const sdk = createTestSDK();
 
     const queryParams = {
       pagination: {
@@ -141,19 +124,15 @@ describe("Deployment Queries", () => {
     expect(response?.deployments).toBeDefined();
     expect(Array.isArray(response?.deployments)).toBe(true);
     
-    console.log(`Found ${response?.deployments?.length || 0} deployments`);
-    
     expect(response.deployments.length).toBeGreaterThan(0);
     const deployment = response.deployments[0]?.deployment;
     expect(deployment?.id?.owner).toBeDefined();
     expect(deployment?.id?.dseq).toBeDefined();
     expect(deployment?.state).toBeDefined();
-
-    console.log(`First deployment: ${deployment?.id?.owner}/${deployment?.id?.dseq?.low}`);
   });
 
   it("should query deployments with pagination", async () => {
-    const sdk = await createTestSDK();
+    const sdk = createTestSDK();
 
     const response = await sdk.akash.deployment.v1beta4.getDeployments({
       pagination: { limit: 5, countTotal: true },
@@ -162,15 +141,13 @@ describe("Deployment Queries", () => {
     expect(response?.deployments).toBeDefined();
     expect(Array.isArray(response?.deployments)).toBe(true);
     
-    console.log(`Paginated query returned ${response?.deployments?.length || 0} deployments`);
-    
     if (response?.pagination) {
       expect(response?.pagination).toBeDefined();
     }
   });
 
   it("should handle empty results gracefully", async () => {
-    const sdk = await createTestSDK();
+    const sdk = createTestSDK();
 
     const response = await sdk.akash.deployment.v1beta4.getDeployments({
       pagination: { limit: 1 },
@@ -184,7 +161,7 @@ describe("Deployment Queries", () => {
   });
 
   it("should create SDK instance with all modules", async () => {
-    const sdk = await createTestSDK();
+    const sdk = createTestSDK();
 
     // Verify core SDK structure
     expect(typeof sdk.akash.deployment.v1beta4.getDeployments).toBe('function');
@@ -294,19 +271,12 @@ describe("Deployment Queries", () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
     
     if (!testMnemonic) {
-      console.log("Skipping deployment transaction test - TEST_MNEMONIC environment variable not set");
-      console.log("To run this test, set TEST_MNEMONIC with a funded testnet account mnemonic");
       return;
     }
     
     // Create a test wallet
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
     const [account] = await wallet.getAccounts();
-    
-    // Print the test account address for funding if needed
-    console.log(`\nTest Account Address: ${account.address}`);
-    console.log(`To fund this account, send some AKT tokens to: ${account.address}`);
-    console.log(`You can use a testnet faucet or transfer from another account\n`);
     
     // Helper function to create readable resource values from strings
     const createResourceValue = (value: string): { val: Uint8Array } => ({
@@ -394,10 +364,6 @@ describe("Deployment Queries", () => {
         expect(txResponse.transactionHash).toBeDefined();
       }
     });
-    
-    // Transaction completed successfully
-    console.log("Deployment transaction completed successfully!");
-    console.log(`   - Transaction result:`, result);
     
     // Verify the response structure - these assertions are required for test to pass
     expect(result).toBeDefined();

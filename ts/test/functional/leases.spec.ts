@@ -45,21 +45,14 @@ describe("Lease Operations", () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
     
     if (!testMnemonic) {
-      console.log("Skipping lease creation test - TEST_MNEMONIC environment variable not set");
-      console.log("To run this test, set TEST_MNEMONIC with a funded testnet account mnemonic");
       return;
     }
     
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
     const [account] = await wallet.getAccounts();
     
-    console.log(`Test Account Address: ${account.address}`);
-    console.log(`To fund this account, send some AKT tokens to: ${account.address}`);
-    
     const sdk = await createTestSDK(wallet);
 
-    console.log("Step 1: Creating deployment...");
-    
     const deploymentMessage: MsgCreateDeployment = {
       id: {
         owner: account.address,
@@ -117,17 +110,13 @@ describe("Lease Operations", () => {
       memo: "Test deployment for lease creation - Akash Chain SDK"
     });
     
-    console.log("Deployment created successfully!");
     expect(deploymentResult).toBeDefined();
-    console.log(deploymentResult);
 
     const deploymentId = {
       owner: account.address,
       dseq: deploymentMessage.id!.dseq
     };
 
-    console.log("Step 2: Waiting for providers to create bids...");
-    console.log(`Deployment ID: ${deploymentId.owner}/${deploymentId.dseq}`);
     let bidsResponse;
     let attempts = 0;
     const maxAttempts = 3;
@@ -135,9 +124,6 @@ describe("Lease Operations", () => {
     do {
       await wait(6000);
       attempts++;
-      
-      console.log(`Checking for bids (attempt ${attempts}/${maxAttempts})...`);
-      console.log("Make sure your address is whitelisted on this network.");
       
       bidsResponse = await sdk.akash.market.v1beta5.getBids({
         filters: {
@@ -148,37 +134,22 @@ describe("Lease Operations", () => {
         }
       });
       
-      console.log(`Found ${bidsResponse?.bids?.length || 0} bids`);
-      
     } while ((!bidsResponse?.bids || bidsResponse.bids.length < 2) && attempts < maxAttempts);
 
 
     expect(bidsResponse?.bids).toBeDefined();
     expect(Array.isArray(bidsResponse?.bids)).toBe(true);
     
-    if (bidsResponse!.bids!.length >= 2) {
-      console.log(`Found ${bidsResponse!.bids!.length} bids for the deployment`);
-    } else if (bidsResponse!.bids!.length === 1) {
-      console.log(`Found only 1 bid, proceeding with single bid test`);
-    } else {
+    if (bidsResponse!.bids!.length === 0) {
       throw new Error(`No bids found after ${maxAttempts} attempts. Check deployment resources and pricing.`);
     }
     
     expect(bidsResponse!.bids!.length).toBeGreaterThan(0);
     
-    bidsResponse!.bids!.forEach((bidResponse: any, index: number) => {
-      const bid = bidResponse.bid;
-      console.log(`  Bid ${index + 1}: Provider ${bid?.id?.provider}, Price: ${bid?.price?.amount}${bid?.price?.denom}`);
-    });
-
-    console.log("Step 4: Selecting the first bid...");
     const firstBid = bidsResponse!.bids![0]!.bid!;
     expect(firstBid).toBeDefined();
     expect(firstBid.id).toBeDefined();
-    
-    console.log(`Selected bid from provider: ${firstBid.id!.provider}`);
 
-    console.log("Step 5: Creating lease from selected bid...");
     const leaseMessage: MsgCreateLease = {
       bidId: {
         owner: firstBid.id!.owner,
@@ -190,15 +161,11 @@ describe("Lease Operations", () => {
       } as BidID
     };
 
-    console.log(leaseMessage);
-
     const leaseResult = await sdk.akash.market.v1beta5.createLease(leaseMessage, {
       memo: "Test lease creation from bid - Akash Chain SDK"
     });
 
-    console.log("Step 6: Verifying lease creation...");
     expect(leaseResult).toBeDefined();
-    console.log("Lease created successfully!");
     
     const leaseQuery = await sdk.akash.market.v1beta5.getLeases({
       filters: {
@@ -218,11 +185,6 @@ describe("Lease Operations", () => {
     expect(createdLease.id?.owner).toBe(deploymentId.owner);
     expect(createdLease.id?.dseq.toString()).toBe(deploymentId.dseq.toString());
     expect(createdLease.id?.provider).toBe(firstBid.id!.provider);
-    
-      console.log("Lease verification completed successfully!");
-      console.log(`Lease ID: ${createdLease.id?.owner}/${createdLease.id?.dseq}/${createdLease.id?.gseq}/${createdLease.id?.oseq}/${createdLease.id?.provider}`);
-      console.log(`Lease State: ${createdLease.state}`);
-      console.log(`Lease Price: ${createdLease.price?.amount}${createdLease.price?.denom}`);
   });
 
   it("should query existing leases from the network", async () => {
@@ -250,8 +212,6 @@ describe("Lease Operations", () => {
     expect(response?.leases).toBeDefined();
     expect(Array.isArray(response?.leases)).toBe(true);
     
-    console.log(`Found ${response?.leases?.length || 0} leases`);
-    
     expect(response?.leases).toBeDefined();
     expect(response.leases.length).toBeGreaterThan(0);
     
@@ -259,8 +219,6 @@ describe("Lease Operations", () => {
     expect(lease?.id?.owner).toBeDefined();
     expect(lease?.id?.dseq).toBeDefined();
     expect(lease?.state).toBeDefined();
-    
-    console.log(`First lease: ${lease?.id?.owner}/${lease?.id?.dseq?.low} State: ${lease?.state}`);
   });
 
   it("should query existing bids from the network", async () => {
@@ -287,8 +245,6 @@ describe("Lease Operations", () => {
     
     expect(response?.bids).toBeDefined();
     expect(Array.isArray(response?.bids)).toBe(true);
-    
-    console.log(`Found ${response?.bids?.length || 0} bids`);
 
     expect(response?.bids).toBeDefined();
     expect(response.bids.length).toBeGreaterThan(0);
@@ -297,7 +253,5 @@ describe("Lease Operations", () => {
     expect(bid?.id?.owner).toBeDefined();
     expect(bid?.id?.dseq).toBeDefined();
     expect(bid?.state).toBeDefined();
-
-    console.log(`First bid: ${bid?.id?.owner}/${bid?.id?.dseq?.low} Provider: ${bid?.id?.provider}, Price: ${bid?.price?.amount}${bid?.price?.denom}`);
   });
 });
