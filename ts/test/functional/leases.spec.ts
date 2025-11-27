@@ -12,10 +12,15 @@ import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
 
+declare const jest: {
+  setTimeout: (timeout: number) => void;
+};
+
 describe("Lease Operations", () => {
+  jest.setTimeout(60000);
+
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || process.env.TX_RPC_URL || "http://grpc.sandbox-2.aksh.pw:9090";
   const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.sandbox-2.aksh.pw:443";
-  const TEST_TIMEOUT = 60000;
 
   const createTestSDK = async (wallet?: DirectSecp256k1HdWallet) => {
     const txClient = wallet ? await createStargateClient({
@@ -218,7 +223,7 @@ describe("Lease Operations", () => {
       console.log(`Lease ID: ${createdLease.id?.owner}/${createdLease.id?.dseq}/${createdLease.id?.gseq}/${createdLease.id?.oseq}/${createdLease.id?.provider}`);
       console.log(`Lease State: ${createdLease.state}`);
       console.log(`Lease Price: ${createdLease.price?.amount}${createdLease.price?.denom}`);
-  }, TEST_TIMEOUT);
+  });
 
   it("should query existing leases from the network", async () => {
     const sdk = await createTestSDK();
@@ -256,7 +261,7 @@ describe("Lease Operations", () => {
     expect(lease?.state).toBeDefined();
     
     console.log(`First lease: ${lease?.id?.owner}/${lease?.id?.dseq?.low} State: ${lease?.state}`);
-  }, 15000);
+  });
 
   it("should query existing bids from the network", async () => {
     const sdk = await createTestSDK();
@@ -294,5 +299,5 @@ describe("Lease Operations", () => {
     expect(bid?.state).toBeDefined();
 
     console.log(`First bid: ${bid?.id?.owner}/${bid?.id?.dseq?.low} Provider: ${bid?.id?.provider}, Price: ${bid?.price?.amount}${bid?.price?.denom}`);
-  }, 15000);
+  });
 });
