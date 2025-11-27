@@ -45,7 +45,7 @@ describe("Lease Operations", () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
     
     if (!testMnemonic) {
-      return;
+      throw new Error("TEST_MNEMONIC environment variable is required for transaction tests. Set it with a funded testnet account mnemonic.");
     }
     
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });

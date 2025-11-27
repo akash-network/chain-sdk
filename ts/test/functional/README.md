@@ -14,7 +14,6 @@ export TEST_MNEMONIC="word1 word2 word3 word4 word5 word6 word7 word8 word9 word
 **Important Security Notes:**
 - Only use testnet accounts with test tokens
 - Never use production mnemonics in tests
-- The test will skip gracefully if TEST_MNEMONIC is not set
 
 ## Configuration
 

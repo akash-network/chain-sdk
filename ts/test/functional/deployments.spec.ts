@@ -55,7 +55,7 @@ describe("Deployment Queries", () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
     
     if (!testMnemonic) {
-      return;
+      throw new Error("TEST_MNEMONIC environment variable is required for cleanup. Set it with a funded testnet account mnemonic.");
     }
 
     try {
@@ -271,7 +271,7 @@ describe("Deployment Queries", () => {
     const testMnemonic = process.env.TEST_MNEMONIC;
     
     if (!testMnemonic) {
-      return;
+      throw new Error("TEST_MNEMONIC environment variable is required for transaction tests. Set it with a funded testnet account mnemonic.");
     }
     
     // Create a test wallet
