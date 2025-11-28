@@ -1,0 +1,17 @@
+syntax = "proto3";
+package akash.oracle.v1;
+
+import "gogoproto/gogo.proto";
+import "akash/oracle/v1/params.proto";
+
+option go_package = "pkg.akt.dev/go/node/oracle/v1";
+
+// GenesisState stores slice of genesis parameters.
+message GenesisState {
+  // Params holds parameters of the genesis of akash params module.
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
+}
