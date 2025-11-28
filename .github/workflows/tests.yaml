@@ -54,3 +54,42 @@ jobs:
         with:
           files: ./ts/coverage
           token: ${{ secrets.CODECOV_TOKEN }}
+  test-functional-ts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch --prune --unshallow
+      - name: Setup env
+        uses: HatsuneMiku3939/direnv-action@v1
+      - run: |
+          toolchain=$(./script/tools.sh gotoolchain | sed 's/go*//')
+          echo "GOVERSION=${toolchain}" >> $GITHUB_ENV
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "${{ env.GOVERSION }}"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: ts/package-lock.json
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget curl jq unzip
+      - name: Generate test mnemonic
+        run: |
+          # Generate a deterministic test mnemonic for CI (not for production use)
+          # Using a simple approach: generate random bytes and map to BIP39 wordlist
+          # For CI purposes, we'll use a fixed test mnemonic that's safe for testing
+          TEST_MNEMONIC="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+          echo "TEST_MNEMONIC=${TEST_MNEMONIC}" >> $GITHUB_ENV
+          echo "Using test mnemonic for CI (this is a well-known test mnemonic)"
+      - name: Run functional tests
+        env:
+          TEST_MNEMONIC: ${{ env.TEST_MNEMONIC }}
+        run: make test-functional-ts-local
+      - name: Cleanup local node
+        if: always()
+        run: make local-node-stop || true
