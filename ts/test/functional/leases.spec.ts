@@ -11,6 +11,34 @@ import { BidID } from "../../src/generated/protos/akash/market/v1/bid.ts";
 import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4/storage.ts";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
+// Helper function to ensure wallet is funded
+async function ensureWalletFunded(wallet: DirectSecp256k1HdWallet, restApiUrl: string, minBalance: number = 100 * 1_000_000): Promise<void> {
+  const [account] = await wallet.getAccounts();
+  
+  try {
+    const response = await fetch(`${restApiUrl}/cosmos/bank/v1beta1/balances/${account.address}`);
+    if (!response.ok) {
+      throw new Error(`Failed to check balance: ${response.status}`);
+    }
+    const data = await response.json();
+    const uaktBalance = data.balances?.find((balance: { denom: string }) => balance.denom === "uakt");
+    const balance = uaktBalance ? parseInt(uaktBalance.amount, 10) : 0;
+
+    if (balance < minBalance) {
+      throw new Error(
+        `Insufficient balance for test account ${account.address}. ` +
+        `Current balance: ${balance / 1_000_000} AKT, Required: ${minBalance / 1_000_000} AKT. ` +
+        `For local testnet, fund the account using: ` +
+        `akash tx bank send <genesis-account> ${account.address} ${minBalance}uakt --chain-id local --node http://localhost:26657`
+      );
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("Insufficient balance")) {
+      throw error;
+    }
+    // If REST API is not available, skip balance check (might be using gRPC only)
+  }
+}
 
 declare const jest: {
   setTimeout: (timeout: number) => void;
@@ -19,8 +47,11 @@ declare const jest: {
 describe("Lease Operations", () => {
   jest.setTimeout(60000);
 
-  const QUERY_RPC_URL = process.env.QUERY_RPC_URL || process.env.TX_RPC_URL || "http://grpc.sandbox-2.aksh.pw:9090";
-  const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.sandbox-2.aksh.pw:443";
+  // Default to local testnet endpoints (can be overridden via environment variables)
+  // Local testnet: gRPC on 9090, REST API on 1317, RPC on 26657
+  const QUERY_RPC_URL = process.env.QUERY_RPC_URL || process.env.TX_RPC_URL || "http://localhost:9090";
+  const TX_RPC_URL = process.env.TX_RPC_URL || "http://localhost:26657";
+  const REST_API_URL = process.env.REST_API_URL || "http://localhost:1317";
 
   const createTestSDK = (wallet?: DirectSecp256k1HdWallet) => {
     const txClient = wallet ? createStargateClient({

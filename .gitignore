@@ -7,6 +7,9 @@
 # macOS Finder metadata file
 .DS_Store
 
+# Local testnet node data
+.local-node/
+
 ### Go template
 # Test binary, built with `go test -c`
 *.test

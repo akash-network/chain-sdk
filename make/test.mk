@@ -40,6 +40,16 @@ test-coverage-ts: $(AKASH_TS_NODE_MODULES) proto-gen-ts
 test-functional-ts: $(AKASH_TS_NODE_MODULES)
 	cd $(TS_ROOT) && npm run test:functional
 
+.PHONY: test-functional-ts-local
+test-functional-ts-local: $(AKASH_TS_NODE_MODULES) local-node-ready
+	@if [ -z "$$TEST_MNEMONIC" ]; then \
+		echo "Error: TEST_MNEMONIC environment variable is required"; \
+		echo "Example: TEST_MNEMONIC=\"word1 word2 ... word12\" make test-functional-ts-local"; \
+		exit 1; \
+	fi
+	@cd $(TS_ROOT) && AKASH_HOME=$(LOCAL_NODE_HOME) $(TS_ROOT)/test/functional/setup-local-testnet.sh
+	cd $(TS_ROOT) && npm run test:functional
+
 .PHONY: test-go
 test-go: export GO111MODULE := $(GO111MODULE)
 test-go: export GOWORK := $(GOWORK)
