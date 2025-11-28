@@ -2,20 +2,59 @@ package sdkutil
 
 import (
 	"fmt"
+	"sync"
+
+	pproto "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/protoadapt"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/gogoproto/proto"
-	pproto "google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/protoadapt"
-	"google.golang.org/protobuf/reflect/protoreflect"
-
-	certv1 "pkg.akt.dev/go/node/cert/v1"
-	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
-	mv1beta5 "pkg.akt.dev/go/node/market/v1beta5"
 )
+
+type customSigner struct {
+	msgType protoreflect.FullName
+	field   string
+	signer  string
+}
+
+var (
+	signersLock   sync.RWMutex
+	sealed        chan struct{}
+	customSigners []customSigner
+)
+
+func init() {
+	sealed = make(chan struct{})
+}
+
+func RegisterCustomSignerField(msg proto.Message, field string, signer string) {
+	defer signersLock.Unlock()
+	signersLock.Lock()
+
+	select {
+	case <-sealed:
+		panic("custom signers config has been sealed")
+	default:
+	}
+
+	msgType := pproto.MessageName(protoadapt.MessageV2Of(msg))
+
+	for _, m := range customSigners {
+		if m.msgType == msgType {
+			panic(fmt.Sprintf("custom signer for msg \"%s\", has already been registered", msgType.Name()))
+		}
+	}
+
+	customSigners = append(customSigners, customSigner{
+		msgType: msgType,
+		field:   field,
+		signer:  signer,
+	})
+}
 
 type CodecOptions struct {
 	AccAddressPrefix string
@@ -94,55 +133,20 @@ func getSignerFromID(options *signing.Options, field string, signer string) func
 }
 
 func buildCustomGetSigners(options *signing.Options) []signing.CustomGetSigner {
-	signers := []signing.CustomGetSigner{
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgCreateDeployment{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgUpdateDeployment{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgCloseDeployment{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgStartGroup{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgPauseGroup{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&dv1beta4.MsgCloseGroup{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCreateLease{})),
-			Fn:      getSignerFromID(options, "bid_id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCloseLease{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCreateBid{})),
-			Fn:      getSignerFromID(options, "id", "provider"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgCloseBid{})),
-			Fn:      getSignerFromID(options, "id", "provider"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&mv1beta5.MsgWithdrawLease{})),
-			Fn:      getSignerFromID(options, "id", "provider"),
-		},
-		{
-			MsgType: pproto.MessageName(protoadapt.MessageV2Of(&certv1.MsgRevokeCertificate{})),
-			Fn:      getSignerFromID(options, "id", "owner"),
-		},
+	select {
+	case <-sealed:
+	default:
+		signersLock.Lock()
+		close(sealed)
+		signersLock.Unlock()
+	}
+
+	signers := make([]signing.CustomGetSigner, 0, len(customSigners))
+	for _, s := range customSigners {
+		signers = append(signers, signing.CustomGetSigner{
+			MsgType: s.msgType,
+			Fn:      getSignerFromID(options, s.field, s.signer),
+		})
 	}
 
 	for _, signer := range signers {

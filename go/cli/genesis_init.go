@@ -5,16 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 
+	cmtcfg "github.com/cometbft/cometbft/config"
 	tmrand "github.com/cometbft/cometbft/libs/rand"
 	cmtypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
-	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -74,12 +77,14 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 			config := serverCtx.Config
 			config.SetRoot(clientCtx.HomeDir)
 
+			dlGenesis := true
 			chainID, _ := cmd.Flags().GetString(cflags.FlagChainID)
 			switch {
 			case chainID != "":
 			case clientCtx.ChainID != "":
 				chainID = clientCtx.ChainID
 			default:
+				dlGenesis = false
 				chainID = fmt.Sprintf("test-chain-%v", tmrand.Str(6))
 			}
 
@@ -113,7 +118,6 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 
 			genFile := config.GenesisFile()
 			overwrite, _ := cmd.Flags().GetBool(cflags.FlagOverwrite)
-			defaultDenom, _ := cmd.Flags().GetString(cflags.FlagDefaultBondDenom)
 
 			// use os.Stat to check if the file exists
 			_, err = os.Stat(genFile)
@@ -121,56 +125,67 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
 
-			// Overwrites the SDK default denom for side-effects
-			if defaultDenom != "" {
-				sdk.DefaultBondDenom = defaultDenom
+			if dlGenesis {
+				// If the chainID is blank or akashnet-2, prep this as a mainnet node
+
+				// Attempt to download the genesis file from the Akash Network GitHub repository
+				// Generate a new genesis file if failed
+				err = downloadGenesis(config, chainID)
 			}
 
-			appGenState := mbm.DefaultGenesis(cdc)
-
-			appState, err := json.MarshalIndent(appGenState, "", " ")
-			if err != nil {
-				return errorsmod.Wrap(err, "Failed to marshal default genesis state")
-			}
-
-			appGenesis := &types.AppGenesis{}
-			if _, err := os.Stat(genFile); err != nil {
-				if !os.IsNotExist(err) {
-					return err
+			if !dlGenesis || err != nil {
+				// Overwrites the SDK default denom for side effects
+				if val, _ := cmd.Flags().GetString(cflags.FlagDefaultBondDenom); val != "" {
+					sdk.DefaultBondDenom = val
 				}
-			} else {
-				appGenesis, err = types.AppGenesisFromFile(genFile)
+
+				appGenState := mbm.DefaultGenesis(cdc)
+
+				appState, err := json.MarshalIndent(appGenState, "", " ")
 				if err != nil {
-					return errorsmod.Wrap(err, "Failed to read genesis doc from file")
+					return errorsmod.Wrap(err, "Failed to marshal default genesis state")
 				}
+
+				appGenesis := &types.AppGenesis{}
+				if _, err := os.Stat(genFile); err != nil {
+					if !os.IsNotExist(err) {
+						return err
+					}
+				} else {
+					appGenesis, err = types.AppGenesisFromFile(genFile)
+					if err != nil {
+						return errorsmod.Wrap(err, "Failed to read genesis doc from file")
+					}
+				}
+
+				appGenesis.AppName = version.AppName
+				appGenesis.AppVersion = version.Version
+				appGenesis.ChainID = chainID
+				appGenesis.AppState = appState
+				appGenesis.InitialHeight = initHeight
+				appGenesis.Consensus = &types.ConsensusGenesis{
+					Validators: nil,
+					Params:     cmtypes.DefaultConsensusParams(),
+				}
+
+				consensusKey, err := cmd.Flags().GetString(cflags.FlagConsensusKeyAlgo)
+				if err != nil {
+					return errorsmod.Wrap(err, "Failed to get consensus key algo")
+				}
+
+				appGenesis.Consensus.Params.Validator.PubKeyTypes = []string{consensusKey}
+
+				if err = genutil.ExportGenesisFile(appGenesis, genFile); err != nil {
+					return errorsmod.Wrap(err, "Failed to export genesis file")
+				}
+
+				toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
+
+				cmtcfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
+				return displayInfo(toPrint)
 			}
 
-			appGenesis.AppName = version.AppName
-			appGenesis.AppVersion = version.Version
-			appGenesis.ChainID = chainID
-			appGenesis.AppState = appState
-			appGenesis.InitialHeight = initHeight
-			appGenesis.Consensus = &types.ConsensusGenesis{
-				Validators: nil,
-				Params:     cmtypes.DefaultConsensusParams(),
-			}
-
-			consensusKey, err := cmd.Flags().GetString(cflags.FlagConsensusKeyAlgo)
-			if err != nil {
-				return errorsmod.Wrap(err, "Failed to get consensus key algo")
-			}
-
-			appGenesis.Consensus.Params.Validator.PubKeyTypes = []string{consensusKey}
-
-			if err = genutil.ExportGenesisFile(appGenesis, genFile); err != nil {
-				return errorsmod.Wrap(err, "Failed to export genesis file")
-			}
-
-			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
-
-			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
-
-			return displayInfo(toPrint)
+			return nil
 		},
 	}
 
@@ -183,4 +198,61 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 	cmd.Flags().String(cflags.FlagConsensusKeyAlgo, ed25519.KeyType, "algorithm to use for the consensus key")
 
 	return cmd
+}
+
+// downloadGenesis downloads the genesis file from a predefined URL and writes it to the genesis file path specified in the config.
+// It creates an HTTP client to send a GET request to the genesis file URL. If the request is successful, it reads the response body
+// and writes it to the destination genesis file path. If any step in this process fails, it generates the default genesis.
+//
+// Parameters:
+// - config: A pointer to a tmcfg.Config object that contains the configuration, including the genesis file path.
+//
+// Returns:
+// - An error if the download or file writing fails, otherwise nil.
+func downloadGenesis(config *cmtcfg.Config, chainID string) error {
+	// URL of the genesis file to download
+	genesisURL := fmt.Sprintf("https://github.com/akash-network/net/raw/main/%s/genesis.json?download", chainID)
+
+	// Determine the destination path for the genesis file
+	genFilePath := config.GenesisFile()
+
+	// Create a new HTTP client with a 30-second timeout
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	// Create a new GET request
+	req, err := http.NewRequest("GET", genesisURL, nil)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to create HTTP request for genesis file")
+	}
+
+	// Send the request
+	fmt.Println("Attempting to download genesis file from", genesisURL)
+	resp, err := client.Do(req)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to download genesis file")
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	// Check if the HTTP request was successful
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download genesis file: HTTP status %d", resp.StatusCode)
+	}
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to read genesis file response body")
+	}
+
+	// Write the body to the destination genesis file
+	err = os.WriteFile(genFilePath, body, 0644) //nolint: gosec
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to write genesis file to destination")
+	}
+
+	return nil
 }

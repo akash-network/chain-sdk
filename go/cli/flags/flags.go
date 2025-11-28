@@ -258,6 +258,39 @@ const (
 	KeyIsTestnet             = "is-testnet"
 	KeyTestnetConfig         = "testnet-config"
 	KeyTestnetTriggerUpgrade = "testnet-trigger-upgrade"
+
+	FlagLabel                     = "label"
+	FlagSource                    = "code-source-url"
+	FlagBuilder                   = "builder"
+	FlagCodeHash                  = "code-hash"
+	FlagAdmin                     = "admin"
+	FlagNoAdmin                   = "no-admin"
+	FlagFixMsg                    = "fix-msg"
+	FlagRunAs                     = "run-as"
+	FlagInstantiateByEverybody    = "instantiate-everybody"
+	FlagInstantiateNobody         = "instantiate-nobody"
+	FlagInstantiateByAddress      = "instantiate-only-address"
+	FlagInstantiateByAnyOfAddress = "instantiate-anyof-addresses"
+	FlagUnpinCode                 = "unpin-code"
+	FlagAllowedMsgKeys            = "allow-msg-keys"
+	FlagAllowedRawMsgs            = "allow-raw-msgs"
+	FlagMaxCalls                  = "max-calls"
+	FlagMaxFunds                  = "max-funds"
+	FlagAllowAllMsgs              = "allow-all-messages"
+	FlagNoTokenTransfer           = "no-token-transfer" //nolint: gosec
+	FlagExpedite                  = "expedite"
+
+	// oracle flags
+
+	FlagAssetDenom = "asset-denom"
+	FlagBaseDenom  = "base-denom"
+
+	// wasm flags
+
+	FlagWasmMemoryCacheSize        = "wasm.memory_cache_size"
+	FlagWasmQueryGasLimit          = "wasm.query_gas_limit"
+	FlagWasmSimulationGasLimit     = "wasm.simulation_gas_limit"
+	FlagWasmSkipWasmVMVersionCheck = "wasm.skip_wasmvm_version_check" //nolint: gosec
 )
 
 // List of supported output formats
