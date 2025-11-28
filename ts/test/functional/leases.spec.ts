@@ -22,8 +22,8 @@ describe("Lease Operations", () => {
   const QUERY_RPC_URL = process.env.QUERY_RPC_URL || process.env.TX_RPC_URL || "http://grpc.sandbox-2.aksh.pw:9090";
   const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.sandbox-2.aksh.pw:443";
 
-  const createTestSDK = async (wallet?: DirectSecp256k1HdWallet) => {
-    const txClient = wallet ? await createStargateClient({
+  const createTestSDK = (wallet?: DirectSecp256k1HdWallet) => {
+    const txClient = wallet ? createStargateClient({
       baseUrl: TX_RPC_URL,
       signer: wallet,
     }) : undefined;
@@ -51,7 +51,7 @@ describe("Lease Operations", () => {
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
     const [account] = await wallet.getAccounts();
     
-    const sdk = await createTestSDK(wallet);
+    const sdk = createTestSDK(wallet);
 
     const deploymentMessage: MsgCreateDeployment = {
       id: {
@@ -188,7 +188,7 @@ describe("Lease Operations", () => {
   });
 
   it("should query existing leases from the network", async () => {
-    const sdk = await createTestSDK();
+    const sdk = createTestSDK();
 
     const queryParams = {
       pagination: {
@@ -222,7 +222,7 @@ describe("Lease Operations", () => {
   });
 
   it("should query existing bids from the network", async () => {
-    const sdk = await createTestSDK();
+    const sdk = createTestSDK();
 
     const queryParams = {
       pagination: {

@@ -267,24 +267,21 @@ describe("Deployment Queries", () => {
   });
 
   it("should create a deployment transaction", async () => {
-    // Get test mnemonic from environment variable
+    // Arrange: Setup test data and dependencies
     const testMnemonic = process.env.TEST_MNEMONIC;
     
     if (!testMnemonic) {
       throw new Error("TEST_MNEMONIC environment variable is required for transaction tests. Set it with a funded testnet account mnemonic.");
     }
     
-    // Create a test wallet
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
     const [account] = await wallet.getAccounts();
     
-    // Helper function to create readable resource values from strings
     const createResourceValue = (value: string): { val: Uint8Array } => ({
       val: new TextEncoder().encode(value)
     });
 
-    // Create SDK with test wallet
-    const txClient = await createStargateClient({
+    const txClient = createStargateClient({
       baseUrl: TX_RPC_URL,
       signer: wallet,
     });
@@ -293,7 +290,6 @@ describe("Deployment Queries", () => {
       tx: { signer: txClient },
     });
 
-    // Create deployment message
     const deploymentMessage: MsgCreateDeployment = {
       id: {
         owner: account.address,
@@ -347,9 +343,16 @@ describe("Deployment Queries", () => {
       }
     };
 
+    // Assert: Verify test data before acting
+    expect(account.address).toMatch(/^akash1[a-z0-9]{38}$/);
+    expect(account.pubkey).toHaveLength(33);
+    expect(deploymentMessage.id?.owner).toBe(account.address);
+    expect(deploymentMessage.groups).toHaveLength(1);
+    expect(deploymentMessage.groups[0]?.name).toBe("web-service");
+
+    // Act: Execute the operation
     const result = await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
       memo: "Test deployment creation - Akash Chain SDK",
-      // Set afterSign callback to verify transaction structure
       afterSign: (txRaw: any) => {
         expect(txRaw).toBeDefined();
         expect(txRaw.bodyBytes).toBeDefined();
@@ -357,23 +360,14 @@ describe("Deployment Queries", () => {
         expect(txRaw.signatures).toBeDefined();
         expect(txRaw.signatures.length).toBeGreaterThan(0);
       },
-      // Set afterBroadcast callback to capture transaction hash
       afterBroadcast: (txResponse: any) => {
-        // Verify transaction was successful
-        expect(txResponse.code).toBe(0); // 0 means success
+        expect(txResponse.code).toBe(0);
         expect(txResponse.transactionHash).toBeDefined();
       }
     });
     
-    // Verify the response structure - these assertions are required for test to pass
+    // Assert: Verify the result
     expect(result).toBeDefined();
-
-    // Verify wallet and account structure
-    expect(account.address).toMatch(/^akash1[a-z0-9]{38}$/);
-    expect(account.pubkey).toHaveLength(33); // Compressed secp256k1 pubkey
-    expect(deploymentMessage.id?.owner).toBe(account.address);
-    expect(deploymentMessage.groups).toHaveLength(1);
-    expect(deploymentMessage.groups[0]?.name).toBe("web-service");
   });
 
   it("should cleanup all deployments for the test account", async () => {
