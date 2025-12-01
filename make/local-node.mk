@@ -144,16 +144,30 @@ local-node-run: local-node-init
 	fi; \
 	echo "Starting local Akash node..."; \
 	$$AKASH_TO_USE start --minimum-gas-prices=$(AKASH_GAS_PRICES) --home $(LOCAL_NODE_HOME) > $(LOCAL_NODE_DIR)/node.log 2>&1 & \
-		echo $$! > $(LOCAL_NODE_PID); \
-	echo "Waiting for node to start..."; \
-	for i in $$(seq 1 30); do \
+		node_pid=$$!; \
+		echo $$node_pid > $(LOCAL_NODE_PID); \
+	echo "Waiting for node to start (PID: $$node_pid)..."; \
+	for i in $$(seq 1 60); do \
+		if ! kill -0 $$node_pid 2>/dev/null; then \
+			echo "Error: Node process died. Last 20 lines of log:"; \
+			tail -20 $(LOCAL_NODE_DIR)/node.log || true; \
+			exit 1; \
+		fi; \
 		if curl -s http://localhost:26657/status >/dev/null 2>&1; then \
-			echo "Node is running (PID: $$(cat $(LOCAL_NODE_PID)))"; \
+			echo "Node is running (PID: $$node_pid)"; \
 			exit 0; \
+		fi; \
+		if [ $$((i % 10)) -eq 0 ]; then \
+			echo "Still waiting... ($$i/60 seconds)"; \
 		fi; \
 		sleep 1; \
 	done; \
-	echo "Error: Node failed to start. Check logs: $(LOCAL_NODE_DIR)/node.log"; \
+	echo "Error: Node failed to start within 60 seconds. Last 30 lines of log:"; \
+	tail -30 $(LOCAL_NODE_DIR)/node.log || true; \
+	if kill -0 $$node_pid 2>/dev/null; then \
+		echo "Node process is still running but not responding. Killing it..."; \
+		kill $$node_pid 2>/dev/null || true; \
+	fi; \
 	exit 1
 
 .PHONY: local-node-stop
