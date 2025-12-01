@@ -43,10 +43,7 @@ check_node_running() {
 
 # Get test account address from mnemonic
 get_test_account_address() {
-    if [ -z "${TEST_MNEMONIC:-}" ]; then
-        log_error "TEST_MNEMONIC environment variable is not set"
-        return 1
-    fi
+    TEST_MNEMONIC="${TEST_MNEMONIC:-abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about}"
     
     # Use Node.js to derive address from mnemonic (using cosmjs)
     # This requires @cosmjs/proto-signing to be installed

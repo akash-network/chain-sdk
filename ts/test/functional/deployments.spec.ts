@@ -25,7 +25,7 @@ import { Storage } from "../../src/generated/protos/akash/base/resources/v1beta4
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { Coin, DecCoin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
 // Helper function to ensure wallet is funded
-async function ensureWalletFunded(wallet: DirectSecp256k1HdWallet, restApiUrl: string, minBalance: number = 100 * 1_000_000): Promise<void> {
+async function ensureWalletFunded(wallet: DirectSecp256k1HdWallet, restApiUrl: string, minBalance: number = 95 * 1_000_000): Promise<void> {
   const [account] = await wallet.getAccounts();
   
   try {
@@ -81,11 +81,7 @@ describe("Deployment Queries", () => {
   const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const cleanupDeployments = async () => {
-    const testMnemonic = process.env.TEST_MNEMONIC;
-    
-    if (!testMnemonic) {
-      throw new Error("TEST_MNEMONIC environment variable is required for cleanup. Set it with a funded testnet account mnemonic.");
-    }
+    const testMnemonic = process.env.TEST_MNEMONIC || "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
 
     try {
       const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
@@ -297,12 +293,7 @@ describe("Deployment Queries", () => {
   });
 
   it("should create a deployment transaction", async () => {
-    // Arrange: Setup test data and dependencies
-    const testMnemonic = process.env.TEST_MNEMONIC;
-    
-    if (!testMnemonic) {
-      throw new Error("TEST_MNEMONIC environment variable is required for transaction tests. Set it with a funded testnet account mnemonic.");
-    }
+    const testMnemonic = process.env.TEST_MNEMONIC || "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
     
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(testMnemonic, { prefix: "akash" });
     const [account] = await wallet.getAccounts();
