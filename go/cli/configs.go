@@ -150,11 +150,18 @@ func InterceptConfigsPreRunHandler(
 	cmd *cobra.Command,
 	envPrefixes []string,
 	allowEmptyEnv bool,
-	customAppConfigTemplate string,
-	customAppConfig interface{},
+	opts ...PreRunOption,
 ) error {
 	if len(envPrefixes) == 0 {
 		return ErrEmptyEnvPrefix
+	}
+
+	pOpts := &PreRunOptions{}
+
+	for _, opt := range opts {
+		if err := opt(pOpts); err != nil {
+			return err
+		}
 	}
 
 	serverCtx := server.NewDefaultContext()
@@ -174,7 +181,7 @@ func InterceptConfigsPreRunHandler(
 	serverCtx.Viper.AutomaticEnv()
 
 	// intercept configuration files, using both Viper instances separately
-	cfg, err := interceptConfigs(serverCtx.Viper, customAppConfigTemplate, customAppConfig)
+	cfg, err := interceptConfigs(serverCtx.Viper, pOpts.appConfigTemplate, pOpts.appConfig, pOpts.cmtCfg)
 	if err != nil {
 		return err
 	}
@@ -189,7 +196,7 @@ func InterceptConfigsPreRunHandler(
 	// the return value is a tendermint configuration object
 	serverCtx.Config = cfg
 
-	var opts []log.Option
+	var logOpts []log.Option
 
 	logTimeFmt, err := parseTimestampFormat(serverCtx.Viper.GetString(cflags.FlagLogTimestamp))
 	if err != nil {
@@ -199,7 +206,7 @@ func InterceptConfigsPreRunHandler(
 	logFmt := serverCtx.Viper.GetString(cflags.FlagLogFormat)
 	switch logFmt {
 	case cmtcfg.LogFormatJSON:
-		opts = append(opts, log.OutputJSONOption())
+		logOpts = append(logOpts, log.OutputJSONOption())
 	case "":
 		fallthrough
 	case cmtcfg.LogFormatPlain:
@@ -208,7 +215,7 @@ func InterceptConfigsPreRunHandler(
 		return fmt.Errorf("unsupported value \"%s\" for log_format flag. can be either plain|json", logFmt)
 	}
 
-	opts = append(opts,
+	logOpts = append(logOpts,
 		log.ColorOption(serverCtx.Viper.GetBool(cflags.FlagLogColor)),
 		log.TraceOption(serverCtx.Viper.GetBool(cflags.FlagTrace)),
 		log.TimeFormatOption(logTimeFmt),
@@ -226,13 +233,13 @@ func InterceptConfigsPreRunHandler(
 				return err
 			}
 
-			opts = append(opts, log.FilterOption(filterFunc))
+			logOpts = append(logOpts, log.FilterOption(filterFunc))
 		default:
-			opts = append(opts, log.LevelOption(logLvl))
+			logOpts = append(logOpts, log.LevelOption(logLvl))
 		}
 	}
 
-	logger := NewLogger(cmtlog.NewSyncWriter(os.Stdout), opts...).With(log.ModuleKey, "server")
+	logger := NewLogger(cmtlog.NewSyncWriter(os.Stdout), logOpts...).With(log.ModuleKey, "server")
 
 	serverCtx.Logger = logger
 
@@ -301,12 +308,14 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper, envPrefixes []string) error {
 // configuration file. The Tendermint configuration file is parsed given a root
 // Viper object, whereas the application is parsed with the private package-aware
 // viperCfg object.
-func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customConfig interface{}) (*cmtcfg.Config, error) {
+func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customConfig interface{}, conf *cmtcfg.Config) (*cmtcfg.Config, error) {
 	rootDir := rootViper.GetString(cflags.FlagHome)
 	configPath := filepath.Join(rootDir, "config")
 	tmCfgFile := filepath.Join(configPath, "config.toml")
 
-	conf := cmtcfg.DefaultConfig()
+	if conf == nil {
+		conf = cmtcfg.DefaultConfig()
+	}
 
 	switch _, err := os.Stat(tmCfgFile); {
 	case os.IsNotExist(err):

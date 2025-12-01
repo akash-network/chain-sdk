@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cosmossdk.io/core/address"
+	"github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -256,6 +257,217 @@ Examples:
 	cmd.Flags().StringSlice(cflags.FlagAllowList, []string{}, "Allowed addresses grantee is allowed to send funds separated by ,")
 	cmd.Flags().Int64(cflags.FlagExpiration, 0, "Expire time as Unix timestamp. Set zero (0) for no expiry. Default is 0.")
 	cmd.Flags().StringSlice(cflags.FlagScope, []string{}, "Scopes for Deposit authorization, array of values. Allowed values deployment|bid")
+
+	cmd.AddCommand(
+		GetTxAuthzGrantContractAuthorizationCmd(),
+		GetTxAuthzGrantStoreCodeAuthorizationCmd(),
+	)
+
+	return cmd
+}
+
+func GetTxAuthzGrantContractAuthorizationCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "contract [grantee] [message_type=\"execution\"|\"migration\"] [contract_addr_bech32] --allow-raw-msgs [msg1,msg2,...] --allow-msg-keys [key1,key2,...] --allow-all-messages",
+		Short: "Grant authorization to interact with a contract on behalf of you",
+		Long: fmt.Sprintf(`Grant authorization to an address.
+Examples:
+$ %s tx grant contract <grantee_addr> execution <contract_addr> --allow-all-messages --max-calls 1 --no-token-transfer --expiration 1667979596
+
+$ %s tx grant contract <grantee_addr> execution <contract_addr> --allow-all-messages --max-funds 100000uwasm --expiration 1667979596
+
+$ %s tx grant contract <grantee_addr> execution <contract_addr> --allow-all-messages --max-calls 5 --max-funds 100000uwasm --expiration 1667979596
+`, version.AppName, version.AppName, version.AppName),
+		Args: cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+
+			cl := MustClientFromContext(ctx)
+			cctx := cl.ClientContext()
+
+			grantee, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			contract, err := sdk.AccAddressFromBech32(args[2])
+			if err != nil {
+				return err
+			}
+
+			msgKeys, err := cmd.Flags().GetStringSlice(cflags.FlagAllowedMsgKeys)
+			if err != nil {
+				return err
+			}
+
+			rawMsgs, err := cmd.Flags().GetStringSlice(cflags.FlagAllowedRawMsgs)
+			if err != nil {
+				return err
+			}
+
+			maxFundsStr, err := cmd.Flags().GetString(cflags.FlagMaxFunds)
+			if err != nil {
+				return fmt.Errorf("max funds: %s", err)
+			}
+
+			maxCalls, err := cmd.Flags().GetUint64(cflags.FlagMaxCalls)
+			if err != nil {
+				return err
+			}
+
+			exp, err := cmd.Flags().GetInt64(cflags.FlagExpiration)
+			if err != nil {
+				return err
+			}
+			if exp == 0 {
+				return errors.New("expiration must be set")
+			}
+
+			allowAllMsgs, err := cmd.Flags().GetBool(cflags.FlagAllowAllMsgs)
+			if err != nil {
+				return err
+			}
+
+			noTokenTransfer, err := cmd.Flags().GetBool(cflags.FlagNoTokenTransfer)
+			if err != nil {
+				return err
+			}
+
+			var limit types.ContractAuthzLimitX
+			switch {
+			case maxFundsStr != "" && maxCalls != 0 && !noTokenTransfer:
+				maxFunds, err := sdk.ParseCoinsNormalized(maxFundsStr)
+				if err != nil {
+					return fmt.Errorf("max funds: %s", err)
+				}
+				limit = types.NewCombinedLimit(maxCalls, maxFunds...)
+			case maxFundsStr != "" && maxCalls == 0 && !noTokenTransfer:
+				maxFunds, err := sdk.ParseCoinsNormalized(maxFundsStr)
+				if err != nil {
+					return fmt.Errorf("max funds: %s", err)
+				}
+				limit = types.NewMaxFundsLimit(maxFunds...)
+			case maxCalls != 0 && noTokenTransfer && maxFundsStr == "":
+				limit = types.NewMaxCallsLimit(maxCalls)
+			default:
+				return errors.New("invalid limit setup")
+			}
+
+			var filter types.ContractAuthzFilterX
+			switch {
+			case allowAllMsgs && len(msgKeys) != 0 || allowAllMsgs && len(rawMsgs) != 0 || len(msgKeys) != 0 && len(rawMsgs) != 0:
+				return errors.New("cannot set more than one filter within one grant")
+			case allowAllMsgs:
+				filter = types.NewAllowAllMessagesFilter()
+			case len(msgKeys) != 0:
+				filter = types.NewAcceptedMessageKeysFilter(msgKeys...)
+			case len(rawMsgs) != 0:
+				msgs := make([]types.RawContractMessage, len(rawMsgs))
+				for i, msg := range rawMsgs {
+					msgs[i] = types.RawContractMessage(msg)
+				}
+				filter = types.NewAcceptedMessagesFilter(msgs...)
+			default:
+				return errors.New("invalid filter setup")
+			}
+
+			grant, err := types.NewContractGrant(contract, limit, filter)
+			if err != nil {
+				return err
+			}
+
+			var authorization authz.Authorization
+			switch args[1] {
+			case "execution":
+				authorization = types.NewContractExecutionAuthorization(*grant)
+			case "migration":
+				authorization = types.NewContractMigrationAuthorization(*grant)
+			default:
+				return fmt.Errorf("%s authorization type not supported", args[1])
+			}
+
+			expire, err := getExpireTime(cmd)
+			if err != nil {
+				return err
+			}
+
+			grantMsg, err := authz.NewMsgGrant(cctx.GetFromAddress(), grantee, authorization, expire)
+			if err != nil {
+				return err
+			}
+
+			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{grantMsg})
+			if err != nil {
+				return err
+			}
+
+			return cl.PrintMessage(resp)
+		},
+	}
+
+	cflags.AddTxFlagsToCmd(cmd)
+
+	cmd.Flags().StringSlice(cflags.FlagAllowedMsgKeys, []string{}, "Allowed msg keys")
+	cmd.Flags().StringSlice(cflags.FlagAllowedRawMsgs, []string{}, "Allowed raw msgs")
+	cmd.Flags().Uint64(cflags.FlagMaxCalls, 0, "Maximal number of calls to the contract")
+	cmd.Flags().String(cflags.FlagMaxFunds, "", "Maximal amount of tokens transferable to the contract.")
+	cmd.Flags().Int64(cflags.FlagExpiration, 0, "The Unix timestamp.")
+	cmd.Flags().Bool(cflags.FlagAllowAllMsgs, false, "Allow all messages")
+	cmd.Flags().Bool(cflags.FlagNoTokenTransfer, false, "Don't allow token transfer")
+
+	return cmd
+}
+
+func GetTxAuthzGrantStoreCodeAuthorizationCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "store-code [grantee] [code_hash:permission]",
+		Short: "Grant authorization to upload contract code on behalf of you",
+		Long: fmt.Sprintf(`Grant authorization to an address.
+Examples:
+$ %s tx grant store-code <grantee_addr> 13a1fc994cc6d1c81b746ee0c0ff6f90043875e0bf1d9be6b7d779fc978dc2a5:everybody  1wqrtry681b746ee0c0ff6f90043875e0bf1d9be6b7d779fc978dc2a5:nobody --expiration 1667979596
+
+$ %s tx grant store-code <grantee_addr> *:%s1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm,%s1vx8knpllrj7n963p9ttd80w47kpacrhuts497x
+`, version.AppName, version.AppName, version.AppName, version.AppName),
+		Args: cobra.MinimumNArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+
+			cl := MustClientFromContext(ctx)
+			cctx := cl.ClientContext()
+
+			grantee, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			grants, err := ParseStoreCodeGrants(args[1:])
+			if err != nil {
+				return err
+			}
+
+			authorization := types.NewStoreCodeAuthorization(grants...)
+
+			expire, err := getExpireTime(cmd)
+			if err != nil {
+				return err
+			}
+
+			grantMsg, err := authz.NewMsgGrant(cctx.GetFromAddress(), grantee, authorization, expire)
+			if err != nil {
+				return err
+			}
+
+			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{grantMsg})
+			if err != nil {
+				return err
+			}
+
+			return cl.PrintMessage(resp)
+		},
+	}
+
+	cflags.AddTxFlagsToCmd(cmd)
+	cmd.Flags().Int64(cflags.FlagExpiration, 0, "The Unix timestamp.")
 
 	return cmd
 }

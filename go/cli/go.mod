@@ -25,18 +25,20 @@ require (
 	github.com/cosmos/cosmos-sdk v0.53.4
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.7.0
-	github.com/distribution/reference v0.5.0
+	github.com/distribution/reference v0.6.0
 	github.com/go-errors/errors v1.5.1
 	github.com/hashicorp/go-metrics v0.5.4
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mdp/qrterminal/v3 v3.2.1
+	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/cast v1.10.0
-	github.com/spf13/cobra v1.9.1
+	github.com/spf13/cobra v1.10.1
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/sync v0.17.0
+	golang.org/x/crypto v0.45.0
+	golang.org/x/sync v0.18.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 	gopkg.in/yaml.v3 v3.0.1
@@ -44,31 +46,6 @@ require (
 	pkg.akt.dev/go v0.2.0-b0
 	pkg.akt.dev/go/sdl v0.1.1
 	sigs.k8s.io/yaml v1.6.0
-)
-
-replace (
-	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/bytedance/sonic => github.com/bytedance/sonic v1.14.1
-	// use akash fork of cometbft
-	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.19-akash.1
-	// use akash fork of cosmos sdk
-	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.4-akash.10
-	// use akash version of cosmos ledger api
-	github.com/cosmos/ledger-cosmos-go => github.com/akash-network/ledger-go/cosmos v0.16.0
-
-	// Use regen gogoproto tag
-	// To be replaced by cosmos/gogoproto in future versions
-	github.com/gogo/protobuf => github.com/cosmos/gogoproto v1.3.3-alpha.regen.1
-
-	github.com/zondax/hid => github.com/troian/hid v0.14.0
-
-	github.com/zondax/ledger-go => github.com/akash-network/ledger-go v0.16.0
-
-	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
-	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
-
-	pkg.akt.dev/go => ../
-	pkg.akt.dev/go/sdl => ../sdl
 )
 
 require (
@@ -203,7 +180,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/petermattis/goid v0.0.0-20240813172612-4fcff4a6cae7 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
@@ -248,13 +224,12 @@ require (
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.17.0 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/term v0.34.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	google.golang.org/api v0.247.0 // indirect
 	google.golang.org/genproto v0.0.0-20250728155136-f173205681a0 // indirect
@@ -272,4 +247,29 @@ require (
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
+)
+
+replace (
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	github.com/bytedance/sonic => github.com/bytedance/sonic v1.14.1
+	// use akash fork of cometbft
+	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.19-akash.1
+
+	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.4-akash.10
+	// use akash version of cosmos ledger api
+	github.com/cosmos/ledger-cosmos-go => github.com/akash-network/ledger-go/cosmos v0.16.0
+
+	// Use regen gogoproto tag
+	// To be replaced by cosmos/gogoproto in future versions
+	github.com/gogo/protobuf => github.com/cosmos/gogoproto v1.3.3-alpha.regen.1
+
+	github.com/zondax/hid => github.com/troian/hid v0.14.0
+
+	github.com/zondax/ledger-go => github.com/akash-network/ledger-go v0.16.0
+
+	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
+	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
+
+	pkg.akt.dev/go => ../
+	pkg.akt.dev/go/sdl => ../sdl
 )
