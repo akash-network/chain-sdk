@@ -106,7 +106,7 @@ local-node-init: local-node-check-akash $(LOCAL_NODE_HOME)
 	$$AKASH_TO_USE genesis init node0 --home $(LOCAL_NODE_HOME) >/dev/null 2>&1; \
 	cp "$(LOCAL_GENESIS_PATH)" "$(LOCAL_GENESIS_PATH).orig"; \
 	cat "$(LOCAL_GENESIS_PATH).orig" | \
-		jq -M '.app_state.gov.voting_params.voting_period = "30s"' | \
+		jq -M '.app_state.gov.params.voting_period = "30s"' | \
 		jq -rM '(..|objects|select(has("denom"))).denom |= "$(LOCAL_CHAIN_TOKEN_DENOM)"' | \
 		jq -rM '(..|objects|select(has("bond_denom"))).bond_denom |= "$(LOCAL_CHAIN_TOKEN_DENOM)"' | \
 		jq -rM '(..|objects|select(has("mint_denom"))).mint_denom |= "$(LOCAL_CHAIN_TOKEN_DENOM)"' > \
