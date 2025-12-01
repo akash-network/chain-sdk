@@ -56,7 +56,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
   test-functional-ts:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 5 # locally it takes around 70 seconds
     steps:
       - uses: actions/checkout@v4
       - run: git fetch --prune --unshallow

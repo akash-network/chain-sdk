@@ -103,19 +103,22 @@ fund_account() {
     
     log_info "Funding test account ${to_address} with ${amount} from ${GENESIS_ACCOUNT}..."
     
-    # Check if akash command is available
-    if ! command -v akash &> /dev/null; then
-        log_error "akash command not found. Please ensure akash is in PATH."
+    # Determine which akash command to use
+    local AKASH_TO_USE
+    if command -v akash >/dev/null 2>&1; then
+        AKASH_TO_USE="akash"
+    else
+        log_error "akash command not found. Please ensure akash is in PATH or installed by 'make local-node-install-akash'."
         return 1
     fi
     
     # Get genesis account address
     local from_address
-    local akash_home_opts=""
     if [ -n "${AKASH_HOME}" ]; then
-        akash_home_opts="--home ${AKASH_HOME}"
+        from_address=$("${AKASH_TO_USE}" keys show "${GENESIS_ACCOUNT}" -a --keyring-backend test --home "${AKASH_HOME}" 2>/dev/null || echo "")
+    else
+        from_address=$("${AKASH_TO_USE}" keys show "${GENESIS_ACCOUNT}" -a --keyring-backend test 2>/dev/null || echo "")
     fi
-    from_address=$(akash keys show "${GENESIS_ACCOUNT}" -a --keyring-backend test ${akash_home_opts} 2>/dev/null || echo "")
     
     if [ -z "${from_address}" ]; then
         log_error "Genesis account '${GENESIS_ACCOUNT}' not found. Make sure you've run 'make local-node-init'"
@@ -123,26 +126,43 @@ fund_account() {
     fi
     
     # Send tokens
-    if akash tx bank send "${from_address}" "${to_address}" "${amount}" \
-        --chain-id "${CHAIN_ID}" \
-        --node "${AKASH_NODE}" \
-        --keyring-backend test \
-        --from "${GENESIS_ACCOUNT}" \
-        --yes \
-        --gas auto \
-        --gas-adjustment 2.0 \
-        --gas-prices 0.025uakt \
-        ${akash_home_opts} > /dev/null 2>&1; then
-        log_info "Successfully funded account"
-        
-        # Wait for transaction to be included
-        log_info "Waiting for transaction to be included in a block..."
-        sleep 3
-        
-        return 0
+    if [ -n "${AKASH_HOME}" ]; then
+        if "${AKASH_TO_USE}" tx bank send "${from_address}" "${to_address}" "${amount}" \
+            --chain-id "${CHAIN_ID}" \
+            --node "${AKASH_NODE}" \
+            --keyring-backend test \
+            --from "${GENESIS_ACCOUNT}" \
+            --yes \
+            --gas auto \
+            --gas-adjustment 2.0 \
+            --gas-prices 0.025uakt \
+            --home "${AKASH_HOME}" > /dev/null 2>&1; then
+            log_info "Successfully funded account"
+            log_info "Waiting for transaction to be included in a block..."
+            sleep 3
+            return 0
+        else
+            log_error "Failed to fund account"
+            return 1
+        fi
     else
-        log_error "Failed to fund account"
-        return 1
+        if "${AKASH_TO_USE}" tx bank send "${from_address}" "${to_address}" "${amount}" \
+            --chain-id "${CHAIN_ID}" \
+            --node "${AKASH_NODE}" \
+            --keyring-backend test \
+            --from "${GENESIS_ACCOUNT}" \
+            --yes \
+            --gas auto \
+            --gas-adjustment 2.0 \
+            --gas-prices 0.025uakt > /dev/null 2>&1; then
+            log_info "Successfully funded account"
+            log_info "Waiting for transaction to be included in a block..."
+            sleep 3
+            return 0
+        else
+            log_error "Failed to fund account"
+            return 1
+        fi
     fi
 }
 
