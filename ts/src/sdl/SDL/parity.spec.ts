@@ -165,8 +165,6 @@ function normalizeKeys(obj: unknown, version: string = "beta3"): unknown {
       }
 
       normalized[normalizedKey] = finalValue;
-
-      normalized[normalizedKey] = value;
     }
   }
   return normalized;
