@@ -23,24 +23,7 @@ items:
               count:
                 type: number
               credentials:
-                anyOf:
-                  - additionalProperties: false
-                    properties:
-                      email:
-                        type: string
-                      host:
-                        type: string
-                      password:
-                        type: string
-                      username:
-                        type: string
-                    required:
-                      - host
-                      - email
-                      - username
-                      - password
-                    type: object
-                  - type: 'null'
+                $ref: '#/$defs/credentials'
               env:
                 anyOf:
                   - items:
@@ -119,24 +102,7 @@ items:
                   - additionalProperties: false
                     properties:
                       credentials:
-                        anyOf:
-                          - additionalProperties: false
-                            properties:
-                              email:
-                                type: string
-                              host:
-                                type: string
-                              password:
-                                type: string
-                              username:
-                                type: string
-                            required:
-                              - host
-                              - email
-                              - username
-                              - password
-                            type: object
-                          - type: 'null'
+                        $ref: '#/$defs/credentials'
                       storage:
                         anyOf:
                           - items:
@@ -326,3 +292,23 @@ items:
     - name
   type: object
 type: array
+$defs:
+  credentials:
+    anyOf:
+      - additionalProperties: false
+        properties:
+          email:
+            type: string
+          host:
+            type: string
+          password:
+            type: string
+          username:
+            type: string
+        required:
+          - host
+          - email
+          - username
+          - password
+        type: object
+      - type: 'null'
