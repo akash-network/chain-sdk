@@ -1,0 +1,291 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+description: |
+  Schema for Akash Stack Definition Language (SDL) YAML input files.
+  
+  Note: This schema validates structure only. Semantic validations (cross-references,
+  unused endpoints, profile references, etc.) are performed at runtime by the Go parser.
+  See validation-limitations.md for details.
+properties:
+  deployment:
+    additionalProperties:
+      additionalProperties:
+        properties:
+          count:
+            minimum: 1
+            type: number
+          profile:
+            type: string
+        required:
+          - profile
+          - count
+        type: object
+      type: object
+    type: object
+  endpoints:
+    additionalProperties:
+      properties:
+        kind:
+          enum:
+            - ip
+          type: string
+      required:
+        - kind
+      type: object
+    type: object
+  include:
+    description: Optional list of files to include
+    items:
+      type: string
+    type: array
+  profiles:
+    properties:
+      compute:
+        additionalProperties:
+          properties:
+            resources:
+              properties:
+                cpu:
+                  properties:
+                    attributes:
+                      type: object
+                    units:
+                      anyOf:
+                        - type: string
+                          pattern: '^-?[0-9]+(\.[0-9]+)?[a-zA-Z]*$'
+                          not:
+                            pattern: '^-'
+                        - type: number
+                          minimum: 0
+                  required:
+                    - units
+                  type: object
+                gpu:
+                  properties:
+                    attributes:
+                      properties:
+                        vendor:
+                          additionalProperties:
+                            items:
+                              properties:
+                                interface:
+                                  type: string
+                                model:
+                                  type: string
+                                ram:
+                                  type: string
+                              type: object
+                            type: array
+                          type: object
+                      type: object
+                    units:
+                      anyOf:
+                        - type: string
+                        - type: number
+                  type: object
+                memory:
+                  properties:
+                    attributes:
+                      type: object
+                    size:
+                      type: string
+                  required:
+                    - size
+                  type: object
+                storage:
+                  anyOf:
+                    - properties:
+                        attributes:
+                          type: object
+                        name:
+                          type: string
+                        size:
+                          type: string
+                      required:
+                        - size
+                      type: object
+                    - items:
+                        properties:
+                          attributes:
+                            type: object
+                          name:
+                            type: string
+                          size:
+                            type: string
+                        required:
+                          - size
+                        type: object
+                      type: array
+              required:
+                - cpu
+                - memory
+                - storage
+              type: object
+          required:
+            - resources
+          type: object
+        type: object
+      placement:
+        additionalProperties:
+          properties:
+            attributes:
+              type: object
+            pricing:
+              additionalProperties:
+                properties:
+                  amount:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  denom:
+                    type: string
+                required:
+                  - denom
+                  - amount
+                type: object
+              type: object
+            signedBy:
+              properties:
+                allOf:
+                  items:
+                    type: string
+                  type: array
+                anyOf:
+                  items:
+                    type: string
+                  type: array
+              type: object
+          required:
+            - pricing
+          type: object
+        type: object
+    required:
+      - compute
+      - placement
+    type: object
+  services:
+    additionalProperties:
+      properties:
+        args:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+        command:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+        credentials:
+          properties:
+            email:
+              type: string
+            host:
+              type: string
+            password:
+              type: string
+            username:
+              type: string
+          required:
+            - host
+            - username
+            - password
+          type: object
+        dependencies:
+          items:
+            properties:
+              service:
+                type: string
+            type: object
+          type: array
+        env:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+        expose:
+          items:
+            properties:
+              accept:
+                    items:
+                      type: string
+                    type: array
+              as:
+                maximum: 65535
+                minimum: 1
+                type: number
+              port:
+                maximum: 65535
+                minimum: 1
+                type: number
+              proto:
+                enum:
+                  - TCP
+                  - UDP
+                  - tcp
+                  - udp
+                type: string
+              to:
+                items:
+                  properties:
+                    global:
+                      type: boolean
+                    http_options:
+                      properties:
+                        max_body_size:
+                          type: number
+                        next_cases:
+                          items:
+                            type: string
+                          type: array
+                        next_timeout:
+                          type: number
+                        next_tries:
+                          type: number
+                        read_timeout:
+                          type: number
+                        send_timeout:
+                          type: number
+                      type: object
+                    ip:
+                      type: string
+                    service:
+                      type: string
+                  type: object
+                type: array
+            required:
+              - port
+            type: object
+          type: array
+        image:
+          type: string
+        params:
+          properties:
+            storage:
+              additionalProperties:
+                properties:
+                  mount:
+                    type: string
+                  readOnly:
+                    type: boolean
+                type: object
+              type: object
+          type: object
+      required:
+        - image
+      type: object
+    type: object
+  version:
+    description: SDL version
+    enum:
+      - '2.0'
+      - '2.1'
+    type: string
+required:
+  - version
+  - deployment
+title: Akash SDL Input Schema
+type: object

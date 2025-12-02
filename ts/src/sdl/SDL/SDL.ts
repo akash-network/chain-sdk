@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import YAML from "js-yaml";
+import { load } from "js-yaml";
 import { default as stableStringify } from "json-stable-stringify";
 
 import { AKT_DENOM, MAINNET_ID, USDC_IBC_DENOMS } from "../../network/config.ts";
@@ -111,7 +111,13 @@ export class SDL {
    * ```
    */
   static fromString(yaml: string, version: NetworkVersion = "beta3", networkId: NetworkId = MAINNET_ID) {
-    const data = YAML.load(yaml) as v3Sdl;
+    const parsed = load(yaml) as any;
+
+    if (!parsed.version) {
+      throw new SdlValidationError("SDL invalid: no version found");
+    }
+
+    const data = parsed as v3Sdl;
     return new SDL(data, version, networkId);
   }
 
@@ -121,7 +127,7 @@ export class SDL {
    */
   static validate(yaml: string) {
     console.warn("SDL.validate is deprecated. Use SDL.constructor directly.");
-    const data = YAML.load(yaml) as v3Sdl;
+    const data = load(yaml) as v3Sdl;
 
     for (const [name, profile] of Object.entries(data.profiles.compute || {})) {
       this.validateGPU(name, profile.resources.gpu);
@@ -243,6 +249,8 @@ export class SDL {
     this.validateEndpoints();
 
     Object.keys(this.data.services).forEach((serviceName) => {
+      this.validateServiceImage(serviceName);
+      this.validateServicePorts(serviceName);
       this.validateDeploymentWithRelations(serviceName);
       this.validateLeaseIP(serviceName);
       this.validateCredentials(serviceName);
@@ -271,6 +279,22 @@ export class SDL {
       SdlValidationError.assert(this.ENDPOINT_NAME_VALIDATION_REGEX.test(endpointName), `Endpoint named "${endpointName}" is not a valid name.`);
       SdlValidationError.assert(!!endpoint.kind, `Endpoint named "${endpointName}" has no kind.`);
       SdlValidationError.assert(endpoint.kind === this.ENDPOINT_KIND_IP, `Endpoint named "${endpointName}" has an unknown kind "${endpoint.kind}".`);
+    });
+  }
+
+  private validateServiceImage(serviceName: string) {
+    const image = this.data.services[serviceName].image;
+    SdlValidationError.assert(image && image.trim().length > 0, `Service "${serviceName}" has empty image name.`);
+  }
+
+  private validateServicePorts(serviceName: string) {
+    const service = this.data.services[serviceName];
+    service.expose?.forEach((expose) => {
+      const port = expose.port;
+      SdlValidationError.assert(
+        port > 0 && port <= 65535,
+        `Service "${serviceName}" has invalid port value. Port must be 0 < value <= 65535.`,
+      );
     });
   }
 
@@ -808,8 +832,9 @@ export class SDL {
   }
 
   v2ManifestServiceParams(params: v2ServiceParams): v2ManifestServiceParams | undefined {
+    const storageKeys = Object.keys(params?.storage ?? {}).sort();
     return {
-      Storage: Object.keys(params?.storage ?? {}).map((name) => {
+      Storage: storageKeys.map((name) => {
         if (!params?.storage) throw new Error("Storage is undefined");
         return {
           name: name,
@@ -821,13 +846,14 @@ export class SDL {
   }
 
   v3ManifestServiceParams(params: v2ServiceParams | undefined): v3ManifestServiceParams | null {
-    if (params === undefined) {
+    if (params === undefined || params === null) {
       return null;
     }
 
+    const storageKeys = Object.keys(params.storage ?? {}).sort();
     return {
-      storage: Object.keys(params?.storage ?? {}).map((name) => {
-        if (!params?.storage) throw new Error("Storage is undefined");
+      storage: storageKeys.map((name) => {
+        if (!params.storage) throw new Error("Storage is undefined");
         return {
           name: name,
           mount: params.storage[name]?.mount,
@@ -870,6 +896,7 @@ export class SDL {
       credentials.email = "";
     }
 
+    const params = this.v3ManifestServiceParams(service.params);
     const manifestService: v3ManifestService = {
       name: name,
       image: service.image,
@@ -879,12 +906,11 @@ export class SDL {
       resources: this.serviceResourcesBeta3(id, profile as v3ProfileCompute, service, asString),
       count: deployment[placement].count,
       expose: this.v3ManifestExpose(service),
-      params: this.v3ManifestServiceParams(service.params),
       credentials,
     };
 
-    if (!manifestService.params) {
-      delete manifestService.params;
+    if (params !== null) {
+      manifestService.params = params;
     }
 
     return manifestService;

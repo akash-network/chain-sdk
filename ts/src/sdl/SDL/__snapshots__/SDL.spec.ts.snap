@@ -896,13 +896,13 @@ exports[`SDL test sdl persistent storage SDL: Persistent Storage Manifest: SDL: 
         "params": {
           "Storage": [
             {
-              "mount": "/var/lib/mysql",
-              "name": "wordpress-db",
+              "mount": "/dev/shm",
+              "name": "shm",
               "readOnly": false,
             },
             {
-              "mount": "/dev/shm",
-              "name": "shm",
+              "mount": "/var/lib/mysql",
+              "name": "wordpress-db",
               "readOnly": false,
             },
           ],

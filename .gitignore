@@ -24,3 +24,11 @@ coverage.txt
 dev.env
 
 .editorconfig
+
+# test/build artifacts
+output
+
+# coverage output files
+coverage-go-cli.txt
+coverage-go-sdl.txt
+coverage-go.txt
