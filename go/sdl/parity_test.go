@@ -82,6 +82,17 @@ func testParity(t *testing.T, version string) {
 		}
 
 		t.Run(fixtureName, func(t *testing.T) {
+			inputBytes, err := os.ReadFile(inputPath)
+			require.NoError(t, err, "Failed to read input.yaml")
+
+			// Validate input against schema (convert YAML to JSON first)
+			var inputYAML any
+			err = yaml.Unmarshal(inputBytes, &inputYAML)
+			require.NoError(t, err, "Failed to parse input YAML")
+			inputJSONBytes, err := json.Marshal(inputYAML)
+			require.NoError(t, err, "Failed to convert input to JSON")
+			validateAgainstSchema(t, "input", inputJSONBytes, schemasRoot+"/sdl-input.schema.yaml")
+
 			sdl, err := ReadFile(inputPath)
 			require.NoError(t, err)
 
@@ -102,7 +113,7 @@ func testParity(t *testing.T, version string) {
 			require.NoError(t, json.Unmarshal(actualManifestBytes, &actualManifest))
 			require.Equal(t, expectedManifest, actualManifest, "Manifest does not match expected output")
 
-			validateAgainstSchema(t, "manifest", actualManifestBytes, schemasRoot+"/manifest.schema.yaml")
+			validateAgainstSchema(t, "manifest", actualManifestBytes, schemasRoot+"/manifest-output.schema.yaml")
 
 			groups, err := sdl.DeploymentGroups()
 			require.NoError(t, err)
@@ -115,7 +126,7 @@ func testParity(t *testing.T, version string) {
 			require.NoError(t, json.Unmarshal(actualGroupsBytes, &actualGroups))
 			require.Equal(t, expectedGroups, actualGroups, "Groups does not match expected output")
 
-			validateAgainstSchema(t, "groups", actualGroupsBytes, schemasRoot+"/groups.schema.yaml")
+			validateAgainstSchema(t, "groups", actualGroupsBytes, schemasRoot+"/groups-output.schema.yaml")
 		})
 	}
 }

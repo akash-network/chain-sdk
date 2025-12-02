@@ -5,7 +5,7 @@ description: |
   
   Note: This schema validates structure only. Semantic validations (cross-references,
   unused endpoints, profile references, etc.) are performed at runtime by the Go parser.
-  See validation-limitations.md for details.
+  See README.md for details.
 properties:
   deployment:
     additionalProperties:

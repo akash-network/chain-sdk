@@ -295,8 +295,17 @@ describe("SDL Parity Tests", () => {
     fixtures.forEach((fixture) => {
       describe(fixture.name, () => {
         const input = fs.readFileSync(fixture.inputPath, "utf8");
+        const inputYAML = load(input);
         const expectedManifest = normalizeExpected(JSON.parse(fs.readFileSync(fixture.manifestPath, "utf8")), "beta2");
         const expectedGroups = normalizeExpected(JSON.parse(fs.readFileSync(fixture.groupsPath, "utf8")), "beta2");
+
+        it("should validate input against schema", () => {
+          const result = validateAgainstSchema(inputYAML, path.join(schemasRoot, "sdl-input.schema.yaml"));
+          if (!result.valid) {
+            console.error(`[${fixture.name}] Input schema validation errors:`, JSON.stringify(result.errors, null, 2));
+          }
+          expect(result.valid).toBe(true);
+        });
 
         it("should generate matching manifest", () => {
           const sdl = SDL.fromString(input, "beta2");
@@ -304,7 +313,7 @@ describe("SDL Parity Tests", () => {
 
           expect(actualManifest).toEqual(expectedManifest);
 
-          const result = validateAgainstSchema(actualManifest, path.join(schemasRoot, "manifest.schema.yaml"));
+          const result = validateAgainstSchema(actualManifest, path.join(schemasRoot, "manifest-output.schema.yaml"));
           if (!result.valid) {
             console.error(`[${fixture.name}] Schema validation errors:`, JSON.stringify(result.errors, null, 2));
             console.error(`[${fixture.name}] Actual structure (first 2000 chars):`, JSON.stringify(actualManifest, null, 2).substring(0, 2000));
@@ -318,7 +327,7 @@ describe("SDL Parity Tests", () => {
 
           expect(actualGroups).toEqual(expectedGroups);
 
-          const result = validateAgainstSchema(actualGroups, path.join(schemasRoot, "groups.schema.yaml"));
+          const result = validateAgainstSchema(actualGroups, path.join(schemasRoot, "groups-output.schema.yaml"));
           if (!result.valid) {
             console.error(`[${fixture.name}] Schema validation errors:`, result.errors);
             console.error(`[${fixture.name}] Actual structure:`, JSON.stringify(actualGroups, null, 2));
@@ -344,8 +353,17 @@ describe("SDL Parity Tests", () => {
     fixtures.forEach((fixture) => {
       describe(fixture.name, () => {
         const input = fs.readFileSync(fixture.inputPath, "utf8");
+        const inputYAML = load(input);
         const expectedManifest = normalizeExpected(JSON.parse(fs.readFileSync(fixture.manifestPath, "utf8")), "beta3");
         const expectedGroups = normalizeExpected(JSON.parse(fs.readFileSync(fixture.groupsPath, "utf8")), "beta3");
+
+        it("should validate input against schema", () => {
+          const result = validateAgainstSchema(inputYAML, path.join(schemasRoot, "sdl-input.schema.yaml"));
+          if (!result.valid) {
+            console.error(`[${fixture.name}] Input schema validation errors:`, JSON.stringify(result.errors, null, 2));
+          }
+          expect(result.valid).toBe(true);
+        });
 
         it("should generate matching manifest", () => {
           const sdl = SDL.fromString(input, "beta3");
@@ -353,7 +371,7 @@ describe("SDL Parity Tests", () => {
 
           expect(actualManifest).toEqual(expectedManifest);
 
-          const result = validateAgainstSchema(actualManifest, path.join(schemasRoot, "manifest.schema.yaml"));
+          const result = validateAgainstSchema(actualManifest, path.join(schemasRoot, "manifest-output.schema.yaml"));
           if (!result.valid) {
             console.error(`[${fixture.name}] Schema validation errors:`, result.errors);
             console.error(`[${fixture.name}] Actual structure:`, JSON.stringify(actualManifest, null, 2));
@@ -367,7 +385,7 @@ describe("SDL Parity Tests", () => {
 
           expect(actualGroups).toEqual(expectedGroups);
 
-          const result = validateAgainstSchema(actualGroups, path.join(schemasRoot, "groups.schema.yaml"));
+          const result = validateAgainstSchema(actualGroups, path.join(schemasRoot, "groups-output.schema.yaml"));
           if (!result.valid) {
             console.error(`[${fixture.name}] Schema validation errors:`, result.errors);
             console.error(`[${fixture.name}] Actual structure:`, JSON.stringify(actualGroups, null, 2));
