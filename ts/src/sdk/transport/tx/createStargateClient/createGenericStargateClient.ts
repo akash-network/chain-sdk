@@ -1,4 +1,5 @@
 import type {
+  AccountData,
   DirectSecp256k1HdWalletOptions,
   EncodeObject,
   GeneratedType,
@@ -41,7 +42,7 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
     },
   ));
 
-  const getAccount = (messsages: EncodeObject[]) => getOfflineSigner().then((signer) => (options.getAccount ?? getDefaultAccount)(signer, messsages));
+  const getAccount = () => getOfflineSigner().then((signer) => (options.getAccount ?? getDefaultAccount)(signer));
   const gasMultiplier = options.gasMultiplier ?? DEFAULT_GAS_MULTIPLIER;
   const preloadMessageTypes = (messages: EncodeObject[]) => {
     for (const message of messages) {
@@ -57,19 +58,23 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
   const gasPrice = GasPrice.fromString(options.defaultGasPrice ?? DEFAULT_AVERAGE_GAS_PRICE);
 
   return {
+    getAccount,
+
     async estimateFee(messages, memo) {
-      const account = await getAccount(preloadMessageTypes(messages));
+      preloadMessageTypes(messages);
+      const account = await getAccount();
       const client = await getStargateClient();
-      const estimatedGas = await client.simulate(account, messages, memo);
+      const estimatedGas = await client.simulate(account.address, messages, memo);
       const minGas = Math.floor(gasMultiplier * estimatedGas);
       const fee = calculateFee(minGas, gasPrice);
 
       return fee;
     },
     async sign(messages, fee, memo) {
-      const account = await getAccount(preloadMessageTypes(messages));
+      preloadMessageTypes(messages);
+      const account = await getAccount();
       const client = await getStargateClient();
-      return client.sign(account, messages, fee, memo);
+      return client.sign(account.address, messages, fee, memo);
     },
     async broadcast(txRaw) {
       const txTypeUrl = "/cosmos.tx.v1beta1.TxRaw";
@@ -96,6 +101,7 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
 }
 
 export interface StargateTxClient extends TxClient {
+  getAccount(): Promise<AccountData>;
   disconnect(): Promise<void>;
 }
 
@@ -137,7 +143,7 @@ export interface BaseGenericStargateClientOptions {
    * Retrieves the account to use for transactions
    * @default returns the first account from the signer
    */
-  getAccount?(signer: OfflineSigner, messages: EncodeObject[]): Promise<string>;
+  getAccount?(signer: OfflineSigner): Promise<AccountData>;
   stargateOptions?: Omit<SigningStargateClientOptions, "registry">;
   /**
    * Additional protobuf message types to register with the transaction transport
@@ -156,7 +162,7 @@ async function getDefaultAccount(signer: OfflineSigner) {
   if (accounts.length === 0) {
     throw new Error("provided offline signer has no accounts");
   }
-  return accounts[0].address;
+  return accounts[0];
 }
 
 function createOfflineSigner(options: WithSigner<BaseGenericStargateClientOptions>) {
