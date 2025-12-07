@@ -22,12 +22,37 @@ var (
 	DefaultHome = os.ExpandEnv("$HOME/.akash")
 )
 
+type PreRunOptions struct {
+	appConfigTemplate string
+	appConfig         interface{}
+	cmtCfg            *cmtcfg.Config
+}
+
+type PreRunOption func(options *PreRunOptions) error
+
+func WithPreRunAppConfig(tmpl string, config interface{}) PreRunOption {
+	return func(options *PreRunOptions) error {
+		options.appConfigTemplate = tmpl
+		options.appConfig = config
+
+		return nil
+	}
+}
+
+func WithPreRunCmtConfig(cfg *cmtcfg.Config) PreRunOption {
+	return func(options *PreRunOptions) error {
+		options.cmtCfg = cfg
+
+		return nil
+	}
+}
+
 // GetPersistentPreRunE persistent prerun hook for root command
-func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []string, defaultHome string) func(*cobra.Command, []string) error {
+func GetPersistentPreRunE(encodingConfig sdkutil.EncodingConfig, envPrefixes []string, defaultHome string, opts ...PreRunOption) func(*cobra.Command, []string) error {
 	return func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 
-		if err := InterceptConfigsPreRunHandler(cmd, envPrefixes, false, "", nil); err != nil {
+		if err := InterceptConfigsPreRunHandler(cmd, envPrefixes, false, opts...); err != nil {
 			return err
 		}
 

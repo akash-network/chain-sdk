@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package akash.oracle.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "pkg.akt.dev/go/node/oracle/v1";
+
+// Params defines the parameters for the x/params package.
+message Params {
+  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_stringer) = false;
+
+  // akt_price_feed_id is the Pyth price feed identifier for AKT/USD
+  string akt_price_feed_id = 1;
+}
+
+// QueryPriceFeedConfigRequest is the request type for price feed config.
+message QueryPriceFeedConfigRequest {
+  string denom = 1;
+}
+
+// QueryPriceFeedConfigResponse is the response type for price feed config.
+message QueryPriceFeedConfigResponse {
+  string price_feed_id = 1;
+  string pyth_contract_address = 2;
+  bool enabled = 3;
+}
