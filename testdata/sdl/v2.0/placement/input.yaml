@@ -3,45 +3,36 @@
 version: "2.0"
 services:
   web:
-    image: nginx
+    image: nginx:latest
     expose:
       - port: 80
-        accept:
-          - ahostname.com
+        as: 80
         to:
           - global: true
-      - port: 12345
-        to:
-          - global: true
-        proto: udp
 profiles:
   compute:
-    web:
+    web-compute:
       resources:
         cpu:
-          units: "100m"
+          units: 500m
         memory:
-          size: "128Mi"
+          size: 512Mi
         storage:
-          size: "1Gi"
+          size: 512Mi
   placement:
-    westcoast:
+    us-west:
       attributes:
         region: us-west
       signedBy:
         anyOf:
-          - "1"
-          - "2"
-        allOf:
-          - "3"
-          - "4"
+          - akash1vz375dkt0c60annyp6mkzeejfq0qpyevhseu05
       pricing:
-        web:
+        web-compute:
           denom: uakt
-          amount: 50
+          amount: 1000
 deployment:
   web:
-    westcoast:
-      profile: web
-      count: 2
+    us-west:
+      profile: web-compute
+      count: 1
 

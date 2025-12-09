@@ -16,6 +16,17 @@ The SDL pipeline uses three schemas that validate different stages:
 - Used by: Parity tests and validation tools
 - Validates: The generated deployment groups JSON output from the SDL parser
 
+## Validation Capabilities
+
+The `sdl-input.schema.yaml` validates:
+- **Structure**: Types, required fields, enums, minLength, min/max values
+- **Property name patterns** (using `patternProperties`):
+  - Endpoints: Endpoint keys must match `/^[a-z]+[-_\da-z]+$/` (must start with lowercase letters, can contain lowercase letters, hyphens, underscores, and digits)
+- **Simple conditional validations** (using `if/then`):
+  - Storage: If `class === "ram"`, then `persistent` must be `false`
+  - HTTP options: If `next_cases` contains `"off"`, it must be the only value
+  - Expose: If `to.ip` is present (non-empty), then `to.global` must be `true`
+
 ## Validation Limitations
 
 The `sdl-input.schema.yaml` validates **structure only** (types, required fields, enums). It **cannot** validate semantic relationships that require cross-referencing or document traversal.
@@ -27,7 +38,10 @@ The `sdl-input.schema.yaml` validates **structure only** (types, required fields
 - Missing profile/service references (deployment → compute/placement)
 - Storage volume references (params.storage → compute.storage)
 - Port collisions and mount path uniqueness
-- Conditional requirements (e.g., persistent storage requires mount)
+- Cross-field conditional requirements:
+  - Persistent storage requires mount in service params (cross-reference validation)
+  - Storage class="ram" requires readOnly=false in service params (cross-reference validation)
+  - Storage persistent=false cannot have class attribute (hard to express: JSON Schema cannot directly enforce "property must not exist")
 
 **Validated at runtime:** These checks are performed by the Go parser (`go/sdl/v2.go`, `go/sdl/v2_1.go`). Always validate SDL files using the Go parser before deployment - IDE validation will not catch these errors.
 

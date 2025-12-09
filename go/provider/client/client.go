@@ -98,7 +98,7 @@ type reqClient struct {
 
 type defaultCertQuerier struct{}
 
-func (_ *defaultCertQuerier) GetAccountCertificate(_ context.Context, _ sdk.Address, _ *big.Int) (*x509.Certificate, crypto.PublicKey, error) {
+func (*defaultCertQuerier) GetAccountCertificate(context.Context, sdk.Address, *big.Int) (*x509.Certificate, crypto.PublicKey, error) {
 	return nil, nil, atls.CertificateInvalidError{Reason: atls.OnChainCertsNotAvailable}
 }
 

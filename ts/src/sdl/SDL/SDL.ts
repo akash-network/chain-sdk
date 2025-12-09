@@ -54,6 +54,7 @@ function isString(str: any): str is string {
 }
 
 type NetworkVersion = "beta2" | "beta3";
+type OutputFormat = "typescript" | "go";
 
 /**
  * SDL (Stack Definition Language) parser and validator
@@ -113,11 +114,13 @@ export class SDL {
   static fromString(yaml: string, version: NetworkVersion = "beta3", networkId: NetworkId = MAINNET_ID) {
     const parsed = load(yaml) as any;
 
-    if (!parsed.version) {
+    if (!parsed || !parsed.version) {
       throw new SdlValidationError("SDL invalid: no version found");
     }
 
-    const data = parsed as v3Sdl;
+    // Cast to appropriate SDL type based on version parameter
+    // v2Sdl uses v2Profiles, v3Sdl uses v3Profiles
+    const data = version === "beta2" ? (parsed as v2Sdl) : (parsed as v3Sdl);
     return new SDL(data, version, networkId);
   }
 
@@ -236,11 +239,82 @@ export class SDL {
   private readonly portsUsed = new Map<string, string>();
 
   constructor(
-    public readonly data: v2Sdl,
+    public readonly data: v2Sdl | v3Sdl,
     public readonly version: NetworkVersion = "beta2",
     private readonly networkId: NetworkId = MAINNET_ID,
   ) {
     this.validate();
+  }
+
+  private convertToGoFormat(obj: unknown): unknown {
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+    if (obj instanceof Uint8Array) {
+      return new TextDecoder().decode(obj);
+    }
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.convertToGoFormat(item)).filter((item) => item !== undefined);
+    }
+    if (typeof obj !== "object") {
+      return obj;
+    }
+
+    const converted: Record<string, unknown> = {};
+    const objRecord = obj as Record<string, unknown>;
+
+    for (const key in objRecord) {
+      if (objRecord[key] === undefined) {
+        continue;
+      }
+
+      const value = this.convertToGoFormat(objRecord[key]);
+      if (value === undefined) {
+        continue;
+      }
+
+      let convertedKey = key;
+
+      if (key === "sequenceNumber") {
+        convertedKey = "sequence_number";
+      } else if (key === "endpointSequenceNumber") {
+        convertedKey = "endpointSequenceNumber";
+      } else if (key === "externalPort") {
+        convertedKey = "externalPort";
+      } else if (key === "signedBy") {
+        convertedKey = "signed_by";
+      } else if (key === "allOf") {
+        convertedKey = "all_of";
+      } else if (key === "anyOf") {
+        convertedKey = "any_of";
+      } else if (key === "quantity") {
+        // Convert "quantity" to "size" for memory and storage in Go format
+        convertedKey = "size";
+      } else if (key.includes("_")) {
+        convertedKey = key;
+      } else if (key.length > 0 && key[0] === key[0].toUpperCase()) {
+        if (key === "HTTPOptions") {
+          convertedKey = "httpOptions";
+        } else if (key === "IP") {
+          convertedKey = "ip";
+        } else {
+          convertedKey = key.charAt(0).toLowerCase() + key.slice(1);
+        }
+      }
+
+      // Note: Go includes GPU in both manifest and groups for all versions
+      // Do NOT filter GPU - Go includes it even with units "0"
+
+      // Convert empty arrays to null for all_of/any_of to match Go output
+      if ((key === "all_of" || key === "allOf") && Array.isArray(value) && value.length === 0) {
+        converted[convertedKey] = null;
+        continue;
+      }
+
+      converted[convertedKey] = value;
+    }
+
+    return converted;
   }
 
   private validate() {
@@ -923,16 +997,18 @@ export class SDL {
     }));
   }
 
-  v3Manifest(asString: boolean = false): v3Manifest {
-    const groups = this.v3Groups();
+  v3Manifest(asString: boolean = false, format: OutputFormat = "typescript"): v3Manifest {
+    const groups = this.v3Groups(format);
     const serviceId = (pIdx: number, sIdx: number) => groups[pIdx].resources[sIdx].resource.id;
 
-    return Object.keys(this.placements()).map((name, pIdx) => ({
+    const manifest = Object.keys(this.placements()).map((name, pIdx) => ({
       name: name,
       services: this.deploymentsByPlacement(name)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([service], idx) => this.v3ManifestService(serviceId(pIdx, idx), name, service, asString)),
     }));
+
+    return format === "go" ? (this.convertToGoFormat(manifest) as v3Manifest) : manifest;
   }
 
   manifest(asString: boolean = false): v2Manifest | v3Manifest {
@@ -952,19 +1028,38 @@ export class SDL {
    * ```
    */
   computeEndpointSequenceNumbers(sdl: v2Sdl) {
-    return Object.fromEntries(
-      Object.values(sdl.services).flatMap((service) =>
-        service.expose.flatMap((expose) =>
-          expose.to
-            ? expose.to
-                .filter((to) => to.global && to.ip?.length > 0)
-                .map((to) => to.ip)
-                .sort()
-                .map((ip, index) => [ip, index + 1])
-            : [],
-        ),
-      ),
-    );
+    // Collect all IPs (including duplicates) to match Go behavior
+    const endpointNames: string[] = [];
+    for (const service of Object.values(sdl.services)) {
+      for (const expose of service.expose || []) {
+        if (expose.to) {
+          for (const to of expose.to) {
+            // Skip global endpoints without IP (matching Go: to.Global && len(to.IP) == 0)
+            if (to.global && (!to.ip || to.ip.length === 0)) {
+              continue;
+            }
+            endpointNames.push(to.ip || "");
+          }
+        }
+      }
+    }
+
+    if (endpointNames.length === 0) {
+      return {};
+    }
+
+    // Make the assignment stable (matching Go implementation)
+    endpointNames.sort();
+
+    // Assign sequence numbers: start at 0, so first is 1 (matching Go)
+    const res: Record<string, number> = {};
+    let endpointSeqNumber = 0;
+    for (const name of endpointNames) {
+      endpointSeqNumber++;
+      res[name] = endpointSeqNumber;
+    }
+
+    return res;
   }
 
   resourceUnitCpu(computeResources: v2ComputeResources, asString: boolean) {
@@ -986,9 +1081,10 @@ export class SDL {
 
   resourceUnitMemory(computeResources: v2ComputeResources, asString: boolean) {
     const attributes = computeResources.memory.attributes;
+    const key = asString ? "quantity" : "size";
 
     return {
-      quantity: {
+      [key]: {
         val: this.resourceValue(convertResourceString(computeResources.memory.size), asString),
       },
       attributes:
@@ -1004,10 +1100,11 @@ export class SDL {
 
   resourceUnitStorage(computeResources: v2ComputeResources, asString: boolean) {
     const storages = isArray(computeResources.storage) ? computeResources.storage : [computeResources.storage];
+    const key = asString ? "quantity" : "size";
 
     return storages.map((storage) => ({
       name: storage.name || "default",
-      quantity: {
+      [key]: {
         val: this.resourceValue(convertResourceString(storage.size), asString),
       },
       attributes: this.serviceResourceStorageAttributes(storage.attributes),
@@ -1072,8 +1169,15 @@ export class SDL {
       units.storage = this.resourceUnitStorage(resource, asString);
     }
 
-    if (this.version === "beta3") {
+    // GPU is always included in groups (Go always includes it, defaulting to units 0 if not present)
+    if ("gpu" in resource && resource.gpu) {
       units.gpu = this.resourceUnitGpu(resource as v3ComputeResources, asString);
+    } else {
+      // Default to GPU with units 0 if not present (matching Go behavior)
+      // In groups format (asString=false), Go still outputs "0" as string
+      units.gpu = {
+        units: { val: "0" },
+      };
     }
 
     return units;
@@ -1085,11 +1189,11 @@ export class SDL {
     return expose.global && expose.proto === "TCP" && externalPort === 80;
   }
 
-  groups() {
-    return this.version === "beta2" ? this.v2Groups() : this.v3Groups();
+  groups(format: OutputFormat = "typescript") {
+    return this.version === "beta2" ? this.v2Groups() : this.v3Groups(format);
   }
 
-  v3Groups() {
+  v3Groups(format: OutputFormat = "typescript"): Array<v3DeploymentGroup> {
     const groups = new Map<
       string,
       {
@@ -1105,77 +1209,82 @@ export class SDL {
         const compute = this.data.profiles.compute[svcdepl.profile];
         const infra = this.data.profiles.placement[placementName];
         const pricing = infra.pricing[svcdepl.profile];
+        // Format amount to match Go's precision (18 decimal places)
+        const amountValue = pricing.amount as number | string | undefined;
+        const amountStr = typeof amountValue === "number" 
+          ? amountValue.toFixed(18)
+          : (amountValue?.toString() || "0");
         const price = {
           ...pricing,
-          amount: pricing.amount?.toString(),
+          amount: amountStr,
         };
 
         let group = groups.get(placementName);
 
         if (!group) {
-          const attributes = (infra.attributes
+          const attributes = infra.attributes
             ? Object.entries(infra.attributes).map(([key, value]) => ({
                 key,
-                value,
-              }))
-            : []) as unknown as Array<{ key: string; value: string }>;
+                value: String(value),
+              })).sort((a, b) => a.key.localeCompare(b.key))
+            : null;
 
-          attributes.sort((a, b) => a.key.localeCompare(b.key));
-
-          group = {
+          const newGroup = {
             dgroup: {
               name: placementName,
               resources: [],
               requirements: {
                 attributes: attributes,
                 signedBy: {
-                  allOf: infra.signedBy?.allOf || [],
-                  anyOf: infra.signedBy?.anyOf || [],
+                  allOf: infra.signedBy?.allOf || null,
+                  anyOf: infra.signedBy?.anyOf || null,
                 },
               },
             },
             boundComputes: {},
           };
 
-          groups.set(placementName, group);
+          groups.set(placementName, newGroup);
+          group = newGroup;
         }
 
-        if (!group.boundComputes[placementName]) {
-          group.boundComputes[placementName] = {};
+        if (!group!.boundComputes[placementName]) {
+          group!.boundComputes[placementName] = {};
         }
 
         // const resources = this.serviceResourcesBeta3(0, compute as v3ProfileCompute, service, false);
-        const location = group.boundComputes[placementName][svcdepl.profile];
+        const location = group!.boundComputes[placementName][svcdepl.profile];
 
         if (!location) {
           const res = this.groupResourceUnits(compute.resources, false);
           res.endpoints = this.v3ServiceResourceEndpoints(service);
 
-          const resID = group.dgroup.resources.length > 0 ? group.dgroup.resources.length + 1 : 1;
+          const resID = group!.dgroup.resources.length > 0 ? group!.dgroup.resources.length + 1 : 1;
           res.id = resID;
           // resources.id = res.id;
 
-          group.dgroup.resources.push({
+          group!.dgroup.resources.push({
             resource: res,
             price: price,
             count: svcdepl.count,
           } as any);
 
-          group.boundComputes[placementName][svcdepl.profile] = group.dgroup.resources.length - 1;
+          group!.boundComputes[placementName][svcdepl.profile] = group!.dgroup.resources.length - 1;
         } else {
           const endpoints = this.v3ServiceResourceEndpoints(service);
           // resources.id = group.dgroup.resources[location].id;
 
-          group.dgroup.resources[location].count += svcdepl.count;
-          group.dgroup.resources[location].endpoints += endpoints as any;
-          group.dgroup.resources[location].endpoints.sort();
+          group!.dgroup.resources[location].count += svcdepl.count;
+          group!.dgroup.resources[location].endpoints += endpoints as any;
+          group!.dgroup.resources[location].endpoints.sort();
         }
       }
     }
 
     // keep ordering stable
     const names: string[] = [...groups.keys()].sort();
-    return names.map((name) => groups.get(name)).map((group) => (group ? (group.dgroup as typeof group.dgroup) : {})) as Array<v3DeploymentGroup>;
+    const result = names.map((name) => groups.get(name)).map((group) => (group ? (group.dgroup as typeof group.dgroup) : {})) as Array<v3DeploymentGroup>;
+    return format === "go" ? (this.convertToGoFormat(result) as Array<v3DeploymentGroup>) : result;
   }
 
   v2Groups() {
@@ -1194,34 +1303,37 @@ export class SDL {
         const infra = yamlJson.profiles.placement[placementName];
 
         const pricing = infra.pricing[svcdepl.profile];
+        // Format amount to match Go's precision (18 decimal places)
+        const amountValue = pricing.amount as number | string | undefined;
+        const amountStr = typeof amountValue === "number" 
+          ? amountValue.toFixed(18)
+          : (amountValue?.toString() || "0");
         const price = {
           ...pricing,
-          amount: pricing.amount.toString(),
+          amount: amountStr,
         };
 
         let group = groups[placementName];
 
         if (!group) {
+          const attributes = infra.attributes
+            ? Object.entries(infra.attributes).map(([key, value]) => ({
+                key,
+                value: String(value),
+              })).sort((a: any, b: any) => (a.key < b.key ? -1 : 1))
+            : null;
+
           group = {
             name: placementName,
             requirements: {
-              attributes: infra.attributes
-                ? Object.entries(infra.attributes).map(([key, value]) => ({
-                    key,
-                    value,
-                  }))
-                : [],
+              attributes: attributes,
               signedBy: {
-                allOf: infra.signedBy?.allOf || [],
-                anyOf: infra.signedBy?.anyOf || [],
+                allOf: infra.signedBy?.allOf || null,
+                anyOf: infra.signedBy?.anyOf || null,
               },
             },
             resources: [],
           };
-
-          if (group.requirements.attributes) {
-            group.requirements.attributes = group.requirements.attributes.sort((a: any, b: any) => a.key < b.key);
-          }
 
           groups[group.name] = group;
         }

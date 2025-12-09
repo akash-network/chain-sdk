@@ -222,9 +222,9 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
   {
     "name": "akash",
     "requirements": {
-      "attributes": [],
+      "attributes": null,
       "signedBy": {
-        "allOf": [],
+        "allOf": null,
         "anyOf": [
           "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63",
           "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4",
@@ -235,7 +235,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
       {
         "count": 1,
         "price": {
-          "amount": "10000",
+          "amount": "10000.000000000000000000",
           "denom": "uakt",
         },
         "resource": {
@@ -262,7 +262,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
           "id": 1,
           "memory": {
             "attributes": undefined,
-            "quantity": {
+            "size": {
               "val": Uint8Array [
                 49,
                 48,
@@ -281,7 +281,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
             {
               "attributes": undefined,
               "name": "default",
-              "quantity": {
+              "size": {
                 "val": Uint8Array [
                   49,
                   48,
@@ -308,7 +308,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
                 },
               ],
               "name": "wordpress-db",
-              "quantity": {
+              "size": {
                 "val": Uint8Array [
                   56,
                   53,
@@ -329,7 +329,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
       {
         "count": 1,
         "price": {
-          "amount": "10000",
+          "amount": "10000.000000000000000000",
           "denom": "uakt",
         },
         "resource": {
@@ -360,7 +360,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
           "id": 2,
           "memory": {
             "attributes": undefined,
-            "quantity": {
+            "size": {
               "val": Uint8Array [
                 52,
                 50,
@@ -379,7 +379,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
             {
               "attributes": undefined,
               "name": "default",
-              "quantity": {
+              "size": {
                 "val": Uint8Array [
                   52,
                   50,
@@ -406,7 +406,7 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
                 },
               ],
               "name": "wordpress-data",
-              "quantity": {
+              "size": {
                 "val": Uint8Array [
                   51,
                   52,
@@ -497,7 +497,7 @@ exports[`SDL SDL v3 Resource Groups should create v3 resource groups: Groups mat
       {
         "count": 2,
         "price": {
-          "amount": "50",
+          "amount": "50.000000000000000000",
           "denom": "uakt",
         },
         "resource": {
@@ -536,7 +536,7 @@ exports[`SDL SDL v3 Resource Groups should create v3 resource groups: Groups mat
           "id": 1,
           "memory": {
             "attributes": undefined,
-            "quantity": {
+            "size": {
               "val": Uint8Array [
                 49,
                 51,
@@ -554,7 +554,7 @@ exports[`SDL SDL v3 Resource Groups should create v3 resource groups: Groups mat
             {
               "attributes": undefined,
               "name": "default",
-              "quantity": {
+              "size": {
                 "val": Uint8Array [
                   49,
                   48,

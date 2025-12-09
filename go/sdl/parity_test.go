@@ -2,8 +2,10 @@ package sdl
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,38 +14,17 @@ import (
 )
 
 const fixturesRoot = "../../testdata/sdl"
-const schemasRoot = "../../specs/sdl"
+const schemasRoot = "../../specs/sdl" // Output schemas for tests
 
-func validateAgainstSchema(t *testing.T, name string, data []byte, schemaPath string) {
-	t.Helper()
+var (
+	manifestSchema     *gojsonschema.Schema
+	manifestSchemaOnce sync.Once
+	manifestSchemaErr  error
 
-	schemaBytes, err := os.ReadFile(schemaPath)
-	if err != nil {
-		t.Fatalf("Schema file %s not found: %v", schemaPath, err)
-	}
-
-	var schemaJSON map[string]any
-	err = yaml.Unmarshal(schemaBytes, &schemaJSON)
-	require.NoError(t, err, "Failed to parse YAML schema")
-
-	jsonBytes, err := json.Marshal(schemaJSON)
-	require.NoError(t, err, "Failed to convert schema to JSON")
-
-	schemaLoader := gojsonschema.NewSchemaLoader()
-	schema, err := schemaLoader.Compile(gojsonschema.NewBytesLoader(jsonBytes))
-	require.NoError(t, err, "Failed to compile schema")
-
-	result, err := schema.Validate(gojsonschema.NewBytesLoader(data))
-	require.NoError(t, err, "Failed to validate against schema")
-
-	if !result.Valid() {
-		var errors []string
-		for _, desc := range result.Errors() {
-			errors = append(errors, desc.String())
-		}
-		require.Failf(t, "%s validation failed", name, "Errors: %v", errors)
-	}
-}
+	groupsSchema     *gojsonschema.Schema
+	groupsSchemaOnce sync.Once
+	groupsSchemaErr  error
+)
 
 func TestParityV2_0(t *testing.T) {
 	testParity(t, "v2.0")
@@ -57,9 +38,6 @@ func testParity(t *testing.T, version string) {
 	fixturesDir := filepath.Join(fixturesRoot, version)
 
 	entries, err := os.ReadDir(fixturesDir)
-	if os.IsNotExist(err) {
-		t.Fatalf("Fixtures directory %s does not exist", fixturesDir)
-	}
 	require.NoError(t, err)
 
 	for _, entry := range entries {
@@ -82,53 +60,92 @@ func testParity(t *testing.T, version string) {
 		}
 
 		t.Run(fixtureName, func(t *testing.T) {
-			inputBytes, err := os.ReadFile(inputPath)
-			require.NoError(t, err, "Failed to read input.yaml")
-
-			// Validate input against schema (convert YAML to JSON first)
-			var inputYAML any
-			err = yaml.Unmarshal(inputBytes, &inputYAML)
-			require.NoError(t, err, "Failed to parse input YAML")
-			inputJSONBytes, err := json.Marshal(inputYAML)
-			require.NoError(t, err, "Failed to convert input to JSON")
-			validateAgainstSchema(t, "input", inputJSONBytes, schemasRoot+"/sdl-input.schema.yaml")
-
-			sdl, err := ReadFile(inputPath)
-			require.NoError(t, err)
-
-			expectedManifestBytes, err := os.ReadFile(manifestPath)
-			require.NoError(t, err, "Failed to read expected manifest.json")
-
-			expectedGroupsBytes, err := os.ReadFile(groupsPath)
-			require.NoError(t, err, "Failed to read expected groups.json")
-
-			manifest, err := sdl.Manifest()
-			require.NoError(t, err)
-
-			actualManifestBytes, err := json.Marshal(manifest)
-			require.NoError(t, err)
-
-			var expectedManifest, actualManifest any
-			require.NoError(t, json.Unmarshal(expectedManifestBytes, &expectedManifest))
-			require.NoError(t, json.Unmarshal(actualManifestBytes, &actualManifest))
-			require.Equal(t, expectedManifest, actualManifest, "Manifest does not match expected output")
-
-			validateAgainstSchema(t, "manifest", actualManifestBytes, schemasRoot+"/manifest-output.schema.yaml")
-
-			groups, err := sdl.DeploymentGroups()
-			require.NoError(t, err)
-
-			actualGroupsBytes, err := json.Marshal(groups)
-			require.NoError(t, err)
-
-			var expectedGroups, actualGroups any
-			require.NoError(t, json.Unmarshal(expectedGroupsBytes, &expectedGroups))
-			require.NoError(t, json.Unmarshal(actualGroupsBytes, &actualGroups))
-			require.Equal(t, expectedGroups, actualGroups, "Groups does not match expected output")
-
-			validateAgainstSchema(t, "groups", actualGroupsBytes, schemasRoot+"/groups-output.schema.yaml")
+			validateSchemas(t, inputPath)
+			validateFixtures(t, inputPath, manifestPath, groupsPath)
 		})
 	}
+}
+
+func validateSchemas(t *testing.T, inputPath string) {
+	validateInputSchema(t, inputPath)
+
+	sdl, err := ReadFile(inputPath)
+	require.NoError(t, err)
+
+	manifest, err := sdl.Manifest()
+	require.NoError(t, err)
+	validateManifestSchema(t, manifest)
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+	validateGroupsSchema(t, groups)
+}
+
+func validateInputSchema(t *testing.T, inputPath string) {
+	inputBytes, err := os.ReadFile(inputPath)
+	require.NoError(t, err, "Failed to read input.yaml")
+
+	err = validateInputAgainstSchema(inputBytes)
+	require.NoError(t, err, "Input schema validation failed")
+}
+
+func validateManifestSchema(t *testing.T, manifest any) {
+	manifestSchemaOnce.Do(func() {
+		manifestSchema, manifestSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "manifest-output.schema.yaml"))
+	})
+	require.NoError(t, manifestSchemaErr, "Failed to compile manifest schema")
+
+	manifestBytes, err := json.Marshal(manifest)
+	require.NoError(t, err)
+
+	err = validateDataAgainstCompiledSchema(manifestBytes, manifestSchema)
+	require.NoError(t, err, "Manifest schema validation failed")
+}
+
+func validateGroupsSchema(t *testing.T, groups any) {
+	groupsSchemaOnce.Do(func() {
+		groupsSchema, groupsSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "groups-output.schema.yaml"))
+	})
+	require.NoError(t, groupsSchemaErr, "Failed to compile groups schema")
+
+	groupsBytes, err := json.Marshal(groups)
+	require.NoError(t, err)
+
+	err = validateDataAgainstCompiledSchema(groupsBytes, groupsSchema)
+	require.NoError(t, err, "Groups schema validation failed")
+}
+
+func validateFixtures(t *testing.T, inputPath, manifestPath, groupsPath string) {
+	expectedManifestBytes, err := os.ReadFile(manifestPath)
+	require.NoError(t, err, "Failed to read expected manifest.json")
+
+	expectedGroupsBytes, err := os.ReadFile(groupsPath)
+	require.NoError(t, err, "Failed to read expected groups.json")
+
+	sdl, err := ReadFile(inputPath)
+	require.NoError(t, err)
+
+	manifest, err := sdl.Manifest()
+	require.NoError(t, err)
+
+	actualManifestBytes, err := json.Marshal(manifest)
+	require.NoError(t, err)
+
+	var expectedManifest, actualManifest any
+	require.NoError(t, json.Unmarshal(expectedManifestBytes, &expectedManifest))
+	require.NoError(t, json.Unmarshal(actualManifestBytes, &actualManifest))
+	require.Equal(t, expectedManifest, actualManifest, "Manifest does not match expected output")
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+
+	actualGroupsBytes, err := json.Marshal(groups)
+	require.NoError(t, err)
+
+	var expectedGroups, actualGroups any
+	require.NoError(t, json.Unmarshal(expectedGroupsBytes, &expectedGroups))
+	require.NoError(t, json.Unmarshal(actualGroupsBytes, &actualGroups))
+	require.Equal(t, expectedGroups, actualGroups, "Groups does not match expected output")
 }
 
 func TestInvalidSDLsRejected(t *testing.T) {
@@ -152,4 +169,46 @@ func TestInvalidSDLsRejected(t *testing.T) {
 			require.Error(t, err)
 		})
 	}
+}
+
+func compileSchemaFromPath(schemaPath string) (*gojsonschema.Schema, error) {
+	schemaBytes, err := os.ReadFile(schemaPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read schema file: %w", err)
+	}
+
+	var schemaData any
+	if err := yaml.Unmarshal(schemaBytes, &schemaData); err != nil {
+		return nil, fmt.Errorf("failed to parse YAML schema: %w", err)
+	}
+
+	jsonBytes, err := json.Marshal(schemaData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
+	}
+
+	schemaLoader := gojsonschema.NewSchemaLoader()
+	schema, err := schemaLoader.Compile(gojsonschema.NewBytesLoader(jsonBytes))
+	if err != nil {
+		return nil, fmt.Errorf("failed to compile schema: %w", err)
+	}
+
+	return schema, nil
+}
+
+func validateDataAgainstCompiledSchema(data []byte, schema *gojsonschema.Schema) error {
+	result, err := schema.Validate(gojsonschema.NewBytesLoader(data))
+	if err != nil {
+		return fmt.Errorf("failed to validate against schema: %w", err)
+	}
+
+	if !result.Valid() {
+		var errors []string
+		for _, desc := range result.Errors() {
+			errors = append(errors, desc.String())
+		}
+		return fmt.Errorf("schema validation failed: %v", errors)
+	}
+
+	return nil
 }

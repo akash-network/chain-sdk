@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	fixturesRoot := "../../../testdata/sdl"
+	fixturesRoot := "../../testdata/sdl"
 	versions := []string{"v2.0", "v2.1"}
 
 	for _, version := range versions {
@@ -57,7 +57,7 @@ func main() {
 				continue
 			}
 			manifestPath := filepath.Join(fixtureDir, "manifest.json")
-			if err := os.WriteFile(manifestPath, manifestJSON, 0644); err != nil {
+			if err := os.WriteFile(manifestPath, manifestJSON, 0600); err != nil {
 				fmt.Printf("  ❌ Write error: %v\n", err)
 				continue
 			}
@@ -74,7 +74,7 @@ func main() {
 				continue
 			}
 			groupsPath := filepath.Join(fixtureDir, "groups.json")
-			if err := os.WriteFile(groupsPath, groupsJSON, 0644); err != nil {
+			if err := os.WriteFile(groupsPath, groupsJSON, 0600); err != nil {
 				fmt.Printf("  ❌ Write error: %v\n", err)
 				continue
 			}
@@ -84,4 +84,3 @@ func main() {
 
 	fmt.Println("\n✅ Fixture generation complete!")
 }
-

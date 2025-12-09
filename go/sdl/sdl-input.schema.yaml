@@ -13,7 +13,7 @@ properties:
         properties:
           count:
             minimum: 1
-            type: number
+            type: integer
           profile:
             type: string
         required:
@@ -23,15 +23,17 @@ properties:
       type: object
     type: object
   endpoints:
-    additionalProperties:
-      properties:
-        kind:
-          enum:
-            - ip
-          type: string
-      required:
-        - kind
-      type: object
+    additionalProperties: false
+    patternProperties:
+      '^[a-z]+[-_0-9a-z]+$':
+        properties:
+          kind:
+            enum:
+              - ip
+            type: string
+        required:
+          - kind
+        type: object
     type: object
   include:
     description: Optional list of files to include
@@ -65,17 +67,22 @@ properties:
                     attributes:
                       properties:
                         vendor:
-                          additionalProperties:
-                            items:
-                              properties:
-                                interface:
-                                  type: string
-                                model:
-                                  type: string
-                                ram:
-                                  type: string
-                              type: object
-                            type: array
+                          additionalProperties: false
+                          properties:
+                            nvidia:
+                              items:
+                                properties:
+                                  interface:
+                                    enum:
+                                      - pcie
+                                      - sxm
+                                    type: string
+                                  model:
+                                    type: string
+                                  ram:
+                                    type: string
+                                type: object
+                              type: array
                           type: object
                       type: object
                     units:
@@ -85,8 +92,6 @@ properties:
                   type: object
                 memory:
                   properties:
-                    attributes:
-                      type: object
                     size:
                       type: string
                   required:
@@ -96,6 +101,31 @@ properties:
                   anyOf:
                     - properties:
                         attributes:
+                          allOf:
+                            - if:
+                                properties:
+                                  class:
+                                    const: ram
+                                required:
+                                  - class
+                              then:
+                                properties:
+                                  persistent:
+                                    anyOf:
+                                      - const: false
+                                      - const: "false"
+                            - if:
+                                properties:
+                                  persistent:
+                                    anyOf:
+                                      - const: false
+                                      - const: "false"
+                                required:
+                                  - persistent
+                              then:
+                                not:
+                                  properties:
+                                    class: {}
                           type: object
                         name:
                           type: string
@@ -107,6 +137,18 @@ properties:
                     - items:
                         properties:
                           attributes:
+                            if:
+                              properties:
+                                class:
+                                  const: ram
+                              required:
+                                - class
+                            then:
+                              properties:
+                                persistent:
+                                  anyOf:
+                                    - const: false
+                                    - const: "false"
                             type: object
                           name:
                             type: string
@@ -138,6 +180,7 @@ properties:
                       - type: string
                       - type: number
                   denom:
+                    pattern: '^(uakt|ibc/.*)$'
                     type: string
                 required:
                   - denom
@@ -182,12 +225,16 @@ properties:
           properties:
             email:
               type: string
+              minLength: 5
             host:
               type: string
+              minLength: 1
             password:
               type: string
+              minLength: 6
             username:
               type: string
+              minLength: 1
           required:
             - host
             - username
@@ -216,11 +263,11 @@ properties:
               as:
                 maximum: 65535
                 minimum: 1
-                type: number
+                type: integer
               port:
                 maximum: 65535
                 minimum: 1
-                type: number
+                type: integer
               proto:
                 enum:
                   - TCP
@@ -230,30 +277,81 @@ properties:
                 type: string
               to:
                 items:
-                  properties:
-                    global:
-                      type: boolean
-                    http_options:
-                      properties:
-                        max_body_size:
-                          type: number
-                        next_cases:
-                          items:
+                  allOf:
+                    - if:
+                        properties:
+                          ip:
                             type: string
-                          type: array
-                        next_timeout:
-                          type: number
-                        next_tries:
-                          type: number
-                        read_timeout:
-                          type: number
-                        send_timeout:
-                          type: number
+                            minLength: 1
+                        required:
+                          - ip
+                      then:
+                        properties:
+                          global:
+                            const: true
+                        required:
+                          - global
                       type: object
-                    ip:
-                      type: string
-                    service:
-                      type: string
+                    - properties:
+                        global:
+                          type: boolean
+                        http_options:
+                          properties:
+                            max_body_size:
+                              type: integer
+                            next_cases:
+                              anyOf:
+                                - type: array
+                                  items:
+                                    enum:
+                                      - error
+                                      - timeout
+                                      - "500"
+                                      - "502"
+                                      - "503"
+                                      - "504"
+                                      - "403"
+                                      - "404"
+                                      - "429"
+                                      - off
+                                    type: string
+                                  contains:
+                                    const: off
+                                  maxItems: 1
+                                  minItems: 1
+                                - type: array
+                                  items:
+                                    enum:
+                                      - error
+                                      - timeout
+                                      - "500"
+                                      - "502"
+                                      - "503"
+                                      - "504"
+                                      - "403"
+                                      - "404"
+                                      - "429"
+                                      - off
+                                    type: string
+                                  not:
+                                    contains:
+                                      const: off
+                            next_timeout:
+                              type: integer
+                              minimum: 0
+                            next_tries:
+                              type: integer
+                            read_timeout:
+                              type: integer
+                            send_timeout:
+                              type: integer
+                          type: object
+                        ip:
+                          minLength: 1
+                          type: string
+                        service:
+                          type: string
+                      type: object
                   type: object
                 type: array
             required:
@@ -262,6 +360,7 @@ properties:
           type: array
         image:
           type: string
+          minLength: 1
         params:
           properties:
             storage:

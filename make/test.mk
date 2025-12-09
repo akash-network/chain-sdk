@@ -54,7 +54,7 @@ generate-sdl-fixtures: ## Generate SDL test fixtures (manifest.json and groups.j
 	@cd go/sdl && go run ./cmd/generate-sdl-fixtures
 
 .PHONY: test-sdl-parity
-test-sdl-parity: generate-sdl-fixtures $(AKASH_TS_NODE_MODULES) ## Run SDL parity tests for Go and TypeScript. Note: YAML schemas are manually maintained and validated by parity tests.
+test-sdl-parity: generate-sdl-fixtures $(AKASH_TS_NODE_MODULES) ## Run SDL parity tests for Go and TypeScript
 	@echo "Running Go SDL parity tests..."
 	@cd go/sdl && go test -v -run "TestParity|TestInvalidSDLsRejected"
 	@echo ""

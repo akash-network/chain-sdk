@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../../specs/sdl/sdl-input.schema.yaml
+# yaml-language-server: $schema=../../../go/sdl/sdl-input.schema.yaml
 ---
 services:
   web:
