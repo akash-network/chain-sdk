@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.0"
+services:
+  database:
+    image: postgres:14
+    env:
+      - POSTGRES_PASSWORD=secret
+    expose:
+      - port: 5432
+        to:
+          - global: true
+    params:
+      storage:
+        data:
+          mount: /var/lib/postgresql/data
+          readOnly: false
+profiles:
+  compute:
+    db-compute:
+      resources:
+        cpu:
+          units: 500m
+        memory:
+          size: 1Gi
+        storage:
+          - name: data
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta2
+  placement:
+    datacenter:
+      attributes:
+        region: us-west
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        db-compute:
+          denom: uakt
+          amount: 500
+deployment:
+  database:
+    datacenter:
+      profile: db-compute
+      count: 1
+
