@@ -36,6 +36,16 @@ test-ts: $(AKASH_TS_NODE_MODULES)
 test-coverage-ts: $(AKASH_TS_NODE_MODULES) proto-gen-ts
 	cd $(TS_ROOT) && (npm run build && npm run test:cov)
 
+.PHONY: test-functional-ts
+test-functional-ts: $(AKASH_TS_NODE_MODULES)
+	cd $(TS_ROOT) && npm run test:functional
+
+.PHONY: test-functional-ts-local
+test-functional-ts-local: $(AKASH_TS_NODE_MODULES) local-node-ready
+	@export TEST_MNEMONIC="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"; \
+	cd $(TS_ROOT) && AKASH_HOME=$(LOCAL_NODE_HOME) $(TS_ROOT)/test/functional/setup-local-testnet.sh; \
+	cd $(TS_ROOT) && npm run test:functional
+
 .PHONY: test-go
 test-go: export GO111MODULE := $(GO111MODULE)
 test-go: export GOWORK := $(GOWORK)

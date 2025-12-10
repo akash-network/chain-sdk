@@ -117,6 +117,7 @@ include $(AKASH_ROOT)/make/codegen.mk
 include $(AKASH_ROOT)/make/lint.mk
 include $(AKASH_ROOT)/make/release-ts.mk
 include $(AKASH_ROOT)/make/code-style.mk
+include $(AKASH_ROOT)/make/local-node.mk
 
 .PHONY: bump-%
 bump-%:

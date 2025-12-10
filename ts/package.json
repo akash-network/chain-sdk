@@ -37,7 +37,7 @@
     "lint:fix": "npm run lint -- --fix",
     "test": "jest --selectProjects unit functional",
     "test:cov": "jest --selectProjects unit functional --coverage",
-    "test:functional": "jest --selectProjects functional",
+    "test:functional": "jest --selectProjects functional --runInBand",
     "test:unit": "jest --selectProjects unit",
     "compile:jwt-validator": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts"
   },
@@ -67,6 +67,7 @@
     "long": "^5.3.2"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.60.0",
     "@bufbuild/protoc-gen-es": "^2.2.3",
     "@bufbuild/protoplugin": "^2.2.3",
     "@eslint/js": "^9.21.0",
