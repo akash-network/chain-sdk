@@ -118,6 +118,24 @@ export class SDL {
       throw new SdlValidationError("SDL invalid: no version found");
     }
 
+    const allowedKeys = new Set(["version", "services", "profiles", "deployment", "endpoints"]);
+    for (const key of Object.keys(parsed)) {
+      if (!allowedKeys.has(key)) {
+        throw new SdlValidationError(`SDL invalid: unknown field "${key}"`);
+      }
+    }
+
+    if (parsed.deployment) {
+      for (const [serviceName, placements] of Object.entries(parsed.deployment)) {
+        for (const [placementName, config] of Object.entries(placements as any)) {
+          const cfg = config as any;
+          if (cfg.count !== undefined && cfg.count < 1) {
+            throw new SdlValidationError(`SDL invalid: deployment ${serviceName}.${placementName} count must be >= 1`);
+          }
+        }
+      }
+    }
+
     // Cast to appropriate SDL type based on version parameter
     // v2Sdl uses v2Profiles, v3Sdl uses v3Profiles
     const data = version === "beta2" ? (parsed as v2Sdl) : (parsed as v3Sdl);
@@ -306,7 +324,7 @@ export class SDL {
       // Do NOT filter GPU - Go includes it even with units "0"
 
       // Convert empty arrays to null for all_of/any_of to match Go output
-      if ((key === "all_of" || key === "allOf") && Array.isArray(value) && value.length === 0) {
+      if ((key === "all_of" || key === "allOf" || key === "any_of" || key === "anyOf") && Array.isArray(value) && value.length === 0) {
         converted[convertedKey] = null;
         continue;
       }
@@ -1211,7 +1229,7 @@ export class SDL {
         const pricing = infra.pricing[svcdepl.profile];
         // Format amount to match Go's precision (18 decimal places)
         const amountValue = pricing.amount as number | string | undefined;
-        const amountStr = typeof amountValue === "number" 
+        const amountStr = typeof amountValue === "number"
           ? amountValue.toFixed(18)
           : (amountValue?.toString() || "0");
         const price = {
@@ -1252,16 +1270,14 @@ export class SDL {
           group!.boundComputes[placementName] = {};
         }
 
-        // const resources = this.serviceResourcesBeta3(0, compute as v3ProfileCompute, service, false);
         const location = group!.boundComputes[placementName][svcdepl.profile];
 
-        if (!location) {
+        if (location === undefined) {
           const res = this.groupResourceUnits(compute.resources, false);
           res.endpoints = this.v3ServiceResourceEndpoints(service);
 
           const resID = group!.dgroup.resources.length > 0 ? group!.dgroup.resources.length + 1 : 1;
           res.id = resID;
-          // resources.id = res.id;
 
           group!.dgroup.resources.push({
             resource: res,
@@ -1272,11 +1288,12 @@ export class SDL {
           group!.boundComputes[placementName][svcdepl.profile] = group!.dgroup.resources.length - 1;
         } else {
           const endpoints = this.v3ServiceResourceEndpoints(service);
-          // resources.id = group.dgroup.resources[location].id;
+          const resourceEntry = group!.dgroup.resources[location];
 
-          group!.dgroup.resources[location].count += svcdepl.count;
-          group!.dgroup.resources[location].endpoints += endpoints as any;
-          group!.dgroup.resources[location].endpoints.sort();
+          resourceEntry.count += svcdepl.count;
+          const resource = resourceEntry.resource as any;
+          const existingEndpoints = (resource.endpoints || []) as any[];
+          resource.endpoints = existingEndpoints.concat(endpoints);
         }
       }
     }
@@ -1305,7 +1322,7 @@ export class SDL {
         const pricing = infra.pricing[svcdepl.profile];
         // Format amount to match Go's precision (18 decimal places)
         const amountValue = pricing.amount as number | string | undefined;
-        const amountStr = typeof amountValue === "number" 
+        const amountStr = typeof amountValue === "number"
           ? amountValue.toFixed(18)
           : (amountValue?.toString() || "0");
         const price = {

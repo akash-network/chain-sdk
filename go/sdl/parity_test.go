@@ -171,6 +171,35 @@ func TestInvalidSDLsRejected(t *testing.T) {
 	}
 }
 
+func TestSchemaOnlyValidations(t *testing.T) {
+	schemaOnlyDir := filepath.Join(fixturesRoot, "schema-only-invalid")
+
+	entries, err := os.ReadDir(schemaOnlyDir)
+	if os.IsNotExist(err) {
+		t.Skip("Schema-only invalid fixtures directory does not exist yet")
+		return
+	}
+	require.NoError(t, err)
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		fixturePath := filepath.Join(schemaOnlyDir, entry.Name())
+		t.Run(entry.Name(), func(t *testing.T) {
+			inputBytes, err := os.ReadFile(fixturePath)
+			require.NoError(t, err)
+
+			schemaErr := validateInputAgainstSchema(inputBytes)
+			require.Error(t, schemaErr, "Schema should reject this input")
+
+			_, goErr := ReadFile(fixturePath)
+			require.NoError(t, goErr, "Go should accept this input (schema-only validation)")
+		})
+	}
+}
+
 func compileSchemaFromPath(schemaPath string) (*gojsonschema.Schema, error) {
 	schemaBytes, err := os.ReadFile(schemaPath)
 	if err != nil {
