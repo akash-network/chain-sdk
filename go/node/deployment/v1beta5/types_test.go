@@ -1,4 +1,4 @@
-package v1beta4_test
+package v1beta5_test
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
 	v1 "pkg.akt.dev/go/node/deployment/v1"
-	types "pkg.akt.dev/go/node/deployment/v1beta4"
+	types "pkg.akt.dev/go/node/deployment/v1beta5"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	"pkg.akt.dev/go/testutil"
 )

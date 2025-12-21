@@ -1,4 +1,4 @@
-package v1beta4
+package v1beta5
 
 // func TestValidateCPUNil(t *testing.T) {
 // 	_, err := validateCPU(nil)

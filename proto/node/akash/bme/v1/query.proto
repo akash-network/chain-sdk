@@ -1,0 +1,124 @@
+syntax = "proto3";
+package akash.bme.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+import "akash/bme/v1/params.proto";
+import "akash/bme/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/bme/v1";
+
+// Query defines the gRPC querier service for the BME module
+service Query {
+  // Params returns the module parameters
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/akash/bme/v1/params";
+  }
+
+  // VaultState returns the current vault state
+  rpc VaultState(QueryVaultStateRequest) returns (QueryVaultStateResponse) {
+    option (google.api.http).get = "/akash/bme/v1/vault";
+  }
+
+  // CollateralRatio returns the current collateral ratio
+  rpc CollateralRatio(QueryCollateralRatioRequest) returns (QueryCollateralRatioResponse) {
+    option (google.api.http).get = "/akash/bme/v/collateral-ratio";
+  }
+
+  // CircuitBreakerStatus returns the current circuit breaker status
+  rpc CircuitBreakerStatus(QueryCircuitBreakerStatusRequest) returns (QueryCircuitBreakerStatusResponse) {
+    option (google.api.http).get = "/akash/bme/v1/circuit-breaker";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryVaultStateRequest is the request type for the Query/VaultState RPC method
+message QueryVaultStateRequest {}
+
+// QueryVaultStateResponse is the response type for the Query/VaultState RPC method
+message QueryVaultStateResponse {
+  State vault_state = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryCollateralRatioRequest is the request type for the Query/CollateralRatio RPC method
+message QueryCollateralRatioRequest {}
+
+// QueryCollateralRatioResponse is the response type for the Query/CollateralRatio RPC method
+message QueryCollateralRatioResponse {
+  CollateralRatio collateral_ratio = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryNetBurnRequest is the request type for the Query/NetBurn RPC method
+message QueryNetBurnRequest {
+  // period can be "24h" or "30d"
+  string period = 1;
+}
+
+// QueryNetBurnResponse is the response type for the Query/NetBurn RPC method
+message QueryNetBurnResponse {
+  // net_burn is the net AKT burned in the period (positive = deflationary)
+  cosmos.base.v1beta1.Coin net_burn = 1 [
+
+    (gogoproto.nullable) = false
+  ];
+
+  // total_burned is the total AKT burned in the period
+  cosmos.base.v1beta1.Coin total_burned = 2 [
+    (gogoproto.nullable) = false
+  ];
+
+  // total_minted is the total AKT minted in the period
+  cosmos.base.v1beta1.Coin total_minted = 3 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryCircuitBreakerStatusRequest is the request type for the circuit breaker status
+message QueryCircuitBreakerStatusRequest {}
+
+// QueryCircuitBreakerStatusResponse is the response type for the circuit breaker status
+message QueryCircuitBreakerStatusResponse {
+  // status is the current circuit breaker status
+  CircuitBreakerStatus status = 1;
+
+  // collateral_ratio is the current CR
+  string collateral_ratio = 2 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // warn_threshold is the warning threshold
+  string warn_threshold = 3 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // halt_threshold is the halt threshold
+  string halt_threshold = 4 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // mints_allowed indicates if new ACT mints are allowed
+  bool mints_allowed = 5;
+
+  // settlements_allowed indicates if settlements are allowed
+  bool settlements_allowed = 6;
+
+  // refunds_allowed indicates if ACT refunds are allowed
+  bool refunds_allowed = 7;
+}

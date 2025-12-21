@@ -6,7 +6,7 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 
 	"pkg.akt.dev/go/node/deployment/v1"
-	"pkg.akt.dev/go/node/deployment/v1beta4"
+	dvbeta "pkg.akt.dev/go/node/deployment/v1beta5"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 )
@@ -49,7 +49,7 @@ func GetQueryDeploymentsCmd() *cobra.Command {
 				return err
 			}
 
-			params := &v1beta4.QueryDeploymentsRequest{
+			params := &dvbeta.QueryDeploymentsRequest{
 				Filters:    dfilters,
 				Pagination: pageReq,
 			}
@@ -85,7 +85,7 @@ func GetQueryDeploymentCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Deployment().Deployment(ctx, &v1beta4.QueryDeploymentRequest{ID: id})
+			res, err := cl.Query().Deployment().Deployment(ctx, &dvbeta.QueryDeploymentRequest{ID: id})
 			if err != nil {
 				return err
 			}
@@ -131,7 +131,7 @@ func GetQueryDeploymentGroupCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Deployment().Group(ctx, &v1beta4.QueryGroupRequest{ID: id})
+			res, err := cl.Query().Deployment().Group(ctx, &dvbeta.QueryGroupRequest{ID: id})
 			if err != nil {
 				return err
 			}

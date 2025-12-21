@@ -1,0 +1,19 @@
+syntax = "proto3";
+package akash.bme.v1;
+
+import "cosmos/msg/v1/msg.proto";
+
+import "akash/bme/v1/msgs.proto";
+
+option go_package = "pkg.akt.dev/go/node/bme/v1";
+
+// Msg defines the BME Msg service
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // UpdateParams updates the module parameters (governance only)
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // BurnMint allows users to burn unused ACT back to AKT at current price
+  rpc BurnMint(MsgBurnMint) returns (MsgBurnMintResponse);
+}

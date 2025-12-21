@@ -11,7 +11,7 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
-	mtypes "pkg.akt.dev/go/node/market/v1"
+	mtypes "pkg.akt.dev/go/node/market/v2beta1"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 )

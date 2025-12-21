@@ -1,0 +1,43 @@
+package v1
+
+import "cosmossdk.io/errors"
+
+var (
+	ErrInvalidParams          = errors.Register(ModuleName, 2, "invalid parameters")
+	ErrUnauthorized           = errors.Register(ModuleName, 3, "unauthorized")
+	ErrModuleDisabled         = errors.Register(ModuleName, 4, "module is disabled")
+	ErrOracleUnhealthy        = errors.Register(ModuleName, 5, "oracle is unhealthy")
+	ErrCircuitBreakerActive   = errors.Register(ModuleName, 6, "circuit breaker is active")
+	ErrInsufficientVaultFunds = errors.Register(ModuleName, 7, "insufficient vault funds")
+	ErrInvalidAmount          = errors.Register(ModuleName, 8, "invalid amount")
+	ErrInvalidDenom           = errors.Register(ModuleName, 9, "invalid denomination")
+	ErrInvalidAddress         = errors.Register(ModuleName, 10, "invalid address")
+	ErrInvalidSender          = errors.Register(ModuleName, 11, "invalid sender")
+	ErrZeroPrice              = errors.Register(ModuleName, 12, "oracle price is zero")
+	ErrRecordExists           = errors.Register(ModuleName, 13, "ledger record already exists")
+	ErrMintFailed             = errors.Register(ModuleName, 14, "failed to mint tokens")
+	ErrBurnFailed             = errors.Register(ModuleName, 15, "failed to burn tokens")
+)
+
+//var (
+//	ErrInvalidPayer         = errors.Register(ModuleName, 2, "invalid payer address")
+//	ErrInvalidOwner         = errors.Register(ModuleName, 3, "invalid owner address")
+//	ErrInvalidRecipient     = errors.Register(ModuleName, 4, "invalid recipient address")
+//	ErrInvalidAmount        = errors.Register(ModuleName, 5, "invalid amount")
+//	ErrInvalidDenom         = errors.Register(ModuleName, 6, "invalid denomination")
+//	ErrInsufficientACT      = errors.Register(ModuleName, 7, "insufficient ACT balance")
+//	ErrInsufficientFunds    = errors.Register(ModuleName, 8, "insufficient funds")
+//	ErrOracleUnhealthy      = errors.Register(ModuleName, 9, "oracle is unhealthy or unavailable")
+//	ErrCircuitBreakerActive = errors.Register(ModuleName, 10, "circuit breaker is active, mints paused")
+//	ErrBelowMinMint         = errors.Register(ModuleName, 11, "mint amount below minimum")
+//	ErrMintFailed           = errors.Register(ModuleName, 12, "failed to mint tokens")
+//	ErrBurnFailed           = errors.Register(ModuleName, 13, "failed to burn tokens")
+//	ErrTransferFailed       = errors.Register(ModuleName, 14, "failed to transfer tokens")
+//	ErrUnauthorized         = errors.Register(ModuleName, 15, "unauthorized")
+//	ErrModuleDisabled       = errors.Register(ModuleName, 16, "module is disabled")
+//	ErrInvalidMintInput     = errors.Register(ModuleName, 17, "must provide either akt_in or usd_exact")
+//	ErrZeroPrice            = errors.Register(ModuleName, 18, "oracle price is zero")
+//	ErrNegativePrice        = errors.Register(ModuleName, 19, "oracle price is negative")
+//	ErrVaultTransferFailed  = errors.Register(ModuleName, 20, "failed to transfer to vault")
+//	ErrInvalidParams        = errors.Register(ModuleName, 21, "invalid parameters")
+//)

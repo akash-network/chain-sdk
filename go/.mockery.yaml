@@ -24,12 +24,12 @@ packages:
       dir: mocks/node/client/cert
     interfaces:
       QueryClient: {}
-  pkg.akt.dev/go/node/deployment/v1beta4:
+  pkg.akt.dev/go/node/deployment/v1beta5:
     config:
       dir: mocks/node/client/deployment
     interfaces:
       QueryClient: {}
-  pkg.akt.dev/go/node/market/v1beta5:
+  pkg.akt.dev/go/node/market/v2beta1:
     config:
       dir: mocks/node/client/market
     interfaces:
