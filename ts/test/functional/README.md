@@ -1,61 +1,59 @@
 # Functional Tests
 
-Clean, working tests for the Akash Chain SDK.
+TypeScript tests running against a Go mock gRPC server to validate cross-language protobuf compatibility and transaction validation.
 
-## Environment Variables
+## Purpose
 
-For deployment transaction tests, you need to set up a test mnemonic:
-
-```bash
-# Set a funded testnet account mnemonic for deployment tests
-export TEST_MNEMONIC="word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12"
-```
-
-**Important Security Notes:**
-- Only use testnet accounts with test tokens
-- Never use production mnemonics in tests
-- The test will skip gracefully if TEST_MNEMONIC is not set
-
-## Configuration
-
-The tests use these endpoints by default:
-
-```typescript
-const sdk = createChainNodeSDK({
-  query: {
-    baseUrl: "http://rpc.dev.akash.pub:30090",
-  },
-  tx: {
-    baseUrl: "https://testnetrpc.akashnet.net:443",
-    signer: wallet,
-  },
-});
-```
-
-Override with environment variables:
-```bash
-export QUERY_RPC_URL="http://rpc.dev.akash.pub:30090"
-export TX_RPC_URL="https://testnetrpc.akashnet.net:443"
-```
+These tests verify:
+- TypeScript ↔ Go protobuf encoding/decoding works correctly
+- Transaction messages pass Go-side `ValidateBasic()` checks
+- Custom types (e.g., `LegacyDec`) serialize consistently between languages
+- gRPC and HTTP Gateway endpoints handle requests properly
 
 ## Running Tests
 
 ```bash
-# Run all functional tests
+# From project root
+make test-functional-ts
+
+# Or from ts/ directory
 npm run test:functional
 
-# Run specific test file
+# Run specific test
 npm run test:functional -- --testPathPattern=deployments
 
-# Run with environment variable for deployment tests
-TEST_MNEMONIC="your testnet mnemonic here" npm run test:functional
-
-# Run specific deployment transaction test
-TEST_MNEMONIC="your testnet mnemonic here" npm test -- --testPathPattern=deployments --testNamePattern="should create a deployment transaction"
+# Update snapshots
+npm run test:functional -- -u
 ```
 
-## Test Types
+## Architecture
 
-- **Query Tests**: Test deployment querying functionality (no mnemonic needed)
-- **Serialization Tests**: Test protobuf message serialization consistency (no mnemonic needed)  
-- **Transaction Tests**: Test actual deployment creation (requires TEST_MNEMONIC)
+**Go Mock Server** (`go/testutil/mock/`):
+- Standalone gRPC server with HTTP Gateway
+- Uses real Cosmos SDK validation logic (`ValidateBasic()`)
+- Serves test fixtures from JSON files
+- Built automatically by `make test-functional-ts`
+
+**TypeScript Tests**:
+- Spawn the mock server binary
+- Test queries, transactions, and message serialization
+- Verify encoding matches between TS and Go
+
+## Test Categories
+
+1. **Deployment Tests** (`deployments.spec.ts`)
+   - Query deployments from mock server
+   - Create/validate deployment transactions
+   - Test transaction validation errors
+
+2. **Protoc Plugin Tests**
+   - `protoc-gen-customtype-patches.spec.ts` - Custom type handling
+   - `protoc-gen-sdk-object.spec.ts` - SDK object generation
+
+## Mock Server
+
+Tests run against a Go mock gRPC server that:
+- Starts automatically when tests run
+- Uses real Cosmos SDK validation logic
+- Serves deterministic test fixtures
+- Requires no external dependencies

@@ -54,3 +54,28 @@ jobs:
         with:
           files: ./ts/coverage
           token: ${{ secrets.CODECOV_TOKEN }}
+  test-functional-ts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch --prune --unshallow
+      - name: Setup env
+        uses: HatsuneMiku3939/direnv-action@v1
+      - run: |
+          toolchain=$(./script/tools.sh gotoolchain | sed 's/go*//')
+          echo "GOVERSION=${toolchain}" >> $GITHUB_ENV
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "${{ env.GOVERSION }}"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: ts/package-lock.json
+      - name: Download Go dependencies
+        working-directory: go
+        run: go mod download
+      - name: Run functional tests
+        run: make test-functional-ts

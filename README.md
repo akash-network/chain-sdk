@@ -51,9 +51,14 @@ CLI package which combines improved version of cli clients from node](https://gi
 import "pkg.akt.dev/go/cli"
 ```
 
-### TS
+### TypeScript
 
 Source code is located within [ts](./ts) directory
+
+**Requirements:**
+- Node.js >= 22.6.0 (required for `--experimental-strip-types` support, which is an experimental feature)
+
+See [ts/README.md](./ts/README.md) for more details.
 
 
 ## Protobuf

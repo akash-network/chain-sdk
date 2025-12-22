@@ -35,8 +35,8 @@
     "build": "npm run compile:jwt-validator && rm -rf dist && tsc -p tsconfig.build.json && node esbuild.config.mjs && ./script/validate-package-exports.ts",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
-    "test": "jest --selectProjects unit functional",
-    "test:cov": "jest --selectProjects unit functional --coverage",
+    "test": "jest --selectProjects unit",
+    "test:cov": "jest --selectProjects unit --coverage",
     "test:functional": "jest --selectProjects functional --runInBand",
     "test:unit": "jest --selectProjects unit",
     "compile:jwt-validator": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts"
@@ -67,6 +67,7 @@
     "long": "^5.3.2"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.60.0",
     "@bufbuild/protoc-gen-es": "^2.2.3",
     "@bufbuild/protoplugin": "^2.2.3",
     "@eslint/js": "^9.21.0",
@@ -97,7 +98,7 @@
     "typescript-eslint": "^8.29.1"
   },
   "engines": {
-    "node": "22.14.0"
+    "node": ">=22.6.0"
   },
   "volta": {
     "node": "22.14.0"

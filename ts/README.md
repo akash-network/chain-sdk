@@ -6,6 +6,12 @@
 
 This package provides TypeScript bindings for the Akash API, generated from protobuf definitions.
 
+## Requirements
+
+- **Node.js >= 22.6.0** (required for `--experimental-strip-types` support)
+
+> ⚠️ **Note:** The `--experimental-strip-types` flag is an experimental Node.js feature introduced in v22.6.0. This allows running TypeScript files directly without compilation during development and testing.
+
 ## Installation
 
 ⚠️ **NOTICE:** 

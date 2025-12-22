@@ -3,6 +3,9 @@
 .cache
 .vscode
 
+# macOS system files
+.DS_Store
+
 ### Go template
 # Test binary, built with `go test -c`
 *.test

@@ -377,6 +377,12 @@ func (c *serialBroadcaster) BroadcastMsgs(ctx context.Context, msgs []sdk.Msg, o
 		// if returned error is sdk error, it is likely to be wrapped response so discard it
 		// as clients supposed to check Tx code, unless resp is nil, which is error during Tx preparation
 		if !errors.As(resp.err, &cerrors.Error{}) || resp.resp == nil || bOpts.resultAsError {
+			if bOpts.resultAsError {
+				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp.Code != 0 && resp.err == nil {
+					resp.err = cerrors.ABCIError(txResp.Codespace, txResp.Code, txResp.RawLog)
+				}
+			}
+
 			return resp.resp, resp.err
 		}
 		return resp.resp, nil
@@ -421,6 +427,12 @@ func (c *serialBroadcaster) BroadcastTx(ctx context.Context, tx sdk.Tx, opts ...
 		// if returned error is sdk error, it is likely to be wrapped response so discard it
 		// as clients supposed to check Tx code, unless resp is nil, which is error during Tx preparation
 		if !errors.As(resp.err, &cerrors.Error{}) || resp.resp == nil || bOpts.resultAsError {
+			if bOpts.resultAsError {
+				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp.Code != 0 && resp.err == nil {
+					resp.err = cerrors.ABCIError(txResp.Codespace, txResp.Code, txResp.RawLog)
+				}
+			}
+
 			return resp.resp, resp.err
 		}
 		return resp.resp, nil
@@ -520,12 +532,13 @@ func deriveCctxFromOptions(cctx sdkclient.Context, opts *BroadcastOptions) sdkcl
 	return cctx
 }
 
-func (c *serialBroadcaster) syncSequence(f clienttx.Factory, rErr error) (uint64, bool) {
+func (c *serialBroadcaster) syncSequence(f clienttx.Factory, resp interface{}, rErr error) (uint64, bool) {
+	txResp, valid := resp.(*sdk.TxResponse)
+
 	// due to cosmos-sdk not returning ABCI errors for /simulate call
 	// exact error match does not work, and we have to improvise
 	// use sdkerrors.ErrWrongSequence.Is(rErr) when /simulate call is fixed
-	// if rErr != nil && sequenceMismatchRegexp.MatchString(rErr.Error()) {
-	if rErr != nil && (sdkerrors.ErrWrongSequence.Is(rErr) || sdkerrors.ErrInvalidSequence.Is(rErr)) {
+	if (rErr != nil && (sdkerrors.ErrWrongSequence.Is(rErr) || sdkerrors.ErrInvalidSequence.Is(rErr))) || (valid && (txResp.Code == sdkerrors.ErrWrongSequence.ABCICode())) {
 		// attempt to sync account sequence
 		if rSeq, err := c.syncAccountSequence(f.Sequence()); err == nil {
 			return rSeq, true
@@ -556,7 +569,7 @@ func (c *serialBroadcaster) broadcaster(ptxf clienttx.Factory) {
 					txf := deriveTxfFromOptions(ptxf, req.opts)
 
 					resp, seq, err = c.buildAndBroadcastTx(req.ctx, cctx, txf, req.opts, mType)
-					rSeq, synced := c.syncSequence(ptxf.WithSequence(seq), err)
+					rSeq, synced := c.syncSequence(ptxf.WithSequence(seq), resp, err)
 					ptxf = ptxf.WithSequence(rSeq)
 
 					if !synced {
@@ -576,7 +589,7 @@ func (c *serialBroadcaster) broadcaster(ptxf clienttx.Factory) {
 			if c.info != nil {
 				terr := &cerrors.Error{}
 				if !cctx.GenerateOnly && errors.Is(err, terr) {
-					rSeq, _ := c.syncSequence(ptxf, err)
+					rSeq, _ := c.syncSequence(ptxf, resp, err)
 					ptxf = ptxf.WithSequence(rSeq)
 				}
 			}
