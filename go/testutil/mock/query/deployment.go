@@ -56,19 +56,19 @@ func (q *DeploymentQuery) loadData() error {
 }
 
 func (q *DeploymentQuery) Deployments(ctx context.Context, req *dv1beta4.QueryDeploymentsRequest) (*dv1beta4.QueryDeploymentsResponse, error) {
+	if err := q.loadData(); err != nil {
+		return nil, fmt.Errorf("failed to load deployment fixtures: %w", err)
+	}
+
 	resp := &dv1beta4.QueryDeploymentsResponse{
 		Deployments: dv1beta4.DeploymentResponses{},
 	}
 
-	if err := q.loadData(); err == nil && q.data.Deployments != nil {
+	if q.data.Deployments != nil {
 		resp = q.data.Deployments
 		if resp.Deployments == nil {
 			resp.Deployments = dv1beta4.DeploymentResponses{}
 		}
-	}
-
-	if resp.Deployments == nil {
-		resp.Deployments = dv1beta4.DeploymentResponses{}
 	}
 
 	for _, depResp := range resp.Deployments {
@@ -95,4 +95,3 @@ func (q *DeploymentQuery) Group(ctx context.Context, req *dv1beta4.QueryGroupReq
 func (q *DeploymentQuery) Params(ctx context.Context, req *dv1beta4.QueryParamsRequest) (*dv1beta4.QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-

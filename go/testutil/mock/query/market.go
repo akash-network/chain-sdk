@@ -61,19 +61,19 @@ func (q *MarketQuery) loadData() error {
 }
 
 func (q *MarketQuery) Leases(ctx context.Context, req *mv1beta5.QueryLeasesRequest) (*mv1beta5.QueryLeasesResponse, error) {
+	if err := q.loadData(); err != nil {
+		return nil, fmt.Errorf("failed to load market fixtures: %w", err)
+	}
+
 	resp := &mv1beta5.QueryLeasesResponse{
 		Leases: []mv1beta5.QueryLeaseResponse{},
 	}
 
-	if err := q.loadData(); err == nil && q.data.Leases != nil {
+	if q.data.Leases != nil {
 		resp = q.data.Leases
 		if resp.Leases == nil {
 			resp.Leases = []mv1beta5.QueryLeaseResponse{}
 		}
-	}
-
-	if resp.Leases == nil {
-		resp.Leases = []mv1beta5.QueryLeaseResponse{}
 	}
 
 	return resp, nil
@@ -84,19 +84,19 @@ func (q *MarketQuery) Lease(ctx context.Context, req *mv1beta5.QueryLeaseRequest
 }
 
 func (q *MarketQuery) Bids(ctx context.Context, req *mv1beta5.QueryBidsRequest) (*mv1beta5.QueryBidsResponse, error) {
+	if err := q.loadData(); err != nil {
+		return nil, fmt.Errorf("failed to load market fixtures: %w", err)
+	}
+
 	resp := &mv1beta5.QueryBidsResponse{
 		Bids: []mv1beta5.QueryBidResponse{},
 	}
 
-	if err := q.loadData(); err == nil && q.data.Bids != nil {
+	if q.data.Bids != nil {
 		resp = q.data.Bids
 		if resp.Bids == nil {
 			resp.Bids = []mv1beta5.QueryBidResponse{}
 		}
-	}
-
-	if resp.Bids == nil {
-		resp.Bids = []mv1beta5.QueryBidResponse{}
 	}
 
 	if req != nil && len(resp.Bids) > 0 {

@@ -34,14 +34,82 @@ export function createGatewayTxClient(options: GatewayTxClientOptions): TxClient
 
   return {
     async estimateFee(messages: EncodeObject[], memo?: string): Promise<StdFee> {
+      const messageAnys: Any[] = messages.map(msg => {
+        const MessageType = options.getMessageType(msg.typeUrl);
+        if (!MessageType) {
+          throw new Error(`Message type ${msg.typeUrl} not found in registry`);
+        }
+        const value = MessageType.encode(msg.value, new BinaryWriter()).finish();
+        return {
+          typeUrl: msg.typeUrl,
+          value: value,
+        };
+      });
+
+      const txBody: TxBody = {
+        messages: messageAnys,
+        memo: memo || "",
+        timeoutHeight: Long.UZERO,
+        timeoutTimestamp: undefined,
+        extensionOptions: [],
+        nonCriticalExtensionOptions: [],
+        unordered: false,
+      };
+
+      const bodyBytes = TxBody.encode(txBody, new BinaryWriter()).finish();
+
+      const authInfo: AuthInfo = {
+        signerInfos: [{
+          publicKey: undefined,
+          modeInfo: {
+            single: {
+              mode: SignMode.SIGN_MODE_DIRECT,
+            },
+            multi: undefined,
+          },
+          sequence: Long.UZERO,
+        }],
+        fee: {
+          amount: [{
+            denom: "uakt",
+            amount: "1",
+          }],
+          gasLimit: Long.fromNumber(200000),
+          payer: "",
+          granter: "",
+        },
+        tip: undefined,
+      };
+
+      const authInfoBytes = AuthInfo.encode(authInfo, new BinaryWriter()).finish();
+
+      const txRaw: TxRaw = {
+        bodyBytes: bodyBytes,
+        authInfoBytes: authInfoBytes,
+        signatures: [new Uint8Array(0)],
+      };
+
+      const writer = new BinaryWriter();
+      TxRawType.encode(txRaw, writer);
+      const txBytes = writer.finish();
+
       const simulateUrl = `${options.gatewayUrl}/cosmos/tx/v1beta1/simulate`;
       const simulateResponse = await fetch(simulateUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tx_bytes: "" }),
+        body: JSON.stringify({ 
+          tx_bytes: Buffer.from(txBytes).toString("base64") 
+        }),
       });
       if (!simulateResponse.ok) {
-        throw new Error(`Simulate failed: ${simulateResponse.statusText}`);
+        let errorText = await simulateResponse.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorText = errorJson.message || errorJson.error || errorText;
+        } catch {
+          // Not JSON, use raw text
+        }
+        throw new Error(`Simulate failed (${simulateResponse.status}): ${errorText}`);
       }
       const simulateData = await simulateResponse.json();
       const gasWanted = simulateData.gas_info?.gas_wanted ?? 300000;

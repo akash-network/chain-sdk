@@ -31,6 +31,10 @@ $(BUF_VERSION_FILE): $(AKASH_DEVCACHE)
 	mkdir -p "$(dir $@)"
 	touch $@
 
+# BUF binary must be verified at runtime because it's a direct dependency of
+# test-functional-ts (make/test.mk:40). This check guards against the case where
+# the version file exists but the binary was deleted/corrupted before tests run.
+# If missing, we re-install to prevent silent test failures.
 $(BUF): $(BUF_VERSION_FILE)
 	@if [ ! -f $(BUF) ]; then \
 		echo "buf binary missing, reinstalling..." && \
