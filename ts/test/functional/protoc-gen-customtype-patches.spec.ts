@@ -42,9 +42,15 @@ describe("protoc-gen-customtype-patches plugin", () => {
 
   const repoRoot = joinPath(__dirname, "..", "..", "..");
   const gogoprotoVendor = joinPath(repoRoot, "go/vendor/github.com/cosmos/gogoproto");
+  const bufBin = process.env.AKASH_DEVCACHE_BIN 
+    ? joinPath(process.env.AKASH_DEVCACHE_BIN, "buf")
+    : null;
+  
   const hasVendor = existsSync(gogoprotoVendor);
+  const hasBuf = bufBin ? existsSync(bufBin) : false;
+  const canRun = hasVendor && hasBuf;
 
-  (hasVendor ? it : it.skip)("generates `Set` instance with all the types that have reference to fields with custom type option", async () => {
+  (canRun ? it : it.skip)("generates `Set` instance with all the types that have reference to fields with custom type option", async () => {
     checkNodeVersion();
     
     const outputDir = joinPath(tmpdir(), `ts-bufplugin-${process.pid.toString()}`);
@@ -61,8 +67,9 @@ describe("protoc-gen-customtype-patches plugin", () => {
         "buf.build/protocolbuffers/wellknowntypes",
       ],
     };
+    
     const command = [
-      "npx --package=@bufbuild/buf buf generate",
+      `${bufBin} generate`,
       `--config '${JSON.stringify(bufConfig)}'`,
       `--template '${JSON.stringify(config)}'`,
       `-o '${outputDir}'`,

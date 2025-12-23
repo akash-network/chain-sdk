@@ -42,9 +42,15 @@ describe("protoc-sdk-object plugin", () => {
 
   const repoRoot = joinPath(__dirname, "..", "..", "..");
   const cosmosSdkVendor = joinPath(repoRoot, "go/vendor/github.com/cosmos/cosmos-sdk/proto");
+  const bufBin = process.env.AKASH_DEVCACHE_BIN 
+    ? joinPath(process.env.AKASH_DEVCACHE_BIN, "buf")
+    : null;
+  
   const hasVendor = existsSync(cosmosSdkVendor);
+  const hasBuf = bufBin ? existsSync(bufBin) : false;
+  const canRun = hasVendor && hasBuf;
 
-  (hasVendor ? it : it.skip)("generates SDK object from proto files", async () => {
+  (canRun ? it : it.skip)("generates SDK object from proto files", async () => {
     checkNodeVersion();
     
     const outputDir = joinPath(tmpdir(), `ts-bufplugin-${process.pid.toString()}`);
@@ -61,8 +67,9 @@ describe("protoc-sdk-object plugin", () => {
         "buf.build/protocolbuffers/wellknowntypes",
       ],
     };
+    
     const command = [
-      "npx --package=@bufbuild/buf buf generate",
+      `${bufBin} generate`,
       `--config '${JSON.stringify(bufConfig)}'`,
       `--template '${JSON.stringify(config)}'`,
       `-o '${outputDir}'`,

@@ -37,7 +37,7 @@
     "lint:fix": "npm run lint -- --fix",
     "test": "jest --selectProjects unit",
     "test:cov": "jest --selectProjects unit --coverage",
-    "test:functional": "jest --selectProjects functional --runInBand",
+    "test:functional": "node -e \"if (!process.env.AKASH_DEVCACHE_BIN) { console.error('\\n\\x1b[31mError: Functional tests must be run via make from repo root:\\x1b[0m\\n  make test-functional-ts\\n'); process.exit(1); }\" && jest --selectProjects functional --runInBand",
     "test:unit": "jest --selectProjects unit",
     "compile:jwt-validator": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts"
   },
@@ -67,7 +67,6 @@
     "long": "^5.3.2"
   },
   "devDependencies": {
-    "@bufbuild/buf": "^1.60.0",
     "@bufbuild/protoc-gen-es": "^2.2.3",
     "@bufbuild/protoplugin": "^2.2.3",
     "@eslint/js": "^9.21.0",

@@ -37,8 +37,8 @@ test-coverage-ts: $(AKASH_TS_NODE_MODULES) proto-gen-ts
 	cd $(TS_ROOT) && npm run build && npm run test:cov
 
 .PHONY: test-functional-ts
-test-functional-ts: $(AKASH_TS_NODE_MODULES) modvendor mock-server-bin
-	cd $(TS_ROOT) && MOCK_SERVER_BIN="$(AKASH_DEVCACHE_BIN)/mock-server" npm run test:functional
+test-functional-ts: $(AKASH_TS_NODE_MODULES) $(BUF) modvendor mock-server-bin
+	cd $(TS_ROOT) && AKASH_DEVCACHE_BIN="$(AKASH_DEVCACHE_BIN)" MOCK_SERVER_BIN="$(AKASH_DEVCACHE_BIN)/mock-server" npm run test:functional
 
 .PHONY: mock-server-bin
 mock-server-bin: modvendor

@@ -12,19 +12,22 @@ These tests verify:
 
 ## Running Tests
 
+**Important:** Functional tests must be run via make from the repository root:
+
 ```bash
-# From project root
+# From repository root (required)
 make test-functional-ts
-
-# Or from ts/ directory
-npm run test:functional
-
-# Run specific test
-npm run test:functional -- --testPathPattern=deployments
-
-# Update snapshots
-npm run test:functional -- -u
 ```
+
+This automatically ensures:
+- buf binary is installed to `.cache/bin/buf` (version defined in Makefile)
+- Go dependencies are vendored (`make modvendor`)
+- Mock server binary is built to `.cache/bin/mock-server`
+- Environment variables are properly set
+
+Running `npm run test:functional` directly will fail with an error unless:
+1. The environment is configured via direnv (which sets `AKASH_DEVCACHE_BIN`)
+2. All dependencies are already installed
 
 ## Architecture
 

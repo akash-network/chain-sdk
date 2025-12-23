@@ -30,7 +30,13 @@ $(BUF_VERSION_FILE): $(AKASH_DEVCACHE)
 	rm -rf "$(dir $@)"
 	mkdir -p "$(dir $@)"
 	touch $@
+
 $(BUF): $(BUF_VERSION_FILE)
+	@if [ ! -f $(BUF) ]; then \
+		echo "buf binary missing, reinstalling..." && \
+		rm -f $(BUF_VERSION_FILE) && \
+		$(MAKE) $(BUF_VERSION_FILE); \
+	fi
 
 $(PROTOC_VERSION_FILE): $(AKASH_DEVCACHE)
 	@echo "installing protoc compiler v$(PROTOC_VERSION) ..."
