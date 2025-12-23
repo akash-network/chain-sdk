@@ -8,21 +8,6 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
-const MIN_NODE_VERSION = "22.6.0";
-
-function checkNodeVersion(): void {
-  const currentVersion = process.version.slice(1);
-  const [currentMajor, currentMinor] = currentVersion.split(".").map(Number);
-  const [minMajor, minMinor] = MIN_NODE_VERSION.split(".").map(Number);
-  
-  if (currentMajor < minMajor || (currentMajor === minMajor && currentMinor < minMinor)) {
-    throw new Error(
-      `Node.js ${MIN_NODE_VERSION} or higher is required for --experimental-strip-types support. ` +
-      `Current version: ${process.version}`
-    );
-  }
-}
-
 describe("protoc-sdk-object plugin", () => {
   const config = {
     version: "v2",
@@ -51,8 +36,6 @@ describe("protoc-sdk-object plugin", () => {
   const canRun = hasVendor && hasBuf;
 
   (canRun ? it : it.skip)("generates SDK object from proto files", async () => {
-    checkNodeVersion();
-    
     const outputDir = joinPath(tmpdir(), `ts-bufplugin-${process.pid.toString()}`);
     const protoDir = "./ts/test/functional/proto";
     
