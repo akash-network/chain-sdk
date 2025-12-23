@@ -30,12 +30,14 @@ describe("protoc-gen-customtype-patches plugin", () => {
   const bufBin = process.env.AKASH_DEVCACHE_BIN 
     ? joinPath(process.env.AKASH_DEVCACHE_BIN, "buf")
     : null;
-  
-  const hasVendor = existsSync(gogoprotoVendor);
-  const hasBuf = bufBin ? existsSync(bufBin) : false;
-  const canRun = hasVendor && hasBuf;
 
-  (canRun ? it : it.skip)("generates `Set` instance with all the types that have reference to fields with custom type option", async () => {
+  it("generates `Set` instance with all the types that have reference to fields with custom type option", async () => {
+    if (!existsSync(gogoprotoVendor)) {
+      throw new Error(`Go vendor missing at ${gogoprotoVendor}. Run 'make modvendor' from repo root.`);
+    }
+    if (!bufBin || !existsSync(bufBin)) {
+      throw new Error(`buf binary missing at ${bufBin}. AKASH_DEVCACHE_BIN=${process.env.AKASH_DEVCACHE_BIN}`);
+    }
     const outputDir = joinPath(tmpdir(), `ts-bufplugin-${process.pid.toString()}`);
     const protoDir = "./ts/test/functional/proto";
     

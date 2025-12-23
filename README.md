@@ -55,10 +55,7 @@ import "pkg.akt.dev/go/cli"
 
 Source code is located within [ts](./ts) directory
 
-**Requirements:**
-- Node.js >= 22.6.0 (required for `--experimental-strip-types` support, which is an experimental feature)
-
-See [ts/README.md](./ts/README.md) for more details.
+See [ts/README.md](./ts/README.md) for requirements and details.
 
 
 ## Protobuf

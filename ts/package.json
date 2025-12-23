@@ -97,7 +97,7 @@
     "typescript-eslint": "^8.29.1"
   },
   "engines": {
-    "node": ">=22.6.0"
+    "node": "22.14.0"
   },
   "volta": {
     "node": "22.14.0"

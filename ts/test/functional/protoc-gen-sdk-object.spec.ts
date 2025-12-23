@@ -30,12 +30,14 @@ describe("protoc-sdk-object plugin", () => {
   const bufBin = process.env.AKASH_DEVCACHE_BIN 
     ? joinPath(process.env.AKASH_DEVCACHE_BIN, "buf")
     : null;
-  
-  const hasVendor = existsSync(cosmosSdkVendor);
-  const hasBuf = bufBin ? existsSync(bufBin) : false;
-  const canRun = hasVendor && hasBuf;
 
-  (canRun ? it : it.skip)("generates SDK object from proto files", async () => {
+  it("generates SDK object from proto files", async () => {
+    if (!existsSync(cosmosSdkVendor)) {
+      throw new Error(`Go vendor missing at ${cosmosSdkVendor}. Run 'make modvendor' from repo root.`);
+    }
+    if (!bufBin || !existsSync(bufBin)) {
+      throw new Error(`buf binary missing at ${bufBin}. AKASH_DEVCACHE_BIN=${process.env.AKASH_DEVCACHE_BIN}`);
+    }
     const outputDir = joinPath(tmpdir(), `ts-bufplugin-${process.pid.toString()}`);
     const protoDir = "./ts/test/functional/proto";
     
