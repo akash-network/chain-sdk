@@ -14,7 +14,7 @@ describe("protoc-gen-customtype-patches plugin", () => {
     clean: true,
       plugins: [
         {
-          local: "ts/script/protoc-gen-customtype-patches-wrapper.sh",
+          local: "ts/script/protoc-gen-customtype-patches.ts",
           strategy: "all",
           out: ".",
           opt: [

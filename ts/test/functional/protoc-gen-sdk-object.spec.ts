@@ -14,7 +14,7 @@ describe("protoc-sdk-object plugin", () => {
     clean: true,
       plugins: [
         {
-          local: "ts/script/protoc-gen-sdk-object-wrapper.sh",
+          local: "ts/script/protoc-gen-sdk-object.ts",
           strategy: "all",
           out: ".",
           opt: [
