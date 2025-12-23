@@ -19,7 +19,7 @@ import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment
 import { createChainNodeWebSDK } from "../../src/sdk/chain/createChainNodeWebSDK.ts";
 import { getMessageType } from "../../src/sdk/getMessageType.ts";
 import { startMockServer } from "../util/mockServer.ts";
-import { createMockTxClient } from "../util/mockTxClient.ts";
+import { createGatewayTxClient } from "../util/createGatewayTxClient.ts";
 
 declare const jest: {
   setTimeout: (timeout: number) => void;
@@ -83,7 +83,7 @@ describe("Deployment Queries", () => {
     let txClient;
 
     if (wallet) {
-      txClient = createMockTxClient({
+      txClient = createGatewayTxClient({
         gatewayUrl: mockServer.gatewayUrl,
         signer: wallet,
         getMessageType,

@@ -1,3 +1,9 @@
+/**
+ * Gateway-based TxClient for Node.js environments.
+ * 
+ * Uses HTTP Gateway REST endpoints (/cosmos/tx/v1beta1/*) instead of Tendermint RPC.
+ * This is the same protocol browsers use when they can't access Tendermint RPC directly.
+ */
 import type { EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { makeSignDoc } from "@cosmjs/proto-signing";
 import type { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
@@ -14,7 +20,7 @@ import { Coin } from "../../src/generated/protos/cosmos/base/v1beta1/coin.ts";
 const DEFAULT_AVERAGE_GAS_PRICE = "0.025uakt";
 const DEFAULT_GAS_MULTIPLIER = 1.3;
 
-export interface MockTxClientOptions {
+export interface GatewayTxClientOptions {
   gatewayUrl: string;
   signer: OfflineSigner;
   gasMultiplier?: number;
@@ -22,7 +28,7 @@ export interface MockTxClientOptions {
   getMessageType: (typeUrl: string) => any;
 }
 
-export function createMockTxClient(options: MockTxClientOptions): TxClient {
+export function createGatewayTxClient(options: GatewayTxClientOptions): TxClient {
   const gasMultiplier = options.gasMultiplier ?? DEFAULT_GAS_MULTIPLIER;
   const gasPrice = GasPrice.fromString(options.defaultGasPrice ?? DEFAULT_AVERAGE_GAS_PRICE);
 
@@ -172,4 +178,3 @@ export function createMockTxClient(options: MockTxClientOptions): TxClient {
     },
   };
 }
-
