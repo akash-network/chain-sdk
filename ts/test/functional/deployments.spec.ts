@@ -479,6 +479,147 @@ describe("Deployment Queries", () => {
       expect(normalizedActual).toEqual(normalizeValue(decoded));
     });
 
+    it("handles 18-decimal precision price losslessly", async () => {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
+        prefix: "akash",
+        hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
+      });
+      const accounts = await wallet.getAccounts();
+      const owner = accounts[0];
+      const provider = accounts[1] ?? accounts[0];
+      const sdk = createTestSDK(wallet);
+      const highPrecisionPrice = "0.123456789012345678";
+
+      const baseGroup = createBaseResourceGroup();
+      const resources = baseGroup.resources[0]?.resource;
+
+      if (!resources) {
+        throw new Error("missing base resources");
+      }
+
+      const bid: MsgCreateBid = {
+        id: {
+          owner: owner.address,
+          provider: provider.address,
+          dseq: Long.fromNumber(666),
+          gseq: 1,
+          oseq: 1,
+          bseq: 0,
+        },
+        price: { denom: "uakt", amount: highPrecisionPrice },
+        deposit: {
+          amount: { denom: "uakt", amount: "5000000" },
+          sources: [Source.balance],
+        },
+        resourcesOffer: [{
+          resources: resources,
+          count: 1,
+        }],
+      };
+
+      await sdk.akash.market.v1beta5.createBid(bid, { memo: "18-decimal price" });
+
+      const res = await fetch(`${mockServer.gatewayUrl}/mock/last-bid`);
+      expect(res.ok).toBe(true);
+
+      const decoded = await res.json();
+      const price = decoded?.price;
+      expect(price?.denom).toBe("uakt");
+      expect(normalizeDec(price?.amount as string)).toBe(highPrecisionPrice);
+    });
+
+    it("handles zero price losslessly", async () => {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
+        prefix: "akash",
+        hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
+      });
+      const accounts = await wallet.getAccounts();
+      const owner = accounts[0];
+      const provider = accounts[1] ?? accounts[0];
+      const sdk = createTestSDK(wallet);
+      const zeroPrice = "0";
+
+      const baseGroup = createBaseResourceGroup();
+      const resources = baseGroup.resources[0]?.resource;
+
+      if (!resources) {
+        throw new Error("missing base resources");
+      }
+
+      const bid: MsgCreateBid = {
+        id: {
+          owner: owner.address,
+          provider: provider.address,
+          dseq: Long.fromNumber(333),
+          gseq: 1,
+          oseq: 1,
+          bseq: 0,
+        },
+        price: { denom: "uakt", amount: zeroPrice },
+        deposit: {
+          amount: { denom: "uakt", amount: "5000000" },
+          sources: [Source.balance],
+        },
+        resourcesOffer: [{
+          resources: resources,
+          count: 1,
+        }],
+      };
+
+      await expect(
+        sdk.akash.market.v1beta5.createBid(bid, { memo: "zero price" }),
+      ).rejects.toThrow(/price/i);
+    });
+
+    it("handles very small price losslessly", async () => {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
+        prefix: "akash",
+        hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
+      });
+      const accounts = await wallet.getAccounts();
+      const owner = accounts[0];
+      const provider = accounts[1] ?? accounts[0];
+      const sdk = createTestSDK(wallet);
+      const verySmallPrice = "0.000000000000000001";
+
+      const baseGroup = createBaseResourceGroup();
+      const resources = baseGroup.resources[0]?.resource;
+
+      if (!resources) {
+        throw new Error("missing base resources");
+      }
+
+      const bid: MsgCreateBid = {
+        id: {
+          owner: owner.address,
+          provider: provider.address,
+          dseq: Long.fromNumber(222),
+          gseq: 1,
+          oseq: 1,
+          bseq: 0,
+        },
+        price: { denom: "uakt", amount: verySmallPrice },
+        deposit: {
+          amount: { denom: "uakt", amount: "5000000" },
+          sources: [Source.balance],
+        },
+        resourcesOffer: [{
+          resources: resources,
+          count: 1,
+        }],
+      };
+
+      await sdk.akash.market.v1beta5.createBid(bid, { memo: "very small price" });
+
+      const res = await fetch(`${mockServer.gatewayUrl}/mock/last-bid`);
+      expect(res.ok).toBe(true);
+
+      const decoded = await res.json();
+      const price = decoded?.price;
+      expect(price?.denom).toBe("uakt");
+      expect(normalizeDec(price?.amount as string)).toBe(verySmallPrice);
+    });
+
     it("broadcasts tx via SYNC mode and receives tx hash", async () => {
       const wallet = await createTestWallet();
       const [account] = await wallet.getAccounts();
