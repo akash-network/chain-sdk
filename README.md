@@ -51,11 +51,9 @@ CLI package which combines improved version of cli clients from node](https://gi
 import "pkg.akt.dev/go/cli"
 ```
 
-### TypeScript
+### TS
 
 Source code is located within [ts](./ts) directory
-
-See [ts/README.md](./ts/README.md) for requirements and details.
 
 
 ## Protobuf

@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	txv1beta1 "cosmossdk.io/api/cosmos/tx/v1beta1"
 	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
@@ -33,7 +33,6 @@ type Server struct {
 	gatewaySrv  *http.Server
 	gatewayMux  *runtime.ServeMux
 	grpcConn    *grpc.ClientConn
-	encCfg      sdkutil.EncodingConfig
 	txConfig    client.TxConfig
 	group       *errgroup.Group
 	ctx         context.Context
@@ -56,43 +55,14 @@ func NewServer(cfg Config) (*Server, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	group, ctx := errgroup.WithContext(ctx)
 
+	encCfg := setupCodec()
 	grpcSrv := grpc.NewServer()
+	deploymentQuery, marketQuery := registerGRPCServices(grpcSrv, encCfg.Codec)
 
-	encCfg := sdkutil.MakeEncodingConfig()
-	codec := encCfg.Codec
-
-	dv1beta4.RegisterInterfaces(encCfg.InterfaceRegistry)
-	mv1beta5.RegisterInterfaces(encCfg.InterfaceRegistry)
-	dv1beta4.RegisterLegacyAminoCodec(encCfg.Amino)
-	mv1beta5.RegisterLegacyAminoCodec(encCfg.Amino)
-
-	deploymentQuery := query.NewDeploymentQuery(codec)
-	dv1beta4.RegisterQueryServer(grpcSrv, deploymentQuery)
-
-	marketQuery := query.NewMarketQuery(codec)
-	mv1beta5.RegisterQueryServer(grpcSrv, marketQuery)
-
-	txService := tx.NewService()
-	txv1beta1.RegisterServiceServer(grpcSrv, txService)
-
-	jsonpbMarshaler := &runtime.JSONPb{
-		OrigName:     true,
-		EmitDefaults: true,
-	}
-	mux := runtime.NewServeMux(
-		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpbMarshaler),
-	)
-
-	err := dv1beta4.RegisterQueryHandlerServer(ctx, mux, deploymentQuery)
+	mux, err := registerGatewayHandlers(ctx, deploymentQuery, marketQuery)
 	if err != nil {
 		cancel()
-		return nil, fmt.Errorf("failed to register deployment query handler: %w", err)
-	}
-
-	err = mv1beta5.RegisterQueryHandlerServer(ctx, mux, marketQuery)
-	if err != nil {
-		cancel()
-		return nil, fmt.Errorf("failed to register market query handler: %w", err)
+		return nil, err
 	}
 
 	gatewaySrv := &http.Server{
@@ -107,12 +77,53 @@ func NewServer(cfg Config) (*Server, error) {
 		grpcSrv:     grpcSrv,
 		gatewaySrv:  gatewaySrv,
 		gatewayMux:  mux,
-		encCfg:      encCfg,
 		txConfig:    encCfg.TxConfig,
 		group:       group,
 		ctx:         ctx,
 		cancel:      cancel,
 	}, nil
+}
+
+func setupCodec() sdkutil.EncodingConfig {
+	encCfg := sdkutil.MakeEncodingConfig()
+	dv1beta4.RegisterInterfaces(encCfg.InterfaceRegistry)
+	mv1beta5.RegisterInterfaces(encCfg.InterfaceRegistry)
+	dv1beta4.RegisterLegacyAminoCodec(encCfg.Amino)
+	mv1beta5.RegisterLegacyAminoCodec(encCfg.Amino)
+	return encCfg
+}
+
+func registerGRPCServices(grpcSrv *grpc.Server, codec codec.Codec) (*query.DeploymentQuery, *query.MarketQuery) {
+	deploymentQuery := query.NewDeploymentQuery(codec)
+	dv1beta4.RegisterQueryServer(grpcSrv, deploymentQuery)
+
+	marketQuery := query.NewMarketQuery(codec)
+	mv1beta5.RegisterQueryServer(grpcSrv, marketQuery)
+
+	txService := tx.NewService()
+	txv1beta1.RegisterServiceServer(grpcSrv, txService)
+
+	return deploymentQuery, marketQuery
+}
+
+func registerGatewayHandlers(ctx context.Context, deploymentQuery *query.DeploymentQuery, marketQuery *query.MarketQuery) (*runtime.ServeMux, error) {
+	jsonpbMarshaler := &runtime.JSONPb{
+		OrigName:     true,
+		EmitDefaults: true,
+	}
+	mux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpbMarshaler),
+	)
+
+	if err := dv1beta4.RegisterQueryHandlerServer(ctx, mux, deploymentQuery); err != nil {
+		return nil, fmt.Errorf("failed to register deployment query handler: %w", err)
+	}
+
+	if err := mv1beta5.RegisterQueryHandlerServer(ctx, mux, marketQuery); err != nil {
+		return nil, fmt.Errorf("failed to register market query handler: %w", err)
+	}
+
+	return mux, nil
 }
 
 func (s *Server) Start() error {
@@ -272,23 +283,7 @@ func (s *Server) registerBroadcastHandler(txClient txv1beta1.ServiceClient) {
 			}
 		}
 
-		if modeStr, ok := jsonReq["mode"].(string); ok {
-			modeStr = strings.ToUpper(modeStr)
-			switch modeStr {
-			case "BROADCAST_MODE_UNSPECIFIED", "BROADCAST_MODE_UNSPECIFIED_VALUE":
-				req.Mode = txv1beta1.BroadcastMode_BROADCAST_MODE_UNSPECIFIED
-			case "BROADCAST_MODE_BLOCK":
-				req.Mode = txv1beta1.BroadcastMode_BROADCAST_MODE_BLOCK
-			case "BROADCAST_MODE_SYNC":
-				req.Mode = txv1beta1.BroadcastMode_BROADCAST_MODE_SYNC
-			case "BROADCAST_MODE_ASYNC":
-				req.Mode = txv1beta1.BroadcastMode_BROADCAST_MODE_ASYNC
-			default:
-				req.Mode = txv1beta1.BroadcastMode_BROADCAST_MODE_SYNC
-			}
-		} else {
-			req.Mode = txv1beta1.BroadcastMode_BROADCAST_MODE_SYNC
-		}
+		req.Mode = parseBroadcastMode(jsonReq)
 
 		resp, err := txClient.BroadcastTx(ctx, &req)
 		if err != nil {
@@ -312,6 +307,26 @@ func (s *Server) startGatewayServer(lis net.Listener) error {
 		return s.gatewaySrv.Serve(lis)
 	})
 	return nil
+}
+
+func parseBroadcastMode(jsonReq map[string]interface{}) txv1beta1.BroadcastMode {
+	modeStr, ok := jsonReq["mode"].(string)
+	if !ok {
+		return txv1beta1.BroadcastMode_BROADCAST_MODE_SYNC
+	}
+
+	switch strings.ToUpper(modeStr) {
+	case "BROADCAST_MODE_UNSPECIFIED", "BROADCAST_MODE_UNSPECIFIED_VALUE":
+		return txv1beta1.BroadcastMode_BROADCAST_MODE_UNSPECIFIED
+	case "BROADCAST_MODE_BLOCK":
+		return txv1beta1.BroadcastMode_BROADCAST_MODE_BLOCK
+	case "BROADCAST_MODE_SYNC":
+		return txv1beta1.BroadcastMode_BROADCAST_MODE_SYNC
+	case "BROADCAST_MODE_ASYNC":
+		return txv1beta1.BroadcastMode_BROADCAST_MODE_ASYNC
+	default:
+		return txv1beta1.BroadcastMode_BROADCAST_MODE_SYNC
+	}
 }
 
 func (s *Server) validateTxBytes(txBytes []byte) error {

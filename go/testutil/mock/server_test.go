@@ -12,8 +12,14 @@ import (
 )
 
 func TestServer(t *testing.T) {
-	server := StartMockServer(t)
+	server, err := NewServer(Config{})
+	require.NoError(t, err)
+
+	err = server.Start()
+	require.NoError(t, err)
 	defer server.Stop()
+
+	time.Sleep(100 * time.Millisecond)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
