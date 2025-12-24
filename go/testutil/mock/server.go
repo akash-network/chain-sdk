@@ -42,6 +42,8 @@ type Server struct {
 	cancel           context.CancelFunc
 	lastDeploymentMu sync.Mutex
 	lastDeployment   *dv1beta4.MsgCreateDeployment
+	lastBidMu        sync.Mutex
+	lastBid          *mv1beta5.MsgCreateBid
 }
 
 type Config struct {
@@ -353,6 +355,21 @@ func (s *Server) registerDebugHandlers() {
 			http.Error(w, fmt.Sprintf("failed to marshal deployment: %v", err), http.StatusInternalServerError)
 		}
 	})
+
+	bidPattern := runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"mock", "last-bid"}, "", runtime.AssumeColonVerbOpt(false)))
+	s.gatewayMux.Handle("GET", bidPattern, func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+		bid := s.getLastBid()
+		if bid == nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		marshaler := &jsonpb.Marshaler{OrigName: true, EmitDefaults: true}
+		if err := marshaler.Marshal(w, bid); err != nil {
+			http.Error(w, fmt.Sprintf("failed to marshal bid: %v", err), http.StatusInternalServerError)
+		}
+	})
 }
 
 func (s *Server) setLastDeployment(msg *dv1beta4.MsgCreateDeployment) {
@@ -368,6 +385,22 @@ func (s *Server) getLastDeployment() *dv1beta4.MsgCreateDeployment {
 		return nil
 	}
 	copy := *s.lastDeployment
+	return &copy
+}
+
+func (s *Server) setLastBid(msg *mv1beta5.MsgCreateBid) {
+	s.lastBidMu.Lock()
+	defer s.lastBidMu.Unlock()
+	s.lastBid = msg
+}
+
+func (s *Server) getLastBid() *mv1beta5.MsgCreateBid {
+	s.lastBidMu.Lock()
+	defer s.lastBidMu.Unlock()
+	if s.lastBid == nil {
+		return nil
+	}
+	copy := *s.lastBid
 	return &copy
 }
 
@@ -412,6 +445,10 @@ func (s *Server) validateTxBytes(txBytes []byte) error {
 
 		if deploymentMsg, ok := msg.(*dv1beta4.MsgCreateDeployment); ok {
 			s.setLastDeployment(deploymentMsg)
+		}
+
+		if bidMsg, ok := msg.(*mv1beta5.MsgCreateBid); ok {
+			s.setLastBid(bidMsg)
 		}
 	}
 

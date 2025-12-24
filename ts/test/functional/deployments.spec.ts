@@ -13,8 +13,10 @@ import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
 import Long from "long";
 
+import { makeCosmoshubPath } from "@cosmjs/amino";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
+import { MsgCreateBid } from "../../src/generated/protos/akash/market/v1beta5/bidmsg.ts";
 import { createChainNodeWebSDK } from "../../src/sdk/chain/createChainNodeWebSDK.ts";
 import { getMessageType } from "../../src/sdk/getMessageType.ts";
 import { startMockServer } from "../util/mockServer.ts";
@@ -327,6 +329,57 @@ describe("Deployment Queries", () => {
 
       const decoded = await res.json();
       const price = decoded?.groups?.[0]?.resources?.[0]?.price;
+      expect(price?.denom).toBe("uakt");
+      expect(normalizeDec(price?.amount as string)).toBe(fractionalPrice);
+    });
+
+    it("encodes bid dec price and survives go decode", async () => {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
+        prefix: "akash",
+        hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
+      });
+      const accounts = await wallet.getAccounts();
+      const owner = accounts[0];
+      const provider = accounts[1] ?? accounts[0];
+      const sdk = createTestSDK(wallet);
+      const fractionalPrice = "0.123456";
+
+      const baseGroup = createBaseResourceGroup();
+      const resources = baseGroup.resources[0]?.resource;
+
+      if (!resources) {
+        throw new Error("missing base resources");
+      }
+
+      const bid: MsgCreateBid = {
+        id: {
+          owner: owner.address,
+          provider: provider.address,
+          dseq: Long.fromNumber(777),
+          gseq: 1,
+          oseq: 1,
+          bseq: 0,
+        },
+        price: { denom: "uakt", amount: fractionalPrice },
+        deposit: {
+          amount: { denom: "uakt", amount: "5000000" },
+          sources: [Source.balance],
+        },
+        resourcesOffer: [{
+          resources: resources,
+          count: 1,
+        }],
+      };
+
+      await sdk.akash.market.v1beta5.createBid(bid, { memo: "bid fractional price" });
+
+      const res = await fetch(`${mockServer.gatewayUrl}/mock/last-bid`);
+      expect(res.ok).toBe(true);
+
+      const decoded = await res.json();
+      expect(decoded?.id?.owner).toBe(owner.address);
+      expect(decoded?.id?.provider).toBe(provider.address);
+      const price = decoded?.price;
       expect(price?.denom).toBe("uakt");
       expect(normalizeDec(price?.amount as string)).toBe(fractionalPrice);
     });
