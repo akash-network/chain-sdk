@@ -462,5 +462,54 @@ describe("Deployment Queries", () => {
       expect(normalizedActual).toEqual(normalizedExpected);
       expect(normalizedActual).toEqual(normalizeValue(decoded));
     });
+
+    it("broadcasts tx via SYNC mode and receives tx hash", async () => {
+      const wallet = await createTestWallet();
+      const [account] = await wallet.getAccounts();
+      
+      const txClient = createGatewayTxClient({
+        gatewayUrl: mockServer.gatewayUrl,
+        signer: wallet,
+        chainId: "akashnet-2",
+        getMessageType,
+      });
+
+      const deployment = createInvalidDeployment(account.address, 888888, {
+        hash: new Uint8Array(Array.from({ length: 32 }, (_, i) => i + 100)),
+        groups: [{
+          name: "broadcast-test",
+          requirements: { signedBy: { allOf: [], anyOf: [] }, attributes: [] },
+          resources: [{
+            resource: {
+              id: 1,
+              cpu: { units: { val: new TextEncoder().encode("100") }, attributes: [] },
+              memory: { quantity: { val: new TextEncoder().encode("134217728") }, attributes: [] },
+              storage: [{ name: "main", quantity: { val: new TextEncoder().encode("1073741824") }, attributes: [] }],
+              gpu: { units: { val: new TextEncoder().encode("0") }, attributes: [] },
+              endpoints: [],
+            },
+            count: 1,
+            price: { denom: "uakt", amount: "1000" },
+          }],
+        }],
+      });
+
+      const messages = [{
+        typeUrl: "/akash.deployment.v1beta4.MsgCreateDeployment",
+        value: deployment,
+      }];
+
+      const fee = await txClient.estimateFee(messages, "broadcast test");
+      const signed = await txClient.sign(messages, fee, "broadcast test");
+      const result = await txClient.broadcast(signed);
+
+      expect(result).toBeDefined();
+      expect(result.code).toBe(0);
+      expect(result.transactionHash).toBeDefined();
+      expect(result.transactionHash.length).toBeGreaterThan(0);
+      expect(Number(result.height)).toBeGreaterThan(0);
+      expect(result.gasUsed).toBeGreaterThan(0n);
+      expect(result.gasWanted).toBeGreaterThan(0n);
+    });
   });
 });
