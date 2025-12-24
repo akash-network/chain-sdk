@@ -44,6 +44,10 @@ type Server struct {
 	lastDeployment   *dv1beta4.MsgCreateDeployment
 	lastBidMu        sync.Mutex
 	lastBid          *mv1beta5.MsgCreateBid
+	lastLeaseMu      sync.Mutex
+	lastLease        *mv1beta5.MsgCreateLease
+	lastCloseBidMu   sync.Mutex
+	lastCloseBid     *mv1beta5.MsgCloseBid
 }
 
 type Config struct {
@@ -370,6 +374,36 @@ func (s *Server) registerDebugHandlers() {
 			http.Error(w, fmt.Sprintf("failed to marshal bid: %v", err), http.StatusInternalServerError)
 		}
 	})
+
+	leasePattern := runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"mock", "last-lease"}, "", runtime.AssumeColonVerbOpt(false)))
+	s.gatewayMux.Handle("GET", leasePattern, func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+		lease := s.getLastLease()
+		if lease == nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		marshaler := &jsonpb.Marshaler{OrigName: true, EmitDefaults: true}
+		if err := marshaler.Marshal(w, lease); err != nil {
+			http.Error(w, fmt.Sprintf("failed to marshal lease: %v", err), http.StatusInternalServerError)
+		}
+	})
+
+	closeBidPattern := runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"mock", "last-close-bid"}, "", runtime.AssumeColonVerbOpt(false)))
+	s.gatewayMux.Handle("GET", closeBidPattern, func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+		closeBid := s.getLastCloseBid()
+		if closeBid == nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		marshaler := &jsonpb.Marshaler{OrigName: true, EmitDefaults: true}
+		if err := marshaler.Marshal(w, closeBid); err != nil {
+			http.Error(w, fmt.Sprintf("failed to marshal close bid: %v", err), http.StatusInternalServerError)
+		}
+	})
 }
 
 func (s *Server) setLastDeployment(msg *dv1beta4.MsgCreateDeployment) {
@@ -401,6 +435,38 @@ func (s *Server) getLastBid() *mv1beta5.MsgCreateBid {
 		return nil
 	}
 	copy := *s.lastBid
+	return &copy
+}
+
+func (s *Server) setLastLease(msg *mv1beta5.MsgCreateLease) {
+	s.lastLeaseMu.Lock()
+	defer s.lastLeaseMu.Unlock()
+	s.lastLease = msg
+}
+
+func (s *Server) getLastLease() *mv1beta5.MsgCreateLease {
+	s.lastLeaseMu.Lock()
+	defer s.lastLeaseMu.Unlock()
+	if s.lastLease == nil {
+		return nil
+	}
+	copy := *s.lastLease
+	return &copy
+}
+
+func (s *Server) setLastCloseBid(msg *mv1beta5.MsgCloseBid) {
+	s.lastCloseBidMu.Lock()
+	defer s.lastCloseBidMu.Unlock()
+	s.lastCloseBid = msg
+}
+
+func (s *Server) getLastCloseBid() *mv1beta5.MsgCloseBid {
+	s.lastCloseBidMu.Lock()
+	defer s.lastCloseBidMu.Unlock()
+	if s.lastCloseBid == nil {
+		return nil
+	}
+	copy := *s.lastCloseBid
 	return &copy
 }
 
@@ -449,6 +515,14 @@ func (s *Server) validateTxBytes(txBytes []byte) error {
 
 		if bidMsg, ok := msg.(*mv1beta5.MsgCreateBid); ok {
 			s.setLastBid(bidMsg)
+		}
+
+		if leaseMsg, ok := msg.(*mv1beta5.MsgCreateLease); ok {
+			s.setLastLease(leaseMsg)
+		}
+
+		if closeBidMsg, ok := msg.(*mv1beta5.MsgCloseBid); ok {
+			s.setLastCloseBid(closeBidMsg)
 		}
 	}
 

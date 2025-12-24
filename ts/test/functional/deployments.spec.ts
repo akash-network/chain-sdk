@@ -16,7 +16,9 @@ import Long from "long";
 import { makeCosmoshubPath } from "@cosmjs/amino";
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
-import { MsgCreateBid } from "../../src/generated/protos/akash/market/v1beta5/bidmsg.ts";
+import { MsgCreateBid, MsgCloseBid } from "../../src/generated/protos/akash/market/v1beta5/bidmsg.ts";
+import { MsgCreateLease } from "../../src/generated/protos/akash/market/v1beta5/leasemsg.ts";
+import { LeaseClosedReason } from "../../src/generated/protos/akash/market/v1/types.ts";
 import { createChainNodeWebSDK } from "../../src/sdk/chain/createChainNodeWebSDK.ts";
 import { getMessageType } from "../../src/sdk/getMessageType.ts";
 import { startMockServer } from "../util/mockServer.ts";
@@ -91,12 +93,26 @@ const normalizeValue = (value: any, key?: string): any => {
       }
       return value;
     }
+    if (key === "reason" && value.startsWith("lease_closed_")) {
+      return value;
+    }
     return value;
   }
 
   if (typeof value === "number") {
     if (key === "sources") {
       return value === 1 ? "balance" : String(value);
+    }
+    if (key === "reason") {
+      const reasonNames: Record<number, string> = {
+        0: "lease_closed_invalid",
+        1: "lease_closed_owner",
+        10000: "lease_closed_reason_unstable",
+        10001: "lease_closed_reason_decommission",
+        10002: "lease_closed_reason_unspecified",
+        10003: "lease_closed_reason_manifest_timeout",
+      };
+      return reasonNames[value] || String(value);
     }
     return value;
   }
@@ -510,6 +526,80 @@ describe("Deployment Queries", () => {
       expect(Number(result.height)).toBeGreaterThan(0);
       expect(result.gasUsed).toBeGreaterThan(0n);
       expect(result.gasWanted).toBeGreaterThan(0n);
+    });
+
+    it("creates lease and verifies go decode", async () => {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
+        prefix: "akash",
+        hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
+      });
+      const accounts = await wallet.getAccounts();
+      const owner = accounts[0];
+      const provider = accounts[1] ?? accounts[0];
+      const sdk = createTestSDK(wallet);
+
+      const lease: MsgCreateLease = {
+        bidId: {
+          owner: owner.address,
+          provider: provider.address,
+          dseq: Long.fromNumber(555),
+          gseq: 1,
+          oseq: 1,
+          bseq: 0,
+        },
+      };
+
+      await sdk.akash.market.v1beta5.createLease(lease, { memo: "create lease test" });
+
+      const res = await fetch(`${mockServer.gatewayUrl}/mock/last-lease`);
+      expect(res.ok).toBe(true);
+
+      const decoded = await res.json();
+      expect(decoded?.bid_id?.owner).toBe(owner.address);
+      expect(decoded?.bid_id?.provider).toBe(provider.address);
+      expect(decoded?.bid_id?.dseq).toBe("555");
+
+      const normalizedExpected = normalizeValue(lease);
+      const normalizedActual = normalizeValue(decoded);
+      expect(normalizedActual).toEqual(normalizedExpected);
+    });
+
+    it("closes bid and verifies go decode", async () => {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
+        prefix: "akash",
+        hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
+      });
+      const accounts = await wallet.getAccounts();
+      const owner = accounts[0];
+      const provider = accounts[1] ?? accounts[0];
+      const sdk = createTestSDK(wallet);
+
+      const closeBid: MsgCloseBid = {
+        id: {
+          owner: owner.address,
+          provider: provider.address,
+          dseq: Long.fromNumber(444),
+          gseq: 1,
+          oseq: 1,
+          bseq: 0,
+        },
+        reason: LeaseClosedReason.lease_closed_reason_unstable,
+      };
+
+      await sdk.akash.market.v1beta5.closeBid(closeBid, { memo: "close bid test" });
+
+      const res = await fetch(`${mockServer.gatewayUrl}/mock/last-close-bid`);
+      expect(res.ok).toBe(true);
+
+      const decoded = await res.json();
+      expect(decoded?.id?.owner).toBe(owner.address);
+      expect(decoded?.id?.provider).toBe(provider.address);
+      expect(decoded?.id?.dseq).toBe("444");
+      expect(decoded?.reason).toBe("lease_closed_reason_unstable");
+
+      const normalizedExpected = normalizeValue(closeBid);
+      const normalizedActual = normalizeValue(decoded);
+      expect(normalizedActual).toEqual(normalizedExpected);
     });
   });
 });
