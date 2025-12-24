@@ -37,6 +37,73 @@ const normalizeDec = (value: string) => {
   return trimmedFrac ? `${intPart}.${trimmedFrac}` : intPart;
 };
 
+const toSnake = (input: string) => input.replace(/([A-Z])/g, "_$1").toLowerCase();
+
+const isPrintableAscii = (input: string) => /^[\x20-\x7E]*$/.test(input);
+
+const decodeMaybeBase64Ascii = (input: string): string | null => {
+  if (!/^[A-Za-z0-9+/=]+$/.test(input)) return null;
+  try {
+    const decoded = Buffer.from(input, "base64").toString("utf8");
+    return isPrintableAscii(decoded) ? decoded : null;
+  } catch {
+    return null;
+  }
+};
+
+const normalizeValue = (value: any, key?: string): any => {
+  if (value instanceof Uint8Array) {
+    const asString = new TextDecoder().decode(value);
+    const result = isPrintableAscii(asString) ? asString : Buffer.from(value).toString("base64");
+    if (key === "val" && result === "0") {
+      return "";
+    }
+    return result;
+  }
+
+  if (value && typeof value === "object" && typeof (value as any).toString === "function" && ("low" in (value as any) || "high" in (value as any))) {
+    return (value as any).toString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => normalizeValue(item, key));
+  }
+
+  if (value && typeof value === "object") {
+    const normalized: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) {
+      normalized[toSnake(k)] = normalizeValue(v, k);
+    }
+    return normalized;
+  }
+
+  if (typeof value === "string") {
+    if (/^\d+\.\d+0*$/.test(value)) {
+      return normalizeDec(value);
+    }
+    if (key === "val") {
+      if (value === "") {
+        return "";
+      }
+      const decoded = decodeMaybeBase64Ascii(value);
+      if (decoded !== null) {
+        return decoded === "0" ? "" : decoded;
+      }
+      return value;
+    }
+    return value;
+  }
+
+  if (typeof value === "number") {
+    if (key === "sources") {
+      return value === 1 ? "balance" : String(value);
+    }
+    return value;
+  }
+
+  return value;
+};
+
 const createBaseResourceGroup = () => ({
   name: "test-group",
   requirements: {
@@ -331,6 +398,12 @@ describe("Deployment Queries", () => {
       const price = decoded?.groups?.[0]?.resources?.[0]?.price;
       expect(price?.denom).toBe("uakt");
       expect(normalizeDec(price?.amount as string)).toBe(fractionalPrice);
+
+      const normalizedExpected = normalizeValue(deployment);
+      const normalizedActual = normalizeValue(decoded);
+
+      expect(normalizedActual).toEqual(normalizedExpected);
+      expect(normalizedActual).toEqual(normalizeValue(decoded));
     });
 
     it("encodes bid dec price and survives go decode", async () => {
@@ -382,6 +455,12 @@ describe("Deployment Queries", () => {
       const price = decoded?.price;
       expect(price?.denom).toBe("uakt");
       expect(normalizeDec(price?.amount as string)).toBe(fractionalPrice);
+
+      const normalizedExpected = normalizeValue(bid);
+      const normalizedActual = normalizeValue(decoded);
+
+      expect(normalizedActual).toEqual(normalizedExpected);
+      expect(normalizedActual).toEqual(normalizeValue(decoded));
     });
   });
 });
