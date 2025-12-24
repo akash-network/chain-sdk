@@ -29,6 +29,12 @@ const TEST_MNEMONIC = "abandon abandon abandon abandon abandon abandon abandon a
 const createTestWallet = async () => 
   DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, { prefix: "akash" });
 
+const normalizeDec = (value: string) => {
+  const [intPart, fracPart = ""] = value.split(".");
+  const trimmedFrac = fracPart.replace(/0+$/, "");
+  return trimmedFrac ? `${intPart}.${trimmedFrac}` : intPart;
+};
+
 const createBaseResourceGroup = () => ({
   name: "test-group",
   requirements: {
@@ -280,6 +286,49 @@ describe("Deployment Queries", () => {
           memo: "Test negative price",
         }),
       ).rejects.toThrow(/invalid price object/i);
+    });
+
+    it("encodes fractional price for go decode", async () => {
+      const wallet = await createTestWallet();
+      const [account] = await wallet.getAccounts();
+      const sdk = createTestSDK(wallet);
+      const fractionalPrice = "0.123456";
+
+      const fractionalGroup = (() => {
+        const base = createBaseResourceGroup();
+        return {
+          ...base,
+          resources: base.resources.map(resource => ({
+            ...resource,
+            resource: {
+              ...resource.resource,
+              storage: [{
+                name: "main",
+                quantity: { val: new TextEncoder().encode("1073741824") },
+                attributes: [],
+              }],
+            },
+            price: { ...resource.price, amount: fractionalPrice },
+          })),
+        };
+      })();
+
+      const deployment = createInvalidDeployment(account.address, 999995, {
+        groups: [fractionalGroup],
+        hash: new Uint8Array(Array.from({ length: 32 }, (_, i) => i + 1)),
+      });
+
+      await sdk.akash.deployment.v1beta4.createDeployment(deployment, {
+        memo: "fractional price",
+      });
+
+      const res = await fetch(`${mockServer.gatewayUrl}/mock/last-deployment`);
+      expect(res.ok).toBe(true);
+
+      const decoded = await res.json();
+      const price = decoded?.groups?.[0]?.resources?.[0]?.price;
+      expect(price?.denom).toBe("uakt");
+      expect(normalizeDec(price?.amount as string)).toBe(fractionalPrice);
     });
   });
 });

@@ -9,11 +9,13 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gogo/protobuf/jsonpb"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -28,16 +30,18 @@ import (
 )
 
 type Server struct {
-	grpcAddr    string
-	gatewayAddr string
-	grpcSrv     *grpc.Server
-	gatewaySrv  *http.Server
-	gatewayMux  *runtime.ServeMux
-	grpcConn    *grpc.ClientConn
-	txConfig    client.TxConfig
-	group       *errgroup.Group
-	ctx         context.Context
-	cancel      context.CancelFunc
+	grpcAddr         string
+	gatewayAddr      string
+	grpcSrv          *grpc.Server
+	gatewaySrv       *http.Server
+	gatewayMux       *runtime.ServeMux
+	grpcConn         *grpc.ClientConn
+	txConfig         client.TxConfig
+	group            *errgroup.Group
+	ctx              context.Context
+	cancel           context.CancelFunc
+	lastDeploymentMu sync.Mutex
+	lastDeployment   *dv1beta4.MsgCreateDeployment
 }
 
 type Config struct {
@@ -72,7 +76,7 @@ func NewServer(cfg Config) (*Server, error) {
 		IdleTimeout:       120 * time.Second,
 	}
 
-	return &Server{
+	server := &Server{
 		grpcAddr:    cfg.GRPCAddr,
 		gatewayAddr: cfg.GatewayAddr,
 		grpcSrv:     grpcSrv,
@@ -82,7 +86,11 @@ func NewServer(cfg Config) (*Server, error) {
 		group:       group,
 		ctx:         ctx,
 		cancel:      cancel,
-	}, nil
+	}
+
+	server.registerDebugHandlers()
+
+	return server, nil
 }
 
 func setupCodec() sdkutil.EncodingConfig {
@@ -330,6 +338,39 @@ func (s *Server) startGatewayServer(lis net.Listener) error {
 	return nil
 }
 
+func (s *Server) registerDebugHandlers() {
+	pattern := runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"mock", "last-deployment"}, "", runtime.AssumeColonVerbOpt(false)))
+	s.gatewayMux.Handle("GET", pattern, func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+		deployment := s.getLastDeployment()
+		if deployment == nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		marshaler := &jsonpb.Marshaler{OrigName: true, EmitDefaults: true}
+		if err := marshaler.Marshal(w, deployment); err != nil {
+			http.Error(w, fmt.Sprintf("failed to marshal deployment: %v", err), http.StatusInternalServerError)
+		}
+	})
+}
+
+func (s *Server) setLastDeployment(msg *dv1beta4.MsgCreateDeployment) {
+	s.lastDeploymentMu.Lock()
+	defer s.lastDeploymentMu.Unlock()
+	s.lastDeployment = msg
+}
+
+func (s *Server) getLastDeployment() *dv1beta4.MsgCreateDeployment {
+	s.lastDeploymentMu.Lock()
+	defer s.lastDeploymentMu.Unlock()
+	if s.lastDeployment == nil {
+		return nil
+	}
+	copy := *s.lastDeployment
+	return &copy
+}
+
 func parseBroadcastMode(jsonReq map[string]interface{}) txv1beta1.BroadcastMode {
 	modeStr, ok := jsonReq["mode"].(string)
 	if !ok {
@@ -367,6 +408,10 @@ func (s *Server) validateTxBytes(txBytes []byte) error {
 			if err := validator.ValidateBasic(); err != nil {
 				return fmt.Errorf("message %d validation failed: %w", i, err)
 			}
+		}
+
+		if deploymentMsg, ok := msg.(*dv1beta4.MsgCreateDeployment); ok {
+			s.setLastDeployment(deploymentMsg)
 		}
 	}
 
