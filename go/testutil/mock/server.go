@@ -43,7 +43,6 @@ type Server struct {
 type Config struct {
 	GRPCAddr    string
 	GatewayAddr string
-	DataDir     string
 }
 
 func NewServer(cfg Config) (*Server, error) {
@@ -52,9 +51,6 @@ func NewServer(cfg Config) (*Server, error) {
 	}
 	if cfg.GatewayAddr == "" {
 		cfg.GatewayAddr = "127.0.0.1:0"
-	}
-	if cfg.DataDir == "" {
-		cfg.DataDir = "testutil/mock/data"
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -70,10 +66,10 @@ func NewServer(cfg Config) (*Server, error) {
 	dv1beta4.RegisterLegacyAminoCodec(encCfg.Amino)
 	mv1beta5.RegisterLegacyAminoCodec(encCfg.Amino)
 
-	deploymentQuery := query.NewDeploymentQuery(cfg.DataDir, codec)
+	deploymentQuery := query.NewDeploymentQuery(codec)
 	dv1beta4.RegisterQueryServer(grpcSrv, deploymentQuery)
 
-	marketQuery := query.NewMarketQuery(cfg.DataDir, codec)
+	marketQuery := query.NewMarketQuery(codec)
 	mv1beta5.RegisterQueryServer(grpcSrv, marketQuery)
 
 	txService := tx.NewService()

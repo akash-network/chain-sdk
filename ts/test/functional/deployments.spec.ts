@@ -12,7 +12,6 @@ import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
 import Long from "long";
-import path from "path";
 
 import { Source } from "../../src/generated/protos/akash/base/deposit/v1/deposit.ts";
 import { MsgCreateDeployment } from "../../src/generated/protos/akash/deployment/v1beta4/deploymentmsg.ts";
@@ -71,8 +70,7 @@ describe("Deployment Queries", () => {
   let mockServer: Awaited<ReturnType<typeof startMockServer>>;
 
   beforeAll(async () => {
-    const dataDir = path.resolve(__dirname, "../../../go/testutil/mock/data");
-    mockServer = await startMockServer(dataDir);
+    mockServer = await startMockServer();
   }, 180000);
 
   afterAll(async () => {

@@ -8,11 +8,8 @@ export interface MockServer {
   stop: () => Promise<void>;
 }
 
-export async function startMockServer(dataDir: string): Promise<MockServer> {
+export async function startMockServer(): Promise<MockServer> {
   const projectRoot = path.resolve(__dirname, "../../..");
-  const absoluteDataDir = path.isAbsolute(dataDir) 
-    ? dataDir 
-    : path.resolve(projectRoot, dataDir);
 
   const mockServerBin = process.env.MOCK_SERVER_BIN;
   
@@ -22,7 +19,7 @@ export async function startMockServer(dataDir: string): Promise<MockServer> {
 
   if (mockServerBin && existsSync(mockServerBin)) {
     command = mockServerBin;
-    args = ["--data-dir", absoluteDataDir];
+    args = [];
     cwd = projectRoot;
   } else {
     const goDir = path.join(projectRoot, "go");
@@ -30,7 +27,7 @@ export async function startMockServer(dataDir: string): Promise<MockServer> {
     const modFlag = existsSync(vendorDir) ? "-mod=vendor" : "-mod=readonly";
     
     command = "go";
-    args = ["run", modFlag, "testutil/mock/cmd/server/main.go", "--data-dir", absoluteDataDir];
+    args = ["run", modFlag, "testutil/mock/cmd/server/main.go"];
     cwd = goDir;
   }
 

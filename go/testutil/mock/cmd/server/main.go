@@ -12,13 +12,9 @@ import (
 )
 
 func main() {
-	var dataDir string
-	flag.StringVar(&dataDir, "data-dir", "testutil/mock/data", "Directory containing JSON fixtures")
 	flag.Parse()
 
-	server, err := mock.NewServer(mock.Config{
-		DataDir: dataDir,
-	})
+	server, err := mock.NewServer(mock.Config{})
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}

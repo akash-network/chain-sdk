@@ -12,7 +12,7 @@ import (
 )
 
 func TestServer(t *testing.T) {
-	server := StartMockServer(t, "../../testutil/mock/data")
+	server := StartMockServer(t)
 	defer server.Stop()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -45,4 +45,3 @@ func TestServer(t *testing.T) {
 		require.Contains(t, response, "deployments", "Response should contain 'deployments' field")
 	}
 }
-

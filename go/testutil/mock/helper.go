@@ -5,13 +5,12 @@ import (
 	"time"
 )
 
-func StartMockServer(t testing.TB, dataDir string) *Server {
+func StartMockServer(t testing.TB) *Server {
 	t.Helper()
 
 	cfg := Config{
 		GRPCAddr:    "127.0.0.1:0",
 		GatewayAddr: "127.0.0.1:0",
-		DataDir:     dataDir,
 	}
 
 	server, err := NewServer(cfg)
@@ -27,4 +26,3 @@ func StartMockServer(t testing.TB, dataDir string) *Server {
 
 	return server
 }
-
