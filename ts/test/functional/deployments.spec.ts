@@ -742,5 +742,74 @@ describe("Deployment Queries", () => {
       const normalizedActual = normalizeValue(decoded);
       expect(normalizedActual).toEqual(normalizedExpected);
     });
+
+    it("handles multi-message tx with deployment and bid", async () => {
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
+        prefix: "akash",
+        hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
+      });
+      const accounts = await wallet.getAccounts();
+      const owner = accounts[0];
+      const provider = accounts[1] ?? accounts[0];
+      const sdk = createTestSDK(wallet);
+
+      const deployment = createInvalidDeployment(owner.address, 111111, {
+        hash: new Uint8Array(Array.from({ length: 32 }, (_, i) => i + 50)),
+        groups: [{
+          name: "multi-msg-test",
+          requirements: { signedBy: { allOf: [], anyOf: [] }, attributes: [] },
+          resources: [{
+            resource: {
+              id: 1,
+              cpu: { units: { val: new TextEncoder().encode("100") }, attributes: [] },
+              memory: { quantity: { val: new TextEncoder().encode("134217728") }, attributes: [] },
+              storage: [{ name: "main", quantity: { val: new TextEncoder().encode("1073741824") }, attributes: [] }],
+              gpu: { units: { val: new TextEncoder().encode("0") }, attributes: [] },
+              endpoints: [],
+            },
+            count: 1,
+            price: { denom: "uakt", amount: "2000" },
+          }],
+        }],
+      });
+
+      await sdk.akash.deployment.v1beta4.createDeployment(deployment, { memo: "deployment in multi-msg" });
+
+      const baseGroup = createBaseResourceGroup();
+      const resources = baseGroup.resources[0]?.resource;
+      if (!resources) throw new Error("missing base resources");
+
+      const bid: MsgCreateBid = {
+        id: {
+          owner: owner.address,
+          provider: provider.address,
+          dseq: Long.fromNumber(111111),
+          gseq: 1,
+          oseq: 1,
+          bseq: 0,
+        },
+        price: { denom: "uakt", amount: "0.0015" },
+        deposit: {
+          amount: { denom: "uakt", amount: "5000000" },
+          sources: [Source.balance],
+        },
+        resourcesOffer: [{ resources, count: 1 }],
+      };
+
+      await sdk.akash.market.v1beta5.createBid(bid, { memo: "bid in multi-msg" });
+
+      const deploymentRes = await fetch(`${mockServer.gatewayUrl}/mock/last-deployment`);
+      expect(deploymentRes.ok).toBe(true);
+      const decodedDeployment = await deploymentRes.json();
+      expect(decodedDeployment?.id?.owner).toBe(owner.address);
+      expect(decodedDeployment?.id?.dseq).toBe("111111");
+
+      const bidRes = await fetch(`${mockServer.gatewayUrl}/mock/last-bid`);
+      expect(bidRes.ok).toBe(true);
+      const decodedBid = await bidRes.json();
+      expect(decodedBid?.id?.owner).toBe(owner.address);
+      expect(decodedBid?.id?.dseq).toBe("111111");
+      expect(normalizeDec(decodedBid?.price?.amount as string)).toBe("0.0015");
+    });
   });
 });
