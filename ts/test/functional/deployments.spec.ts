@@ -86,6 +86,7 @@ describe("Deployment Queries", () => {
       txClient = createGatewayTxClient({
         gatewayUrl: mockServer.gatewayUrl,
         signer: wallet,
+        chainId: "akashnet-2",
         getMessageType,
       });
     }

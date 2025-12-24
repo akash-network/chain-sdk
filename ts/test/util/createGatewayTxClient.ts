@@ -23,6 +23,8 @@ const DEFAULT_GAS_MULTIPLIER = 1.3;
 export interface GatewayTxClientOptions {
   gatewayUrl: string;
   signer: OfflineSigner;
+  chainId: string;
+  accountNumber?: number;
   gasMultiplier?: number;
   defaultGasPrice?: string;
   getMessageType: (typeUrl: string) => any;
@@ -168,7 +170,7 @@ export function createGatewayTxClient(options: GatewayTxClientOptions): TxClient
           },
           multi: undefined,
         },
-        sequence: Long.UZERO,
+        sequence: Long.UZERO, // Mock uses sequence 0 - mock server doesn't validate sequence numbers
       };
 
       const authInfo: AuthInfo = {
@@ -182,8 +184,8 @@ export function createGatewayTxClient(options: GatewayTxClientOptions): TxClient
       const signDoc = makeSignDoc(
         bodyBytes,
         authInfoBytes,
-        "akashnet-2",
-        0,
+        options.chainId,
+        options.accountNumber ?? 0,
       );
 
       if (!("signDirect" in options.signer) || typeof options.signer.signDirect !== "function") {
