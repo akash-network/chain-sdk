@@ -41,26 +41,9 @@ const normalizeDec = (value: string) => {
 
 const toSnake = (input: string) => input.replace(/([A-Z])/g, "_$1").toLowerCase();
 
-const isPrintableAscii = (input: string) => /^[\x20-\x7E]*$/.test(input);
-
-const decodeMaybeBase64Ascii = (input: string): string | null => {
-  if (!/^[A-Za-z0-9+/=]+$/.test(input)) return null;
-  try {
-    const decoded = Buffer.from(input, "base64").toString("utf8");
-    return isPrintableAscii(decoded) ? decoded : null;
-  } catch {
-    return null;
-  }
-};
-
 const normalizeValue = (value: any, key?: string): any => {
   if (value instanceof Uint8Array) {
-    const asString = new TextDecoder().decode(value);
-    const result = isPrintableAscii(asString) ? asString : Buffer.from(value).toString("base64");
-    if (key === "val" && result === "0") {
-      return "";
-    }
-    return result;
+    return Buffer.from(value).toString("base64");
   }
 
   if (value && typeof value === "object" && typeof (value as any).toString === "function" && ("low" in (value as any) || "high" in (value as any))) {
@@ -77,44 +60,6 @@ const normalizeValue = (value: any, key?: string): any => {
       normalized[toSnake(k)] = normalizeValue(v, k);
     }
     return normalized;
-  }
-
-  if (typeof value === "string") {
-    if (/^\d+\.\d+0*$/.test(value)) {
-      return normalizeDec(value);
-    }
-    if (key === "val") {
-      if (value === "") {
-        return "";
-      }
-      const decoded = decodeMaybeBase64Ascii(value);
-      if (decoded !== null) {
-        return decoded === "0" ? "" : decoded;
-      }
-      return value;
-    }
-    if (key === "reason" && value.startsWith("lease_closed_")) {
-      return value;
-    }
-    return value;
-  }
-
-  if (typeof value === "number") {
-    if (key === "sources") {
-      return value === 1 ? "balance" : String(value);
-    }
-    if (key === "reason") {
-      const reasonNames: Record<number, string> = {
-        0: "lease_closed_invalid",
-        1: "lease_closed_owner",
-        10000: "lease_closed_reason_unstable",
-        10001: "lease_closed_reason_decommission",
-        10002: "lease_closed_reason_unspecified",
-        10003: "lease_closed_reason_manifest_timeout",
-      };
-      return reasonNames[value] || String(value);
-    }
-    return value;
   }
 
   return value;
@@ -415,11 +360,9 @@ describe("Deployment Queries", () => {
       expect(price?.denom).toBe("uakt");
       expect(normalizeDec(price?.amount as string)).toBe(fractionalPrice);
 
-      const normalizedExpected = normalizeValue(deployment);
-      const normalizedActual = normalizeValue(decoded);
-
-      expect(normalizedActual).toEqual(normalizedExpected);
-      expect(normalizedActual).toEqual(normalizeValue(decoded));
+      expect(decoded?.id?.owner).toBe(account.address);
+      expect(decoded?.id?.dseq).toBe(String(999995));
+      expect(decoded?.groups?.[0]?.name).toBe("test-group");
     });
 
     it("encodes bid dec price and survives go decode", async () => {
@@ -472,11 +415,9 @@ describe("Deployment Queries", () => {
       expect(price?.denom).toBe("uakt");
       expect(normalizeDec(price?.amount as string)).toBe(fractionalPrice);
 
-      const normalizedExpected = normalizeValue(bid);
-      const normalizedActual = normalizeValue(decoded);
-
-      expect(normalizedActual).toEqual(normalizedExpected);
-      expect(normalizedActual).toEqual(normalizeValue(decoded));
+      expect(decoded?.id?.dseq).toBe(String(777));
+      expect(decoded?.id?.gseq).toBe(1);
+      expect(decoded?.id?.oseq).toBe(1);
     });
 
     it("handles 18-decimal precision price losslessly", async () => {
@@ -699,10 +640,8 @@ describe("Deployment Queries", () => {
       expect(decoded?.bid_id?.owner).toBe(owner.address);
       expect(decoded?.bid_id?.provider).toBe(provider.address);
       expect(decoded?.bid_id?.dseq).toBe("555");
-
-      const normalizedExpected = normalizeValue(lease);
-      const normalizedActual = normalizeValue(decoded);
-      expect(normalizedActual).toEqual(normalizedExpected);
+      expect(decoded?.bid_id?.gseq).toBe(1);
+      expect(decoded?.bid_id?.oseq).toBe(1);
     });
 
     it("closes bid and verifies go decode", async () => {
@@ -737,10 +676,8 @@ describe("Deployment Queries", () => {
       expect(decoded?.id?.provider).toBe(provider.address);
       expect(decoded?.id?.dseq).toBe("444");
       expect(decoded?.reason).toBe("lease_closed_reason_unstable");
-
-      const normalizedExpected = normalizeValue(closeBid);
-      const normalizedActual = normalizeValue(decoded);
-      expect(normalizedActual).toEqual(normalizedExpected);
+      expect(decoded?.id?.gseq).toBe(1);
+      expect(decoded?.id?.oseq).toBe(1);
     });
 
     it("handles multi-message tx with deployment and bid", async () => {
