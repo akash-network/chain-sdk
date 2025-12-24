@@ -183,6 +183,7 @@ func (s *Server) createListeners() (grpcLis, gatewayLis net.Listener, err error)
 
 	gatewayLis, err = net.Listen("tcp", s.gatewayAddr)
 	if err != nil {
+		_ = grpcLis.Close()
 		return nil, nil, fmt.Errorf("failed to listen on gateway addr: %w", err)
 	}
 	s.gatewayAddr = gatewayLis.Addr().String()
