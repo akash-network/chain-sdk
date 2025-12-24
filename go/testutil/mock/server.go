@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -126,25 +127,37 @@ func registerGatewayHandlers(ctx context.Context, deploymentQuery *query.Deploym
 	return mux, nil
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start() (err error) {
 	grpcLis, gatewayLis, err := s.createListeners()
 	if err != nil {
 		return err
 	}
 
 	if err := s.startGRPCServer(grpcLis); err != nil {
+		_ = gatewayLis.Close()
 		return err
 	}
 
-	if err := s.waitForGRPCReady(); err != nil {
+	defer func() {
+		if err != nil {
+			_ = s.Stop()
+			_ = gatewayLis.Close()
+		}
+	}()
+
+	if err = s.waitForGRPCReady(); err != nil {
 		return err
 	}
 
-	if err := s.setupTxHandlers(); err != nil {
+	if err = s.setupTxHandlers(); err != nil {
 		return err
 	}
 
-	return s.startGatewayServer(gatewayLis)
+	if err = s.startGatewayServer(gatewayLis); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Server) createListeners() (grpcLis, gatewayLis net.Listener, err error) {
@@ -165,7 +178,11 @@ func (s *Server) createListeners() (grpcLis, gatewayLis net.Listener, err error)
 
 func (s *Server) startGRPCServer(lis net.Listener) error {
 	s.group.Go(func() error {
-		return s.grpcSrv.Serve(lis)
+		err := s.grpcSrv.Serve(lis)
+		if errors.Is(err, grpc.ErrServerStopped) {
+			return nil
+		}
+		return err
 	})
 	return nil
 }
@@ -304,7 +321,11 @@ func (s *Server) registerBroadcastHandler(txClient txv1beta1.ServiceClient) {
 
 func (s *Server) startGatewayServer(lis net.Listener) error {
 	s.group.Go(func() error {
-		return s.gatewaySrv.Serve(lis)
+		err := s.gatewaySrv.Serve(lis)
+		if errors.Is(err, http.ErrServerClosed) {
+			return nil
+		}
+		return err
 	})
 	return nil
 }
