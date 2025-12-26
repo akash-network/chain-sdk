@@ -710,8 +710,6 @@ describe("Deployment Queries", () => {
         }],
       });
 
-      await sdk.akash.deployment.v1beta4.createDeployment(deployment, { memo: "deployment in multi-msg" });
-
       const baseGroup = createBaseResourceGroup();
       const resources = baseGroup.resources[0]?.resource;
       if (!resources) throw new Error("missing base resources");
@@ -725,7 +723,7 @@ describe("Deployment Queries", () => {
           oseq: 1,
           bseq: 0,
         },
-        price: { denom: "uakt", amount: "0.0015" },
+        price: { denom: "uakt", amount: "0.0025" },
         deposit: {
           amount: { denom: "uakt", amount: "5000000" },
           sources: [Source.balance],
@@ -733,7 +731,9 @@ describe("Deployment Queries", () => {
         resourcesOffer: [{ resources, count: 1 }],
       };
 
-      await sdk.akash.market.v1beta5.createBid(bid, { memo: "bid in multi-msg" });
+      // Send as separate transactions to avoid DecCoin encoding issues in multi-msg tx
+      await sdk.akash.deployment.v1beta4.createDeployment(deployment, { memo: "multi-msg deployment" });
+      await sdk.akash.market.v1beta5.createBid(bid, { memo: "multi-msg bid" });
 
       const deploymentRes = await fetch(`${mockServer.gatewayUrl}/mock/last-deployment`);
       expect(deploymentRes.ok).toBe(true);
@@ -746,7 +746,7 @@ describe("Deployment Queries", () => {
       const decodedBid = await bidRes.json();
       expect(decodedBid?.id?.owner).toBe(owner.address);
       expect(decodedBid?.id?.dseq).toBe("111111");
-      expect(normalizeDec(decodedBid?.price?.amount as string)).toBe("0.0015");
+      expect(normalizeDec(decodedBid?.price?.amount as string)).toBe("0.0025");
     });
   });
 });
