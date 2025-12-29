@@ -106,7 +106,7 @@ var (
 	// ErrUnknownProvider indicates an invalid chain parameter
 	ErrUnknownProvider = sdkerrors.RegisterWithGRPCCode(ModuleName, errUnknownProvider, codes.NotFound, "unknown provider")
 	// ErrInvalidBid indicates an invalid chain parameter
-	ErrInvalidBid = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidBid, codes.InvalidArgument, "unknown provider")
+	ErrInvalidBid = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidBid, codes.InvalidArgument, "invalid bid")
 	// ErrInvalidLeaseClosedReason indicates reason for lease close does not match context
 	ErrInvalidLeaseClosedReason = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidLeaseClosedReason, codes.InvalidArgument, "invalid lease closed reason")
 	ErrInvalidEscrowID          = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidEscrowID, codes.InvalidArgument, "invalid escrow id")
