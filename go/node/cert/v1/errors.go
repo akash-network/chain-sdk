@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	sdkerrors "cosmossdk.io/errors"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -24,29 +25,29 @@ var (
 
 var (
 	// ErrCertificateNotFound certificate not found
-	ErrCertificateNotFound = sdkerrors.Register(ModuleName, errCertificateNotFound, "certificate not found")
+	ErrCertificateNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errCertificateNotFound, codes.NotFound, "certificate not found")
 
 	// ErrInvalidAddress invalid trusted auditor address
-	ErrInvalidAddress = sdkerrors.Register(ModuleName, errInvalidAddress, "invalid address")
+	ErrInvalidAddress = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAddress, codes.InvalidArgument, "invalid address")
 
 	// ErrCertificateExists certificate already exists
-	ErrCertificateExists = sdkerrors.Register(ModuleName, errCertificateExists, "certificate exists")
+	ErrCertificateExists = sdkerrors.RegisterWithGRPCCode(ModuleName, errCertificateExists, codes.AlreadyExists, "certificate exists")
 
 	// ErrCertificateAlreadyRevoked certificate already revoked
-	ErrCertificateAlreadyRevoked = sdkerrors.Register(ModuleName, errCertificateAlreadyRevoked, "certificate already revoked")
+	ErrCertificateAlreadyRevoked = sdkerrors.RegisterWithGRPCCode(ModuleName, errCertificateAlreadyRevoked, codes.FailedPrecondition, "certificate already revoked")
 
 	// ErrInvalidSerialNumber invalid serial number
-	ErrInvalidSerialNumber = sdkerrors.Register(ModuleName, errInvalidSerialNumber, "invalid serial number")
+	ErrInvalidSerialNumber = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidSerialNumber, codes.InvalidArgument, "invalid serial number")
 
 	// ErrInvalidCertificateValue certificate content is not valid
-	ErrInvalidCertificateValue = sdkerrors.Register(ModuleName, errInvalidCertificateValue, "invalid certificate value")
+	ErrInvalidCertificateValue = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidCertificateValue, codes.InvalidArgument, "invalid certificate value")
 
 	// ErrInvalidPubkeyValue public key is not valid
-	ErrInvalidPubkeyValue = sdkerrors.Register(ModuleName, errInvalidPubkeyValue, "invalid pubkey value")
+	ErrInvalidPubkeyValue = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidPubkeyValue, codes.InvalidArgument, "invalid pubkey value")
 
 	// ErrInvalidState invalid certificate state
-	ErrInvalidState = sdkerrors.Register(ModuleName, errInvalidState, "invalid state")
+	ErrInvalidState = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidState, codes.InvalidArgument, "invalid state")
 
 	// ErrInvalidKeySize invalid certificate state
-	ErrInvalidKeySize = sdkerrors.Register(ModuleName, errInvalidKeySize, "invalid key size")
+	ErrInvalidKeySize = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidKeySize, codes.InvalidArgument, "invalid key size")
 )
