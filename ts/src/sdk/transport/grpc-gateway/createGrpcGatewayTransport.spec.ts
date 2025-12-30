@@ -4,6 +4,9 @@ import { describe, expect, it, jest } from "@jest/globals";
 
 import { proto } from "../../../../test/helpers/proto.ts";
 import { createAsyncIterable } from "../../client/stream.ts";
+import type { RetryOptions } from "../interceptors/retry.ts";
+import { createRetryInterceptor, isRetryEnabled } from "../interceptors/retry.ts";
+import { TransportError } from "../TransportError.ts";
 import { createGrpcGatewayTransport, type GrpcGatewayTransportOptions } from "./createGrpcGatewayTransport.ts";
 
 describe(createGrpcGatewayTransport.name, () => {
@@ -173,13 +176,95 @@ describe(createGrpcGatewayTransport.name, () => {
       expect(result.stream).toBe(false);
     });
 
-    async function setup() {
+    describe("with retry interceptor", () => {
+      it("retries failed requests up to maxAttempts", async () => {
+        const { transport, fetch, TestMethodSchema } = await setup({ retryOptions: { maxAttempts: 3, maxDelayMs: 10 } });
+        const message = { test: "data" };
+        const responseData = { result: "success" };
+
+        fetch
+          .mockRejectedValueOnce(new TransportError("Network error", TransportError.Code.Unavailable))
+          .mockRejectedValueOnce(new TransportError("Network error", TransportError.Code.Unavailable))
+          .mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
+
+        const result = await transport.unary(TestMethodSchema, message);
+
+        expect(fetch).toHaveBeenCalledTimes(3);
+        expect(result.message).toEqual(TestMethodSchema.output.fromJSON(responseData));
+      });
+
+      it("retries on HTTP error responses", async () => {
+        const { transport, fetch, TestMethodSchema } = await setup({ retryOptions: { maxAttempts: 3, maxDelayMs: 10 } });
+        const message = { test: "data" };
+        const responseData = { result: "success" };
+
+        fetch
+          .mockResolvedValueOnce(new Response(JSON.stringify({ code: TransportError.Code.Unavailable, message: "Service unavailable" }), { status: 503 }))
+          .mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
+
+        const result = await transport.unary(TestMethodSchema, message);
+
+        expect(fetch).toHaveBeenCalledTimes(2);
+        expect(result.message).toEqual(TestMethodSchema.output.fromJSON(responseData));
+      });
+
+      it("throws after exhausting all retry attempts", async () => {
+        const { transport, fetch, TestMethodSchema } = await setup({ retryOptions: { maxAttempts: 3, maxDelayMs: 10 } });
+        const message = { test: "data" };
+
+        fetch
+          .mockRejectedValueOnce(new TransportError("Network error 1", TransportError.Code.Unavailable))
+          .mockRejectedValueOnce(new TransportError("Network error 2", TransportError.Code.Unavailable))
+          .mockRejectedValueOnce(new TransportError("Network error 3", TransportError.Code.Unavailable))
+          .mockRejectedValueOnce(new TransportError("Network error 4", TransportError.Code.Unavailable));
+
+        await expect(transport.unary(TestMethodSchema, message)).rejects.toThrow("Network error 4");
+        expect(fetch).toHaveBeenCalledTimes(4);
+      });
+
+      it("succeeds on first attempt without retry", async () => {
+        const { transport, fetch, TestMethodSchema } = await setup({ retryOptions: { maxAttempts: 3, maxDelayMs: 10 } });
+        const message = { test: "data" };
+        const responseData = { result: "success" };
+
+        fetch.mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
+
+        const result = await transport.unary(TestMethodSchema, message);
+
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(result.message).toEqual(TestMethodSchema.output.fromJSON(responseData));
+      });
+
+      it("uses max 3 attempts when maxAttempts is bigger than 3", async () => {
+        const { transport, fetch, TestMethodSchema } = await setup({ retryOptions: { maxAttempts: 5, maxDelayMs: 10 } });
+        const message = { test: "data" };
+        const responseData = { result: "success" };
+
+        fetch
+          .mockRejectedValueOnce(new TransportError("Network error"))
+          .mockRejectedValueOnce(new TransportError("Network error", TransportError.Code.Unavailable))
+          .mockRejectedValueOnce(new TransportError("Network error", TransportError.Code.Internal))
+          .mockRejectedValueOnce(new TransportError("Network error 4", TransportError.Code.DeadlineExceeded))
+          .mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
+
+        await expect(transport.unary(TestMethodSchema, message)).rejects.toThrow("Network error 4");
+        expect(fetch).toHaveBeenCalledTimes(4);
+      });
+    });
+
+    async function setup(input?: Partial<GrpcGatewayTransportOptions> & { retryOptions?: RetryOptions }) {
       const fetch = jest.fn<typeof globalThis.fetch>();
+      const { retryOptions, ...transportOptions } = input ?? {};
       const options: GrpcGatewayTransportOptions = {
         baseUrl: "https://api.example.com",
         fetch,
         defaultTimeoutMs: 5000,
+        ...transportOptions,
       };
+
+      if (isRetryEnabled(retryOptions)) {
+        options.interceptors = [createRetryInterceptor(retryOptions)];
+      }
       const transport = createGrpcGatewayTransport(options);
       const { TestMethodSchema } = await setupMethod();
 
