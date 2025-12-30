@@ -2,6 +2,7 @@ import { createContextValues } from "@connectrpc/connect";
 import { requestHeaderWithCompression } from "@connectrpc/connect/protocol-grpc";
 import { type GrpcTransportOptions as ConnectGrpcTransportOptions } from "@connectrpc/connect-node";
 
+import { base64FromBytes } from "../../../encoding/typeEncodingHelpers.ts";
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
 import { runUnaryCall } from "../runCall.ts";
 import { TransportError } from "../TransportError.ts";
@@ -126,17 +127,4 @@ function serializeParams(message: Record<string, unknown>, params: URLSearchPara
     params.append(name, String(value));
   });
   return params;
-}
-
-function base64FromBytes(arr: Uint8Array): string {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if ((globalThis as any).Buffer) {
-    return globalThis.Buffer.from(arr).toString("base64");
-  } else {
-    let binary = "";
-    arr.forEach((byte) => {
-      binary += String.fromCharCode(byte);
-    });
-    return globalThis.btoa(binary);
-  }
 }

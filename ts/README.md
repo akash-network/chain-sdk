@@ -8,10 +8,10 @@ This package provides TypeScript bindings for the Akash API, generated from prot
 
 ## Installation
 
-⚠️ **NOTICE:** 
+⚠️ **NOTICE:**
 
 The new Chain SDK for TypeScript is currently in alpha. As such, small breaking changes may occur between versions.
-To ensure stability of your own scripts, pin a specific version of the SDK in your package.json (avoid using `^` or `~` in front of version). 
+To ensure stability of your own scripts, pin a specific version of the SDK in your package.json (avoid using `^` or `~` in front of version).
 
 We are actively gathering developer feedback and improving the DX (Developer Experience).
 Please report any issues or suggestions via:
@@ -211,6 +211,34 @@ const leaseDetails = await fetch(`https://some-provider.url:8443/lease/${lease.d
 - Do not create a new certificate for every request
 - Verify the provider's identity when it responds with a self-signed certificate
 
+### Transport Retry logic
+
+The SDK supports **automatic retries** with exponential backoff for **query** requests in all SDKs. By default, retry is disabled. To enable it, pass `transportOptions.retry`. Afterwards, it will retry on the next gRPC failure codes:
+
+- 14 - `TransportError.Code.Unavailable`
+- 4  - `TransportError.Code.DeadlineExceeded`,
+- 13 - `TransportError.Code.Internal`,
+- 2  - `TransportError.Code.Unknown`,
+
+**Example:**
+
+```ts
+import { createChainNodeSDK } from "@akashnetwork/chain-sdk";
+
+const sdk = createChainNodeSDK({
+  query: {
+    baseUrl: "http://grpc.sandbox-2.aksh.pw:9090",
+    transportOptions: {
+      retry: {
+        maxAttempts: 3,
+        maxDelayMs: 5_000,
+      },
+    },
+  },
+});
+```
+
+Exactly the same `transportOptions` options can be passed to chain web sdk and to provider sdk, to enable retries.
 
 ### Stack Definition Language (SDL)
 
