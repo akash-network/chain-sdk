@@ -1,20 +1,20 @@
 name: Release TypeScript NPM Package
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+  # push:
+  #   branches:
+  #     - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  release:
+  has-changes:
     runs-on: ubuntu-latest
+    outputs:
+      ts: ${{ steps.changes.outputs.ts }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Check for changes
         uses: dorny/paths-filter@v2
         id: changes
@@ -22,26 +22,50 @@ jobs:
           filters: |
             ts:
               - 'ts/**'
+              - 'release-please-config.json'
+              - 'workflows/release-ts.yaml'
+              - 'workflows/tests.yaml'
 
-      - name: Setup Node.js
-        if: steps.changes.outputs.ts == 'true'
-        uses: actions/setup-node@v4
+  release:
+    runs-on: ubuntu-latest
+    needs: has-changes
+    outputs:
+      paths_released: ${{ steps.release-pl.outputs.paths_released }}
+    if: needs.has-changes.outputs.ts == 'true'
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release-pl
         with:
-          node-version: 22.14.0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: release
+    if: ${{ needs.release.outputs.paths_released == '["ts"]' }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
           cache: npm
           cache-dependency-path: ts/package-lock.json
-
       - name: Setup env
-        if: steps.changes.outputs.ts == 'true'
         uses: HatsuneMiku3939/direnv-action@v1
-
-      - name: Run tests
-        if: steps.changes.outputs.ts == 'true'
-        run: SUB_TESTS=ts make test
-
+      - name: Setup go toolchain
+        run: |
+          toolchain=$(./script/tools.sh gotoolchain | sed 's/go*//')
+          echo "GOVERSION=${toolchain}" >> $GITHUB_ENV
+      - name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "${{ env.GOVERSION }}"
+      - name: install vendors
+        # need this to run ts tests
+        run: make modvendor
       - name: Publish npm package
-        if: steps.changes.outputs.ts == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: make release-ts
+        working-directory: ts
+        run: |
+          echo "npm run release"
