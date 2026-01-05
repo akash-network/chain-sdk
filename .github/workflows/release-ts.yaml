@@ -23,8 +23,8 @@ jobs:
             ts:
               - 'ts/**'
               - 'release-please-config.json'
-              - 'workflows/release-ts.yaml'
-              - 'workflows/tests.yaml'
+              - '.github/workflows/release-ts.yaml'
+              - '.github/workflows/tests.yaml'
 
   release:
     runs-on: ubuntu-latest
