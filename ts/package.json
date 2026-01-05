@@ -39,7 +39,8 @@
     "test:cov": "jest --selectProjects unit functional --coverage",
     "test:functional": "jest --selectProjects functional",
     "test:unit": "jest --selectProjects unit",
-    "compile:jwt-validator": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts"
+    "compile:jwt-validator": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts && eslint --fix src/sdk/provider/auth/jwt/validate-payload.ts",
+    "release": "npm run build && npm test && npm publish"
   },
   "lint-staged": {
     "*.json": [
@@ -98,9 +99,10 @@
     "typescript-eslint": "^8.29.1"
   },
   "engines": {
-    "node": "22.14.0"
+    "node": ">=22.14.0"
   },
   "volta": {
-    "node": "22.14.0"
+    "node": "24.12.0",
+    "npm": "11.6.2"
   }
 }
