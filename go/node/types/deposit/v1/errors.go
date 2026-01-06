@@ -13,7 +13,7 @@ const (
 )
 
 var (
-	// ErrInvalidDepositor indicates an invalid chain parameter
+	// ErrInvalidDepositor invalid depositor
 	ErrInvalidDepositor = sdkerrors.RegisterWithGRPCCode(attr.ModuleName, errInvalidDepositor, codes.InvalidArgument, "invalid depositor")
 	// ErrInvalidDepositSource indicates invalid deposit source for the deployment
 	ErrInvalidDepositSource = sdkerrors.RegisterWithGRPCCode(attr.ModuleName, errInvalidDepositSource, codes.InvalidArgument, "invalid deposit source")

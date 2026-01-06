@@ -60,11 +60,11 @@ var (
 	ErrInvalidGroupID = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidGroupID, codes.InvalidArgument, "Invalid deployment's group ID")
 	// ErrGroupNotFound is the keeper's error for not finding a group
 	ErrGroupNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errGroupNotFound, codes.NotFound, "Group not found")
-	// ErrGroupClosed is the error when deployment is closed
+	// ErrGroupClosed is the error when group is closed
 	ErrGroupClosed = sdkerrors.RegisterWithGRPCCode(ModuleName, errGroupClosed, codes.FailedPrecondition, "Group already closed")
-	// ErrGroupOpen is the error when deployment is closed
+	// ErrGroupOpen is the error when group is open
 	ErrGroupOpen = sdkerrors.RegisterWithGRPCCode(ModuleName, errGroupOpen, codes.FailedPrecondition, "Group open")
-	// ErrGroupPaused is the error when deployment is closed
+	// ErrGroupPaused is the error when group is paused
 	ErrGroupPaused = sdkerrors.RegisterWithGRPCCode(ModuleName, errGroupPaused, codes.FailedPrecondition, "Group paused")
 	// ErrGroupNotOpen indicates the Group state has progressed beyond initial Open.
 	ErrGroupNotOpen = sdkerrors.RegisterWithGRPCCode(ModuleName, errGroupNotOpen, codes.FailedPrecondition, "Group not open")

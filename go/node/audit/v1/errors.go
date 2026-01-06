@@ -15,9 +15,9 @@ var (
 	// ErrProviderNotFound provider not found
 	ErrProviderNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errProviderNotFound, codes.NotFound, "invalid provider: address not found")
 
-	// ErrInvalidAddress invalid trusted auditor address
+	// ErrInvalidAddress invalid address
 	ErrInvalidAddress = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAddress, codes.InvalidArgument, "invalid address")
 
-	// ErrAttributeNotFound invalid trusted auditor address
+	// ErrAttributeNotFound attribute not found
 	ErrAttributeNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errAttributeNotFound, codes.NotFound, "attribute not found")
 )

@@ -13,7 +13,7 @@ const (
 	errCodeAttributeMismatch
 	errCodeUnknownBid
 	errCodeUnknownLease
-	errCodeUnknownLeaseForOrder
+	errCodeUnknownLeaseForBid
 	errCodeUnknownOrderForBid
 	errCodeLeaseNotActive
 	errCodeBidNotActive
@@ -57,27 +57,27 @@ var (
 	ErrCapabilitiesMismatch = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeCapabilitiesMismatch, codes.InvalidArgument, "capabilities mismatch")
 	// ErrUnknownBid is the error for unknown bid
 	ErrUnknownBid = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeUnknownBid, codes.NotFound, "unknown bid")
-	// ErrUnknownLease is the error for unknown bid
+	// ErrUnknownLease is the error for unknown lease
 	ErrUnknownLease = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeUnknownLease, codes.NotFound, "unknown lease")
 	// ErrUnknownLeaseForBid is the error when lease is unknown for bid
-	ErrUnknownLeaseForBid = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeUnknownLeaseForOrder, codes.NotFound, "unknown lease for bid")
+	ErrUnknownLeaseForBid = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeUnknownLeaseForBid, codes.NotFound, "unknown lease for bid")
 	// ErrUnknownOrderForBid is the error when order is unknown for bid
 	ErrUnknownOrderForBid = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeUnknownOrderForBid, codes.NotFound, "unknown order for bid")
 	// ErrLeaseNotActive is the error when lease is not active
 	ErrLeaseNotActive = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeLeaseNotActive, codes.FailedPrecondition, "lease not active")
-	// ErrBidNotActive is the error when bid is not matched
+	// ErrBidNotActive is the error when bid is not active
 	ErrBidNotActive = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeBidNotActive, codes.FailedPrecondition, "bid not active")
-	// ErrBidNotOpen is the error when bid is not matched
+	// ErrBidNotOpen is the error when bid is not open
 	ErrBidNotOpen = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeBidNotOpen, codes.FailedPrecondition, "bid not open")
 	// ErrNoLeaseForOrder is the error when there is no lease for order
 	ErrNoLeaseForOrder = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeNoLeaseForOrder, codes.NotFound, "no lease for order")
 	// ErrOrderNotFound order not found
 	ErrOrderNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeOrderNotFound, codes.NotFound, "invalid order: order not found")
-	// ErrGroupNotFound order not found
-	ErrGroupNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeGroupNotFound, codes.NotFound, "order not found")
-	// ErrGroupNotOpen order not found
-	ErrGroupNotOpen = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeGroupNotOpen, codes.FailedPrecondition, "order not open")
-	// ErrOrderNotOpen order not found
+	// ErrGroupNotFound group not found
+	ErrGroupNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeGroupNotFound, codes.NotFound, "group not found")
+	// ErrGroupNotOpen group not open
+	ErrGroupNotOpen = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeGroupNotOpen, codes.FailedPrecondition, "group not open")
+	// ErrOrderNotOpen order not open
 	ErrOrderNotOpen = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeOrderNotOpen, codes.FailedPrecondition, "bid: order not open")
 	// ErrBidNotFound bid not found
 	ErrBidNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeBidNotFound, codes.NotFound, "invalid bid: bid not found")
@@ -100,12 +100,12 @@ var (
 	// ErrOrderDurationExceeded order should be closed
 	ErrOrderDurationExceeded = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeOrderDurationExceeded, codes.FailedPrecondition, "order duration has exceeded the bidding duration")
 	// ErrInvalidDeposit indicates an invalid deposit
-	ErrInvalidDeposit = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidDeposit, codes.InvalidArgument, "Deposit invalid")
+	ErrInvalidDeposit = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidDeposit, codes.InvalidArgument, "deposit invalid")
 	// ErrInvalidParam indicates an invalid chain parameter
 	ErrInvalidParam = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidParam, codes.InvalidArgument, "parameter invalid")
-	// ErrUnknownProvider indicates an invalid chain parameter
+	// ErrUnknownProvider is the error for unknown provider
 	ErrUnknownProvider = sdkerrors.RegisterWithGRPCCode(ModuleName, errUnknownProvider, codes.NotFound, "unknown provider")
-	// ErrInvalidBid indicates an invalid chain parameter
+	// ErrInvalidBid is the error for invalid bid
 	ErrInvalidBid = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidBid, codes.InvalidArgument, "invalid bid")
 	// ErrInvalidLeaseClosedReason indicates reason for lease close does not match context
 	ErrInvalidLeaseClosedReason = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidLeaseClosedReason, codes.InvalidArgument, "invalid lease closed reason")

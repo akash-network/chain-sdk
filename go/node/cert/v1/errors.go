@@ -48,6 +48,6 @@ var (
 	// ErrInvalidState invalid certificate state
 	ErrInvalidState = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidState, codes.InvalidArgument, "invalid state")
 
-	// ErrInvalidKeySize invalid certificate state
+	// ErrInvalidKeySize invalid key size
 	ErrInvalidKeySize = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidKeySize, codes.InvalidArgument, "invalid key size")
 )
