@@ -1,7 +1,8 @@
 package v1
 
 import (
-	cerrors "cosmossdk.io/errors"
+	sdkerrors "cosmossdk.io/errors"
+	"google.golang.org/grpc/codes"
 
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 )
@@ -12,8 +13,8 @@ const (
 )
 
 var (
-	// ErrInvalidDepositor indicates an invalid chain parameter
-	ErrInvalidDepositor = cerrors.Register(attr.ModuleName, errInvalidDepositor, "invalid depositor")
+	// ErrInvalidDepositor invalid depositor
+	ErrInvalidDepositor = sdkerrors.RegisterWithGRPCCode(attr.ModuleName, errInvalidDepositor, codes.InvalidArgument, "invalid depositor")
 	// ErrInvalidDepositSource indicates invalid deposit source for the deployment
-	ErrInvalidDepositSource = cerrors.Register(attr.ModuleName, errInvalidDepositSource, "invalid deposit source")
+	ErrInvalidDepositSource = sdkerrors.RegisterWithGRPCCode(attr.ModuleName, errInvalidDepositSource, codes.InvalidArgument, "invalid deposit source")
 )

@@ -2,6 +2,7 @@ package v1
 
 import (
 	sdkerrors "cosmossdk.io/errors"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -12,11 +13,11 @@ const (
 
 var (
 	// ErrProviderNotFound provider not found
-	ErrProviderNotFound = sdkerrors.Register(ModuleName, errProviderNotFound, "invalid provider: address not found")
+	ErrProviderNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errProviderNotFound, codes.NotFound, "invalid provider: address not found")
 
-	// ErrInvalidAddress invalid trusted auditor address
-	ErrInvalidAddress = sdkerrors.Register(ModuleName, errInvalidAddress, "invalid address")
+	// ErrInvalidAddress invalid address
+	ErrInvalidAddress = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAddress, codes.InvalidArgument, "invalid address")
 
-	// ErrAttributeNotFound invalid trusted auditor address
-	ErrAttributeNotFound = sdkerrors.Register(ModuleName, errAttributeNotFound, "attribute not found")
+	// ErrAttributeNotFound attribute not found
+	ErrAttributeNotFound = sdkerrors.RegisterWithGRPCCode(ModuleName, errAttributeNotFound, codes.NotFound, "attribute not found")
 )

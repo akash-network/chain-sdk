@@ -1,7 +1,8 @@
 package module
 
 import (
-	cerrors "cosmossdk.io/errors"
+	sdkerrors "cosmossdk.io/errors"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -25,21 +26,21 @@ const (
 )
 
 var (
-	ErrAccountExists            = cerrors.Register(ModuleName, errAccountExists, "account exists")
-	ErrAccountClosed            = cerrors.Register(ModuleName, errAccountClosed, "account closed")
-	ErrAccountNotFound          = cerrors.Register(ModuleName, errAccountNotFound, "account not found")
-	ErrAccountOverdrawn         = cerrors.Register(ModuleName, errAccountOverdrawn, "account overdrawn")
-	ErrInvalidDenomination      = cerrors.Register(ModuleName, errInvalidDenomination, "invalid denomination")
-	ErrPaymentExists            = cerrors.Register(ModuleName, errPaymentExists, "payment exists")
-	ErrPaymentClosed            = cerrors.Register(ModuleName, errPaymentClosed, "payment closed")
-	ErrPaymentNotFound          = cerrors.Register(ModuleName, errPaymentNotFound, "payment not found")
-	ErrPaymentRateZero          = cerrors.Register(ModuleName, errPaymentRateZero, "payment rate zero")
-	ErrInvalidPayment           = cerrors.Register(ModuleName, errInvalidPayment, "invalid payment")
-	ErrInvalidSettlement        = cerrors.Register(ModuleName, errInvalidSettlement, "invalid settlement")
-	ErrInvalidID                = cerrors.Register(ModuleName, errInvalidID, "invalid ID")
-	ErrInvalidAccount           = cerrors.Register(ModuleName, errInvalidAccount, "invalid account")
-	ErrInvalidAccountDepositor  = cerrors.Register(ModuleName, errInvalidAccountDepositor, "invalid account depositor")
-	ErrUnauthorizedDepositScope = cerrors.Register(ModuleName, errUnauthorizedDepositScope, "unauthorized deposit scope")
-	ErrInvalidDeposit           = cerrors.Register(ModuleName, errInvalidDeposit, "invalid deposit")
-	ErrInvalidAuthzScope        = cerrors.Register(ModuleName, errInvalidAuthzScope, "invalid authz scope")
+	ErrAccountExists            = sdkerrors.RegisterWithGRPCCode(ModuleName, errAccountExists, codes.AlreadyExists, "account exists")
+	ErrAccountClosed            = sdkerrors.RegisterWithGRPCCode(ModuleName, errAccountClosed, codes.FailedPrecondition, "account closed")
+	ErrAccountNotFound          = sdkerrors.RegisterWithGRPCCode(ModuleName, errAccountNotFound, codes.NotFound, "account not found")
+	ErrAccountOverdrawn         = sdkerrors.RegisterWithGRPCCode(ModuleName, errAccountOverdrawn, codes.FailedPrecondition, "account overdrawn")
+	ErrInvalidDenomination      = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidDenomination, codes.InvalidArgument, "invalid denomination")
+	ErrPaymentExists            = sdkerrors.RegisterWithGRPCCode(ModuleName, errPaymentExists, codes.AlreadyExists, "payment exists")
+	ErrPaymentClosed            = sdkerrors.RegisterWithGRPCCode(ModuleName, errPaymentClosed, codes.FailedPrecondition, "payment closed")
+	ErrPaymentNotFound          = sdkerrors.RegisterWithGRPCCode(ModuleName, errPaymentNotFound, codes.NotFound, "payment not found")
+	ErrPaymentRateZero          = sdkerrors.RegisterWithGRPCCode(ModuleName, errPaymentRateZero, codes.InvalidArgument, "payment rate zero")
+	ErrInvalidPayment           = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidPayment, codes.InvalidArgument, "invalid payment")
+	ErrInvalidSettlement        = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidSettlement, codes.InvalidArgument, "invalid settlement")
+	ErrInvalidID                = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidID, codes.InvalidArgument, "invalid ID")
+	ErrInvalidAccount           = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAccount, codes.InvalidArgument, "invalid account")
+	ErrInvalidAccountDepositor  = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAccountDepositor, codes.InvalidArgument, "invalid account depositor")
+	ErrUnauthorizedDepositScope = sdkerrors.RegisterWithGRPCCode(ModuleName, errUnauthorizedDepositScope, codes.PermissionDenied, "unauthorized deposit scope")
+	ErrInvalidDeposit           = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidDeposit, codes.InvalidArgument, "invalid deposit")
+	ErrInvalidAuthzScope        = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAuthzScope, codes.InvalidArgument, "invalid authz scope")
 )
