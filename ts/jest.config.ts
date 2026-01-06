@@ -22,7 +22,9 @@ export default {
   collectCoverageFrom: [
     "<rootDir>/src/**/*.{js,ts}",
     "!<rootDir>/src/**/*.spec.ts",
+    "!<rootDir>/test/functional/**/*",
   ],
+  testTimeout: 120_000,
   projects: [
     {
       displayName: "unit",

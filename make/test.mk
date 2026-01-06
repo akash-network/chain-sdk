@@ -30,11 +30,20 @@ test-coverage: $(patsubst %, test-coverage-%,$(SUB_TESTS))
 
 .PHONY: test-ts
 test-ts: $(AKASH_TS_NODE_MODULES)
-	cd $(TS_ROOT) && (npm run build && npm run test)
+	cd $(TS_ROOT) && npm run build && npm run test
 
 .PHONY: test-coverage-ts
 test-coverage-ts: $(AKASH_TS_NODE_MODULES) proto-gen-ts
-	cd $(TS_ROOT) && (npm run build && npm run test:cov)
+	cd $(TS_ROOT) && npm run build && npm run test:cov
+
+.PHONY: test-functional-ts
+test-functional-ts: $(AKASH_TS_NODE_MODULES) $(BUF) modvendor mock-server-bin
+	cd $(TS_ROOT) && AKASH_DEVCACHE_BIN="$(AKASH_DEVCACHE_BIN)" MOCK_SERVER_BIN="$(AKASH_DEVCACHE_BIN)/mock-server" npm run test:functional
+
+.PHONY: mock-server-bin
+mock-server-bin: modvendor
+	mkdir -p "$(AKASH_DEVCACHE_BIN)"
+	cd "$(GO_ROOT)" && GOWORK=off GO111MODULE=on go build -mod=vendor -o "$(AKASH_DEVCACHE_BIN)/mock-server" ./testutil/mock/cmd/server
 
 .PHONY: test-go
 test-go: export GO111MODULE := $(GO111MODULE)

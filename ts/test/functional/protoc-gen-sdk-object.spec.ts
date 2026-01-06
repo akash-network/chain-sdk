@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { exec } from "child_process";
+import { existsSync } from "fs";
 import { access, constants as fsConst, readFile, rmdir } from "fs/promises";
 import { tmpdir } from "os";
 import { join as joinPath } from "path";
@@ -7,35 +8,54 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
-describe("protoc-sdk-objec plugin", () => {
+describe("protoc-sdk-object plugin", () => {
   const config = {
     version: "v2",
     clean: true,
-    plugins: [
-      {
-        local: "ts/script/protoc-gen-sdk-object.ts",
-        strategy: "all",
-        out: ".",
-        opt: [
-          "target=ts",
-          "import_extension=ts"
-        ],
-      },
-    ],
+      plugins: [
+        {
+          local: "ts/script/protoc-gen-sdk-object.ts",
+          strategy: "all",
+          out: ".",
+          opt: [
+            "target=ts",
+            "import_extension=ts"
+          ],
+        },
+      ],
   };
 
+  const repoRoot = joinPath(__dirname, "..", "..", "..");
+  const cosmosSdkVendor = joinPath(repoRoot, "go/vendor/github.com/cosmos/cosmos-sdk/proto");
+  const bufBin = process.env.AKASH_DEVCACHE_BIN 
+    ? joinPath(process.env.AKASH_DEVCACHE_BIN, "buf")
+    : null;
+
   it("generates SDK object from proto files", async () => {
+    if (!existsSync(cosmosSdkVendor)) {
+      throw new Error(`Go vendor missing at ${cosmosSdkVendor}. Run 'make modvendor' from repo root.`);
+    }
+    if (!bufBin || !existsSync(bufBin)) {
+      throw new Error(`buf binary missing at ${bufBin}. AKASH_DEVCACHE_BIN=${process.env.AKASH_DEVCACHE_BIN}`);
+    }
     const outputDir = joinPath(tmpdir(), `ts-bufplugin-${process.pid.toString()}`);
     const protoDir = "./ts/test/functional/proto";
+    
+    const bufConfig = {
+      version: "v2",
+      modules: [
+        { path: "go/vendor/github.com/cosmos/cosmos-sdk/proto" },
+        { path: protoDir },
+      ],
+      deps: [
+        "buf.build/googleapis/googleapis",
+        "buf.build/protocolbuffers/wellknowntypes",
+      ],
+    };
+    
     const command = [
-      `buf generate`,
-      `--config '${JSON.stringify({
-        version: "v2",
-        modules: [
-          { path: "go/vendor/github.com/cosmos/cosmos-sdk/proto" },
-          { path: "./ts/test/functional/proto" },
-        ],
-      })}'`,
+      `${bufBin} generate`,
+      `--config '${JSON.stringify(bufConfig)}'`,
       `--template '${JSON.stringify(config)}'`,
       `-o '${outputDir}'`,
       `--path ${protoDir}/msg.proto`,
@@ -49,6 +69,7 @@ describe("protoc-sdk-objec plugin", () => {
         env: {
           ...process.env,
           BUF_PLUGIN_SDK_OBJECT_OUTPUT_FILE: "sdk.ts",
+          NODE_OPTIONS: "--experimental-strip-types --no-warnings",
         },
       });
 
