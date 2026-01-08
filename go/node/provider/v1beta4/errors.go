@@ -14,7 +14,7 @@ const (
 	errAttributes
 	errIncompatibleAttributes
 	errInvalidInfoWebsite
-	errInternal uint32 = 10 // Code must be 10 for backwards compatibility. Must stay explicit forever.
+	errInternal
 )
 
 var (

@@ -70,7 +70,7 @@ func TestErrorGRPCStatusCodes(t *testing.T) {
 			name:             "internal",
 			err:              v1beta4.ErrInternal,
 			expectedGRPCCode: codes.Internal,
-			expectedABCICode: 10,
+			expectedABCICode: 9,
 		},
 	}
 
