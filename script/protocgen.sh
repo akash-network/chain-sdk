@@ -40,6 +40,27 @@ function gen_go() {
 	cp -r ./$1/* ./$2/
 }
 
+function gen_rust() {
+	if [[ $# -ne 2 ]]; then
+		echo "invalid number of parameters"
+		exit 1
+	fi
+
+	IFS=/ read -r pkg_domain _ <<<"$1"
+
+	function cleanup_go() {
+		rm -rf "$pkg_domain"
+	}
+
+	trap cleanup_go EXIT ERR
+
+	gen buf.gen.gogo.yaml
+
+	# shellcheck disable=SC2086
+	cp -r ./$1/* ./$2/
+}
+
+
 function gen_pulsar() {
 	gen buf.gen.pulsar.yaml
 
@@ -94,6 +115,10 @@ case $1 in
 	go)
 		shift
 		gen_go "$@"
+		;;
+	rust)
+		shift
+		gen_rust "$@"
 		;;
 	pulsar)
 		shift

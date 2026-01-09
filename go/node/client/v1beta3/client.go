@@ -13,6 +13,7 @@ import (
 	evdtypes "cosmossdk.io/x/evidence/types"
 	feegranttypes "cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -33,6 +34,7 @@ import (
 	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
+	otypes "pkg.akt.dev/go/node/oracle/v1"
 )
 
 // QueryClient is the interface that exposes query modules.
@@ -56,6 +58,8 @@ type QueryClient interface {
 	Staking() staketypes.QueryClient
 	Upgrade() upgradetypes.QueryClient
 	Params() paramstypes.QueryClient
+	Wasm() wasmtypes.QueryClient
+	Oracle() otypes.QueryClient
 
 	ClientContext() sdkclient.Context
 }

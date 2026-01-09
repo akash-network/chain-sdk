@@ -5,6 +5,8 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+
+	"pkg.akt.dev/go/sdkutil"
 )
 
 var (
@@ -18,6 +20,10 @@ var (
 	// Deprecated: ModuleCdc use is deprecated
 	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
 )
+
+func init() {
+	sdkutil.RegisterCustomSignerField(&MsgRevokeCertificate{}, "id", "owner")
+}
 
 // RegisterLegacyAminoCodec register concrete types on codec
 //

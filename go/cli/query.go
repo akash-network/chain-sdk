@@ -69,6 +69,9 @@ func QueryCmd() *cobra.Command {
 		GetQueryMarketCmds(),
 		GetQueryEscrowCmd(),
 		GetQueryProviderCmds(),
+		GetQueryWasmCmd(),
+		GetQueryOracleCmd(),
+		GetQueryModuleNameToAddressCmd(),
 	)
 
 	cmd.PersistentFlags().String(cflags.FlagChainID, "", "The network chain ID")

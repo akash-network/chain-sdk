@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 
 	v1 "pkg.akt.dev/go/node/market/v1"
+	"pkg.akt.dev/go/sdkutil"
 )
 
 var (
@@ -22,6 +23,14 @@ var (
 	// Deprecated: ModuleCdc use is deprecated
 	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
 )
+
+func init() {
+	sdkutil.RegisterCustomSignerField(&MsgCreateLease{}, "bid_id", "owner")
+	sdkutil.RegisterCustomSignerField(&MsgCloseLease{}, "id", "owner")
+	sdkutil.RegisterCustomSignerField(&MsgCreateBid{}, "id", "provider")
+	sdkutil.RegisterCustomSignerField(&MsgCloseBid{}, "id", "provider")
+	sdkutil.RegisterCustomSignerField(&MsgWithdrawLease{}, "id", "provider")
+}
 
 // RegisterLegacyAminoCodec registers the necessary x/market interfaces and concrete types
 // on the provided Amino codec. These types are used for Amino JSON serialization.

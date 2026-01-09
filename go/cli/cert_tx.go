@@ -258,7 +258,7 @@ func addTxCertGenerateFlags(cmd *cobra.Command) error {
 	return nil
 }
 
-func certGeneratePersistenPreRunE(cmd *cobra.Command, args []string) error {
+func certGeneratePersistentPreRunE(cmd *cobra.Command, args []string) error {
 	err := cmd.Flags().Set(cflags.FlagOffline, "true")
 	if err != nil {
 		return err
@@ -267,7 +267,7 @@ func certGeneratePersistenPreRunE(cmd *cobra.Command, args []string) error {
 	return TxPersistentPreRunE(cmd, args)
 }
 
-func certPublishPersistenPreRunE(cmd *cobra.Command, args []string) error {
+func certPublishPersistentPreRunE(cmd *cobra.Command, args []string) error {
 	toGenesis := viper.GetBool(flagToGenesis)
 
 	if toGenesis {
@@ -284,7 +284,7 @@ func GetTxCertGenerateClientCmd() *cobra.Command {
 		Use:                        "client",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          certGeneratePersistenPreRunE,
+		PersistentPreRunE:          certGeneratePersistentPreRunE,
 		RunE:                       doCertGenerateCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.ExactArgs(0),
@@ -302,7 +302,7 @@ func GetTxCertGenerateServerCmd() *cobra.Command {
 		Use:                        "server",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          certGeneratePersistenPreRunE,
+		PersistentPreRunE:          certGeneratePersistentPreRunE,
 		RunE:                       doCertGenerateCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.MinimumNArgs(1),
@@ -335,7 +335,7 @@ func GetTxCertPublishClientCmd() *cobra.Command {
 		Use:                        "client",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          certPublishPersistenPreRunE,
+		PersistentPreRunE:          certPublishPersistentPreRunE,
 		RunE:                       doPublishCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.ExactArgs(0),
@@ -353,7 +353,7 @@ func GetTxCertPublishServerCmd() *cobra.Command {
 		Use:                        "server",
 		Short:                      "",
 		SuggestionsMinimumDistance: 2,
-		PersistentPreRunE:          certPublishPersistenPreRunE,
+		PersistentPreRunE:          certPublishPersistentPreRunE,
 		RunE:                       doPublishCmd,
 		SilenceUsage:               true,
 		Args:                       cobra.ExactArgs(0),
