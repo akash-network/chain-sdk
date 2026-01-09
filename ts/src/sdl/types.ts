@@ -276,10 +276,10 @@ export type v3DeploymentGroup = {
     endpoints: Array<{ kind: number; sequence_number: number }>;
   }>;
   requirements: {
-    attributes: Array<Attribute>;
+    attributes: Array<Attribute> | null;
     signedBy: {
-      allOf: string[];
-      anyOf: string[];
+      allOf: string[] | null;
+      anyOf: string[] | null;
     };
   };
 };

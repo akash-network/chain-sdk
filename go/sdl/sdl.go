@@ -90,17 +90,22 @@ func ReadFile(path string) (SDL, error) {
 
 // Read reads buffer data and returns SDL instance
 func Read(buf []byte) (SDL, error) {
+	schemaErr := validateInputAgainstSchema(buf)
+
 	obj := &sdl{}
 	if err := yaml.Unmarshal(buf, obj); err != nil {
+		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
 
 	if err := obj.validate(); err != nil {
+		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
 
 	dgroups, err := obj.DeploymentGroups()
 	if err != nil {
+		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
 
@@ -110,17 +115,22 @@ func Read(buf []byte) (SDL, error) {
 	}
 
 	if err := dtypes.ValidateDeploymentGroups(vgroups); err != nil {
+		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
 
 	m, err := obj.Manifest()
 	if err != nil {
+		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
 
 	if err := m.Validate(); err != nil {
+		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
+
+	checkSchemaValidationResult(schemaErr, nil)
 
 	return obj, nil
 }

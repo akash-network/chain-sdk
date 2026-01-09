@@ -2,17 +2,17 @@
   {
     "name": "dcloud",
     "requirements": {
-      "attributes": [],
+      "attributes": null,
       "signedBy": {
-        "allOf": [],
-        "anyOf": []
+        "allOf": null,
+        "anyOf": null
       }
     },
     "resources": [
       {
         "count": 1,
         "price": {
-          "amount": "1000",
+          "amount": "1000.000000000000000000",
           "denom": "uakt"
         },
         "resource": {
@@ -32,14 +32,12 @@
           ],
           "gpu": {
             "units": {
-              "val": {
-                "0": 48
-              }
+              "val": "0"
             }
           },
           "id": 1,
           "memory": {
-            "quantity": {
+            "size": {
               "val": {
                 "0": 53,
                 "1": 51,
@@ -55,20 +53,7 @@
           },
           "storage": [
             {
-              "name": "default",
-              "quantity": {
-                "val": {
-                  "0": 53,
-                  "1": 51,
-                  "2": 54,
-                  "3": 56,
-                  "4": 55,
-                  "5": 48,
-                  "6": 57,
-                  "7": 49,
-                  "8": 50
-                }
-              }
+              "name": "default"
             }
           ]
         }

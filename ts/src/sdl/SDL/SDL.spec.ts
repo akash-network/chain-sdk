@@ -610,7 +610,7 @@ describe("SDL", () => {
             },
           ],
           signedBy: {
-            allOf: [],
+            allOf: null,
             anyOf: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
           },
         },
@@ -627,7 +627,7 @@ describe("SDL", () => {
                 },
               },
               memory: {
-                quantity: {
+                size: {
                   val: {
                     0: 53,
                     1: 51,
@@ -644,7 +644,7 @@ describe("SDL", () => {
               storage: [
                 {
                   name: "default",
-                  quantity: {
+                  size: {
                     val: {
                       0: 53,
                       1: 51,
@@ -665,10 +665,15 @@ describe("SDL", () => {
                   sequence_number: 0,
                 },
               ],
+              gpu: {
+                units: {
+                  val: "0",
+                },
+              },
             },
             price: {
               denom: "uakt",
-              amount: "10000",
+              amount: "10000.000000000000000000",
             },
             count: 1,
           },
@@ -1322,7 +1327,7 @@ describe("SDL", () => {
             },
           ],
           signedBy: {
-            allOf: [],
+            allOf: null,
             anyOf: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
           },
         },
@@ -1336,7 +1341,7 @@ describe("SDL", () => {
                 attributes: undefined,
               },
               memory: {
-                quantity: {
+                size: {
                   val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
                 },
                 attributes: undefined,
@@ -1344,7 +1349,7 @@ describe("SDL", () => {
               storage: [
                 {
                   name: "default",
-                  quantity: {
+                  size: {
                     val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
                   },
                   attributes: undefined,
@@ -1356,10 +1361,15 @@ describe("SDL", () => {
                   sequence_number: 0,
                 },
               ],
+              gpu: {
+                units: {
+                  val: "0",
+                },
+              },
             },
             price: {
               denom: "uakt",
-              amount: "10000",
+              amount: "10000.000000000000000000",
             },
             count: 1,
           },
@@ -1458,7 +1468,7 @@ describe("SDL", () => {
             },
           ],
           signedBy: {
-            allOf: [],
+            allOf: null,
             anyOf: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
           },
         },
@@ -1472,7 +1482,7 @@ describe("SDL", () => {
                 attributes: undefined,
               },
               memory: {
-                quantity: {
+                size: {
                   val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
                 },
                 attributes: undefined,
@@ -1480,7 +1490,7 @@ describe("SDL", () => {
               storage: [
                 {
                   name: "default",
-                  quantity: {
+                  size: {
                     val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
                   },
                   attributes: undefined,
@@ -1501,7 +1511,7 @@ describe("SDL", () => {
             },
             price: {
               denom: "uakt",
-              amount: "10000",
+              amount: "10000.000000000000000000",
             },
             count: 1,
           },
