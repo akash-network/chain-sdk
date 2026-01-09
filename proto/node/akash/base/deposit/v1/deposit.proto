@@ -11,20 +11,30 @@ enum Source {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // Prefix should start with 0 in enum. So declaring dummy state.
-  invalid = 0 [(gogoproto.enumvalue_customname) = "SourceInvalid"];
-  // DepositSourceBalance denotes account balance as source of funds
-  balance = 1 [(gogoproto.enumvalue_customname)  = "SourceBalance"];
-  // DepositSourceGrant denotes authz grants as source of funds
-  grant = 2 [(gogoproto.enumvalue_customname)  = "SourceGrant"];
+  source_invalid = 0 [(gogoproto.enumvalue_customname) = "SourceInvalid"];
+  // SourceBalance denotes account balance as source of funds
+  source_balance = 1 [(gogoproto.enumvalue_customname)  = "SourceBalance"];
+  // SourceGrant denotes authz grants as source of funds
+  source_grant = 2 [(gogoproto.enumvalue_customname)  = "SourceGrant"];
 }
 
 // Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit.
 message Deposit {
-  // Deposit specifies the amount of coins to include in the deployment's first deposit.
+  // amount specifies the amount of coins to include in the deployment's first deposit.
   cosmos.base.v1beta1.Coin amount = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"amount\""
   ];
+
+  // direct indicates if deposited currency should be swapped to ACT (false) at time of the deposit
+  bool direct = 2 [
+    (gogoproto.customname)   = "Direct",
+    (gogoproto.jsontag)      = "direct",
+    (gogoproto.moretags)     = "yaml:\"direct\""
+  ];
+
+  reserved 3;
+  reserved 4;
 
   // Sources is the set of deposit sources, each entry must be unique.
   repeated Source sources = 5 [

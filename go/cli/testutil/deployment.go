@@ -5,10 +5,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktest "github.com/cosmos/cosmos-sdk/testutil"
-	// sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.akt.dev/go/cli"
-	// dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
 // ExecDeploymentCreate is used for testing create deployment tx

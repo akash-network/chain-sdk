@@ -1,4 +1,4 @@
-package v1beta4_test
+package v1beta5_test
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
-	types "pkg.akt.dev/go/node/deployment/v1beta4"
+	types "pkg.akt.dev/go/node/deployment/v1beta5"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	akashtypes "pkg.akt.dev/go/node/types/resources/v1beta4"
 	tutil "pkg.akt.dev/go/testutil"
@@ -90,8 +90,8 @@ func validSimpleGroupSpec() types.GroupSpec {
 			},
 			Endpoints: akashtypes.Endpoints{},
 		},
-		Count: 1,
-		Price: sdk.NewInt64DecCoin(tutil.CoinDenom, 1),
+		Count:  1,
+		Prices: sdk.DecCoins{sdk.NewInt64DecCoin(tutil.CoinDenom, 1)},
 	}
 	return types.GroupSpec{
 		Name:         "testGroup",
@@ -189,7 +189,7 @@ func TestGroupWithNilStorage(t *testing.T) {
 
 func TestGroupWithInvalidPrice(t *testing.T) {
 	group := validSimpleGroupSpec()
-	group.Resources[0].Price = sdk.DecCoin{}
+	group.Resources[0].Prices = sdk.DecCoins{}
 	err := group.ValidateBasic()
 	require.Error(t, err)
 	require.Regexp(t, "^.*invalid price object.*$", err)
@@ -197,7 +197,7 @@ func TestGroupWithInvalidPrice(t *testing.T) {
 
 func TestGroupWithNegativePrice(t *testing.T) {
 	group := validSimpleGroupSpec()
-	group.Resources[0].Price.Amount = sdkmath.LegacyNewDec(-1)
+	group.Resources[0].Prices[0].Amount = sdkmath.LegacyNewDec(-1)
 	err := group.ValidateBasic()
 	require.Error(t, err)
 	require.Regexp(t, "^.*invalid price object.*$", err)

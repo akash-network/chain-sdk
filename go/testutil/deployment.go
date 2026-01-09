@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	dtypes "pkg.akt.dev/go/node/deployment/v1"
-	dtypesv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
+	dtypesv1beta4 "pkg.akt.dev/go/node/deployment/v1beta5"
 )
 
 // sum256Seed provides a consistent sha256 value for initial Deployment.Version

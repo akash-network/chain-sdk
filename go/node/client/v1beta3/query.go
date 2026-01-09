@@ -18,10 +18,11 @@ import (
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
+	btypes "pkg.akt.dev/go/node/bme/v1"
 	ctypes "pkg.akt.dev/go/node/cert/v1"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
 	etypes "pkg.akt.dev/go/node/escrow/v1"
-	mtypes "pkg.akt.dev/go/node/market/v1beta5"
+	mtypes "pkg.akt.dev/go/node/market/v2beta1"
 	otypes "pkg.akt.dev/go/node/oracle/v1"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
 )
@@ -44,6 +45,7 @@ type sdkQueryClient struct {
 	params    paramstypes.QueryClient
 	wasm      wasmtypes.QueryClient
 	oracle    otypes.QueryClient
+	bme       btypes.QueryClient
 }
 
 type queryClient struct {
@@ -86,6 +88,7 @@ func newQueryClient(cctx sdkclient.Context) *queryClient {
 			params:    paramstypes.NewQueryClient(cctx),
 			wasm:      wasmtypes.NewQueryClient(cctx),
 			oracle:    otypes.NewQueryClient(cctx),
+			bme:       btypes.NewQueryClient(cctx),
 		},
 		cctx: cctx,
 	}
@@ -194,4 +197,9 @@ func (c *queryClient) Wasm() wasmtypes.QueryClient {
 // Oracle implements QueryClient by returning the oracle query client.
 func (c *queryClient) Oracle() otypes.QueryClient {
 	return c.sdk.oracle
+}
+
+// BME implements QueryClient by returning the bme query client.
+func (c *queryClient) BME() btypes.QueryClient {
+	return c.sdk.bme
 }
