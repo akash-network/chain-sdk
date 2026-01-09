@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
 )
 
 const (
@@ -58,6 +58,13 @@ func (s *sdl) UnmarshalYAML(node *yaml.Node) error {
 	// nolint: gocritic
 	if result.Ver.EQ(semver.MustParse("2.0.0")) {
 		var decoded v2
+		if err := node.Decode(&decoded); err != nil {
+			return err
+		}
+
+		result.data = &decoded
+	} else if result.Ver.GE(semver.MustParse("2.2.0")) {
+		var decoded v2_2
 		if err := node.Decode(&decoded); err != nil {
 			return err
 		}

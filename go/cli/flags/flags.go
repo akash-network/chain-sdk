@@ -285,6 +285,10 @@ const (
 	FlagAssetDenom = "asset-denom"
 	FlagBaseDenom  = "base-denom"
 
+	// bme flags
+
+	FlagTo = "to"
+
 	// wasm flags
 
 	FlagWasmMemoryCacheSize        = "wasm.memory_cache_size"

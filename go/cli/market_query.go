@@ -6,14 +6,13 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	v1 "pkg.akt.dev/go/node/market/v1"
-	"pkg.akt.dev/go/node/market/v1beta5"
+	mvbeta "pkg.akt.dev/go/node/market/v2beta1"
 )
 
 // GetQueryMarketCmds returns the transaction commands for the market module
 func GetQueryMarketCmds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        v1.ModuleName,
+		Use:                        mvbeta.ModuleName,
 		Short:                      "Market query commands",
 		SuggestionsMinimumDistance: 2,
 		RunE:                       sdkclient.ValidateCmd,
@@ -95,7 +94,7 @@ func GetQueryMarketOrdersCmd() *cobra.Command {
 				return err
 			}
 
-			params := &v1beta5.QueryOrdersRequest{
+			params := &mvbeta.QueryOrdersRequest{
 				Filters:    ofilters,
 				Pagination: pageReq,
 			}
@@ -131,7 +130,7 @@ func GetQueryMarketOrderCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Market().Order(ctx, &v1beta5.QueryOrderRequest{ID: id})
+			res, err := cl.Query().Market().Order(ctx, &mvbeta.QueryOrderRequest{ID: id})
 
 			if err != nil {
 				return err
@@ -167,7 +166,7 @@ func GetQueryMarketBidsCmd() *cobra.Command {
 				return err
 			}
 
-			params := &v1beta5.QueryBidsRequest{
+			params := &mvbeta.QueryBidsRequest{
 				Filters:    bfilters,
 				Pagination: pageReq,
 			}
@@ -203,7 +202,7 @@ func GetQueryMarketBidCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Market().Bid(ctx, &v1beta5.QueryBidRequest{ID: bidID})
+			res, err := cl.Query().Market().Bid(ctx, &mvbeta.QueryBidRequest{ID: bidID})
 			if err != nil {
 				return err
 			}
@@ -238,7 +237,7 @@ func GetQueryMarketLeasesCmd() *cobra.Command {
 				return err
 			}
 
-			params := &v1beta5.QueryLeasesRequest{
+			params := &mvbeta.QueryLeasesRequest{
 				Filters:    lfilters,
 				Pagination: pageReq,
 			}
@@ -274,7 +273,7 @@ func GetQueryMarketLeaseCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Market().Lease(cmd.Context(), &v1beta5.QueryLeaseRequest{ID: v1.MakeLeaseID(bidID)})
+			res, err := cl.Query().Market().Lease(cmd.Context(), &mvbeta.QueryLeaseRequest{ID: mvbeta.MakeLeaseID(bidID)})
 			if err != nil {
 				return err
 			}

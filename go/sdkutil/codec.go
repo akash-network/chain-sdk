@@ -147,6 +147,7 @@ func buildCustomGetSigners(options *signing.Options) []signing.CustomGetSigner {
 			MsgType: s.msgType,
 			Fn:      getSignerFromID(options, s.field, s.signer),
 		})
+
 	}
 
 	for _, signer := range signers {

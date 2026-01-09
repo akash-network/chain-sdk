@@ -1,4 +1,4 @@
-package v1beta4_test
+package v1beta5_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
-	types "pkg.akt.dev/go/node/deployment/v1beta4"
+	types "pkg.akt.dev/go/node/deployment/v1beta5"
 	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 	"pkg.akt.dev/go/testutil"
 )
@@ -26,9 +26,11 @@ func TestVersionValidation(t *testing.T) {
 				Groups: types.GroupSpecs{
 					testutil.GroupSpec(t),
 				},
-				Deposit: deposit.Deposit{
-					Amount:  testutil.AkashCoin(t, 0),
-					Sources: deposit.Sources{deposit.SourceBalance},
+				Deposits: deposit.Deposits{
+					{
+						Amount:  testutil.AkashCoin(t, 0),
+						Sources: deposit.Sources{deposit.SourceBalance},
+					},
 				},
 			},
 			err: nil,
@@ -40,9 +42,11 @@ func TestVersionValidation(t *testing.T) {
 				Groups: []types.GroupSpec{
 					testutil.GroupSpec(t),
 				},
-				Deposit: deposit.Deposit{
-					Amount:  testutil.AkashCoin(t, 0),
-					Sources: deposit.Sources{deposit.SourceBalance},
+				Deposits: deposit.Deposits{
+					{
+						Amount:  testutil.AkashCoin(t, 0),
+						Sources: deposit.Sources{deposit.SourceBalance},
+					},
 				},
 			},
 			err: v1.ErrEmptyHash,
@@ -54,9 +58,11 @@ func TestVersionValidation(t *testing.T) {
 				Groups: []types.GroupSpec{
 					testutil.GroupSpec(t),
 				},
-				Deposit: deposit.Deposit{
-					Amount:  testutil.AkashCoin(t, 0),
-					Sources: deposit.Sources{deposit.SourceBalance},
+				Deposits: deposit.Deposits{
+					{
+						Amount:  testutil.AkashCoin(t, 0),
+						Sources: deposit.Sources{deposit.SourceBalance},
+					},
 				},
 			},
 			err: v1.ErrInvalidHash,

@@ -4,6 +4,8 @@ import (
 	cerrors "cosmossdk.io/errors"
 )
 
+type Deposits []Deposit
+
 type Sources []Source
 
 func (m *Deposit) Validate() error {
@@ -31,6 +33,16 @@ func (m *Deposit) Validate() error {
 		}
 
 		sources[src] = 0
+	}
+
+	return nil
+}
+
+func (m Deposits) Validate() error {
+	for _, d := range m {
+		if err := d.Validate(); err != nil {
+			return err
+		}
 	}
 
 	return nil
