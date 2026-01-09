@@ -10,7 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	cerrors "cosmossdk.io/errors"
+	sdkerrors "cosmossdk.io/errors"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -26,8 +27,8 @@ const (
 )
 
 var (
-	ErrAttributesDuplicateKeys = cerrors.Register(ModuleName, errAttributesDuplicateKeys, "attributes cannot have duplicate keys")
-	ErrInvalidAttributeKey     = cerrors.Register(ModuleName, errInvalidAttributeKey, "attribute key does not match regexp")
+	ErrAttributesDuplicateKeys = sdkerrors.RegisterWithGRPCCode(ModuleName, errAttributesDuplicateKeys, codes.InvalidArgument, "attributes cannot have duplicate keys")
+	ErrInvalidAttributeKey     = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAttributeKey, codes.InvalidArgument, "attribute key does not match regexp")
 )
 
 var (

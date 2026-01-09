@@ -2,6 +2,7 @@ package v1
 
 import (
 	sdkerrors "cosmossdk.io/errors"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -10,5 +11,5 @@ const (
 
 var (
 	// ErrInvalidParam indicates an invalid chain parameter
-	ErrInvalidParam = sdkerrors.Register(ModuleName, errInvalidParam, "parameter invalid")
+	ErrInvalidParam = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidParam, codes.InvalidArgument, "parameter invalid")
 )
