@@ -28,6 +28,8 @@ npm install @akashnetwork/chain-sdk@alpha
 
 This package supports commonjs and ESM environments.
 
+> Check out [examples](./examples/) folder for details.
+
 ### Chain SDK
 
 #### Node.js/Server Environment
