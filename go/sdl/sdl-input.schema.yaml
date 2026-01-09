@@ -6,10 +6,126 @@ description: |
   Note: This schema validates structure only. Semantic validations (cross-references,
   unused endpoints, profile references, etc.) are performed at runtime by the Go parser.
   See README.md for details.
+
+definitions:
+  stringArrayOrNull:
+    description: String array or null value (used for command args and env vars)
+    anyOf:
+      - items:
+          type: string
+        type: array
+      - type: 'null'
+  
+  portNumber:
+    description: Valid TCP/UDP port number (1-65535)
+    type: integer
+    minimum: 1
+    maximum: 65535
+  
+  httpErrorCode:
+    description: HTTP error codes for proxy retry logic
+    enum:
+      - error
+      - timeout
+      - "500"
+      - "502"
+      - "503"
+      - "504"
+      - "403"
+      - "404"
+      - "429"
+      - off
+    type: string
+  
+  priceCoin:
+    description: Price definition with amount and denomination
+    additionalProperties: false
+    properties:
+      amount:
+        anyOf:
+          - type: string
+            pattern: '^[0-9]+(\.[0-9]+)?$'
+            description: Positive number as string
+          - type: number
+            minimum: 0
+            description: Positive number
+      denom:
+        pattern: '^(uakt|ibc/.*)$'
+        type: string
+    required:
+      - denom
+      - amount
+    type: object
+  
+  storageAttributesValidation:
+    description: |
+      Storage attributes validation:
+      1. RAM class must not be persistent
+      2. Non-RAM classes (beta1, beta2, beta3, default) require persistent=true
+    additionalProperties: false
+    properties:
+      class:
+        type: string
+      persistent:
+        anyOf:
+          - type: boolean
+          - type: string
+    allOf:
+      - if:
+          properties:
+            class:
+              const: ram
+          required:
+            - class
+        then:
+          properties:
+            persistent:
+              anyOf:
+                - const: false
+                - const: "false"
+      - if:
+          properties:
+            class:
+              enum:
+                - beta1
+                - beta2
+                - beta3
+                - default
+          required:
+            - class
+        then:
+          properties:
+            persistent:
+              anyOf:
+                - const: true
+                - const: "true"
+    type: object
+  
+  storageVolume:
+    description: Storage volume definition with size and optional attributes
+    additionalProperties: false
+    properties:
+      attributes:
+        $ref: '#/definitions/storageAttributesValidation'
+      name:
+        type: string
+      size:
+        type: string
+    required:
+      - size
+    type: object
+  
+  absolutePath:
+    description: Absolute filesystem path starting with /
+    type: string
+    minLength: 1
+    pattern: '^/'
+
 properties:
   deployment:
     additionalProperties:
       additionalProperties:
+        additionalProperties: false
         properties:
           count:
             minimum: 1
@@ -22,10 +138,12 @@ properties:
         type: object
       type: object
     type: object
+  
   endpoints:
     additionalProperties: false
     patternProperties:
       '^[a-z]+[-_0-9a-z]+$':
+        additionalProperties: false
         properties:
           kind:
             enum:
@@ -35,19 +153,25 @@ properties:
           - kind
         type: object
     type: object
+  
   include:
     description: Optional list of files to include
     items:
       type: string
     type: array
+  
   profiles:
+    additionalProperties: false
     properties:
       compute:
         additionalProperties:
+          additionalProperties: false
           properties:
             resources:
+              additionalProperties: false
               properties:
                 cpu:
+                  additionalProperties: false
                   properties:
                     attributes:
                       type: object
@@ -63,14 +187,17 @@ properties:
                     - units
                   type: object
                 gpu:
+                  additionalProperties: false
                   properties:
                     attributes:
+                      additionalProperties: false
                       properties:
                         vendor:
                           additionalProperties: false
                           properties:
                             nvidia:
                               items:
+                                additionalProperties: false
                                 properties:
                                   interface:
                                     enum:
@@ -91,6 +218,7 @@ properties:
                         - type: number
                   type: object
                 memory:
+                  additionalProperties: false
                   properties:
                     size:
                       type: string
@@ -99,64 +227,9 @@ properties:
                   type: object
                 storage:
                   anyOf:
-                    - properties:
-                        attributes:
-                          allOf:
-                            - if:
-                                properties:
-                                  class:
-                                    const: ram
-                                required:
-                                  - class
-                              then:
-                                properties:
-                                  persistent:
-                                    anyOf:
-                                      - const: false
-                                      - const: "false"
-                            - if:
-                                properties:
-                                  persistent:
-                                    anyOf:
-                                      - const: false
-                                      - const: "false"
-                                required:
-                                  - persistent
-                              then:
-                                not:
-                                  properties:
-                                    class: {}
-                          type: object
-                        name:
-                          type: string
-                        size:
-                          type: string
-                      required:
-                        - size
-                      type: object
+                    - $ref: '#/definitions/storageVolume'
                     - items:
-                        properties:
-                          attributes:
-                            if:
-                              properties:
-                                class:
-                                  const: ram
-                              required:
-                                - class
-                            then:
-                              properties:
-                                persistent:
-                                  anyOf:
-                                    - const: false
-                                    - const: "false"
-                            type: object
-                          name:
-                            type: string
-                          size:
-                            type: string
-                        required:
-                          - size
-                        type: object
+                        $ref: '#/definitions/storageVolume'
                       type: array
               required:
                 - cpu
@@ -169,25 +242,16 @@ properties:
         type: object
       placement:
         additionalProperties:
+          additionalProperties: false
           properties:
             attributes:
               type: object
             pricing:
               additionalProperties:
-                properties:
-                  amount:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  denom:
-                    pattern: '^(uakt|ibc/.*)$'
-                    type: string
-                required:
-                  - denom
-                  - amount
-                type: object
+                $ref: '#/definitions/priceCoin'
               type: object
             signedBy:
+              additionalProperties: false
               properties:
                 allOf:
                   items:
@@ -206,22 +270,16 @@ properties:
       - compute
       - placement
     type: object
+  
   services:
     additionalProperties:
       properties:
         args:
-          anyOf:
-            - items:
-                type: string
-              type: array
-            - type: 'null'
+          $ref: '#/definitions/stringArrayOrNull'
         command:
-          anyOf:
-            - items:
-                type: string
-              type: array
-            - type: 'null'
+          $ref: '#/definitions/stringArrayOrNull'
         credentials:
+          additionalProperties: false
           properties:
             email:
               type: string
@@ -242,32 +300,66 @@ properties:
           type: object
         dependencies:
           items:
+            additionalProperties: false
             properties:
               service:
                 type: string
             type: object
           type: array
         env:
-          anyOf:
-            - items:
-                type: string
-              type: array
-            - type: 'null'
+          $ref: '#/definitions/stringArrayOrNull'
         expose:
           items:
+            additionalProperties: false
             properties:
               accept:
-                    items:
-                      type: string
-                    type: array
+                items:
+                  type: string
+                type: array
               as:
-                maximum: 65535
-                minimum: 1
-                type: integer
+                $ref: '#/definitions/portNumber'
+              http_options:
+                additionalProperties: false
+                properties:
+                  max_body_size:
+                    type: integer
+                    minimum: 0
+                    maximum: 104857600
+                    description: Maximum body size in bytes (max 100 MB)
+                  next_cases:
+                    anyOf:
+                      - type: array
+                        items:
+                          $ref: '#/definitions/httpErrorCode'
+                        contains:
+                          const: off
+                        maxItems: 1
+                        minItems: 1
+                      - type: array
+                        items:
+                          $ref: '#/definitions/httpErrorCode'
+                        not:
+                          contains:
+                            const: off
+                  next_timeout:
+                    type: integer
+                    minimum: 0
+                  next_tries:
+                    type: integer
+                    minimum: 0
+                  read_timeout:
+                    type: integer
+                    minimum: 0
+                    maximum: 60000
+                    description: Read timeout in milliseconds (max 60 seconds)
+                  send_timeout:
+                    type: integer
+                    minimum: 0
+                    maximum: 60000
+                    description: Send timeout in milliseconds (max 60 seconds)
+                type: object
               port:
-                maximum: 65535
-                minimum: 1
-                type: integer
+                $ref: '#/definitions/portNumber'
               proto:
                 enum:
                   - TCP
@@ -277,6 +369,15 @@ properties:
                 type: string
               to:
                 items:
+                  additionalProperties: false
+                  properties:
+                    global:
+                      type: boolean
+                    ip:
+                      minLength: 1
+                      type: string
+                    service:
+                      type: string
                   allOf:
                     - if:
                         properties:
@@ -291,67 +392,6 @@ properties:
                             const: true
                         required:
                           - global
-                      type: object
-                    - properties:
-                        global:
-                          type: boolean
-                        http_options:
-                          properties:
-                            max_body_size:
-                              type: integer
-                            next_cases:
-                              anyOf:
-                                - type: array
-                                  items:
-                                    enum:
-                                      - error
-                                      - timeout
-                                      - "500"
-                                      - "502"
-                                      - "503"
-                                      - "504"
-                                      - "403"
-                                      - "404"
-                                      - "429"
-                                      - off
-                                    type: string
-                                  contains:
-                                    const: off
-                                  maxItems: 1
-                                  minItems: 1
-                                - type: array
-                                  items:
-                                    enum:
-                                      - error
-                                      - timeout
-                                      - "500"
-                                      - "502"
-                                      - "503"
-                                      - "504"
-                                      - "403"
-                                      - "404"
-                                      - "429"
-                                      - off
-                                    type: string
-                                  not:
-                                    contains:
-                                      const: off
-                            next_timeout:
-                              type: integer
-                              minimum: 0
-                            next_tries:
-                              type: integer
-                            read_timeout:
-                              type: integer
-                            send_timeout:
-                              type: integer
-                          type: object
-                        ip:
-                          minLength: 1
-                          type: string
-                        service:
-                          type: string
-                      type: object
                   type: object
                 type: array
             required:
@@ -362,12 +402,14 @@ properties:
           type: string
           minLength: 1
         params:
+          additionalProperties: false
           properties:
             storage:
               additionalProperties:
+                additionalProperties: false
                 properties:
                   mount:
-                    type: string
+                    $ref: '#/definitions/absolutePath'
                   readOnly:
                     type: boolean
                 type: object
@@ -377,14 +419,18 @@ properties:
         - image
       type: object
     type: object
+  
   version:
     description: SDL version
     enum:
       - '2.0'
       - '2.1'
     type: string
+
 required:
   - version
+  - services
+  - profiles
   - deployment
 title: Akash SDL Input Schema
 type: object
