@@ -1,10 +1,16 @@
 package testutil
 
 import (
+	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	cmbtypes "github.com/cometbft/cometbft/abci/types"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 func Coin(t testing.TB) sdk.Coin {
@@ -41,4 +47,16 @@ func AkashDecCoinRandom(t testing.TB) sdk.DecCoin {
 	t.Helper()
 	amt := sdkmath.NewInt(int64(RandRangeInt(1, 1000)))
 	return sdk.NewDecCoin(CoinDenom, amt)
+}
+
+func EnsureEvent(t *testing.T, events []cmbtypes.Event, expEvent proto.Message) {
+	for _, e := range events {
+		iev, err := sdk.ParseTypedEvent(e)
+		require.NoError(t, err)
+		if reflect.DeepEqual(iev, expEvent) {
+			return
+		}
+	}
+
+	t.Errorf("events don't have required event \"%v\"", expEvent)
 }

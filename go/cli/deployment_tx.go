@@ -9,13 +9,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
+	cflags "pkg.akt.dev/go/cli/flags"
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
 	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 	"pkg.akt.dev/go/node/types/constants"
 	"pkg.akt.dev/go/sdl"
 	cutils "pkg.akt.dev/go/util/tls"
-
-	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 var (

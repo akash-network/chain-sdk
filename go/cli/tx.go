@@ -87,6 +87,8 @@ func TxCmd() *cobra.Command {
 		GetTxSlashingCmd(),
 		GetTxStakingCmd(),
 		GetTxUpgradeCmd(),
+		GetTxWasmCmd(),
+		GetTxOracleCmd(),
 	)
 
 	cmd.PersistentFlags().String(cflags.FlagChainID, "", "The network chain ID")

@@ -60,6 +60,7 @@ GOGOPROTO_VERSION               ?= $(shell cd $(GO_ROOT); $(GO) list -mod=readon
 PROTOC_GEN_GOCOSMOS_VERSION     ?= $(GOGOPROTO_VERSION)
 PROTOC_GEN_GO_PULSAR_VERSION    ?= $(shell cd $(GO_ROOT); $(GO) list -mod=readonly -m -f '{{ .Version }}' github.com/cosmos/cosmos-proto)
 PROTOC_GEN_GO_VERSION           ?= $(shell cd $(GO_ROOT); $(GO) list -mod=readonly -m -f '{{ .Version }}' google.golang.org/protobuf)
+PROTOC_GEN_PROST_VERSION        := v1.62.0
 PROTOC_GEN_GRPC_GATEWAY_VERSION := $(shell cd $(GO_ROOT); $(GO) list -mod=readonly -m -f '{{ .Version }}' github.com/grpc-ecosystem/grpc-gateway)
 PROTOC_GEN_DOC_VERSION          := $(shell cd $(GO_ROOT); $(GO) list -mod=readonly -m -f '{{ .Version }}' github.com/pseudomuto/protoc-gen-doc)
 PROTOC_GEN_SWAGGER_VERSION      := $(PROTOC_GEN_GRPC_GATEWAY_VERSION)
@@ -74,6 +75,7 @@ GOGOPROTO_VERSION_FILE               := $(AKASH_DEVCACHE_VERSIONS)/gogoproto/$(G
 PROTOC_GEN_GOCOSMOS_VERSION_FILE     := $(AKASH_DEVCACHE_VERSIONS)/protoc-gen-gocosmos/$(PROTOC_GEN_GOCOSMOS_VERSION)
 PROTOC_GEN_GO_PULSAR_VERSION_FILE    := $(AKASH_DEVCACHE_VERSIONS)/protoc-gen-go-pulsar/$(PROTOC_GEN_GO_PULSAR_VERSION)
 PROTOC_GEN_GO_VERSION_FILE           := $(AKASH_DEVCACHE_VERSIONS)/protoc-gen-go/$(PROTOC_GEN_GO_VERSION)
+PROTOC_GEN_PROST_VERSION_FILE        := $(AKASH_DEVCACHE_VERSIONS)/protoc-gen-prost/$(PROTOC_GEN_PROST_VERSION)
 PROTOC_GEN_GOGO_VERSION_FILE         := $(AKASH_DEVCACHE_VERSIONS)/protoc-gen-gogo/$(GOGOPROTO_VERSION)
 PROTOC_GEN_GRPC_GATEWAY_VERSION_FILE := $(AKASH_DEVCACHE_VERSIONS)/protoc-gen-grpc-gateway/$(PROTOC_GEN_GRPC_GATEWAY_VERSION)
 PROTOC_GEN_SWAGGER_VERSION_FILE      := $(AKASH_DEVCACHE_VERSIONS)/protoc-gen-swagger/$(PROTOC_GEN_SWAGGER_VERSION)
@@ -90,6 +92,7 @@ PROTOC_GEN_GOCOSMOS              := $(AKASH_DEVCACHE_BIN)/protoc-gen-gocosmos
 GOGOPROTO                        := $(AKASH_DEVCACHE_BIN)/gogoproto
 PROTOC_GEN_GO_PULSAR             := $(AKASH_DEVCACHE_BIN)/protoc-gen-go-pulsar
 PROTOC_GEN_GO                    := $(AKASH_DEVCACHE_BIN)/protoc-gen-go
+PROTOC_GEN_PROST                 := $(AKASH_DEVCACHE_BIN)/protoc-gen-prost
 PROTOC_GEN_GOGO                  := $(AKASH_DEVCACHE_BIN)/protoc-gen-gogo
 PROTOC_GEN_GRPC_GATEWAY          := $(AKASH_DEVCACHE_BIN)/protoc-gen-grpc-gateway
 PROTOC_GEN_SWAGGER               := $(AKASH_DEVCACHE_BIN)/protoc-gen-swagger

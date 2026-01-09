@@ -32,4 +32,5 @@ func TestCLITestSuite(t *testing.T) {
 	suite.Run(t, new(GenesisCLITestSuite))
 	suite.Run(t, new(SlashingCLITestSuite))
 	suite.Run(t, new(StakingCLITestSuite))
+	suite.Run(t, new(OracleCLITestSuite))
 }
