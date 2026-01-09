@@ -3,6 +3,7 @@ package module_test
 import (
 	"testing"
 
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,94 +13,112 @@ import (
 
 func TestErrorGRPCStatusCodes(t *testing.T) {
 	tests := []struct {
-		name         string
-		err          error
-		expectedCode codes.Code
+		name             string
+		err              *sdkerrors.Error
+		expectedGRPCCode codes.Code
+		expectedABCICode uint32
 	}{
 		{
-			name:         "account_not_found_returns_not_found",
-			err:          module.ErrAccountNotFound,
-			expectedCode: codes.NotFound,
+			name:             "account_exists",
+			err:              module.ErrAccountExists,
+			expectedGRPCCode: codes.AlreadyExists,
+			expectedABCICode: 1,
 		},
 		{
-			name:         "payment_not_found_returns_not_found",
-			err:          module.ErrPaymentNotFound,
-			expectedCode: codes.NotFound,
+			name:             "account_closed",
+			err:              module.ErrAccountClosed,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 2,
 		},
 		{
-			name:         "account_exists_returns_already_exists",
-			err:          module.ErrAccountExists,
-			expectedCode: codes.AlreadyExists,
+			name:             "account_not_found",
+			err:              module.ErrAccountNotFound,
+			expectedGRPCCode: codes.NotFound,
+			expectedABCICode: 3,
 		},
 		{
-			name:         "payment_exists_returns_already_exists",
-			err:          module.ErrPaymentExists,
-			expectedCode: codes.AlreadyExists,
+			name:             "account_overdrawn",
+			err:              module.ErrAccountOverdrawn,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 4,
 		},
 		{
-			name:         "invalid_denomination_returns_invalid_argument",
-			err:          module.ErrInvalidDenomination,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_denomination",
+			err:              module.ErrInvalidDenomination,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 5,
 		},
 		{
-			name:         "payment_rate_zero_returns_invalid_argument",
-			err:          module.ErrPaymentRateZero,
-			expectedCode: codes.InvalidArgument,
+			name:             "payment_exists",
+			err:              module.ErrPaymentExists,
+			expectedGRPCCode: codes.AlreadyExists,
+			expectedABCICode: 6,
 		},
 		{
-			name:         "invalid_payment_returns_invalid_argument",
-			err:          module.ErrInvalidPayment,
-			expectedCode: codes.InvalidArgument,
+			name:             "payment_closed",
+			err:              module.ErrPaymentClosed,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 7,
 		},
 		{
-			name:         "invalid_settlement_returns_invalid_argument",
-			err:          module.ErrInvalidSettlement,
-			expectedCode: codes.InvalidArgument,
+			name:             "payment_not_found",
+			err:              module.ErrPaymentNotFound,
+			expectedGRPCCode: codes.NotFound,
+			expectedABCICode: 8,
 		},
 		{
-			name:         "invalid_id_returns_invalid_argument",
-			err:          module.ErrInvalidID,
-			expectedCode: codes.InvalidArgument,
+			name:             "payment_rate_zero",
+			err:              module.ErrPaymentRateZero,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 9,
 		},
 		{
-			name:         "invalid_account_returns_invalid_argument",
-			err:          module.ErrInvalidAccount,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_payment",
+			err:              module.ErrInvalidPayment,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 10,
 		},
 		{
-			name:         "invalid_account_depositor_returns_invalid_argument",
-			err:          module.ErrInvalidAccountDepositor,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_settlement",
+			err:              module.ErrInvalidSettlement,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 11,
 		},
 		{
-			name:         "invalid_deposit_returns_invalid_argument",
-			err:          module.ErrInvalidDeposit,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_id",
+			err:              module.ErrInvalidID,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 12,
 		},
 		{
-			name:         "invalid_authz_scope_returns_invalid_argument",
-			err:          module.ErrInvalidAuthzScope,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_account",
+			err:              module.ErrInvalidAccount,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 13,
 		},
 		{
-			name:         "account_closed_returns_failed_precondition",
-			err:          module.ErrAccountClosed,
-			expectedCode: codes.FailedPrecondition,
+			name:             "invalid_account_depositor",
+			err:              module.ErrInvalidAccountDepositor,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 14,
 		},
 		{
-			name:         "account_overdrawn_returns_failed_precondition",
-			err:          module.ErrAccountOverdrawn,
-			expectedCode: codes.FailedPrecondition,
+			name:             "unauthorized_deposit_scope",
+			err:              module.ErrUnauthorizedDepositScope,
+			expectedGRPCCode: codes.PermissionDenied,
+			expectedABCICode: 15,
 		},
 		{
-			name:         "payment_closed_returns_failed_precondition",
-			err:          module.ErrPaymentClosed,
-			expectedCode: codes.FailedPrecondition,
+			name:             "invalid_deposit",
+			err:              module.ErrInvalidDeposit,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 16,
 		},
 		{
-			name:         "unauthorized_deposit_scope_returns_permission_denied",
-			err:          module.ErrUnauthorizedDepositScope,
-			expectedCode: codes.PermissionDenied,
+			name:             "invalid_authz_scope",
+			err:              module.ErrInvalidAuthzScope,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 17,
 		},
 	}
 
@@ -107,8 +126,8 @@ func TestErrorGRPCStatusCodes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			st, ok := status.FromError(tt.err)
 			require.True(t, ok, "error should be convertible to gRPC status")
-			require.Equal(t, tt.expectedCode, st.Code(), "gRPC status code mismatch")
+			require.Equal(t, tt.expectedGRPCCode, st.Code(), "gRPC status code mismatch")
+			require.Equal(t, tt.expectedABCICode, tt.err.ABCICode(), "ABCI error code mismatch")
 		})
 	}
 }
-

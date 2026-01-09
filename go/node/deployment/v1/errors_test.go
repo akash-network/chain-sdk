@@ -3,6 +3,7 @@ package v1_test
 import (
 	"testing"
 
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,124 +13,148 @@ import (
 
 func TestErrorGRPCStatusCodes(t *testing.T) {
 	tests := []struct {
-		name         string
-		err          error
-		expectedCode codes.Code
+		name             string
+		err              *sdkerrors.Error
+		expectedGRPCCode codes.Code
+		expectedABCICode uint32
 	}{
 		{
-			name:         "deployment_not_found_returns_not_found",
-			err:          v1.ErrDeploymentNotFound,
-			expectedCode: codes.NotFound,
+			name:             "name_does_not_exist",
+			err:              v1.ErrNameDoesNotExist,
+			expectedGRPCCode: codes.NotFound,
+			expectedABCICode: 1,
 		},
 		{
-			name:         "group_not_found_returns_not_found",
-			err:          v1.ErrGroupNotFound,
-			expectedCode: codes.NotFound,
+			name:             "invalid_request",
+			err:              v1.ErrInvalidRequest,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 2,
 		},
 		{
-			name:         "name_does_not_exist_returns_not_found",
-			err:          v1.ErrNameDoesNotExist,
-			expectedCode: codes.NotFound,
+			name:             "deployment_exists",
+			err:              v1.ErrDeploymentExists,
+			expectedGRPCCode: codes.AlreadyExists,
+			expectedABCICode: 3,
 		},
 		{
-			name:         "deployment_exists_returns_already_exists",
-			err:          v1.ErrDeploymentExists,
-			expectedCode: codes.AlreadyExists,
+			name:             "deployment_not_found",
+			err:              v1.ErrDeploymentNotFound,
+			expectedGRPCCode: codes.NotFound,
+			expectedABCICode: 4,
 		},
 		{
-			name:         "invalid_request_returns_invalid_argument",
-			err:          v1.ErrInvalidRequest,
-			expectedCode: codes.InvalidArgument,
+			name:             "deployment_closed",
+			err:              v1.ErrDeploymentClosed,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 5,
 		},
 		{
-			name:         "invalid_groups_returns_invalid_argument",
-			err:          v1.ErrInvalidGroups,
-			expectedCode: codes.InvalidArgument,
+			name:             "owner_account_missing",
+			err:              v1.ErrOwnerAcctMissing,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 6,
 		},
 		{
-			name:         "invalid_deployment_id_returns_invalid_argument",
-			err:          v1.ErrInvalidDeploymentID,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_groups",
+			err:              v1.ErrInvalidGroups,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 7,
 		},
 		{
-			name:         "empty_hash_returns_invalid_argument",
-			err:          v1.ErrEmptyHash,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_deployment_id",
+			err:              v1.ErrInvalidDeploymentID,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 8,
 		},
 		{
-			name:         "invalid_hash_returns_invalid_argument",
-			err:          v1.ErrInvalidHash,
-			expectedCode: codes.InvalidArgument,
+			name:             "empty_hash",
+			err:              v1.ErrEmptyHash,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 9,
 		},
 		{
-			name:         "invalid_deployment_returns_invalid_argument",
-			err:          v1.ErrInvalidDeployment,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_hash",
+			err:              v1.ErrInvalidHash,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 10,
 		},
 		{
-			name:         "invalid_group_id_returns_invalid_argument",
-			err:          v1.ErrInvalidGroupID,
-			expectedCode: codes.InvalidArgument,
+			name:             "internal",
+			err:              v1.ErrInternal,
+			expectedGRPCCode: codes.Internal,
+			expectedABCICode: 11,
 		},
 		{
-			name:         "invalid_deposit_returns_invalid_argument",
-			err:          v1.ErrInvalidDeposit,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_deployment",
+			err:              v1.ErrInvalidDeployment,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 12,
 		},
 		{
-			name:         "invalid_id_path_returns_invalid_argument",
-			err:          v1.ErrInvalidIDPath,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_group_id",
+			err:              v1.ErrInvalidGroupID,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 13,
 		},
 		{
-			name:         "invalid_param_returns_invalid_argument",
-			err:          v1.ErrInvalidParam,
-			expectedCode: codes.InvalidArgument,
+			name:             "group_not_found",
+			err:              v1.ErrGroupNotFound,
+			expectedGRPCCode: codes.NotFound,
+			expectedABCICode: 14,
 		},
 		{
-			name:         "invalid_escrow_id_returns_invalid_argument",
-			err:          v1.ErrInvalidEscrowID,
-			expectedCode: codes.InvalidArgument,
+			name:             "group_closed",
+			err:              v1.ErrGroupClosed,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 15,
 		},
 		{
-			name:         "owner_account_missing_returns_invalid_argument",
-			err:          v1.ErrOwnerAcctMissing,
-			expectedCode: codes.InvalidArgument,
+			name:             "group_open",
+			err:              v1.ErrGroupOpen,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 16,
 		},
 		{
-			name:         "group_spec_invalid_returns_invalid_argument",
-			err:          v1.ErrGroupSpecInvalid,
-			expectedCode: codes.InvalidArgument,
+			name:             "group_paused",
+			err:              v1.ErrGroupPaused,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 17,
 		},
 		{
-			name:         "deployment_closed_returns_failed_precondition",
-			err:          v1.ErrDeploymentClosed,
-			expectedCode: codes.FailedPrecondition,
+			name:             "group_not_open",
+			err:              v1.ErrGroupNotOpen,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 18,
 		},
 		{
-			name:         "group_closed_returns_failed_precondition",
-			err:          v1.ErrGroupClosed,
-			expectedCode: codes.FailedPrecondition,
+			name:             "group_spec_invalid",
+			err:              v1.ErrGroupSpecInvalid,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 19,
 		},
 		{
-			name:         "group_open_returns_failed_precondition",
-			err:          v1.ErrGroupOpen,
-			expectedCode: codes.FailedPrecondition,
+			name:             "invalid_deposit",
+			err:              v1.ErrInvalidDeposit,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 20,
 		},
 		{
-			name:         "group_paused_returns_failed_precondition",
-			err:          v1.ErrGroupPaused,
-			expectedCode: codes.FailedPrecondition,
+			name:             "invalid_id_path",
+			err:              v1.ErrInvalidIDPath,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 21,
 		},
 		{
-			name:         "group_not_open_returns_failed_precondition",
-			err:          v1.ErrGroupNotOpen,
-			expectedCode: codes.FailedPrecondition,
+			name:             "invalid_param",
+			err:              v1.ErrInvalidParam,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 22,
 		},
 		{
-			name:         "internal_error_returns_internal",
-			err:          v1.ErrInternal,
-			expectedCode: codes.Internal,
+			name:             "invalid_escrow_id",
+			err:              v1.ErrInvalidEscrowID,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 23,
 		},
 	}
 
@@ -137,7 +162,8 @@ func TestErrorGRPCStatusCodes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			st, ok := status.FromError(tt.err)
 			require.True(t, ok, "error should be convertible to gRPC status")
-			require.Equal(t, tt.expectedCode, st.Code(), "gRPC status code mismatch")
+			require.Equal(t, tt.expectedGRPCCode, st.Code(), "gRPC status code mismatch")
+			require.Equal(t, tt.expectedABCICode, tt.err.ABCICode(), "ABCI error code mismatch")
 		})
 	}
 }

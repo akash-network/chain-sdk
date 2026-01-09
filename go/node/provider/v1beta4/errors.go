@@ -14,6 +14,7 @@ const (
 	errAttributes
 	errIncompatibleAttributes
 	errInvalidInfoWebsite
+	errInternal
 )
 
 var (
@@ -40,4 +41,7 @@ var (
 
 	// ErrInvalidInfoWebsite register error code for invalid info website
 	ErrInvalidInfoWebsite = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidInfoWebsite, codes.InvalidArgument, "invalid provider: invalid info website")
+
+	// ErrInternal internal error
+	ErrInternal = sdkerrors.RegisterWithGRPCCode(ModuleName, errInternal, codes.Internal, "internal error")
 )

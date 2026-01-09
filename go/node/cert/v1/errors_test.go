@@ -3,6 +3,7 @@ package v1_test
 import (
 	"testing"
 
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,54 +13,64 @@ import (
 
 func TestErrorGRPCStatusCodes(t *testing.T) {
 	tests := []struct {
-		name         string
-		err          error
-		expectedCode codes.Code
+		name             string
+		err              *sdkerrors.Error
+		expectedGRPCCode codes.Code
+		expectedABCICode uint32
 	}{
 		{
-			name:         "certificate_not_found_returns_not_found",
-			err:          v1.ErrCertificateNotFound,
-			expectedCode: codes.NotFound,
+			name:             "certificate_not_found",
+			err:              v1.ErrCertificateNotFound,
+			expectedGRPCCode: codes.NotFound,
+			expectedABCICode: 1,
 		},
 		{
-			name:         "certificate_exists_returns_already_exists",
-			err:          v1.ErrCertificateExists,
-			expectedCode: codes.AlreadyExists,
+			name:             "invalid_address",
+			err:              v1.ErrInvalidAddress,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 2,
 		},
 		{
-			name:         "invalid_address_returns_invalid_argument",
-			err:          v1.ErrInvalidAddress,
-			expectedCode: codes.InvalidArgument,
+			name:             "certificate_exists",
+			err:              v1.ErrCertificateExists,
+			expectedGRPCCode: codes.AlreadyExists,
+			expectedABCICode: 3,
 		},
 		{
-			name:         "invalid_serial_number_returns_invalid_argument",
-			err:          v1.ErrInvalidSerialNumber,
-			expectedCode: codes.InvalidArgument,
+			name:             "certificate_already_revoked",
+			err:              v1.ErrCertificateAlreadyRevoked,
+			expectedGRPCCode: codes.FailedPrecondition,
+			expectedABCICode: 4,
 		},
 		{
-			name:         "invalid_certificate_value_returns_invalid_argument",
-			err:          v1.ErrInvalidCertificateValue,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_serial_number",
+			err:              v1.ErrInvalidSerialNumber,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 5,
 		},
 		{
-			name:         "invalid_pubkey_value_returns_invalid_argument",
-			err:          v1.ErrInvalidPubkeyValue,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_certificate_value",
+			err:              v1.ErrInvalidCertificateValue,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 6,
 		},
 		{
-			name:         "invalid_state_returns_invalid_argument",
-			err:          v1.ErrInvalidState,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_pubkey_value",
+			err:              v1.ErrInvalidPubkeyValue,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 7,
 		},
 		{
-			name:         "invalid_key_size_returns_invalid_argument",
-			err:          v1.ErrInvalidKeySize,
-			expectedCode: codes.InvalidArgument,
+			name:             "invalid_state",
+			err:              v1.ErrInvalidState,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 8,
 		},
 		{
-			name:         "certificate_already_revoked_returns_failed_precondition",
-			err:          v1.ErrCertificateAlreadyRevoked,
-			expectedCode: codes.FailedPrecondition,
+			name:             "invalid_key_size",
+			err:              v1.ErrInvalidKeySize,
+			expectedGRPCCode: codes.InvalidArgument,
+			expectedABCICode: 9,
 		},
 	}
 
@@ -67,7 +78,8 @@ func TestErrorGRPCStatusCodes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			st, ok := status.FromError(tt.err)
 			require.True(t, ok, "error should be convertible to gRPC status")
-			require.Equal(t, tt.expectedCode, st.Code(), "gRPC status code mismatch")
+			require.Equal(t, tt.expectedGRPCCode, st.Code(), "gRPC status code mismatch")
+			require.Equal(t, tt.expectedABCICode, tt.err.ABCICode(), "ABCI error code mismatch")
 		})
 	}
 }
