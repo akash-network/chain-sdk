@@ -3,13 +3,13 @@ version: '2.0'
 services:
   wordpress:
     image: wordpress
-    depends_on:
-    - db
+    dependencies:
+      - service: db
     expose:
       - port: 80
         http_options:
           max_body_size: 104857600
-        # accept: 
+        # accept:
         # - "example.com"
         to:
           - global: true
