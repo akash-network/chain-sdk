@@ -120,6 +120,35 @@ definitions:
     type: string
     minLength: 1
     pattern: '^/'
+  
+  exposeToItem:
+    description: |
+      Expose target validation:
+      If 'ip' endpoint is specified, 'global' must be true
+    additionalProperties: false
+    properties:
+      global:
+        type: boolean
+      ip:
+        minLength: 1
+        type: string
+      service:
+        type: string
+    allOf:
+      - if:
+          properties:
+            ip:
+              type: string
+              minLength: 1
+          required:
+            - ip
+        then:
+          properties:
+            global:
+              const: true
+          required:
+            - global
+    type: object
 
 properties:
   deployment:
@@ -369,30 +398,7 @@ properties:
                 type: string
               to:
                 items:
-                  additionalProperties: false
-                  properties:
-                    global:
-                      type: boolean
-                    ip:
-                      minLength: 1
-                      type: string
-                    service:
-                      type: string
-                  allOf:
-                    - if:
-                        properties:
-                          ip:
-                            type: string
-                            minLength: 1
-                        required:
-                          - ip
-                      then:
-                        properties:
-                          global:
-                            const: true
-                        required:
-                          - global
-                  type: object
+                  $ref: '#/definitions/exposeToItem'
                 type: array
             required:
               - port
