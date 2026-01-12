@@ -10,7 +10,7 @@ description: |
 definitions:
   stringArrayOrNull:
     description: String array or null value (used for command args and env vars)
-    anyOf:
+    oneOf:
       - items:
           type: string
         type: array
@@ -42,7 +42,7 @@ definitions:
     additionalProperties: false
     properties:
       amount:
-        anyOf:
+        oneOf:
           - type: string
             pattern: '^[0-9]+(\.[0-9]+)?$'
             description: Positive number as string
@@ -67,7 +67,7 @@ definitions:
       class:
         type: string
       persistent:
-        anyOf:
+        oneOf:
           - type: boolean
           - type: string
     allOf:
@@ -80,7 +80,7 @@ definitions:
         then:
           properties:
             persistent:
-              anyOf:
+              oneOf:
                 - const: false
                 - const: "false"
       - if:
@@ -96,7 +96,7 @@ definitions:
         then:
           properties:
             persistent:
-              anyOf:
+              oneOf:
                 - const: true
                 - const: "true"
     type: object
@@ -176,7 +176,7 @@ properties:
                     attributes:
                       type: object
                     units:
-                      anyOf:
+                      oneOf:
                         - type: string
                           pattern: '^-?[0-9]+(\.[0-9]+)?[a-zA-Z]*$'
                           not:
@@ -213,7 +213,7 @@ properties:
                           type: object
                       type: object
                     units:
-                      anyOf:
+                      oneOf:
                         - type: string
                         - type: number
                   type: object
@@ -226,7 +226,7 @@ properties:
                     - size
                   type: object
                 storage:
-                  anyOf:
+                  oneOf:
                     - $ref: '#/definitions/storageVolume'
                     - items:
                         $ref: '#/definitions/storageVolume'
@@ -327,7 +327,7 @@ properties:
                     maximum: 104857600
                     description: Maximum body size in bytes (max 100 MB)
                   next_cases:
-                    anyOf:
+                    oneOf:
                       - type: array
                         items:
                           $ref: '#/definitions/httpErrorCode'
