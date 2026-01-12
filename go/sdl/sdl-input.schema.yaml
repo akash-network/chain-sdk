@@ -149,6 +149,99 @@ definitions:
           required:
             - global
     type: object
+  
+  httpOptions:
+    description: HTTP proxy options for expose configuration
+    additionalProperties: false
+    properties:
+      max_body_size:
+        type: integer
+        minimum: 0
+        maximum: 104857600
+        description: Maximum body size in bytes (max 100 MB)
+      next_cases:
+        oneOf:
+          - type: array
+            items:
+              $ref: '#/definitions/httpErrorCode'
+            contains:
+              const: off
+            maxItems: 1
+            minItems: 1
+          - type: array
+            items:
+              $ref: '#/definitions/httpErrorCode'
+            not:
+              contains:
+                const: off
+      next_timeout:
+        type: integer
+        minimum: 0
+      next_tries:
+        type: integer
+        minimum: 0
+      read_timeout:
+        type: integer
+        minimum: 0
+        maximum: 60000
+        description: Read timeout in milliseconds (max 60 seconds)
+      send_timeout:
+        type: integer
+        minimum: 0
+        maximum: 60000
+        description: Send timeout in milliseconds (max 60 seconds)
+    type: object
+  
+  credentials:
+    description: Container registry credentials
+    additionalProperties: false
+    properties:
+      email:
+        type: string
+        minLength: 5
+      host:
+        type: string
+        minLength: 1
+      password:
+        type: string
+        minLength: 6
+      username:
+        type: string
+        minLength: 1
+    required:
+      - host
+      - username
+      - password
+    type: object
+  
+  exposeItem:
+    description: Service expose configuration (port, protocol, http options)
+    additionalProperties: false
+    properties:
+      accept:
+        items:
+          type: string
+        type: array
+      as:
+        $ref: '#/definitions/portNumber'
+      http_options:
+        $ref: '#/definitions/httpOptions'
+      port:
+        $ref: '#/definitions/portNumber'
+      proto:
+        enum:
+          - TCP
+          - UDP
+          - tcp
+          - udp
+        type: string
+      to:
+        items:
+          $ref: '#/definitions/exposeToItem'
+        type: array
+    required:
+      - port
+    type: object
 
 properties:
   deployment:
@@ -308,25 +401,7 @@ properties:
         command:
           $ref: '#/definitions/stringArrayOrNull'
         credentials:
-          additionalProperties: false
-          properties:
-            email:
-              type: string
-              minLength: 5
-            host:
-              type: string
-              minLength: 1
-            password:
-              type: string
-              minLength: 6
-            username:
-              type: string
-              minLength: 1
-          required:
-            - host
-            - username
-            - password
-          type: object
+          $ref: '#/definitions/credentials'
         dependencies:
           items:
             additionalProperties: false
@@ -339,70 +414,7 @@ properties:
           $ref: '#/definitions/stringArrayOrNull'
         expose:
           items:
-            additionalProperties: false
-            properties:
-              accept:
-                items:
-                  type: string
-                type: array
-              as:
-                $ref: '#/definitions/portNumber'
-              http_options:
-                additionalProperties: false
-                properties:
-                  max_body_size:
-                    type: integer
-                    minimum: 0
-                    maximum: 104857600
-                    description: Maximum body size in bytes (max 100 MB)
-                  next_cases:
-                    oneOf:
-                      - type: array
-                        items:
-                          $ref: '#/definitions/httpErrorCode'
-                        contains:
-                          const: off
-                        maxItems: 1
-                        minItems: 1
-                      - type: array
-                        items:
-                          $ref: '#/definitions/httpErrorCode'
-                        not:
-                          contains:
-                            const: off
-                  next_timeout:
-                    type: integer
-                    minimum: 0
-                  next_tries:
-                    type: integer
-                    minimum: 0
-                  read_timeout:
-                    type: integer
-                    minimum: 0
-                    maximum: 60000
-                    description: Read timeout in milliseconds (max 60 seconds)
-                  send_timeout:
-                    type: integer
-                    minimum: 0
-                    maximum: 60000
-                    description: Send timeout in milliseconds (max 60 seconds)
-                type: object
-              port:
-                $ref: '#/definitions/portNumber'
-              proto:
-                enum:
-                  - TCP
-                  - UDP
-                  - tcp
-                  - udp
-                type: string
-              to:
-                items:
-                  $ref: '#/definitions/exposeToItem'
-                type: array
-            required:
-              - port
-            type: object
+            $ref: '#/definitions/exposeItem'
           type: array
         image:
           type: string
