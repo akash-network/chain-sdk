@@ -89,6 +89,15 @@ $(PROTOC_GEN_GO_VERSION_FILE): $(AKASH_DEVCACHE)
 	touch $@
 $(PROTOC_GEN_GO): $(PROTOC_GEN_GO_VERSION_FILE)
 
+$(PROTOC_GEN_PROST_VERSION_FILE): $(AKASH_DEVCACHE)
+	@echo "installing protoc-gen-prost $(PROTOC_GEN_PROST_VERSION) ..."
+	rm -f $(PROTOC_GEN_PROST)
+	cargo install protoc-gen-prost --root $(AKASH_DEVCACHE)
+	rm -rf "$(dir $@)"
+	mkdir -p "$(dir $@)"
+	touch $@
+$(PROTOC_GEN_PROST): $(PROTOC_GEN_PROST_VERSION_FILE)
+
 $(PROTOC_GEN_DOC_VERSION_FILE): $(AKASH_DEVCACHE)
 	@echo "installing protoc-gen-doc $(PROTOC_GEN_DOC_VERSION) ..."
 	rm -f $(PROTOC_GEN_DOC)

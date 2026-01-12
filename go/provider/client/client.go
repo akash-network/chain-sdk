@@ -25,8 +25,8 @@ import (
 
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
 	ctypes "pkg.akt.dev/go/node/cert/v1"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
-	mtypes "pkg.akt.dev/go/node/market/v1"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	mtypes "pkg.akt.dev/go/node/market/v2beta1"
 	ajwt "pkg.akt.dev/go/util/jwt"
 	atls "pkg.akt.dev/go/util/tls"
 )
@@ -650,7 +650,7 @@ func (c *client) LeaseEvents(ctx context.Context, id mtypes.LeaseID, _ string, f
 
 	processOnCloseErr := func(err error) {
 		if err != nil {
-			if _, ok := err.(*websocket.CloseError); ok { // nolint: gosimple
+			if _, ok := err.(*websocket.CloseError); ok {
 				onclose <- parseCloseMessage(err.Error())
 			} else {
 				onclose <- err.Error()

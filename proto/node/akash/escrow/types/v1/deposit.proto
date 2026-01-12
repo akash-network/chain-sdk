@@ -42,4 +42,11 @@ message Depositor {
     (gogoproto.jsontag)  = "balance",
     (gogoproto.moretags) = "yaml:\"balance\""
   ];
+
+  // direct indicates if deposited currency should be swapped to ACT (false) at time of the deposit
+  bool direct = 5 [
+    (gogoproto.customname)   = "Direct",
+    (gogoproto.jsontag)      = "direct",
+    (gogoproto.moretags)     = "yaml:\"direct\""
+  ];
 }

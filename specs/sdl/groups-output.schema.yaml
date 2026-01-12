@@ -62,6 +62,25 @@ items:
                 required:
                   - amount
                 type: object
+              prices:
+                anyOf:
+                  - items:
+                      additionalProperties: false
+                      properties:
+                        amount:
+                          anyOf:
+                            - type: string
+                            - type: 'null'
+                        denom:
+                          anyOf:
+                            - type: string
+                            - type: 'null'
+                      required:
+                        - amount
+                        - denom
+                      type: object
+                    type: array
+                  - type: 'null'
               resource:
                 additionalProperties: false
                 properties:
@@ -219,10 +238,15 @@ items:
                 required:
                   - id
                 type: object
-            required:
-              - resource
-              - count
-              - price
+            anyOf:
+              - required:
+                  - resource
+                  - count
+                  - price
+              - required:
+                  - resource
+                  - count
+                  - prices
             type: object
           type: array
         - type: 'null'

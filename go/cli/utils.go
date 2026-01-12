@@ -20,8 +20,8 @@ import (
 
 	cflags "pkg.akt.dev/go/cli/flags"
 	aclient "pkg.akt.dev/go/node/client"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
-	mtypes "pkg.akt.dev/go/node/market/v1beta5"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	mtypes "pkg.akt.dev/go/node/market/v2beta1"
 	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 )
 

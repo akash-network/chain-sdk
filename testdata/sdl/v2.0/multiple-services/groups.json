@@ -48,10 +48,12 @@
           "endpoints": []
         },
         "count": 3,
-        "price": {
-          "denom": "uakt",
-          "amount": "300.000000000000000000"
-        }
+        "prices": [
+          {
+            "denom": "uakt",
+            "amount": "300.000000000000000000"
+          }
+        ]
       },
       {
         "resource": {
@@ -82,10 +84,12 @@
           "endpoints": []
         },
         "count": 1,
-        "price": {
-          "denom": "uakt",
-          "amount": "500.000000000000000000"
-        }
+        "prices": [
+          {
+            "denom": "uakt",
+            "amount": "500.000000000000000000"
+          }
+        ]
       },
       {
         "resource": {
@@ -120,10 +124,12 @@
           ]
         },
         "count": 2,
-        "price": {
-          "denom": "uakt",
-          "amount": "100.000000000000000000"
-        }
+        "prices": [
+          {
+            "denom": "uakt",
+            "amount": "100.000000000000000000"
+          }
+        ]
       }
     ]
   }

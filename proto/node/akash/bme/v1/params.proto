@@ -1,0 +1,59 @@
+syntax = "proto3";
+package akash.bme.v1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "pkg.akt.dev/go/node/bme/v1";
+
+// Params defines the parameters for the BME module
+message Params {
+  // enabled indicates if BME is enabled
+  bool enabled = 1;
+
+  // oracle_twap_window is the time window for TWAP calculation
+  google.protobuf.Duration oracle_twap_window = 2 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true
+  ];
+
+  // oracle_outlier_threshold_bps is the threshold in basis points for
+  // rejecting oracle price outliers (default: 150 = 1.5%)
+  uint32 oracle_outlier_threshold_bps = 3;
+
+  // circuit_breaker_warn_threshold is the CR below which warning is triggered
+  // Stored as basis points * 100 (e.g., 9500 = 0.95)
+  uint32 circuit_breaker_warn_threshold = 4;
+
+  // circuit_breaker_halt_threshold is the CR below which mints are halted
+  // Stored as basis points * 100 (e.g., 9000 = 0.90)
+  uint32 circuit_breaker_halt_threshold = 5;
+
+  // mint_spread_bps is the spread in basis points applied during ACT mint
+  // (default: 25 bps = 0.25%)
+  uint32 mint_spread_bps = 6;
+
+  // settle_spread_bps is the spread in basis points applied during settlement
+  // (default: 0 for no provider tax)
+  uint32 settle_spread_bps = 7;
+
+  // settlement_epoch_blocks is the number of blocks between settlement epochs
+  // Use 1 for per-block settlement, or higher for batched settlements
+  int64 settlement_epoch_blocks = 8;
+
+  // min_runway_blocks is the minimum amount of blocks required for ACT mints
+  // during circuit breaker warning mode
+  int64 min_runway_blocks = 9;
+
+  // snapshot_interval_blocks is the number of blocks between snapshots
+  // for historical metrics tracking (e.g., 100 blocks)
+  int64 snapshot_interval_blocks = 10;
+
+  // snapshot_retention_seconds is how long to retain snapshot data
+  // (e.g., 2592000 = 30 days)
+  int64 snapshot_retention_seconds = 11;
+
+  // snapshot_bucket_duration is the duration of each snapshot bucket in seconds
+  // for aggregating metrics (e.g., 86400 = 1 day)
+  int64 snapshot_bucket_duration = 12;
+}

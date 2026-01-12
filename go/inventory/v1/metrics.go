@@ -3,7 +3,7 @@ package v1
 import (
 	sdkmath "cosmossdk.io/math"
 
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
 )
 
 type ResourcesMetric struct {

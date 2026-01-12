@@ -329,6 +329,12 @@ export class SDL {
         continue;
       }
 
+      // Convert "price" to "prices" array for Go groups output
+      if (key === "price" && value !== null && typeof value === "object") {
+        converted["prices"] = [value];
+        continue;
+      }
+
       converted[convertedKey] = value;
     }
 
