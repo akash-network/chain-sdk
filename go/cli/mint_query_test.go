@@ -17,7 +17,7 @@ import (
 	"pkg.akt.dev/go/cli"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
 	"pkg.akt.dev/go/sdkutil"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 func TestGetQueryMintParamsCmd(t *testing.T) {

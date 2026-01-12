@@ -11,7 +11,7 @@ import (
 
 	v1 "pkg.akt.dev/go/node/escrow/v1"
 	deposit "pkg.akt.dev/go/node/types/deposit/v1"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 func TestDepositAuthorizationAccept(t *testing.T) {

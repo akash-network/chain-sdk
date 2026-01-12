@@ -10,7 +10,7 @@ import (
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 	types "pkg.akt.dev/go/node/deployment/v1beta5"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 type gStateTest struct {

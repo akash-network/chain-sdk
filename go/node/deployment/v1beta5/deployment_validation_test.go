@@ -12,7 +12,7 @@ import (
 	types "pkg.akt.dev/go/node/deployment/v1beta5"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	akashtypes "pkg.akt.dev/go/node/types/resources/v1beta4"
-	tutil "pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 const (
@@ -20,9 +20,9 @@ const (
 )
 
 func TestZeroValueGroupSpec(t *testing.T) {
-	did := tutil.DeploymentID(t)
+	did := testutil.DeploymentID(t)
 
-	dgroup := tutil.DeploymentGroup(t, did, uint32(6))
+	dgroup := testutil.DeploymentGroup(t, did, uint32(6))
 	gspec := dgroup.GroupSpec
 
 	t.Run("assert nominal test success", func(t *testing.T) {
@@ -32,8 +32,8 @@ func TestZeroValueGroupSpec(t *testing.T) {
 }
 
 func TestZeroValueGroupSpecs(t *testing.T) {
-	did := tutil.DeploymentID(t)
-	dgroups := tutil.DeploymentGroups(t, did, uint32(6))
+	did := testutil.DeploymentID(t)
+	dgroups := testutil.DeploymentGroups(t, did, uint32(6))
 	gspecs := make([]types.GroupSpec, 0)
 	for _, d := range dgroups {
 		gspecs = append(gspecs, d.GroupSpec)
@@ -91,7 +91,7 @@ func validSimpleGroupSpec() types.GroupSpec {
 			Endpoints: akashtypes.Endpoints{},
 		},
 		Count:  1,
-		Prices: sdk.DecCoins{sdk.NewInt64DecCoin(tutil.CoinDenom, 1)},
+		Prices: sdk.DecCoins{sdk.NewInt64DecCoin(testutil.CoinDenom, 1)},
 	}
 	return types.GroupSpec{
 		Name:         "testGroup",
