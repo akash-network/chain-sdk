@@ -591,3 +591,102 @@ deployment:
 	}
 }
 
+func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
+	tests := []struct {
+		name      string
+		gpu       string
+		shouldErr bool
+		reason    string
+	}{
+		{
+			name: "gpu with units > 0 and attributes",
+			gpu: `gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: a100`,
+			shouldErr: false,
+		},
+		{
+			name: "gpu with units 0 without attributes",
+			gpu: `gpu:
+          units: 0`,
+			shouldErr: false,
+			reason:    "units=0 does not require attributes",
+		},
+		{
+			name: "gpu with string units 0 without attributes",
+			gpu: `gpu:
+          units: "0"`,
+			shouldErr: false,
+			reason:    "units='0' does not require attributes",
+		},
+		{
+			name: "gpu with units > 0 without attributes",
+			gpu: `gpu:
+          units: 1`,
+			shouldErr: true,
+			reason:    "units > 0 requires attributes",
+		},
+		{
+			name: "gpu with string units > 0 without attributes",
+			gpu: `gpu:
+          units: "1"`,
+			shouldErr: true,
+			reason:    "units > 0 requires attributes",
+		},
+		{
+			name: "gpu with decimal units without attributes",
+			gpu: `gpu:
+          units: 0.5`,
+			shouldErr: true,
+			reason:    "units > 0 requires attributes",
+		},
+		{
+			name: "gpu section empty",
+			gpu: `gpu: {}`,
+			shouldErr: false,
+			reason:    "empty gpu defaults to units=0",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sdl := fmt.Sprintf(`version: "2.0"
+services:
+  web:
+    image: nginx
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        %s
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+`, tt.gpu)
+
+			err := validateInputAgainstSchema([]byte(sdl))
+			if tt.shouldErr {
+				require.Error(t, err, "Schema should reject: %s", tt.reason)
+			} else {
+				require.NoError(t, err, "Schema should accept: %s", tt.reason)
+			}
+		})
+	}
+}

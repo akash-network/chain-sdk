@@ -309,6 +309,9 @@ properties:
                     - units
                   type: object
                 gpu:
+                  description: |
+                    GPU resource specification.
+                    If units > 0, attributes must be specified.
                   additionalProperties: false
                   properties:
                     attributes:
@@ -338,6 +341,21 @@ properties:
                       oneOf:
                         - type: string
                         - type: number
+                  allOf:
+                    - if:
+                        properties:
+                          units:
+                            oneOf:
+                              - type: number
+                                exclusiveMinimum: 0
+                              - type: string
+                                not:
+                                  enum: ["0", "0.0"]
+                        required:
+                          - units
+                      then:
+                        required:
+                          - attributes
                   type: object
                 memory:
                   additionalProperties: false
