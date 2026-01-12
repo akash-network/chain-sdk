@@ -647,7 +647,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 			name: "gpu section empty",
 			gpu: `gpu: {}`,
 			shouldErr: false,
-			reason:    "empty gpu defaults to units=0",
+			reason:    "empty gpu defaults to units=0 in Go",
 		},
 	}
 

@@ -311,7 +311,8 @@ properties:
                 gpu:
                   description: |
                     GPU resource specification.
-                    Bidirectional validation: units > 0 requires attributes, and attributes require units > 0.
+                    - units defaults to 0 if omitted
+                    - Bidirectional validation: units > 0 requires attributes, and attributes require units > 0
                   additionalProperties: false
                   properties:
                     attributes:
@@ -319,22 +320,25 @@ properties:
                       properties:
                         vendor:
                           additionalProperties: false
+                          minProperties: 1
                           properties:
                             nvidia:
-                              items:
-                                additionalProperties: false
-                                properties:
-                                  interface:
-                                    enum:
-                                      - pcie
-                                      - sxm
-                                    type: string
-                                  model:
-                                    type: string
-                                  ram:
-                                    type: string
-                                type: object
-                              type: array
+                              oneOf:
+                                - type: array
+                                  items:
+                                    additionalProperties: false
+                                    properties:
+                                      interface:
+                                        enum:
+                                          - pcie
+                                          - sxm
+                                        type: string
+                                      model:
+                                        type: string
+                                      ram:
+                                        type: string
+                                    type: object
+                                - type: 'null'
                           type: object
                       type: object
                     units:
