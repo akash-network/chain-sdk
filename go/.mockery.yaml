@@ -1,3 +1,4 @@
+---
 mockname: "{{.InterfaceName}}"
 filename: "{{.MockName}}_mock.go"
 with-expecter: True
