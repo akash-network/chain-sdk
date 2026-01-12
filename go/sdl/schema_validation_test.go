@@ -690,3 +690,95 @@ deployment:
 		})
 	}
 }
+
+func TestSchemaValidation_GPUAttributesRequireUnits(t *testing.T) {
+	tests := []struct {
+		name      string
+		gpu       string
+		shouldErr bool
+		reason    string
+	}{
+		{
+			name: "attributes without units field",
+			gpu: `gpu:
+          attributes:
+            vendor:
+              nvidia:
+                - model: a100`,
+			shouldErr: true,
+			reason:    "attributes present but units not specified",
+		},
+		{
+			name: "attributes with units 0",
+			gpu: `gpu:
+          units: 0
+          attributes:
+            vendor:
+              nvidia:
+                - model: a100`,
+			shouldErr: true,
+			reason:    "attributes present with units=0",
+		},
+		{
+			name: "attributes with string units 0",
+			gpu: `gpu:
+          units: "0"
+          attributes:
+            vendor:
+              nvidia:
+                - model: a100`,
+			shouldErr: true,
+			reason:    "attributes present with units='0'",
+		},
+		{
+			name: "attributes with units > 0",
+			gpu: `gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: a100`,
+			shouldErr: false,
+			reason:    "valid: both units and attributes",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sdl := fmt.Sprintf(`version: "2.0"
+services:
+  web:
+    image: nginx
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        %s
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+`, tt.gpu)
+
+			err := validateInputAgainstSchema([]byte(sdl))
+			if tt.shouldErr {
+				require.Error(t, err, "Schema should reject: %s", tt.reason)
+			} else {
+				require.NoError(t, err, "Schema should accept: %s", tt.reason)
+			}
+		})
+	}
+}
