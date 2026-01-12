@@ -55,8 +55,8 @@ generate-sdl-fixtures: ## Generate SDL test fixtures (manifest.json and groups.j
 
 .PHONY: test-sdl-parity
 test-sdl-parity: generate-sdl-fixtures $(AKASH_TS_NODE_MODULES) ## Run SDL parity tests for Go and TypeScript
-	@echo "Running Go SDL parity tests..."
-	@cd go/sdl && go test -v -run "TestParity|TestInvalidSDLsRejected"
+	@echo "Running Go SDL parity and validation tests..."
+	@cd go/sdl && go test -v -run "TestParity|TestInvalidSDLsRejected|TestSchemaValidation"
 	@echo ""
 	@echo "Running TypeScript SDL parity tests..."
 	@echo "  (includes: v2.0 fixtures, v2.1 fixtures, and invalid SDL rejection)"

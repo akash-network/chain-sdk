@@ -300,11 +300,11 @@ properties:
                     units:
                       oneOf:
                         - type: string
-                          pattern: '^-?[0-9]+(\.[0-9]+)?[a-zA-Z]*$'
+                          pattern: '^[0-9]+(\.[0-9]+)?[a-zA-Z]*$'
                           not:
-                            pattern: '^-'
+                            enum: ["0", "0.0"]
                         - type: number
-                          minimum: 0
+                          exclusiveMinimum: 0
                   required:
                     - units
                   type: object
@@ -449,9 +449,11 @@ properties:
         env:
           $ref: '#/definitions/stringArrayOrNull'
         expose:
-          items:
-            $ref: '#/definitions/exposeItem'
-          type: array
+          oneOf:
+            - type: array
+              items:
+                $ref: '#/definitions/exposeItem'
+            - type: 'null'
         image:
           type: string
           minLength: 1
