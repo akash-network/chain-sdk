@@ -190,20 +190,22 @@ properties:
                           minProperties: 1
                           properties:
                             nvidia:
-                              items:
-                                additionalProperties: false
-                                properties:
-                                  interface:
-                                    enum:
-                                      - pcie
-                                      - sxm
-                                    type: string
-                                  model:
-                                    type: string
-                                  ram:
-                                    type: string
-                                type: object
-                              type: array
+                              oneOf:
+                                - type: array
+                                  items:
+                                    additionalProperties: false
+                                    properties:
+                                      interface:
+                                        enum:
+                                          - pcie
+                                          - sxm
+                                        type: string
+                                      model:
+                                        type: string
+                                      ram:
+                                        type: string
+                                    type: object
+                                - type: 'null'
                           type: object
                       type: object
                     units:

@@ -887,7 +887,7 @@ describe("SDL", () => {
               units: 1
               attributes:
                 vendor:
-                  nvidia: []
+                  nvidia:
             memory:
               size: "128Mi"
             storage:
