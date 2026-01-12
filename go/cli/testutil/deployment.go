@@ -25,6 +25,12 @@ func ExecDeploymentClose(ctx context.Context, cctx client.Context, args ...strin
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentCloseCmd(), args...)
 }
 
+// ExecDeploymentGroupClose is used for testing close deployment group tx
+// requires --dseq, --fees
+func ExecDeploymentGroupClose(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentGroupCloseCmd(), args...)
+}
+
 // ExecQueryDeployments is used for testing deployments query
 func ExecQueryDeployments(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetQueryDeploymentsCmd(), args...)
