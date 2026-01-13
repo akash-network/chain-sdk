@@ -484,12 +484,12 @@ exports[`SDL SDL v3 Resource Groups should create v3 resource groups: Groups mat
       ],
       "signedBy": {
         "allOf": [
-          3,
-          4,
+          "akash1123123",
+          "akash1124123123",
         ],
         "anyOf": [
-          1,
-          2,
+          "akash1123123",
+          "akash1124123123",
         ],
       },
     },

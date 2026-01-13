@@ -1,6 +1,7 @@
+import { humanizeErrors, type ValidationFunction } from "../../../../utils/jsonSchemaValidation.ts";
 import { base64Decode } from "./base64.ts";
 import type { AnyRecord, JwtTokenPayload } from "./types.ts";
-import { schema as tokenPayloadSchema, validate as validatePayload } from "./validate-payload.ts";
+import { schema as jwtPayloadSchema, validate as validatePayload } from "./validateJwtPayload.ts";
 
 export interface JwtValidationResult {
   isValid: boolean;
@@ -13,14 +14,6 @@ export interface JwtValidationResult {
 }
 
 export class JwtValidator {
-  private compiledSchema = validatePayload as {
-    (data: unknown): boolean;
-    errors: Array<{
-      keywordLocation: string;
-      instanceLocation: string;
-    }>;
-  };
-
   /**
    * Validate a JWT token against the Akash JWT schema
    * @param token The JWT token to validate
@@ -73,30 +66,10 @@ export class JwtValidator {
       }
 
       // Validate payload with the schema
-      let valid = this.compiledSchema(payload);
+      let valid = validatePayload(payload);
 
       if (!valid) {
-        result.errors
-          = this.compiledSchema.errors?.map((error) => {
-            const field = getFieldName(error.instanceLocation);
-
-            if (error.keywordLocation.endsWith("/required")) {
-              return `Missing required field: ${field}`;
-            }
-            if (error.keywordLocation.endsWith("/pattern")) {
-              return `Invalid format: ${field} does not match pattern "${getSchemaFieldByPath(error.keywordLocation)}"`;
-            }
-            if (error.keywordLocation.endsWith("/additionalProperties")) {
-              return "Additional properties are not allowed";
-            }
-            if (error.keywordLocation.endsWith("/type")) {
-              return `${field} should be ${getSchemaFieldByPath(error.keywordLocation)}`;
-            }
-            if (error.keywordLocation.endsWith("/enum")) {
-              return `${field} should be one of: ${getSchemaFieldByPath<string[]>(error.keywordLocation).join(", ")}`;
-            }
-            return `${field}: does not satisfy ${getSchemaFieldByPath(error.keywordLocation)}`;
-          }) || [];
+        result.errors = humanizeErrors((validatePayload as ValidationFunction).errors, jwtPayloadSchema);
       }
 
       // Additional validation for granular access
@@ -189,27 +162,4 @@ export class JwtValidator {
 
     return valid;
   }
-}
-
-function getFieldName(instanceLocation: string): string {
-  const lastPart = basename(instanceLocation);
-  return Number.isNaN(Number(lastPart)) ? lastPart : `${basename(dirname(instanceLocation))} ${lastPart}`;
-}
-
-function basename(path: string): string {
-  const lastPartIndex = path.lastIndexOf("/");
-  if (lastPartIndex === -1) return path;
-  return path.slice(lastPartIndex + 1);
-}
-
-function dirname(path: string): string {
-  const lastPartIndex = path.lastIndexOf("/");
-  if (lastPartIndex === -1) return path;
-  return path.slice(0, lastPartIndex);
-}
-
-function getSchemaFieldByPath<T = string>(keywordLocation: string): T {
-  return keywordLocation.split("/").slice(1)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .reduce<T>((schema, key) => (schema as Record<string, any>)[key], tokenPayloadSchema as T);
 }
