@@ -47,8 +47,5 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "${{ env.GOVERSION }}"
-      - name: install vendors
-        # need this to run ts tests
-        run: make modvendor
       - name: Publish npm package
         run: make release-ts
