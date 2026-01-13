@@ -165,11 +165,11 @@ export class SDL {
     return Object.entries(deployments as object).filter(({ 1: deployment }) => Object.prototype.hasOwnProperty.call(deployment, placement));
   }
 
-  resourceUnit(val: string, asString: boolean) {
+  resourceUnit(val: string) {
     return { val: `${convertResourceString(val)}` };
   }
 
-  resourceValue(value: { toString: () => string } | null, asString: boolean) {
+  resourceValue(value: { toString: () => string } | null) {
     if (value === null) {
       return value;
     }
@@ -195,11 +195,11 @@ export class SDL {
 
     return resource.attributes
       ? {
-          [key]: this.resourceUnit(resource.size, asString),
+          [key]: this.resourceUnit(resource.size),
           attributes: this.serviceResourceAttributes(resource.attributes),
         }
       : {
-          [key]: this.resourceUnit(resource.size, asString),
+          [key]: this.resourceUnit(resource.size),
         };
   }
 
@@ -211,12 +211,12 @@ export class SDL {
       storage.attributes
         ? {
             name: storage.name || "default",
-            [key]: this.resourceUnit(storage.size, asString),
+            [key]: this.resourceUnit(storage.size),
             attributes: this.serviceResourceStorageAttributes(storage.attributes),
           }
         : {
             name: storage.name || "default",
-            [key]: this.resourceUnit(storage.size, asString),
+            [key]: this.resourceUnit(storage.size),
           },
     );
   }
@@ -244,7 +244,7 @@ export class SDL {
     return pairs;
   }
 
-  serviceResourceGpu(resource: v3ResourceGPU | undefined, asString: boolean) {
+  serviceResourceGpu(resource: v3ResourceGPU | undefined) {
     const value = resource?.units || 0;
     const strVal = !isString(value) ? value.toString() : value;
 
@@ -323,7 +323,7 @@ export class SDL {
       cpu: this.serviceResourceCpu(profile.resources.cpu),
       memory: this.serviceResourceMemory(profile.resources.memory, asString),
       storage: this.serviceResourceStorage(profile.resources.storage, asString),
-      gpu: this.serviceResourceGpu(profile.resources.gpu, asString),
+      gpu: this.serviceResourceGpu(profile.resources.gpu),
       endpoints: this.v3ServiceResourceEndpoints(service),
     };
   }
@@ -594,17 +594,17 @@ export class SDL {
         }),
       ),
     );
-    
+
     const sortedIps = Array.from(ips).sort();
     return Object.fromEntries(sortedIps.map((ip, index) => [ip, index + 2]));
   }
 
-  resourceUnitCpu(computeResources: v2ComputeResources, asString: boolean) {
+  resourceUnitCpu(computeResources: v2ComputeResources) {
     const attributes = computeResources.cpu.attributes;
     const cpu = isString(computeResources.cpu.units) ? convertCpuResourceString(computeResources.cpu.units) : computeResources.cpu.units * 1000;
 
     const result: any = {
-      units: { val: this.resourceValue(cpu, asString) },
+      units: { val: this.resourceValue(cpu) },
     };
 
     if (attributes) {
@@ -619,12 +619,12 @@ export class SDL {
     return result;
   }
 
-  resourceUnitMemory(computeResources: v2ComputeResources, asString: boolean) {
+  resourceUnitMemory(computeResources: v2ComputeResources) {
     const attributes = computeResources.memory.attributes;
 
     const result: any = {
       size: {
-        val: this.resourceValue(convertResourceString(computeResources.memory.size), asString),
+        val: this.resourceValue(convertResourceString(computeResources.memory.size)),
       },
     };
 
@@ -640,14 +640,14 @@ export class SDL {
     return result;
   }
 
-  resourceUnitStorage(computeResources: v2ComputeResources, asString: boolean) {
+  resourceUnitStorage(computeResources: v2ComputeResources) {
     const storages = isArray(computeResources.storage) ? computeResources.storage : [computeResources.storage];
 
     return storages.map((storage) => {
       const result: any = {
         name: storage.name || "default",
         size: {
-          val: this.resourceValue(convertResourceString(storage.size), asString),
+          val: this.resourceValue(convertResourceString(storage.size)),
         },
       };
 
@@ -688,13 +688,13 @@ export class SDL {
     );
   }
 
-  resourceUnitGpu(computeResources: v3ComputeResources, asString: boolean) {
+  resourceUnitGpu(computeResources: v3ComputeResources) {
     const attributes = computeResources.gpu?.attributes;
     const units = computeResources.gpu?.units || "0";
     const gpu = isString(units) ? parseInt(units) : units;
 
     const result: any = {
-      units: { val: this.resourceValue(gpu, asString) },
+      units: { val: this.resourceValue(gpu) },
     };
 
     if (attributes) {
@@ -704,7 +704,7 @@ export class SDL {
     return result;
   }
 
-  groupResourceUnits(resource: v2ComputeResources | undefined, asString: boolean) {
+  groupResourceUnits(resource: v2ComputeResources | undefined) {
     if (!resource) return {};
 
     const units = {
@@ -712,18 +712,18 @@ export class SDL {
     } as any;
 
     if (resource.cpu) {
-      units.cpu = this.resourceUnitCpu(resource, asString);
+      units.cpu = this.resourceUnitCpu(resource);
     }
 
     if (resource.memory) {
-      units.memory = this.resourceUnitMemory(resource, asString);
+      units.memory = this.resourceUnitMemory(resource);
     }
 
     if (resource.storage) {
-      units.storage = this.resourceUnitStorage(resource, asString);
+      units.storage = this.resourceUnitStorage(resource);
     }
 
-    units.gpu = this.resourceUnitGpu(resource as v3ComputeResources, asString);
+    units.gpu = this.resourceUnitGpu(resource as v3ComputeResources);
 
     return units;
   }
@@ -777,20 +777,20 @@ export class SDL {
             attributes.sort((a, b) => a.key.localeCompare(b.key));
           }
 
-        group = {
-          dgroup: {
-            name: placementName,
-            resources: [],
-            requirements: {
-              attributes: attributes,
-              signed_by: {
-                all_of: infra.signedBy?.allOf && infra.signedBy.allOf.length > 0 ? infra.signedBy.allOf : null,
-                any_of: infra.signedBy?.anyOf && infra.signedBy.anyOf.length > 0 ? infra.signedBy.anyOf : null,
+          group = {
+            dgroup: {
+              name: placementName,
+              resources: [],
+              requirements: {
+                attributes: attributes,
+                signed_by: {
+                  all_of: infra.signedBy?.allOf && infra.signedBy.allOf.length > 0 ? infra.signedBy.allOf : null,
+                  any_of: infra.signedBy?.anyOf && infra.signedBy.anyOf.length > 0 ? infra.signedBy.anyOf : null,
+                },
               },
             },
-          },
-          boundComputes: {},
-        };
+            boundComputes: {},
+          };
 
           groups.set(placementName, group);
         }
@@ -803,7 +803,7 @@ export class SDL {
         const location = group.boundComputes[placementName][svcdepl.profile];
 
         if (!location) {
-          const res = this.groupResourceUnits(compute.resources, false);
+          const res = this.groupResourceUnits(compute.resources);
           res.endpoints = this.v3ServiceResourceEndpoints(service);
 
           const resID = group.dgroup.resources.length > 0 ? group.dgroup.resources.length + 1 : 1;
@@ -857,22 +857,22 @@ export class SDL {
         let group = groups[placementName];
 
         if (!group) {
-        group = {
-          name: placementName,
-          requirements: {
-            attributes: infra.attributes
-              ? Object.entries(infra.attributes).map(([key, value]) => ({
-                  key,
-                  value,
-                }))
-              : null,
-            signed_by: {
-              all_of: infra.signedBy?.allOf && infra.signedBy.allOf.length > 0 ? infra.signedBy.allOf : null,
-              any_of: infra.signedBy?.anyOf && infra.signedBy.anyOf.length > 0 ? infra.signedBy.anyOf : null,
+          group = {
+            name: placementName,
+            requirements: {
+              attributes: infra.attributes
+                ? Object.entries(infra.attributes).map(([key, value]) => ({
+                    key,
+                    value,
+                  }))
+                : null,
+              signed_by: {
+                all_of: infra.signedBy?.allOf && infra.signedBy.allOf.length > 0 ? infra.signedBy.allOf : null,
+                any_of: infra.signedBy?.anyOf && infra.signedBy.anyOf.length > 0 ? infra.signedBy.anyOf : null,
+              },
             },
-          },
-          resources: [],
-        };
+            resources: [],
+          };
 
           if (group.requirements.attributes) {
             group.requirements.attributes = group.requirements.attributes.sort((a: any, b: any) => a.key < b.key);
@@ -882,7 +882,7 @@ export class SDL {
         }
 
         const resources = {
-          resources: this.groupResourceUnits(compute.resources, false), // Changed resources => unit
+          resources: this.groupResourceUnits(compute.resources), // Changed resources => unit
           price: price,
           count: svcdepl.count,
         };
