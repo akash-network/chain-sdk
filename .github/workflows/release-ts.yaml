@@ -4,31 +4,15 @@ on:
     branches:
       - main
 
+# 1 in-progress + 1 queued which will be canceled if a new one appears
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
-  has-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      ts: ${{ steps.changes.outputs.ts }}
-    steps:
-      - uses: actions/checkout@v6
-      - name: Check for changes
-        uses: dorny/paths-filter@v3.0.2
-        id: changes
-        with:
-          filters: |
-            ts:
-              - 'ts/**'
-
   release:
     runs-on: ubuntu-latest
-    needs: has-changes
     outputs:
       paths_released: ${{ steps.release-pl.outputs.paths_released }}
-    if: needs.has-changes.outputs.ts == 'true'
     permissions:
       contents: write
       issues: write
