@@ -284,6 +284,13 @@ func TestSchemaValidation_CPUUnits(t *testing.T) {
 		{"invalid negative", "-1", true},
 		{"invalid negative decimal", "-0.5", true},
 		{"invalid negative milli", "-100m", true},
+		{"invalid zero", "0", true},
+		{"invalid zero decimal", "0.0", true},
+		{"invalid zero padded", "00", true},
+		{"invalid zero padded decimal", "0.00", true},
+		{"invalid zero mixed", "00.0", true},
+		{"invalid zero milli", "0m", true},
+		{"invalid zero padded milli", "00m", true},
 	}
 
 	for _, tt := range tests {
@@ -621,6 +628,20 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
           units: "0"`,
 			shouldErr: false,
 			reason:    "units='0' does not require attributes",
+		},
+		{
+			name: "gpu with padded zero without attributes",
+			gpu: `gpu:
+          units: "00"`,
+			shouldErr: false,
+			reason:    "units='00' is zero, does not require attributes",
+		},
+		{
+			name: "gpu with decimal zero without attributes",
+			gpu: `gpu:
+          units: "0.00"`,
+			shouldErr: false,
+			reason:    "units='0.00' is zero, does not require attributes",
 		},
 		{
 			name: "gpu with units > 0 without attributes",

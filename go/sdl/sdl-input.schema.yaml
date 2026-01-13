@@ -60,7 +60,8 @@ definitions:
   storageAttributesValidation:
     description: |
       Storage attributes validation:
-      RAM class must not be persistent
+      1. RAM class must not be persistent
+      2. Non-RAM classes (beta1, beta2, beta3, default) require persistent=true
     additionalProperties: false
     properties:
       class:
@@ -69,17 +70,34 @@ definitions:
         oneOf:
           - type: boolean
           - type: string
-    not:
-      properties:
-        class:
-          const: ram
-        persistent:
-          anyOf:
-            - const: true
-            - const: "true"
-      required:
-        - class
-        - persistent
+    allOf:
+      - not:
+          properties:
+            class:
+              const: ram
+            persistent:
+              anyOf:
+                - const: true
+                - const: "true"
+          required:
+            - class
+            - persistent
+      - if:
+          properties:
+            class:
+              enum:
+                - beta1
+                - beta2
+                - beta3
+                - default
+          required:
+            - class
+        then:
+          properties:
+            persistent:
+              anyOf:
+                - const: true
+                - const: "true"
     type: object
   
   storageVolume:
@@ -283,7 +301,7 @@ properties:
                         - type: string
                           pattern: '^[0-9]+(\.[0-9]+)?[a-zA-Z]*$'
                           not:
-                            enum: ["0", "0.0"]
+                            pattern: '^0+(\.0+)?m?$'
                         - type: number
                           exclusiveMinimum: 0
                   required:
@@ -335,7 +353,7 @@ properties:
                                 exclusiveMinimum: 0
                               - type: string
                                 not:
-                                  enum: ["0", "0.0"]
+                                  pattern: '^0+(\.0+)?$'
                         required:
                           - units
                       then:
@@ -352,7 +370,7 @@ properties:
                                 exclusiveMinimum: 0
                               - type: string
                                 not:
-                                  enum: ["0", "0.0"]
+                                  pattern: '^0+(\.0+)?$'
                         required:
                           - units
                   type: object
