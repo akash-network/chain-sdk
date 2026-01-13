@@ -87,8 +87,8 @@ function validateSchemas(inputBytes: string, version: "beta2" | "beta3") {
   validateAgainstSchema("input", inputYAML, inputSchemaPath);
 
   const sdl = SDL.fromString(inputBytes, version);
-  const manifest = sdl.v3Manifest(true, "go");
-  const groups = sdl.v3Groups("go");
+  const manifest = sdl.v3Manifest(false);
+  const groups = sdl.v3Groups();
 
   validateAgainstSchema("manifest", manifest, path.join(schemasRoot, "manifest-output.schema.yaml"));
   validateAgainstSchema("groups", groups, path.join(schemasRoot, "groups-output.schema.yaml"));

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { load } from "js-yaml";
+import YAML from "js-yaml";
 import { default as stableStringify } from "json-stable-stringify";
 
-import { AKT_DENOM, MAINNET_ID, USDC_IBC_DENOMS } from "../../network/config.ts";
+import { MAINNET_ID } from "../../network/config.ts";
 import type { NetworkId } from "../../network/types.ts";
 import { convertCpuResourceString, convertResourceString } from "../sizes.ts";
 import type {
@@ -22,7 +22,6 @@ import type {
   v2Service,
   v2ServiceExpose,
   v2ServiceExposeHttpOptions,
-  v2ServiceImageCredentials,
   v2ServiceParams,
   v2StorageAttributes,
   v3ComputeResources,
@@ -37,13 +36,12 @@ import type {
   v3ServiceExpose,
   v3ServiceExposeHttpOptions } from "../types.ts";
 import { SdlValidationError } from "./SdlValidationError.ts";
-import { castArray } from "./utils.ts";
+import type { SDLInput } from "./SDLValidator/SDLValidator.ts";
+import { SDLValidator } from "./SDLValidator/SDLValidator.ts";
 
 const Endpoint_SHARED_HTTP = 0;
 const Endpoint_RANDOM_PORT = 1;
 const Endpoint_LEASED_IP = 2;
-export const GPU_SUPPORTED_VENDORS = ["nvidia", "amd"];
-export const GPU_SUPPORTED_INTERFACES = ["pcie", "sxm"];
 
 function isArray<T>(obj: any): obj is Array<T> {
   return Array.isArray(obj);
@@ -54,7 +52,6 @@ function isString(str: any): str is string {
 }
 
 type NetworkVersion = "beta2" | "beta3";
-type OutputFormat = "typescript" | "go";
 
 /**
  * SDL (Stack Definition Language) parser and validator
@@ -111,464 +108,18 @@ export class SDL {
    * const sdl = SDL.fromString(yaml);
    * ```
    */
-  static fromString(yaml: string, version: NetworkVersion = "beta3", networkId: NetworkId = MAINNET_ID) {
-    const parsed = load(yaml) as any;
-
-    if (!parsed || !parsed.version) {
-      throw new SdlValidationError("SDL invalid: no version found");
-    }
-
-    const allowedKeys = new Set(["version", "services", "profiles", "deployment", "endpoints"]);
-    for (const key of Object.keys(parsed)) {
-      if (!allowedKeys.has(key)) {
-        throw new SdlValidationError(`SDL invalid: unknown field "${key}"`);
-      }
-    }
-
-    if (parsed.deployment) {
-      for (const [serviceName, placements] of Object.entries(parsed.deployment)) {
-        for (const [placementName, config] of Object.entries(placements as any)) {
-          const cfg = config as any;
-          if (cfg.count !== undefined && cfg.count < 1) {
-            throw new SdlValidationError(`SDL invalid: deployment ${serviceName}.${placementName} count must be >= 1`);
-          }
-        }
-      }
-    }
-
-    // Cast to appropriate SDL type based on version parameter
-    // v2Sdl uses v2Profiles, v3Sdl uses v3Profiles
-    const data = version === "beta2" ? (parsed as v2Sdl) : (parsed as v3Sdl);
+  static fromString(yaml: string, version: NetworkVersion = "beta3", networkId: NetworkId = MAINNET_ID): SDL {
+    const data = YAML.load(yaml) as v3Sdl;
     return new SDL(data, version, networkId);
   }
 
-  /**
-   * Validates SDL YAML string (deprecated)
-   * @deprecated Use SDL.constructor directly
-   */
-  static validate(yaml: string) {
-    console.warn("SDL.validate is deprecated. Use SDL.constructor directly.");
-    const data = load(yaml) as v3Sdl;
-
-    for (const [name, profile] of Object.entries(data.profiles.compute || {})) {
-      this.validateGPU(name, profile.resources.gpu);
-      this.validateStorage(name, profile.resources.storage);
-    }
-
-    return data;
-  }
-
-  /**
-   * Validates the GPU configuration for a given service profile.
-   *
-   * @param {string} name - The name of the service profile.
-   * @param {v3ResourceGPU | undefined} gpu - The GPU resource configuration.
-   * @throws Will throw an error if the GPU configuration is invalid.
-   *
-   * @example
-   * ```ts
-   * const gpuConfig = { units: "1", attributes: { vendor: { nvidia: [{ model: "RTX 3080", ram: "10GB" }] } } };
-   * SDL.validateGPU("web", gpuConfig);
-   * ```
-   */
-  static validateGPU(name: string, gpu: v3ResourceGPU | undefined) {
-    if (gpu) {
-      if (typeof gpu.units === "undefined") {
-        throw new Error("GPU units must be specified for profile " + name);
-      }
-
-      const units = parseInt(gpu.units.toString());
-
-      if (units === 0 && gpu.attributes !== undefined) {
-        throw new Error("GPU must not have attributes if units is 0");
-      }
-
-      if (units > 0 && gpu.attributes === undefined) {
-        throw new Error("GPU must have attributes if units is not 0");
-      }
-
-      if (units > 0 && gpu.attributes?.vendor === undefined) {
-        throw new Error("GPU must specify a vendor if units is not 0");
-      }
-
-      if (units > 0 && !GPU_SUPPORTED_VENDORS.some((vendor) => vendor in (gpu.attributes?.vendor || {}))) {
-        throw new Error(`GPU must be one of the supported vendors (${GPU_SUPPORTED_VENDORS.join(",")}).`);
-      }
-
-      const vendor: string = Object.keys(gpu.attributes?.vendor || {})[0];
-
-      if (units > 0 && !!gpu.attributes?.vendor[vendor] && !Array.isArray(gpu.attributes.vendor[vendor])) {
-        throw new Error(`GPU configuration must be an array of GPU models with optional ram.`);
-      }
-
-      if (
-        units > 0
-        && Object.values(gpu.attributes?.vendor || {}).some((models) =>
-          models?.some((model) => model.interface && !GPU_SUPPORTED_INTERFACES.includes(model.interface)),
-        )
-      ) {
-        throw new Error(`GPU interface must be one of the supported interfaces (${GPU_SUPPORTED_INTERFACES.join(",")}).`);
-      }
-    }
-  }
-
-  /**
-   * Validates the storage configuration for a given service.
-   *
-   * @param {string} name - The name of the service.
-   * @param {v2ResourceStorage | v2ResourceStorageArray} [storage] - The storage resource configuration.
-   * @throws Will throw an error if the storage configuration is invalid.
-   *
-   * @example
-   * ```ts
-   * const storageConfig = { size: "10Gi", attributes: { class: "ssd" } };
-   * SDL.validateStorage("web", storageConfig);
-   * ```
-   */
-  static validateStorage(name: string, storage?: v2ResourceStorage | v2ResourceStorageArray) {
-    if (!storage) {
-      throw new Error("Storage is required for service " + name);
-    }
-
-    const storages = isArray(storage) ? storage : [storage];
-
-    for (const storage of storages) {
-      if (typeof storage.size === "undefined") {
-        throw new Error("Storage size is required for service " + name);
-      }
-
-      if (storage.attributes) {
-        for (const [key, value] of Object.entries(storage.attributes)) {
-          if (key === "class" && value === "ram" && storage.attributes.persistent === true) {
-            throw new Error("Storage attribute 'ram' must have 'persistent' set to 'false' or not defined for service " + name);
-          }
-        }
-      }
-    }
-  }
-
-  private readonly ENDPOINT_NAME_VALIDATION_REGEX = /^[a-z]+[-_\da-z]+$/;
-  private readonly ABSOLUTE_PATH_REGEX = /^(\/|([a-zA-Z]:)?([\\/]))/;
-
-  private readonly ENDPOINT_KIND_IP = "ip";
-
-  private readonly endpointsUsed = new Set<string>();
-
-  private readonly portsUsed = new Map<string, string>();
-
   constructor(
-    public readonly data: v2Sdl | v3Sdl,
+    public readonly data: v2Sdl,
     public readonly version: NetworkVersion = "beta2",
-    private readonly networkId: NetworkId = MAINNET_ID,
+    networkId: NetworkId = MAINNET_ID,
   ) {
-    this.validate();
-  }
-
-  private convertToGoFormat(obj: unknown): unknown {
-    if (obj === null || obj === undefined) {
-      return obj;
-    }
-    if (obj instanceof Uint8Array) {
-      return new TextDecoder().decode(obj);
-    }
-    if (Array.isArray(obj)) {
-      return obj.map((item) => this.convertToGoFormat(item)).filter((item) => item !== undefined);
-    }
-    if (typeof obj !== "object") {
-      return obj;
-    }
-
-    const converted: Record<string, unknown> = {};
-    const objRecord = obj as Record<string, unknown>;
-
-    for (const key in objRecord) {
-      if (objRecord[key] === undefined) {
-        continue;
-      }
-
-      const value = this.convertToGoFormat(objRecord[key]);
-      if (value === undefined) {
-        continue;
-      }
-
-      let convertedKey = key;
-
-      if (key === "sequenceNumber") {
-        convertedKey = "sequence_number";
-      } else if (key === "endpointSequenceNumber") {
-        convertedKey = "endpointSequenceNumber";
-      } else if (key === "externalPort") {
-        convertedKey = "externalPort";
-      } else if (key === "signedBy") {
-        convertedKey = "signed_by";
-      } else if (key === "allOf") {
-        convertedKey = "all_of";
-      } else if (key === "anyOf") {
-        convertedKey = "any_of";
-      } else if (key === "quantity") {
-        // Convert "quantity" to "size" for memory and storage in Go format
-        convertedKey = "size";
-      } else if (key.includes("_")) {
-        convertedKey = key;
-      } else if (key.length > 0 && key[0] === key[0].toUpperCase()) {
-        if (key === "HTTPOptions") {
-          convertedKey = "httpOptions";
-        } else if (key === "IP") {
-          convertedKey = "ip";
-        } else {
-          convertedKey = key.charAt(0).toLowerCase() + key.slice(1);
-        }
-      }
-
-      // Note: Go includes GPU in both manifest and groups for all versions
-      // Do NOT filter GPU - Go includes it even with units "0"
-
-      // Convert empty arrays to null for all_of/any_of to match Go output
-      if ((key === "all_of" || key === "allOf" || key === "any_of" || key === "anyOf") && Array.isArray(value) && value.length === 0) {
-        converted[convertedKey] = null;
-        continue;
-      }
-
-      // Convert "price" to "prices" array for Go groups output
-      if (key === "price" && value !== null && typeof value === "object") {
-        converted["prices"] = [value];
-        continue;
-      }
-
-      converted[convertedKey] = value;
-    }
-
-    return converted;
-  }
-
-  private validate() {
-    // TODO: this should really be cast to unknown, then assigned
-    // to v2 or v3 SDL only after being validated
-    this.validateEndpoints();
-
-    Object.keys(this.data.services).forEach((serviceName) => {
-      this.validateServiceImage(serviceName);
-      this.validateServicePorts(serviceName);
-      this.validateDeploymentWithRelations(serviceName);
-      this.validateLeaseIP(serviceName);
-      this.validateCredentials(serviceName);
-    });
-
-    this.validateDenom();
-    this.validateEndpointsUtility();
-  }
-
-  private validateDenom() {
-    const usdcDenom = USDC_IBC_DENOMS[this.networkId];
-    const denoms = this.groups()
-      .flatMap((g) => g.resources)
-      .map((resource) => resource.price.denom);
-    const invalidDenom = denoms.find((denom) => denom !== AKT_DENOM && denom !== usdcDenom);
-
-    SdlValidationError.assert(!invalidDenom, `Invalid denom: "${invalidDenom}". Only uakt and ${usdcDenom} are supported.`);
-  }
-
-  private validateEndpoints() {
-    if (!this.data.endpoints) {
-      return;
-    }
-    Object.keys(this.data.endpoints).forEach((endpointName) => {
-      const endpoint = this.data.endpoints[endpointName] || {};
-      SdlValidationError.assert(this.ENDPOINT_NAME_VALIDATION_REGEX.test(endpointName), `Endpoint named "${endpointName}" is not a valid name.`);
-      SdlValidationError.assert(!!endpoint.kind, `Endpoint named "${endpointName}" has no kind.`);
-      SdlValidationError.assert(endpoint.kind === this.ENDPOINT_KIND_IP, `Endpoint named "${endpointName}" has an unknown kind "${endpoint.kind}".`);
-    });
-  }
-
-  private validateServiceImage(serviceName: string) {
-    const image = this.data.services[serviceName].image;
-    SdlValidationError.assert(image && image.trim().length > 0, `Service "${serviceName}" has empty image name.`);
-  }
-
-  private validateServicePorts(serviceName: string) {
-    const service = this.data.services[serviceName];
-    service.expose?.forEach((expose) => {
-      const port = expose.port;
-      SdlValidationError.assert(
-        port > 0 && port <= 65535,
-        `Service "${serviceName}" has invalid port value. Port must be 0 < value <= 65535.`,
-      );
-    });
-  }
-
-  private validateCredentials(serviceName: string) {
-    const { credentials } = this.data.services[serviceName];
-
-    if (credentials) {
-      const credentialsKeys: (keyof v2ServiceImageCredentials)[] = ["host", "username", "password"];
-      credentialsKeys.forEach((key) => {
-        SdlValidationError.assert(credentials[key]?.trim().length, `service "${serviceName}" credentials missing "${key}"`);
-      });
-    }
-  }
-
-  private validateDeploymentWithRelations(serviceName: string) {
-    const deployment = this.data.deployment[serviceName];
-    SdlValidationError.assert(deployment, `Service "${serviceName}" is not defined in the "deployment" section.`);
-
-    Object.keys(this.data.deployment[serviceName]).forEach((deploymentName) => {
-      this.validateDeploymentRelations(serviceName, deploymentName);
-      this.validateServiceStorages(serviceName, deploymentName);
-      this.validateStorages(serviceName, deploymentName);
-      this.validateGPU(serviceName, deploymentName);
-    });
-  }
-
-  private validateDeploymentRelations(serviceName: string, deploymentName: string) {
-    const serviceDeployment = this.data.deployment[serviceName][deploymentName];
-    const compute = this.data.profiles.compute?.[serviceDeployment.profile];
-    const infra = this.data.profiles.placement?.[deploymentName];
-
-    SdlValidationError.assert(infra, `The placement "${deploymentName}" is not defined in the "placement" section.`);
-    SdlValidationError.assert(
-      infra.pricing?.[serviceDeployment.profile],
-      `The pricing for the "${serviceDeployment.profile}" profile is not defined in the "${deploymentName}" "placement" definition.`,
-    );
-    SdlValidationError.assert(compute, `The compute requirements for the "${serviceDeployment.profile}" profile are not defined in the "compute" section.`);
-  }
-
-  private validateServiceStorages(serviceName: string, deploymentName: string) {
-    const service = this.data.services[serviceName];
-    const mounts: Record<string, string> = {};
-    const serviceDeployment = this.data.deployment[serviceName][deploymentName];
-    const compute = this.data.profiles.compute[serviceDeployment.profile];
-    const storages = castArray(compute.resources.storage);
-
-    if (!service.params?.storage) {
-      return;
-    }
-
-    Object.entries(service.params.storage || {}).forEach(([storageName, storage]) => {
-      const storageNameExists = storages.some(({ name }) => name === storageName);
-      SdlValidationError.assert(storage, `Storage "${storageName}" is not configured.`);
-      SdlValidationError.assert(storageNameExists, `Service "${serviceName}" references to non-existing compute volume names "${storageName}".`);
-
-      SdlValidationError.assert(
-        !("mount" in storage) || this.ABSOLUTE_PATH_REGEX.test(storage.mount),
-        `Invalid value for "service.${serviceName}.params.${storageName}.mount" parameter. expected absolute path.`,
-      );
-
-      const mount = storage?.mount;
-      const volumeName = mounts[mount];
-
-      SdlValidationError.assert(!volumeName || mount, "Multiple root ephemeral storages are not allowed");
-      SdlValidationError.assert(!volumeName || !mount, `Mount ${mount} already in use by volume "${volumeName}".`);
-
-      mounts[mount] = storageName;
-    });
-  }
-
-  private validateStorages(serviceName: string, deploymentName: string) {
-    const service = this.data.services[serviceName];
-    const serviceDeployment = this.data.deployment[serviceName][deploymentName];
-    const compute = this.data.profiles.compute[serviceDeployment.profile];
-    const storages = castArray(compute.resources.storage);
-
-    storages.forEach((storage) => {
-      const isRam = storage.attributes?.class === "ram";
-      const persistent = this.stringToBoolean(storage.attributes?.persistent || false);
-
-      SdlValidationError.assert(storage.size, `Storage size is required for service "${serviceName}".`);
-      SdlValidationError.assert(
-        !isRam || !persistent,
-        `Storage attribute "ram" must have "persistent" set to "false" or not defined for service "${serviceName}".`,
-      );
-
-      const mount = service.params?.storage?.[storage.name]?.mount;
-      SdlValidationError.assert(
-        !persistent || mount,
-        `compute.storage.${storage.name} has persistent=true which requires service.${serviceName}.params.storage.${storage.name} to have mount.`,
-      );
-    });
-  }
-
-  private stringToBoolean(str: string | boolean) {
-    if (typeof str === "boolean") {
-      return str;
-    }
-
-    switch (str.toLowerCase()) {
-      case "false":
-      case "no":
-      case "0":
-      case "":
-        return false;
-      default:
-        return true;
-    }
-  }
-
-  private validateGPU(serviceName: string, deploymentName: string) {
-    const deployment = this.data.deployment[serviceName];
-    const compute = this.data.profiles.compute[deployment[deploymentName].profile];
-    const gpu = (compute.resources as v3ComputeResources).gpu;
-
-    if (!gpu) {
-      return;
-    }
-    const hasUnits = gpu.units !== 0;
-    const hasAttributes = typeof gpu.attributes !== "undefined";
-    const hasVendor = hasAttributes && typeof gpu.attributes?.vendor !== "undefined";
-
-    SdlValidationError.assert(typeof gpu.units === "number", `GPU units must be specified for profile "${serviceName}".`);
-    SdlValidationError.assert(hasUnits || !hasAttributes, "GPU must not have attributes if units is 0");
-    SdlValidationError.assert(!hasUnits || hasAttributes, "GPU must have attributes if units is not 0");
-    SdlValidationError.assert(!hasUnits || hasVendor, "GPU must specify a vendor if units is not 0");
-    const hasUnsupportedVendor = hasVendor && GPU_SUPPORTED_VENDORS.some((vendor) => vendor in (gpu.attributes?.vendor || {}));
-    SdlValidationError.assert(!hasUnits || hasUnsupportedVendor, `GPU must be one of the supported vendors (${GPU_SUPPORTED_VENDORS.join(",")}).`);
-
-    const vendor: string = Object.keys(gpu.attributes?.vendor || {})[0];
-
-    SdlValidationError.assert(
-      !hasUnits || !gpu.attributes?.vendor[vendor] || Array.isArray(gpu.attributes.vendor[vendor]),
-      `GPU configuration must be an array of GPU models with optional ram.`,
-    );
-    SdlValidationError.assert(
-      !hasUnits
-      || !Object.values(gpu.attributes?.vendor || {}).some((models) =>
-        models?.some((model) => model.interface && !GPU_SUPPORTED_INTERFACES.includes(model.interface)),
-      ),
-      `GPU interface must be one of the supported interfaces (${GPU_SUPPORTED_INTERFACES.join(",")}).`,
-    );
-  }
-
-  private validateLeaseIP(serviceName: string) {
-    this.data.services[serviceName].expose?.forEach((expose) => {
-      const proto = this.parseServiceProto(expose.proto);
-
-      expose.to?.forEach((to) => {
-        if (to.ip?.length > 0) {
-          SdlValidationError.assert(to.global, `Error on "${serviceName}", if an IP is declared, the directive must be declared as global.`);
-          SdlValidationError.assert(
-            this.data.endpoints?.[to.ip],
-            `Unknown endpoint "${to.ip}" in service "${serviceName}". Add to the list of endpoints in the "endpoints" section.`,
-          );
-
-          this.endpointsUsed.add(to.ip);
-
-          const portKey = `${to.ip}-${expose.as}-${proto}`;
-          const otherServiceName = this.portsUsed.get(portKey);
-          SdlValidationError.assert(
-            !this.portsUsed.has(portKey),
-            `IP endpoint ${to.ip} port: ${expose.port} protocol: ${proto} specified by service ${serviceName} already in use by ${otherServiceName}`,
-          );
-          this.portsUsed.set(portKey, serviceName);
-        }
-      });
-    });
-  }
-
-  private validateEndpointsUtility() {
-    if (this.data.endpoints) {
-      Object.keys(this.data.endpoints).forEach((endpoint) => {
-        SdlValidationError.assert(this.endpointsUsed.has(endpoint), `Endpoint ${endpoint} declared but never used.`);
-      });
-    }
+    const errors = SDLValidator.validate(data as unknown as SDLInput, networkId);
+    if (errors) throw new SdlValidationError(errors[0]);
   }
 
   services() {
@@ -615,7 +166,7 @@ export class SDL {
   }
 
   resourceUnit(val: string, asString: boolean) {
-    return asString ? { val: `${convertResourceString(val)}` } : { val: convertResourceString(val) };
+    return { val: `${convertResourceString(val)}` };
   }
 
   resourceValue(value: { toString: () => string } | null, asString: boolean) {
@@ -623,10 +174,7 @@ export class SDL {
       return value;
     }
 
-    const strVal = value.toString();
-    const encoder = new TextEncoder();
-
-    return asString ? strVal : encoder.encode(strVal);
+    return value.toString();
   }
 
   serviceResourceCpu(resource: v2ResourceCPU) {
@@ -698,16 +246,15 @@ export class SDL {
 
   serviceResourceGpu(resource: v3ResourceGPU | undefined, asString: boolean) {
     const value = resource?.units || 0;
-    const numVal = isString(value) ? Buffer.from(value, "ascii") : value;
     const strVal = !isString(value) ? value.toString() : value;
 
     return resource?.attributes
       ? {
-          units: asString ? { val: strVal } : { val: numVal },
+          units: { val: strVal },
           attributes: this.transformGpuAttributes(resource?.attributes),
         }
       : {
-          units: asString ? { val: strVal } : { val: numVal },
+          units: { val: strVal },
         };
   }
 
@@ -794,24 +341,11 @@ export class SDL {
    * // protocol is "TCP"
    * ```
    */
-  parseServiceProto(proto?: string) {
-    const raw = proto?.toUpperCase();
-    let result = "TCP";
+  parseServiceProto(proto?: string): string {
+    const raw = proto?.toUpperCase() || "TCP";
+    if (raw === "TCP" || raw === "UDP") return raw;
 
-    switch (raw) {
-      case "TCP":
-      case "":
-      case undefined:
-        result = "TCP";
-        break;
-      case "UDP":
-        result = "UDP";
-        break;
-      default:
-        throw new Error("ErrUnsupportedServiceProtocol");
-    }
-
-    return result;
+    throw new SdlValidationError(`Unsupported service protocol: "${proto}". Supported protocols are "TCP" and "UDP".`);
   }
 
   manifestExposeService(to: v2ExposeTo) {
@@ -930,9 +464,8 @@ export class SDL {
   }
 
   v2ManifestServiceParams(params: v2ServiceParams): v2ManifestServiceParams | undefined {
-    const storageKeys = Object.keys(params?.storage ?? {}).sort();
     return {
-      Storage: storageKeys.map((name) => {
+      Storage: Object.keys(params?.storage ?? {}).map((name) => {
         if (!params?.storage) throw new Error("Storage is undefined");
         return {
           name: name,
@@ -944,20 +477,21 @@ export class SDL {
   }
 
   v3ManifestServiceParams(params: v2ServiceParams | undefined): v3ManifestServiceParams | null {
-    if (params === undefined || params === null) {
+    if (params === undefined) {
       return null;
     }
 
-    const storageKeys = Object.keys(params.storage ?? {}).sort();
     return {
-      storage: storageKeys.map((name) => {
-        if (!params.storage) throw new Error("Storage is undefined");
-        return {
-          name: name,
-          mount: params.storage[name]?.mount,
-          readOnly: params.storage[name]?.readOnly || false,
-        };
-      }),
+      storage: Object.keys(params?.storage ?? {})
+        .sort()
+        .map((name) => {
+          if (!params?.storage) throw new Error("Storage is undefined");
+          return {
+            name: name,
+            mount: params.storage[name]?.mount,
+            readOnly: params.storage[name]?.readOnly || false,
+          };
+        }),
     };
   }
 
@@ -994,7 +528,6 @@ export class SDL {
       credentials.email = "";
     }
 
-    const params = this.v3ManifestServiceParams(service.params);
     const manifestService: v3ManifestService = {
       name: name,
       image: service.image,
@@ -1004,11 +537,12 @@ export class SDL {
       resources: this.serviceResourcesBeta3(id, profile as v3ProfileCompute, service, asString),
       count: deployment[placement].count,
       expose: this.v3ManifestExpose(service),
+      params: this.v3ManifestServiceParams(service.params),
       credentials,
     };
 
-    if (params !== null) {
-      manifestService.params = params;
+    if (!manifestService.params) {
+      delete manifestService.params;
     }
 
     return manifestService;
@@ -1021,18 +555,16 @@ export class SDL {
     }));
   }
 
-  v3Manifest(asString: boolean = false, format: OutputFormat = "typescript"): v3Manifest {
-    const groups = this.v3Groups(format);
+  v3Manifest(asString: boolean = false): v3Manifest {
+    const groups = this.v3Groups();
     const serviceId = (pIdx: number, sIdx: number) => groups[pIdx].resources[sIdx].resource.id;
 
-    const manifest = Object.keys(this.placements()).map((name, pIdx) => ({
+    return Object.keys(this.placements()).map((name, pIdx) => ({
       name: name,
       services: this.deploymentsByPlacement(name)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([service], idx) => this.v3ManifestService(serviceId(pIdx, idx), name, service, asString)),
     }));
-
-    return format === "go" ? (this.convertToGoFormat(manifest) as v3Manifest) : manifest;
   }
 
   manifest(asString: boolean = false): v2Manifest | v3Manifest {
@@ -1052,87 +584,80 @@ export class SDL {
    * ```
    */
   computeEndpointSequenceNumbers(sdl: v2Sdl) {
-    // Collect all IPs (including duplicates) to match Go behavior
-    const endpointNames: string[] = [];
-    for (const service of Object.values(sdl.services)) {
-      for (const expose of service.expose || []) {
-        if (expose.to) {
-          for (const to of expose.to) {
-            // Skip global endpoints without IP (matching Go: to.Global && len(to.IP) == 0)
-            if (to.global && (!to.ip || to.ip.length === 0)) {
-              continue;
-            }
-            endpointNames.push(to.ip || "");
+    const ips = new Set<string>();
+    Object.values(sdl.services).forEach((service) =>
+      service.expose.forEach((expose) =>
+        expose.to?.forEach((to) => {
+          if (to.global && to.ip?.length > 0) {
+            ips.add(to.ip);
           }
-        }
-      }
-    }
-
-    if (endpointNames.length === 0) {
-      return {};
-    }
-
-    // Make the assignment stable (matching Go implementation)
-    endpointNames.sort();
-
-    // Assign sequence numbers: start at 0, so first is 1 (matching Go)
-    const res: Record<string, number> = {};
-    let endpointSeqNumber = 0;
-    for (const name of endpointNames) {
-      endpointSeqNumber++;
-      res[name] = endpointSeqNumber;
-    }
-
-    return res;
+        }),
+      ),
+    );
+    
+    const sortedIps = Array.from(ips).sort();
+    return Object.fromEntries(sortedIps.map((ip, index) => [ip, index + 2]));
   }
 
   resourceUnitCpu(computeResources: v2ComputeResources, asString: boolean) {
     const attributes = computeResources.cpu.attributes;
     const cpu = isString(computeResources.cpu.units) ? convertCpuResourceString(computeResources.cpu.units) : computeResources.cpu.units * 1000;
 
-    return {
+    const result: any = {
       units: { val: this.resourceValue(cpu, asString) },
-      attributes:
-        attributes
-        && Object.entries(attributes)
-          .sort(([k0], [k1]) => k0.localeCompare(k1))
-          .map(([key, value]) => ({
-            key: key,
-            value: value.toString(),
-          })),
     };
+
+    if (attributes) {
+      result.attributes = Object.entries(attributes)
+        .sort(([k0], [k1]) => k0.localeCompare(k1))
+        .map(([key, value]) => ({
+          key: key,
+          value: value.toString(),
+        }));
+    }
+
+    return result;
   }
 
   resourceUnitMemory(computeResources: v2ComputeResources, asString: boolean) {
     const attributes = computeResources.memory.attributes;
-    const key = asString ? "quantity" : "size";
 
-    return {
-      [key]: {
+    const result: any = {
+      size: {
         val: this.resourceValue(convertResourceString(computeResources.memory.size), asString),
       },
-      attributes:
-        attributes
-        && Object.entries(attributes)
-          .sort(([k0], [k1]) => k0.localeCompare(k1))
-          .map(([key, value]) => ({
-            key: key,
-            value: value.toString(),
-          })),
     };
+
+    if (attributes) {
+      result.attributes = Object.entries(attributes)
+        .sort(([k0], [k1]) => k0.localeCompare(k1))
+        .map(([key, value]) => ({
+          key: key,
+          value: value.toString(),
+        }));
+    }
+
+    return result;
   }
 
   resourceUnitStorage(computeResources: v2ComputeResources, asString: boolean) {
     const storages = isArray(computeResources.storage) ? computeResources.storage : [computeResources.storage];
-    const key = asString ? "quantity" : "size";
 
-    return storages.map((storage) => ({
-      name: storage.name || "default",
-      [key]: {
-        val: this.resourceValue(convertResourceString(storage.size), asString),
-      },
-      attributes: this.serviceResourceStorageAttributes(storage.attributes),
-    }));
+    return storages.map((storage) => {
+      const result: any = {
+        name: storage.name || "default",
+        size: {
+          val: this.resourceValue(convertResourceString(storage.size), asString),
+        },
+      };
+
+      const attrs = this.serviceResourceStorageAttributes(storage.attributes);
+      if (attrs) {
+        result.attributes = attrs;
+      }
+
+      return result;
+    });
   }
 
   transformGpuAttributes(attributes: v3GPUAttributes): Array<{ key: string; value: string }> {
@@ -1168,10 +693,15 @@ export class SDL {
     const units = computeResources.gpu?.units || "0";
     const gpu = isString(units) ? parseInt(units) : units;
 
-    return {
+    const result: any = {
       units: { val: this.resourceValue(gpu, asString) },
-      attributes: attributes && this.transformGpuAttributes(attributes),
     };
+
+    if (attributes) {
+      result.attributes = this.transformGpuAttributes(attributes);
+    }
+
+    return result;
   }
 
   groupResourceUnits(resource: v2ComputeResources | undefined, asString: boolean) {
@@ -1193,16 +723,7 @@ export class SDL {
       units.storage = this.resourceUnitStorage(resource, asString);
     }
 
-    // GPU is always included in groups (Go always includes it, defaulting to units 0 if not present)
-    if ("gpu" in resource && resource.gpu) {
-      units.gpu = this.resourceUnitGpu(resource as v3ComputeResources, asString);
-    } else {
-      // Default to GPU with units 0 if not present (matching Go behavior)
-      // In groups format (asString=false), Go still outputs "0" as string
-      units.gpu = {
-        units: { val: "0" },
-      };
-    }
+    units.gpu = this.resourceUnitGpu(resource as v3ComputeResources, asString);
 
     return units;
   }
@@ -1213,11 +734,11 @@ export class SDL {
     return expose.global && expose.proto === "TCP" && externalPort === 80;
   }
 
-  groups(format: OutputFormat = "typescript") {
-    return this.version === "beta2" ? this.v2Groups() : this.v3Groups(format);
+  groups() {
+    return this.version === "beta2" ? this.v2Groups() : this.v3Groups();
   }
 
-  v3Groups(format: OutputFormat = "typescript"): Array<v3DeploymentGroup> {
+  v3Groups() {
     const groups = new Map<
       string,
       {
@@ -1233,81 +754,83 @@ export class SDL {
         const compute = this.data.profiles.compute[svcdepl.profile];
         const infra = this.data.profiles.placement[placementName];
         const pricing = infra.pricing[svcdepl.profile];
-        // Format amount to match Go's precision (18 decimal places)
-        const amountValue = pricing.amount as number | string | undefined;
-        const amountStr = typeof amountValue === "number"
-          ? amountValue.toFixed(18)
-          : (amountValue?.toString() || "0");
+        const amount = pricing.amount?.toString() || "0";
+        const formattedAmount = amount.includes(".") ? amount : `${amount}.${"0".repeat(18)}`;
         const price = {
-          ...pricing,
-          amount: amountStr,
+          denom: pricing.denom,
+          amount: formattedAmount.includes(".") && formattedAmount.split(".")[1].length < 18
+            ? formattedAmount + "0".repeat(18 - formattedAmount.split(".")[1].length)
+            : formattedAmount,
         };
 
         let group = groups.get(placementName);
 
         if (!group) {
-          const attributes = infra.attributes
+          const attributes = (infra.attributes
             ? Object.entries(infra.attributes).map(([key, value]) => ({
                 key,
-                value: String(value),
-              })).sort((a, b) => a.key.localeCompare(b.key))
-            : null;
+                value,
+              }))
+            : null) as unknown as Array<{ key: string; value: string }> | null;
 
-          const newGroup = {
-            dgroup: {
-              name: placementName,
-              resources: [],
-              requirements: {
-                attributes: attributes,
-                signedBy: {
-                  allOf: infra.signedBy?.allOf || null,
-                  anyOf: infra.signedBy?.anyOf || null,
-                },
+          if (attributes) {
+            attributes.sort((a, b) => a.key.localeCompare(b.key));
+          }
+
+        group = {
+          dgroup: {
+            name: placementName,
+            resources: [],
+            requirements: {
+              attributes: attributes,
+              signed_by: {
+                all_of: infra.signedBy?.allOf && infra.signedBy.allOf.length > 0 ? infra.signedBy.allOf : null,
+                any_of: infra.signedBy?.anyOf && infra.signedBy.anyOf.length > 0 ? infra.signedBy.anyOf : null,
               },
             },
-            boundComputes: {},
-          };
+          },
+          boundComputes: {},
+        };
 
-          groups.set(placementName, newGroup);
-          group = newGroup;
+          groups.set(placementName, group);
         }
 
-        if (!group!.boundComputes[placementName]) {
-          group!.boundComputes[placementName] = {};
+        if (!group.boundComputes[placementName]) {
+          group.boundComputes[placementName] = {};
         }
 
-        const location = group!.boundComputes[placementName][svcdepl.profile];
+        // const resources = this.serviceResourcesBeta3(0, compute as v3ProfileCompute, service, false);
+        const location = group.boundComputes[placementName][svcdepl.profile];
 
-        if (location === undefined) {
+        if (!location) {
           const res = this.groupResourceUnits(compute.resources, false);
           res.endpoints = this.v3ServiceResourceEndpoints(service);
 
-          const resID = group!.dgroup.resources.length > 0 ? group!.dgroup.resources.length + 1 : 1;
+          const resID = group.dgroup.resources.length > 0 ? group.dgroup.resources.length + 1 : 1;
           res.id = resID;
+          // resources.id = res.id;
 
-          group!.dgroup.resources.push({
+          group.dgroup.resources.push({
             resource: res,
-            price: price,
+            prices: [price],
             count: svcdepl.count,
           } as any);
 
-          group!.boundComputes[placementName][svcdepl.profile] = group!.dgroup.resources.length - 1;
+          group.boundComputes[placementName][svcdepl.profile] = group.dgroup.resources.length - 1;
         } else {
           const endpoints = this.v3ServiceResourceEndpoints(service);
-          const resourceEntry = group!.dgroup.resources[location];
+          // resources.id = group.dgroup.resources[location].id;
 
-          resourceEntry.count += svcdepl.count;
-          const resource = resourceEntry.resource as any;
-          const existingEndpoints = (resource.endpoints || []) as any[];
-          resource.endpoints = existingEndpoints.concat(endpoints);
+          group.dgroup.resources[location].count += svcdepl.count;
+          group.dgroup.resources[location].endpoints += endpoints as any;
+          group.dgroup.resources[location].endpoints.sort();
         }
       }
     }
 
     // keep ordering stable
     const names: string[] = [...groups.keys()].sort();
-    const result = names.map((name) => groups.get(name)).map((group) => (group ? (group.dgroup as typeof group.dgroup) : {})) as Array<v3DeploymentGroup>;
-    return format === "go" ? (this.convertToGoFormat(result) as Array<v3DeploymentGroup>) : result;
+    return names.map((name) => groups.get(name)).map((group) => (group ? (group.dgroup as typeof group.dgroup) : {})) as Array<v3DeploymentGroup>;
   }
 
   v2Groups() {
@@ -1326,37 +849,34 @@ export class SDL {
         const infra = yamlJson.profiles.placement[placementName];
 
         const pricing = infra.pricing[svcdepl.profile];
-        // Format amount to match Go's precision (18 decimal places)
-        const amountValue = pricing.amount as number | string | undefined;
-        const amountStr = typeof amountValue === "number"
-          ? amountValue.toFixed(18)
-          : (amountValue?.toString() || "0");
         const price = {
           ...pricing,
-          amount: amountStr,
+          amount: pricing.amount.toString(),
         };
 
         let group = groups[placementName];
 
         if (!group) {
-          const attributes = infra.attributes
-            ? Object.entries(infra.attributes).map(([key, value]) => ({
-                key,
-                value: String(value),
-              })).sort((a: any, b: any) => (a.key < b.key ? -1 : 1))
-            : null;
-
-          group = {
-            name: placementName,
-            requirements: {
-              attributes: attributes,
-              signedBy: {
-                allOf: infra.signedBy?.allOf || null,
-                anyOf: infra.signedBy?.anyOf || null,
-              },
+        group = {
+          name: placementName,
+          requirements: {
+            attributes: infra.attributes
+              ? Object.entries(infra.attributes).map(([key, value]) => ({
+                  key,
+                  value,
+                }))
+              : null,
+            signed_by: {
+              all_of: infra.signedBy?.allOf && infra.signedBy.allOf.length > 0 ? infra.signedBy.allOf : null,
+              any_of: infra.signedBy?.anyOf && infra.signedBy.anyOf.length > 0 ? infra.signedBy.anyOf : null,
             },
-            resources: [],
-          };
+          },
+          resources: [],
+        };
+
+          if (group.requirements.attributes) {
+            group.requirements.attributes = group.requirements.attributes.sort((a: any, b: any) => a.key < b.key);
+          }
 
           groups[group.name] = group;
         }
@@ -1415,12 +935,8 @@ export class SDL {
    * // escaped is "\\u003cdiv\\u003eHello\\u003c/div\\u003e"
    * ```
    */
-  escapeHtml(raw: string) {
+  #escapeHtml(raw: string) {
     return raw.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
-  }
-
-  SortJSON(jsonStr: string) {
-    return this.escapeHtml(stableStringify(JSON.parse(jsonStr)) || "");
   }
 
   manifestSortedJSON() {
@@ -1431,7 +947,7 @@ export class SDL {
       jsonStr = jsonStr.replaceAll("\"quantity\":{\"val", "\"size\":{\"val");
     }
 
-    return this.SortJSON(jsonStr);
+    return this.#escapeHtml(stableStringify(JSON.parse(jsonStr)) || "");
   }
 
   async manifestVersion() {

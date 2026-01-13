@@ -277,9 +277,9 @@ export type v3DeploymentGroup = {
   }>;
   requirements: {
     attributes: Array<Attribute> | null;
-    signedBy: {
-      allOf: string[] | null;
-      anyOf: string[] | null;
+    signed_by: {
+      all_of: string[] | null;
+      any_of: string[] | null;
     };
   };
 };
