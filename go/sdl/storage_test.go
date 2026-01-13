@@ -14,11 +14,10 @@ import (
 
 func TestStorage_Parse(t *testing.T) {
 	tests := []struct {
-		name        string
-		yaml        string
-		shouldErr   bool
-		expectedLen int
-		checkFunc   func(*testing.T, v2ResourceStorageArray)
+		name      string
+		yaml      string
+		shouldErr bool
+		checkFunc func(*testing.T, v2ResourceStorageArray)
 	}{
 		{
 			name: "legacy format",
@@ -59,12 +58,12 @@ func TestStorage_Parse(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var p v2ResourceStorageArray
 			err := yaml.Unmarshal([]byte(tt.yaml), &p)
-			
+
 			if tt.shouldErr {
 				require.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			if tt.checkFunc != nil {
 				tt.checkFunc(t, p)
@@ -289,7 +288,7 @@ deployment:
 		t.Run(tt.name, func(t *testing.T) {
 			sdl := fmt.Sprintf(sdlTemplate, tt.mount)
 			err := validateInputAgainstSchema([]byte(sdl))
-			
+
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.mount)
 			} else {
@@ -374,9 +373,9 @@ deployment:
       profile: web
       count: 1
 `, tt.attributes)
-			
+
 			err := validateInputAgainstSchema([]byte(sdl))
-			
+
 			if tt.shouldErr {
 				require.Error(t, err, tt.description)
 			} else {

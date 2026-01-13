@@ -16,6 +16,38 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		reason    string
 	}{
 		{
+			name: "unknown field in service",
+			sdl: `version: "2.0"
+services:
+  web:
+    image: nginx
+    unknown_field: value
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+`,
+			shouldErr: true,
+			reason:    "service should not allow unknown fields",
+		},
+		{
 			name: "unknown field in credentials",
 			sdl: `version: "2.0"
 services:

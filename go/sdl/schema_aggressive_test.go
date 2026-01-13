@@ -113,7 +113,7 @@ deployment:
       %s
 `, tt.field)
 			} else if strings.Contains(tt.field, "pricing:") {
-				sdl := fmt.Sprintf(`version: "2.0"
+				sdl = fmt.Sprintf(`version: "2.0"
 services:
   web:
     image: nginx

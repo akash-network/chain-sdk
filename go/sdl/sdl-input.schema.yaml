@@ -60,8 +60,7 @@ definitions:
   storageAttributesValidation:
     description: |
       Storage attributes validation:
-      1. RAM class must not be persistent
-      2. Non-RAM classes (beta1, beta2, beta3, default) require persistent=true
+      RAM class must not be persistent
     additionalProperties: false
     properties:
       class:
@@ -70,35 +69,17 @@ definitions:
         oneOf:
           - type: boolean
           - type: string
-    allOf:
-      - if:
-          properties:
-            class:
-              const: ram
-          required:
-            - class
-        then:
-          properties:
-            persistent:
-              oneOf:
-                - const: false
-                - const: "false"
-      - if:
-          properties:
-            class:
-              enum:
-                - beta1
-                - beta2
-                - beta3
-                - default
-          required:
-            - class
-        then:
-          properties:
-            persistent:
-              oneOf:
-                - const: true
-                - const: "true"
+    not:
+      properties:
+        class:
+          const: ram
+        persistent:
+          anyOf:
+            - const: true
+            - const: "true"
+      required:
+        - class
+        - persistent
     type: object
   
   storageVolume:
@@ -471,6 +452,7 @@ properties:
                 type: object
               type: object
           type: object
+      additionalProperties: false
       required:
         - image
       type: object

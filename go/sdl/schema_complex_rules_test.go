@@ -266,6 +266,15 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 			shouldErr: false,
 			reason:    "empty array might default to wildcard",
 		},
+		{
+			name: "completely empty vendor",
+			gpu: `gpu:
+          units: 1
+          attributes:
+            vendor: {}`,
+			shouldErr: true,
+			reason:    "vendor must have at least one property (minProperties: 1)",
+		},
 	}
 
 	for _, tt := range tests {
