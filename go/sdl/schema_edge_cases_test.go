@@ -196,9 +196,9 @@ deployment:
 // TestSchemaValidation_GPUInterface tests GPU interface enum
 func TestSchemaValidation_GPUInterface(t *testing.T) {
 	tests := []struct {
-		name      string
+		name       string
 		interface_ string
-		shouldErr bool
+		shouldErr  bool
 	}{
 		{"valid pcie", "pcie", false},
 		{"valid sxm", "sxm", false},
@@ -210,7 +210,7 @@ func TestSchemaValidation_GPUInterface(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			interfaceStr := fmt.Sprintf("interface: %s", tt.interface_)
-			
+
 			sdl := fmt.Sprintf(`version: "2.0"
 services:
   web:
@@ -391,4 +391,3 @@ deployment:
 	err := validateInputAgainstSchema([]byte(sdl))
 	require.Error(t, err, "Schema should reject empty image")
 }
-

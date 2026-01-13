@@ -672,7 +672,7 @@ deployment:
 			err := validateInputAgainstSchema([]byte(tt.sdl))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
-				require.Contains(t, err.Error(), "Additional property", 
+				require.Contains(t, err.Error(), "Additional property",
 					"Error should mention Additional property")
 			} else {
 				require.NoError(t, err, "Schema should accept: %s", tt.reason)
@@ -680,4 +680,3 @@ deployment:
 		})
 	}
 }
-

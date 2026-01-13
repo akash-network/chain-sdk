@@ -9,11 +9,11 @@ import (
 
 func TestV2ResourceGPU(t *testing.T) {
 	tests := []struct {
-		name           string
-		yaml           string
-		shouldErr      bool
-		expectedUnits  gpuQuantity
-		expectedAttrs  []struct{ key, value string }
+		name          string
+		yaml          string
+		shouldErr     bool
+		expectedUnits gpuQuantity
+		expectedAttrs []struct{ key, value string }
 	}{
 		{
 			name: "empty vendor",
