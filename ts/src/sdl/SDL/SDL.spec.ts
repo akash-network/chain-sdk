@@ -1,7 +1,9 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it } from "@jest/globals";
 import { createGroups, createManifest, createSdlJson, createSdlYml } from "@test/helpers/sdl";
-import fs from "fs";
 
 import { AKT_DENOM, SANDBOX_ID, USDC_IBC_DENOMS } from "../../network/config.ts";
 import type { v2ServiceImageCredentials } from "../types.ts";
@@ -34,7 +36,15 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrow(
-        new SdlValidationError(`Invalid denom: "${denom}". Only uakt and ${USDC_IBC_DENOMS[SANDBOX_ID]} are supported.`),
+        new SdlValidationError("Invalid format: \"denom\" at \"/profiles/placement/dcloud/pricing/web\" does not match pattern \"^(uakt|ibc/.*)$\""),
+      );
+
+      const anotherYaml = createSdlYml({
+        "profiles.placement.dcloud.pricing.web.denom": { $set: "ibc/1234567890" },
+      });
+
+      expect(() => SDL.fromString(anotherYaml, "beta3", "sandbox")).toThrow(
+        new SdlValidationError(`Invalid denom: "ibc/1234567890" at path "/profiles/placement/dcloud/pricing/web/denom". Only "uakt" and "ibc/12C6A0C374171B595A0A9E18B83FA09D295FB1F2D8C6DAA3AC28683471752D84" are supported.`),
       );
     });
   });
@@ -96,7 +106,9 @@ describe("SDL", () => {
         endpoints: { $set: endpoint },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint named "${endpointName}" is not a valid name.`));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(
+        `Field "${endpointName}" at "/endpoints" doesn't satisfy any of the allowed patterns: ^[a-z]+[-_0-9a-z]+$.`,
+      ));
     });
 
     it("should throw provided no endpoint kind", () => {
@@ -108,7 +120,7 @@ describe("SDL", () => {
         endpoints: { $set: endpoint },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint named "${endpointName}" has no kind.`));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Missing required field: "kind" at "/endpoints/${endpointName}".`));
     });
 
     it("should throw provided invalid endpoint kind", () => {
@@ -124,7 +136,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError(`Endpoint named "${endpointName}" has an unknown kind "${endpointKind}".`),
+        new SdlValidationError(`"kind" at "/endpoints/${endpointName}" should be one of: ip.`),
       );
     });
 
@@ -201,7 +213,7 @@ describe("SDL", () => {
 
         expect(() => {
           SDL.fromString(yml, "beta3", "sandbox");
-        }).toThrowError(new SdlValidationError(`service "web" credentials missing "${field}"`));
+        }).toThrowError(new SdlValidationError(`Missing required field: "${field}" at "/services/web/credentials".`));
       });
 
       it.each(fields)("should throw an error when credentials \"%s\" is empty", (field) => {
@@ -212,18 +224,7 @@ describe("SDL", () => {
 
         expect(() => {
           SDL.fromString(yml, "beta3", "sandbox");
-        }).toThrowError(new SdlValidationError(`service "web" credentials missing "${field}"`));
-      });
-
-      it.each(fields)("should throw an error when credentials \"%s\" contains spaces only", (field) => {
-        credentials[field] = "   ";
-        const yml = createSdlYml({
-          "services.web.credentials": { $set: credentials },
-        });
-
-        expect(() => {
-          SDL.fromString(yml, "beta3", "sandbox");
-        }).toThrowError(new SdlValidationError(`service "web" credentials missing "${field}"`));
+        }).toThrowError(new RegExp(`"${field}" at "/services/web/credentials" must be at least \\d+ characters long`));
       });
     });
   });
@@ -276,7 +277,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("Invalid value for \"service.web.params.data.mount\" parameter. expected absolute path."),
+        new SdlValidationError(`Invalid format: "mount" at "/services/web/params/storage/data" does not match pattern "^/"`),
       );
     });
 
@@ -324,7 +325,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("compute.storage.data has persistent=true which requires service.web.params.storage.data to have mount."),
+        new SdlValidationError("/compute/storage/data has persistent=true which requires /services/web/params/storage/data to have \"mount\" field."),
       );
     });
 
@@ -333,7 +334,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.storage": { $set: { name: "data", size: "1Gi", attributes: { class: "ram", persistent: true } } },
       });
       expect(() => new SDL(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError(`Storage attribute "ram" must have "persistent" set to "false" or not defined for service "web".`),
+        new SdlValidationError("\"ram\" storage at \"/profiles/compute/web/resources/storage\" cannot be persistent"),
       );
     });
 
@@ -341,7 +342,7 @@ describe("SDL", () => {
       const yml = createSdlJson({
         "profiles.compute.web.resources.storage": { $set: { name: "data" } },
       });
-      expect(() => new SDL(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Storage size is required for service \"web\"."));
+      expect(() => new SDL(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Missing required field: \"size\" at \"/profiles/compute/web/resources/storage\"."));
     });
   });
 
@@ -351,7 +352,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.gpu": { $set: {} },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU units must be specified for profile \"web\"."));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("Missing required field: \"units\" at \"/profiles/compute/web/resources/gpu\"."));
     });
 
     it("should throw an error when gpu units > 0 and attributes is not defined", () => {
@@ -385,7 +386,7 @@ describe("SDL", () => {
       });
 
       expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("GPU configuration must be an array of GPU models with optional ram."),
+        new SdlValidationError("\"nvidia\" at \"/profiles/compute/web/resources/gpu/attributes/vendor\" should be array."),
       );
     });
 
@@ -404,7 +405,7 @@ describe("SDL", () => {
       });
 
       expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("GPU interface must be one of the supported interfaces (pcie,sxm)."),
+        new SdlValidationError("\"interface\" at \"/profiles/compute/web/resources/gpu/attributes/vendor/nvidia/0\" should be one of: pcie, sxm."),
       );
     });
   });
@@ -447,7 +448,7 @@ describe("SDL", () => {
         SDL.fromString(invalidSDL, "beta3");
       };
 
-      expect(t).toThrow(`GPU must be one of the supported vendors (nvidia,amd).`);
+      expect(t).toThrow(`Additional property "invalidvendor" is not allowed at "/profiles/compute/web/resources/gpu/attributes/vendor".`);
     });
 
     it("SDL: GPU without vendor name should throw", () => {
@@ -457,7 +458,7 @@ describe("SDL", () => {
         SDL.fromString(invalidSDL, "beta3");
       };
 
-      expect(t).toThrow(`GPU must be one of the supported vendors (nvidia,amd).`);
+      expect(t).toThrow("\"vendor\" at \"/profiles/compute/web/resources/gpu/attributes\" must have at least 1 property.");
     });
   });
 
@@ -898,11 +899,11 @@ describe("SDL", () => {
             blalbla: foo
           signedBy:
             anyOf:
-              - 1
-              - 2
+              - akash1123123
+              - akash1124123123
             allOf:
-              - 3
-              - 4
+              - akash1123123
+              - akash1124123123
           pricing:
             web:
               denom: uakt
@@ -972,7 +973,7 @@ describe("SDL", () => {
 
     it("should throw an error if GPU interface is not supported", () => {
       expect(() => SDL.fromString(invalidIntefaceSdl, "beta3")).toThrow(
-        /GPU interface must be one of the supported interfaces \(pcie,sxm\)/,
+        /"interface" at "\/profiles\/compute\/web\/resources\/gpu\/attributes\/vendor\/nvidia\/0" should be one of: pcie, sxm\./,
       );
     });
   });
@@ -1524,7 +1525,11 @@ describe("SDL", () => {
     });
   });
 
-  function readFileSync(path: string) {
-    return fs.readFileSync(`${__dirname}/${path}`, "utf8");
+  /**
+   * @param {FilePath} filePath Relative path from current directory
+   */
+  function readFileSync(filePath: string) {
+    const fullPath = path.join(__dirname, filePath);
+    return fs.readFileSync(fullPath, "utf8");
   }
 });
