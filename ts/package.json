@@ -40,7 +40,7 @@
     "test:functional": "jest --selectProjects functional",
     "test:unit": "jest --selectProjects unit",
     "compile:validators": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts",
-    "release": "npm run build && npm test && echo 'npm publish' && exit 1"
+    "release": "npm run build && npm test && npm publish"
   },
   "lint-staged": {
     "*.json": [
