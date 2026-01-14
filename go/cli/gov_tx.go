@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"reflect"
 	"sort"
@@ -12,6 +13,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"golang.org/x/term"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -166,12 +168,12 @@ Where proposal.json contains:
   "expedited": false
 }
 
-metadata example: 
+metadata example:
 {
 	"title": "",
 	"authors": [""],
 	"summary": "",
-	"details": "", 
+	"details": "",
 	"proposal_forum_url": "",
 	"vote_option_context": "",
 }
@@ -785,7 +787,19 @@ func writeFile(fileName string, input any) error {
 func parseSubmitProposal(cdc codec.Codec, path string) (proposalMsg, []sdk.Msg, sdk.Coins, error) {
 	var proposal proposalMsg
 
-	contents, err := os.ReadFile(path) //nolint: gosec
+	var fl *os.File
+	var err error
+	if path == "-" || (path == "" && !term.IsTerminal(0)) {
+		fl = os.Stdin
+	} else {
+		fl, err = os.Open(path)
+		if err != nil {
+			return proposal, nil, nil, err
+		}
+		defer fl.Close()
+	}
+	contents, err := io.ReadAll(fl)
+
 	if err != nil {
 		return proposal, nil, nil, err
 	}
