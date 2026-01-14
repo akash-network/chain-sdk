@@ -60,92 +60,65 @@ func testParity(t *testing.T, version string) {
 		}
 
 		t.Run(fixtureName, func(t *testing.T) {
-			validateSchemas(t, inputPath)
-			validateFixtures(t, inputPath, manifestPath, groupsPath)
+			inputBytes, err := os.ReadFile(inputPath)
+			require.NoError(t, err)
+
+			validateInputSchema(t, inputBytes)
+
+			sdl, err := ReadFile(inputPath)
+			require.NoError(t, err)
+
+			manifest, err := sdl.Manifest()
+			require.NoError(t, err)
+
+			groups, err := sdl.DeploymentGroups()
+			require.NoError(t, err)
+
+			manifestBytes, err := json.Marshal(manifest)
+			require.NoError(t, err)
+
+			groupsBytes, err := json.Marshal(groups)
+			require.NoError(t, err)
+
+			validateManifestSchemaBytes(t, manifestBytes)
+			validateGroupsSchemaBytes(t, groupsBytes)
+
+			validateFixtureBytes(t, manifestPath, manifestBytes, "Manifest")
+			validateFixtureBytes(t, groupsPath, groupsBytes, "Groups")
 		})
 	}
 }
 
-func validateSchemas(t *testing.T, inputPath string) {
-	validateInputSchema(t, inputPath)
-
-	sdl, err := ReadFile(inputPath)
-	require.NoError(t, err)
-
-	manifest, err := sdl.Manifest()
-	require.NoError(t, err)
-	validateManifestSchema(t, manifest)
-
-	groups, err := sdl.DeploymentGroups()
-	require.NoError(t, err)
-	validateGroupsSchema(t, groups)
-}
-
-func validateInputSchema(t *testing.T, inputPath string) {
-	inputBytes, err := os.ReadFile(inputPath)
-	require.NoError(t, err, "Failed to read input.yaml")
-
-	err = validateInputAgainstSchema(inputBytes)
+func validateInputSchema(t *testing.T, inputBytes []byte) {
+	err := validateInputAgainstSchema(inputBytes)
 	require.NoError(t, err, "Input schema validation failed")
 }
 
-func validateManifestSchema(t *testing.T, manifest any) {
+func validateManifestSchemaBytes(t *testing.T, manifestBytes []byte) {
 	manifestSchemaOnce.Do(func() {
 		manifestSchema, manifestSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "manifest-output.schema.yaml"))
 	})
 	require.NoError(t, manifestSchemaErr, "Failed to compile manifest schema")
 
-	manifestBytes, err := json.Marshal(manifest)
-	require.NoError(t, err)
-
-	err = validateDataAgainstCompiledSchema(manifestBytes, manifestSchema)
+	err := validateDataAgainstCompiledSchema(manifestBytes, manifestSchema)
 	require.NoError(t, err, "Manifest schema validation failed")
 }
 
-func validateGroupsSchema(t *testing.T, groups any) {
+func validateGroupsSchemaBytes(t *testing.T, groupsBytes []byte) {
 	groupsSchemaOnce.Do(func() {
 		groupsSchema, groupsSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "groups-output.schema.yaml"))
 	})
 	require.NoError(t, groupsSchemaErr, "Failed to compile groups schema")
 
-	groupsBytes, err := json.Marshal(groups)
-	require.NoError(t, err)
-
-	err = validateDataAgainstCompiledSchema(groupsBytes, groupsSchema)
+	err := validateDataAgainstCompiledSchema(groupsBytes, groupsSchema)
 	require.NoError(t, err, "Groups schema validation failed")
 }
 
-func validateFixtures(t *testing.T, inputPath, manifestPath, groupsPath string) {
-	expectedManifestBytes, err := os.ReadFile(manifestPath)
-	require.NoError(t, err, "Failed to read expected manifest.json")
+func validateFixtureBytes(t *testing.T, expectedPath string, actualBytes []byte, name string) {
+	expectedBytes, err := os.ReadFile(expectedPath)
+	require.NoError(t, err, "Failed to read expected %s", name)
 
-	expectedGroupsBytes, err := os.ReadFile(groupsPath)
-	require.NoError(t, err, "Failed to read expected groups.json")
-
-	sdl, err := ReadFile(inputPath)
-	require.NoError(t, err)
-
-	manifest, err := sdl.Manifest()
-	require.NoError(t, err)
-
-	actualManifestBytes, err := json.Marshal(manifest)
-	require.NoError(t, err)
-
-	var expectedManifest, actualManifest any
-	require.NoError(t, json.Unmarshal(expectedManifestBytes, &expectedManifest))
-	require.NoError(t, json.Unmarshal(actualManifestBytes, &actualManifest))
-	require.Equal(t, expectedManifest, actualManifest, "Manifest does not match expected output")
-
-	groups, err := sdl.DeploymentGroups()
-	require.NoError(t, err)
-
-	actualGroupsBytes, err := json.Marshal(groups)
-	require.NoError(t, err)
-
-	var expectedGroups, actualGroups any
-	require.NoError(t, json.Unmarshal(expectedGroupsBytes, &expectedGroups))
-	require.NoError(t, json.Unmarshal(actualGroupsBytes, &actualGroups))
-	require.Equal(t, expectedGroups, actualGroups, "Groups does not match expected output")
+	require.JSONEq(t, string(expectedBytes), string(actualBytes), "%s does not match expected output", name)
 }
 
 func TestInvalidSDLsRejected(t *testing.T) {
@@ -171,6 +144,10 @@ func TestInvalidSDLsRejected(t *testing.T) {
 	}
 }
 
+// TestSchemaOnlyValidations tests SDL files that are rejected by the JSON schema
+// but accepted by the Go parser. These represent validations that exist only in
+// the schema layer (e.g., string length limits, enum value constraints) but are
+// not enforced in the Go validation logic.
 func TestSchemaOnlyValidations(t *testing.T) {
 	schemaOnlyDir := filepath.Join(fixturesRoot, "schema-only-invalid")
 
