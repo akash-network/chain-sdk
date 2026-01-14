@@ -1,56 +1,74 @@
 package sdl
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-// TestSchemaValidation_Credentials tests schema validation for credentials field
 func TestSchemaValidation_Credentials(t *testing.T) {
 	tests := []struct {
 		name      string
-		creds     string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "valid credentials",
-			creds: `host: docker.io
+			name: "valid_credentials",
+			builder: aggressiveBuilder{
+				version: `version: "2.1"`,
+				serviceBlock: `    image: nginx
+    credentials:
+      host: docker.io
       username: user123
-      password: secret123`,
+      password: secret123`},
 			shouldErr: false,
 		},
 		{
-			name: "email too short",
-			creds: `host: docker.io
+			name: "email_too_short",
+			builder: aggressiveBuilder{
+				version: `version: "2.1"`,
+				serviceBlock: `    image: nginx
+    credentials:
+      host: docker.io
       username: user123
       password: secret123
-      email: a@b`,
+      email: a@b`},
 			shouldErr: true,
 			reason:    "email must be at least 5 chars",
 		},
 		{
-			name: "host missing",
-			creds: `username: user123
-      password: secret123`,
+			name: "host_missing",
+			builder: aggressiveBuilder{
+				version: `version: "2.1"`,
+				serviceBlock: `    image: nginx
+    credentials:
+      username: user123
+      password: secret123`},
 			shouldErr: true,
 			reason:    "host is required",
 		},
 		{
-			name: "password too short",
-			creds: `host: docker.io
+			name: "password_too_short",
+			builder: aggressiveBuilder{
+				version: `version: "2.1"`,
+				serviceBlock: `    image: nginx
+    credentials:
+      host: docker.io
       username: user123
-      password: short`,
+      password: short`},
 			shouldErr: true,
 			reason:    "password must be at least 6 chars",
 		},
 		{
-			name: "username empty",
-			creds: `host: docker.io
+			name: "username_empty",
+			builder: aggressiveBuilder{
+				version: `version: "2.1"`,
+				serviceBlock: `    image: nginx
+    credentials:
+      host: docker.io
       username: ""
-      password: secret123`,
+      password: secret123`},
 			shouldErr: true,
 			reason:    "username cannot be empty",
 		},
@@ -58,36 +76,7 @@ func TestSchemaValidation_Credentials(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.1"
-services:
-  web:
-    image: nginx
-    credentials:
-      %s
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.creds)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -97,55 +86,28 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_Ports tests port number validation
 func TestSchemaValidation_Ports(t *testing.T) {
 	tests := []struct {
 		name      string
 		port      string
 		shouldErr bool
 	}{
-		{"valid port 80", "80", false},
-		{"valid port 1", "1", false},
-		{"valid port 65535", "65535", false},
-		{"invalid port 0", "0", true},
-		{"invalid port 65536", "65536", true},
-		{"invalid port -1", "-1", true},
+		{"valid_port_80", "80", false},
+		{"valid_port_1", "1", false},
+		{"valid_port_65535", "65535", false},
+		{"invalid_port_0", "0", true},
+		{"invalid_port_65536", "65536", true},
+		{"invalid_port_-1", "-1", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-    expose:
-      - port: %s
+			builder := aggressiveBuilder{exposeBlock: `    expose:
+      - port: ` + tt.port + `
         to:
-          - global: true
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.port)
+          - global: true`}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject port: %s", tt.port)
 			} else {
@@ -155,57 +117,30 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_Protocol tests protocol validation
 func TestSchemaValidation_Protocol(t *testing.T) {
 	tests := []struct {
 		name      string
 		proto     string
 		shouldErr bool
 	}{
-		{"TCP uppercase", "TCP", false},
-		{"tcp lowercase", "tcp", false},
-		{"UDP uppercase", "UDP", false},
-		{"udp lowercase", "udp", false},
-		{"invalid http", "http", true},
-		{"invalid HTTP", "HTTP", true},
-		{"invalid SCTP", "SCTP", true},
+		{"TCP_uppercase", "TCP", false},
+		{"tcp_lowercase", "tcp", false},
+		{"UDP_uppercase", "UDP", false},
+		{"udp_lowercase", "udp", false},
+		{"invalid_http", "http", true},
+		{"invalid_HTTP", "HTTP", true},
+		{"invalid_SCTP", "SCTP", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-    expose:
+			builder := aggressiveBuilder{exposeBlock: `    expose:
       - port: 80
-        proto: %s
+        proto: ` + tt.proto + `
         to:
-          - global: true
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.proto)
+          - global: true`}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject protocol: %s", tt.proto)
 			} else {
@@ -215,52 +150,30 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_Denom tests denom pattern validation
 func TestSchemaValidation_Denom(t *testing.T) {
 	tests := []struct {
 		name      string
 		denom     string
 		shouldErr bool
 	}{
-		{"valid uakt", "uakt", false},
-		{"valid ibc short", "ibc/ABC123", false},
-		{"valid ibc long", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2", false},
-		{"invalid akt", "akt", true},
-		{"invalid empty", "", true},
-		{"invalid usdc", "usdc", true},
-		{"invalid ibc without slash", "ibcABC123", true},
+		{"valid_uakt", "uakt", false},
+		{"valid_ibc_short", "ibc/ABC123", false},
+		{"valid_ibc_long", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2", false},
+		{"invalid_akt", "akt", true},
+		{"invalid_empty", "", true},
+		{"invalid_usdc", "usdc", true},
+		{"invalid_ibc_without_slash", "ibcABC123", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
+			builder := aggressiveBuilder{placementBlock: `    dc:
       pricing:
         web:
-          denom: %s
-          amount: 100
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.denom)
+          denom: ` + tt.denom + `
+          amount: 100`}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject denom: %s", tt.denom)
 			} else {
@@ -270,59 +183,38 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_CPUUnits tests CPU units validation
 func TestSchemaValidation_CPUUnits(t *testing.T) {
 	tests := []struct {
 		name      string
 		units     string
 		shouldErr bool
 	}{
-		{"valid integer", "1", false},
-		{"valid decimal", "0.5", false},
-		{"valid milli", "100m", false},
-		{"valid string number", `"2"`, false},
-		{"invalid negative", "-1", true},
-		{"invalid negative decimal", "-0.5", true},
-		{"invalid negative milli", "-100m", true},
-		{"invalid zero", "0", true},
-		{"invalid zero decimal", "0.0", true},
-		{"invalid zero padded", "00", true},
-		{"invalid zero padded decimal", "0.00", true},
-		{"invalid zero mixed", "00.0", true},
-		{"invalid zero milli", "0m", true},
-		{"invalid zero padded milli", "00m", true},
+		{"valid_integer", "1", false},
+		{"valid_decimal", "0.5", false},
+		{"valid_milli", "100m", false},
+		{"valid_string_number", `"2"`, false},
+		{"invalid_negative", "-1", true},
+		{"invalid_negative_decimal", "-0.5", true},
+		{"invalid_negative_milli", "-100m", true},
+		{"invalid_zero", "0", true},
+		{"invalid_zero_decimal", "0.0", true},
+		{"invalid_zero_padded", "00", true},
+		{"invalid_zero_padded_decimal", "0.00", true},
+		{"invalid_zero_mixed", "00.0", true},
+		{"invalid_zero_milli", "0m", true},
+		{"invalid_zero_padded_milli", "00m", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: %s
+			builder := aggressiveBuilder{resourcesBlock: `        cpu:
+          units: ` + tt.units + `
         memory:
           size: 1Gi
         storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.units)
+          - size: 1Gi`}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject CPU units: %s", tt.units)
 			} else {
@@ -332,64 +224,36 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_EndpointNames tests endpoint name pattern
 func TestSchemaValidation_EndpointNames(t *testing.T) {
 	tests := []struct {
 		name      string
 		endpoint  string
 		shouldErr bool
 	}{
-		{"valid simple", "myendpoint", false},
-		{"valid with dash", "my-endpoint", false},
-		{"valid with underscore", "my_endpoint", false},
-		{"valid with numbers", "endpoint123", false},
-		{"valid mixed", "my-endpoint_123", false},
-		{"invalid uppercase", "MyEndpoint", true},
-		{"invalid starts with number", "123endpoint", true},
-		{"invalid starts with dash", "-endpoint", true},
-		{"invalid starts with underscore", "_endpoint", true},
-		{"invalid space", "my endpoint", true},
-		{"invalid dot", "my.endpoint", true},
+		{"valid_simple", "myendpoint", false},
+		{"valid_with_dash", "my-endpoint", false},
+		{"valid_with_underscore", "my_endpoint", false},
+		{"valid_with_numbers", "endpoint123", false},
+		{"valid_mixed", "my-endpoint_123", false},
+		{"invalid_uppercase", "MyEndpoint", true},
+		{"invalid_starts_with_number", "123endpoint", true},
+		{"invalid_starts_with_dash", "-endpoint", true},
+		{"invalid_starts_with_underscore", "_endpoint", true},
+		{"invalid_space", "my endpoint", true},
+		{"invalid_dot", "my.endpoint", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-endpoints:
-  %s:
-    kind: ip
-services:
-  web:
-    image: nginx
-    expose:
+			builder := aggressiveBuilder{
+				endpoints: "endpoints:\n  " + tt.endpoint + ":\n    kind: ip",
+				exposeBlock: `    expose:
       - port: 80
         to:
           - global: true
-            ip: %s
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.endpoint, tt.endpoint)
+            ip: ` + tt.endpoint}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject endpoint name: %s", tt.endpoint)
 			} else {
@@ -399,51 +263,25 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_Version tests version enum validation
 func TestSchemaValidation_Version(t *testing.T) {
 	tests := []struct {
 		name      string
 		version   string
 		shouldErr bool
 	}{
-		{"valid 2.0", `"2.0"`, false},
-		{"valid 2.1", `"2.1"`, false},
-		{"invalid 1.0", `"1.0"`, true},
-		{"invalid 3.0", `"3.0"`, true},
-		{"invalid 2.2", `"2.2"`, true},
-		{"invalid number", "2.0", true}, // without quotes
+		{"valid_2_0", `"2.0"`, false},
+		{"valid_2_1", `"2.1"`, false},
+		{"invalid_1_0", `"1.0"`, true},
+		{"invalid_3_0", `"3.0"`, true},
+		{"invalid_2_2", `"2.2"`, true},
+		{"invalid_number", "2.0", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: %s
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.version)
+			builder := aggressiveBuilder{version: "version: " + tt.version}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject version: %s", tt.version)
 			} else {
@@ -453,7 +291,6 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_RequiredFields tests that required fields are enforced
 func TestSchemaValidation_RequiredFields(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -462,7 +299,7 @@ func TestSchemaValidation_RequiredFields(t *testing.T) {
 		reason    string
 	}{
 		{
-			name: "missing version",
+			name: "missing_version",
 			sdl: `services:
   web:
     image: nginx`,
@@ -470,7 +307,7 @@ func TestSchemaValidation_RequiredFields(t *testing.T) {
 			reason:    "version is required",
 		},
 		{
-			name: "missing deployment",
+			name: "missing_deployment",
 			sdl: `version: "2.0"
 services:
   web:
@@ -479,7 +316,7 @@ services:
 			reason:    "deployment is required",
 		},
 		{
-			name: "missing image in service",
+			name: "missing_image_in_service",
 			sdl: `version: "2.0"
 services:
   web:
@@ -510,7 +347,7 @@ deployment:
 			reason:    "image is required in service",
 		},
 		{
-			name: "missing size in storage",
+			name: "missing_size_in_storage",
 			sdl: `version: "2.0"
 services:
   web:
@@ -540,7 +377,7 @@ deployment:
 			reason:    "size is required in storage",
 		},
 		{
-			name: "missing services",
+			name: "missing_services",
 			sdl: `version: "2.0"
 profiles:
   compute:
@@ -567,7 +404,7 @@ deployment:
 			reason:    "services is required",
 		},
 		{
-			name: "missing profiles",
+			name: "missing_profiles",
 			sdl: `version: "2.0"
 services:
   web:
@@ -601,72 +438,126 @@ deployment:
 func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 	tests := []struct {
 		name      string
-		gpu       string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "gpu with units > 0 and attributes",
-			gpu: `gpu:
+			name: "gpu_with_units_gt_0_and_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
               nvidia:
-                - model: a100`,
+                - model: a100`},
 			shouldErr: false,
 		},
 		{
-			name: "gpu with units 0 without attributes",
-			gpu: `gpu:
-          units: 0`,
+			name: "gpu_with_units_0_without_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
+          units: 0`},
 			shouldErr: false,
 			reason:    "units=0 does not require attributes",
 		},
 		{
-			name: "gpu with string units 0 without attributes",
-			gpu: `gpu:
-          units: "0"`,
+			name: "gpu_with_string_units_0_without_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
+          units: "0"`},
 			shouldErr: false,
 			reason:    "units='0' does not require attributes",
 		},
 		{
-			name: "gpu with padded zero without attributes",
-			gpu: `gpu:
-          units: "00"`,
+			name: "gpu_with_padded_zero_without_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
+          units: "00"`},
 			shouldErr: false,
 			reason:    "units='00' is zero, does not require attributes",
 		},
 		{
-			name: "gpu with decimal zero without attributes",
-			gpu: `gpu:
-          units: "0.00"`,
+			name: "gpu_with_decimal_zero_without_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
+          units: "0.00"`},
 			shouldErr: false,
 			reason:    "units='0.00' is zero, does not require attributes",
 		},
 		{
-			name: "gpu with units > 0 without attributes",
-			gpu: `gpu:
-          units: 1`,
+			name: "gpu_with_units_gt_0_without_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
+          units: 1`},
 			shouldErr: true,
 			reason:    "units > 0 requires attributes",
 		},
 		{
-			name: "gpu with string units > 0 without attributes",
-			gpu: `gpu:
-          units: "1"`,
+			name: "gpu_with_string_units_gt_0_without_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
+          units: "1"`},
 			shouldErr: true,
 			reason:    "units > 0 requires attributes",
 		},
 		{
-			name: "gpu with decimal units without attributes",
-			gpu: `gpu:
-          units: 0.5`,
+			name: "gpu_with_decimal_units_without_attributes",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
+          units: 0.5`},
 			shouldErr: true,
 			reason:    "units > 0 requires attributes",
 		},
 		{
-			name:      "gpu section empty",
-			gpu:       `gpu: {}`,
+			name: "gpu_section_empty",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu: {}`},
 			shouldErr: false,
 			reason:    "empty gpu defaults to units=0 in Go",
 		},
@@ -674,35 +565,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-        %s
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.gpu)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -715,50 +578,74 @@ deployment:
 func TestSchemaValidation_GPUAttributesRequireUnits(t *testing.T) {
 	tests := []struct {
 		name      string
-		gpu       string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "attributes without units field",
-			gpu: `gpu:
+			name: "attributes_without_units_field",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           attributes:
             vendor:
               nvidia:
-                - model: a100`,
+                - model: a100`},
 			shouldErr: true,
 			reason:    "attributes present but units not specified",
 		},
 		{
-			name: "attributes with units 0",
-			gpu: `gpu:
+			name: "attributes_with_units_0",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 0
           attributes:
             vendor:
               nvidia:
-                - model: a100`,
+                - model: a100`},
 			shouldErr: true,
 			reason:    "attributes present with units=0",
 		},
 		{
-			name: "attributes with string units 0",
-			gpu: `gpu:
+			name: "attributes_with_string_units_0",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: "0"
           attributes:
             vendor:
               nvidia:
-                - model: a100`,
+                - model: a100`},
 			shouldErr: true,
 			reason:    "attributes present with units='0'",
 		},
 		{
-			name: "attributes with units > 0",
-			gpu: `gpu:
+			name: "attributes_with_units_gt_0",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
               nvidia:
-                - model: a100`,
+                - model: a100`},
 			shouldErr: false,
 			reason:    "valid: both units and attributes",
 		},
@@ -766,35 +653,7 @@ func TestSchemaValidation_GPUAttributesRequireUnits(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-        %s
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.gpu)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {

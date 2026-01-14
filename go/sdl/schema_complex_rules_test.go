@@ -1,54 +1,81 @@
 package sdl
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-// TestSchemaValidation_NextCases_OffLogic tests complex next_cases validation
-// Rule: "off" can only appear alone, not with other error codes
 func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 	tests := []struct {
 		name      string
-		nextCases string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name:      "off alone",
-			nextCases: `["off"]`,
+			name: "off_alone",
+			builder: aggressiveBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          next_cases: ["off"]
+        to:
+          - global: true`},
 			shouldErr: false,
 			reason:    "off can be alone",
 		},
 		{
-			name:      "off with other codes",
-			nextCases: `["off", "500"]`,
+			name: "off_with_other_codes",
+			builder: aggressiveBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          next_cases: ["off", "500"]
+        to:
+          - global: true`},
 			shouldErr: true,
 			reason:    "off cannot be combined with other codes",
 		},
 		{
-			name:      "off with error",
-			nextCases: `["off", "error"]`,
+			name: "off_with_error",
+			builder: aggressiveBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          next_cases: ["off", "error"]
+        to:
+          - global: true`},
 			shouldErr: true,
 			reason:    "off cannot be combined with error",
 		},
 		{
-			name:      "multiple valid codes without off",
-			nextCases: `["500", "502", "503"]`,
+			name: "multiple_valid_codes_without_off",
+			builder: aggressiveBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          next_cases: ["500", "502", "503"]
+        to:
+          - global: true`},
 			shouldErr: false,
 			reason:    "multiple codes valid without off",
 		},
 		{
-			name:      "error and timeout",
-			nextCases: `["error", "timeout"]`,
+			name: "error_and_timeout",
+			builder: aggressiveBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          next_cases: ["error", "timeout"]
+        to:
+          - global: true`},
 			shouldErr: false,
 			reason:    "error and timeout are valid together",
 		},
 		{
-			name:      "empty array",
-			nextCases: `[]`,
+			name: "empty_array",
+			builder: aggressiveBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          next_cases: []
+        to:
+          - global: true`},
 			shouldErr: false,
 			reason:    "empty array might be valid (use defaults)",
 		},
@@ -56,40 +83,7 @@ func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-    expose:
-      - port: 80
-        http_options:
-          next_cases: %s
-        to:
-          - global: true
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.nextCases)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -99,52 +93,86 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_SignedBy tests signedBy allOf/anyOf structure
 func TestSchemaValidation_SignedBy(t *testing.T) {
 	tests := []struct {
 		name      string
-		signedBy  string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "valid anyOf",
-			signedBy: `signedBy:
+			name: "valid_anyOf",
+			builder: aggressiveBuilder{placementBlock: `    dc:
+      attributes:
+        region: us-west
+      signedBy:
         anyOf:
           - akash1address1
-          - akash1address2`,
+          - akash1address2
+      pricing:
+        web:
+          denom: uakt
+          amount: 1`},
 			shouldErr: false,
 		},
 		{
-			name: "valid allOf",
-			signedBy: `signedBy:
+			name: "valid_allOf",
+			builder: aggressiveBuilder{placementBlock: `    dc:
+      attributes:
+        region: us-west
+      signedBy:
         allOf:
           - akash1address1
-          - akash1address2`,
+          - akash1address2
+      pricing:
+        web:
+          denom: uakt
+          amount: 1`},
 			shouldErr: false,
 		},
 		{
-			name: "both anyOf and allOf",
-			signedBy: `signedBy:
+			name: "both_anyOf_and_allOf",
+			builder: aggressiveBuilder{placementBlock: `    dc:
+      attributes:
+        region: us-west
+      signedBy:
         anyOf:
           - akash1address1
         allOf:
-          - akash1address2`,
+          - akash1address2
+      pricing:
+        web:
+          denom: uakt
+          amount: 1`},
 			shouldErr: false,
 			reason:    "both fields can coexist",
 		},
 		{
-			name: "empty anyOf array",
-			signedBy: `signedBy:
-        anyOf: []`,
+			name: "empty_anyOf_array",
+			builder: aggressiveBuilder{placementBlock: `    dc:
+      attributes:
+        region: us-west
+      signedBy:
+        anyOf: []
+      pricing:
+        web:
+          denom: uakt
+          amount: 1`},
 			shouldErr: false,
 			reason:    "empty array might be valid",
 		},
 		{
-			name: "anyOf with non-string",
-			signedBy: `signedBy:
+			name: "anyOf_with_non_string",
+			builder: aggressiveBuilder{placementBlock: `    dc:
+      attributes:
+        region: us-west
+      signedBy:
         anyOf:
-          - 123`,
+          - 123
+      pricing:
+        web:
+          denom: uakt
+          amount: 1`},
 			shouldErr: true,
 			reason:    "addresses must be strings",
 		},
@@ -152,37 +180,7 @@ func TestSchemaValidation_SignedBy(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      attributes:
-        region: us-west
-      %s
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.signedBy)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -192,86 +190,127 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_GPUAttributes tests GPU vendor/model/ram structure
 func TestSchemaValidation_GPUAttributes(t *testing.T) {
 	tests := []struct {
 		name      string
-		gpu       string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "valid nvidia without models",
-			gpu: `gpu:
+			name: "valid_nvidia_without_models",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
-              nvidia: []`,
+              nvidia: []`},
 			shouldErr: false,
 			reason:    "empty nvidia array is wildcard",
 		},
 		{
-			name: "nvidia with model",
-			gpu: `gpu:
+			name: "nvidia_with_model",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
               nvidia:
-                - model: a100`,
+                - model: a100`},
 			shouldErr: false,
 		},
 		{
-			name: "nvidia with model and ram",
-			gpu: `gpu:
+			name: "nvidia_with_model_and_ram",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
               nvidia:
                 - model: a100
-                  ram: 80Gi`,
+                  ram: 80Gi`},
 			shouldErr: false,
 		},
 		{
-			name: "invalid RAM format",
-			gpu: `gpu:
+			name: "invalid_RAM_format",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
               nvidia:
                 - model: a100
-                  ram: 80GB`,
-			shouldErr: false, // Schema doesn't validate RAM format (Go does)
+                  ram: 80GB`},
+			shouldErr: false,
 			reason:    "RAM format not validated by schema",
 		},
 		{
-			name: "multiple vendors",
-			gpu: `gpu:
+			name: "multiple_vendors",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
               nvidia:
                 - model: a100
               amd:
-                - model: mi250`,
+                - model: mi250`},
 			shouldErr: true,
 			reason:    "additionalProperties: false should reject AMD",
 		},
 		{
-			name: "empty nvidia array",
-			gpu: `gpu:
+			name: "empty_nvidia_array",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
             vendor:
-              nvidia: []`,
+              nvidia: []`},
 			shouldErr: false,
 			reason:    "empty array might default to wildcard",
 		},
 		{
-			name: "completely empty vendor",
-			gpu: `gpu:
+			name: "completely_empty_vendor",
+			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+        gpu:
           units: 1
           attributes:
-            vendor: {}`,
+            vendor: {}`},
 			shouldErr: true,
 			reason:    "vendor must have at least one property (minProperties: 1)",
 		},
@@ -279,35 +318,7 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-        %s
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.gpu)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -317,53 +328,73 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_IPRequiresGlobal tests that IP endpoints require global: true
 func TestSchemaValidation_IPRequiresGlobal(t *testing.T) {
 	tests := []struct {
 		name      string
-		expose    string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "IP with global true",
-			expose: `- port: 80
+			name: "IP_with_global_true",
+			builder: aggressiveBuilder{
+				endpoints: `endpoints:
+  myip:
+    kind: ip`,
+				exposeBlock: `    expose:
+      - port: 80
         to:
           - ip: myip
-            global: true`,
+            global: true`},
 			shouldErr: false,
 		},
 		{
-			name: "IP with global false",
-			expose: `- port: 80
+			name: "IP_with_global_false",
+			builder: aggressiveBuilder{
+				endpoints: `endpoints:
+  myip:
+    kind: ip`,
+				exposeBlock: `    expose:
+      - port: 80
         to:
           - ip: myip
-            global: false`,
+            global: false`},
 			shouldErr: true,
 			reason:    "IP requires global: true",
 		},
 		{
-			name: "IP without global",
-			expose: `- port: 80
+			name: "IP_without_global",
+			builder: aggressiveBuilder{
+				endpoints: `endpoints:
+  myip:
+    kind: ip`,
+				exposeBlock: `    expose:
+      - port: 80
         to:
-          - ip: myip`,
+          - ip: myip`},
 			shouldErr: true,
 			reason:    "IP requires global field",
 		},
 		{
-			name: "no IP with global false",
-			expose: `- port: 80
+			name: "no_IP_with_global_false",
+			builder: aggressiveBuilder{exposeBlock: `    expose:
+      - port: 80
         to:
-          - global: false`,
+          - global: false`},
 			shouldErr: false,
 			reason:    "global: false valid without IP",
 		},
 		{
-			name: "empty IP string",
-			expose: `- port: 80
+			name: "empty_IP_string",
+			builder: aggressiveBuilder{
+				endpoints: `endpoints:
+  myip:
+    kind: ip`,
+				exposeBlock: `    expose:
+      - port: 80
         to:
           - ip: ""
-            global: true`,
+            global: true`},
 			shouldErr: true,
 			reason:    "IP cannot be empty",
 		},
@@ -371,39 +402,7 @@ func TestSchemaValidation_IPRequiresGlobal(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-endpoints:
-  myip:
-    kind: ip
-services:
-  web:
-    image: nginx
-    expose:
-      %s
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.expose)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -413,48 +412,21 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_Dependencies tests dependencies structure
 func TestSchemaValidation_Dependencies(t *testing.T) {
 	tests := []struct {
-		name         string
-		dependencies string
-		shouldErr    bool
-		reason       string
+		name      string
+		sdl       string
+		shouldErr bool
+		reason    string
 	}{
 		{
-			name: "valid dependency",
-			dependencies: `dependencies:
-      - service: db`,
-			shouldErr: false,
-		},
-		{
-			name: "multiple dependencies",
-			dependencies: `dependencies:
-      - service: db
-      - service: cache`,
-			shouldErr: false,
-		},
-		{
-			name:         "empty dependencies array",
-			dependencies: `dependencies: []`,
-			shouldErr:    false,
-		},
-		{
-			name: "dependency without service field",
-			dependencies: `dependencies:
-      - name: db`,
-			shouldErr: true, // Schema has additionalProperties: false
-			reason:    "only service field is allowed in dependencies",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
+			name: "valid_dependency",
+			sdl: `version: "2.0"
 services:
   web:
     image: nginx
-    %s
+    dependencies:
+      - service: db
   db:
     image: postgres
 profiles:
@@ -493,9 +465,179 @@ deployment:
     dc:
       profile: db
       count: 1
-`, tt.dependencies)
+`,
+			shouldErr: false,
+		},
+		{
+			name: "multiple_dependencies",
+			sdl: `version: "2.0"
+services:
+  web:
+    image: nginx
+    dependencies:
+      - service: db
+      - service: cache
+  db:
+    image: postgres
+  cache:
+    image: redis
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+    db:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+    cache:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+        db:
+          denom: uakt
+          amount: 1
+        cache:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+  db:
+    dc:
+      profile: db
+      count: 1
+  cache:
+    dc:
+      profile: cache
+      count: 1
+`,
+			shouldErr: false,
+		},
+		{
+			name: "empty_dependencies_array",
+			sdl: `version: "2.0"
+services:
+  web:
+    image: nginx
+    dependencies: []
+  db:
+    image: postgres
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+    db:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+        db:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+  db:
+    dc:
+      profile: db
+      count: 1
+`,
+			shouldErr: false,
+		},
+		{
+			name: "dependency_without_service_field",
+			sdl: `version: "2.0"
+services:
+  web:
+    image: nginx
+    dependencies:
+      - name: db
+  db:
+    image: postgres
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+    db:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+        db:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+  db:
+    dc:
+      profile: db
+      count: 1
+`,
+			shouldErr: true,
+			reason:    "only service field is allowed in dependencies",
+		},
+	}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateInputAgainstSchema([]byte(tt.sdl))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -505,7 +647,6 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_EndpointKind tests endpoint kind validation
 func TestSchemaValidation_EndpointKind(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -514,24 +655,24 @@ func TestSchemaValidation_EndpointKind(t *testing.T) {
 		reason    string
 	}{
 		{
-			name:      "valid ip kind",
+			name:      "valid_ip_kind",
 			kind:      "ip",
 			shouldErr: false,
 		},
 		{
-			name:      "invalid http kind",
+			name:      "invalid_http_kind",
 			kind:      "http",
 			shouldErr: true,
 			reason:    "only 'ip' kind is supported",
 		},
 		{
-			name:      "invalid lb kind",
+			name:      "invalid_lb_kind",
 			kind:      "loadbalancer",
 			shouldErr: true,
 			reason:    "only 'ip' kind is supported",
 		},
 		{
-			name:      "empty kind",
+			name:      "empty_kind",
 			kind:      `""`,
 			shouldErr: true,
 			reason:    "kind is required",
@@ -540,37 +681,10 @@ func TestSchemaValidation_EndpointKind(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-endpoints:
-  myendpoint:
-    kind: %s
-services:
-  web:
-    image: nginx
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.kind)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			builder := aggressiveBuilder{
+				endpoints: "endpoints:\n  myendpoint:\n    kind: " + tt.kind,
+			}
+			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -580,77 +694,76 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_EnvArgsCommand tests env, args, command arrays
 func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 	tests := []struct {
 		name      string
-		service   string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "valid env array",
-			service: `image: nginx
+			name: "valid_env_array",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
     env:
       - NODE_ENV=production
-      - PORT=3000`,
+      - PORT=3000`},
 			shouldErr: false,
 		},
 		{
-			name: "valid args array",
-			service: `image: nginx
+			name: "valid_args_array",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
     args:
       - --verbose
-      - --config=/etc/app.conf`,
+      - --config=/etc/app.conf`},
 			shouldErr: false,
 		},
 		{
-			name: "valid command array",
-			service: `image: nginx
+			name: "valid_command_array",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
     command:
       - /bin/sh
       - -c
-      - "echo hello"`,
+      - "echo hello"`},
 			shouldErr: false,
 		},
 		{
-			name: "all three together",
-			service: `image: nginx
+			name: "all_three_together",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
     env:
       - DEBUG=true
     args:
       - --port=8080
     command:
-      - /app/start.sh`,
+      - /app/start.sh`},
 			shouldErr: false,
 		},
 		{
-			name: "env as null",
-			service: `image: nginx
-    env: null`,
+			name: "env_as_null",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+    env: null`},
 			shouldErr: false,
 			reason:    "null is valid for optional arrays",
 		},
 		{
-			name: "empty env array",
-			service: `image: nginx
-    env: []`,
+			name: "empty_env_array",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+    env: []`},
 			shouldErr: false,
 			reason:    "empty array is valid",
 		},
 		{
-			name: "env as object",
-			service: `image: nginx
+			name: "env_as_object",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
     env:
-      DEBUG: true`,
+      DEBUG: true`},
 			shouldErr: true,
 			reason:    "env must be array, not object",
 		},
 		{
-			name: "env items as numbers",
-			service: `image: nginx
+			name: "env_items_as_numbers",
+			builder: aggressiveBuilder{serviceBlock: `    image: nginx
     env:
-      - 123`,
+      - 123`},
 			shouldErr: true,
 			reason:    "env items must be strings",
 		},
@@ -658,34 +771,7 @@ func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    %s
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.service)
-
-			err := validateInputAgainstSchema([]byte(sdl))
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -695,28 +781,16 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_ExposeToService tests expose.to.service for internal routing
 func TestSchemaValidation_ExposeToService(t *testing.T) {
 	tests := []struct {
 		name      string
+		sdl       string
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name:      "valid service routing",
-			shouldErr: false,
-		},
-		{
-			name:      "multiple to targets",
-			shouldErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var sdl string
-			if tt.name == "valid service routing" {
-				sdl = `version: "2.0"
+			name: "valid_service_routing",
+			sdl: `version: "2.0"
 services:
   web:
     image: nginx
@@ -762,9 +836,12 @@ deployment:
     dc:
       profile: api
       count: 1
-`
-			} else {
-				sdl = `version: "2.0"
+`,
+			shouldErr: false,
+		},
+		{
+			name: "multiple_to_targets",
+			sdl: `version: "2.0"
 services:
   web:
     image: nginx
@@ -811,10 +888,14 @@ deployment:
     dc:
       profile: api
       count: 1
-`
-			}
+`,
+			shouldErr: false,
+		},
+	}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateInputAgainstSchema([]byte(tt.sdl))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
@@ -824,84 +905,23 @@ deployment:
 	}
 }
 
-// TestSchemaValidation_StorageParams tests storage params validation
 func TestSchemaValidation_StorageParams(t *testing.T) {
 	tests := []struct {
 		name      string
-		params    string
+		builder   aggressiveBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
-			name: "valid mount and readOnly",
-			params: `params:
+			name: "valid_mount_and_readOnly",
+			builder: aggressiveBuilder{
+				serviceBlock: `    image: nginx
+    params:
       storage:
         data:
           mount: /data
           readOnly: false`,
-			shouldErr: false,
-		},
-		{
-			name: "readOnly true",
-			params: `params:
-      storage:
-        data:
-          mount: /data
-          readOnly: true`,
-			shouldErr: false,
-		},
-		{
-			name: "only mount no readOnly",
-			params: `params:
-      storage:
-        data:
-          mount: /data`,
-			shouldErr: false,
-			reason:    "readOnly is optional",
-		},
-		{
-			name: "mount without storage definition",
-			params: `params:
-      storage:
-        nonexistent:
-          mount: /data`,
-			shouldErr: false, // Schema doesn't validate cross-references
-			reason:    "Schema validates structure only, not references",
-		},
-		{
-			name: "multiple storage params",
-			params: `params:
-      storage:
-        data1:
-          mount: /data1
-        data2:
-          mount: /data2`,
-			shouldErr: false,
-		},
-		{
-			name: "readOnly as string",
-			params: `params:
-      storage:
-        data:
-          mount: /data
-          readOnly: "true"`,
-			shouldErr: true,
-			reason:    "readOnly must be boolean",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			sdl := fmt.Sprintf(`version: "2.0"
-services:
-  web:
-    image: nginx
-    %s
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
+				resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -911,21 +931,126 @@ profiles:
           - size: 1Gi
             name: data1
           - size: 1Gi
-            name: data2
-  placement:
-    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1
-deployment:
-  web:
-    dc:
-      profile: web
-      count: 1
-`, tt.params)
+            name: data2`},
+			shouldErr: false,
+		},
+		{
+			name: "readOnly_true",
+			builder: aggressiveBuilder{
+				serviceBlock: `    image: nginx
+    params:
+      storage:
+        data:
+          mount: /data
+          readOnly: true`,
+				resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+            name: data
+          - size: 1Gi
+            name: data1
+          - size: 1Gi
+            name: data2`},
+			shouldErr: false,
+		},
+		{
+			name: "only_mount_no_readOnly",
+			builder: aggressiveBuilder{
+				serviceBlock: `    image: nginx
+    params:
+      storage:
+        data:
+          mount: /data`,
+				resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+            name: data
+          - size: 1Gi
+            name: data1
+          - size: 1Gi
+            name: data2`},
+			shouldErr: false,
+			reason:    "readOnly is optional",
+		},
+		{
+			name: "mount_without_storage_definition",
+			builder: aggressiveBuilder{
+				serviceBlock: `    image: nginx
+    params:
+      storage:
+        nonexistent:
+          mount: /data`,
+				resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+            name: data
+          - size: 1Gi
+            name: data1
+          - size: 1Gi
+            name: data2`},
+			shouldErr: false,
+			reason:    "Schema validates structure only, not references",
+		},
+		{
+			name: "multiple_storage_params",
+			builder: aggressiveBuilder{
+				serviceBlock: `    image: nginx
+    params:
+      storage:
+        data1:
+          mount: /data1
+        data2:
+          mount: /data2`,
+				resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+            name: data
+          - size: 1Gi
+            name: data1
+          - size: 1Gi
+            name: data2`},
+			shouldErr: false,
+		},
+		{
+			name: "readOnly_as_string",
+			builder: aggressiveBuilder{
+				serviceBlock: `    image: nginx
+    params:
+      storage:
+        data:
+          mount: /data
+          readOnly: "true"`,
+				resourcesBlock: `        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+            name: data
+          - size: 1Gi
+            name: data1
+          - size: 1Gi
+            name: data2`},
+			shouldErr: true,
+			reason:    "readOnly must be boolean",
+		},
+	}
 
-			err := validateInputAgainstSchema([]byte(sdl))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateInputAgainstSchema([]byte(tt.builder.build()))
 			if tt.shouldErr {
 				require.Error(t, err, "Schema should reject: %s", tt.reason)
 			} else {
