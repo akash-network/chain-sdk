@@ -39,7 +39,7 @@
             },
             {
               "kind": 2,
-              "sequence_number": 2
+              "sequence_number": 1
             },
             {
               "kind": 1,
@@ -71,8 +71,8 @@
                 "timeout"
               ]
             },
-            "ip": "myendpoint",
-            "endpointSequenceNumber": 2
+            "ip": "endpoint-http",
+            "endpointSequenceNumber": 1
           },
           {
             "port": 443,
@@ -92,7 +92,7 @@
                 "timeout"
               ]
             },
-            "ip": "myendpoint",
+            "ip": "endpoint-https",
             "endpointSequenceNumber": 2
           }
         ],

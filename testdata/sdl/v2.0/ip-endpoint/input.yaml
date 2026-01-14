@@ -10,13 +10,13 @@ services:
         proto: tcp
         to:
           - global: true
-            ip: myendpoint
+            ip: endpoint-http
       - port: 443
         as: 443
         proto: tcp
         to:
           - global: true
-            ip: myendpoint
+            ip: endpoint-https
 profiles:
   compute:
     web-compute:
@@ -44,6 +44,8 @@ deployment:
       profile: web-compute
       count: 1
 endpoints:
-  myendpoint:
+  endpoint-http:
+    kind: ip
+  endpoint-https:
     kind: ip
 

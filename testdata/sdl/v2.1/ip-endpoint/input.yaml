@@ -22,7 +22,7 @@ services:
         as: 3000
         to:
           - global: true
-            ip: endpoint1
+            ip: endpoint3
 profiles:
   compute:
     web-compute:
@@ -68,5 +68,7 @@ endpoints:
   endpoint1:
     kind: ip
   endpoint2:
+    kind: ip
+  endpoint3:
     kind: ip
 

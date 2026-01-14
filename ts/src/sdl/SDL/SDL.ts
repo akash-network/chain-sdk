@@ -596,7 +596,7 @@ export class SDL {
     );
 
     const sortedIps = Array.from(ips).sort();
-    return Object.fromEntries(sortedIps.map((ip, index) => [ip, index + 2]));
+    return Object.fromEntries(sortedIps.map((ip, index) => [ip, index + 1]));
   }
 
   resourceUnitCpu(computeResources: v2ComputeResources) {

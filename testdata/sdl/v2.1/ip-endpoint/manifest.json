@@ -40,7 +40,7 @@
             },
             {
               "kind": 2,
-              "sequence_number": 2
+              "sequence_number": 3
             }
           ]
         },
@@ -64,8 +64,8 @@
                 "timeout"
               ]
             },
-            "ip": "endpoint1",
-            "endpointSequenceNumber": 2
+            "ip": "endpoint3",
+            "endpointSequenceNumber": 3
           }
         ],
         "credentials": null
@@ -107,7 +107,7 @@
             },
             {
               "kind": 2,
-              "sequence_number": 2
+              "sequence_number": 1
             },
             {
               "kind": 1,
@@ -115,7 +115,7 @@
             },
             {
               "kind": 2,
-              "sequence_number": 3
+              "sequence_number": 2
             }
           ]
         },
@@ -140,7 +140,7 @@
               ]
             },
             "ip": "endpoint1",
-            "endpointSequenceNumber": 2
+            "endpointSequenceNumber": 1
           },
           {
             "port": 443,
@@ -161,7 +161,7 @@
               ]
             },
             "ip": "endpoint2",
-            "endpointSequenceNumber": 3
+            "endpointSequenceNumber": 2
           }
         ],
         "credentials": null
