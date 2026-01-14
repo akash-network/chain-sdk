@@ -25,29 +25,19 @@ message DepositAuthorization {
     option (gogoproto.goproto_enum_prefix) = false;
 
     // Prefix should start with 0 in enum. So declaring dummy state.
-    invalid = 0 [(gogoproto.enumvalue_customname)     = "DepositScopeInvalid"];
+    invalid = 0 [(gogoproto.enumvalue_customname)    = "DepositScopeInvalid"];
     // DepositScopeDeployment allows deposits for deployment-related operations.
-    deployment = 1 [(gogoproto.enumvalue_customname)  = "DepositScopeDeployment"];
+    deployment = 1 [(gogoproto.enumvalue_customname) = "DepositScopeDeployment"];
     // DepositScopeBid allows deposits for bid-related operations.
-    bid = 2 [(gogoproto.enumvalue_customname)         = "DepositScopeBid"];
+    bid = 2 [(gogoproto.enumvalue_customname)        = "DepositScopeBid"];
   }
 
   // SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account.
   // This limit applies cumulatively across all deposit operations within the authorized scopes.
   // Once this limit is reached, the authorization becomes invalid and no further deposits can be made.
-  // Deprecated: Use spend_limits for multi-denomination support
   cosmos.base.v1beta1.Coin spend_limit = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "spend_limit"
-  ];
-
-  // SpendLimits is the maximum amounts the grantee is authorized to spend from the granter's account
-  // for multiple denominations. This allows authorizing deposits in different tokens (e.g., uakt, uact, usdc).
-  // This field supersedes spend_limit when both are present.
-  repeated cosmos.base.v1beta1.Coin spend_limits = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-    (gogoproto.jsontag)  = "spend_limits"
   ];
 
   // Scopes defines the specific types of deposit operations this authorization permits.
@@ -55,7 +45,7 @@ message DepositAuthorization {
   // the grantee can perform using the granter's funds.
   repeated Scope scopes = 2 [
     (gogoproto.castrepeated) = "DepositAuthorizationScopes",
-    (gogoproto.jsontag)  = "scopes",
-    (gogoproto.moretags) = "yaml:\"scopes\""
+    (gogoproto.jsontag)      = "scopes",
+    (gogoproto.moretags)     = "yaml:\"scopes\""
   ];
 }

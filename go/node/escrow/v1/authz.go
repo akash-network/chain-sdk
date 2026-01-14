@@ -19,7 +19,6 @@ type Authorization interface {
 	authz.Authorization
 	TryAccept(context.Context, sdk.Msg, bool) (authz.AcceptResponse, error)
 	GetSpendLimit() sdk.Coin
-	GetSpendLimits() sdk.Coins
 }
 
 type DepositAuthorizationScopes []DepositAuthorization_Scope
@@ -34,23 +33,6 @@ func NewDepositAuthorization(scopes DepositAuthorizationScopes, spendLimit sdk.C
 		Scopes:     scopes,
 		SpendLimit: spendLimit,
 	}
-}
-
-// NewDepositAuthorizationMultiDenom creates a new DepositAuthorization object with multiple spend limits.
-func NewDepositAuthorizationMultiDenom(scopes DepositAuthorizationScopes, spendLimits sdk.Coins) *DepositAuthorization {
-	return &DepositAuthorization{
-		Scopes:      scopes,
-		SpendLimits: spendLimits,
-	}
-}
-
-// GetSpendLimits returns the spend limits for multi-denom support.
-// If SpendLimits is set, it returns that; otherwise, it returns SpendLimit as a single-coin slice.
-func (m *DepositAuthorization) GetSpendLimits() sdk.Coins {
-	if len(m.SpendLimits) > 0 {
-		return m.SpendLimits
-	}
-	return sdk.NewCoins(m.SpendLimit)
 }
 
 // MsgTypeURL implements Authorization.MsgTypeURL.
@@ -68,6 +50,7 @@ func (m *DepositAuthorization) TryAccept(_ context.Context, msg sdk.Msg, partial
 		return authz.AcceptResponse{Accept: false}, errorsmod.Wrapf(sdkerrors.ErrInvalidType, "msg cannot be nil")
 	}
 	var amount sdk.Coin
+
 	var scope DepositAuthorization_Scope
 
 	switch mt := msg.(type) {
@@ -84,11 +67,6 @@ func (m *DepositAuthorization) TryAccept(_ context.Context, msg sdk.Msg, partial
 		amount = mt.Deposit.Amount
 	case *dvbeta.MsgCreateDeployment:
 		scope = DepositScopeDeployment
-		// Sum all deposits for multi-denom support
-		if len(mt.Deposits) == 0 {
-			return authz.AcceptResponse{}, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "no deposits specified")
-		}
-		// For now, use the first deposit amount (will be enhanced below for multi-denom)
 		amount = mt.Deposits[0].Amount
 	case *mvbeta.MsgCreateBid:
 		scope = DepositScopeBid
@@ -101,62 +79,30 @@ func (m *DepositAuthorization) TryAccept(_ context.Context, msg sdk.Msg, partial
 		return authz.AcceptResponse{}, module.ErrUnauthorizedDepositScope
 	}
 
-	// Multi-denom support: use SpendLimits if available, otherwise fall back to SpendLimit
-	var limitsLeft sdk.Coins
-	if len(m.SpendLimits) > 0 {
-		// Multi-denom mode
-		limitCoin := m.SpendLimits.AmountOf(amount.Denom)
-		if limitCoin.IsZero() {
-			return authz.AcceptResponse{Accept: false}, nil
-		}
-
-		allowedSpend := amount
-		currentLimit := sdk.NewCoin(amount.Denom, limitCoin)
-
-		if currentLimit.IsLT(allowedSpend) {
-			if partial {
-				allowedSpend = currentLimit
-			} else {
-				return authz.AcceptResponse{}, sdkerrors.ErrInsufficientFunds
-			}
-		}
-
-		// Subtract from the specific denom limit
-		limitsLeft = m.SpendLimits.Sub(sdk.NewCoins(allowedSpend)...)
-	} else {
-		// Single denom mode (backward compatibility)
-		if m.SpendLimit.Denom != amount.Denom {
-			return authz.AcceptResponse{Accept: false}, nil
-		}
-
-		allowedSpend := amount
-
-		if m.SpendLimit.IsLT(allowedSpend) {
-			if partial {
-				allowedSpend = m.SpendLimit
-			} else {
-				return authz.AcceptResponse{}, sdkerrors.ErrInsufficientFunds
-			}
-		}
-
-		limitLeft, err := m.SpendLimit.SafeSub(allowedSpend)
-		if err != nil {
-			return authz.AcceptResponse{}, err
-		}
-
-		return authz.AcceptResponse{Accept: true, Delete: limitLeft.IsZero(), Updated: &DepositAuthorization{Scopes: m.Scopes, SpendLimit: limitLeft}}, nil
+	if m.SpendLimit.Denom != amount.Denom {
+		return authz.AcceptResponse{Accept: false}, nil
 	}
 
-	// Return updated authorization with multi-denom limits
-	deleteAuth := limitsLeft.IsZero()
+	allowedSpend := amount
+
+	if m.SpendLimit.IsLT(allowedSpend) {
+		if partial {
+			allowedSpend = m.SpendLimit
+		} else {
+			return authz.AcceptResponse{}, sdkerrors.ErrInsufficientFunds
+		}
+	}
+
+	limitLeft, err := m.SpendLimit.SafeSub(allowedSpend)
+	if err != nil {
+		return authz.AcceptResponse{}, err
+	}
+
 	return authz.AcceptResponse{
-		Accept: true,
-		Delete: deleteAuth,
-		Updated: &DepositAuthorization{
-			Scopes:      m.Scopes,
-			SpendLimits: limitsLeft,
-		},
-	}, nil
+			Accept:  true,
+			Delete:  limitLeft.IsZero(),
+			Updated: &DepositAuthorization{Scopes: m.Scopes, SpendLimit: limitLeft}},
+		nil
 }
 
 // ValidateBasic implements Authorization.ValidateBasic.
