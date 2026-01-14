@@ -9,13 +9,13 @@ import (
 func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "off_alone",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           next_cases: ["off"]
@@ -26,7 +26,7 @@ func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 		},
 		{
 			name: "off_with_other_codes",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           next_cases: ["off", "500"]
@@ -37,7 +37,7 @@ func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 		},
 		{
 			name: "off_with_error",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           next_cases: ["off", "error"]
@@ -48,7 +48,7 @@ func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 		},
 		{
 			name: "multiple_valid_codes_without_off",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           next_cases: ["500", "502", "503"]
@@ -59,7 +59,7 @@ func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 		},
 		{
 			name: "error_and_timeout",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           next_cases: ["error", "timeout"]
@@ -70,7 +70,7 @@ func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 		},
 		{
 			name: "empty_array",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           next_cases: []
@@ -96,13 +96,13 @@ func TestSchemaValidation_NextCases_OffLogic(t *testing.T) {
 func TestSchemaValidation_SignedBy(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "valid_anyOf",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       attributes:
         region: us-west
       signedBy:
@@ -117,7 +117,7 @@ func TestSchemaValidation_SignedBy(t *testing.T) {
 		},
 		{
 			name: "valid_allOf",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       attributes:
         region: us-west
       signedBy:
@@ -132,7 +132,7 @@ func TestSchemaValidation_SignedBy(t *testing.T) {
 		},
 		{
 			name: "both_anyOf_and_allOf",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       attributes:
         region: us-west
       signedBy:
@@ -149,7 +149,7 @@ func TestSchemaValidation_SignedBy(t *testing.T) {
 		},
 		{
 			name: "empty_anyOf_array",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       attributes:
         region: us-west
       signedBy:
@@ -163,7 +163,7 @@ func TestSchemaValidation_SignedBy(t *testing.T) {
 		},
 		{
 			name: "anyOf_with_non_string",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       attributes:
         region: us-west
       signedBy:
@@ -193,13 +193,13 @@ func TestSchemaValidation_SignedBy(t *testing.T) {
 func TestSchemaValidation_GPUAttributes(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "valid_nvidia_without_models",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -215,7 +215,7 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 		},
 		{
 			name: "nvidia_with_model",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -231,7 +231,7 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 		},
 		{
 			name: "nvidia_with_model_and_ram",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -248,7 +248,7 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 		},
 		{
 			name: "invalid_RAM_format",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -266,7 +266,7 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 		},
 		{
 			name: "multiple_vendors",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -285,7 +285,7 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 		},
 		{
 			name: "empty_nvidia_array",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -301,7 +301,7 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 		},
 		{
 			name: "completely_empty_vendor",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -331,13 +331,13 @@ func TestSchemaValidation_GPUAttributes(t *testing.T) {
 func TestSchemaValidation_IPRequiresGlobal(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "IP_with_global_true",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				endpoints: `endpoints:
   myip:
     kind: ip`,
@@ -350,7 +350,7 @@ func TestSchemaValidation_IPRequiresGlobal(t *testing.T) {
 		},
 		{
 			name: "IP_with_global_false",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				endpoints: `endpoints:
   myip:
     kind: ip`,
@@ -364,7 +364,7 @@ func TestSchemaValidation_IPRequiresGlobal(t *testing.T) {
 		},
 		{
 			name: "IP_without_global",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				endpoints: `endpoints:
   myip:
     kind: ip`,
@@ -377,7 +377,7 @@ func TestSchemaValidation_IPRequiresGlobal(t *testing.T) {
 		},
 		{
 			name: "no_IP_with_global_false",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         to:
           - global: false`},
@@ -386,7 +386,7 @@ func TestSchemaValidation_IPRequiresGlobal(t *testing.T) {
 		},
 		{
 			name: "empty_IP_string",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				endpoints: `endpoints:
   myip:
     kind: ip`,
@@ -681,7 +681,7 @@ func TestSchemaValidation_EndpointKind(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{
+			builder := sdlTestBuilder{
 				endpoints: "endpoints:\n  myendpoint:\n    kind: " + tt.kind,
 			}
 			err := validateInputAgainstSchema([]byte(builder.build()))
@@ -697,13 +697,13 @@ func TestSchemaValidation_EndpointKind(t *testing.T) {
 func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "valid_env_array",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     env:
       - NODE_ENV=production
       - PORT=3000`},
@@ -711,7 +711,7 @@ func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 		},
 		{
 			name: "valid_args_array",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     args:
       - --verbose
       - --config=/etc/app.conf`},
@@ -719,7 +719,7 @@ func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 		},
 		{
 			name: "valid_command_array",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     command:
       - /bin/sh
       - -c
@@ -728,7 +728,7 @@ func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 		},
 		{
 			name: "all_three_together",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     env:
       - DEBUG=true
     args:
@@ -739,21 +739,21 @@ func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 		},
 		{
 			name: "env_as_null",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     env: null`},
 			shouldErr: false,
 			reason:    "null is valid for optional arrays",
 		},
 		{
 			name: "empty_env_array",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     env: []`},
 			shouldErr: false,
 			reason:    "empty array is valid",
 		},
 		{
 			name: "env_as_object",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     env:
       DEBUG: true`},
 			shouldErr: true,
@@ -761,7 +761,7 @@ func TestSchemaValidation_EnvArgsCommand(t *testing.T) {
 		},
 		{
 			name: "env_items_as_numbers",
-			builder: aggressiveBuilder{serviceBlock: `    image: nginx
+			builder: sdlTestBuilder{serviceBlock: `    image: nginx
     env:
       - 123`},
 			shouldErr: true,
@@ -908,13 +908,13 @@ deployment:
 func TestSchemaValidation_StorageParams(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "valid_mount_and_readOnly",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    image: nginx
     params:
       storage:
@@ -936,7 +936,7 @@ func TestSchemaValidation_StorageParams(t *testing.T) {
 		},
 		{
 			name: "readOnly_true",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    image: nginx
     params:
       storage:
@@ -958,7 +958,7 @@ func TestSchemaValidation_StorageParams(t *testing.T) {
 		},
 		{
 			name: "only_mount_no_readOnly",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    image: nginx
     params:
       storage:
@@ -980,7 +980,7 @@ func TestSchemaValidation_StorageParams(t *testing.T) {
 		},
 		{
 			name: "mount_without_storage_definition",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    image: nginx
     params:
       storage:
@@ -1002,7 +1002,7 @@ func TestSchemaValidation_StorageParams(t *testing.T) {
 		},
 		{
 			name: "multiple_storage_params",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    image: nginx
     params:
       storage:
@@ -1025,7 +1025,7 @@ func TestSchemaValidation_StorageParams(t *testing.T) {
 		},
 		{
 			name: "readOnly_as_string",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    image: nginx
     params:
       storage:

@@ -9,13 +9,13 @@ import (
 func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "max_body_size_within_limit",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           max_body_size: 1048576
@@ -25,7 +25,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "max_body_size_at_upper_limit",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           max_body_size: 104857600
@@ -36,7 +36,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "max_body_size_exceeds_limit",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           max_body_size: 104857601
@@ -47,7 +47,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "read_timeout_within_limit",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           read_timeout: 60000
@@ -57,7 +57,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "read_timeout_exceeds_limit",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           read_timeout: 60001
@@ -68,7 +68,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "send_timeout_within_limit",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           send_timeout: 60000
@@ -78,7 +78,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "send_timeout_exceeds_limit",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           send_timeout: 60001
@@ -89,7 +89,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "negative_max_body_size",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           max_body_size: -1
@@ -100,7 +100,7 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 		},
 		{
 			name: "negative_read_timeout",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           read_timeout: -1
@@ -126,13 +126,13 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 func TestSchemaValidation_Accept_Hostnames(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "valid_hostname",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         accept:
           - example.com
@@ -142,7 +142,7 @@ func TestSchemaValidation_Accept_Hostnames(t *testing.T) {
 		},
 		{
 			name: "valid_subdomain",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         accept:
           - api.example.com
@@ -152,7 +152,7 @@ func TestSchemaValidation_Accept_Hostnames(t *testing.T) {
 		},
 		{
 			name: "wildcard_subdomain",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         accept:
           - "*.example.com"
@@ -188,7 +188,7 @@ func TestSchemaValidation_GPUInterface(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{resourcesBlock: `        cpu:
+			builder := sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -226,7 +226,7 @@ func TestSchemaValidation_DeploymentCount(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{deploymentBlock: `  web:
+			builder := sdlTestBuilder{deploymentBlock: `  web:
     dc:
       profile: web
       count: ` + tt.count}
@@ -256,7 +256,7 @@ func TestSchemaValidation_PricingAmount(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{placementBlock: `    dc:
+			builder := sdlTestBuilder{placementBlock: `    dc:
       pricing:
         web:
           denom: uakt
@@ -273,7 +273,7 @@ func TestSchemaValidation_PricingAmount(t *testing.T) {
 }
 
 func TestSchemaValidation_EmptyImage(t *testing.T) {
-	builder := aggressiveBuilder{serviceBlock: `    image: ""`}
+	builder := sdlTestBuilder{serviceBlock: `    image: ""`}
 	err := validateInputAgainstSchema([]byte(builder.build()))
 	require.Error(t, err, "Schema should reject empty image")
 }

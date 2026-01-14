@@ -9,13 +9,13 @@ import (
 func TestSchemaValidation_Credentials(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "valid_credentials",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				version: `version: "2.1"`,
 				serviceBlock: `    image: nginx
     credentials:
@@ -26,7 +26,7 @@ func TestSchemaValidation_Credentials(t *testing.T) {
 		},
 		{
 			name: "email_too_short",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				version: `version: "2.1"`,
 				serviceBlock: `    image: nginx
     credentials:
@@ -39,7 +39,7 @@ func TestSchemaValidation_Credentials(t *testing.T) {
 		},
 		{
 			name: "host_missing",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				version: `version: "2.1"`,
 				serviceBlock: `    image: nginx
     credentials:
@@ -50,7 +50,7 @@ func TestSchemaValidation_Credentials(t *testing.T) {
 		},
 		{
 			name: "password_too_short",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				version: `version: "2.1"`,
 				serviceBlock: `    image: nginx
     credentials:
@@ -62,7 +62,7 @@ func TestSchemaValidation_Credentials(t *testing.T) {
 		},
 		{
 			name: "username_empty",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				version: `version: "2.1"`,
 				serviceBlock: `    image: nginx
     credentials:
@@ -102,7 +102,7 @@ func TestSchemaValidation_Ports(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{exposeBlock: `    expose:
+			builder := sdlTestBuilder{exposeBlock: `    expose:
       - port: ` + tt.port + `
         to:
           - global: true`}
@@ -134,7 +134,7 @@ func TestSchemaValidation_Protocol(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{exposeBlock: `    expose:
+			builder := sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         proto: ` + tt.proto + `
         to:
@@ -167,7 +167,7 @@ func TestSchemaValidation_Denom(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{placementBlock: `    dc:
+			builder := sdlTestBuilder{placementBlock: `    dc:
       pricing:
         web:
           denom: ` + tt.denom + `
@@ -207,7 +207,7 @@ func TestSchemaValidation_CPUUnits(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{resourcesBlock: `        cpu:
+			builder := sdlTestBuilder{resourcesBlock: `        cpu:
           units: ` + tt.units + `
         memory:
           size: 1Gi
@@ -245,7 +245,7 @@ func TestSchemaValidation_EndpointNames(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{
+			builder := sdlTestBuilder{
 				endpoints: "endpoints:\n  " + tt.endpoint + ":\n    kind: ip",
 				exposeBlock: `    expose:
       - port: 80
@@ -279,7 +279,7 @@ func TestSchemaValidation_Version(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			builder := aggressiveBuilder{version: "version: " + tt.version}
+			builder := sdlTestBuilder{version: "version: " + tt.version}
 
 			err := validateInputAgainstSchema([]byte(builder.build()))
 			if tt.shouldErr {
@@ -438,13 +438,13 @@ deployment:
 func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "gpu_with_units_gt_0_and_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -460,7 +460,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_with_units_0_without_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -473,7 +473,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_with_string_units_0_without_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -486,7 +486,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_with_padded_zero_without_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -499,7 +499,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_with_decimal_zero_without_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -512,7 +512,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_with_units_gt_0_without_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -525,7 +525,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_with_string_units_gt_0_without_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -538,7 +538,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_with_decimal_units_without_attributes",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -551,7 +551,7 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 		},
 		{
 			name: "gpu_section_empty",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -578,13 +578,13 @@ func TestSchemaValidation_GPUUnitsRequireAttributes(t *testing.T) {
 func TestSchemaValidation_GPUAttributesRequireUnits(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "attributes_without_units_field",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -600,7 +600,7 @@ func TestSchemaValidation_GPUAttributesRequireUnits(t *testing.T) {
 		},
 		{
 			name: "attributes_with_units_0",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -617,7 +617,7 @@ func TestSchemaValidation_GPUAttributesRequireUnits(t *testing.T) {
 		},
 		{
 			name: "attributes_with_string_units_0",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -634,7 +634,7 @@ func TestSchemaValidation_GPUAttributesRequireUnits(t *testing.T) {
 		},
 		{
 			name: "attributes_with_units_gt_0",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi

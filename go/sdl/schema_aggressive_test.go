@@ -6,92 +6,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type aggressiveBuilder struct {
-	version         string
-	endpoints       string
-	serviceBlock    string
-	exposeBlock     string
-	resourcesBlock  string
-	placementBlock  string
-	deploymentBlock string
-}
-
-func (b aggressiveBuilder) build() string {
-	version := `version: "2.0"`
-	if b.version != "" {
-		version = b.version
-	}
-
-	endpoints := ""
-	if b.endpoints != "" {
-		endpoints = b.endpoints + "\n"
-	}
-
-	service := `  web:`
-	hasImage := b.serviceBlock != "" && (len(b.serviceBlock) > 10 && b.serviceBlock[:10] == "    image:")
-	if !hasImage {
-		service += `
-    image: nginx`
-	}
-	if b.serviceBlock != "" {
-		service += "\n" + b.serviceBlock
-	}
-	if b.exposeBlock != "" {
-		service += "\n" + b.exposeBlock
-	}
-
-	resources := `        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi`
-	if b.resourcesBlock != "" {
-		resources = b.resourcesBlock
-	}
-
-	placement := `    dc:
-      pricing:
-        web:
-          denom: uakt
-          amount: 1`
-	if b.placementBlock != "" {
-		placement = b.placementBlock
-	}
-
-	deployment := `  web:
-    dc:
-      profile: web
-      count: 1`
-	if b.deploymentBlock != "" {
-		deployment = b.deploymentBlock
-	}
-
-	return version + `
-` + endpoints + `services:
-` + service + `
-profiles:
-  compute:
-    web:
-      resources:
-` + resources + `
-  placement:
-` + placement + `
-deployment:
-` + deployment + `
-`
-}
-
 func TestSchemaValidation_ExtremeValues(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "cpu_units_extremely_large",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 999999999
         memory:
           size: 1Gi
@@ -101,7 +25,7 @@ func TestSchemaValidation_ExtremeValues(t *testing.T) {
 		},
 		{
 			name: "memory_size_invalid_unit",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1ZB
@@ -112,7 +36,7 @@ func TestSchemaValidation_ExtremeValues(t *testing.T) {
 		},
 		{
 			name: "storage_size_zero",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -123,7 +47,7 @@ func TestSchemaValidation_ExtremeValues(t *testing.T) {
 		},
 		{
 			name: "pricing_amount_string_overflow",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       pricing:
         web:
           denom: uakt
@@ -132,7 +56,7 @@ func TestSchemaValidation_ExtremeValues(t *testing.T) {
 		},
 		{
 			name: "port_exactly_65535",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 65535
         to:
           - global: true`},
@@ -140,7 +64,7 @@ func TestSchemaValidation_ExtremeValues(t *testing.T) {
 		},
 		{
 			name: "count_extremely_large",
-			builder: aggressiveBuilder{deploymentBlock: `  web:
+			builder: sdlTestBuilder{deploymentBlock: `  web:
     dc:
       profile: web
       count: 999999`},
@@ -164,7 +88,7 @@ func TestSchemaValidation_SpecialCharacters(t *testing.T) {
 	tests := []struct {
 		name      string
 		sdl       string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
@@ -200,12 +124,12 @@ deployment:
 		},
 		{
 			name:      "image_with_spaces",
-			builder:   aggressiveBuilder{serviceBlock: `    image: "nginx latest"`},
+			builder:   sdlTestBuilder{serviceBlock: `    image: "nginx latest"`},
 			shouldErr: false,
 		},
 		{
 			name: "accept_with_unicode",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         accept:
           - "こんにちは.com"
@@ -234,25 +158,25 @@ deployment:
 func TestSchemaValidation_EmptyAndNullValues(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name:      "null_args",
-			builder:   aggressiveBuilder{serviceBlock: "    args: null"},
+			builder:   sdlTestBuilder{serviceBlock: "    args: null"},
 			shouldErr: false,
 			reason:    "null args is allowed",
 		},
 		{
 			name:      "empty_array_args",
-			builder:   aggressiveBuilder{serviceBlock: "    args: []"},
+			builder:   sdlTestBuilder{serviceBlock: "    args: []"},
 			shouldErr: false,
 			reason:    "empty args array is allowed",
 		},
 		{
 			name: "empty_storage_array",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -262,7 +186,7 @@ func TestSchemaValidation_EmptyAndNullValues(t *testing.T) {
 		},
 		{
 			name:      "null_expose",
-			builder:   aggressiveBuilder{serviceBlock: "    expose: null"},
+			builder:   sdlTestBuilder{serviceBlock: "    expose: null"},
 			shouldErr: false,
 			reason:    "expose is optional",
 		},
@@ -284,7 +208,7 @@ func TestSchemaValidation_DuplicateNames(t *testing.T) {
 	tests := []struct {
 		name      string
 		sdl       string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
@@ -322,7 +246,7 @@ deployment:
 		},
 		{
 			name: "duplicate_endpoint_names",
-			builder: aggressiveBuilder{
+			builder: sdlTestBuilder{
 				endpoints: `endpoints:
   myip:
     kind: ip
@@ -353,23 +277,23 @@ deployment:
 func TestSchemaValidation_WhitespaceHandling(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name:      "image_with_leading_space",
-			builder:   aggressiveBuilder{serviceBlock: `    image: " nginx"`},
+			builder:   sdlTestBuilder{serviceBlock: `    image: " nginx"`},
 			shouldErr: false,
 		},
 		{
 			name:      "image_with_trailing_space",
-			builder:   aggressiveBuilder{serviceBlock: `    image: "nginx "`},
+			builder:   sdlTestBuilder{serviceBlock: `    image: "nginx "`},
 			shouldErr: false,
 		},
 		{
 			name:      "image_with_only_spaces",
-			builder:   aggressiveBuilder{serviceBlock: `    image: "   "`},
+			builder:   sdlTestBuilder{serviceBlock: `    image: "   "`},
 			shouldErr: false,
 			reason:    "Whitespace-only strings pass schema but fail Go validation",
 		},
@@ -391,7 +315,7 @@ func TestSchemaValidation_CaseSensitivity(t *testing.T) {
 	tests := []struct {
 		name      string
 		sdl       string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
@@ -427,7 +351,7 @@ deployment:
 		},
 		{
 			name: "denom_uppercase_UAKT",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       pricing:
         web:
           denom: UAKT
@@ -437,7 +361,7 @@ deployment:
 		},
 		{
 			name: "protocol_TCP",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         proto: TCP
         to:
@@ -447,7 +371,7 @@ deployment:
 		},
 		{
 			name: "protocol_Tcp",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         proto: Tcp
         to:
@@ -474,7 +398,7 @@ deployment:
 }
 
 func TestSchemaValidation_IPWithoutGlobal(t *testing.T) {
-	sdl := aggressiveBuilder{
+	sdl := sdlTestBuilder{
 		endpoints: `endpoints:
   myip:
     kind: ip`,
@@ -491,13 +415,13 @@ func TestSchemaValidation_IPWithoutGlobal(t *testing.T) {
 func TestSchemaValidation_StorageNameConflicts(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "duplicate_storage_names",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -511,7 +435,7 @@ func TestSchemaValidation_StorageNameConflicts(t *testing.T) {
 		},
 		{
 			name: "reserved_name_default",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -522,7 +446,7 @@ func TestSchemaValidation_StorageNameConflicts(t *testing.T) {
 		},
 		{
 			name: "storage_name_with_special_chars",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -548,13 +472,13 @@ func TestSchemaValidation_StorageNameConflicts(t *testing.T) {
 func TestSchemaValidation_ZeroValues(t *testing.T) {
 	tests := []struct {
 		name      string
-		builder   aggressiveBuilder
+		builder   sdlTestBuilder
 		shouldErr bool
 		reason    string
 	}{
 		{
 			name: "gpu_units_zero",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -566,7 +490,7 @@ func TestSchemaValidation_ZeroValues(t *testing.T) {
 		},
 		{
 			name: "cpu_units_zero",
-			builder: aggressiveBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 0
         memory:
           size: 1Gi
@@ -577,7 +501,7 @@ func TestSchemaValidation_ZeroValues(t *testing.T) {
 		},
 		{
 			name: "pricing_amount_zero",
-			builder: aggressiveBuilder{placementBlock: `    dc:
+			builder: sdlTestBuilder{placementBlock: `    dc:
       pricing:
         web:
           denom: uakt
@@ -586,7 +510,7 @@ func TestSchemaValidation_ZeroValues(t *testing.T) {
 		},
 		{
 			name: "next_tries_zero",
-			builder: aggressiveBuilder{exposeBlock: `    expose:
+			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         to:
           - global: true

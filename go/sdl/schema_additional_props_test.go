@@ -1,130 +1,25 @@
 package sdl
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-type sdlBuilder struct {
-	hasEndpoints    bool
-	hasTwoServices  bool
-	serviceBlock    string
-	resourcesBlock  string
-	placementBlock  string
-	deploymentBlock string
-}
-
-func (b sdlBuilder) build() string {
-	endpoints := ""
-	if b.hasEndpoints {
-		endpoints = `endpoints:
-  myip:
-    kind: ip
-    unknown_field: value
-`
-	}
-
-	service := `  web:
-    image: nginx`
-	if b.serviceBlock != "" {
-		service += "\n" + b.serviceBlock
-	}
-
-	services := "services:\n" + service
-	if b.hasTwoServices {
-		services += `
-  db:
-    image: postgres`
-	}
-
-	resources := `        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi`
-	if b.resourcesBlock != "" {
-		resources = b.resourcesBlock
-	}
-
-	compute := `  compute:
-    web:
-      resources:
-` + resources
-	if b.hasTwoServices {
-		compute += `
-    db:
-      resources:
-        cpu:
-          units: 1
-        memory:
-          size: 1Gi
-        storage:
-          - size: 1Gi`
-	}
-
-	pricing := `        web:
-          denom: uakt
-          amount: 1`
-	if b.hasTwoServices {
-		pricing += `
-        db:
-          denom: uakt
-          amount: 1`
-	}
-
-	placement := ""
-	if b.placementBlock != "" {
-		placement = `    dc:
-` + b.placementBlock
-	} else {
-		placement = `    dc:
-      pricing:
-` + pricing
-	}
-
-	deployment := `  web:
-    dc:
-      profile: web
-      count: 1`
-	if b.deploymentBlock != "" {
-		deployment += "\n" + b.deploymentBlock
-	}
-	if b.hasTwoServices {
-		deployment += `
-  db:
-    dc:
-      profile: db
-      count: 1`
-	}
-
-	return fmt.Sprintf(`version: "2.0"
-%s%s
-profiles:
-%s
-  placement:
-%s
-deployment:
-%s
-`, endpoints, services, compute, placement, deployment)
-}
-
 func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 	tests := []struct {
 		name    string
-		builder sdlBuilder
+		builder sdlTestBuilder
 		reason  string
 	}{
 		{
 			name:    "unknown_field_in_service",
-			builder: sdlBuilder{serviceBlock: "    unknown_field: value"},
+			builder: sdlTestBuilder{serviceBlock: "    unknown_field: value"},
 			reason:  "service should not allow unknown fields",
 		},
 		{
 			name: "unknown_field_in_credentials",
-			builder: sdlBuilder{serviceBlock: `    credentials:
+			builder: sdlTestBuilder{serviceBlock: `    credentials:
       host: docker.io
       username: user123
       password: secret123
@@ -133,7 +28,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_dependencies_item",
-			builder: sdlBuilder{
+			builder: sdlTestBuilder{
 				hasTwoServices: true,
 				serviceBlock: `    dependencies:
       - service: db
@@ -142,7 +37,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_expose_item",
-			builder: sdlBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    expose:
       - port: 80
         unknown_field: value
@@ -152,7 +47,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_expose_to_item",
-			builder: sdlBuilder{serviceBlock: `    expose:
+			builder: sdlTestBuilder{serviceBlock: `    expose:
       - port: 80
         to:
           - global: true
@@ -161,7 +56,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_http_options",
-			builder: sdlBuilder{serviceBlock: `    expose:
+			builder: sdlTestBuilder{serviceBlock: `    expose:
       - port: 80
         http_options:
           max_body_size: 1048576
@@ -172,7 +67,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_cpu",
-			builder: sdlBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
           unknown_field: value
         memory:
@@ -183,7 +78,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_memory",
-			builder: sdlBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -194,7 +89,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_gpu",
-			builder: sdlBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -207,7 +102,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_gpu_attributes",
-			builder: sdlBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -221,7 +116,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_nvidia_gpu_item",
-			builder: sdlBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -238,7 +133,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_storage_item",
-			builder: sdlBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    params:
       storage:
         data:
@@ -255,7 +150,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_storage_attributes",
-			builder: sdlBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    params:
       storage:
         data:
@@ -275,7 +170,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_params_storage_item",
-			builder: sdlBuilder{
+			builder: sdlTestBuilder{
 				serviceBlock: `    params:
       storage:
         data:
@@ -292,8 +187,11 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name: "unknown_field_in_endpoint",
-			builder: sdlBuilder{
-				hasEndpoints: true,
+			builder: sdlTestBuilder{
+				endpoints: `endpoints:
+  myip:
+    kind: ip
+    unknown_field: value`,
 				serviceBlock: `    expose:
       - port: 80
         to:
@@ -303,12 +201,12 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name:    "unknown_field_in_placement",
-			builder: sdlBuilder{placementBlock: "      unknown_field: value"},
+			builder: sdlTestBuilder{placementBlock: "      unknown_field: value"},
 			reason:  "placement items should not allow unknown fields",
 		},
 		{
 			name: "unknown_field_in_pricing_item",
-			builder: sdlBuilder{resourcesBlock: `        cpu:
+			builder: sdlTestBuilder{resourcesBlock: `        cpu:
           units: 1
         memory:
           size: 1Gi
@@ -323,7 +221,7 @@ func TestSchemaValidation_AdditionalProperties(t *testing.T) {
 		},
 		{
 			name:    "unknown_field_in_deployment_item",
-			builder: sdlBuilder{deploymentBlock: "      unknown_field: value"},
+			builder: sdlTestBuilder{deploymentBlock: "      unknown_field: value"},
 			reason:  "deployment items should not allow unknown fields",
 		},
 	}
