@@ -1669,7 +1669,7 @@ func parseSubmitProposal(cdc codec.Codec, path string) (ProposalMsg, []sdk.Msg, 
 
 	var fl *os.File
 	var err error
-	if term.IsTerminal(0) || path == "-" {
+	if path == "-" || (path == "" && !term.IsTerminal(0)) {
 		fl = os.Stdin
 	} else {
 		fl, err = os.Open(path)
