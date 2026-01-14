@@ -704,7 +704,7 @@ export class SDL {
     return result;
   }
 
-  groupResourceUnits(resource: v2ComputeResources | undefined) {
+  groupResourceUnits(resource: v2ComputeResources | v3ComputeResources | undefined) {
     if (!resource) return {};
 
     const units = {
@@ -723,7 +723,11 @@ export class SDL {
       units.storage = this.resourceUnitStorage(resource);
     }
 
-    units.gpu = this.resourceUnitGpu(resource as v3ComputeResources);
+    if ("gpu" in resource) {
+      units.gpu = this.resourceUnitGpu(resource);
+    } else {
+      units.gpu = { units: { val: "0" } };
+    }
 
     return units;
   }
