@@ -476,7 +476,7 @@ exports[`SDL SDL: IP Lease Manifest should generate the correct manifest: Manife
         "Env": null,
         "Expose": [
           {
-            "EndpointSequenceNumber": 2,
+            "EndpointSequenceNumber": 1,
             "ExternalPort": 80,
             "Global": true,
             "HTTPOptions": {
@@ -508,7 +508,7 @@ exports[`SDL SDL: IP Lease Manifest should generate the correct manifest: Manife
           "endpoints": [
             {
               "kind": 2,
-              "sequence_number": 2,
+              "sequence_number": 1,
             },
           ],
           "memory": {

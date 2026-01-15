@@ -68,14 +68,14 @@ describe("SDL", () => {
           "0.services.0.resources.endpoints.1": {
             $set: {
               kind: 2,
-              sequence_number: 2,
+              sequence_number: 1,
             },
           },
           "0.services.0.expose": {
             $set: [
               {
                 ip: endpointName,
-                endpointSequenceNumber: 2,
+                endpointSequenceNumber: 1,
               },
             ],
           },
@@ -87,7 +87,7 @@ describe("SDL", () => {
             $push: [
               {
                 kind: 2,
-                sequence_number: 2,
+                sequence_number: 1,
               },
             ],
           },
