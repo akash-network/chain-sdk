@@ -44,80 +44,6 @@ func TestPythContractParams_ValidateBasic(t *testing.T) {
 	}
 }
 
-func TestFeedContractParams_Validate(t *testing.T) {
-	tests := []struct {
-		name    string
-		setup   func() *FeedContractParams
-		wantErr bool
-		errMsg  string
-	}{
-		{
-			name: "valid feed contract params with pyth",
-			setup: func() *FeedContractParams {
-				params, _ := NewFeedContractParams(FeedContractNamePyth, &PythContractParams{
-					AktPriceFeedId: "0x1c5d745dc0e0c8a0034b6c3d3a8e5d34e4e9b79c9ab2f4b3e6a8e7f0c9e8a5b4",
-				})
-				return params
-			},
-			wantErr: false,
-		},
-		{
-			name: "nil feed contract params",
-			setup: func() *FeedContractParams {
-				return nil
-			},
-			wantErr: true,
-			errMsg:  "feed contract params cannot be nil",
-		},
-		{
-			name: "empty name",
-			setup: func() *FeedContractParams {
-				return &FeedContractParams{
-					Name:   "",
-					Config: nil,
-				}
-			},
-			wantErr: true,
-			errMsg:  "feed contract name cannot be empty",
-		},
-		{
-			name: "nil config",
-			setup: func() *FeedContractParams {
-				return &FeedContractParams{
-					Name:   FeedContractNamePyth,
-					Config: nil,
-				}
-			},
-			wantErr: true,
-			errMsg:  "feed contract config cannot be nil",
-		},
-		{
-			name: "invalid pyth config - empty feed id",
-			setup: func() *FeedContractParams {
-				params, _ := NewFeedContractParams(FeedContractNamePyth, &PythContractParams{
-					AktPriceFeedId: "",
-				})
-				return params
-			},
-			wantErr: true,
-			errMsg:  "akt_price_feed_id cannot be empty",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			params := tt.setup()
-			err := params.Validate()
-			if tt.wantErr {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), tt.errMsg)
-			} else {
-				require.NoError(t, err)
-			}
-		})
-	}
-}
-
 func TestParams_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -133,16 +59,18 @@ func TestParams_Validate(t *testing.T) {
 		{
 			name: "valid params with nil feed contract params",
 			params: Params{
-				FeedContractParams: nil,
+				FeedContractsParams: nil,
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid feed contract params",
 			params: Params{
-				FeedContractParams: &FeedContractParams{
-					Name:   "",
-					Config: nil,
+				FeedContractsParams: []FeedContractParams{
+					{
+						Name:   "",
+						Config: nil,
+					},
 				},
 			},
 			wantErr: true,
@@ -171,9 +99,9 @@ func TestDefaultParams(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify feed contract params are set
-	require.NotNil(t, params.FeedContractParams)
-	require.Equal(t, FeedContractNamePyth, params.FeedContractParams.Name)
-	require.NotNil(t, params.FeedContractParams.Config)
+	require.NotNil(t, params.FeedContractsParams)
+	require.Equal(t, FeedContractNamePyth, params.FeedContractsParams[0].Name)
+	require.NotNil(t, params.FeedContractsParams[0].Config)
 }
 
 func TestDefaultPythContractParams(t *testing.T) {
@@ -251,9 +179,7 @@ func TestParams_UnpackInterfaces(t *testing.T) {
 	require.NoError(t, err)
 
 	// Nil feed contract params should also succeed
-	paramsWithNil := Params{
-		FeedContractParams: nil,
-	}
+	paramsWithNil := Params{}
 	err = paramsWithNil.UnpackInterfaces(registry)
 	require.NoError(t, err)
 }

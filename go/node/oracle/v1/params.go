@@ -5,7 +5,7 @@ import (
 
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 const (
@@ -50,26 +50,26 @@ func DefaultPythContractParams() *PythContractParams {
 }
 
 // NewFeedContractParams creates a new FeedContractParams with the given name and config
-func NewFeedContractParams(name string, config FeedContractConfig) (*FeedContractParams, error) {
+func NewFeedContractParams(name string, config FeedContractConfig) (FeedContractParams, error) {
 	any, err := cdctypes.NewAnyWithValue(config)
 	if err != nil {
-		return nil, err
+		return FeedContractParams{}, err
 	}
-	return &FeedContractParams{
+	return FeedContractParams{
 		Name:   name,
 		Config: any,
 	}, nil
 }
 
-// DefaultFeedContractParams returns default feed contract params using Pyth
-func DefaultFeedContractParams() *FeedContractParams {
+// DefaultFeedContractsParams returns default feed contract params using Pyth
+func DefaultFeedContractsParams() []FeedContractParams {
 	params, _ := NewFeedContractParams(FeedContractNamePyth, DefaultPythContractParams())
-	return params
+	return []FeedContractParams{params}
 }
 
 func DefaultParams() Params {
 	return Params{
-		FeedContractParams: DefaultFeedContractParams(),
+		FeedContractsParams: DefaultFeedContractsParams(),
 	}
 }
 
@@ -114,19 +114,23 @@ func (p *FeedContractParams) Validate() error {
 }
 
 func (p Params) Validate() error {
-	if p.FeedContractParams != nil {
-		if err := p.FeedContractParams.Validate(); err != nil {
+	for _, feed := range p.FeedContractsParams {
+		if err := feed.Validate(); err != nil {
 			return fmt.Errorf("invalid feed contract params: %w", err)
 		}
 	}
+
 	return nil
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage
 func (p *Params) UnpackInterfaces(unpacker cdctypes.AnyUnpacker) error {
-	if p.FeedContractParams != nil {
-		return p.FeedContractParams.UnpackInterfaces(unpacker)
+	for i := range p.FeedContractsParams {
+		if err := p.FeedContractsParams[i].UnpackInterfaces(unpacker); err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 
