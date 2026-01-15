@@ -54,6 +54,8 @@ message Params {
   // Maximum price deviation in basis points (default: 150 = 1.5%)
   uint64 max_price_deviation_bps = 5;
 
-  // feed_contract_params contains the configuration for the price feed contract
-  FeedContractParams feed_contract_params = 6;
+  // feed_contracts_params contains the configuration for the price feed contracts
+  repeated FeedContractParams feed_contracts_params = 6 [
+    (gogoproto.nullable) = false
+  ];
 }
