@@ -96,23 +96,25 @@ func ReadFile(path string) (SDL, error) {
 }
 
 // Read reads buffer data and returns SDL instance
-func Read(buf []byte) (SDL, error) {
+func Read(buf []byte) (sdlObj SDL, err error) {
 	schemaErr := validateInputAgainstSchema(buf)
 
-	obj := &sdl{}
-	if err := yaml.Unmarshal(buf, obj); err != nil {
+	// Soft check if schema validation passed but the SDL is rejected by the Go parser
+	defer func() {
 		checkSchemaValidationResult(schemaErr, err)
+	}()
+
+	obj := &sdl{}
+	if err = yaml.Unmarshal(buf, obj); err != nil {
 		return nil, err
 	}
 
-	if err := obj.validate(); err != nil {
-		checkSchemaValidationResult(schemaErr, err)
+	if err = obj.validate(); err != nil {
 		return nil, err
 	}
 
 	dgroups, err := obj.DeploymentGroups()
 	if err != nil {
-		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
 
@@ -121,23 +123,18 @@ func Read(buf []byte) (SDL, error) {
 		vgroups = append(vgroups, dgroup)
 	}
 
-	if err := dtypes.ValidateDeploymentGroups(vgroups); err != nil {
-		checkSchemaValidationResult(schemaErr, err)
+	if err = dtypes.ValidateDeploymentGroups(vgroups); err != nil {
 		return nil, err
 	}
 
 	m, err := obj.Manifest()
 	if err != nil {
-		checkSchemaValidationResult(schemaErr, err)
 		return nil, err
 	}
 
-	if err := m.Validate(); err != nil {
-		checkSchemaValidationResult(schemaErr, err)
+	if err = m.Validate(); err != nil {
 		return nil, err
 	}
-
-	checkSchemaValidationResult(schemaErr, nil)
 
 	return obj, nil
 }
