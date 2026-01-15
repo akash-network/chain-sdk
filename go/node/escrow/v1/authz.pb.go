@@ -69,16 +69,11 @@ type DepositAuthorization struct {
 	// SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account.
 	// This limit applies cumulatively across all deposit operations within the authorized scopes.
 	// Once this limit is reached, the authorization becomes invalid and no further deposits can be made.
-	// Deprecated: Use SpendLimits for multi-denomination support
 	SpendLimit types.Coin `protobuf:"bytes,1,opt,name=spend_limit,json=spendLimit,proto3" json:"spend_limit"`
 	// Scopes defines the specific types of deposit operations this authorization permits.
 	// This provides fine-grained control over what operations
 	// the grantee can perform using the granter's funds.
 	Scopes DepositAuthorizationScopes `protobuf:"varint,2,rep,packed,name=scopes,proto3,enum=akash.escrow.v1.DepositAuthorization_Scope,castrepeated=DepositAuthorizationScopes" json:"scopes" yaml:"scopes"`
-	// SpendLimits is the maximum amounts the grantee is authorized to spend from the granter's account
-	// for multiple denominations. This allows authorizing deposits in different tokens (e.g., uakt, uact, usdc).
-	// This field supersedes SpendLimit when both are present.
-	SpendLimits types.Coins `protobuf:"bytes,3,rep,name=spend_limits,json=spendLimits,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"spend_limits"`
 }
 
 func (m *DepositAuthorization) Reset()         { *m = DepositAuthorization{} }
