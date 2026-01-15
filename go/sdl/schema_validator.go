@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"cosmossdk.io/log"
 	"github.com/xeipuuv/gojsonschema"
@@ -21,12 +22,13 @@ type SchemaValidator struct {
 	compiledSchema     *gojsonschema.Schema
 	schemaCompileOnce  sync.Once
 	schemaCompileError error
-	loggerMu           sync.RWMutex
-	logger             log.Logger
+	logger             atomic.Value
 }
 
-var defaultValidator = &SchemaValidator{
-	logger: &noOpLogger{},
+var defaultValidator = &SchemaValidator{}
+
+func init() {
+	defaultValidator.logger.Store(log.Logger(&noOpLogger{}))
 }
 
 // SetSchemaLogger configures the logger for schema validation warnings.
@@ -40,16 +42,10 @@ var defaultValidator = &SchemaValidator{
 // By default, a no-op logger is used, so validation warnings are silent.
 // This function is thread-safe and can be called concurrently with validation.
 func SetSchemaLogger(logger log.Logger) {
-	defaultValidator.loggerMu.Lock()
-	defer defaultValidator.loggerMu.Unlock()
-
-	// Treat nil as a request to fall back to the no-op logger.
 	if logger == nil {
-		defaultValidator.logger = &noOpLogger{}
-		return
+		logger = &noOpLogger{}
 	}
-
-	defaultValidator.logger = logger
+	defaultValidator.logger.Store(logger)
 }
 
 // loadSchemaBytes loads the embedded schema compiled into the binary.
@@ -145,27 +141,12 @@ func checkSchemaValidationResult(schemaErr error, goValidationErr error) {
 }
 
 func (sv *SchemaValidator) checkSchemaValidationResult(schemaErr error, goValidationErr error) {
-	schemaFailed := schemaErr != nil
-	goFailed := goValidationErr != nil
-
-	// Only log if there's a mismatch
-	if schemaFailed != goFailed {
-		sv.loggerMu.RLock()
-		logger := sv.logger
-		sv.loggerMu.RUnlock()
-
-		if schemaFailed && !goFailed {
-			logger.Warn(
-				"SDL schema validation mismatch",
-				"schema_error", schemaErr.Error(),
-				"go_validation", "passed",
-			)
-		} else if !schemaFailed && goFailed {
-			logger.Warn(
-				"SDL schema validation mismatch",
-				"schema_validation", "passed",
-				"go_error", goValidationErr.Error(),
-			)
-		}
+	if schemaErr == nil && goValidationErr != nil {
+		logger := sv.logger.Load().(log.Logger)
+		logger.Warn(
+			"SDL schema validation mismatch",
+			"schema_validation", "passed",
+			"go_error", goValidationErr.Error(),
+		)
 	}
 }

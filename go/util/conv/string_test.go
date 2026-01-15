@@ -26,7 +26,8 @@ func (s *StringSuite) TestUnsafeStrToBytes() {
 		b := unsafeConvertStr()
 		runtime.GC()
 		<-time.NewTimer(2 * time.Millisecond).C
-		b2 := append(b, 'd')
+		b2 := append([]byte(nil), b...)
+		b2 = append(b2, 'd')
 		s.Equal("abc", string(b))
 		s.Equal("abcd", string(b2))
 	}
