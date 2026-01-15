@@ -1497,7 +1497,7 @@ impl serde::Serialize for Params {
         if self.max_price_deviation_bps != 0 {
             len += 1;
         }
-        if self.feed_contract_params.is_some() {
+        if !self.feed_contracts_params.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.oracle.v1.Params", len)?;
@@ -1522,8 +1522,8 @@ impl serde::Serialize for Params {
             #[allow(clippy::needless_borrows_for_generic_args)]
             struct_ser.serialize_field("maxPriceDeviationBps", ToString::to_string(&self.max_price_deviation_bps).as_str())?;
         }
-        if let Some(v) = self.feed_contract_params.as_ref() {
-            struct_ser.serialize_field("feedContractParams", v)?;
+        if !self.feed_contracts_params.is_empty() {
+            struct_ser.serialize_field("feedContractsParams", &self.feed_contracts_params)?;
         }
         struct_ser.end()
     }
@@ -1544,8 +1544,8 @@ impl<'de> serde::Deserialize<'de> for Params {
             "twapWindow",
             "max_price_deviation_bps",
             "maxPriceDeviationBps",
-            "feed_contract_params",
-            "feedContractParams",
+            "feed_contracts_params",
+            "feedContractsParams",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1555,7 +1555,7 @@ impl<'de> serde::Deserialize<'de> for Params {
             MaxPriceStalenessBlocks,
             TwapWindow,
             MaxPriceDeviationBps,
-            FeedContractParams,
+            FeedContractsParams,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1582,7 +1582,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             "maxPriceStalenessBlocks" | "max_price_staleness_blocks" => Ok(GeneratedField::MaxPriceStalenessBlocks),
                             "twapWindow" | "twap_window" => Ok(GeneratedField::TwapWindow),
                             "maxPriceDeviationBps" | "max_price_deviation_bps" => Ok(GeneratedField::MaxPriceDeviationBps),
-                            "feedContractParams" | "feed_contract_params" => Ok(GeneratedField::FeedContractParams),
+                            "feedContractsParams" | "feed_contracts_params" => Ok(GeneratedField::FeedContractsParams),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1607,7 +1607,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                 let mut max_price_staleness_blocks__ = None;
                 let mut twap_window__ = None;
                 let mut max_price_deviation_bps__ = None;
-                let mut feed_contract_params__ = None;
+                let mut feed_contracts_params__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Sources => {
@@ -1648,11 +1648,11 @@ impl<'de> serde::Deserialize<'de> for Params {
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
-                        GeneratedField::FeedContractParams => {
-                            if feed_contract_params__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("feedContractParams"));
+                        GeneratedField::FeedContractsParams => {
+                            if feed_contracts_params__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("feedContractsParams"));
                             }
-                            feed_contract_params__ = map_.next_value()?;
+                            feed_contracts_params__ = Some(map_.next_value()?);
                         }
                     }
                 }
@@ -1662,7 +1662,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                     max_price_staleness_blocks: max_price_staleness_blocks__.unwrap_or_default(),
                     twap_window: twap_window__.unwrap_or_default(),
                     max_price_deviation_bps: max_price_deviation_bps__.unwrap_or_default(),
-                    feed_contract_params: feed_contract_params__,
+                    feed_contracts_params: feed_contracts_params__.unwrap_or_default(),
                 })
             }
         }
