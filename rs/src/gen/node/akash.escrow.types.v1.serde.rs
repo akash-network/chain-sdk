@@ -418,6 +418,9 @@ impl serde::Serialize for Depositor {
         if self.balance.is_some() {
             len += 1;
         }
+        if self.direct {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.escrow.types.v1.Depositor", len)?;
         if !self.owner.is_empty() {
             struct_ser.serialize_field("owner", &self.owner)?;
@@ -435,6 +438,9 @@ impl serde::Serialize for Depositor {
         if let Some(v) = self.balance.as_ref() {
             struct_ser.serialize_field("balance", v)?;
         }
+        if self.direct {
+            struct_ser.serialize_field("direct", &self.direct)?;
+        }
         struct_ser.end()
     }
 }
@@ -449,6 +455,7 @@ impl<'de> serde::Deserialize<'de> for Depositor {
             "height",
             "source",
             "balance",
+            "direct",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -457,6 +464,7 @@ impl<'de> serde::Deserialize<'de> for Depositor {
             Height,
             Source,
             Balance,
+            Direct,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -482,6 +490,7 @@ impl<'de> serde::Deserialize<'de> for Depositor {
                             "height" => Ok(GeneratedField::Height),
                             "source" => Ok(GeneratedField::Source),
                             "balance" => Ok(GeneratedField::Balance),
+                            "direct" => Ok(GeneratedField::Direct),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -505,6 +514,7 @@ impl<'de> serde::Deserialize<'de> for Depositor {
                 let mut height__ = None;
                 let mut source__ = None;
                 let mut balance__ = None;
+                let mut direct__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Owner => {
@@ -533,6 +543,12 @@ impl<'de> serde::Deserialize<'de> for Depositor {
                             }
                             balance__ = map_.next_value()?;
                         }
+                        GeneratedField::Direct => {
+                            if direct__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("direct"));
+                            }
+                            direct__ = Some(map_.next_value()?);
+                        }
                     }
                 }
                 Ok(Depositor {
@@ -540,6 +556,7 @@ impl<'de> serde::Deserialize<'de> for Depositor {
                     height: height__.unwrap_or_default(),
                     source: source__.unwrap_or_default(),
                     balance: balance__,
+                    direct: direct__.unwrap_or_default(),
                 })
             }
         }
