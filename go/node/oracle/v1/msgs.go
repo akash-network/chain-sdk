@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	cerrors "cosmossdk.io/errors"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -81,7 +82,7 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 		return cerrors.Wrap(err, "invalid authority address")
 	}
 
-	if err := m.Params.Validate(); err != nil {
+	if err := m.Params.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -108,4 +109,9 @@ func (m *MsgUpdateParams) GetSignBytes() []byte {
 // Deprecated: Route is deprecated
 func (m *MsgUpdateParams) Route() string {
 	return RouterKey
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage
+func (p MsgUpdateParams) UnpackInterfaces(unpacker cdctypes.AnyUnpacker) error {
+	return p.Params.UnpackInterfaces(unpacker)
 }
