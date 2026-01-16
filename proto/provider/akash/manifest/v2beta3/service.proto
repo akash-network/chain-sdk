@@ -39,6 +39,10 @@ message ServiceParams {
     (gogoproto.jsontag)  = "credentials,omitempty",
     (gogoproto.moretags) = "yaml:\"credentials,omitempty\""
   ];
+  bool automount_service_account_token = 11 [
+    (gogoproto.jsontag)  = "automountServiceAccountToken,omitempty",
+    (gogoproto.moretags) = "yaml:\"automountServiceAccountToken,omitempty\""
+  ];
 }
 
 // Credentials to fetch image from registry
