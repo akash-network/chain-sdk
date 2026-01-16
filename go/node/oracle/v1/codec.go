@@ -33,12 +33,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgAddPriceEntry{},
 		&MsgUpdateParams{},
-	)
-
-	// Register FeedContractConfig interface and its implementations
-	registry.RegisterInterface(
-		"akash.oracle.v1.FeedContractConfig",
-		(*FeedContractConfig)(nil),
 		&PythContractParams{},
 	)
 

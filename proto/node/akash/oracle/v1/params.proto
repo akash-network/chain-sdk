@@ -8,18 +8,6 @@ import "google/protobuf/any.proto";
 
 option go_package = "pkg.akt.dev/go/node/oracle/v1";
 
-// FeedContractConfig is the interface that all feed contract configurations must implement
-// This allows for different price feed implementations (e.g., Pyth, Chainlink, etc.)
-message FeedContractParams {
-  option (gogoproto.equal) = true;
-
-  // name is the identifier for the price feed contract type (e.g., "pyth", "chainlink")
-  string name = 1;
-
-  // config contains the specific configuration for this feed contract type
-  google.protobuf.Any config = 2 [(cosmos_proto.accepts_interface) = "FeedContractConfig"];
-}
-
 // PythContractParams contains configuration for Pyth price feeds
 message PythContractParams {
   option (gogoproto.equal) = true;
@@ -55,7 +43,5 @@ message Params {
   uint64 max_price_deviation_bps = 5;
 
   // feed_contracts_params contains the configuration for the price feed contracts
-  repeated FeedContractParams feed_contracts_params = 6 [
-    (gogoproto.nullable) = false
-  ];
+  repeated google.protobuf.Any feed_contracts_params = 6;
 }
