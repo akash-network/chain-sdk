@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	types "pkg.akt.dev/go/node/types/resources/v1beta4"
 
@@ -114,8 +114,8 @@ func Resources(t testing.TB) dtypes.ResourceUnits {
 					},
 				},
 			},
-			Count: 1,
-			Price: coin,
+			Count:  1,
+			Prices: sdk.DecCoins{coin},
 		}
 		vals = append(vals, res)
 	}
@@ -151,8 +151,8 @@ func ResourcesList(t testing.TB, startID uint32) dtypes.ResourceUnits {
 				},
 				Endpoints: types.Endpoints{},
 			},
-			Count: 1,
-			Price: coin,
+			Count:  1,
+			Prices: sdk.DecCoins{coin},
 		}
 
 		startID++

@@ -11,7 +11,7 @@ import (
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	akashtypes "pkg.akt.dev/go/node/types/resources/v1beta4"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 const (

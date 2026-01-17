@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 
 	"pkg.akt.dev/go/sdkutil"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 type GenesisCLITestSuite struct {

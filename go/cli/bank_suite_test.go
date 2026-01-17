@@ -14,7 +14,7 @@ import (
 
 	"pkg.akt.dev/go/cli"
 	"pkg.akt.dev/go/sdkutil"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 type BankCLITestSuite struct {

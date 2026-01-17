@@ -29,7 +29,7 @@ import (
 	clitestutil "pkg.akt.dev/go/cli/testutil"
 	ev1 "pkg.akt.dev/go/node/escrow/v1"
 	"pkg.akt.dev/go/sdkutil"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 var (

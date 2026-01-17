@@ -19,7 +19,7 @@ import (
 	cflags "pkg.akt.dev/go/cli/flags"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
 	"pkg.akt.dev/go/sdkutil"
-	"pkg.akt.dev/go/testutil"
+	testutil "pkg.akt.dev/go/testutil/v1beta4"
 )
 
 type SlashingCLITestSuite struct {
