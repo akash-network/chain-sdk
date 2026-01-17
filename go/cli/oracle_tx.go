@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"time"
+
+	sdkmath "cosmossdk.io/math"
 	"github.com/spf13/cobra"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
@@ -28,9 +31,9 @@ func GetTxOracleCmd() *cobra.Command {
 
 func GetTxOracleFeedPriceCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "feed [asset-denom] [base-denom]",
+		Use:               "feed [asset-denom] [base-denom] [price] [timestamp]",
 		Short:             "Feed price for denom",
-		Args:              cobra.ExactArgs(2),
+		Args:              cobra.ExactArgs(4),
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
@@ -50,13 +53,26 @@ func GetTxOracleFeedPriceCmd() *cobra.Command {
 				return err
 			}
 
+			price, err := sdkmath.LegacyNewDecFromStr(args[2])
+			if err != nil {
+				return err
+			}
+
+			timestamp, err := time.Parse(time.RFC3339Nano, args[3])
+			if err != nil {
+				return err
+			}
+
 			msg := &types.MsgAddPriceEntry{
 				Signer: cctx.GetFromAddress().String(),
 				ID: types.DataID{
 					Denom:     args[0],
 					BaseDenom: args[1],
 				},
-				Price: types.PriceDataState{},
+				Price: types.PriceDataState{
+					Price:     price,
+					Timestamp: timestamp,
+				},
 			}
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
