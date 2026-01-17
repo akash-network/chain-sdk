@@ -123,6 +123,8 @@ func (sdl *v2_1) buildGroups() error {
 					}
 				}
 
+				params.AutomountServiceAccountToken = svc.Params.AutomountServiceAccountToken
+
 				msvc.Params = params
 			}
 
