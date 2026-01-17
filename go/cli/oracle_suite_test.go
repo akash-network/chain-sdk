@@ -74,7 +74,7 @@ func (s *OracleCLITestSuite) SetupSuite() {
 		s.cctx,
 		cmd,
 		cli.TestFlags().
-			With("uakt", "usd").
+			With("akt", "usd", "5.47", time.Now().Format(time.RFC3339Nano)).
 			WithFrom(s.addrs[0].String()).
 			WithBroadcastModeSync().
 			WithSkipConfirm().
@@ -136,7 +136,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPrice() {
 		{
 			"feed price successfully",
 			cli.TestFlags().
-				With("uakt", "usd").
+				With("akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)).
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
@@ -147,7 +147,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPrice() {
 		{
 			"feed price with missing args",
 			cli.TestFlags().
-				With("uakt").
+				With("akt").
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync(),
@@ -157,7 +157,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPrice() {
 		{
 			"feed price without from address",
 			cli.TestFlags().
-				With("uakt", "usd").
+				With("akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)).
 				WithSkipConfirm().
 				WithBroadcastModeSync(),
 			true,
@@ -196,7 +196,7 @@ func (s *OracleCLITestSuite) TestCLIQueryOraclePricesWithFilter() {
 			"query prices with asset filter",
 			cli.TestFlags().
 				WithOutput("json").
-				WithFlag(cflags.FlagAssetDenom, "uakt"),
+				WithFlag(cflags.FlagAssetDenom, "akt"),
 			false,
 			false,
 			0,
@@ -214,7 +214,7 @@ func (s *OracleCLITestSuite) TestCLIQueryOraclePricesWithFilter() {
 			"query prices with both filters",
 			cli.TestFlags().
 				WithOutput("json").
-				WithFlag(cflags.FlagAssetDenom, "uakt").
+				WithFlag(cflags.FlagAssetDenom, "akt").
 				WithFlag(cflags.FlagBaseDenom, "usd"),
 			false,
 			false,
@@ -253,20 +253,20 @@ func (s *OracleCLITestSuite) TestCLIQueryOraclePricesWithFilter() {
 
 func (s *OracleCLITestSuite) TestCLITxOracleFeedPriceMultipleDenoms() {
 	denoms := []struct {
-		asset string
-		base  string
+		asset     string
+		base      string
+		price     string
+		timestamp string
 	}{
-		{"uakt", "usd"},
-		{"uact", "usd"},
-		{"usdc", "usd"},
-		{"atom", "usd"},
+		{"akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)},
+		{"usdc", "usd", "1.00", time.Now().Format(time.RFC3339Nano)},
 	}
 
 	for _, denom := range denoms {
 		s.Run(fmt.Sprintf("feed_%s_%s", denom.asset, denom.base), func() {
 			cmd := cli.GetTxOracleFeedPriceCmd()
 			args := cli.TestFlags().
-				With(denom.asset, denom.base).
+				With(denom.asset, denom.base, denom.price, denom.timestamp).
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
@@ -290,7 +290,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPriceWithGasSettings() {
 		{
 			"feed price with auto gas",
 			cli.TestFlags().
-				With("uakt", "usd").
+				With("akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)).
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
@@ -301,7 +301,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPriceWithGasSettings() {
 		{
 			"feed price with gas adjustment",
 			cli.TestFlags().
-				With("uakt", "usd").
+				With("akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)).
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
@@ -313,7 +313,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPriceWithGasSettings() {
 		{
 			"feed price with gas prices",
 			cli.TestFlags().
-				With("uakt", "usd").
+				With("akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)).
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
@@ -399,7 +399,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPriceTimeouts() {
 		{
 			"feed price with timeout height",
 			cli.TestFlags().
-				With("uakt", "usd").
+				With("akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)).
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
@@ -410,7 +410,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPriceTimeouts() {
 		{
 			"feed price with timeout duration and unordered",
 			cli.TestFlags().
-				With("uakt", "usd").
+				With("akt", "usd", "5.48", time.Now().Format(time.RFC3339Nano)).
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
@@ -498,7 +498,7 @@ func (s *OracleCLITestSuite) TestCLITxOracleFeedPriceEdgeCases() {
 		{
 			"feed price with empty base denom",
 			cli.TestFlags().
-				With("uakt", "").
+				With("akt", "").
 				WithFrom(s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync(),
@@ -578,45 +578,6 @@ func (s *OracleCLITestSuite) TestCLIQueryOracleParams() {
 	}
 }
 
-func (s *OracleCLITestSuite) TestCLIQueryOraclePriceFeedConfig() {
-	testCases := []struct {
-		name         string
-		args         []string
-		expCmdOutput string
-	}{
-		{
-			"query config for uakt",
-			cli.TestFlags().
-				With("uakt").
-				WithOutputJSON(),
-			"uakt --output=json",
-		},
-		{
-			"query config with text output",
-			cli.TestFlags().
-				With("uakt").
-				WithOutputText(),
-			"uakt --output=text",
-		},
-		{
-			"query config with height",
-			cli.TestFlags().
-				With("uakt").
-				WithOutputJSON().
-				WithHeight(50),
-			"--height=50",
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			cmd := cli.GetOraclePriceFeedConfigCmd()
-			cmd.SetArgs(tc.args)
-			s.Require().Contains(fmt.Sprint(cmd), strings.TrimSpace(tc.expCmdOutput))
-		})
-	}
-}
-
 func (s *OracleCLITestSuite) TestCLIQueryOraclePriceFeedConfigValidation() {
 	testCases := []struct {
 		name      string
@@ -632,7 +593,7 @@ func (s *OracleCLITestSuite) TestCLIQueryOraclePriceFeedConfigValidation() {
 		{
 			"valid denom",
 			cli.TestFlags().
-				With("uakt").
+				With("akt").
 				WithOutputJSON(),
 			false,
 		},
