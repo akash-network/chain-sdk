@@ -174,12 +174,18 @@ properties:
                       oneOf:
                         - type: string
                           pattern: '^[0-9]+(\.[0-9]+)?[a-zA-Z]*$'
+                          not:
+                            pattern: '^0+(\.0+)?m?$'
                         - type: number
-                          minimum: 0
+                          exclusiveMinimum: 0
                   required:
                     - units
                   type: object
                 gpu:
+                  description: |
+                    GPU resource specification.
+                    - units defaults to 0 if omitted
+                    - Bidirectional validation: units > 0 requires attributes, and attributes require units > 0
                   additionalProperties: false
                   properties:
                     attributes:
@@ -270,7 +276,6 @@ properties:
 
   services:
     additionalProperties:
-      additionalProperties: false
       properties:
         args:
           $ref: '#/definitions/stringArrayOrNull'
@@ -404,6 +409,7 @@ properties:
       required:
         - image
       type: object
+      additionalProperties: false
     type: object
 
   version:
