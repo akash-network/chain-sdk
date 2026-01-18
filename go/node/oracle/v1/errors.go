@@ -11,6 +11,7 @@ const (
 	errPriceStalled
 	errInvalidFeedContractParams
 	errInvalidFeedContractConfig
+	errTWAPZeroWeight
 )
 
 var (
@@ -26,4 +27,5 @@ var (
 	ErrInvalidFeedContractParams = cerrors.Register(ModuleName, errInvalidFeedContractParams, "invalid feed contract params")
 	// ErrInvalidFeedContractConfig is the error when feed contract config is invalid
 	ErrInvalidFeedContractConfig = cerrors.Register(ModuleName, errInvalidFeedContractConfig, "invalid feed contract config")
+	ErrTWAPZeroWeight            = cerrors.Register(ModuleName, errTWAPZeroWeight, "invalid TWAP calculation: zero weight")
 )
