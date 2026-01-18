@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -14,8 +13,6 @@ import (
 	"pkg.akt.dev/go/node/escrow/module"
 	etypes "pkg.akt.dev/go/node/escrow/v1"
 )
-
-var errNoLeaseMatches = errors.New("leases for deployment do not exist")
 
 const (
 	authzDepositScopeDeployment = "deployment"
@@ -302,12 +299,12 @@ func GetQueryEscrowBlocksRemainingCmd() *cobra.Command {
 		//		data, err = yaml.Marshal(output)
 		//	}
 		//
-		//	if err != nil {
-		//		return err
-		//	}
+		// 	if err != nil {
+		// 		return err
+		// 	}
 		//
-		//	return cl.ClientContext().PrintBytes(data)
-		//},
+		// 	return cl.ClientContext().PrintBytes(data)
+		// },
 	}
 
 	cflags.AddQueryFlagsToCmd(cmd)

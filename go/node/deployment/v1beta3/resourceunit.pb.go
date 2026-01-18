@@ -5,12 +5,12 @@ package v1beta3
 
 import (
 	fmt "fmt"
-	types "pkg.akt.dev/go/node/types/sdk"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	types "pkg.akt.dev/go/node/types/sdk"
 	v1beta3 "pkg.akt.dev/go/node/types/v1beta3"
 )
 

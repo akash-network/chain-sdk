@@ -35,6 +35,11 @@ const (
 	upperLimitSendTimeout = defaultSendTimeout
 	defaultNextTries      = uint32(3)
 	endpointKindIP        = "ip"
+	sdlFieldInclude       = "include"
+	sdlFieldServices      = "services"
+	sdlFieldProfiles      = "profiles"
+	sdlFieldDeployment    = "deployment"
+	sdlFieldEndpoints     = "endpoints"
 )
 
 var (
@@ -246,15 +251,15 @@ loop:
 	for i := 0; i < len(node.Content); i += 2 {
 		var val interface{}
 		switch node.Content[i].Value {
-		case "include":
+		case sdlFieldInclude:
 			val = &result.Include
-		case "services":
+		case sdlFieldServices:
 			val = &result.Services
-		case "profiles":
+		case sdlFieldProfiles:
 			val = &result.Profiles
-		case "deployment":
+		case sdlFieldDeployment:
 			val = &result.Deployments
-		case "endpoints":
+		case sdlFieldEndpoints:
 			val = &result.Endpoints
 		case sdlVersionField:
 			// version is already verified

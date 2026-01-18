@@ -1,0 +1,193 @@
+[
+  {
+    "name": "datacenter",
+    "services": [
+      {
+        "name": "api",
+        "image": "node:18",
+        "command": null,
+        "args": null,
+        "env": [
+          "NODE_ENV=production",
+          "DATABASE_URL=postgres://db:5432"
+        ],
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "500"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "1073741824"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "2147483648"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": []
+        },
+        "count": 3,
+        "expose": [
+          {
+            "port": 3000,
+            "externalPort": 3000,
+            "proto": "TCP",
+            "service": "web",
+            "global": false,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "",
+            "endpointSequenceNumber": 0
+          }
+        ],
+        "credentials": null
+      },
+      {
+        "name": "db",
+        "image": "postgres:14",
+        "command": null,
+        "args": null,
+        "env": [
+          "POSTGRES_PASSWORD=secret"
+        ],
+        "resources": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "1000"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "2147483648"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "10737418240"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": []
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 5432,
+            "externalPort": 0,
+            "proto": "TCP",
+            "service": "api",
+            "global": false,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "",
+            "endpointSequenceNumber": 0
+          }
+        ],
+        "credentials": null
+      },
+      {
+        "name": "web",
+        "image": "nginx:latest",
+        "command": null,
+        "args": null,
+        "env": null,
+        "resources": {
+          "id": 3,
+          "cpu": {
+            "units": {
+              "val": "100"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "268435456"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "536870912"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            }
+          ]
+        },
+        "count": 2,
+        "expose": [
+          {
+            "port": 80,
+            "externalPort": 80,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "",
+            "endpointSequenceNumber": 0
+          }
+        ],
+        "credentials": null
+      }
+    ]
+  }
+]

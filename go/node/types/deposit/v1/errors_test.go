@@ -8,8 +8,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	v1 "pkg.akt.dev/go/node/types/deposit/v1"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
+	v1 "pkg.akt.dev/go/node/types/deposit/v1"
 )
 
 func TestErrorGRPCStatusCodes(t *testing.T) {
@@ -42,4 +42,3 @@ func TestErrorGRPCStatusCodes(t *testing.T) {
 		})
 	}
 }
-
