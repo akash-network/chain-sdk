@@ -36,8 +36,8 @@ import type {
   v3ServiceExpose,
   v3ServiceExposeHttpOptions } from "../types.ts";
 import { SdlValidationError } from "./SdlValidationError.ts";
-import type { SDLInput } from "./SDLValidator/SDLValidator.ts";
-import { SDLValidator } from "./SDLValidator/SDLValidator.ts";
+import type { SDLInput } from "./validateSDL/validateSDL.ts";
+import { validateSDL } from "./validateSDL/validateSDL.ts";
 
 const Endpoint_SHARED_HTTP = 0;
 const Endpoint_RANDOM_PORT = 1;
@@ -118,8 +118,8 @@ export class SDL {
     public readonly version: NetworkVersion = "beta2",
     networkId: NetworkId = MAINNET_ID,
   ) {
-    const errors = SDLValidator.validate(data as unknown as SDLInput, networkId);
-    if (errors) throw new SdlValidationError(errors[0]);
+    const errors = validateSDL(data as unknown as SDLInput, networkId);
+    if (errors) throw new SdlValidationError(errors[0].message);
   }
 
   services() {
