@@ -52,7 +52,11 @@ func DefaultParams() Params {
 	}
 
 	return Params{
-		FeedContractsParams: msgs,
+		MinPriceSources:         1,
+		MaxPriceStalenessBlocks: 60,
+		MaxPriceDeviationBps:    150,
+		TwapWindow:              50,
+		FeedContractsParams:     msgs,
 	}
 }
 
@@ -60,6 +64,19 @@ func (p *Params) ValidateBasic() error {
 	msgs, err := sdktx.GetMsgs(p.FeedContractsParams, "akash.oracle.v1.Params")
 	if err != nil {
 		return err
+	}
+
+	if p.MinPriceSources < 1 {
+		return fmt.Errorf("min_price_sources must be at least 1")
+	}
+	if p.MaxPriceStalenessBlocks == 0 {
+		return fmt.Errorf("max_price_staleness_blocks must be greater than 0")
+	}
+	if p.MaxPriceDeviationBps == 0 {
+		return fmt.Errorf("max_price_deviation_bps must be greater than 0")
+	}
+	if p.TwapWindow == 0 {
+		return fmt.Errorf("twap_window must be greater than 0")
 	}
 
 	for _, msg := range msgs {
