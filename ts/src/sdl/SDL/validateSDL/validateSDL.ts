@@ -11,7 +11,7 @@ const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/storageAttributesValidation"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
   },
-  "#/definitions/exposeToWithIpEnforcesGlobal/then/properties/global/const"(error) {
+  "#/definitions/exposeToWithIpEnforcesGlobal/then/properties/global/const"() {
     return `If an IP is declared, the directive must be declared as global.`;
   },
 };
