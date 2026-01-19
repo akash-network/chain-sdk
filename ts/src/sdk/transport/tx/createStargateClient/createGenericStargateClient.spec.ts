@@ -23,7 +23,7 @@ describe(createGenericStargateClient.name, () => {
   describe("estimateFee", () => {
     includeSigningTests(async (client) => {
       const messages: EncodeObject[] = [{ typeUrl: MESSAGE_TYPE, value: {} }];
-      await client.estimateFee(messages, "test memo");
+      await client.estimateFee(messages, "stargate", "test memo");
     });
 
     it("uses specified gas multiplier", async () => {
@@ -43,7 +43,7 @@ describe(createGenericStargateClient.name, () => {
       });
 
       const messages: EncodeObject[] = [{ typeUrl: MESSAGE_TYPE, value: {} }];
-      const fee = await client.estimateFee(messages, "test memo");
+      const fee = await client.estimateFee(messages, "stargate", "test memo");
       expect(fee.gas).toBe("2");
     });
 
@@ -64,7 +64,7 @@ describe(createGenericStargateClient.name, () => {
       });
 
       const messages: EncodeObject[] = [{ typeUrl: MESSAGE_TYPE, value: {} }];
-      const fee = await client.estimateFee(messages, "test memo");
+      const fee = await client.estimateFee(messages, "stargate", "test memo");
       expect(fee.gas).toBe("3"); // 1.9 * 2 = 3.8, floored to 3
     });
   });

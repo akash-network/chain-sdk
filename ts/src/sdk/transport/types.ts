@@ -11,7 +11,16 @@ export interface TxCallOptions {
   afterSign?: (tx: TxRaw) => void;
   afterBroadcast?: (tx: DeliverTxResponse) => void;
   memo?: string;
+  /**
+   * Gas multiplier
+   * @default 1.3
+   */
+  gasMultiplier?: number;
   fee?: Partial<StdFee>;
+  /**
+    * ContextValues to pass to the interceptors.
+  */
+  contextValues?: ContextValues;
 }
 
 export interface Transport<TCallOptions = unknown> {

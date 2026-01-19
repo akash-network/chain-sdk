@@ -39,6 +39,7 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
     {
       ...options.stargateOptions,
       registry,
+      broadcastTimeoutMs: options.broadcastTimeoutMs,
     },
   ));
 
@@ -60,12 +61,12 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
   return {
     getAccount,
 
-    async estimateFee(messages, memo) {
+    async estimateFee(messages, _, memo, callGasMultiplier = gasMultiplier) {
       preloadMessageTypes(messages);
       const account = await getAccount();
       const client = await getStargateClient();
       const estimatedGas = await client.simulate(account.address, messages, memo);
-      const minGas = Math.floor(gasMultiplier * estimatedGas);
+      const minGas = Math.floor(callGasMultiplier * estimatedGas);
       const fee = calculateFee(minGas, gasPrice);
 
       return fee;
@@ -139,6 +140,11 @@ export interface BaseGenericStargateClientOptions {
    * @default "0.025uakt"
    */
   defaultGasPrice?: string;
+
+  /**
+   * Broadcast timeout in milliseconds
+   */
+  broadcastTimeoutMs?: number;
   /**
    * Retrieves the account to use for transactions
    * @default returns the first account from the signer

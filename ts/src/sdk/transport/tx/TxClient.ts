@@ -7,7 +7,7 @@ export type TxRaw = Omit<GenTxRaw, "$typeName" | "$unknown">;
 export { DeliverTxResponse, StdFee, EncodeObject, GeneratedType };
 
 export interface TxClient {
-  estimateFee(messages: EncodeObject[], memo?: string): Promise<StdFee>;
+  estimateFee(messages: EncodeObject[], type?: "stargate" | "cosmwasm", memo?: string, multiplier?: number): Promise<StdFee>;
   sign(messages: EncodeObject[], fee: StdFee, memo: string): Promise<TxRaw>;
   broadcast(signedMessages: TxRaw): Promise<DeliverTxResponse>;
 }
