@@ -218,6 +218,44 @@ describe(createTxTransport.name, () => {
   });
 
   describe("batching", () => {
+    it("does not batch by default", async () => {
+      const { TestServiceSchema } = await setup();
+      const fee: StdFee = {
+        amount: [{ denom: "uakt", amount: "100000" }],
+        gas: "100000",
+      };
+      const client = createMockTxClient({
+        estimateFee: jest.fn(() => Promise.resolve(fee)),
+      });
+      const transport = createTxTransport({
+        client,
+        getMessageType,
+      });
+
+      const results = await Promise.all([
+        transport.unary(TestServiceSchema.methods.testMethod, { test: "input1" }),
+        transport.unary(TestServiceSchema.methods.testMethod, { test: "input2" }),
+      ]);
+
+      expect(client.sign).toHaveBeenCalledTimes(2);
+      expect(client.broadcast).toHaveBeenCalledTimes(2);
+      expect(client.sign).toHaveBeenCalledWith(
+        [
+          { typeUrl: `/${TestServiceSchema.methods.testMethod.input.$type}`, value: { test: "input1" } },
+        ],
+        fee,
+        expect.any(String),
+      );
+      expect(client.sign).toHaveBeenCalledWith(
+        [
+          { typeUrl: `/${TestServiceSchema.methods.testMethod.input.$type}`, value: { test: "input2" } },
+        ],
+        fee,
+        expect.any(String),
+      );
+      expect(results).toEqual([expect.objectContaining({ message: {} }), expect.objectContaining({ message: {} })]);
+    });
+
     it("batches multiple calls without explicit fee into a single transaction", async () => {
       const { TestServiceSchema } = await setup();
       const fee: StdFee = {
@@ -230,6 +268,7 @@ describe(createTxTransport.name, () => {
       const transport = createTxTransport({
         client,
         getMessageType,
+        maxMessagesInBatchedTx: 10,
       });
 
       const [result1, result2] = await Promise.all([
@@ -332,6 +371,7 @@ describe(createTxTransport.name, () => {
       const transport = createTxTransport({
         client,
         getMessageType,
+        maxMessagesInBatchedTx: 10,
       });
 
       await Promise.all([
@@ -357,6 +397,7 @@ describe(createTxTransport.name, () => {
       const transport = createTxTransport({
         client,
         getMessageType,
+        maxMessagesInBatchedTx: 10,
       });
 
       await Promise.all([
@@ -401,6 +442,7 @@ describe(createTxTransport.name, () => {
       const transport = createTxTransport({
         client,
         getMessageType,
+        maxMessagesInBatchedTx: 10,
       });
 
       await Promise.all([
@@ -581,7 +623,6 @@ describe(createTxTransport.name, () => {
         getMessageType,
       });
 
-      // Send two transactions with explicit fees (bypasses batching)
       await Promise.all([
         transport.unary(TestServiceSchema.methods.testMethod, { test: "input1" }, { fee }),
         transport.unary(TestServiceSchema.methods.testMethod, { test: "input2" }, { fee }),

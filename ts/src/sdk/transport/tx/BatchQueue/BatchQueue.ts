@@ -30,7 +30,7 @@ export class BatchQueue<T, R> {
       return;
     }
 
-    const itemsToProcess = this.#queue.splice(0, this.#options.maxMessagesInTx);
+    const itemsToProcess = this.#queue.splice(0, this.#options.maxBatchSize);
 
     if (this.#queue.length > 0) {
       this.#options.scheduleFn(() => this.#flush());
@@ -44,6 +44,6 @@ export class BatchQueue<T, R> {
 
 export interface BatchQueueOptions<T, R> {
   onFlush: (items: T[]) => R;
-  maxMessagesInTx: number;
+  maxBatchSize: number;
   scheduleFn: (fn: () => void) => void;
 }

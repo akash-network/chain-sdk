@@ -10,21 +10,25 @@ import { BatchQueue } from "./BatchQueue/BatchQueue.ts";
 import type { StdFee, TxClient } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";
 
-const DEFAULT_MAX_MESSAGES_IN_TX = 10;
 const DEFAULT_QUEUE_ID = "default";
 const MAX_MEMO_LENGTH = 256;
 
 export function createTxTransport(options: TransactionTransportOptions): Transport<TxCallOptions> {
-  return new TxTransport(options);
+  const maxMessagesInBatchedTx = Number(options.maxMessagesInBatchedTx ?? 1);
+  return new TxTransport({
+    ...options,
+    maxMessagesInBatchedTx: Number.isNaN(maxMessagesInBatchedTx) || maxMessagesInBatchedTx < 1 ? 1 : Math.min(maxMessagesInBatchedTx, 10),
+  });
 }
 
+type TransportOptionsWithDefaults = Omit<TransactionTransportOptions, "maxMessagesInBatchedTx"> & Required<Pick<TransactionTransportOptions, "maxMessagesInBatchedTx">>;
 class TxTransport implements Transport<TxCallOptions> {
   readonly requiresTypePatching = true;
-  readonly #options: TransactionTransportOptions;
+  readonly #options: TransportOptionsWithDefaults;
   readonly #txQueues = new Map<string, BatchQueue<TxItem<MessageDesc, MessageDesc>, void>>();
   #sendTxTail = Promise.resolve();
 
-  constructor(options: TransactionTransportOptions) {
+  constructor(options: TransportOptionsWithDefaults) {
     this.#options = options;
   }
 
@@ -75,7 +79,7 @@ class TxTransport implements Transport<TxCallOptions> {
     if (!queue) {
       queue = new BatchQueue({
         scheduleFn: queueMicrotask,
-        maxMessagesInTx: DEFAULT_MAX_MESSAGES_IN_TX,
+        maxBatchSize: this.#options.maxMessagesInBatchedTx,
         onFlush: async (items) => {
           await this.#enqueueTxBatchSign(items);
           if (key !== DEFAULT_QUEUE_ID && this.#txQueues.get(key)?.size === 0) {
@@ -187,6 +191,7 @@ export interface TransactionTransportOptions {
   client: TxClient;
   getMessageType: (typeUrl: string) => GeneratedType | undefined;
   interceptors?: Interceptor[];
+  maxMessagesInBatchedTx?: number;
 }
 
 interface TxItem<I extends MessageDesc, O extends MessageDesc> {

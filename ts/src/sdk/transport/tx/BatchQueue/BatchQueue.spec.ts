@@ -35,8 +35,8 @@ describe(BatchQueue.name, () => {
 
     it("schedules new flush after previous flush completes", async () => {
       const scheduleFn = jest.fn((fn: () => void) => queueMicrotask(fn));
-      const process = jest.fn();
-      const queue = createBatchQueue({ scheduleFn, onFlush: process });
+      const onFlush = jest.fn();
+      const queue = createBatchQueue({ scheduleFn, onFlush });
 
       queue.add("item1");
       await flushMicrotasks();
@@ -50,10 +50,10 @@ describe(BatchQueue.name, () => {
 
   describe("flush behavior", () => {
     it("processes all items when count is less than maxMessagesInTx", async () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
-        maxMessagesInTx: 10,
+        onFlush,
+        maxBatchSize: 10,
         scheduleFn: queueMicrotask,
       });
 
@@ -63,15 +63,15 @@ describe(BatchQueue.name, () => {
 
       await flushMicrotasks();
 
-      expect(process).toHaveBeenCalledTimes(1);
-      expect(process).toHaveBeenCalledWith(["item1", "item2", "item3"]);
+      expect(onFlush).toHaveBeenCalledTimes(1);
+      expect(onFlush).toHaveBeenCalledWith(["item1", "item2", "item3"]);
     });
 
     it("processes items in batches when count exceeds maxMessagesInTx", async () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
-        maxMessagesInTx: 2,
+        onFlush,
+        maxBatchSize: 2,
         scheduleFn: queueMicrotask,
       });
 
@@ -86,17 +86,17 @@ describe(BatchQueue.name, () => {
       await flushMicrotasks();
       await flushMicrotasks();
 
-      expect(process).toHaveBeenCalledTimes(3);
-      expect(process).toHaveBeenNthCalledWith(1, ["item1", "item2"]);
-      expect(process).toHaveBeenNthCalledWith(2, ["item3", "item4"]);
-      expect(process).toHaveBeenNthCalledWith(3, ["item5"]);
+      expect(onFlush).toHaveBeenCalledTimes(3);
+      expect(onFlush).toHaveBeenNthCalledWith(1, ["item1", "item2"]);
+      expect(onFlush).toHaveBeenNthCalledWith(2, ["item3", "item4"]);
+      expect(onFlush).toHaveBeenNthCalledWith(3, ["item5"]);
     });
 
     it("processes exactly maxMessagesInTx items per batch", async () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
-        maxMessagesInTx: 3,
+        onFlush,
+        maxBatchSize: 3,
         scheduleFn: queueMicrotask,
       });
 
@@ -110,39 +110,17 @@ describe(BatchQueue.name, () => {
       await flushMicrotasks();
       await flushMicrotasks();
 
-      expect(process).toHaveBeenCalledTimes(2);
-      expect(process).toHaveBeenNthCalledWith(1, ["item1", "item2", "item3"]);
-      expect(process).toHaveBeenNthCalledWith(2, ["item4", "item5", "item6"]);
-    });
-
-    it("does not call `onFlush` when queue is empty at flush time", async () => {
-      const process = jest.fn();
-      let pendingFlush: (() => void) | null = null;
-      const queue = createBatchQueue({
-        onFlush: process,
-        scheduleFn: (fn) => {
-          pendingFlush = fn;
-        },
-      });
-
-      queue.add("item1");
-
-      // Manually clear the queue before flush executes
-      // This simulates an edge case where flush is called on empty queue
-      expect(queue.size).toBe(1);
-
-      // Execute the flush - it will process the item
-      pendingFlush!();
-      expect(process).toHaveBeenCalledTimes(1);
-      expect(queue.size).toBe(0);
+      expect(onFlush).toHaveBeenCalledTimes(2);
+      expect(onFlush).toHaveBeenNthCalledWith(1, ["item1", "item2", "item3"]);
+      expect(onFlush).toHaveBeenNthCalledWith(2, ["item4", "item5", "item6"]);
     });
 
     it("schedules next flush when there are more items in queue than `maxMessagesInTx`", async () => {
       const scheduleFn = jest.fn((fn: () => void) => queueMicrotask(fn));
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
-        maxMessagesInTx: 1,
+        onFlush,
+        maxBatchSize: 1,
         scheduleFn,
       });
 
@@ -158,13 +136,13 @@ describe(BatchQueue.name, () => {
 
       // Second flush processes item2
       await flushMicrotasks();
-      expect(process).toHaveBeenCalledTimes(2);
+      expect(onFlush).toHaveBeenCalledTimes(2);
     });
 
     it("does not schedule next flush when queue is emptied", async () => {
       const scheduleFn = jest.fn((fn: () => void) => queueMicrotask(fn));
       const queue = createBatchQueue({
-        maxMessagesInTx: 10,
+        maxBatchSize: 10,
         scheduleFn,
       });
 
@@ -175,15 +153,15 @@ describe(BatchQueue.name, () => {
       expect(scheduleFn).toHaveBeenCalledTimes(1);
 
       await flushMicrotasks();
-      expect(process).toHaveBeenCalledTimes(1);
+      expect(scheduleFn).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("batching", () => {
     it("batches items added in the same microtask", async () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
+        onFlush,
         scheduleFn: queueMicrotask,
       });
 
@@ -191,18 +169,18 @@ describe(BatchQueue.name, () => {
       queue.add("item2");
       queue.add("item3");
 
-      expect(process).not.toHaveBeenCalled();
+      expect(onFlush).not.toHaveBeenCalled();
 
       await flushMicrotasks();
 
-      expect(process).toHaveBeenCalledTimes(1);
-      expect(process).toHaveBeenCalledWith(["item1", "item2", "item3"]);
+      expect(onFlush).toHaveBeenCalledTimes(1);
+      expect(onFlush).toHaveBeenCalledWith(["item1", "item2", "item3"]);
     });
 
     it("creates separate batches for items added in different microtasks", async () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
+        onFlush,
         scheduleFn: queueMicrotask,
       });
 
@@ -216,34 +194,34 @@ describe(BatchQueue.name, () => {
 
       await flushMicrotasks();
 
-      expect(process).toHaveBeenCalledTimes(2);
-      expect(process).toHaveBeenNthCalledWith(1, ["item1", "item2"]);
-      expect(process).toHaveBeenNthCalledWith(2, ["item3", "item4"]);
+      expect(onFlush).toHaveBeenCalledTimes(2);
+      expect(onFlush).toHaveBeenNthCalledWith(1, ["item1", "item2"]);
+      expect(onFlush).toHaveBeenNthCalledWith(2, ["item3", "item4"]);
     });
 
     it("batches items added before setTimeout fires", async () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
+        onFlush,
         scheduleFn: (fn) => setTimeout(fn, 0),
       });
 
       queue.add("item1");
       queue.add("item2");
 
-      expect(process).not.toHaveBeenCalled();
+      expect(onFlush).not.toHaveBeenCalled();
 
       await delay(10);
 
-      expect(process).toHaveBeenCalledTimes(1);
-      expect(process).toHaveBeenCalledWith(["item1", "item2"]);
+      expect(onFlush).toHaveBeenCalledTimes(1);
+      expect(onFlush).toHaveBeenCalledWith(["item1", "item2"]);
     });
 
     it("handles maxMessagesInTx of 1", async () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
-        maxMessagesInTx: 1,
+        onFlush,
+        maxBatchSize: 1,
         scheduleFn: queueMicrotask,
       });
 
@@ -255,27 +233,27 @@ describe(BatchQueue.name, () => {
       await flushMicrotasks();
       await flushMicrotasks();
 
-      expect(process).toHaveBeenCalledTimes(3);
-      expect(process).toHaveBeenNthCalledWith(1, ["item1"]);
-      expect(process).toHaveBeenNthCalledWith(2, ["item2"]);
-      expect(process).toHaveBeenNthCalledWith(3, ["item3"]);
+      expect(onFlush).toHaveBeenCalledTimes(3);
+      expect(onFlush).toHaveBeenNthCalledWith(1, ["item1"]);
+      expect(onFlush).toHaveBeenNthCalledWith(2, ["item2"]);
+      expect(onFlush).toHaveBeenNthCalledWith(3, ["item3"]);
     });
 
     it("handles synchronous scheduleFn processing items one at a time", () => {
-      const process = jest.fn();
+      const onFlush = jest.fn();
       const queue = createBatchQueue({
-        onFlush: process,
-        maxMessagesInTx: 10,
+        onFlush,
+        maxBatchSize: 10,
         scheduleFn: (fn) => fn(),
       });
 
       queue.add("item1");
-      expect(process).toHaveBeenCalledTimes(1);
-      expect(process).toHaveBeenLastCalledWith(["item1"]);
+      expect(onFlush).toHaveBeenCalledTimes(1);
+      expect(onFlush).toHaveBeenLastCalledWith(["item1"]);
 
       queue.add("item2");
-      expect(process).toHaveBeenCalledTimes(2);
-      expect(process).toHaveBeenLastCalledWith(["item2"]);
+      expect(onFlush).toHaveBeenCalledTimes(2);
+      expect(onFlush).toHaveBeenLastCalledWith(["item2"]);
     });
   });
 
@@ -284,7 +262,7 @@ describe(BatchQueue.name, () => {
   ): BatchQueue<T, R> {
     return new BatchQueue<T, R>({
       onFlush: jest.fn() as (items: T[]) => R,
-      maxMessagesInTx: 10,
+      maxBatchSize: 10,
       scheduleFn: jest.fn(),
       ...overrides,
     });
