@@ -27,6 +27,7 @@ export function createChainNodeSDK(options: ChainNodeSDKOptions) {
     txTransport = createTxTransport({
       getMessageType,
       client: options.tx.signer,
+      maxMessagesInBatchedTx: options.tx.transportOptions?.maxMessagesInBatchedTx,
     });
   } else {
     txTransport = createNoopTransport({
@@ -63,5 +64,13 @@ export interface ChainNodeSDKOptions {
   };
   tx?: {
     signer: TxClient;
+    transportOptions?: {
+      /**
+       * Maximum number of messages in a single batched transaction.
+       * Maximum is 10.
+       * @default is 1 - basically no batching.
+       */
+      maxMessagesInBatchedTx?: number;
+    };
   };
 }

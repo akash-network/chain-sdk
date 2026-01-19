@@ -105,6 +105,88 @@ const deployments = await sdk.akash.deployment.v1beta4.getDeployments({
 });
 ```
 
+#### Transaction Batching
+
+The SDK can automatically batch multiple transaction method calls made in the same execution context (microtask) into a single blockchain transaction. This optimization reduces gas costs and improves throughput when sending multiple messages. This behavior is disabled by default, to enable it you need to provide `maxMessagesInBatchedTx` bigger than 1:
+
+```ts
+import { createChainNodeSDK, createStargateClient } from "@akashnetwork/chain-sdk";
+
+const mnemonic = "your mnemonic here";
+const signer = createStargateClient({
+  baseUrl: 'https://rpc.sandbox-2.aksh.pw:443', // blockchain rpc endpoint
+  signerMnemonic: mnemonic
+});
+
+// endpoints can be found in https://github.com/akash-network/net
+const chainSdk = createChainNodeSDK({
+  query: {
+    baseUrl: "http://grpc.sandbox-2.aksh.pw:9090", // blockchain gRPC endpoint url
+  },
+  tx: {
+    signer,
+    transportOptions: {
+      maxMessagesInBatchedTx: 5, // batches maximum 5 messages inside single transaction
+    }
+  },
+});
+```
+
+The same works for WEB sdk as well.
+
+**How it works:**
+
+1. When you make multiple SDK calls without awaiting each one individually, they are collected into a batch
+2. The batch is processed at the end of the current microtask (using `queueMicrotask`)
+3. All messages in the batch are signed and broadcast as a single transaction
+4. Each individual call receives its corresponding response from the batched transaction
+5. Since it's essentially a single transaction, the failure in one will reject all
+
+**Example:**
+
+```ts
+// These calls will be batched into a single transaction
+const [result1, result2, result3] = await Promise.all([
+  sdk.akash.deployment.v1beta4.closeDeployment({ id: deploymentId1 }),
+  sdk.akash.deployment.v1beta4.closeDeployment({ id: deploymentId2 }),
+  sdk.akash.deployment.v1beta4.closeDeployment({ id: deploymentId3 }),
+]);
+```
+
+**Batching rules:**
+
+- Calls without explicit `fee` (amount + gas) are batched together
+- Calls with the same `payer`/`granter` are batched together
+- Calls with different `payer`, `granter`, or `gasMultiplier` (when payer/granter is set) go into separate batches
+- Calls with explicit `fee` (either `amount` or `gas`) bypass batching entirely
+- Maximum 10 messages per transaction
+- Memos from batched calls are concatenated (truncated to 256 characters if needed)
+
+**Sequential execution:**
+
+All transactions are processed sequentially to prevent account sequence conflicts. Batching doesn't influence this, but when enabled the SDK will process every batch sequentially:
+
+```ts
+// First batch: closes deployments
+await Promise.all([
+  sdk.akash.deployment.v1beta4.closeDeployment({ id: id1 }),
+  sdk.akash.deployment.v1beta4.closeDeployment({ id: id2 }),
+]);
+
+// Second batch: creates new deployment but waits for first batch to complete!
+await sdk.akash.deployment.v1beta4.createDeployment({ /* ... */ });
+```
+
+**Opting out of batching:**
+
+To send a transaction immediately without batching, just `await` it:
+
+```ts
+// This will be sent immediately, not batched
+await sdk.akash.deployment.v1beta4.closeDeployment({ id: deploymentId });
+```
+
+
 ### Provider SDK
 
 Currently provider SDK supports only `getStatus` and `streamStatus` methods over gRPC protocol.

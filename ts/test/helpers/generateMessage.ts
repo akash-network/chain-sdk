@@ -14,11 +14,11 @@ export interface Field {
 };
 
 export type MessageSchema = {
-  fields: Field[],
+  fields: Field[];
   type: {
-    fromPartial(attrs: Record<string, unknown>): unknown,
-    $type: string,
-  },
+    fromPartial(attrs: Record<string, unknown>): unknown;
+    $type: string;
+  };
 };
 
 /**

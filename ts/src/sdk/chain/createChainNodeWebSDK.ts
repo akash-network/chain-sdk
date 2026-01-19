@@ -23,6 +23,7 @@ export function createChainNodeWebSDK(options: ChainNodeWebSDKOptions) {
     ? createTxTransport({
         getMessageType,
         client: options.tx.signer,
+        maxMessagesInBatchedTx: options.tx.transportOptions?.maxMessagesInBatchedTx,
       })
     : createNoopTransport({
         unaryErrorMessage: `Unable to sign transaction. "tx" option is not provided during chain SDK creation`,
@@ -49,5 +50,13 @@ export interface ChainNodeWebSDKOptions {
   };
   tx?: {
     signer: TxClient;
+    transportOptions?: {
+    /**
+       * Maximum number of messages in a single batched transaction.
+       * Maximum is 10.
+       * @default is 1 - basically no batching.
+       */
+      maxMessagesInBatchedTx?: number;
+    };
   };
 }

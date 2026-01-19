@@ -18,7 +18,7 @@ describe("protoc-gen-customtype-patches plugin", () => {
         out: ".",
         opt: [
           "target=ts",
-          "import_extension=ts"
+          "import_extension=ts",
         ],
       },
     ],

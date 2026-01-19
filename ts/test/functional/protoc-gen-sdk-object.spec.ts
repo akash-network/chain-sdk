@@ -18,7 +18,7 @@ describe("protoc-sdk-objec plugin", () => {
         out: ".",
         opt: [
           "target=ts",
-          "import_extension=ts"
+          "import_extension=ts",
         ],
       },
     ],

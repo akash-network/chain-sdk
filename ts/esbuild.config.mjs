@@ -1,71 +1,73 @@
-import * as esbuild from 'esbuild';
-import { promises as fs, globSync } from "node:fs";
-import { join, extname } from "node:path";
+import { globSync, promises as fs } from "node:fs";
+import { extname, join } from "node:path";
+
+import * as esbuild from "esbuild";
 
 /**
  * @param {esbuild.BuildOptions} config
  */
 const baseConfig = (config) => ({
   ...config,
-  entryPoints: config.format === 'esm' ? [
-    `src/index.ts`,
-    `src/index.web.ts`,
-    'src/generated/protos/index.*',
-  ] : globSync(["src/**/*.ts"], { exclude: (filename) => filename.endsWith('.spec.ts') }),
-  bundle: config.format === 'esm',
+  entryPoints: config.format === "esm"
+    ? [
+        `src/index.ts`,
+        `src/index.web.ts`,
+        "src/generated/protos/index.*",
+      ]
+    : globSync(["src/**/*.ts"], { exclude: (filename) => filename.endsWith(".spec.ts") }),
+  bundle: config.format === "esm",
   sourcemap: true,
   packages: "external",
   platform: "neutral",
-  external: config.format === 'esm' ? ["node:*"]: undefined,
-  outExtension: config.format === 'cjs' ? { '.js': '.cjs' } : undefined,
+  external: config.format === "esm" ? ["node:*"] : undefined,
+  outExtension: config.format === "cjs" ? { ".js": ".cjs" } : undefined,
   minify: false,
   target: [`es2020`],
-  splitting: config.format === 'esm',
+  splitting: config.format === "esm",
   outdir: `dist/${config.format}`,
   metafile: true,
-  tsconfig: './tsconfig.build.json',
-  plugins: config.format === 'cjs' ? [replaceTsToCjsPlugin()] : []
+  tsconfig: "./tsconfig.build.json",
+  plugins: config.format === "cjs" ? [replaceTsToCjsPlugin()] : [],
 });
 
-
 await Promise.all([
-  esbuild.build(baseConfig({ format: 'esm' })),
+  esbuild.build(baseConfig({ format: "esm" })),
   esbuild.build(baseConfig({
-    format: 'cjs',
+    format: "cjs",
     supported: {
-      'dynamic-import': false
-    }
+      "dynamic-import": false,
+    },
   })),
 ]);
-console.log('Building JS SDK finished');
+console.log("Building JS SDK finished");
 
 // TODO: get rid of it when this https://github.com/evanw/esbuild/issues/2435#issuecomment-3303686541 will be done
 function replaceTsToCjsPlugin(opts = {}) {
   const toExt = opts.toExt ?? ".cjs";
 
-  const fromPattern = escapeReg('.ts');
+  const fromPattern = escapeReg(".ts");
   // only touch *relative* specifiers (./ or ../), avoid bare/deps/urls
-  const reFrom   = new RegExp(`(\\bfrom\\s+["'])(\\.{1,2}\\/[^"']+)(?:${fromPattern})(["'])`, "g");
+  const reFrom = new RegExp(`(\\bfrom\\s+["'])(\\.{1,2}\\/[^"']+)(?:${fromPattern})(["'])`, "g");
   const reImport = new RegExp(`(\\bimport\\(\\s*["'])(\\.{1,2}\\/[^"']+)(?:${fromPattern})(["']\\s*\\))`, "g");
-  const reReq    = new RegExp(`(\\brequire\\(\\s*["'])(\\.{1,2}\\/[^"']+)(?:${fromPattern})(["']\\s*\\))`, "g");
+  const reReq = new RegExp(`(\\brequire\\(\\s*["'])(\\.{1,2}\\/[^"']+)(?:${fromPattern})(["']\\s*\\))`, "g");
 
   return {
     name: "replace-ts-to-cjs",
     setup(build) {
       build.onEnd(async () => {
-        const outdir  = build.initialOptions.outdir;
+        const outdir = build.initialOptions.outdir;
         const outfile = build.initialOptions.outfile;
         const targets = [];
 
         if (outfile) targets.push(outfile);
-        if (outdir)  targets.push(...await listFiles(outdir, [".cjs"]));
+        if (outdir) targets.push(...await listFiles(outdir, [".cjs"]));
 
         await Promise.all(targets.map(async (f) => {
           let code = await fs.readFile(f, "utf8");
           const next = code
-            .replace(reFrom,   `$1$2${toExt}$3`)
+            .replace(reFrom, `$1$2${toExt}$3`)
             .replace(reImport, `$1$2${toExt}$3`)
-            .replace(reReq,    `$1$2${toExt}$3`);
+            .replace(reReq, `$1$2${toExt}$3`);
 
           if (next !== code) await fs.writeFile(f, next);
         }));
