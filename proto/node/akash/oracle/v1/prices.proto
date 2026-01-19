@@ -194,10 +194,12 @@ message PriceHealth {
   bool has_min_sources = 4;
   // deviation_ok indicates if price deviation is within acceptable limits
   bool deviation_ok = 5;
-  // all_sources_fresh indicates if all source prices are not stale
-  bool all_sources_fresh = 6;
+  // total_sources indicates total amount of sources registered for price calculations
+  uint32 total_sources = 6;
+  // total_healthy_sources indicates total usable sources for price calculations
+  uint32 total_healthy_sources = 7;
   // failure_reason lists reasons for unhealthy status, if any
-  repeated string failure_reason = 7;
+  repeated string failure_reason = 8;
 }
 
 // PricesFilter defines filters used to query price data
