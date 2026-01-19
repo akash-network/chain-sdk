@@ -19,6 +19,7 @@ func GetQueryOracleCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetOraclePricesCmd(),
+		GetOracleAggregatedPriceCmd(),
 		GetOraclePriceFeedConfigCmd(),
 		GetOracleParamsCmd(),
 	)
@@ -29,6 +30,7 @@ func GetQueryOracleCmd() *cobra.Command {
 func GetOraclePricesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "prices",
+		Aliases:           []string{"p"},
 		Short:             "Query price history for denoms",
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -68,6 +70,35 @@ func GetOraclePricesCmd() *cobra.Command {
 	cflags.AddPaginationFlagsToCmd(cmd, "prices")
 	cmd.Flags().String(cflags.FlagAssetDenom, "", "Filter by asset denomination (e.g., uakt)")
 	cmd.Flags().String(cflags.FlagBaseDenom, "", "Filter by base denomination (e.g., usd)")
+
+	return cmd
+}
+
+func GetOracleAggregatedPriceCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "aggregated-price [denom]",
+		Aliases:           []string{"ap"},
+		Short:             "Query aggregated price for a denom",
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+
+			req := &types.QueryAggregatedPriceRequest{
+				Denom: args[0],
+			}
+
+			res, err := cl.Query().Oracle().AggregatedPrice(ctx, req)
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
