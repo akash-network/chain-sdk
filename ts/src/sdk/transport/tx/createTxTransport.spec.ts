@@ -5,7 +5,7 @@ import { describe, expect, it, jest } from "@jest/globals";
 import { proto } from "../../../../test/helpers/proto.ts";
 import { createAsyncIterable } from "../../client/stream.ts";
 import { createTxTransport } from "./createTxTransport.ts";
-import type { TxClient, TxRaw } from "./TxClient.ts";
+import type { TxClient, TxRaw, TxSignAndBroadcastOptions } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";
 
 describe(createTxTransport.name, () => {
@@ -22,78 +22,8 @@ describe(createTxTransport.name, () => {
   });
 
   describe("unary", () => {
-    it("calls `estimateFee` if no fee is provided", async () => {
-      const { TestServiceSchema } = await setup();
-      const fee: StdFee = {
-        amount: [{ denom: "uakt", amount: "100000" }],
-        gas: "100000",
-      };
-      const client = createMockTxClient({ estimateFee: jest.fn(() => Promise.resolve(fee)) });
-      const transport = createTxTransport({
-        client,
-        getMessageType,
-      });
-
-      await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" });
-
-      expect(client.estimateFee).toHaveBeenCalled();
-      expect(client.sign).toHaveBeenCalledWith(expect.anything(), fee, expect.anything());
-    });
-
-    it("calls `estimateFee` if provided only granter", async () => {
-      const { TestServiceSchema } = await setup();
-      const fee: Partial<StdFee> = {
-        granter: "akash1234567890",
-      };
-      const estimatedFee: StdFee = {
-        amount: [{ denom: "uakt", amount: "100000" }],
-        gas: "100000",
-      };
-      const client = createMockTxClient({
-        estimateFee: jest.fn(() => Promise.resolve(estimatedFee)),
-      });
-      const transport = createTxTransport({
-        client,
-        getMessageType,
-      });
-
-      await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" }, { fee });
-
-      expect(client.estimateFee).toHaveBeenCalled();
-      expect(client.sign).toHaveBeenCalledWith(expect.anything(), { ...estimatedFee, ...fee }, expect.anything());
-    });
-
-    it("does not `estimateFee` if a fee is provided", async () => {
-      const { TestServiceSchema } = await setup();
-      const client = createMockTxClient();
-      const transport = createTxTransport({
-        client,
-        getMessageType,
-      });
-      const fee: StdFee = {
-        amount: [{ denom: "uakt", amount: "100000" }],
-        gas: "100000",
-      };
-
-      await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" }, {
-        fee,
-      });
-
-      expect(client.estimateFee).not.toHaveBeenCalled();
-      expect(client.sign).toHaveBeenCalledWith(expect.anything(), fee, expect.anything());
-    });
-
     it("signs and broadcasts a transaction with single message", async () => {
       const { TestServiceSchema } = await setup();
-      const fee: StdFee = {
-        amount: [{ denom: "uakt", amount: "100000" }],
-        gas: "100000",
-      };
-      const txRaw: TxRaw = {
-        bodyBytes: new Uint8Array(0),
-        authInfoBytes: new Uint8Array(0),
-        signatures: [],
-      };
       const txResponse: DeliverTxResponse = {
         height: 1,
         txIndex: 0,
@@ -104,20 +34,31 @@ describe(createTxTransport.name, () => {
         gasUsed: 1n,
         gasWanted: 1n,
       };
+      const txRaw: TxRaw = {
+        bodyBytes: new Uint8Array(0),
+        authInfoBytes: new Uint8Array(0),
+        signatures: [],
+      };
+      const afterSign = jest.fn();
+      const afterBroadcast = jest.fn();
+      const fee: StdFee = {
+        amount: [{ denom: "uakt", amount: "100000" }],
+        gas: "100000",
+      };
       const client = createMockTxClient({
-        estimateFee: jest.fn(() => Promise.resolve(fee)),
-        sign: jest.fn(() => Promise.resolve(txRaw)),
-        broadcast: jest.fn(() => Promise.resolve(txResponse)),
+        signAndBroadcast: jest.fn((_, options?: TxSignAndBroadcastOptions) => {
+          options?.afterSign?.(txRaw);
+          return Promise.resolve(txResponse);
+        }),
       });
       const transport = createTxTransport({
         client,
         getMessageType,
       });
 
-      const afterSign = jest.fn();
-      const afterBroadcast = jest.fn();
       const result = await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" }, {
         memo: "test",
+        fee,
         afterSign,
         afterBroadcast,
       });
@@ -126,18 +67,36 @@ describe(createTxTransport.name, () => {
         value: { test: "input" },
       }];
 
-      expect(client.estimateFee).toHaveBeenCalledWith(messages, "test");
-      expect(client.sign).toHaveBeenCalledWith(messages, fee, "test");
+      expect(client.signAndBroadcast).toHaveBeenCalledWith(messages, {
+        afterSign,
+        fee,
+        memo: "test",
+      });
       expect(afterSign).toHaveBeenCalledWith(txRaw);
-      expect(client.broadcast).toHaveBeenCalledWith(txRaw);
       expect(afterBroadcast).toHaveBeenCalledWith(txResponse);
       expect(result.message).toEqual({});
+    });
+
+    it("uses default memo if not provided", async () => {
+      const { TestServiceSchema } = await setup();
+      const client = createMockTxClient();
+      const transport = createTxTransport({
+        client,
+        getMessageType,
+      });
+
+      await transport.unary(TestServiceSchema.methods.testMethod, { test: "input" });
+
+      expect(client.signAndBroadcast).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ memo: "akash: TestMethod" }),
+      );
     });
 
     it("decodes response if `msgResponses` has a response", async () => {
       const { TestServiceSchema } = await setup();
       const client = createMockTxClient({
-        broadcast: jest.fn(() => Promise.resolve({
+        signAndBroadcast: jest.fn(() => Promise.resolve({
           height: 1,
           txIndex: 0,
           code: 0,
@@ -166,7 +125,7 @@ describe(createTxTransport.name, () => {
     it("throws if tx response has a non-zero code", async () => {
       const { TestServiceSchema } = await setup();
       const client = createMockTxClient({
-        broadcast: jest.fn(() => Promise.resolve({
+        signAndBroadcast: jest.fn(() => Promise.resolve({
           height: 1,
           txIndex: 0,
           code: 1,
@@ -211,7 +170,7 @@ describe(createTxTransport.name, () => {
 
   function createMockTxClient(overrides?: Partial<TxClient>): TxClient {
     return {
-      broadcast: jest.fn(() => Promise.resolve({
+      signAndBroadcast: jest.fn(() => Promise.resolve({
         height: 1,
         txIndex: 0,
         code: 0,
@@ -220,15 +179,6 @@ describe(createTxTransport.name, () => {
         msgResponses: [],
         gasUsed: 1n,
         gasWanted: 1n,
-      })),
-      estimateFee: jest.fn(() => Promise.resolve({
-        amount: [],
-        gas: "100000",
-      })),
-      sign: jest.fn(() => Promise.resolve({
-        bodyBytes: new Uint8Array(0),
-        authInfoBytes: new Uint8Array(0),
-        signatures: [],
       })),
       ...overrides,
     };
