@@ -1,6 +1,6 @@
 {
   "name": "@akashnetwork/chain-sdk",
-  "version": "1.0.0-alpha.19",
+  "version": "1.0.0-alpha.20",
   "type": "module",
   "description": "Akash API TypeScript client",
   "keywords": [],

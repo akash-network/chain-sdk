@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.0-alpha.20](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.19...ts/v1.0.0-alpha.20) (2026-01-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ts:** simplifies TxClient interface ([#210](https://github.com/akash-network/chain-sdk/issues/210))
+
+### Features
+
+* **ts:** expose validateSDL and its primitives ([#204](https://github.com/akash-network/chain-sdk/issues/204)) ([38b2e98](https://github.com/akash-network/chain-sdk/commit/38b2e981c6c3000def92e9c1918bcae53f2356d7))
+
+
+### Code Refactoring
+
+* **ts:** simplifies TxClient interface ([#210](https://github.com/akash-network/chain-sdk/issues/210)) ([42c02b3](https://github.com/akash-network/chain-sdk/commit/42c02b30639d6ae68079fac58afc3cc8ebdf9f08))
+
 ## [1.0.0-alpha.19](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.18...ts/v1.0.0-alpha.19) (2026-01-13)
 
 
