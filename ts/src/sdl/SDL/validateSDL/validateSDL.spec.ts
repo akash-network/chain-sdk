@@ -4,9 +4,9 @@ import { merge } from "lodash";
 import type { DeepPartial } from "../../../encoding/typeEncodingHelpers.ts";
 import type { NetworkId } from "../../../network/index.ts";
 import { AKT_DENOM, USDC_IBC_DENOMS } from "../../../network/index.ts";
-import { type SDLInput, SDLValidator } from "./SDLValidator.ts";
+import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
-describe(SDLValidator.name, () => {
+describe(validateSDL.name, () => {
   describe("valid SDL", () => {
     it("returns undefined for a valid SDL", () => {
       const { validate } = setup();
@@ -96,8 +96,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("Invalid denom: \"ibc/invalid\""));
-      expect(errors).toContainEqual(expect.stringContaining("/profiles/placement/dcloud/pricing/web/denom"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("Invalid denom: \"ibc/invalid\""),
+        instancePath: "/profiles/placement/dcloud/pricing/web/denom",
+        schemaPath: "#/definitions/priceCoin/properties/denom",
+        keyword: "pattern",
+      }));
     });
 
     it("returns an error when using sandbox USDC on mainnet", () => {
@@ -126,7 +130,10 @@ describe(SDLValidator.name, () => {
       }, "mainnet");
 
       const errors = validate();
-      expect(errors).toContainEqual(expect.stringContaining(`Invalid denom: "${USDC_IBC_DENOMS.sandbox}"`));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining(`Invalid denom: "${USDC_IBC_DENOMS.sandbox}"`),
+        keyword: "pattern",
+      }));
     });
   });
 
@@ -166,9 +173,15 @@ describe(SDLValidator.name, () => {
         },
       };
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual("Service \"web\" is not defined in the \"deployment\" section.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Service \"web\" is not defined at \"/deployment\" section.",
+        instancePath: "/deployment",
+        schemaPath: "#/properties/deployment",
+        keyword: "required",
+        params: { missingProperty: "web" },
+      }));
     });
 
     it("returns an error when placement is not defined", () => {
@@ -185,7 +198,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("The placement \"nonexistent-placement\" is not defined in the \"placement\" section.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "The placement \"nonexistent-placement\" is not defined in the \"placement\" section.",
+        instancePath: "/profiles/placement",
+        schemaPath: "#/properties/profiles/properties/placement",
+        keyword: "required",
+        params: { missingProperty: "nonexistent-placement" },
+      }));
     });
 
     it("returns an error when compute profile is not defined", () => {
@@ -202,7 +221,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("The compute requirements for the \"nonexistent-profile\" profile are not defined in the \"compute\" section.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "The compute requirements for the \"nonexistent-profile\" profile are not defined in the \"compute\" section.",
+        instancePath: "/profiles/compute",
+        schemaPath: "#/properties/profiles/properties/compute",
+        keyword: "required",
+        params: { missingProperty: "nonexistent-profile" },
+      }));
     });
 
     it("returns an error when pricing for profile is not defined", () => {
@@ -239,9 +264,15 @@ describe(SDLValidator.name, () => {
         },
       };
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual("The pricing for the \"web\" profile is not defined in the \"dcloud\" \"placement\" definition.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "The pricing for the \"web\" profile is not defined in the \"dcloud\" placement.",
+        instancePath: "/profiles/placement/dcloud/pricing",
+        schemaPath: "#/properties/profiles/properties/placement/additionalProperties/properties/pricing",
+        keyword: "required",
+        params: { missingProperty: "web" },
+      }));
     });
   });
 
@@ -263,7 +294,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("Service \"web\" references to non-existing compute volume names \"data\".");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Service \"web\" references non-existing compute volume \"data\".",
+        instancePath: "/profiles/compute/web/resources/storage",
+        schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/storage",
+        keyword: "required",
+        params: { missingProperty: "data" },
+      }));
     });
 
     it("returns an error for multiple root ephemeral storages", () => {
@@ -305,7 +342,11 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("Multiple root ephemeral storages are not allowed");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Multiple root ephemeral storages are not allowed.",
+        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/storage",
+        keyword: "uniqueItems",
+      }));
     });
 
     it("returns an error when mount is used by multiple volumes", () => {
@@ -347,7 +388,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("Mount /mnt already in use by volume \"data\".");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Mount \"/mnt\" already in use by volume \"data\".",
+        instancePath: "/services/web/params/storage/logs/mount",
+        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/mount",
+        keyword: "uniqueItems",
+        params: { duplicate: "/mnt" },
+      }));
     });
 
     it("returns an error when persistent storage has no mount", () => {
@@ -389,7 +436,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("/compute/storage/data has persistent=true which requires /services/web/params/storage/data to have \"mount\" field.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Persistent storage \"data\" requires a mount path in /services/web/params/storage/data/mount.",
+        instancePath: "/services/web/params/storage/data",
+        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/mount",
+        keyword: "required",
+        params: { missingProperty: "mount" },
+      }));
     });
 
     it("accepts persistent storage with mount defined", () => {
@@ -459,7 +512,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("GPU must have attributes if units is not 0");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "GPU must have attributes if units is not 0.",
+        instancePath: "/profiles/compute/web/resources/gpu",
+        schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu",
+        keyword: "required",
+        params: { missingProperty: "attributes" },
+      }));
     });
 
     it("returns an error when GPU units > 0 but no vendor", () => {
@@ -487,7 +546,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("GPU must specify a vendor if units is not 0");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "GPU must specify a vendor if units is not 0.",
+        instancePath: "/profiles/compute/web/resources/gpu/attributes",
+        schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/vendor",
+        keyword: "required",
+        params: { missingProperty: "vendor" },
+      }));
     });
 
     it("returns an error when GPU units = 0 but has attributes", () => {
@@ -515,7 +580,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("GPU must not have attributes if units is 0");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "GPU must not have attributes if units is 0.",
+        instancePath: "/profiles/compute/web/resources/gpu/attributes",
+        schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "attributes" },
+      }));
     });
 
     it("accepts GPU with units > 0 and valid vendor", () => {
@@ -593,7 +664,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("Error on \"web\", if an IP is declared, the directive must be declared as global.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        instancePath: "/services/web/expose/0/to/0/global",
+        keyword: "const",
+        message: "If an IP is declared, the directive must be declared as global.",
+        params: { allowedValue: true },
+        schemaPath: "#/definitions/exposeToWithIpEnforcesGlobal/then/properties/global/const",
+      }));
     });
 
     it("returns an error when IP references unknown endpoint", () => {
@@ -614,7 +691,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("Unknown endpoint \"unknown-endpoint\" in service \"web\". Add to the list of endpoints in the \"endpoints\" section.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Unknown endpoint \"unknown-endpoint\" for service \"web\". Add it to the \"endpoints\" section.",
+        instancePath: "/endpoints/unknown-endpoint",
+        schemaPath: "#/properties/endpoints",
+        keyword: "required",
+        params: { missingProperty: "unknown-endpoint" },
+      }));
     });
 
     it("returns an error when same IP endpoint port is used by multiple services", () => {
@@ -682,8 +765,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("IP endpoint myendpoint port:"));
-      expect(errors).toContainEqual(expect.stringContaining("already in use by"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("IP endpoint \"myendpoint\" port"),
+        keyword: "uniqueItems",
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("already in use by"),
+      }));
     });
 
     it("accepts valid IP lease configuration", () => {
@@ -719,7 +807,13 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual("Endpoint unused-endpoint declared but never used.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Endpoint \"unused-endpoint\" declared but never used.",
+        instancePath: "/endpoints/unused-endpoint",
+        schemaPath: "#/properties/endpoints",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "unused-endpoint" },
+      }));
     });
 
     it("does not return an error when all endpoints are used", () => {
@@ -844,10 +938,18 @@ describe(SDLValidator.name, () => {
         },
       };
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual("Service \"web\" is not defined in the \"deployment\" section.");
-      expect(errors).toContainEqual("Service \"api\" is not defined in the \"deployment\" section.");
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Service \"web\" is not defined at \"/deployment\" section.",
+        keyword: "required",
+        params: { missingProperty: "web" },
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: "Service \"api\" is not defined at \"/deployment\" section.",
+        keyword: "required",
+        params: { missingProperty: "api" },
+      }));
     });
   });
 
@@ -964,8 +1066,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"image\""));
-      expect(errors).toContainEqual(expect.stringContaining("at least 1 character"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"image\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("at least 1 character"),
+      }));
     });
 
     it("returns an error for invalid port number (0)", () => {
@@ -980,8 +1086,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"port\""));
-      expect(errors).toContainEqual(expect.stringContaining("at least 1"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"port\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("at least 1"),
+      }));
     });
 
     it("returns an error for invalid port number (65536)", () => {
@@ -996,8 +1106,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"port\""));
-      expect(errors).toContainEqual(expect.stringContaining("at most 65535"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"port\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("at most 65535"),
+      }));
     });
 
     it("returns an error for invalid protocol", () => {
@@ -1012,8 +1126,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"proto\""));
-      expect(errors).toContainEqual(expect.stringContaining("TCP, UDP, tcp, udp"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"proto\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("TCP, UDP, tcp, udp"),
+      }));
     });
   });
 
@@ -1034,7 +1152,9 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"host\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"host\""),
+      }));
     });
 
     it("returns an error when credentials username is missing", () => {
@@ -1053,7 +1173,9 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"username\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"username\""),
+      }));
     });
 
     it("returns an error when credentials password is missing", () => {
@@ -1072,7 +1194,9 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"password\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"password\""),
+      }));
     });
 
     it("returns an error when credentials password is too short", () => {
@@ -1092,8 +1216,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"password\""));
-      expect(errors).toContainEqual(expect.stringContaining("at least 6 characters"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"password\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("at least 6 characters"),
+      }));
     });
 
     it("accepts valid credentials", () => {
@@ -1135,8 +1263,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"max_body_size\""));
-      expect(errors).toContainEqual(expect.stringContaining("104857600"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"max_body_size\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("104857600"),
+      }));
     });
 
     it("returns an error when read_timeout exceeds 60000ms", () => {
@@ -1158,8 +1290,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"read_timeout\""));
-      expect(errors).toContainEqual(expect.stringContaining("60000"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"read_timeout\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("60000"),
+      }));
     });
 
     it("returns an error when send_timeout exceeds 60000ms", () => {
@@ -1181,8 +1317,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"send_timeout\""));
-      expect(errors).toContainEqual(expect.stringContaining("60000"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"send_timeout\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("60000"),
+      }));
     });
 
     it("accepts valid http_options", () => {
@@ -1247,8 +1387,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"mount\""));
-      expect(errors).toContainEqual(expect.stringContaining("pattern \"^/\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"mount\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("pattern \"^/\""),
+      }));
     });
 
     it("accepts absolute mount path", () => {
@@ -1304,8 +1448,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"123invalid\""));
-      expect(errors).toContainEqual(expect.stringContaining("^[a-z]+[-_0-9a-z]+$"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"123invalid\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("^[a-z]+[-_0-9a-z]+$"),
+      }));
     });
 
     it("returns an error when endpoint kind is missing", () => {
@@ -1323,7 +1471,9 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"kind\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"kind\""),
+      }));
     });
 
     it("returns an error for invalid endpoint kind", () => {
@@ -1341,8 +1491,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"kind\""));
-      expect(errors).toContainEqual(expect.stringContaining("ip"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"kind\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("ip"),
+      }));
     });
   });
 
@@ -1378,9 +1532,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"cpu\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"cpu\""),
+      }));
     });
 
     it("returns an error when memory is missing", () => {
@@ -1414,9 +1570,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"memory\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"memory\""),
+      }));
     });
 
     it("returns an error when storage is missing", () => {
@@ -1450,9 +1608,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"storage\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"storage\""),
+      }));
     });
 
     it("returns an error when cpu.units is missing", () => {
@@ -1487,9 +1647,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"units\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"units\""),
+      }));
     });
 
     it("returns an error when memory.size is missing", () => {
@@ -1524,9 +1686,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"size\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"size\""),
+      }));
     });
 
     it("returns an error when storage.size is missing", () => {
@@ -1561,9 +1725,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"size\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"size\""),
+      }));
     });
   });
 
@@ -1600,8 +1766,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"interface\""));
-      expect(errors).toContainEqual(expect.stringContaining("pcie, sxm"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"interface\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("pcie, sxm"),
+      }));
     });
 
     it("accepts valid GPU with pcie interface", () => {
@@ -1710,10 +1880,14 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"amd\""));
-      expect(errors).toContainEqual(expect.stringContaining("not allowed"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"amd\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("not allowed"),
+      }));
     });
   });
 
@@ -1746,8 +1920,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"ram\" storage"));
-      expect(errors).toContainEqual(expect.stringContaining("cannot be persistent"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"ram\" storage"),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("cannot be persistent"),
+      }));
     });
 
     it("returns an error when RAM storage persistent is string \"true\"", () => {
@@ -1778,8 +1956,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"ram\" storage"));
-      expect(errors).toContainEqual(expect.stringContaining("cannot be persistent"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"ram\" storage"),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("cannot be persistent"),
+      }));
     });
 
     it("accepts RAM storage when not persistent", () => {
@@ -1836,8 +2018,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"denom\""));
-      expect(errors).toContainEqual(expect.stringContaining("pattern \"^(uakt|ibc/.*)$\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"denom\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("pattern \"^(uakt|ibc/.*)$\""),
+      }));
     });
 
     it("returns an error when denom is missing", () => {
@@ -1872,9 +2058,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"denom\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"denom\""),
+      }));
     });
 
     it("returns an error when amount is missing", () => {
@@ -1909,9 +2097,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"amount\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"amount\""),
+      }));
     });
   });
 
@@ -1930,8 +2120,12 @@ describe(SDLValidator.name, () => {
 
       const errors = validate();
 
-      expect(errors).toContainEqual(expect.stringContaining("\"count\""));
-      expect(errors).toContainEqual(expect.stringContaining("at least 1"));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"count\""),
+      }));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("at least 1"),
+      }));
     });
 
     it("returns an error when deployment profile is missing", () => {
@@ -1970,9 +2164,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"profile\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"profile\""),
+      }));
     });
 
     it("returns an error when deployment count is missing", () => {
@@ -2011,9 +2207,11 @@ describe(SDLValidator.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = SDLValidator.validate(sdl, "sandbox");
+      const errors = validateSDL(sdl, "sandbox");
 
-      expect(errors).toContainEqual(expect.stringContaining("\"count\""));
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("\"count\""),
+      }));
     });
   });
 
@@ -2068,7 +2266,7 @@ describe(SDLValidator.name, () => {
     return {
       sdl,
       networkId,
-      validate: () => SDLValidator.validate(sdl, networkId),
+      validate: () => validateSDL(sdl, networkId),
     };
   }
 });

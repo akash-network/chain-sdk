@@ -151,7 +151,7 @@ describe("SDL", () => {
         endpoints: { $set: endpoint },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint ${endpointName} declared but never used.`));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint "${endpointName}" declared but never used.`));
     });
   });
 
@@ -235,7 +235,7 @@ describe("SDL", () => {
         deployment: { $unset: ["web"] },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Service \"web\" is not defined in the \"deployment\" section."));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Service \"web\" is not defined at \"/deployment\" section."));
     });
 
     it("should throw an error when deployment is not defined in profile placement", () => {
@@ -266,7 +266,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("Service \"web\" references to non-existing compute volume names \"data\"."),
+        new SdlValidationError("Service \"web\" references non-existing compute volume \"data\"."),
       );
     });
 
@@ -299,7 +299,7 @@ describe("SDL", () => {
         },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Multiple root ephemeral storages are not allowed"));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Multiple root ephemeral storages are not allowed."));
     });
 
     it("should throw an error when mount is used by multiple volumes", () => {
@@ -313,7 +313,7 @@ describe("SDL", () => {
         },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Mount / already in use by volume \"data\"."));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Mount \"/\" already in use by volume \"data\"."));
     });
 
     it("should require a service storage mount if volume is persistent", () => {
@@ -325,7 +325,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("/compute/storage/data has persistent=true which requires /services/web/params/storage/data to have \"mount\" field."),
+        new SdlValidationError("Persistent storage \"data\" requires a mount path in /services/web/params/storage/data/mount."),
       );
     });
 
@@ -360,7 +360,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.gpu": { $set: { units: 1 } },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must have attributes if units is not 0"));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must have attributes if units is not 0."));
     });
 
     it("should throw an error when gpu units is 0 and attributes is defined", () => {
@@ -368,7 +368,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.gpu": { $set: { units: 0, attributes: {} } },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must not have attributes if units is 0"));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must not have attributes if units is 0."));
     });
 
     it("should throw an error when gpu units > 0 and attributes vendor is not supported", () => {

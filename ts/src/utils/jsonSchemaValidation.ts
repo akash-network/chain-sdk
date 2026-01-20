@@ -1,9 +1,9 @@
 const DEFINITIONS_PREFIX = "#/definitions/";
 
-export function humanizeErrors(errors: ValidationError[] | undefined, schema: Record<string, unknown>, errorMessages?: ErrorMessages): string[] {
+export function humanizeErrors(errors: ValidationError[] | undefined, schema: Record<string, unknown>, errorMessages?: ErrorMessages): ValidationError[] {
   if (!errors) return [];
 
-  const messages = new Set<string>();
+  const messages = new Map<string, ValidationError>();
   errors.forEach((error) => {
     let getErrorMessage = getDefaultErrorMessage;
 
@@ -20,10 +20,10 @@ export function humanizeErrors(errors: ValidationError[] | undefined, schema: Re
     }
 
     const message = getErrorMessage(error, schema);
-    if (message) messages.add(message);
+    if (message) messages.set(message, { ...error, message });
   });
 
-  return Array.from(messages);
+  return Array.from(messages.values());
 }
 
 export interface ValidationError {
@@ -76,12 +76,21 @@ function getDefaultErrorMessage(error: ValidationError, schema: Record<string, u
   if (error.keyword === "minimum") {
     return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be at least ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
   }
+  if (error.keyword === "exclusiveMinimum") {
+    return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be greater than ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
+  }
+  if (error.keyword === "exclusiveMaximum") {
+    return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be less than ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
+  }
   if (error.keyword === "maximum") {
     return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be at most ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
   }
   if (error.keyword === "minProperties") {
     const suffix = error.params.limit === 1 ? "property" : "properties";
     return `"${getFieldName(error.instancePath)}"${getErrorLocation(dirname(error.instancePath))} must have at least ${error.params.limit} ${suffix}.`;
+  }
+  if (error.keyword === "const") {
+    return `"${getFieldName(error.instancePath)}"${getErrorLocation(dirname(error.instancePath))} must be ${error.params.allowedValue}.`;
   }
 
   return `"${getFieldName(error.instancePath)}"${getErrorLocation(dirname(error.instancePath))} ${error.message}.`;

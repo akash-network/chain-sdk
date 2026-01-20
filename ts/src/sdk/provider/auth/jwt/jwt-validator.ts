@@ -69,7 +69,7 @@ export class JwtValidator {
       let valid = validatePayload(payload);
 
       if (!valid) {
-        result.errors = humanizeErrors((validatePayload as ValidationFunction).errors, jwtPayloadSchema);
+        result.errors = humanizeErrors((validatePayload as ValidationFunction).errors, jwtPayloadSchema).map((error) => error.message);
       }
 
       // Additional validation for granular access
