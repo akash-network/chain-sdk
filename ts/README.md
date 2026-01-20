@@ -87,7 +87,11 @@ This implementation can be used in both browser and nodejs, since it uses gRPC G
 ```typescript
 import { createChainNodeWebSDK, type TxClient } from "@akashnetwork/chain-sdk/web";
 
-const wallet: TxClient = // kplr or leap wallet object in browser exposed by corresponding extension
+const wallet: TxClient = {
+  async signAndBroadcast(messages, options) {
+    // use web wallet object in browser exposed by corresponding extension to signAndBroadcast
+  }
+};
 const sdk = createChainNodeWebSDK({
   query: {
     baseUrl: "https://api.sandbox-2.aksh.pw:443", // gRPC Gateway api url

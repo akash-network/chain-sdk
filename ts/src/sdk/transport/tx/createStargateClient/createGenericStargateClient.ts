@@ -10,8 +10,11 @@ import {
   Registry,
 } from "@cosmjs/proto-signing";
 import type {
+  DeliverTxResponse,
   HttpEndpoint,
+  SignerData,
   SigningStargateClientOptions,
+  StdFee,
 } from "@cosmjs/stargate";
 import {
   calculateFee,
@@ -19,7 +22,7 @@ import {
   SigningStargateClient,
 } from "@cosmjs/stargate";
 
-import type { TxClient } from "../TxClient.ts";
+import type { TxClient, TxRaw } from "../TxClient.ts";
 
 const DEFAULT_AVERAGE_GAS_PRICE = "0.025uakt";
 const DEFAULT_GAS_MULTIPLIER = 1.3;
@@ -44,7 +47,7 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
 
   const getAccount = () => getOfflineSigner().then((signer) => (options.getAccount ?? getDefaultAccount)(signer));
   const gasMultiplier = options.gasMultiplier ?? DEFAULT_GAS_MULTIPLIER;
-  const preloadMessageTypes = (messages: EncodeObject[]) => {
+  const ensureMessageTypesRegistered = (messages: EncodeObject[]) => {
     for (const message of messages) {
       if (registry.lookupType(message.typeUrl)) continue;
       const type = options.getMessageType(message.typeUrl);
@@ -60,8 +63,23 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
   return {
     getAccount,
 
+    async signAndBroadcast(messages, options) {
+      let fee: StdFee;
+      const providedFee = options?.fee;
+      if (!providedFee?.amount || !providedFee?.gas) {
+        const estimatedFee = await this.estimateFee(messages, options?.memo);
+        fee = providedFee ? { ...estimatedFee, ...providedFee } : estimatedFee;
+      } else {
+        fee = providedFee as StdFee;
+      }
+
+      const txRaw = await this.sign(messages, fee, options?.memo || "", undefined, options?.timeoutHeight);
+      options?.afterSign?.(txRaw);
+      const txResponse = await this.broadcast(txRaw);
+      return txResponse;
+    },
     async estimateFee(messages, memo) {
-      preloadMessageTypes(messages);
+      ensureMessageTypesRegistered(messages);
       const account = await getAccount();
       const client = await getStargateClient();
       const estimatedGas = await client.simulate(account.address, messages, memo);
@@ -70,11 +88,11 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
 
       return fee;
     },
-    async sign(messages, fee, memo) {
-      preloadMessageTypes(messages);
+    async sign(messages, fee, memo, explicitSignerData, timeoutHeight) {
+      ensureMessageTypesRegistered(messages);
       const account = await getAccount();
       const client = await getStargateClient();
-      return client.sign(account.address, messages, fee, memo);
+      return client.sign(account.address, messages, fee, memo, explicitSignerData, timeoutHeight);
     },
     async broadcast(txRaw) {
       const txTypeUrl = "/cosmos.tx.v1beta1.TxRaw";
@@ -101,6 +119,9 @@ export function createGenericStargateClient(options: WithSigner<BaseGenericStarg
 }
 
 export interface StargateTxClient extends TxClient {
+  estimateFee(messages: EncodeObject[], memo?: string): Promise<StdFee>;
+  sign(messages: EncodeObject[], fee: StdFee, memo: string, explicitSignerData?: SignerData, timeoutHeight?: bigint): Promise<TxRaw>;
+  broadcast(signedMessages: TxRaw): Promise<DeliverTxResponse>;
   getAccount(): Promise<AccountData>;
   disconnect(): Promise<void>;
 }

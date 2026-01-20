@@ -3,7 +3,7 @@ import type { GeneratedType } from "@cosmjs/proto-signing";
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
 import { TransportError } from "../TransportError.ts";
 import type { Transport, TxCallOptions, UnaryResponse } from "../types.ts";
-import type { StdFee, TxClient } from "./TxClient.ts";
+import type { TxClient } from "./TxClient.ts";
 import { TxError } from "./TxError.ts";
 
 export function createTxTransport(transportOptions: TransactionTransportOptions): Transport<TxCallOptions> {
@@ -18,20 +18,11 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
         typeUrl: `/${method.input.$type}`,
         value: input,
       }];
-      const memo = options?.memo ?? `akash: ${method.name}`;
-
-      let fee: StdFee;
-      const providedFee = options?.fee;
-      if (!providedFee?.amount || !providedFee?.gas) {
-        const estimatedFee = await transportOptions.client.estimateFee(messages, memo);
-        fee = providedFee ? { ...estimatedFee, ...providedFee } : estimatedFee;
-      } else {
-        fee = providedFee as StdFee;
-      }
-
-      const txRaw = await transportOptions.client.sign(messages, fee, memo);
-      options?.afterSign?.(txRaw);
-      const txResponse = await transportOptions.client.broadcast(txRaw);
+      const txResponse = await transportOptions.client.signAndBroadcast(messages, {
+        afterSign: options?.afterSign,
+        fee: options?.fee,
+        memo: options?.memo ?? `akash: ${method.name}`,
+      });
       options?.afterBroadcast?.(txResponse);
 
       if (txResponse.code !== 0) {
