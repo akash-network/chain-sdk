@@ -21,10 +21,7 @@ for await (const path of fs.glob(`${ROOT_DIR}/generated/protos/**/*.ts`)) {
 
   // Remove the `create` method from message objects
   newSource = newSource.replace(/^\s*create\(base\?:\s*DeepPartial<\w+>\):\s*\w+\s*\{\s*return\s*\w+\.fromPartial\(base \?\? \{\}\);\s*\},?\n?/gm, "");
-
-  if (helperRegex.test(source) || helperTypeRegex.test(source)) {
-    newSource = injectOwnHelpers(newSource, path);
-  }
+  newSource = injectOwnHelpers(newSource, path);
 
   if (newSource !== source) {
     await fs.writeFile(path, newSource);
