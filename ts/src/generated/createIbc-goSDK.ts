@@ -1,5 +1,4 @@
 import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
-import { SDKOptions } from "../sdk/types.ts";
 
 import type * as ibc_applications_interchain_accounts_controller_v1_query from "./protos/ibc/applications/interchain_accounts/controller/v1/query.ts";
 import type * as ibc_applications_interchain_accounts_controller_v1_tx from "./protos/ibc/applications/interchain_accounts/controller/v1/tx.ts";
@@ -45,9 +44,9 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/ibc/lightclients/wasm/v1/query_akash.ts").then(m => m.Query),
   () => import("./protos/ibc/lightclients/wasm/v1/tx_akash.ts").then(m => m.Msg)
 ] as const);
-export function createSDK(queryTransport: Transport, txTransport: Transport, options?: SDKOptions) {
-  const getClient = createClientFactory<CallOptions>(queryTransport, options?.clientOptions);
-  const getMsgClient = createClientFactory<TxCallOptions>(txTransport, options?.clientOptions);
+export function createSDK(queryTransport: Transport, txTransport: Transport) {
+  const getClient = createClientFactory<CallOptions>(queryTransport);
+  const getMsgClient = createClientFactory<TxCallOptions>(txTransport);
   return {
     ibc: {
       applications: {

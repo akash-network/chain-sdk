@@ -90,7 +90,7 @@ function generateTs(schema: Schema): void {
     f.export("const", "serviceLoader"),
     `= `,
     f.import("createServiceLoader", `../sdk/client/createServiceLoader${importExtension}`),
-    `([\n${indent(servicesLoaderDefs.join(",\n"))}\n] as const);`
+    `([\n${indent(servicesLoaderDefs.join(",\n"))}\n] as const);`,
   );
 
   const factoryArgs = hasMsgService
@@ -98,9 +98,9 @@ function generateTs(schema: Schema): void {
     : `transport: Transport`;
   f.print(
     f.export("function", "createSDK"),
-    `(${factoryArgs}, options?: `, f.import("SDKOptions", `../sdk/types${importExtension}`), `) {\n`,
-    `  const getClient = createClientFactory<CallOptions>(${hasMsgService ? "queryTransport" : "transport"}, options?.clientOptions);\n`,
-    (hasMsgService ? `  const getMsgClient = createClientFactory<TxCallOptions>(txTransport, options?.clientOptions);\n` : ""),
+    `(${factoryArgs}) {\n`,
+    `  const getClient = createClientFactory<CallOptions>(${hasMsgService ? "queryTransport" : "transport"});\n`,
+    (hasMsgService ? `  const getMsgClient = createClientFactory<TxCallOptions>(txTransport);\n` : ""),
     `  return ${indent(stringifyObject(sdkDefs)).trim()};\n`,
     `}`,
   );
@@ -227,7 +227,7 @@ function findExtension(schema: Schema, typeName: string) {
   return extensionsCache[typeName];
 }
 
-const serviceFiles: Record<string, GeneratedFile>  = {};
+const serviceFiles: Record<string, GeneratedFile> = {};
 function generateServiceDefs(service: DescService, schema: Schema) {
   const importExtension = schema.options.importExtension ? `.${schema.options.importExtension}` : "";
   const serviceFilePath = `${service.file.name}_akash.ts`;
@@ -243,10 +243,10 @@ function generateServiceDefs(service: DescService, schema: Schema) {
   service.methods.forEach((method) => {
     file.print(`    ${method.localName}: {`);
     file.print(`      name: "${method.name}",`);
-    if (method.methodKind !== "unary")  file.print(`      kind: "${method.methodKind}",`);
+    if (method.methodKind !== "unary") file.print(`      kind: "${method.methodKind}",`);
     if (httpExtension && hasOption(method, httpExtension)) {
       const httpOption = getOption(method, httpExtension) as {
-        pattern: { case: string, value: string };
+        pattern: { case: string; value: string };
       };
       if (httpOption.pattern.case !== "get") file.print(`      httpMethod: "${httpOption.pattern.case}",`);
 

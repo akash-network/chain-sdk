@@ -1,4 +1,4 @@
-import { patches } from "../patches/nodeCustomTypePatches.ts";
+import { patches } from "./nodeCustomTypePatches.ts";
 import type { MessageDesc } from "../../sdk/client/types.ts";
 export const patched = <T extends MessageDesc>(messageDesc: T): T => {
   const patchMessage = patches[messageDesc.$type as keyof typeof patches] as any;
