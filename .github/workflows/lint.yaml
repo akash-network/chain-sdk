@@ -53,6 +53,6 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.13.0
+          node-version: "${{ env.NODE_VERSION }}"
       - name: lint-ts
         run: make lint-ts
