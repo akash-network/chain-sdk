@@ -121,10 +121,6 @@ export const CPUInfo: MessageFns<CPUInfo, "akash.inventory.v1.CPUInfo"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CPUInfo>): CPUInfo {
-    return CPUInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CPUInfo>): CPUInfo {
     const message = createBaseCPUInfo();
     message.id = object.id ?? "";
@@ -200,10 +196,6 @@ export const CPU: MessageFns<CPU, "akash.inventory.v1.CPU"> = {
       obj.info = message.info.map((e) => CPUInfo.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<CPU>): CPU {
-    return CPU.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<CPU>): CPU {
     const message = createBaseCPU();

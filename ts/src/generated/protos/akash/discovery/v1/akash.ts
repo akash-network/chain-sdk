@@ -66,10 +66,6 @@ export const Akash: MessageFns<Akash, "akash.discovery.v1.Akash"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Akash>): Akash {
-    return Akash.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Akash>): Akash {
     const message = createBaseAkash();
     message.clientInfo = (object.clientInfo !== undefined && object.clientInfo !== null)

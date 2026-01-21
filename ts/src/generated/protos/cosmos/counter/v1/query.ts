@@ -54,10 +54,6 @@ export const QueryGetCountRequest: MessageFns<QueryGetCountRequest, "cosmos.coun
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryGetCountRequest>): QueryGetCountRequest {
-    return QueryGetCountRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryGetCountRequest>): QueryGetCountRequest {
     const message = createBaseQueryGetCountRequest();
     return message;
@@ -112,10 +108,6 @@ export const QueryGetCountResponse: MessageFns<QueryGetCountResponse, "cosmos.co
       obj.total_count = (message.totalCount || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryGetCountResponse>): QueryGetCountResponse {
-    return QueryGetCountResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryGetCountResponse>): QueryGetCountResponse {
     const message = createBaseQueryGetCountResponse();

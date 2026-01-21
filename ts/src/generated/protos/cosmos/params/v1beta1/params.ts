@@ -111,10 +111,6 @@ export const ParameterChangeProposal: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ParameterChangeProposal>): ParameterChangeProposal {
-    return ParameterChangeProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ParameterChangeProposal>): ParameterChangeProposal {
     const message = createBaseParameterChangeProposal();
     message.title = object.title ?? "";
@@ -204,10 +200,6 @@ export const ParamChange: MessageFns<ParamChange, "cosmos.params.v1beta1.ParamCh
       obj.value = message.value;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ParamChange>): ParamChange {
-    return ParamChange.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ParamChange>): ParamChange {
     const message = createBaseParamChange();

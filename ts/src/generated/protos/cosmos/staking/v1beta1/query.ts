@@ -341,10 +341,6 @@ export const QueryValidatorsRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryValidatorsRequest>): QueryValidatorsRequest {
-    return QueryValidatorsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryValidatorsRequest>): QueryValidatorsRequest {
     const message = createBaseQueryValidatorsRequest();
     message.status = object.status ?? "";
@@ -426,10 +422,6 @@ export const QueryValidatorsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryValidatorsResponse>): QueryValidatorsResponse {
-    return QueryValidatorsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryValidatorsResponse>): QueryValidatorsResponse {
     const message = createBaseQueryValidatorsResponse();
     message.validators = object.validators?.map((e) => Validator.fromPartial(e)) || [];
@@ -490,10 +482,6 @@ export const QueryValidatorRequest: MessageFns<QueryValidatorRequest, "cosmos.st
       }
       return obj;
     },
-
-    create(base?: DeepPartial<QueryValidatorRequest>): QueryValidatorRequest {
-      return QueryValidatorRequest.fromPartial(base ?? {});
-    },
     fromPartial(object: DeepPartial<QueryValidatorRequest>): QueryValidatorRequest {
       const message = createBaseQueryValidatorRequest();
       message.validatorAddr = object.validatorAddr ?? "";
@@ -552,10 +540,6 @@ export const QueryValidatorResponse: MessageFns<
       obj.validator = Validator.toJSON(message.validator);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryValidatorResponse>): QueryValidatorResponse {
-    return QueryValidatorResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryValidatorResponse>): QueryValidatorResponse {
     const message = createBaseQueryValidatorResponse();
@@ -634,10 +618,6 @@ export const QueryValidatorDelegationsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryValidatorDelegationsRequest>): QueryValidatorDelegationsRequest {
-    return QueryValidatorDelegationsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryValidatorDelegationsRequest>): QueryValidatorDelegationsRequest {
     const message = createBaseQueryValidatorDelegationsRequest();
@@ -720,10 +700,6 @@ export const QueryValidatorDelegationsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryValidatorDelegationsResponse>): QueryValidatorDelegationsResponse {
-    return QueryValidatorDelegationsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryValidatorDelegationsResponse>): QueryValidatorDelegationsResponse {
     const message = createBaseQueryValidatorDelegationsResponse();
     message.delegationResponses = object.delegationResponses?.map((e) => DelegationResponse.fromPartial(e)) || [];
@@ -802,10 +778,6 @@ export const QueryValidatorUnbondingDelegationsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryValidatorUnbondingDelegationsRequest>): QueryValidatorUnbondingDelegationsRequest {
-    return QueryValidatorUnbondingDelegationsRequest.fromPartial(base ?? {});
   },
   fromPartial(
     object: DeepPartial<QueryValidatorUnbondingDelegationsRequest>,
@@ -890,10 +862,6 @@ export const QueryValidatorUnbondingDelegationsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryValidatorUnbondingDelegationsResponse>): QueryValidatorUnbondingDelegationsResponse {
-    return QueryValidatorUnbondingDelegationsResponse.fromPartial(base ?? {});
-  },
   fromPartial(
     object: DeepPartial<QueryValidatorUnbondingDelegationsResponse>,
   ): QueryValidatorUnbondingDelegationsResponse {
@@ -975,10 +943,6 @@ export const QueryDelegationRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryDelegationRequest>): QueryDelegationRequest {
-    return QueryDelegationRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryDelegationRequest>): QueryDelegationRequest {
     const message = createBaseQueryDelegationRequest();
     message.delegatorAddr = object.delegatorAddr ?? "";
@@ -1042,10 +1006,6 @@ export const QueryDelegationResponse: MessageFns<
       obj.delegation_response = DelegationResponse.toJSON(message.delegationResponse);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryDelegationResponse>): QueryDelegationResponse {
-    return QueryDelegationResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryDelegationResponse>): QueryDelegationResponse {
     const message = createBaseQueryDelegationResponse();
@@ -1125,10 +1085,6 @@ export const QueryUnbondingDelegationRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryUnbondingDelegationRequest>): QueryUnbondingDelegationRequest {
-    return QueryUnbondingDelegationRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryUnbondingDelegationRequest>): QueryUnbondingDelegationRequest {
     const message = createBaseQueryUnbondingDelegationRequest();
     message.delegatorAddr = object.delegatorAddr ?? "";
@@ -1188,10 +1144,6 @@ export const QueryUnbondingDelegationResponse: MessageFns<
       obj.unbond = UnbondingDelegation.toJSON(message.unbond);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryUnbondingDelegationResponse>): QueryUnbondingDelegationResponse {
-    return QueryUnbondingDelegationResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryUnbondingDelegationResponse>): QueryUnbondingDelegationResponse {
     const message = createBaseQueryUnbondingDelegationResponse();
@@ -1270,10 +1222,6 @@ export const QueryDelegatorDelegationsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryDelegatorDelegationsRequest>): QueryDelegatorDelegationsRequest {
-    return QueryDelegatorDelegationsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryDelegatorDelegationsRequest>): QueryDelegatorDelegationsRequest {
     const message = createBaseQueryDelegatorDelegationsRequest();
@@ -1356,10 +1304,6 @@ export const QueryDelegatorDelegationsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryDelegatorDelegationsResponse>): QueryDelegatorDelegationsResponse {
-    return QueryDelegatorDelegationsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryDelegatorDelegationsResponse>): QueryDelegatorDelegationsResponse {
     const message = createBaseQueryDelegatorDelegationsResponse();
     message.delegationResponses = object.delegationResponses?.map((e) => DelegationResponse.fromPartial(e)) || [];
@@ -1438,10 +1382,6 @@ export const QueryDelegatorUnbondingDelegationsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryDelegatorUnbondingDelegationsRequest>): QueryDelegatorUnbondingDelegationsRequest {
-    return QueryDelegatorUnbondingDelegationsRequest.fromPartial(base ?? {});
   },
   fromPartial(
     object: DeepPartial<QueryDelegatorUnbondingDelegationsRequest>,
@@ -1525,10 +1465,6 @@ export const QueryDelegatorUnbondingDelegationsResponse: MessageFns<
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryDelegatorUnbondingDelegationsResponse>): QueryDelegatorUnbondingDelegationsResponse {
-    return QueryDelegatorUnbondingDelegationsResponse.fromPartial(base ?? {});
   },
   fromPartial(
     object: DeepPartial<QueryDelegatorUnbondingDelegationsResponse>,
@@ -1641,10 +1577,6 @@ export const QueryRedelegationsRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryRedelegationsRequest>): QueryRedelegationsRequest {
-    return QueryRedelegationsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryRedelegationsRequest>): QueryRedelegationsRequest {
     const message = createBaseQueryRedelegationsRequest();
     message.delegatorAddr = object.delegatorAddr ?? "";
@@ -1728,10 +1660,6 @@ export const QueryRedelegationsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryRedelegationsResponse>): QueryRedelegationsResponse {
-    return QueryRedelegationsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryRedelegationsResponse>): QueryRedelegationsResponse {
     const message = createBaseQueryRedelegationsResponse();
     message.redelegationResponses = object.redelegationResponses?.map((e) => RedelegationResponse.fromPartial(e)) || [];
@@ -1810,10 +1738,6 @@ export const QueryDelegatorValidatorsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryDelegatorValidatorsRequest>): QueryDelegatorValidatorsRequest {
-    return QueryDelegatorValidatorsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryDelegatorValidatorsRequest>): QueryDelegatorValidatorsRequest {
     const message = createBaseQueryDelegatorValidatorsRequest();
@@ -1896,10 +1820,6 @@ export const QueryDelegatorValidatorsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryDelegatorValidatorsResponse>): QueryDelegatorValidatorsResponse {
-    return QueryDelegatorValidatorsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryDelegatorValidatorsResponse>): QueryDelegatorValidatorsResponse {
     const message = createBaseQueryDelegatorValidatorsResponse();
     message.validators = object.validators?.map((e) => Validator.fromPartial(e)) || [];
@@ -1979,10 +1899,6 @@ export const QueryDelegatorValidatorRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryDelegatorValidatorRequest>): QueryDelegatorValidatorRequest {
-    return QueryDelegatorValidatorRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryDelegatorValidatorRequest>): QueryDelegatorValidatorRequest {
     const message = createBaseQueryDelegatorValidatorRequest();
     message.delegatorAddr = object.delegatorAddr ?? "";
@@ -2042,10 +1958,6 @@ export const QueryDelegatorValidatorResponse: MessageFns<
       obj.validator = Validator.toJSON(message.validator);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryDelegatorValidatorResponse>): QueryDelegatorValidatorResponse {
-    return QueryDelegatorValidatorResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryDelegatorValidatorResponse>): QueryDelegatorValidatorResponse {
     const message = createBaseQueryDelegatorValidatorResponse();
@@ -2108,10 +2020,6 @@ export const QueryHistoricalInfoRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryHistoricalInfoRequest>): QueryHistoricalInfoRequest {
-    return QueryHistoricalInfoRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryHistoricalInfoRequest>): QueryHistoricalInfoRequest {
     const message = createBaseQueryHistoricalInfoRequest();
     message.height = (object.height !== undefined && object.height !== null)
@@ -2173,10 +2081,6 @@ export const QueryHistoricalInfoResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryHistoricalInfoResponse>): QueryHistoricalInfoResponse {
-    return QueryHistoricalInfoResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryHistoricalInfoResponse>): QueryHistoricalInfoResponse {
     const message = createBaseQueryHistoricalInfoResponse();
     message.hist = (object.hist !== undefined && object.hist !== null)
@@ -2220,10 +2124,6 @@ export const QueryPoolRequest: MessageFns<QueryPoolRequest, "cosmos.staking.v1be
   toJSON(_: QueryPoolRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryPoolRequest>): QueryPoolRequest {
-    return QueryPoolRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryPoolRequest>): QueryPoolRequest {
     const message = createBaseQueryPoolRequest();
@@ -2280,10 +2180,6 @@ export const QueryPoolResponse: MessageFns<QueryPoolResponse, "cosmos.staking.v1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryPoolResponse>): QueryPoolResponse {
-    return QueryPoolResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryPoolResponse>): QueryPoolResponse {
     const message = createBaseQueryPoolResponse();
     message.pool = (object.pool !== undefined && object.pool !== null) ? Pool.fromPartial(object.pool) : undefined;
@@ -2325,10 +2221,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "cosmos.staking.
   toJSON(_: QueryParamsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
@@ -2384,10 +2276,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.stakin
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();

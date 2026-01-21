@@ -215,10 +215,6 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.channel.v1.Genesis
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.channels = object.channels?.map((e) => IdentifiedChannel.fromPartial(e)) || [];
@@ -315,10 +311,6 @@ export const PacketSequence: MessageFns<PacketSequence, "ibc.core.channel.v1.Pac
       obj.sequence = (message.sequence || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PacketSequence>): PacketSequence {
-    return PacketSequence.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PacketSequence>): PacketSequence {
     const message = createBasePacketSequence();

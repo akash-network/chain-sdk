@@ -119,10 +119,6 @@ export const EventTrustedAuditorCreated: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventTrustedAuditorCreated>): EventTrustedAuditorCreated {
-    return EventTrustedAuditorCreated.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventTrustedAuditorCreated>): EventTrustedAuditorCreated {
     const message = createBaseEventTrustedAuditorCreated();
     message.owner = object.owner ?? "";
@@ -199,10 +195,6 @@ export const EventTrustedAuditorDeleted: MessageFns<
       obj.auditor = message.auditor;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventTrustedAuditorDeleted>): EventTrustedAuditorDeleted {
-    return EventTrustedAuditorDeleted.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventTrustedAuditorDeleted>): EventTrustedAuditorDeleted {
     const message = createBaseEventTrustedAuditorDeleted();

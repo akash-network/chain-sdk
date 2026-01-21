@@ -100,10 +100,6 @@ export const Minter: MessageFns<Minter, "cosmos.mint.v1beta1.Minter"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Minter>): Minter {
-    return Minter.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Minter>): Minter {
     const message = createBaseMinter();
     message.inflation = object.inflation ?? "";
@@ -244,10 +240,6 @@ export const Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
       obj.blocks_per_year = (message.blocksPerYear || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();

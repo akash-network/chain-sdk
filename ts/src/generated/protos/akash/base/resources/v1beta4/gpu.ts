@@ -90,10 +90,6 @@ export const GPU: MessageFns<GPU, "akash.base.resources.v1beta4.GPU"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GPU>): GPU {
-    return GPU.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GPU>): GPU {
     const message = createBaseGPU();
     message.units = (object.units !== undefined && object.units !== null)

@@ -131,10 +131,6 @@ export const Account: MessageFns<Account, "akash.escrow.id.v1.Account"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Account>): Account {
-    return Account.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Account>): Account {
     const message = createBaseAccount();
     message.scope = object.scope ?? 0;
@@ -208,10 +204,6 @@ export const Payment: MessageFns<Payment, "akash.escrow.id.v1.Payment"> = {
       obj.xid = message.xid;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Payment>): Payment {
-    return Payment.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Payment>): Payment {
     const message = createBasePayment();

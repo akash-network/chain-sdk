@@ -138,10 +138,6 @@ export const QueryCurrentPlanRequest: MessageFns<
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryCurrentPlanRequest>): QueryCurrentPlanRequest {
-    return QueryCurrentPlanRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryCurrentPlanRequest>): QueryCurrentPlanRequest {
     const message = createBaseQueryCurrentPlanRequest();
     return message;
@@ -199,10 +195,6 @@ export const QueryCurrentPlanResponse: MessageFns<
       obj.plan = Plan.toJSON(message.plan);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryCurrentPlanResponse>): QueryCurrentPlanResponse {
-    return QueryCurrentPlanResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryCurrentPlanResponse>): QueryCurrentPlanResponse {
     const message = createBaseQueryCurrentPlanResponse();
@@ -263,10 +255,6 @@ export const QueryAppliedPlanRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAppliedPlanRequest>): QueryAppliedPlanRequest {
-    return QueryAppliedPlanRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAppliedPlanRequest>): QueryAppliedPlanRequest {
     const message = createBaseQueryAppliedPlanRequest();
     message.name = object.name ?? "";
@@ -325,10 +313,6 @@ export const QueryAppliedPlanResponse: MessageFns<
       obj.height = (message.height || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAppliedPlanResponse>): QueryAppliedPlanResponse {
-    return QueryAppliedPlanResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAppliedPlanResponse>): QueryAppliedPlanResponse {
     const message = createBaseQueryAppliedPlanResponse();
@@ -390,10 +374,6 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
       obj.last_height = (message.lastHeight || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryUpgradedConsensusStateRequest>): QueryUpgradedConsensusStateRequest {
-    return QueryUpgradedConsensusStateRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryUpgradedConsensusStateRequest>): QueryUpgradedConsensusStateRequest {
     const message = createBaseQueryUpgradedConsensusStateRequest();
@@ -460,10 +440,6 @@ export const QueryUpgradedConsensusStateResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryUpgradedConsensusStateResponse>): QueryUpgradedConsensusStateResponse {
-    return QueryUpgradedConsensusStateResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryUpgradedConsensusStateResponse>): QueryUpgradedConsensusStateResponse {
     const message = createBaseQueryUpgradedConsensusStateResponse();
     message.upgradedConsensusState = object.upgradedConsensusState ?? new Uint8Array(0);
@@ -522,10 +498,6 @@ export const QueryModuleVersionsRequest: MessageFns<
       obj.module_name = message.moduleName;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryModuleVersionsRequest>): QueryModuleVersionsRequest {
-    return QueryModuleVersionsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryModuleVersionsRequest>): QueryModuleVersionsRequest {
     const message = createBaseQueryModuleVersionsRequest();
@@ -590,10 +562,6 @@ export const QueryModuleVersionsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryModuleVersionsResponse>): QueryModuleVersionsResponse {
-    return QueryModuleVersionsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryModuleVersionsResponse>): QueryModuleVersionsResponse {
     const message = createBaseQueryModuleVersionsResponse();
     message.moduleVersions = object.moduleVersions?.map((e) => ModuleVersion.fromPartial(e)) || [];
@@ -636,10 +604,6 @@ export const QueryAuthorityRequest: MessageFns<QueryAuthorityRequest, "cosmos.up
     toJSON(_: QueryAuthorityRequest): unknown {
       const obj: any = {};
       return obj;
-    },
-
-    create(base?: DeepPartial<QueryAuthorityRequest>): QueryAuthorityRequest {
-      return QueryAuthorityRequest.fromPartial(base ?? {});
     },
     fromPartial(_: DeepPartial<QueryAuthorityRequest>): QueryAuthorityRequest {
       const message = createBaseQueryAuthorityRequest();
@@ -698,10 +662,6 @@ export const QueryAuthorityResponse: MessageFns<
       obj.address = message.address;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAuthorityResponse>): QueryAuthorityResponse {
-    return QueryAuthorityResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAuthorityResponse>): QueryAuthorityResponse {
     const message = createBaseQueryAuthorityResponse();

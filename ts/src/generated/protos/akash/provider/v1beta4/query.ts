@@ -94,10 +94,6 @@ export const QueryProvidersRequest: MessageFns<QueryProvidersRequest, "akash.pro
       }
       return obj;
     },
-
-    create(base?: DeepPartial<QueryProvidersRequest>): QueryProvidersRequest {
-      return QueryProvidersRequest.fromPartial(base ?? {});
-    },
     fromPartial(object: DeepPartial<QueryProvidersRequest>): QueryProvidersRequest {
       const message = createBaseQueryProvidersRequest();
       message.pagination = (object.pagination !== undefined && object.pagination !== null)
@@ -178,10 +174,6 @@ export const QueryProvidersResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryProvidersResponse>): QueryProvidersResponse {
-    return QueryProvidersResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryProvidersResponse>): QueryProvidersResponse {
     const message = createBaseQueryProvidersResponse();
     message.providers = object.providers?.map((e) => Provider.fromPartial(e)) || [];
@@ -241,10 +233,6 @@ export const QueryProviderRequest: MessageFns<QueryProviderRequest, "akash.provi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryProviderRequest>): QueryProviderRequest {
-    return QueryProviderRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryProviderRequest>): QueryProviderRequest {
     const message = createBaseQueryProviderRequest();
     message.owner = object.owner ?? "";
@@ -301,10 +289,6 @@ export const QueryProviderResponse: MessageFns<QueryProviderResponse, "akash.pro
         obj.provider = Provider.toJSON(message.provider);
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<QueryProviderResponse>): QueryProviderResponse {
-      return QueryProviderResponse.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<QueryProviderResponse>): QueryProviderResponse {
       const message = createBaseQueryProviderResponse();

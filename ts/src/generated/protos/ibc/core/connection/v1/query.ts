@@ -198,10 +198,6 @@ export const QueryConnectionRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryConnectionRequest>): QueryConnectionRequest {
-    return QueryConnectionRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryConnectionRequest>): QueryConnectionRequest {
     const message = createBaseQueryConnectionRequest();
     message.connectionId = object.connectionId ?? "";
@@ -293,10 +289,6 @@ export const QueryConnectionResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryConnectionResponse>): QueryConnectionResponse {
-    return QueryConnectionResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryConnectionResponse>): QueryConnectionResponse {
     const message = createBaseQueryConnectionResponse();
     message.connection = (object.connection !== undefined && object.connection !== null)
@@ -361,10 +353,6 @@ export const QueryConnectionsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConnectionsRequest>): QueryConnectionsRequest {
-    return QueryConnectionsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryConnectionsRequest>): QueryConnectionsRequest {
     const message = createBaseQueryConnectionsRequest();
@@ -461,10 +449,6 @@ export const QueryConnectionsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryConnectionsResponse>): QueryConnectionsResponse {
-    return QueryConnectionsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryConnectionsResponse>): QueryConnectionsResponse {
     const message = createBaseQueryConnectionsResponse();
     message.connections = object.connections?.map((e) => IdentifiedConnection.fromPartial(e)) || [];
@@ -529,10 +513,6 @@ export const QueryClientConnectionsRequest: MessageFns<
       obj.client_id = message.clientId;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryClientConnectionsRequest>): QueryClientConnectionsRequest {
-    return QueryClientConnectionsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryClientConnectionsRequest>): QueryClientConnectionsRequest {
     const message = createBaseQueryClientConnectionsRequest();
@@ -627,10 +607,6 @@ export const QueryClientConnectionsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryClientConnectionsResponse>): QueryClientConnectionsResponse {
-    return QueryClientConnectionsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryClientConnectionsResponse>): QueryClientConnectionsResponse {
     const message = createBaseQueryClientConnectionsResponse();
     message.connectionPaths = object.connectionPaths?.map((e) => e) || [];
@@ -693,10 +669,6 @@ export const QueryConnectionClientStateRequest: MessageFns<
       obj.connection_id = message.connectionId;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConnectionClientStateRequest>): QueryConnectionClientStateRequest {
-    return QueryConnectionClientStateRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryConnectionClientStateRequest>): QueryConnectionClientStateRequest {
     const message = createBaseQueryConnectionClientStateRequest();
@@ -790,10 +762,6 @@ export const QueryConnectionClientStateResponse: MessageFns<
       obj.proof_height = Height.toJSON(message.proofHeight);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConnectionClientStateResponse>): QueryConnectionClientStateResponse {
-    return QueryConnectionClientStateResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryConnectionClientStateResponse>): QueryConnectionClientStateResponse {
     const message = createBaseQueryConnectionClientStateResponse();
@@ -892,10 +860,6 @@ export const QueryConnectionConsensusStateRequest: MessageFns<
       obj.revision_height = (message.revisionHeight || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConnectionConsensusStateRequest>): QueryConnectionConsensusStateRequest {
-    return QueryConnectionConsensusStateRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryConnectionConsensusStateRequest>): QueryConnectionConsensusStateRequest {
     const message = createBaseQueryConnectionConsensusStateRequest();
@@ -1009,10 +973,6 @@ export const QueryConnectionConsensusStateResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryConnectionConsensusStateResponse>): QueryConnectionConsensusStateResponse {
-    return QueryConnectionConsensusStateResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryConnectionConsensusStateResponse>): QueryConnectionConsensusStateResponse {
     const message = createBaseQueryConnectionConsensusStateResponse();
     message.consensusState = (object.consensusState !== undefined && object.consensusState !== null)
@@ -1064,10 +1024,6 @@ export const QueryConnectionParamsRequest: MessageFns<
   toJSON(_: QueryConnectionParamsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConnectionParamsRequest>): QueryConnectionParamsRequest {
-    return QueryConnectionParamsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryConnectionParamsRequest>): QueryConnectionParamsRequest {
     const message = createBaseQueryConnectionParamsRequest();
@@ -1126,10 +1082,6 @@ export const QueryConnectionParamsResponse: MessageFns<
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConnectionParamsResponse>): QueryConnectionParamsResponse {
-    return QueryConnectionParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryConnectionParamsResponse>): QueryConnectionParamsResponse {
     const message = createBaseQueryConnectionParamsResponse();

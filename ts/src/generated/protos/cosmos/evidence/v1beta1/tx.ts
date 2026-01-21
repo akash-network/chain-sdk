@@ -94,10 +94,6 @@ export const MsgSubmitEvidence: MessageFns<MsgSubmitEvidence, "cosmos.evidence.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgSubmitEvidence>): MsgSubmitEvidence {
-    return MsgSubmitEvidence.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgSubmitEvidence>): MsgSubmitEvidence {
     const message = createBaseMsgSubmitEvidence();
     message.submitter = object.submitter ?? "";
@@ -159,10 +155,6 @@ export const MsgSubmitEvidenceResponse: MessageFns<
       obj.hash = base64FromBytes(message.hash);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgSubmitEvidenceResponse>): MsgSubmitEvidenceResponse {
-    return MsgSubmitEvidenceResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgSubmitEvidenceResponse>): MsgSubmitEvidenceResponse {
     const message = createBaseMsgSubmitEvidenceResponse();

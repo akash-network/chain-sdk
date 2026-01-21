@@ -117,10 +117,6 @@ export const QueryEvidenceRequest: MessageFns<QueryEvidenceRequest, "cosmos.evid
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryEvidenceRequest>): QueryEvidenceRequest {
-    return QueryEvidenceRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryEvidenceRequest>): QueryEvidenceRequest {
     const message = createBaseQueryEvidenceRequest();
     message.evidenceHash = object.evidenceHash ?? new Uint8Array(0);
@@ -178,10 +174,6 @@ export const QueryEvidenceResponse: MessageFns<QueryEvidenceResponse, "cosmos.ev
         obj.evidence = Any.toJSON(message.evidence);
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<QueryEvidenceResponse>): QueryEvidenceResponse {
-      return QueryEvidenceResponse.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<QueryEvidenceResponse>): QueryEvidenceResponse {
       const message = createBaseQueryEvidenceResponse();
@@ -243,10 +235,6 @@ export const QueryAllEvidenceRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAllEvidenceRequest>): QueryAllEvidenceRequest {
-    return QueryAllEvidenceRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAllEvidenceRequest>): QueryAllEvidenceRequest {
     const message = createBaseQueryAllEvidenceRequest();
@@ -325,10 +313,6 @@ export const QueryAllEvidenceResponse: MessageFns<
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAllEvidenceResponse>): QueryAllEvidenceResponse {
-    return QueryAllEvidenceResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAllEvidenceResponse>): QueryAllEvidenceResponse {
     const message = createBaseQueryAllEvidenceResponse();

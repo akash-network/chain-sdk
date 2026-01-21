@@ -101,10 +101,6 @@ export const QueryInterchainAccountRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryInterchainAccountRequest>): QueryInterchainAccountRequest {
-    return QueryInterchainAccountRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryInterchainAccountRequest>): QueryInterchainAccountRequest {
     const message = createBaseQueryInterchainAccountRequest();
     message.owner = object.owner ?? "";
@@ -165,10 +161,6 @@ export const QueryInterchainAccountResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryInterchainAccountResponse>): QueryInterchainAccountResponse {
-    return QueryInterchainAccountResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryInterchainAccountResponse>): QueryInterchainAccountResponse {
     const message = createBaseQueryInterchainAccountResponse();
     message.address = object.address ?? "";
@@ -213,10 +205,6 @@ export const QueryParamsRequest: MessageFns<
   toJSON(_: QueryParamsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
@@ -275,10 +263,6 @@ export const QueryParamsResponse: MessageFns<
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();

@@ -61,10 +61,6 @@ export const AppOptionsRequest: MessageFns<AppOptionsRequest, "cosmos.autocli.v1
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<AppOptionsRequest>): AppOptionsRequest {
-    return AppOptionsRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<AppOptionsRequest>): AppOptionsRequest {
     const message = createBaseAppOptionsRequest();
     return message;
@@ -135,10 +131,6 @@ export const AppOptionsResponse: MessageFns<AppOptionsResponse, "cosmos.autocli.
       }
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<AppOptionsResponse>): AppOptionsResponse {
-    return AppOptionsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<AppOptionsResponse>): AppOptionsResponse {
     const message = createBaseAppOptionsResponse();
@@ -223,10 +215,6 @@ export const AppOptionsResponse_ModuleOptionsEntry: MessageFns<
       obj.value = ModuleOptions.toJSON(message.value);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<AppOptionsResponse_ModuleOptionsEntry>): AppOptionsResponse_ModuleOptionsEntry {
-    return AppOptionsResponse_ModuleOptionsEntry.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<AppOptionsResponse_ModuleOptionsEntry>): AppOptionsResponse_ModuleOptionsEntry {
     const message = createBaseAppOptionsResponse_ModuleOptionsEntry();

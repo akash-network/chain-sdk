@@ -107,10 +107,6 @@ export const CertificateResponse: MessageFns<CertificateResponse, "akash.cert.v1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CertificateResponse>): CertificateResponse {
-    return CertificateResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CertificateResponse>): CertificateResponse {
     const message = createBaseCertificateResponse();
     message.certificate = (object.certificate !== undefined && object.certificate !== null)
@@ -187,10 +183,6 @@ export const QueryCertificatesRequest: MessageFns<QueryCertificatesRequest, "aka
         obj.pagination = PageRequest.toJSON(message.pagination);
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<QueryCertificatesRequest>): QueryCertificatesRequest {
-      return QueryCertificatesRequest.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<QueryCertificatesRequest>): QueryCertificatesRequest {
       const message = createBaseQueryCertificatesRequest();
@@ -274,10 +266,6 @@ export const QueryCertificatesResponse: MessageFns<
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryCertificatesResponse>): QueryCertificatesResponse {
-    return QueryCertificatesResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryCertificatesResponse>): QueryCertificatesResponse {
     const message = createBaseQueryCertificatesResponse();

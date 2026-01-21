@@ -198,10 +198,6 @@ export const MsgSetWithdrawAddress: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgSetWithdrawAddress>): MsgSetWithdrawAddress {
-    return MsgSetWithdrawAddress.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgSetWithdrawAddress>): MsgSetWithdrawAddress {
     const message = createBaseMsgSetWithdrawAddress();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -247,10 +243,6 @@ export const MsgSetWithdrawAddressResponse: MessageFns<
   toJSON(_: MsgSetWithdrawAddressResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgSetWithdrawAddressResponse>): MsgSetWithdrawAddressResponse {
-    return MsgSetWithdrawAddressResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgSetWithdrawAddressResponse>): MsgSetWithdrawAddressResponse {
     const message = createBaseMsgSetWithdrawAddressResponse();
@@ -327,10 +319,6 @@ export const MsgWithdrawDelegatorReward: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgWithdrawDelegatorReward>): MsgWithdrawDelegatorReward {
-    return MsgWithdrawDelegatorReward.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgWithdrawDelegatorReward>): MsgWithdrawDelegatorReward {
     const message = createBaseMsgWithdrawDelegatorReward();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -391,10 +379,6 @@ export const MsgWithdrawDelegatorRewardResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgWithdrawDelegatorRewardResponse>): MsgWithdrawDelegatorRewardResponse {
-    return MsgWithdrawDelegatorRewardResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgWithdrawDelegatorRewardResponse>): MsgWithdrawDelegatorRewardResponse {
     const message = createBaseMsgWithdrawDelegatorRewardResponse();
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
@@ -454,10 +438,6 @@ export const MsgWithdrawValidatorCommission: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgWithdrawValidatorCommission>): MsgWithdrawValidatorCommission {
-    return MsgWithdrawValidatorCommission.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgWithdrawValidatorCommission>): MsgWithdrawValidatorCommission {
     const message = createBaseMsgWithdrawValidatorCommission();
     message.validatorAddress = object.validatorAddress ?? "";
@@ -516,10 +496,6 @@ export const MsgWithdrawValidatorCommissionResponse: MessageFns<
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgWithdrawValidatorCommissionResponse>): MsgWithdrawValidatorCommissionResponse {
-    return MsgWithdrawValidatorCommissionResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgWithdrawValidatorCommissionResponse>): MsgWithdrawValidatorCommissionResponse {
     const message = createBaseMsgWithdrawValidatorCommissionResponse();
@@ -597,10 +573,6 @@ export const MsgFundCommunityPool: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgFundCommunityPool>): MsgFundCommunityPool {
-    return MsgFundCommunityPool.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgFundCommunityPool>): MsgFundCommunityPool {
     const message = createBaseMsgFundCommunityPool();
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
@@ -646,10 +618,6 @@ export const MsgFundCommunityPoolResponse: MessageFns<
   toJSON(_: MsgFundCommunityPoolResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgFundCommunityPoolResponse>): MsgFundCommunityPoolResponse {
-    return MsgFundCommunityPoolResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgFundCommunityPoolResponse>): MsgFundCommunityPoolResponse {
     const message = createBaseMsgFundCommunityPoolResponse();
@@ -723,10 +691,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.distribution.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -774,10 +738,6 @@ export const MsgUpdateParamsResponse: MessageFns<
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
@@ -869,10 +829,6 @@ export const MsgCommunityPoolSpend: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCommunityPoolSpend>): MsgCommunityPoolSpend {
-    return MsgCommunityPoolSpend.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCommunityPoolSpend>): MsgCommunityPoolSpend {
     const message = createBaseMsgCommunityPoolSpend();
     message.authority = object.authority ?? "";
@@ -919,10 +875,6 @@ export const MsgCommunityPoolSpendResponse: MessageFns<
   toJSON(_: MsgCommunityPoolSpendResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCommunityPoolSpendResponse>): MsgCommunityPoolSpendResponse {
-    return MsgCommunityPoolSpendResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCommunityPoolSpendResponse>): MsgCommunityPoolSpendResponse {
     const message = createBaseMsgCommunityPoolSpendResponse();
@@ -1014,10 +966,6 @@ export const MsgDepositValidatorRewardsPool: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgDepositValidatorRewardsPool>): MsgDepositValidatorRewardsPool {
-    return MsgDepositValidatorRewardsPool.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgDepositValidatorRewardsPool>): MsgDepositValidatorRewardsPool {
     const message = createBaseMsgDepositValidatorRewardsPool();
     message.depositor = object.depositor ?? "";
@@ -1064,10 +1012,6 @@ export const MsgDepositValidatorRewardsPoolResponse: MessageFns<
   toJSON(_: MsgDepositValidatorRewardsPoolResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgDepositValidatorRewardsPoolResponse>): MsgDepositValidatorRewardsPoolResponse {
-    return MsgDepositValidatorRewardsPoolResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgDepositValidatorRewardsPoolResponse>): MsgDepositValidatorRewardsPoolResponse {
     const message = createBaseMsgDepositValidatorRewardsPoolResponse();

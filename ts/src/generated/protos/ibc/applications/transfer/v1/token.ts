@@ -100,10 +100,6 @@ export const Token: MessageFns<Token, "ibc.applications.transfer.v1.Token"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Token>): Token {
-    return Token.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Token>): Token {
     const message = createBaseToken();
     message.denom = (object.denom !== undefined && object.denom !== null) ? Denom.fromPartial(object.denom) : undefined;
@@ -178,10 +174,6 @@ export const Denom: MessageFns<Denom, "ibc.applications.transfer.v1.Denom"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Denom>): Denom {
-    return Denom.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Denom>): Denom {
     const message = createBaseDenom();
     message.base = object.base ?? "";
@@ -255,10 +247,6 @@ export const Hop: MessageFns<Hop, "ibc.applications.transfer.v1.Hop"> = {
       obj.channel_id = message.channelId;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Hop>): Hop {
-    return Hop.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Hop>): Hop {
     const message = createBaseHop();

@@ -109,10 +109,6 @@ export const QueryCommunityPoolRequest: MessageFns<
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryCommunityPoolRequest>): QueryCommunityPoolRequest {
-    return QueryCommunityPoolRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryCommunityPoolRequest>): QueryCommunityPoolRequest {
     const message = createBaseQueryCommunityPoolRequest();
     return message;
@@ -170,10 +166,6 @@ export const QueryCommunityPoolResponse: MessageFns<
       obj.pool = message.pool.map((e) => Coin.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryCommunityPoolResponse>): QueryCommunityPoolResponse {
-    return QueryCommunityPoolResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryCommunityPoolResponse>): QueryCommunityPoolResponse {
     const message = createBaseQueryCommunityPoolResponse();
@@ -233,10 +225,6 @@ export const QueryContinuousFundRequest: MessageFns<
       obj.recipient = message.recipient;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryContinuousFundRequest>): QueryContinuousFundRequest {
-    return QueryContinuousFundRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryContinuousFundRequest>): QueryContinuousFundRequest {
     const message = createBaseQueryContinuousFundRequest();
@@ -299,10 +287,6 @@ export const QueryContinuousFundResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryContinuousFundResponse>): QueryContinuousFundResponse {
-    return QueryContinuousFundResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryContinuousFundResponse>): QueryContinuousFundResponse {
     const message = createBaseQueryContinuousFundResponse();
     message.continuousFund = (object.continuousFund !== undefined && object.continuousFund !== null)
@@ -349,10 +333,6 @@ export const QueryContinuousFundsRequest: MessageFns<
   toJSON(_: QueryContinuousFundsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryContinuousFundsRequest>): QueryContinuousFundsRequest {
-    return QueryContinuousFundsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryContinuousFundsRequest>): QueryContinuousFundsRequest {
     const message = createBaseQueryContinuousFundsRequest();
@@ -416,10 +396,6 @@ export const QueryContinuousFundsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryContinuousFundsResponse>): QueryContinuousFundsResponse {
-    return QueryContinuousFundsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryContinuousFundsResponse>): QueryContinuousFundsResponse {
     const message = createBaseQueryContinuousFundsResponse();
     message.continuousFunds = object.continuousFunds?.map((e) => ContinuousFund.fromPartial(e)) || [];
@@ -461,10 +437,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "cosmos.protocol
   toJSON(_: QueryParamsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
@@ -520,10 +492,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.protoc
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();

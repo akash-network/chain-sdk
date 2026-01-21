@@ -106,10 +106,6 @@ export const Params: MessageFns<Params, "ibc.applications.interchain_accounts.ho
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.hostEnabled = object.hostEnabled ?? false;
@@ -183,10 +179,6 @@ export const QueryRequest: MessageFns<QueryRequest, "ibc.applications.interchain
       obj.data = base64FromBytes(message.data);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryRequest>): QueryRequest {
-    return QueryRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryRequest>): QueryRequest {
     const message = createBaseQueryRequest();

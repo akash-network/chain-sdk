@@ -134,10 +134,6 @@ export const DeploymentFilters: MessageFns<DeploymentFilters, "akash.deployment.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DeploymentFilters>): DeploymentFilters {
-    return DeploymentFilters.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DeploymentFilters>): DeploymentFilters {
     const message = createBaseDeploymentFilters();
     message.owner = object.owner ?? "";
@@ -242,10 +238,6 @@ export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.Gr
       obj.state = message.state;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GroupFilters>): GroupFilters {
-    return GroupFilters.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GroupFilters>): GroupFilters {
     const message = createBaseGroupFilters();

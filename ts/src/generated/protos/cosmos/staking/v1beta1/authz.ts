@@ -193,10 +193,6 @@ export const StakeAuthorization: MessageFns<StakeAuthorization, "cosmos.staking.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<StakeAuthorization>): StakeAuthorization {
-    return StakeAuthorization.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<StakeAuthorization>): StakeAuthorization {
     const message = createBaseStakeAuthorization();
     message.maxTokens = (object.maxTokens !== undefined && object.maxTokens !== null)
@@ -266,10 +262,6 @@ export const StakeAuthorization_Validators: MessageFns<
       obj.address = message.address;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<StakeAuthorization_Validators>): StakeAuthorization_Validators {
-    return StakeAuthorization_Validators.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<StakeAuthorization_Validators>): StakeAuthorization_Validators {
     const message = createBaseStakeAuthorization_Validators();

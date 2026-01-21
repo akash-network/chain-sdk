@@ -129,10 +129,6 @@ export const ClientState: MessageFns<ClientState, "ibc.lightclients.wasm.v1.Clie
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ClientState>): ClientState {
-    return ClientState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = createBaseClientState();
     message.data = object.data ?? new Uint8Array(0);
@@ -193,10 +189,6 @@ export const ConsensusState: MessageFns<ConsensusState, "ibc.lightclients.wasm.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ConsensusState>): ConsensusState {
-    return ConsensusState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ConsensusState>): ConsensusState {
     const message = createBaseConsensusState();
     message.data = object.data ?? new Uint8Array(0);
@@ -252,10 +244,6 @@ export const ClientMessage: MessageFns<ClientMessage, "ibc.lightclients.wasm.v1.
       obj.data = base64FromBytes(message.data);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ClientMessage>): ClientMessage {
-    return ClientMessage.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ClientMessage>): ClientMessage {
     const message = createBaseClientMessage();
@@ -316,10 +304,6 @@ export const Checksums: MessageFns<Checksums, "ibc.lightclients.wasm.v1.Checksum
       obj.checksums = message.checksums.map((e) => base64FromBytes(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Checksums>): Checksums {
-    return Checksums.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Checksums>): Checksums {
     const message = createBaseChecksums();

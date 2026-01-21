@@ -88,10 +88,6 @@ export const QueryChecksumsRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryChecksumsRequest>): QueryChecksumsRequest {
-    return QueryChecksumsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryChecksumsRequest>): QueryChecksumsRequest {
     const message = createBaseQueryChecksumsRequest();
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
@@ -172,10 +168,6 @@ export const QueryChecksumsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryChecksumsResponse>): QueryChecksumsResponse {
-    return QueryChecksumsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryChecksumsResponse>): QueryChecksumsResponse {
     const message = createBaseQueryChecksumsResponse();
     message.checksums = object.checksums?.map((e) => e) || [];
@@ -235,10 +227,6 @@ export const QueryCodeRequest: MessageFns<QueryCodeRequest, "ibc.lightclients.wa
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryCodeRequest>): QueryCodeRequest {
-    return QueryCodeRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryCodeRequest>): QueryCodeRequest {
     const message = createBaseQueryCodeRequest();
     message.checksum = object.checksum ?? "";
@@ -294,10 +282,6 @@ export const QueryCodeResponse: MessageFns<QueryCodeResponse, "ibc.lightclients.
       obj.data = base64FromBytes(message.data);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryCodeResponse>): QueryCodeResponse {
-    return QueryCodeResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryCodeResponse>): QueryCodeResponse {
     const message = createBaseQueryCodeResponse();

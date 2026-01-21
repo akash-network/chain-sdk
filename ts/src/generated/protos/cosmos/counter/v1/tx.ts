@@ -90,10 +90,6 @@ export const MsgIncreaseCounter: MessageFns<MsgIncreaseCounter, "cosmos.counter.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgIncreaseCounter>): MsgIncreaseCounter {
-    return MsgIncreaseCounter.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgIncreaseCounter>): MsgIncreaseCounter {
     const message = createBaseMsgIncreaseCounter();
     message.signer = object.signer ?? "";
@@ -153,10 +149,6 @@ export const MsgIncreaseCountResponse: MessageFns<
       obj.new_count = (message.newCount || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgIncreaseCountResponse>): MsgIncreaseCountResponse {
-    return MsgIncreaseCountResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgIncreaseCountResponse>): MsgIncreaseCountResponse {
     const message = createBaseMsgIncreaseCountResponse();
