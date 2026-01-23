@@ -89,10 +89,6 @@ export const StorageInfo: MessageFns<StorageInfo, "akash.inventory.v1.StorageInf
     }
     return obj;
   },
-
-  create(base?: DeepPartial<StorageInfo>): StorageInfo {
-    return StorageInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<StorageInfo>): StorageInfo {
     const message = createBaseStorageInfo();
     message.class = object.class ?? "";
@@ -166,10 +162,6 @@ export const Storage: MessageFns<Storage, "akash.inventory.v1.Storage"> = {
       obj.info = StorageInfo.toJSON(message.info);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Storage>): Storage {
-    return Storage.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Storage>): Storage {
     const message = createBaseStorage();

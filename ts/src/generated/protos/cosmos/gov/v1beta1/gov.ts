@@ -350,10 +350,6 @@ export const WeightedVoteOption: MessageFns<WeightedVoteOption, "cosmos.gov.v1be
     }
     return obj;
   },
-
-  create(base?: DeepPartial<WeightedVoteOption>): WeightedVoteOption {
-    return WeightedVoteOption.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<WeightedVoteOption>): WeightedVoteOption {
     const message = createBaseWeightedVoteOption();
     message.option = object.option ?? 0;
@@ -427,10 +423,6 @@ export const TextProposal: MessageFns<TextProposal, "cosmos.gov.v1beta1.TextProp
       obj.description = message.description;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<TextProposal>): TextProposal {
-    return TextProposal.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<TextProposal>): TextProposal {
     const message = createBaseTextProposal();
@@ -520,10 +512,6 @@ export const Deposit: MessageFns<Deposit, "cosmos.gov.v1beta1.Deposit"> = {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Deposit>): Deposit {
-    return Deposit.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Deposit>): Deposit {
     const message = createBaseDeposit();
@@ -719,10 +707,6 @@ export const Proposal: MessageFns<Proposal, "cosmos.gov.v1beta1.Proposal"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Proposal>): Proposal {
-    return Proposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Proposal>): Proposal {
     const message = createBaseProposal();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -840,10 +824,6 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.gov.v1beta1.TallyResul
     }
     return obj;
   },
-
-  create(base?: DeepPartial<TallyResult>): TallyResult {
-    return TallyResult.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<TallyResult>): TallyResult {
     const message = createBaseTallyResult();
     message.yes = object.yes ?? "";
@@ -952,10 +932,6 @@ export const Vote: MessageFns<Vote, "cosmos.gov.v1beta1.Vote"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Vote>): Vote {
-    return Vote.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Vote>): Vote {
     const message = createBaseVote();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -1036,10 +1012,6 @@ export const DepositParams: MessageFns<DepositParams, "cosmos.gov.v1beta1.Deposi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DepositParams>): DepositParams {
-    return DepositParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DepositParams>): DepositParams {
     const message = createBaseDepositParams();
     message.minDeposit = object.minDeposit?.map((e) => Coin.fromPartial(e)) || [];
@@ -1098,10 +1070,6 @@ export const VotingParams: MessageFns<VotingParams, "cosmos.gov.v1beta1.VotingPa
       obj.voting_period = Duration.toJSON(message.votingPeriod);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<VotingParams>): VotingParams {
-    return VotingParams.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<VotingParams>): VotingParams {
     const message = createBaseVotingParams();
@@ -1192,10 +1160,6 @@ export const TallyParams: MessageFns<TallyParams, "cosmos.gov.v1beta1.TallyParam
       obj.veto_threshold = base64FromBytes(message.vetoThreshold);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<TallyParams>): TallyParams {
-    return TallyParams.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<TallyParams>): TallyParams {
     const message = createBaseTallyParams();

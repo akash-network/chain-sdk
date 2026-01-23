@@ -146,10 +146,6 @@ export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.Eve
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventCreateGroup>): EventCreateGroup {
-    return EventCreateGroup.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventCreateGroup>): EventCreateGroup {
     const message = createBaseEventCreateGroup();
     message.groupId = (object.groupId !== undefined && object.groupId !== null)
@@ -207,10 +203,6 @@ export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.Eve
       obj.group_id = (message.groupId || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventUpdateGroup>): EventUpdateGroup {
-    return EventUpdateGroup.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventUpdateGroup>): EventUpdateGroup {
     const message = createBaseEventUpdateGroup();
@@ -270,10 +262,6 @@ export const EventCreateGroupPolicy: MessageFns<EventCreateGroupPolicy, "cosmos.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventCreateGroupPolicy>): EventCreateGroupPolicy {
-    return EventCreateGroupPolicy.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventCreateGroupPolicy>): EventCreateGroupPolicy {
     const message = createBaseEventCreateGroupPolicy();
     message.address = object.address ?? "";
@@ -330,10 +318,6 @@ export const EventUpdateGroupPolicy: MessageFns<EventUpdateGroupPolicy, "cosmos.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventUpdateGroupPolicy>): EventUpdateGroupPolicy {
-    return EventUpdateGroupPolicy.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventUpdateGroupPolicy>): EventUpdateGroupPolicy {
     const message = createBaseEventUpdateGroupPolicy();
     message.address = object.address ?? "";
@@ -389,10 +373,6 @@ export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.
       obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventSubmitProposal>): EventSubmitProposal {
-    return EventSubmitProposal.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventSubmitProposal>): EventSubmitProposal {
     const message = createBaseEventSubmitProposal();
@@ -452,10 +432,6 @@ export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.gr
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventWithdrawProposal>): EventWithdrawProposal {
-    return EventWithdrawProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventWithdrawProposal>): EventWithdrawProposal {
     const message = createBaseEventWithdrawProposal();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -513,10 +489,6 @@ export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
       obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventVote>): EventVote {
-    return EventVote.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventVote>): EventVote {
     const message = createBaseEventVote();
@@ -608,10 +580,6 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventExec>): EventExec {
-    return EventExec.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventExec>): EventExec {
     const message = createBaseEventExec();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -688,10 +656,6 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
       obj.address = message.address;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventLeaveGroup>): EventLeaveGroup {
-    return EventLeaveGroup.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventLeaveGroup>): EventLeaveGroup {
     const message = createBaseEventLeaveGroup();
@@ -784,10 +748,6 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventProposalPruned>): EventProposalPruned {
-    return EventProposalPruned.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventProposalPruned>): EventProposalPruned {
     const message = createBaseEventProposalPruned();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -866,10 +826,6 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
       obj.error_message = message.errorMessage;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventTallyError>): EventTallyError {
-    return EventTallyError.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventTallyError>): EventTallyError {
     const message = createBaseEventTallyError();

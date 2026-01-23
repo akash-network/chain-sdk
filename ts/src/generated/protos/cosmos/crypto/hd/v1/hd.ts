@@ -138,10 +138,6 @@ export const BIP44Params: MessageFns<BIP44Params, "cosmos.crypto.hd.v1.BIP44Para
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BIP44Params>): BIP44Params {
-    return BIP44Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BIP44Params>): BIP44Params {
     const message = createBaseBIP44Params();
     message.purpose = object.purpose ?? 0;

@@ -75,10 +75,6 @@ export const GenesisState: MessageFns<GenesisState, "ibc.lightclients.wasm.v1.Ge
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.contracts = object.contracts?.map((e) => Contract.fromPartial(e)) || [];
@@ -134,10 +130,6 @@ export const Contract: MessageFns<Contract, "ibc.lightclients.wasm.v1.Contract">
       obj.code_bytes = base64FromBytes(message.codeBytes);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Contract>): Contract {
-    return Contract.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Contract>): Contract {
     const message = createBaseContract();

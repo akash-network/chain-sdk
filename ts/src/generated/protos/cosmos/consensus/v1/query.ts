@@ -60,10 +60,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "cosmos.consensu
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
     return message;
@@ -118,10 +114,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.consen
       obj.params = ConsensusParams.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();

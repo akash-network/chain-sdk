@@ -92,10 +92,6 @@ export const DenomTakeRate: MessageFns<DenomTakeRate, "akash.take.v1.DenomTakeRa
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DenomTakeRate>): DenomTakeRate {
-    return DenomTakeRate.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DenomTakeRate>): DenomTakeRate {
     const message = createBaseDenomTakeRate();
     message.denom = object.denom ?? "";
@@ -171,10 +167,6 @@ export const Params: MessageFns<Params, "akash.take.v1.Params"> = {
       obj.default_take_rate = Math.round(message.defaultTakeRate);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();

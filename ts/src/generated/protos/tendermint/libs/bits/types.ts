@@ -93,10 +93,6 @@ export const BitArray: MessageFns<BitArray, "tendermint.libs.bits.BitArray"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BitArray>): BitArray {
-    return BitArray.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BitArray>): BitArray {
     const message = createBaseBitArray();
     message.bits = (object.bits !== undefined && object.bits !== null) ? Long.fromValue(object.bits) : Long.ZERO;

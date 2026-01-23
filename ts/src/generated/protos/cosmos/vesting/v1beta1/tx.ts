@@ -176,10 +176,6 @@ export const MsgCreateVestingAccount: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCreateVestingAccount>): MsgCreateVestingAccount {
-    return MsgCreateVestingAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCreateVestingAccount>): MsgCreateVestingAccount {
     const message = createBaseMsgCreateVestingAccount();
     message.fromAddress = object.fromAddress ?? "";
@@ -230,10 +226,6 @@ export const MsgCreateVestingAccountResponse: MessageFns<
   toJSON(_: MsgCreateVestingAccountResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCreateVestingAccountResponse>): MsgCreateVestingAccountResponse {
-    return MsgCreateVestingAccountResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCreateVestingAccountResponse>): MsgCreateVestingAccountResponse {
     const message = createBaseMsgCreateVestingAccountResponse();
@@ -325,10 +317,6 @@ export const MsgCreatePermanentLockedAccount: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCreatePermanentLockedAccount>): MsgCreatePermanentLockedAccount {
-    return MsgCreatePermanentLockedAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCreatePermanentLockedAccount>): MsgCreatePermanentLockedAccount {
     const message = createBaseMsgCreatePermanentLockedAccount();
     message.fromAddress = object.fromAddress ?? "";
@@ -375,10 +363,6 @@ export const MsgCreatePermanentLockedAccountResponse: MessageFns<
   toJSON(_: MsgCreatePermanentLockedAccountResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCreatePermanentLockedAccountResponse>): MsgCreatePermanentLockedAccountResponse {
-    return MsgCreatePermanentLockedAccountResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCreatePermanentLockedAccountResponse>): MsgCreatePermanentLockedAccountResponse {
     const message = createBaseMsgCreatePermanentLockedAccountResponse();
@@ -487,10 +471,6 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCreatePeriodicVestingAccount>): MsgCreatePeriodicVestingAccount {
-    return MsgCreatePeriodicVestingAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCreatePeriodicVestingAccount>): MsgCreatePeriodicVestingAccount {
     const message = createBaseMsgCreatePeriodicVestingAccount();
     message.fromAddress = object.fromAddress ?? "";
@@ -540,10 +520,6 @@ export const MsgCreatePeriodicVestingAccountResponse: MessageFns<
   toJSON(_: MsgCreatePeriodicVestingAccountResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCreatePeriodicVestingAccountResponse>): MsgCreatePeriodicVestingAccountResponse {
-    return MsgCreatePeriodicVestingAccountResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCreatePeriodicVestingAccountResponse>): MsgCreatePeriodicVestingAccountResponse {
     const message = createBaseMsgCreatePeriodicVestingAccountResponse();

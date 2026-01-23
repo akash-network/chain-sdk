@@ -86,10 +86,6 @@ export const Balance: MessageFns<Balance, "akash.escrow.types.v1.Balance"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Balance>): Balance {
-    return Balance.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Balance>): Balance {
     const message = createBaseBalance();
     message.denom = object.denom ?? "";

@@ -116,10 +116,6 @@ export const GroupSpec: MessageFns<GroupSpec, "akash.deployment.v1beta4.GroupSpe
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GroupSpec>): GroupSpec {
-    return GroupSpec.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GroupSpec>): GroupSpec {
     const message = createBaseGroupSpec();
     message.name = object.name ?? "";

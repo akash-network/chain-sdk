@@ -87,10 +87,6 @@ export const Module: MessageFns<Module, "cosmos.gov.module.v1.Module"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Module>): Module {
-    return Module.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Module>): Module {
     const message = createBaseModule();
     message.maxMetadataLen = (object.maxMetadataLen !== undefined && object.maxMetadataLen !== null)

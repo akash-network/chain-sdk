@@ -133,10 +133,6 @@ export const OrderID: MessageFns<OrderID, "akash.market.v1.OrderID"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<OrderID>): OrderID {
-    return OrderID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<OrderID>): OrderID {
     const message = createBaseOrderID();
     message.owner = object.owner ?? "";

@@ -129,10 +129,6 @@ export const QueryAccountsRequest: MessageFns<QueryAccountsRequest, "akash.escro
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountsRequest>): QueryAccountsRequest {
-    return QueryAccountsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountsRequest>): QueryAccountsRequest {
     const message = createBaseQueryAccountsRequest();
     message.state = object.state ?? "";
@@ -209,10 +205,6 @@ export const QueryAccountsResponse: MessageFns<QueryAccountsResponse, "akash.esc
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAccountsResponse>): QueryAccountsResponse {
-    return QueryAccountsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAccountsResponse>): QueryAccountsResponse {
     const message = createBaseQueryAccountsResponse();
@@ -305,10 +297,6 @@ export const QueryPaymentsRequest: MessageFns<QueryPaymentsRequest, "akash.escro
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryPaymentsRequest>): QueryPaymentsRequest {
-    return QueryPaymentsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryPaymentsRequest>): QueryPaymentsRequest {
     const message = createBaseQueryPaymentsRequest();
     message.state = object.state ?? "";
@@ -385,10 +373,6 @@ export const QueryPaymentsResponse: MessageFns<QueryPaymentsResponse, "akash.esc
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryPaymentsResponse>): QueryPaymentsResponse {
-    return QueryPaymentsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryPaymentsResponse>): QueryPaymentsResponse {
     const message = createBaseQueryPaymentsResponse();

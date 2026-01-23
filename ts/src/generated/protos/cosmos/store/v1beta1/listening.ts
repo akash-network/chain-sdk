@@ -134,10 +134,6 @@ export const StoreKVPair: MessageFns<StoreKVPair, "cosmos.store.v1beta1.StoreKVP
     }
     return obj;
   },
-
-  create(base?: DeepPartial<StoreKVPair>): StoreKVPair {
-    return StoreKVPair.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<StoreKVPair>): StoreKVPair {
     const message = createBaseStoreKVPair();
     message.storeKey = object.storeKey ?? "";
@@ -232,10 +228,6 @@ export const BlockMetadata: MessageFns<BlockMetadata, "cosmos.store.v1beta1.Bloc
       obj.response_finalize_block = ResponseFinalizeBlock.toJSON(message.responseFinalizeBlock);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<BlockMetadata>): BlockMetadata {
-    return BlockMetadata.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<BlockMetadata>): BlockMetadata {
     const message = createBaseBlockMetadata();

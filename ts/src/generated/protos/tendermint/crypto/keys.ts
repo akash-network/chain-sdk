@@ -82,10 +82,6 @@ export const PublicKey: MessageFns<PublicKey, "tendermint.crypto.PublicKey"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PublicKey>): PublicKey {
-    return PublicKey.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PublicKey>): PublicKey {
     const message = createBasePublicKey();
     message.ed25519 = object.ed25519 ?? undefined;

@@ -176,10 +176,6 @@ export const BidID: MessageFns<BidID, "akash.market.v1.BidID"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BidID>): BidID {
-    return BidID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BidID>): BidID {
     const message = createBaseBidID();
     message.owner = object.owner ?? "";

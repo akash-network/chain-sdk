@@ -211,10 +211,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.groupSeq = (object.groupSeq !== undefined && object.groupSeq !== null)

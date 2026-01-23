@@ -80,10 +80,6 @@ export const QueryEpochInfosRequest: MessageFns<
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryEpochInfosRequest>): QueryEpochInfosRequest {
-    return QueryEpochInfosRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryEpochInfosRequest>): QueryEpochInfosRequest {
     const message = createBaseQueryEpochInfosRequest();
     return message;
@@ -144,10 +140,6 @@ export const QueryEpochInfosResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryEpochInfosResponse>): QueryEpochInfosResponse {
-    return QueryEpochInfosResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryEpochInfosResponse>): QueryEpochInfosResponse {
     const message = createBaseQueryEpochInfosResponse();
     message.epochs = object.epochs?.map((e) => EpochInfo.fromPartial(e)) || [];
@@ -207,10 +199,6 @@ export const QueryCurrentEpochRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryCurrentEpochRequest>): QueryCurrentEpochRequest {
-    return QueryCurrentEpochRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryCurrentEpochRequest>): QueryCurrentEpochRequest {
     const message = createBaseQueryCurrentEpochRequest();
     message.identifier = object.identifier ?? "";
@@ -269,10 +257,6 @@ export const QueryCurrentEpochResponse: MessageFns<
       obj.current_epoch = (message.currentEpoch || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryCurrentEpochResponse>): QueryCurrentEpochResponse {
-    return QueryCurrentEpochResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryCurrentEpochResponse>): QueryCurrentEpochResponse {
     const message = createBaseQueryCurrentEpochResponse();

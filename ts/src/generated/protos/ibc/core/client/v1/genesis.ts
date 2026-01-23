@@ -192,10 +192,6 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.client.v1.GenesisS
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.clients = object.clients?.map((e) => IdentifiedClientState.fromPartial(e)) || [];
@@ -278,10 +274,6 @@ export const GenesisMetadata: MessageFns<GenesisMetadata, "ibc.core.client.v1.Ge
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisMetadata>): GenesisMetadata {
-    return GenesisMetadata.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisMetadata>): GenesisMetadata {
     const message = createBaseGenesisMetadata();
     message.key = object.key ?? new Uint8Array(0);
@@ -360,10 +352,6 @@ export const IdentifiedGenesisMetadata: MessageFns<
       obj.client_metadata = message.clientMetadata.map((e) => GenesisMetadata.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<IdentifiedGenesisMetadata>): IdentifiedGenesisMetadata {
-    return IdentifiedGenesisMetadata.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<IdentifiedGenesisMetadata>): IdentifiedGenesisMetadata {
     const message = createBaseIdentifiedGenesisMetadata();

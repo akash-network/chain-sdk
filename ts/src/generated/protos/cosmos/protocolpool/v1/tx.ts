@@ -172,10 +172,6 @@ export const MsgFundCommunityPool: MessageFns<MsgFundCommunityPool, "cosmos.prot
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgFundCommunityPool>): MsgFundCommunityPool {
-    return MsgFundCommunityPool.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgFundCommunityPool>): MsgFundCommunityPool {
     const message = createBaseMsgFundCommunityPool();
     message.depositor = object.depositor ?? "";
@@ -221,10 +217,6 @@ export const MsgFundCommunityPoolResponse: MessageFns<
   toJSON(_: MsgFundCommunityPoolResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgFundCommunityPoolResponse>): MsgFundCommunityPoolResponse {
-    return MsgFundCommunityPoolResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgFundCommunityPoolResponse>): MsgFundCommunityPoolResponse {
     const message = createBaseMsgFundCommunityPoolResponse();
@@ -314,10 +306,6 @@ export const MsgCommunityPoolSpend: MessageFns<MsgCommunityPoolSpend, "cosmos.pr
       }
       return obj;
     },
-
-    create(base?: DeepPartial<MsgCommunityPoolSpend>): MsgCommunityPoolSpend {
-      return MsgCommunityPoolSpend.fromPartial(base ?? {});
-    },
     fromPartial(object: DeepPartial<MsgCommunityPoolSpend>): MsgCommunityPoolSpend {
       const message = createBaseMsgCommunityPoolSpend();
       message.authority = object.authority ?? "";
@@ -364,10 +352,6 @@ export const MsgCommunityPoolSpendResponse: MessageFns<
   toJSON(_: MsgCommunityPoolSpendResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCommunityPoolSpendResponse>): MsgCommunityPoolSpendResponse {
-    return MsgCommunityPoolSpendResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCommunityPoolSpendResponse>): MsgCommunityPoolSpendResponse {
     const message = createBaseMsgCommunityPoolSpendResponse();
@@ -474,10 +458,6 @@ export const MsgCreateContinuousFund: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCreateContinuousFund>): MsgCreateContinuousFund {
-    return MsgCreateContinuousFund.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCreateContinuousFund>): MsgCreateContinuousFund {
     const message = createBaseMsgCreateContinuousFund();
     message.authority = object.authority ?? "";
@@ -525,10 +505,6 @@ export const MsgCreateContinuousFundResponse: MessageFns<
   toJSON(_: MsgCreateContinuousFundResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCreateContinuousFundResponse>): MsgCreateContinuousFundResponse {
-    return MsgCreateContinuousFundResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCreateContinuousFundResponse>): MsgCreateContinuousFundResponse {
     const message = createBaseMsgCreateContinuousFundResponse();
@@ -604,10 +580,6 @@ export const MsgCancelContinuousFund: MessageFns<
       obj.recipient = message.recipient;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCancelContinuousFund>): MsgCancelContinuousFund {
-    return MsgCancelContinuousFund.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgCancelContinuousFund>): MsgCancelContinuousFund {
     const message = createBaseMsgCancelContinuousFund();
@@ -701,10 +673,6 @@ export const MsgCancelContinuousFundResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCancelContinuousFundResponse>): MsgCancelContinuousFundResponse {
-    return MsgCancelContinuousFundResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCancelContinuousFundResponse>): MsgCancelContinuousFundResponse {
     const message = createBaseMsgCancelContinuousFundResponse();
     message.canceledTime = object.canceledTime ?? undefined;
@@ -782,10 +750,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.protocolpool.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -833,10 +797,6 @@ export const MsgUpdateParamsResponse: MessageFns<
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();

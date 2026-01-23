@@ -83,10 +83,6 @@ export const MultiSignature: MessageFns<MultiSignature, "cosmos.crypto.multisig.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MultiSignature>): MultiSignature {
-    return MultiSignature.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MultiSignature>): MultiSignature {
     const message = createBaseMultiSignature();
     message.signatures = object.signatures?.map((e) => e) || [];
@@ -159,10 +155,6 @@ export const CompactBitArray: MessageFns<CompactBitArray, "cosmos.crypto.multisi
       obj.elems = base64FromBytes(message.elems);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<CompactBitArray>): CompactBitArray {
-    return CompactBitArray.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<CompactBitArray>): CompactBitArray {
     const message = createBaseCompactBitArray();

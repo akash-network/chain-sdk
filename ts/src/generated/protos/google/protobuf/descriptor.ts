@@ -2319,10 +2319,6 @@ export const FileDescriptorSet: MessageFns<FileDescriptorSet, "google.protobuf.F
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FileDescriptorSet>): FileDescriptorSet {
-    return FileDescriptorSet.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FileDescriptorSet>): FileDescriptorSet {
     const message = createBaseFileDescriptorSet();
     message.file = object.file?.map((e) => FileDescriptorProto.fromPartial(e)) || [];
@@ -2627,10 +2623,6 @@ export const FileDescriptorProto: MessageFns<FileDescriptorProto, "google.protob
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FileDescriptorProto>): FileDescriptorProto {
-    return FileDescriptorProto.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FileDescriptorProto>): FileDescriptorProto {
     const message = createBaseFileDescriptorProto();
     message.name = object.name ?? "";
@@ -2884,10 +2876,6 @@ export const DescriptorProto: MessageFns<DescriptorProto, "google.protobuf.Descr
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DescriptorProto>): DescriptorProto {
-    return DescriptorProto.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DescriptorProto>): DescriptorProto {
     const message = createBaseDescriptorProto();
     message.name = object.name ?? "";
@@ -2991,10 +2979,6 @@ export const DescriptorProto_ExtensionRange: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DescriptorProto_ExtensionRange>): DescriptorProto_ExtensionRange {
-    return DescriptorProto_ExtensionRange.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DescriptorProto_ExtensionRange>): DescriptorProto_ExtensionRange {
     const message = createBaseDescriptorProto_ExtensionRange();
     message.start = object.start ?? 0;
@@ -3074,10 +3058,6 @@ export const DescriptorProto_ReservedRange: MessageFns<
       obj.end = Math.round(message.end);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DescriptorProto_ReservedRange>): DescriptorProto_ReservedRange {
-    return DescriptorProto_ReservedRange.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DescriptorProto_ReservedRange>): DescriptorProto_ReservedRange {
     const message = createBaseDescriptorProto_ReservedRange();
@@ -3188,10 +3168,6 @@ export const ExtensionRangeOptions: MessageFns<ExtensionRangeOptions, "google.pr
       obj.verification = extensionRangeOptions_VerificationStateToJSON(message.verification);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ExtensionRangeOptions>): ExtensionRangeOptions {
-    return ExtensionRangeOptions.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ExtensionRangeOptions>): ExtensionRangeOptions {
     const message = createBaseExtensionRangeOptions();
@@ -3318,10 +3294,6 @@ export const ExtensionRangeOptions_Declaration: MessageFns<
       obj.repeated = message.repeated;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ExtensionRangeOptions_Declaration>): ExtensionRangeOptions_Declaration {
-    return ExtensionRangeOptions_Declaration.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ExtensionRangeOptions_Declaration>): ExtensionRangeOptions_Declaration {
     const message = createBaseExtensionRangeOptions_Declaration();
@@ -3547,10 +3519,6 @@ export const FieldDescriptorProto: MessageFns<FieldDescriptorProto, "google.prot
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FieldDescriptorProto>): FieldDescriptorProto {
-    return FieldDescriptorProto.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FieldDescriptorProto>): FieldDescriptorProto {
     const message = createBaseFieldDescriptorProto();
     message.name = object.name ?? "";
@@ -3635,10 +3603,6 @@ export const OneofDescriptorProto: MessageFns<OneofDescriptorProto, "google.prot
       obj.options = OneofOptions.toJSON(message.options);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<OneofDescriptorProto>): OneofDescriptorProto {
-    return OneofDescriptorProto.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<OneofDescriptorProto>): OneofDescriptorProto {
     const message = createBaseOneofDescriptorProto();
@@ -3782,10 +3746,6 @@ export const EnumDescriptorProto: MessageFns<EnumDescriptorProto, "google.protob
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EnumDescriptorProto>): EnumDescriptorProto {
-    return EnumDescriptorProto.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EnumDescriptorProto>): EnumDescriptorProto {
     const message = createBaseEnumDescriptorProto();
     message.name = object.name ?? "";
@@ -3869,10 +3829,6 @@ export const EnumDescriptorProto_EnumReservedRange: MessageFns<
       obj.end = Math.round(message.end);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EnumDescriptorProto_EnumReservedRange>): EnumDescriptorProto_EnumReservedRange {
-    return EnumDescriptorProto_EnumReservedRange.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EnumDescriptorProto_EnumReservedRange>): EnumDescriptorProto_EnumReservedRange {
     const message = createBaseEnumDescriptorProto_EnumReservedRange();
@@ -3965,10 +3921,6 @@ export const EnumValueDescriptorProto: MessageFns<
       obj.options = EnumValueOptions.toJSON(message.options);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EnumValueDescriptorProto>): EnumValueDescriptorProto {
-    return EnumValueDescriptorProto.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EnumValueDescriptorProto>): EnumValueDescriptorProto {
     const message = createBaseEnumValueDescriptorProto();
@@ -4063,10 +4015,6 @@ export const ServiceDescriptorProto: MessageFns<ServiceDescriptorProto, "google.
       obj.options = ServiceOptions.toJSON(message.options);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ServiceDescriptorProto>): ServiceDescriptorProto {
-    return ServiceDescriptorProto.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ServiceDescriptorProto>): ServiceDescriptorProto {
     const message = createBaseServiceDescriptorProto();
@@ -4211,10 +4159,6 @@ export const MethodDescriptorProto: MessageFns<MethodDescriptorProto, "google.pr
       obj.server_streaming = message.serverStreaming;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MethodDescriptorProto>): MethodDescriptorProto {
-    return MethodDescriptorProto.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MethodDescriptorProto>): MethodDescriptorProto {
     const message = createBaseMethodDescriptorProto();
@@ -4613,10 +4557,6 @@ export const FileOptions: MessageFns<FileOptions, "google.protobuf.FileOptions">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FileOptions>): FileOptions {
-    return FileOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FileOptions>): FileOptions {
     const message = createBaseFileOptions();
     message.javaPackage = object.javaPackage ?? "";
@@ -4806,10 +4746,6 @@ export const MessageOptions: MessageFns<MessageOptions, "google.protobuf.Message
       obj.uninterpreted_option = message.uninterpretedOption.map((e) => UninterpretedOption.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MessageOptions>): MessageOptions {
-    return MessageOptions.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MessageOptions>): MessageOptions {
     const message = createBaseMessageOptions();
@@ -5105,10 +5041,6 @@ export const FieldOptions: MessageFns<FieldOptions, "google.protobuf.FieldOption
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FieldOptions>): FieldOptions {
-    return FieldOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FieldOptions>): FieldOptions {
     const message = createBaseFieldOptions();
     message.ctype = object.ctype ?? 0;
@@ -5201,10 +5133,6 @@ export const FieldOptions_EditionDefault: MessageFns<
       obj.value = message.value;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<FieldOptions_EditionDefault>): FieldOptions_EditionDefault {
-    return FieldOptions_EditionDefault.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<FieldOptions_EditionDefault>): FieldOptions_EditionDefault {
     const message = createBaseFieldOptions_EditionDefault();
@@ -5313,10 +5241,6 @@ export const FieldOptions_FeatureSupport: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FieldOptions_FeatureSupport>): FieldOptions_FeatureSupport {
-    return FieldOptions_FeatureSupport.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FieldOptions_FeatureSupport>): FieldOptions_FeatureSupport {
     const message = createBaseFieldOptions_FeatureSupport();
     message.editionIntroduced = object.editionIntroduced ?? 0;
@@ -5394,10 +5318,6 @@ export const OneofOptions: MessageFns<OneofOptions, "google.protobuf.OneofOption
       obj.uninterpreted_option = message.uninterpretedOption.map((e) => UninterpretedOption.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<OneofOptions>): OneofOptions {
-    return OneofOptions.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<OneofOptions>): OneofOptions {
     const message = createBaseOneofOptions();
@@ -5534,10 +5454,6 @@ export const EnumOptions: MessageFns<EnumOptions, "google.protobuf.EnumOptions">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EnumOptions>): EnumOptions {
-    return EnumOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EnumOptions>): EnumOptions {
     const message = createBaseEnumOptions();
     message.allowAlias = object.allowAlias ?? false;
@@ -5672,10 +5588,6 @@ export const EnumValueOptions: MessageFns<EnumValueOptions, "google.protobuf.Enu
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EnumValueOptions>): EnumValueOptions {
-    return EnumValueOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EnumValueOptions>): EnumValueOptions {
     const message = createBaseEnumValueOptions();
     message.deprecated = object.deprecated ?? false;
@@ -5773,10 +5685,6 @@ export const ServiceOptions: MessageFns<ServiceOptions, "google.protobuf.Service
       obj.uninterpreted_option = message.uninterpretedOption.map((e) => UninterpretedOption.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ServiceOptions>): ServiceOptions {
-    return ServiceOptions.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ServiceOptions>): ServiceOptions {
     const message = createBaseServiceOptions();
@@ -5888,10 +5796,6 @@ export const MethodOptions: MessageFns<MethodOptions, "google.protobuf.MethodOpt
       obj.uninterpreted_option = message.uninterpretedOption.map((e) => UninterpretedOption.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MethodOptions>): MethodOptions {
-    return MethodOptions.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MethodOptions>): MethodOptions {
     const message = createBaseMethodOptions();
@@ -6056,10 +5960,6 @@ export const UninterpretedOption: MessageFns<UninterpretedOption, "google.protob
     }
     return obj;
   },
-
-  create(base?: DeepPartial<UninterpretedOption>): UninterpretedOption {
-    return UninterpretedOption.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<UninterpretedOption>): UninterpretedOption {
     const message = createBaseUninterpretedOption();
     message.name = object.name?.map((e) => UninterpretedOption_NamePart.fromPartial(e)) || [];
@@ -6145,10 +6045,6 @@ export const UninterpretedOption_NamePart: MessageFns<
       obj.is_extension = message.isExtension;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<UninterpretedOption_NamePart>): UninterpretedOption_NamePart {
-    return UninterpretedOption_NamePart.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<UninterpretedOption_NamePart>): UninterpretedOption_NamePart {
     const message = createBaseUninterpretedOption_NamePart();
@@ -6331,10 +6227,6 @@ export const FeatureSet: MessageFns<FeatureSet, "google.protobuf.FeatureSet"> = 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FeatureSet>): FeatureSet {
-    return FeatureSet.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FeatureSet>): FeatureSet {
     const message = createBaseFeatureSet();
     message.fieldPresence = object.fieldPresence ?? 0;
@@ -6386,10 +6278,6 @@ export const FeatureSet_VisibilityFeature: MessageFns<
   toJSON(_: FeatureSet_VisibilityFeature): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<FeatureSet_VisibilityFeature>): FeatureSet_VisibilityFeature {
-    return FeatureSet_VisibilityFeature.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<FeatureSet_VisibilityFeature>): FeatureSet_VisibilityFeature {
     const message = createBaseFeatureSet_VisibilityFeature();
@@ -6479,10 +6367,6 @@ export const FeatureSetDefaults: MessageFns<FeatureSetDefaults, "google.protobuf
       obj.maximum_edition = editionToJSON(message.maximumEdition);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<FeatureSetDefaults>): FeatureSetDefaults {
-    return FeatureSetDefaults.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<FeatureSetDefaults>): FeatureSetDefaults {
     const message = createBaseFeatureSetDefaults();
@@ -6582,10 +6466,6 @@ export const FeatureSetDefaults_FeatureSetEditionDefault: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FeatureSetDefaults_FeatureSetEditionDefault>): FeatureSetDefaults_FeatureSetEditionDefault {
-    return FeatureSetDefaults_FeatureSetEditionDefault.fromPartial(base ?? {});
-  },
   fromPartial(
     object: DeepPartial<FeatureSetDefaults_FeatureSetEditionDefault>,
   ): FeatureSetDefaults_FeatureSetEditionDefault {
@@ -6653,10 +6533,6 @@ export const SourceCodeInfo: MessageFns<SourceCodeInfo, "google.protobuf.SourceC
       obj.location = message.location.map((e) => SourceCodeInfo_Location.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SourceCodeInfo>): SourceCodeInfo {
-    return SourceCodeInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SourceCodeInfo>): SourceCodeInfo {
     const message = createBaseSourceCodeInfo();
@@ -6802,10 +6678,6 @@ export const SourceCodeInfo_Location: MessageFns<SourceCodeInfo_Location, "googl
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SourceCodeInfo_Location>): SourceCodeInfo_Location {
-    return SourceCodeInfo_Location.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SourceCodeInfo_Location>): SourceCodeInfo_Location {
     const message = createBaseSourceCodeInfo_Location();
     message.path = object.path?.map((e) => e) || [];
@@ -6869,10 +6741,6 @@ export const GeneratedCodeInfo: MessageFns<GeneratedCodeInfo, "google.protobuf.G
       obj.annotation = message.annotation.map((e) => GeneratedCodeInfo_Annotation.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GeneratedCodeInfo>): GeneratedCodeInfo {
-    return GeneratedCodeInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GeneratedCodeInfo>): GeneratedCodeInfo {
     const message = createBaseGeneratedCodeInfo();
@@ -7006,10 +6874,6 @@ export const GeneratedCodeInfo_Annotation: MessageFns<
       obj.semantic = generatedCodeInfo_Annotation_SemanticToJSON(message.semantic);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GeneratedCodeInfo_Annotation>): GeneratedCodeInfo_Annotation {
-    return GeneratedCodeInfo_Annotation.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GeneratedCodeInfo_Annotation>): GeneratedCodeInfo_Annotation {
     const message = createBaseGeneratedCodeInfo_Annotation();

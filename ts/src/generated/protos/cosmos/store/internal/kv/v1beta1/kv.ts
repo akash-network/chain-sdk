@@ -70,10 +70,6 @@ export const Pairs: MessageFns<Pairs, "cosmos.store.internal.kv.v1beta1.Pairs"> 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Pairs>): Pairs {
-    return Pairs.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Pairs>): Pairs {
     const message = createBasePairs();
     message.pairs = object.pairs?.map((e) => Pair.fromPartial(e)) || [];
@@ -146,10 +142,6 @@ export const Pair: MessageFns<Pair, "cosmos.store.internal.kv.v1beta1.Pair"> = {
       obj.value = base64FromBytes(message.value);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Pair>): Pair {
-    return Pair.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Pair>): Pair {
     const message = createBasePair();

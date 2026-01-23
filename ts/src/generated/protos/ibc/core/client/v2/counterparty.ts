@@ -86,10 +86,6 @@ export const CounterpartyInfo: MessageFns<CounterpartyInfo, "ibc.core.client.v2.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CounterpartyInfo>): CounterpartyInfo {
-    return CounterpartyInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CounterpartyInfo>): CounterpartyInfo {
     const message = createBaseCounterpartyInfo();
     message.merklePrefix = object.merklePrefix?.map((e) => e) || [];

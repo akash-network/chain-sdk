@@ -92,10 +92,6 @@ export const QueryCounterpartyInfoRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryCounterpartyInfoRequest>): QueryCounterpartyInfoRequest {
-    return QueryCounterpartyInfoRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryCounterpartyInfoRequest>): QueryCounterpartyInfoRequest {
     const message = createBaseQueryCounterpartyInfoRequest();
     message.clientId = object.clientId ?? "";
@@ -159,10 +155,6 @@ export const QueryCounterpartyInfoResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryCounterpartyInfoResponse>): QueryCounterpartyInfoResponse {
-    return QueryCounterpartyInfoResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryCounterpartyInfoResponse>): QueryCounterpartyInfoResponse {
     const message = createBaseQueryCounterpartyInfoResponse();
     message.counterpartyInfo = (object.counterpartyInfo !== undefined && object.counterpartyInfo !== null)
@@ -221,10 +213,6 @@ export const QueryConfigRequest: MessageFns<QueryConfigRequest, "ibc.core.client
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryConfigRequest>): QueryConfigRequest {
-    return QueryConfigRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryConfigRequest>): QueryConfigRequest {
     const message = createBaseQueryConfigRequest();
     message.clientId = object.clientId ?? "";
@@ -280,10 +268,6 @@ export const QueryConfigResponse: MessageFns<QueryConfigResponse, "ibc.core.clie
       obj.config = Config.toJSON(message.config);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConfigResponse>): QueryConfigResponse {
-    return QueryConfigResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryConfigResponse>): QueryConfigResponse {
     const message = createBaseQueryConfigResponse();

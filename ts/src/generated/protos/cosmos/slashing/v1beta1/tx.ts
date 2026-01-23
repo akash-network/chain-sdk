@@ -88,10 +88,6 @@ export const MsgUnjail: MessageFns<MsgUnjail, "cosmos.slashing.v1beta1.MsgUnjail
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUnjail>): MsgUnjail {
-    return MsgUnjail.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUnjail>): MsgUnjail {
     const message = createBaseMsgUnjail();
     message.validatorAddr = object.validatorAddr ?? "";
@@ -133,10 +129,6 @@ export const MsgUnjailResponse: MessageFns<MsgUnjailResponse, "cosmos.slashing.v
   toJSON(_: MsgUnjailResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUnjailResponse>): MsgUnjailResponse {
-    return MsgUnjailResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUnjailResponse>): MsgUnjailResponse {
     const message = createBaseMsgUnjailResponse();
@@ -210,10 +202,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.slashing.v1bet
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -261,10 +249,6 @@ export const MsgUpdateParamsResponse: MessageFns<
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();

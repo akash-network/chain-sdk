@@ -160,10 +160,6 @@ export const Metadata: MessageFns<Metadata, "ibc.applications.interchain_account
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Metadata>): Metadata {
-    return Metadata.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Metadata>): Metadata {
     const message = createBaseMetadata();
     message.version = object.version ?? "";

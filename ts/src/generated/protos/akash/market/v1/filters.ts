@@ -190,10 +190,6 @@ export const LeaseFilters: MessageFns<LeaseFilters, "akash.market.v1.LeaseFilter
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LeaseFilters>): LeaseFilters {
-    return LeaseFilters.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LeaseFilters>): LeaseFilters {
     const message = createBaseLeaseFilters();
     message.owner = object.owner ?? "";

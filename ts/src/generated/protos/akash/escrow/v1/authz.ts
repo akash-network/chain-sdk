@@ -160,10 +160,6 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DepositAuthorization>): DepositAuthorization {
-    return DepositAuthorization.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DepositAuthorization>): DepositAuthorization {
     const message = createBaseDepositAuthorization();
     message.spendLimit = (object.spendLimit !== undefined && object.spendLimit !== null)

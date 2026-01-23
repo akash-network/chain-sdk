@@ -146,10 +146,6 @@ export const BaseAccount: MessageFns<BaseAccount, "cosmos.auth.v1beta1.BaseAccou
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BaseAccount>): BaseAccount {
-    return BaseAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BaseAccount>): BaseAccount {
     const message = createBaseBaseAccount();
     message.address = object.address ?? "";
@@ -249,10 +245,6 @@ export const ModuleAccount: MessageFns<ModuleAccount, "cosmos.auth.v1beta1.Modul
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ModuleAccount>): ModuleAccount {
-    return ModuleAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ModuleAccount>): ModuleAccount {
     const message = createBaseModuleAccount();
     message.baseAccount = (object.baseAccount !== undefined && object.baseAccount !== null)
@@ -331,10 +323,6 @@ export const ModuleCredential: MessageFns<ModuleCredential, "cosmos.auth.v1beta1
       obj.derivation_keys = message.derivationKeys.map((e) => base64FromBytes(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ModuleCredential>): ModuleCredential {
-    return ModuleCredential.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ModuleCredential>): ModuleCredential {
     const message = createBaseModuleCredential();
@@ -466,10 +454,6 @@ export const Params: MessageFns<Params, "cosmos.auth.v1beta1.Params"> = {
       obj.sig_verify_cost_secp256k1 = (message.sigVerifyCostSecp256k1 || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();

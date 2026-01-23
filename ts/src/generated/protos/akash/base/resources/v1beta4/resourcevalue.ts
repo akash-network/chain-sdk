@@ -64,10 +64,6 @@ export const ResourceValue: MessageFns<ResourceValue, "akash.base.resources.v1be
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResourceValue>): ResourceValue {
-    return ResourceValue.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResourceValue>): ResourceValue {
     const message = createBaseResourceValue();
     message.val = object.val ?? new Uint8Array(0);

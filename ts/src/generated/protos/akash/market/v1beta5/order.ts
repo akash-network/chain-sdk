@@ -167,10 +167,6 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Order>): Order {
-    return Order.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Order>): Order {
     const message = createBaseOrder();
     message.id = (object.id !== undefined && object.id !== null) ? OrderID.fromPartial(object.id) : undefined;

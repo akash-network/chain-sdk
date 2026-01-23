@@ -118,10 +118,6 @@ export const GroupID: MessageFns<GroupID, "akash.deployment.v1.GroupID"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GroupID>): GroupID {
-    return GroupID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GroupID>): GroupID {
     const message = createBaseGroupID();
     message.owner = object.owner ?? "";

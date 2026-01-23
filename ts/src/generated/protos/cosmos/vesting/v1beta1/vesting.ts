@@ -189,10 +189,6 @@ export const BaseVestingAccount: MessageFns<BaseVestingAccount, "cosmos.vesting.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BaseVestingAccount>): BaseVestingAccount {
-    return BaseVestingAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BaseVestingAccount>): BaseVestingAccount {
     const message = createBaseBaseVestingAccount();
     message.baseAccount = (object.baseAccount !== undefined && object.baseAccount !== null)
@@ -279,10 +275,6 @@ export const ContinuousVestingAccount: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ContinuousVestingAccount>): ContinuousVestingAccount {
-    return ContinuousVestingAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ContinuousVestingAccount>): ContinuousVestingAccount {
     const message = createBaseContinuousVestingAccount();
     message.baseVestingAccount = (object.baseVestingAccount !== undefined && object.baseVestingAccount !== null)
@@ -348,10 +340,6 @@ export const DelayedVestingAccount: MessageFns<DelayedVestingAccount, "cosmos.ve
         obj.base_vesting_account = BaseVestingAccount.toJSON(message.baseVestingAccount);
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<DelayedVestingAccount>): DelayedVestingAccount {
-      return DelayedVestingAccount.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<DelayedVestingAccount>): DelayedVestingAccount {
       const message = createBaseDelayedVestingAccount();
@@ -427,10 +415,6 @@ export const Period: MessageFns<Period, "cosmos.vesting.v1beta1.Period"> = {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Period>): Period {
-    return Period.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Period>): Period {
     const message = createBasePeriod();
@@ -530,10 +514,6 @@ export const PeriodicVestingAccount: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PeriodicVestingAccount>): PeriodicVestingAccount {
-    return PeriodicVestingAccount.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PeriodicVestingAccount>): PeriodicVestingAccount {
     const message = createBasePeriodicVestingAccount();
     message.baseVestingAccount = (object.baseVestingAccount !== undefined && object.baseVestingAccount !== null)
@@ -602,10 +582,6 @@ export const PermanentLockedAccount: MessageFns<
       obj.base_vesting_account = BaseVestingAccount.toJSON(message.baseVestingAccount);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PermanentLockedAccount>): PermanentLockedAccount {
-    return PermanentLockedAccount.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PermanentLockedAccount>): PermanentLockedAccount {
     const message = createBasePermanentLockedAccount();

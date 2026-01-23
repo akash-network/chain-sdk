@@ -69,10 +69,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.crisis.v1beta1.Genes
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.constantFee = (object.constantFee !== undefined && object.constantFee !== null)

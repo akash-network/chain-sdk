@@ -244,10 +244,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.gov.v1.GenesisState"
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.startingProposalId = (object.startingProposalId !== undefined && object.startingProposalId !== null)

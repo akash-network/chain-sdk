@@ -158,10 +158,6 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.types.v1.GenesisSt
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.clientGenesis = (object.clientGenesis !== undefined && object.clientGenesis !== null)

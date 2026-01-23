@@ -157,10 +157,6 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
     }
     return obj;
   },
-
-  create(base?: DeepPartial<NodeResources>): NodeResources {
-    return NodeResources.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<NodeResources>): NodeResources {
     const message = createBaseNodeResources();
     message.cpu = (object.cpu !== undefined && object.cpu !== null) ? CPU.fromPartial(object.cpu) : undefined;

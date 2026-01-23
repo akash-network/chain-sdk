@@ -90,10 +90,6 @@ export const Config: MessageFns<Config, "cosmos.tx.config.v1.Config"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Config>): Config {
-    return Config.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Config>): Config {
     const message = createBaseConfig();
     message.skipAnteHandler = object.skipAnteHandler ?? false;

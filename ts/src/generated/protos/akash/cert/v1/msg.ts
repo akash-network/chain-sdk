@@ -122,10 +122,6 @@ export const MsgCreateCertificate: MessageFns<MsgCreateCertificate, "akash.cert.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCreateCertificate>): MsgCreateCertificate {
-    return MsgCreateCertificate.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCreateCertificate>): MsgCreateCertificate {
     const message = createBaseMsgCreateCertificate();
     message.owner = object.owner ?? "";
@@ -172,10 +168,6 @@ export const MsgCreateCertificateResponse: MessageFns<
   toJSON(_: MsgCreateCertificateResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCreateCertificateResponse>): MsgCreateCertificateResponse {
-    return MsgCreateCertificateResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCreateCertificateResponse>): MsgCreateCertificateResponse {
     const message = createBaseMsgCreateCertificateResponse();
@@ -232,10 +224,6 @@ export const MsgRevokeCertificate: MessageFns<MsgRevokeCertificate, "akash.cert.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgRevokeCertificate>): MsgRevokeCertificate {
-    return MsgRevokeCertificate.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgRevokeCertificate>): MsgRevokeCertificate {
     const message = createBaseMsgRevokeCertificate();
     message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
@@ -280,10 +268,6 @@ export const MsgRevokeCertificateResponse: MessageFns<
   toJSON(_: MsgRevokeCertificateResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgRevokeCertificateResponse>): MsgRevokeCertificateResponse {
-    return MsgRevokeCertificateResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgRevokeCertificateResponse>): MsgRevokeCertificateResponse {
     const message = createBaseMsgRevokeCertificateResponse();

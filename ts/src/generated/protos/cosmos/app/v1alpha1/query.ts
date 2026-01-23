@@ -56,10 +56,6 @@ export const QueryConfigRequest: MessageFns<QueryConfigRequest, "cosmos.app.v1al
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryConfigRequest>): QueryConfigRequest {
-    return QueryConfigRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryConfigRequest>): QueryConfigRequest {
     const message = createBaseQueryConfigRequest();
     return message;
@@ -114,10 +110,6 @@ export const QueryConfigResponse: MessageFns<QueryConfigResponse, "cosmos.app.v1
       obj.config = Config.toJSON(message.config);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryConfigResponse>): QueryConfigResponse {
-    return QueryConfigResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryConfigResponse>): QueryConfigResponse {
     const message = createBaseQueryConfigResponse();

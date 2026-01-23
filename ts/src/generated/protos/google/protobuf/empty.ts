@@ -56,10 +56,6 @@ export const Empty: MessageFns<Empty, "google.protobuf.Empty"> = {
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<Empty>): Empty {
-    return Empty.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<Empty>): Empty {
     const message = createBaseEmpty();
     return message;

@@ -287,10 +287,6 @@ export const MsgCreateValidator: MessageFns<MsgCreateValidator, "cosmos.staking.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCreateValidator>): MsgCreateValidator {
-    return MsgCreateValidator.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCreateValidator>): MsgCreateValidator {
     const message = createBaseMsgCreateValidator();
     message.description = (object.description !== undefined && object.description !== null)
@@ -347,10 +343,6 @@ export const MsgCreateValidatorResponse: MessageFns<
   toJSON(_: MsgCreateValidatorResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCreateValidatorResponse>): MsgCreateValidatorResponse {
-    return MsgCreateValidatorResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCreateValidatorResponse>): MsgCreateValidatorResponse {
     const message = createBaseMsgCreateValidatorResponse();
@@ -454,10 +446,6 @@ export const MsgEditValidator: MessageFns<MsgEditValidator, "cosmos.staking.v1be
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgEditValidator>): MsgEditValidator {
-    return MsgEditValidator.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgEditValidator>): MsgEditValidator {
     const message = createBaseMsgEditValidator();
     message.description = (object.description !== undefined && object.description !== null)
@@ -507,10 +495,6 @@ export const MsgEditValidatorResponse: MessageFns<
   toJSON(_: MsgEditValidatorResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgEditValidatorResponse>): MsgEditValidatorResponse {
-    return MsgEditValidatorResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgEditValidatorResponse>): MsgEditValidatorResponse {
     const message = createBaseMsgEditValidatorResponse();
@@ -599,10 +583,6 @@ export const MsgDelegate: MessageFns<MsgDelegate, "cosmos.staking.v1beta1.MsgDel
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgDelegate>): MsgDelegate {
-    return MsgDelegate.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgDelegate>): MsgDelegate {
     const message = createBaseMsgDelegate();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -648,10 +628,6 @@ export const MsgDelegateResponse: MessageFns<MsgDelegateResponse, "cosmos.stakin
   toJSON(_: MsgDelegateResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgDelegateResponse>): MsgDelegateResponse {
-    return MsgDelegateResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgDelegateResponse>): MsgDelegateResponse {
     const message = createBaseMsgDelegateResponse();
@@ -755,10 +731,6 @@ export const MsgBeginRedelegate: MessageFns<MsgBeginRedelegate, "cosmos.staking.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgBeginRedelegate>): MsgBeginRedelegate {
-    return MsgBeginRedelegate.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgBeginRedelegate>): MsgBeginRedelegate {
     const message = createBaseMsgBeginRedelegate();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -822,10 +794,6 @@ export const MsgBeginRedelegateResponse: MessageFns<
       obj.completion_time = message.completionTime.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgBeginRedelegateResponse>): MsgBeginRedelegateResponse {
-    return MsgBeginRedelegateResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgBeginRedelegateResponse>): MsgBeginRedelegateResponse {
     const message = createBaseMsgBeginRedelegateResponse();
@@ -915,10 +883,6 @@ export const MsgUndelegate: MessageFns<MsgUndelegate, "cosmos.staking.v1beta1.Ms
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUndelegate>): MsgUndelegate {
-    return MsgUndelegate.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUndelegate>): MsgUndelegate {
     const message = createBaseMsgUndelegate();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -996,10 +960,6 @@ export const MsgUndelegateResponse: MessageFns<MsgUndelegateResponse, "cosmos.st
         obj.amount = Coin.toJSON(message.amount);
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<MsgUndelegateResponse>): MsgUndelegateResponse {
-      return MsgUndelegateResponse.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<MsgUndelegateResponse>): MsgUndelegateResponse {
       const message = createBaseMsgUndelegateResponse();
@@ -1110,10 +1070,6 @@ export const MsgCancelUnbondingDelegation: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCancelUnbondingDelegation>): MsgCancelUnbondingDelegation {
-    return MsgCancelUnbondingDelegation.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCancelUnbondingDelegation>): MsgCancelUnbondingDelegation {
     const message = createBaseMsgCancelUnbondingDelegation();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -1165,10 +1121,6 @@ export const MsgCancelUnbondingDelegationResponse: MessageFns<
   toJSON(_: MsgCancelUnbondingDelegationResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCancelUnbondingDelegationResponse>): MsgCancelUnbondingDelegationResponse {
-    return MsgCancelUnbondingDelegationResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCancelUnbondingDelegationResponse>): MsgCancelUnbondingDelegationResponse {
     const message = createBaseMsgCancelUnbondingDelegationResponse();
@@ -1242,10 +1194,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.staking.v1beta
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -1293,10 +1241,6 @@ export const MsgUpdateParamsResponse: MessageFns<
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();

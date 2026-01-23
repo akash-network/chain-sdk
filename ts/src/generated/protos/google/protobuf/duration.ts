@@ -154,10 +154,6 @@ export const Duration: MessageFns<Duration, "google.protobuf.Duration"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Duration>): Duration {
-    return Duration.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Duration>): Duration {
     const message = createBaseDuration();
     message.seconds = (object.seconds !== undefined && object.seconds !== null)

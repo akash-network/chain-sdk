@@ -170,10 +170,6 @@ export const Snapshot: MessageFns<Snapshot, "cosmos.store.snapshots.v1.Snapshot"
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Snapshot>): Snapshot {
-    return Snapshot.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Snapshot>): Snapshot {
     const message = createBaseSnapshot();
     message.height = (object.height !== undefined && object.height !== null)
@@ -241,10 +237,6 @@ export const Metadata: MessageFns<Metadata, "cosmos.store.snapshots.v1.Metadata"
       obj.chunk_hashes = message.chunkHashes.map((e) => base64FromBytes(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Metadata>): Metadata {
-    return Metadata.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Metadata>): Metadata {
     const message = createBaseMetadata();
@@ -351,10 +343,6 @@ export const SnapshotItem: MessageFns<SnapshotItem, "cosmos.store.snapshots.v1.S
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SnapshotItem>): SnapshotItem {
-    return SnapshotItem.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SnapshotItem>): SnapshotItem {
     const message = createBaseSnapshotItem();
     message.store = (object.store !== undefined && object.store !== null)
@@ -421,10 +409,6 @@ export const SnapshotStoreItem: MessageFns<SnapshotStoreItem, "cosmos.store.snap
       obj.name = message.name;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SnapshotStoreItem>): SnapshotStoreItem {
-    return SnapshotStoreItem.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SnapshotStoreItem>): SnapshotStoreItem {
     const message = createBaseSnapshotStoreItem();
@@ -529,10 +513,6 @@ export const SnapshotIAVLItem: MessageFns<SnapshotIAVLItem, "cosmos.store.snapsh
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SnapshotIAVLItem>): SnapshotIAVLItem {
-    return SnapshotIAVLItem.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SnapshotIAVLItem>): SnapshotIAVLItem {
     const message = createBaseSnapshotIAVLItem();
     message.key = object.key ?? new Uint8Array(0);
@@ -614,10 +594,6 @@ export const SnapshotExtensionMeta: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SnapshotExtensionMeta>): SnapshotExtensionMeta {
-    return SnapshotExtensionMeta.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SnapshotExtensionMeta>): SnapshotExtensionMeta {
     const message = createBaseSnapshotExtensionMeta();
     message.name = object.name ?? "";
@@ -677,10 +653,6 @@ export const SnapshotExtensionPayload: MessageFns<
       obj.payload = base64FromBytes(message.payload);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SnapshotExtensionPayload>): SnapshotExtensionPayload {
-    return SnapshotExtensionPayload.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SnapshotExtensionPayload>): SnapshotExtensionPayload {
     const message = createBaseSnapshotExtensionPayload();

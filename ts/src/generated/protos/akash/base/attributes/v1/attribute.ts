@@ -109,10 +109,6 @@ export const Attribute: MessageFns<Attribute, "akash.base.attributes.v1.Attribut
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Attribute>): Attribute {
-    return Attribute.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Attribute>): Attribute {
     const message = createBaseAttribute();
     message.key = object.key ?? "";
@@ -186,10 +182,6 @@ export const SignedBy: MessageFns<SignedBy, "akash.base.attributes.v1.SignedBy">
       obj.any_of = message.anyOf;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SignedBy>): SignedBy {
-    return SignedBy.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SignedBy>): SignedBy {
     const message = createBaseSignedBy();
@@ -269,10 +261,6 @@ export const PlacementRequirements: MessageFns<
       obj.attributes = message.attributes.map((e) => Attribute.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PlacementRequirements>): PlacementRequirements {
-    return PlacementRequirements.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PlacementRequirements>): PlacementRequirements {
     const message = createBasePlacementRequirements();

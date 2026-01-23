@@ -180,10 +180,6 @@ export const Resources: MessageFns<Resources, "akash.base.resources.v1beta4.Reso
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Resources>): Resources {
-    return Resources.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Resources>): Resources {
     const message = createBaseResources();
     message.id = object.id ?? 0;

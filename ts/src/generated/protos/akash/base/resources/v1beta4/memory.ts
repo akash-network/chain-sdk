@@ -96,10 +96,6 @@ export const Memory: MessageFns<Memory, "akash.base.resources.v1beta4.Memory"> =
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Memory>): Memory {
-    return Memory.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Memory>): Memory {
     const message = createBaseMemory();
     message.quantity = (object.quantity !== undefined && object.quantity !== null)

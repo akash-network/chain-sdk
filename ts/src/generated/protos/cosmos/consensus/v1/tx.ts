@@ -146,10 +146,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.consensus.v1.M
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -206,10 +202,6 @@ export const MsgUpdateParamsResponse: MessageFns<
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();

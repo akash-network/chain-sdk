@@ -85,10 +85,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.escrow.v1.GenesisStat
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.accounts = object.accounts?.map((e) => Account.fromPartial(e)) || [];

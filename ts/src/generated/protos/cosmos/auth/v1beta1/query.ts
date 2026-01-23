@@ -179,10 +179,6 @@ export const QueryAccountsRequest: MessageFns<QueryAccountsRequest, "cosmos.auth
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountsRequest>): QueryAccountsRequest {
-    return QueryAccountsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountsRequest>): QueryAccountsRequest {
     const message = createBaseQueryAccountsRequest();
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
@@ -258,10 +254,6 @@ export const QueryAccountsResponse: MessageFns<QueryAccountsResponse, "cosmos.au
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountsResponse>): QueryAccountsResponse {
-    return QueryAccountsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountsResponse>): QueryAccountsResponse {
     const message = createBaseQueryAccountsResponse();
     message.accounts = object.accounts?.map((e) => Any.fromPartial(e)) || [];
@@ -321,10 +313,6 @@ export const QueryAccountRequest: MessageFns<QueryAccountRequest, "cosmos.auth.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountRequest>): QueryAccountRequest {
-    return QueryAccountRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountRequest>): QueryAccountRequest {
     const message = createBaseQueryAccountRequest();
     message.address = object.address ?? "";
@@ -381,10 +369,6 @@ export const QueryAccountResponse: MessageFns<QueryAccountResponse, "cosmos.auth
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountResponse>): QueryAccountResponse {
-    return QueryAccountResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountResponse>): QueryAccountResponse {
     const message = createBaseQueryAccountResponse();
     message.account = (object.account !== undefined && object.account !== null)
@@ -428,10 +412,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "cosmos.auth.v1b
   toJSON(_: QueryParamsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
@@ -488,10 +468,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.auth.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();
     message.params = (object.params !== undefined && object.params !== null)
@@ -538,10 +514,6 @@ export const QueryModuleAccountsRequest: MessageFns<
   toJSON(_: QueryModuleAccountsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryModuleAccountsRequest>): QueryModuleAccountsRequest {
-    return QueryModuleAccountsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryModuleAccountsRequest>): QueryModuleAccountsRequest {
     const message = createBaseQueryModuleAccountsRequest();
@@ -603,10 +575,6 @@ export const QueryModuleAccountsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryModuleAccountsResponse>): QueryModuleAccountsResponse {
-    return QueryModuleAccountsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryModuleAccountsResponse>): QueryModuleAccountsResponse {
     const message = createBaseQueryModuleAccountsResponse();
     message.accounts = object.accounts?.map((e) => Any.fromPartial(e)) || [];
@@ -665,10 +633,6 @@ export const QueryModuleAccountByNameRequest: MessageFns<
       obj.name = message.name;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryModuleAccountByNameRequest>): QueryModuleAccountByNameRequest {
-    return QueryModuleAccountByNameRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryModuleAccountByNameRequest>): QueryModuleAccountByNameRequest {
     const message = createBaseQueryModuleAccountByNameRequest();
@@ -729,10 +693,6 @@ export const QueryModuleAccountByNameResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryModuleAccountByNameResponse>): QueryModuleAccountByNameResponse {
-    return QueryModuleAccountByNameResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryModuleAccountByNameResponse>): QueryModuleAccountByNameResponse {
     const message = createBaseQueryModuleAccountByNameResponse();
     message.account = (object.account !== undefined && object.account !== null)
@@ -776,10 +736,6 @@ export const Bech32PrefixRequest: MessageFns<Bech32PrefixRequest, "cosmos.auth.v
   toJSON(_: Bech32PrefixRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<Bech32PrefixRequest>): Bech32PrefixRequest {
-    return Bech32PrefixRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<Bech32PrefixRequest>): Bech32PrefixRequest {
     const message = createBaseBech32PrefixRequest();
@@ -835,10 +791,6 @@ export const Bech32PrefixResponse: MessageFns<Bech32PrefixResponse, "cosmos.auth
       obj.bech32_prefix = message.bech32Prefix;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Bech32PrefixResponse>): Bech32PrefixResponse {
-    return Bech32PrefixResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Bech32PrefixResponse>): Bech32PrefixResponse {
     const message = createBaseBech32PrefixResponse();
@@ -899,10 +851,6 @@ export const AddressBytesToStringRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<AddressBytesToStringRequest>): AddressBytesToStringRequest {
-    return AddressBytesToStringRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<AddressBytesToStringRequest>): AddressBytesToStringRequest {
     const message = createBaseAddressBytesToStringRequest();
     message.addressBytes = object.addressBytes ?? new Uint8Array(0);
@@ -961,10 +909,6 @@ export const AddressBytesToStringResponse: MessageFns<
       obj.address_string = message.addressString;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<AddressBytesToStringResponse>): AddressBytesToStringResponse {
-    return AddressBytesToStringResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<AddressBytesToStringResponse>): AddressBytesToStringResponse {
     const message = createBaseAddressBytesToStringResponse();
@@ -1025,10 +969,6 @@ export const AddressStringToBytesRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<AddressStringToBytesRequest>): AddressStringToBytesRequest {
-    return AddressStringToBytesRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<AddressStringToBytesRequest>): AddressStringToBytesRequest {
     const message = createBaseAddressStringToBytesRequest();
     message.addressString = object.addressString ?? "";
@@ -1087,10 +1027,6 @@ export const AddressStringToBytesResponse: MessageFns<
       obj.address_bytes = base64FromBytes(message.addressBytes);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<AddressStringToBytesResponse>): AddressStringToBytesResponse {
-    return AddressStringToBytesResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<AddressStringToBytesResponse>): AddressStringToBytesResponse {
     const message = createBaseAddressStringToBytesResponse();
@@ -1168,10 +1104,6 @@ export const QueryAccountAddressByIDRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountAddressByIDRequest>): QueryAccountAddressByIDRequest {
-    return QueryAccountAddressByIDRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountAddressByIDRequest>): QueryAccountAddressByIDRequest {
     const message = createBaseQueryAccountAddressByIDRequest();
     message.id = (object.id !== undefined && object.id !== null) ? Long.fromValue(object.id) : Long.ZERO;
@@ -1234,10 +1166,6 @@ export const QueryAccountAddressByIDResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountAddressByIDResponse>): QueryAccountAddressByIDResponse {
-    return QueryAccountAddressByIDResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountAddressByIDResponse>): QueryAccountAddressByIDResponse {
     const message = createBaseQueryAccountAddressByIDResponse();
     message.accountAddress = object.accountAddress ?? "";
@@ -1297,10 +1225,6 @@ export const QueryAccountInfoRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryAccountInfoRequest>): QueryAccountInfoRequest {
-    return QueryAccountInfoRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryAccountInfoRequest>): QueryAccountInfoRequest {
     const message = createBaseQueryAccountInfoRequest();
     message.address = object.address ?? "";
@@ -1359,10 +1283,6 @@ export const QueryAccountInfoResponse: MessageFns<
       obj.info = BaseAccount.toJSON(message.info);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAccountInfoResponse>): QueryAccountInfoResponse {
-    return QueryAccountInfoResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAccountInfoResponse>): QueryAccountInfoResponse {
     const message = createBaseQueryAccountInfoResponse();

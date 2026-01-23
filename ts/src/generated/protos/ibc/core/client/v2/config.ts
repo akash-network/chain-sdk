@@ -73,10 +73,6 @@ export const Config: MessageFns<Config, "ibc.core.client.v2.Config"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Config>): Config {
-    return Config.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Config>): Config {
     const message = createBaseConfig();
     message.allowedRelayers = object.allowedRelayers?.map((e) => e) || [];

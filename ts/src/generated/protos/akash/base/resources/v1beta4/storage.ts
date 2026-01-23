@@ -113,10 +113,6 @@ export const Storage: MessageFns<Storage, "akash.base.resources.v1beta4.Storage"
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Storage>): Storage {
-    return Storage.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Storage>): Storage {
     const message = createBaseStorage();
     message.name = object.name ?? "";

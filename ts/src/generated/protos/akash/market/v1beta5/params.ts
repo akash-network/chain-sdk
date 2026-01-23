@@ -87,10 +87,6 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.bidMinDeposit = (object.bidMinDeposit !== undefined && object.bidMinDeposit !== null)

@@ -1025,10 +1025,6 @@ export const Request: MessageFns<Request, "tendermint.abci.Request"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Request>): Request {
-    return Request.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Request>): Request {
     const message = createBaseRequest();
     message.echo = (object.echo !== undefined && object.echo !== null)
@@ -1132,10 +1128,6 @@ export const RequestEcho: MessageFns<RequestEcho, "tendermint.abci.RequestEcho">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RequestEcho>): RequestEcho {
-    return RequestEcho.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RequestEcho>): RequestEcho {
     const message = createBaseRequestEcho();
     message.message = object.message ?? "";
@@ -1177,10 +1169,6 @@ export const RequestFlush: MessageFns<RequestFlush, "tendermint.abci.RequestFlus
   toJSON(_: RequestFlush): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestFlush>): RequestFlush {
-    return RequestFlush.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<RequestFlush>): RequestFlush {
     const message = createBaseRequestFlush();
@@ -1283,10 +1271,6 @@ export const RequestInfo: MessageFns<RequestInfo, "tendermint.abci.RequestInfo">
       obj.abci_version = message.abciVersion;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestInfo>): RequestInfo {
-    return RequestInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RequestInfo>): RequestInfo {
     const message = createBaseRequestInfo();
@@ -1437,10 +1421,6 @@ export const RequestInitChain: MessageFns<RequestInitChain, "tendermint.abci.Req
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RequestInitChain>): RequestInitChain {
-    return RequestInitChain.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RequestInitChain>): RequestInitChain {
     const message = createBaseRequestInitChain();
     message.time = object.time ?? undefined;
@@ -1553,10 +1533,6 @@ export const RequestQuery: MessageFns<RequestQuery, "tendermint.abci.RequestQuer
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RequestQuery>): RequestQuery {
-    return RequestQuery.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RequestQuery>): RequestQuery {
     const message = createBaseRequestQuery();
     message.data = object.data ?? new Uint8Array(0);
@@ -1635,10 +1611,6 @@ export const RequestCheckTx: MessageFns<RequestCheckTx, "tendermint.abci.Request
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RequestCheckTx>): RequestCheckTx {
-    return RequestCheckTx.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RequestCheckTx>): RequestCheckTx {
     const message = createBaseRequestCheckTx();
     message.tx = object.tx ?? new Uint8Array(0);
@@ -1682,10 +1654,6 @@ export const RequestCommit: MessageFns<RequestCommit, "tendermint.abci.RequestCo
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<RequestCommit>): RequestCommit {
-    return RequestCommit.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<RequestCommit>): RequestCommit {
     const message = createBaseRequestCommit();
     return message;
@@ -1726,10 +1694,6 @@ export const RequestListSnapshots: MessageFns<RequestListSnapshots, "tendermint.
   toJSON(_: RequestListSnapshots): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestListSnapshots>): RequestListSnapshots {
-    return RequestListSnapshots.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<RequestListSnapshots>): RequestListSnapshots {
     const message = createBaseRequestListSnapshots();
@@ -1802,10 +1766,6 @@ export const RequestOfferSnapshot: MessageFns<RequestOfferSnapshot, "tendermint.
       obj.app_hash = base64FromBytes(message.appHash);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestOfferSnapshot>): RequestOfferSnapshot {
-    return RequestOfferSnapshot.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RequestOfferSnapshot>): RequestOfferSnapshot {
     const message = createBaseRequestOfferSnapshot();
@@ -1901,10 +1861,6 @@ export const RequestLoadSnapshotChunk: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RequestLoadSnapshotChunk>): RequestLoadSnapshotChunk {
-    return RequestLoadSnapshotChunk.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RequestLoadSnapshotChunk>): RequestLoadSnapshotChunk {
     const message = createBaseRequestLoadSnapshotChunk();
     message.height = (object.height !== undefined && object.height !== null)
@@ -1999,10 +1955,6 @@ export const RequestApplySnapshotChunk: MessageFns<
       obj.sender = message.sender;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestApplySnapshotChunk>): RequestApplySnapshotChunk {
-    return RequestApplySnapshotChunk.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RequestApplySnapshotChunk>): RequestApplySnapshotChunk {
     const message = createBaseRequestApplySnapshotChunk();
@@ -2183,10 +2135,6 @@ export const RequestPrepareProposal: MessageFns<RequestPrepareProposal, "tenderm
       obj.proposer_address = base64FromBytes(message.proposerAddress);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestPrepareProposal>): RequestPrepareProposal {
-    return RequestPrepareProposal.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RequestPrepareProposal>): RequestPrepareProposal {
     const message = createBaseRequestPrepareProposal();
@@ -2379,10 +2327,6 @@ export const RequestProcessProposal: MessageFns<RequestProcessProposal, "tenderm
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RequestProcessProposal>): RequestProcessProposal {
-    return RequestProcessProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RequestProcessProposal>): RequestProcessProposal {
     const message = createBaseRequestProcessProposal();
     message.txs = object.txs?.map((e) => e) || [];
@@ -2572,10 +2516,6 @@ export const RequestExtendVote: MessageFns<RequestExtendVote, "tendermint.abci.R
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RequestExtendVote>): RequestExtendVote {
-    return RequestExtendVote.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RequestExtendVote>): RequestExtendVote {
     const message = createBaseRequestExtendVote();
     message.hash = object.hash ?? new Uint8Array(0);
@@ -2697,10 +2637,6 @@ export const RequestVerifyVoteExtension: MessageFns<
       obj.vote_extension = base64FromBytes(message.voteExtension);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestVerifyVoteExtension>): RequestVerifyVoteExtension {
-    return RequestVerifyVoteExtension.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RequestVerifyVoteExtension>): RequestVerifyVoteExtension {
     const message = createBaseRequestVerifyVoteExtension();
@@ -2884,10 +2820,6 @@ export const RequestFinalizeBlock: MessageFns<RequestFinalizeBlock, "tendermint.
       obj.proposer_address = base64FromBytes(message.proposerAddress);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RequestFinalizeBlock>): RequestFinalizeBlock {
-    return RequestFinalizeBlock.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RequestFinalizeBlock>): RequestFinalizeBlock {
     const message = createBaseRequestFinalizeBlock();
@@ -3226,10 +3158,6 @@ export const Response: MessageFns<Response, "tendermint.abci.Response"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Response>): Response {
-    return Response.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Response>): Response {
     const message = createBaseResponse();
     message.exception = (object.exception !== undefined && object.exception !== null)
@@ -3336,10 +3264,6 @@ export const ResponseException: MessageFns<ResponseException, "tendermint.abci.R
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseException>): ResponseException {
-    return ResponseException.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseException>): ResponseException {
     const message = createBaseResponseException();
     message.error = object.error ?? "";
@@ -3396,10 +3320,6 @@ export const ResponseEcho: MessageFns<ResponseEcho, "tendermint.abci.ResponseEch
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseEcho>): ResponseEcho {
-    return ResponseEcho.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseEcho>): ResponseEcho {
     const message = createBaseResponseEcho();
     message.message = object.message ?? "";
@@ -3441,10 +3361,6 @@ export const ResponseFlush: MessageFns<ResponseFlush, "tendermint.abci.ResponseF
   toJSON(_: ResponseFlush): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<ResponseFlush>): ResponseFlush {
-    return ResponseFlush.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<ResponseFlush>): ResponseFlush {
     const message = createBaseResponseFlush();
@@ -3571,10 +3487,6 @@ export const ResponseInfo: MessageFns<ResponseInfo, "tendermint.abci.ResponseInf
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseInfo>): ResponseInfo {
-    return ResponseInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseInfo>): ResponseInfo {
     const message = createBaseResponseInfo();
     message.data = object.data ?? "";
@@ -3672,10 +3584,6 @@ export const ResponseInitChain: MessageFns<ResponseInitChain, "tendermint.abci.R
       obj.app_hash = base64FromBytes(message.appHash);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ResponseInitChain>): ResponseInitChain {
-    return ResponseInitChain.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ResponseInitChain>): ResponseInitChain {
     const message = createBaseResponseInitChain();
@@ -3869,10 +3777,6 @@ export const ResponseQuery: MessageFns<ResponseQuery, "tendermint.abci.ResponseQ
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseQuery>): ResponseQuery {
-    return ResponseQuery.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseQuery>): ResponseQuery {
     const message = createBaseResponseQuery();
     message.code = object.code ?? 0;
@@ -4057,10 +3961,6 @@ export const ResponseCheckTx: MessageFns<ResponseCheckTx, "tendermint.abci.Respo
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseCheckTx>): ResponseCheckTx {
-    return ResponseCheckTx.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseCheckTx>): ResponseCheckTx {
     const message = createBaseResponseCheckTx();
     message.code = object.code ?? 0;
@@ -4128,10 +4028,6 @@ export const ResponseCommit: MessageFns<ResponseCommit, "tendermint.abci.Respons
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseCommit>): ResponseCommit {
-    return ResponseCommit.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseCommit>): ResponseCommit {
     const message = createBaseResponseCommit();
     message.retainHeight = (object.retainHeight !== undefined && object.retainHeight !== null)
@@ -4194,10 +4090,6 @@ export const ResponseListSnapshots: MessageFns<ResponseListSnapshots, "tendermin
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseListSnapshots>): ResponseListSnapshots {
-    return ResponseListSnapshots.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseListSnapshots>): ResponseListSnapshots {
     const message = createBaseResponseListSnapshots();
     message.snapshots = object.snapshots?.map((e) => Snapshot.fromPartial(e)) || [];
@@ -4253,10 +4145,6 @@ export const ResponseOfferSnapshot: MessageFns<ResponseOfferSnapshot, "tendermin
       obj.result = responseOfferSnapshot_ResultToJSON(message.result);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ResponseOfferSnapshot>): ResponseOfferSnapshot {
-    return ResponseOfferSnapshot.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ResponseOfferSnapshot>): ResponseOfferSnapshot {
     const message = createBaseResponseOfferSnapshot();
@@ -4316,10 +4204,6 @@ export const ResponseLoadSnapshotChunk: MessageFns<
       obj.chunk = base64FromBytes(message.chunk);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ResponseLoadSnapshotChunk>): ResponseLoadSnapshotChunk {
-    return ResponseLoadSnapshotChunk.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ResponseLoadSnapshotChunk>): ResponseLoadSnapshotChunk {
     const message = createBaseResponseLoadSnapshotChunk();
@@ -4428,10 +4312,6 @@ export const ResponseApplySnapshotChunk: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseApplySnapshotChunk>): ResponseApplySnapshotChunk {
-    return ResponseApplySnapshotChunk.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseApplySnapshotChunk>): ResponseApplySnapshotChunk {
     const message = createBaseResponseApplySnapshotChunk();
     message.result = object.result ?? 0;
@@ -4490,10 +4370,6 @@ export const ResponsePrepareProposal: MessageFns<ResponsePrepareProposal, "tende
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponsePrepareProposal>): ResponsePrepareProposal {
-    return ResponsePrepareProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponsePrepareProposal>): ResponsePrepareProposal {
     const message = createBaseResponsePrepareProposal();
     message.txs = object.txs?.map((e) => e) || [];
@@ -4550,10 +4426,6 @@ export const ResponseProcessProposal: MessageFns<ResponseProcessProposal, "tende
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseProcessProposal>): ResponseProcessProposal {
-    return ResponseProcessProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseProcessProposal>): ResponseProcessProposal {
     const message = createBaseResponseProcessProposal();
     message.status = object.status ?? 0;
@@ -4609,10 +4481,6 @@ export const ResponseExtendVote: MessageFns<ResponseExtendVote, "tendermint.abci
       obj.vote_extension = base64FromBytes(message.voteExtension);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ResponseExtendVote>): ResponseExtendVote {
-    return ResponseExtendVote.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ResponseExtendVote>): ResponseExtendVote {
     const message = createBaseResponseExtendVote();
@@ -4672,10 +4540,6 @@ export const ResponseVerifyVoteExtension: MessageFns<
       obj.status = responseVerifyVoteExtension_VerifyStatusToJSON(message.status);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ResponseVerifyVoteExtension>): ResponseVerifyVoteExtension {
-    return ResponseVerifyVoteExtension.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ResponseVerifyVoteExtension>): ResponseVerifyVoteExtension {
     const message = createBaseResponseVerifyVoteExtension();
@@ -4807,10 +4671,6 @@ export const ResponseFinalizeBlock: MessageFns<ResponseFinalizeBlock, "tendermin
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResponseFinalizeBlock>): ResponseFinalizeBlock {
-    return ResponseFinalizeBlock.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResponseFinalizeBlock>): ResponseFinalizeBlock {
     const message = createBaseResponseFinalizeBlock();
     message.events = object.events?.map((e) => Event.fromPartial(e)) || [];
@@ -4891,10 +4751,6 @@ export const CommitInfo: MessageFns<CommitInfo, "tendermint.abci.CommitInfo"> = 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CommitInfo>): CommitInfo {
-    return CommitInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CommitInfo>): CommitInfo {
     const message = createBaseCommitInfo();
     message.round = object.round ?? 0;
@@ -4968,10 +4824,6 @@ export const ExtendedCommitInfo: MessageFns<ExtendedCommitInfo, "tendermint.abci
       obj.votes = message.votes.map((e) => ExtendedVoteInfo.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ExtendedCommitInfo>): ExtendedCommitInfo {
-    return ExtendedCommitInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ExtendedCommitInfo>): ExtendedCommitInfo {
     const message = createBaseExtendedCommitInfo();
@@ -5048,10 +4900,6 @@ export const Event: MessageFns<Event, "tendermint.abci.Event"> = {
       obj.attributes = message.attributes.map((e) => EventAttribute.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Event>): Event {
-    return Event.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Event>): Event {
     const message = createBaseEvent();
@@ -5141,10 +4989,6 @@ export const EventAttribute: MessageFns<EventAttribute, "tendermint.abci.EventAt
       obj.index = message.index;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventAttribute>): EventAttribute {
-    return EventAttribute.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventAttribute>): EventAttribute {
     const message = createBaseEventAttribute();
@@ -5320,10 +5164,6 @@ export const ExecTxResult: MessageFns<ExecTxResult, "tendermint.abci.ExecTxResul
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ExecTxResult>): ExecTxResult {
-    return ExecTxResult.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ExecTxResult>): ExecTxResult {
     const message = createBaseExecTxResult();
     message.code = object.code ?? 0;
@@ -5438,10 +5278,6 @@ export const TxResult: MessageFns<TxResult, "tendermint.abci.TxResult"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<TxResult>): TxResult {
-    return TxResult.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<TxResult>): TxResult {
     const message = createBaseTxResult();
     message.height = (object.height !== undefined && object.height !== null)
@@ -5522,10 +5358,6 @@ export const Validator: MessageFns<Validator, "tendermint.abci.Validator"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Validator>): Validator {
-    return Validator.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Validator>): Validator {
     const message = createBaseValidator();
     message.address = object.address ?? new Uint8Array(0);
@@ -5599,10 +5431,6 @@ export const ValidatorUpdate: MessageFns<ValidatorUpdate, "tendermint.abci.Valid
       obj.power = (message.power || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ValidatorUpdate>): ValidatorUpdate {
-    return ValidatorUpdate.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ValidatorUpdate>): ValidatorUpdate {
     const message = createBaseValidatorUpdate();
@@ -5679,10 +5507,6 @@ export const VoteInfo: MessageFns<VoteInfo, "tendermint.abci.VoteInfo"> = {
       obj.block_id_flag = blockIDFlagToJSON(message.blockIdFlag);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<VoteInfo>): VoteInfo {
-    return VoteInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<VoteInfo>): VoteInfo {
     const message = createBaseVoteInfo();
@@ -5796,10 +5620,6 @@ export const ExtendedVoteInfo: MessageFns<ExtendedVoteInfo, "tendermint.abci.Ext
       obj.block_id_flag = blockIDFlagToJSON(message.blockIdFlag);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ExtendedVoteInfo>): ExtendedVoteInfo {
-    return ExtendedVoteInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ExtendedVoteInfo>): ExtendedVoteInfo {
     const message = createBaseExtendedVoteInfo();
@@ -5923,10 +5743,6 @@ export const Misbehavior: MessageFns<Misbehavior, "tendermint.abci.Misbehavior">
       obj.total_voting_power = (message.totalVotingPower || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Misbehavior>): Misbehavior {
-    return Misbehavior.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Misbehavior>): Misbehavior {
     const message = createBaseMisbehavior();
@@ -6055,10 +5871,6 @@ export const Snapshot: MessageFns<Snapshot, "tendermint.abci.Snapshot"> = {
       obj.metadata = base64FromBytes(message.metadata);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Snapshot>): Snapshot {
-    return Snapshot.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Snapshot>): Snapshot {
     const message = createBaseSnapshot();

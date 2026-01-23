@@ -142,10 +142,6 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Proof>): Proof {
-    return Proof.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Proof>): Proof {
     const message = createBaseProof();
     message.total = (object.total !== undefined && object.total !== null) ? Long.fromValue(object.total) : Long.ZERO;
@@ -221,10 +217,6 @@ export const ValueOp: MessageFns<ValueOp, "tendermint.crypto.ValueOp"> = {
       obj.proof = Proof.toJSON(message.proof);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ValueOp>): ValueOp {
-    return ValueOp.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ValueOp>): ValueOp {
     const message = createBaseValueOp();
@@ -314,10 +306,6 @@ export const DominoOp: MessageFns<DominoOp, "tendermint.crypto.DominoOp"> = {
       obj.output = message.output;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DominoOp>): DominoOp {
-    return DominoOp.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DominoOp>): DominoOp {
     const message = createBaseDominoOp();
@@ -409,10 +397,6 @@ export const ProofOp: MessageFns<ProofOp, "tendermint.crypto.ProofOp"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ProofOp>): ProofOp {
-    return ProofOp.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ProofOp>): ProofOp {
     const message = createBaseProofOp();
     message.type = object.type ?? "";
@@ -470,10 +454,6 @@ export const ProofOps: MessageFns<ProofOps, "tendermint.crypto.ProofOps"> = {
       obj.ops = message.ops.map((e) => ProofOp.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ProofOps>): ProofOps {
-    return ProofOps.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ProofOps>): ProofOps {
     const message = createBaseProofOps();

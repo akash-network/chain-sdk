@@ -154,10 +154,6 @@ export const Allocation: MessageFns<Allocation, "ibc.applications.transfer.v1.Al
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Allocation>): Allocation {
-    return Allocation.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Allocation>): Allocation {
     const message = createBaseAllocation();
     message.sourcePort = object.sourcePort ?? "";
@@ -224,10 +220,6 @@ export const TransferAuthorization: MessageFns<
       obj.allocations = message.allocations.map((e) => Allocation.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<TransferAuthorization>): TransferAuthorization {
-    return TransferAuthorization.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<TransferAuthorization>): TransferAuthorization {
     const message = createBaseTransferAuthorization();

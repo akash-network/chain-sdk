@@ -88,10 +88,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.auth.v1beta1.Genesis
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.params = (object.params !== undefined && object.params !== null)

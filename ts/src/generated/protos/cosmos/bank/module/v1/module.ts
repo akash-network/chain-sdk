@@ -114,10 +114,6 @@ export const Module: MessageFns<Module, "cosmos.bank.module.v1.Module"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Module>): Module {
-    return Module.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Module>): Module {
     const message = createBaseModule();
     message.blockedModuleAccountsOverride = object.blockedModuleAccountsOverride?.map((e) => e) || [];

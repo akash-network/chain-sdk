@@ -118,10 +118,6 @@ export const MsgStoreCode: MessageFns<MsgStoreCode, "ibc.lightclients.wasm.v1.Ms
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgStoreCode>): MsgStoreCode {
-    return MsgStoreCode.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgStoreCode>): MsgStoreCode {
     const message = createBaseMsgStoreCode();
     message.signer = object.signer ?? "";
@@ -178,10 +174,6 @@ export const MsgStoreCodeResponse: MessageFns<MsgStoreCodeResponse, "ibc.lightcl
       obj.checksum = base64FromBytes(message.checksum);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgStoreCodeResponse>): MsgStoreCodeResponse {
-    return MsgStoreCodeResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgStoreCodeResponse>): MsgStoreCodeResponse {
     const message = createBaseMsgStoreCodeResponse();
@@ -256,10 +248,6 @@ export const MsgRemoveChecksum: MessageFns<MsgRemoveChecksum, "ibc.lightclients.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgRemoveChecksum>): MsgRemoveChecksum {
-    return MsgRemoveChecksum.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgRemoveChecksum>): MsgRemoveChecksum {
     const message = createBaseMsgRemoveChecksum();
     message.signer = object.signer ?? "";
@@ -305,10 +293,6 @@ export const MsgRemoveChecksumResponse: MessageFns<
   toJSON(_: MsgRemoveChecksumResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgRemoveChecksumResponse>): MsgRemoveChecksumResponse {
-    return MsgRemoveChecksumResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgRemoveChecksumResponse>): MsgRemoveChecksumResponse {
     const message = createBaseMsgRemoveChecksumResponse();
@@ -412,10 +396,6 @@ export const MsgMigrateContract: MessageFns<MsgMigrateContract, "ibc.lightclient
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgMigrateContract>): MsgMigrateContract {
-    return MsgMigrateContract.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgMigrateContract>): MsgMigrateContract {
     const message = createBaseMsgMigrateContract();
     message.signer = object.signer ?? "";
@@ -463,10 +443,6 @@ export const MsgMigrateContractResponse: MessageFns<
   toJSON(_: MsgMigrateContractResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgMigrateContractResponse>): MsgMigrateContractResponse {
-    return MsgMigrateContractResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgMigrateContractResponse>): MsgMigrateContractResponse {
     const message = createBaseMsgMigrateContractResponse();

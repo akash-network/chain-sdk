@@ -83,10 +83,6 @@ export const Group: MessageFns<Group, "akash.manifest.v2beta3.Group"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Group>): Group {
-    return Group.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Group>): Group {
     const message = createBaseGroup();
     message.name = object.name ?? "";

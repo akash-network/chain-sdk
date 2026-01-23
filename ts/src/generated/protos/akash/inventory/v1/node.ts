@@ -76,10 +76,6 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<NodeCapabilities>): NodeCapabilities {
-    return NodeCapabilities.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<NodeCapabilities>): NodeCapabilities {
     const message = createBaseNodeCapabilities();
     message.storageClasses = object.storageClasses?.map((e) => e) || [];
@@ -167,10 +163,6 @@ export const Node: MessageFns<Node, "akash.inventory.v1.Node"> = {
       obj.capabilities = NodeCapabilities.toJSON(message.capabilities);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Node>): Node {
-    return Node.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Node>): Node {
     const message = createBaseNode();
