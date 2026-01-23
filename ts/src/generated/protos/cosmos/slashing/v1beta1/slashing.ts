@@ -187,10 +187,6 @@ export const ValidatorSigningInfo: MessageFns<ValidatorSigningInfo, "cosmos.slas
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ValidatorSigningInfo>): ValidatorSigningInfo {
-    return ValidatorSigningInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ValidatorSigningInfo>): ValidatorSigningInfo {
     const message = createBaseValidatorSigningInfo();
     message.address = object.address ?? "";
@@ -333,10 +329,6 @@ export const Params: MessageFns<Params, "cosmos.slashing.v1beta1.Params"> = {
       obj.slash_fraction_downtime = base64FromBytes(message.slashFractionDowntime);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();

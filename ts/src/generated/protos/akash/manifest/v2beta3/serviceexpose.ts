@@ -213,10 +213,6 @@ export const ServiceExpose: MessageFns<ServiceExpose, "akash.manifest.v2beta3.Se
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ServiceExpose>): ServiceExpose {
-    return ServiceExpose.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ServiceExpose>): ServiceExpose {
     const message = createBaseServiceExpose();
     message.port = object.port ?? 0;

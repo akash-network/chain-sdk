@@ -184,10 +184,6 @@ export const Timestamp: MessageFns<Timestamp, "google.protobuf.Timestamp"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Timestamp>): Timestamp {
-    return Timestamp.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Timestamp>): Timestamp {
     const message = createBaseTimestamp();
     message.seconds = (object.seconds !== undefined && object.seconds !== null)

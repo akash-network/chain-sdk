@@ -319,10 +319,6 @@ export const Module: MessageFns<Module, "cosmos.app.runtime.v1alpha1.Module"> = 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Module>): Module {
-    return Module.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Module>): Module {
     const message = createBaseModule();
     message.appName = object.appName ?? "";
@@ -405,10 +401,6 @@ export const StoreKeyConfig: MessageFns<StoreKeyConfig, "cosmos.app.runtime.v1al
       obj.kv_store_key = message.kvStoreKey;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<StoreKeyConfig>): StoreKeyConfig {
-    return StoreKeyConfig.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<StoreKeyConfig>): StoreKeyConfig {
     const message = createBaseStoreKeyConfig();

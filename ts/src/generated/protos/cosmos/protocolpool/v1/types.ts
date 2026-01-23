@@ -116,10 +116,6 @@ export const ContinuousFund: MessageFns<ContinuousFund, "cosmos.protocolpool.v1.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ContinuousFund>): ContinuousFund {
-    return ContinuousFund.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ContinuousFund>): ContinuousFund {
     const message = createBaseContinuousFund();
     message.recipient = object.recipient ?? "";
@@ -198,10 +194,6 @@ export const Params: MessageFns<Params, "cosmos.protocolpool.v1.Params"> = {
       obj.distribution_frequency = (message.distributionFrequency || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();

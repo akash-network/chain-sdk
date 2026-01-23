@@ -156,10 +156,6 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DeploymentID>): DeploymentID {
-    return DeploymentID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DeploymentID>): DeploymentID {
     const message = createBaseDeploymentID();
     message.owner = object.owner ?? "";
@@ -263,10 +259,6 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
       obj.created_at = (message.createdAt || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Deployment>): Deployment {
-    return Deployment.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Deployment>): Deployment {
     const message = createBaseDeployment();

@@ -153,10 +153,6 @@ export const GPUInfo: MessageFns<GPUInfo, "akash.inventory.v1.GPUInfo"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GPUInfo>): GPUInfo {
-    return GPUInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GPUInfo>): GPUInfo {
     const message = createBaseGPUInfo();
     message.vendor = object.vendor ?? "";
@@ -234,10 +230,6 @@ export const GPU: MessageFns<GPU, "akash.inventory.v1.GPU"> = {
       obj.info = message.info.map((e) => GPUInfo.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GPU>): GPU {
-    return GPU.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GPU>): GPU {
     const message = createBaseGPU();

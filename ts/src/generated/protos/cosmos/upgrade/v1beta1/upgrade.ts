@@ -202,10 +202,6 @@ export const Plan: MessageFns<Plan, "cosmos.upgrade.v1beta1.Plan"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Plan>): Plan {
-    return Plan.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Plan>): Plan {
     const message = createBasePlan();
     message.name = object.name ?? "";
@@ -305,10 +301,6 @@ export const SoftwareUpgradeProposal: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SoftwareUpgradeProposal>): SoftwareUpgradeProposal {
-    return SoftwareUpgradeProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SoftwareUpgradeProposal>): SoftwareUpgradeProposal {
     const message = createBaseSoftwareUpgradeProposal();
     message.title = object.title ?? "";
@@ -387,10 +379,6 @@ export const CancelSoftwareUpgradeProposal: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CancelSoftwareUpgradeProposal>): CancelSoftwareUpgradeProposal {
-    return CancelSoftwareUpgradeProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CancelSoftwareUpgradeProposal>): CancelSoftwareUpgradeProposal {
     const message = createBaseCancelSoftwareUpgradeProposal();
     message.title = object.title ?? "";
@@ -464,10 +452,6 @@ export const ModuleVersion: MessageFns<ModuleVersion, "cosmos.upgrade.v1beta1.Mo
       obj.version = (message.version || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ModuleVersion>): ModuleVersion {
-    return ModuleVersion.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ModuleVersion>): ModuleVersion {
     const message = createBaseModuleVersion();

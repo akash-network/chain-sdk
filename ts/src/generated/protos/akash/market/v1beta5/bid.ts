@@ -204,10 +204,6 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Bid>): Bid {
-    return Bid.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Bid>): Bid {
     const message = createBaseBid();
     message.id = (object.id !== undefined && object.id !== null) ? BidID.fromPartial(object.id) : undefined;

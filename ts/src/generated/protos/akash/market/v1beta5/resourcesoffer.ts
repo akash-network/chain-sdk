@@ -90,10 +90,6 @@ export const ResourceOffer: MessageFns<ResourceOffer, "akash.market.v1beta5.Reso
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResourceOffer>): ResourceOffer {
-    return ResourceOffer.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResourceOffer>): ResourceOffer {
     const message = createBaseResourceOffer();
     message.resources = (object.resources !== undefined && object.resources !== null)

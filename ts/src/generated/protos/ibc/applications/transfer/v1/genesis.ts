@@ -125,10 +125,6 @@ export const GenesisState: MessageFns<GenesisState, "ibc.applications.transfer.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.portId = object.portId ?? "";

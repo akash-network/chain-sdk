@@ -101,10 +101,6 @@ export const EventProviderCreated: MessageFns<EventProviderCreated, "akash.provi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventProviderCreated>): EventProviderCreated {
-    return EventProviderCreated.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventProviderCreated>): EventProviderCreated {
     const message = createBaseEventProviderCreated();
     message.owner = object.owner ?? "";
@@ -161,10 +157,6 @@ export const EventProviderUpdated: MessageFns<EventProviderUpdated, "akash.provi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventProviderUpdated>): EventProviderUpdated {
-    return EventProviderUpdated.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventProviderUpdated>): EventProviderUpdated {
     const message = createBaseEventProviderUpdated();
     message.owner = object.owner ?? "";
@@ -220,10 +212,6 @@ export const EventProviderDeleted: MessageFns<EventProviderDeleted, "akash.provi
       obj.owner = message.owner;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventProviderDeleted>): EventProviderDeleted {
-    return EventProviderDeleted.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventProviderDeleted>): EventProviderDeleted {
     const message = createBaseEventProviderDeleted();

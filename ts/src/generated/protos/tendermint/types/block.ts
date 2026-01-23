@@ -115,10 +115,6 @@ export const Block: MessageFns<Block, "tendermint.types.Block"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Block>): Block {
-    return Block.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Block>): Block {
     const message = createBaseBlock();
     message.header = (object.header !== undefined && object.header !== null)

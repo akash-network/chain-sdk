@@ -449,10 +449,6 @@ export const HistoricalInfo: MessageFns<HistoricalInfo, "cosmos.staking.v1beta1.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<HistoricalInfo>): HistoricalInfo {
-    return HistoricalInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<HistoricalInfo>): HistoricalInfo {
     const message = createBaseHistoricalInfo();
     message.header = (object.header !== undefined && object.header !== null)
@@ -544,10 +540,6 @@ export const CommissionRates: MessageFns<CommissionRates, "cosmos.staking.v1beta
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CommissionRates>): CommissionRates {
-    return CommissionRates.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CommissionRates>): CommissionRates {
     const message = createBaseCommissionRates();
     message.rate = object.rate ?? "";
@@ -622,10 +614,6 @@ export const Commission: MessageFns<Commission, "cosmos.staking.v1beta1.Commissi
       obj.update_time = message.updateTime.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Commission>): Commission {
-    return Commission.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Commission>): Commission {
     const message = createBaseCommission();
@@ -747,10 +735,6 @@ export const Description: MessageFns<Description, "cosmos.staking.v1beta1.Descri
       obj.details = message.details;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Description>): Description {
-    return Description.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Description>): Description {
     const message = createBaseDescription();
@@ -1024,10 +1008,6 @@ export const Validator: MessageFns<Validator, "cosmos.staking.v1beta1.Validator"
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Validator>): Validator {
-    return Validator.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Validator>): Validator {
     const message = createBaseValidator();
     message.operatorAddress = object.operatorAddress ?? "";
@@ -1111,10 +1091,6 @@ export const ValAddresses: MessageFns<ValAddresses, "cosmos.staking.v1beta1.ValA
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ValAddresses>): ValAddresses {
-    return ValAddresses.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ValAddresses>): ValAddresses {
     const message = createBaseValAddresses();
     message.addresses = object.addresses?.map((e) => e) || [];
@@ -1188,10 +1164,6 @@ export const DVPair: MessageFns<DVPair, "cosmos.staking.v1beta1.DVPair"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DVPair>): DVPair {
-    return DVPair.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DVPair>): DVPair {
     const message = createBaseDVPair();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -1248,10 +1220,6 @@ export const DVPairs: MessageFns<DVPairs, "cosmos.staking.v1beta1.DVPairs"> = {
       obj.pairs = message.pairs.map((e) => DVPair.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DVPairs>): DVPairs {
-    return DVPairs.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DVPairs>): DVPairs {
     const message = createBaseDVPairs();
@@ -1341,10 +1309,6 @@ export const DVVTriplet: MessageFns<DVVTriplet, "cosmos.staking.v1beta1.DVVTripl
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DVVTriplet>): DVVTriplet {
-    return DVVTriplet.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DVVTriplet>): DVVTriplet {
     const message = createBaseDVVTriplet();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -1406,10 +1370,6 @@ export const DVVTriplets: MessageFns<DVVTriplets, "cosmos.staking.v1beta1.DVVTri
       obj.triplets = message.triplets.map((e) => DVVTriplet.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DVVTriplets>): DVVTriplets {
-    return DVVTriplets.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DVVTriplets>): DVVTriplets {
     const message = createBaseDVVTriplets();
@@ -1498,10 +1458,6 @@ export const Delegation: MessageFns<Delegation, "cosmos.staking.v1beta1.Delegati
       obj.shares = message.shares;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Delegation>): Delegation {
-    return Delegation.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Delegation>): Delegation {
     const message = createBaseDelegation();
@@ -1594,10 +1550,6 @@ export const UnbondingDelegation: MessageFns<UnbondingDelegation, "cosmos.stakin
       obj.entries = message.entries.map((e) => UnbondingDelegationEntry.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<UnbondingDelegation>): UnbondingDelegation {
-    return UnbondingDelegation.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<UnbondingDelegation>): UnbondingDelegation {
     const message = createBaseUnbondingDelegation();
@@ -1745,10 +1697,6 @@ export const UnbondingDelegationEntry: MessageFns<
       obj.unbonding_on_hold_ref_count = (message.unbondingOnHoldRefCount || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<UnbondingDelegationEntry>): UnbondingDelegationEntry {
-    return UnbondingDelegationEntry.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<UnbondingDelegationEntry>): UnbondingDelegationEntry {
     const message = createBaseUnbondingDelegationEntry();
@@ -1904,10 +1852,6 @@ export const RedelegationEntry: MessageFns<RedelegationEntry, "cosmos.staking.v1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RedelegationEntry>): RedelegationEntry {
-    return RedelegationEntry.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RedelegationEntry>): RedelegationEntry {
     const message = createBaseRedelegationEntry();
     message.creationHeight = (object.creationHeight !== undefined && object.creationHeight !== null)
@@ -2024,10 +1968,6 @@ export const Redelegation: MessageFns<Redelegation, "cosmos.staking.v1beta1.Rede
       obj.entries = message.entries.map((e) => RedelegationEntry.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Redelegation>): Redelegation {
-    return Redelegation.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Redelegation>): Redelegation {
     const message = createBaseRedelegation();
@@ -2172,10 +2112,6 @@ export const Params: MessageFns<Params, "cosmos.staking.v1beta1.Params"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.unbondingTime = (object.unbondingTime !== undefined && object.unbondingTime !== null)
@@ -2255,10 +2191,6 @@ export const DelegationResponse: MessageFns<DelegationResponse, "cosmos.staking.
       obj.balance = Coin.toJSON(message.balance);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DelegationResponse>): DelegationResponse {
-    return DelegationResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DelegationResponse>): DelegationResponse {
     const message = createBaseDelegationResponse();
@@ -2343,10 +2275,6 @@ export const RedelegationEntryResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RedelegationEntryResponse>): RedelegationEntryResponse {
-    return RedelegationEntryResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RedelegationEntryResponse>): RedelegationEntryResponse {
     const message = createBaseRedelegationEntryResponse();
     message.redelegationEntry = (object.redelegationEntry !== undefined && object.redelegationEntry !== null)
@@ -2425,10 +2353,6 @@ export const RedelegationResponse: MessageFns<RedelegationResponse, "cosmos.stak
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RedelegationResponse>): RedelegationResponse {
-    return RedelegationResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RedelegationResponse>): RedelegationResponse {
     const message = createBaseRedelegationResponse();
     message.redelegation = (object.redelegation !== undefined && object.redelegation !== null)
@@ -2505,10 +2429,6 @@ export const Pool: MessageFns<Pool, "cosmos.staking.v1beta1.Pool"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Pool>): Pool {
-    return Pool.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Pool>): Pool {
     const message = createBasePool();
     message.notBondedTokens = object.notBondedTokens ?? "";
@@ -2569,10 +2489,6 @@ export const ValidatorUpdates: MessageFns<ValidatorUpdates, "cosmos.staking.v1be
       obj.updates = message.updates.map((e) => ValidatorUpdate.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ValidatorUpdates>): ValidatorUpdates {
-    return ValidatorUpdates.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ValidatorUpdates>): ValidatorUpdates {
     const message = createBaseValidatorUpdates();

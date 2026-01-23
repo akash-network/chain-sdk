@@ -111,10 +111,6 @@ export const CertificateFilter: MessageFns<CertificateFilter, "akash.cert.v1.Cer
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CertificateFilter>): CertificateFilter {
-    return CertificateFilter.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CertificateFilter>): CertificateFilter {
     const message = createBaseCertificateFilter();
     message.owner = object.owner ?? "";

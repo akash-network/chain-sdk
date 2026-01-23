@@ -191,10 +191,6 @@ export const DelegatorWithdrawInfo: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DelegatorWithdrawInfo>): DelegatorWithdrawInfo {
-    return DelegatorWithdrawInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DelegatorWithdrawInfo>): DelegatorWithdrawInfo {
     const message = createBaseDelegatorWithdrawInfo();
     message.delegatorAddress = object.delegatorAddress ?? "";
@@ -274,10 +270,6 @@ export const ValidatorOutstandingRewardsRecord: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ValidatorOutstandingRewardsRecord>): ValidatorOutstandingRewardsRecord {
-    return ValidatorOutstandingRewardsRecord.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ValidatorOutstandingRewardsRecord>): ValidatorOutstandingRewardsRecord {
     const message = createBaseValidatorOutstandingRewardsRecord();
     message.validatorAddress = object.validatorAddress ?? "";
@@ -354,10 +346,6 @@ export const ValidatorAccumulatedCommissionRecord: MessageFns<
       obj.accumulated = ValidatorAccumulatedCommission.toJSON(message.accumulated);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ValidatorAccumulatedCommissionRecord>): ValidatorAccumulatedCommissionRecord {
-    return ValidatorAccumulatedCommissionRecord.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ValidatorAccumulatedCommissionRecord>): ValidatorAccumulatedCommissionRecord {
     const message = createBaseValidatorAccumulatedCommissionRecord();
@@ -453,10 +441,6 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ValidatorHistoricalRewardsRecord>): ValidatorHistoricalRewardsRecord {
-    return ValidatorHistoricalRewardsRecord.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ValidatorHistoricalRewardsRecord>): ValidatorHistoricalRewardsRecord {
     const message = createBaseValidatorHistoricalRewardsRecord();
     message.validatorAddress = object.validatorAddress ?? "";
@@ -538,10 +522,6 @@ export const ValidatorCurrentRewardsRecord: MessageFns<
       obj.rewards = ValidatorCurrentRewards.toJSON(message.rewards);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ValidatorCurrentRewardsRecord>): ValidatorCurrentRewardsRecord {
-    return ValidatorCurrentRewardsRecord.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ValidatorCurrentRewardsRecord>): ValidatorCurrentRewardsRecord {
     const message = createBaseValidatorCurrentRewardsRecord();
@@ -636,10 +616,6 @@ export const DelegatorStartingInfoRecord: MessageFns<
       obj.starting_info = DelegatorStartingInfo.toJSON(message.startingInfo);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DelegatorStartingInfoRecord>): DelegatorStartingInfoRecord {
-    return DelegatorStartingInfoRecord.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DelegatorStartingInfoRecord>): DelegatorStartingInfoRecord {
     const message = createBaseDelegatorStartingInfoRecord();
@@ -752,10 +728,6 @@ export const ValidatorSlashEventRecord: MessageFns<
       obj.validator_slash_event = ValidatorSlashEvent.toJSON(message.validatorSlashEvent);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ValidatorSlashEventRecord>): ValidatorSlashEventRecord {
-    return ValidatorSlashEventRecord.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ValidatorSlashEventRecord>): ValidatorSlashEventRecord {
     const message = createBaseValidatorSlashEventRecord();
@@ -991,10 +963,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.distribution.v1beta1
       obj.validator_slash_events = message.validatorSlashEvents.map((e) => ValidatorSlashEventRecord.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();

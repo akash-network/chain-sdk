@@ -140,10 +140,6 @@ export const Deposit: MessageFns<Deposit, "akash.base.deposit.v1.Deposit"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Deposit>): Deposit {
-    return Deposit.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Deposit>): Deposit {
     const message = createBaseDeposit();
     message.amount = (object.amount !== undefined && object.amount !== null)

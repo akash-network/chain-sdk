@@ -225,10 +225,6 @@ export const SignatureDescriptors: MessageFns<SignatureDescriptors, "cosmos.tx.s
       }
       return obj;
     },
-
-    create(base?: DeepPartial<SignatureDescriptors>): SignatureDescriptors {
-      return SignatureDescriptors.fromPartial(base ?? {});
-    },
     fromPartial(object: DeepPartial<SignatureDescriptors>): SignatureDescriptors {
       const message = createBaseSignatureDescriptors();
       message.signatures = object.signatures?.map((e) => SignatureDescriptor.fromPartial(e)) || [];
@@ -317,10 +313,6 @@ export const SignatureDescriptor: MessageFns<SignatureDescriptor, "cosmos.tx.sig
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignatureDescriptor>): SignatureDescriptor {
-    return SignatureDescriptor.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignatureDescriptor>): SignatureDescriptor {
     const message = createBaseSignatureDescriptor();
     message.publicKey = (object.publicKey !== undefined && object.publicKey !== null)
@@ -405,10 +397,6 @@ export const SignatureDescriptor_Data: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignatureDescriptor_Data>): SignatureDescriptor_Data {
-    return SignatureDescriptor_Data.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignatureDescriptor_Data>): SignatureDescriptor_Data {
     const message = createBaseSignatureDescriptor_Data();
     message.single = (object.single !== undefined && object.single !== null)
@@ -490,10 +478,6 @@ export const SignatureDescriptor_Data_Single: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignatureDescriptor_Data_Single>): SignatureDescriptor_Data_Single {
-    return SignatureDescriptor_Data_Single.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignatureDescriptor_Data_Single>): SignatureDescriptor_Data_Single {
     const message = createBaseSignatureDescriptor_Data_Single();
     message.mode = object.mode ?? 0;
@@ -572,10 +556,6 @@ export const SignatureDescriptor_Data_Multi: MessageFns<
       obj.signatures = message.signatures.map((e) => SignatureDescriptor_Data.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SignatureDescriptor_Data_Multi>): SignatureDescriptor_Data_Multi {
-    return SignatureDescriptor_Data_Multi.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SignatureDescriptor_Data_Multi>): SignatureDescriptor_Data_Multi {
     const message = createBaseSignatureDescriptor_Data_Multi();

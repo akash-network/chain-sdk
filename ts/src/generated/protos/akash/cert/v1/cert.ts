@@ -150,10 +150,6 @@ export const ID: MessageFns<ID, "akash.cert.v1.ID"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ID>): ID {
-    return ID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ID>): ID {
     const message = createBaseID();
     message.owner = object.owner ?? "";
@@ -242,10 +238,6 @@ export const Certificate: MessageFns<Certificate, "akash.cert.v1.Certificate"> =
       obj.pubkey = base64FromBytes(message.pubkey);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Certificate>): Certificate {
-    return Certificate.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Certificate>): Certificate {
     const message = createBaseCertificate();

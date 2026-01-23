@@ -185,10 +185,6 @@ export const ClientState: MessageFns<ClientState, "ibc.lightclients.solomachine.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ClientState>): ClientState {
-    return ClientState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = createBaseClientState();
     message.sequence = (object.sequence !== undefined && object.sequence !== null)
@@ -282,10 +278,6 @@ export const ConsensusState: MessageFns<ConsensusState, "ibc.lightclients.soloma
       obj.timestamp = (message.timestamp || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ConsensusState>): ConsensusState {
-    return ConsensusState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ConsensusState>): ConsensusState {
     const message = createBaseConsensusState();
@@ -396,10 +388,6 @@ export const Header: MessageFns<Header, "ibc.lightclients.solomachine.v3.Header"
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Header>): Header {
-    return Header.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Header>): Header {
     const message = createBaseHeader();
     message.timestamp = (object.timestamp !== undefined && object.timestamp !== null)
@@ -494,10 +482,6 @@ export const Misbehaviour: MessageFns<Misbehaviour, "ibc.lightclients.solomachin
       obj.signature_two = SignatureAndData.toJSON(message.signatureTwo);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Misbehaviour>): Misbehaviour {
-    return Misbehaviour.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Misbehaviour>): Misbehaviour {
     const message = createBaseMisbehaviour();
@@ -610,10 +594,6 @@ export const SignatureAndData: MessageFns<SignatureAndData, "ibc.lightclients.so
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignatureAndData>): SignatureAndData {
-    return SignatureAndData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignatureAndData>): SignatureAndData {
     const message = createBaseSignatureAndData();
     message.signature = object.signature ?? new Uint8Array(0);
@@ -694,10 +674,6 @@ export const TimestampedSignatureData: MessageFns<
       obj.timestamp = (message.timestamp || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<TimestampedSignatureData>): TimestampedSignatureData {
-    return TimestampedSignatureData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<TimestampedSignatureData>): TimestampedSignatureData {
     const message = createBaseTimestampedSignatureData();
@@ -826,10 +802,6 @@ export const SignBytes: MessageFns<SignBytes, "ibc.lightclients.solomachine.v3.S
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignBytes>): SignBytes {
-    return SignBytes.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignBytes>): SignBytes {
     const message = createBaseSignBytes();
     message.sequence = (object.sequence !== undefined && object.sequence !== null)
@@ -910,10 +882,6 @@ export const HeaderData: MessageFns<HeaderData, "ibc.lightclients.solomachine.v3
       obj.new_diversifier = message.newDiversifier;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<HeaderData>): HeaderData {
-    return HeaderData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<HeaderData>): HeaderData {
     const message = createBaseHeaderData();

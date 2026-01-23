@@ -92,10 +92,6 @@ export const Module: MessageFns<Module, "cosmos.benchmark.module.v1.Module"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Module>): Module {
-    return Module.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Module>): Module {
     const message = createBaseModule();
     message.genesisParams = (object.genesisParams !== undefined && object.genesisParams !== null)
@@ -317,10 +313,6 @@ export const GeneratorParams: MessageFns<GeneratorParams, "cosmos.benchmark.modu
       obj.delete_weight = message.deleteWeight;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GeneratorParams>): GeneratorParams {
-    return GeneratorParams.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GeneratorParams>): GeneratorParams {
     const message = createBaseGeneratorParams();

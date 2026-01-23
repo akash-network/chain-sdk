@@ -158,10 +158,6 @@ export const Block: MessageFns<Block, "cosmos.base.tendermint.v1beta1.Block"> = 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Block>): Block {
-    return Block.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Block>): Block {
     const message = createBaseBlock();
     message.header = (object.header !== undefined && object.header !== null)
@@ -440,10 +436,6 @@ export const Header: MessageFns<Header, "cosmos.base.tendermint.v1beta1.Header">
       obj.proposer_address = message.proposerAddress;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Header>): Header {
-    return Header.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Header>): Header {
     const message = createBaseHeader();

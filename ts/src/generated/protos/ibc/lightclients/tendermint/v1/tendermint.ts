@@ -355,10 +355,6 @@ export const ClientState: MessageFns<ClientState, "ibc.lightclients.tendermint.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ClientState>): ClientState {
-    return ClientState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = createBaseClientState();
     message.chainId = object.chainId ?? "";
@@ -471,10 +467,6 @@ export const ConsensusState: MessageFns<ConsensusState, "ibc.lightclients.tender
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ConsensusState>): ConsensusState {
-    return ConsensusState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ConsensusState>): ConsensusState {
     const message = createBaseConsensusState();
     message.timestamp = object.timestamp ?? undefined;
@@ -566,10 +558,6 @@ export const Misbehaviour: MessageFns<Misbehaviour, "ibc.lightclients.tendermint
       obj.header_2 = Header.toJSON(message.header2);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Misbehaviour>): Misbehaviour {
-    return Misbehaviour.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Misbehaviour>): Misbehaviour {
     const message = createBaseMisbehaviour();
@@ -682,10 +670,6 @@ export const Header: MessageFns<Header, "ibc.lightclients.tendermint.v1.Header">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Header>): Header {
-    return Header.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Header>): Header {
     const message = createBaseHeader();
     message.signedHeader = (object.signedHeader !== undefined && object.signedHeader !== null)
@@ -769,10 +753,6 @@ export const Fraction: MessageFns<Fraction, "ibc.lightclients.tendermint.v1.Frac
       obj.denominator = (message.denominator || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Fraction>): Fraction {
-    return Fraction.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Fraction>): Fraction {
     const message = createBaseFraction();

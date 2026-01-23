@@ -105,10 +105,6 @@ export const ResourceUnit: MessageFns<ResourceUnit, "akash.deployment.v1beta4.Re
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResourceUnit>): ResourceUnit {
-    return ResourceUnit.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResourceUnit>): ResourceUnit {
     const message = createBaseResourceUnit();
     message.resource = (object.resource !== undefined && object.resource !== null)

@@ -70,10 +70,6 @@ export const Params: MessageFns<Params, "ibc.applications.interchain_accounts.co
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.controllerEnabled = object.controllerEnabled ?? false;

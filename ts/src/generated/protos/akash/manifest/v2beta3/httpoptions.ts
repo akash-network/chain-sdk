@@ -151,10 +151,6 @@ export const ServiceExposeHTTPOptions: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ServiceExposeHTTPOptions>): ServiceExposeHTTPOptions {
-    return ServiceExposeHTTPOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ServiceExposeHTTPOptions>): ServiceExposeHTTPOptions {
     const message = createBaseServiceExposeHTTPOptions();
     message.maxBodySize = object.maxBodySize ?? 0;

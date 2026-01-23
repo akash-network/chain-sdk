@@ -98,10 +98,6 @@ export const MerklePath: MessageFns<MerklePath, "ibc.core.commitment.v2.MerklePa
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MerklePath>): MerklePath {
-    return MerklePath.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MerklePath>): MerklePath {
     const message = createBaseMerklePath();
     message.keyPath = object.keyPath?.map((e) => e) || [];

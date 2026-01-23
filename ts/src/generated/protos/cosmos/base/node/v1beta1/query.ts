@@ -78,10 +78,6 @@ export const ConfigRequest: MessageFns<ConfigRequest, "cosmos.base.node.v1beta1.
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<ConfigRequest>): ConfigRequest {
-    return ConfigRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<ConfigRequest>): ConfigRequest {
     const message = createBaseConfigRequest();
     return message;
@@ -184,10 +180,6 @@ export const ConfigResponse: MessageFns<ConfigResponse, "cosmos.base.node.v1beta
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ConfigResponse>): ConfigResponse {
-    return ConfigResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ConfigResponse>): ConfigResponse {
     const message = createBaseConfigResponse();
     message.minimumGasPrice = object.minimumGasPrice ?? "";
@@ -234,10 +226,6 @@ export const StatusRequest: MessageFns<StatusRequest, "cosmos.base.node.v1beta1.
   toJSON(_: StatusRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<StatusRequest>): StatusRequest {
-    return StatusRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<StatusRequest>): StatusRequest {
     const message = createBaseStatusRequest();
@@ -363,10 +351,6 @@ export const StatusResponse: MessageFns<StatusResponse, "cosmos.base.node.v1beta
       obj.validator_hash = base64FromBytes(message.validatorHash);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<StatusResponse>): StatusResponse {
-    return StatusResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<StatusResponse>): StatusResponse {
     const message = createBaseStatusResponse();

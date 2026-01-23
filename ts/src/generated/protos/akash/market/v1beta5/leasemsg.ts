@@ -93,10 +93,6 @@ export const MsgCreateLease: MessageFns<MsgCreateLease, "akash.market.v1beta5.Ms
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCreateLease>): MsgCreateLease {
-    return MsgCreateLease.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCreateLease>): MsgCreateLease {
     const message = createBaseMsgCreateLease();
     message.bidId = (object.bidId !== undefined && object.bidId !== null) ? BidID.fromPartial(object.bidId) : undefined;
@@ -139,10 +135,6 @@ export const MsgCreateLeaseResponse: MessageFns<MsgCreateLeaseResponse, "akash.m
     toJSON(_: MsgCreateLeaseResponse): unknown {
       const obj: any = {};
       return obj;
-    },
-
-    create(base?: DeepPartial<MsgCreateLeaseResponse>): MsgCreateLeaseResponse {
-      return MsgCreateLeaseResponse.fromPartial(base ?? {});
     },
     fromPartial(_: DeepPartial<MsgCreateLeaseResponse>): MsgCreateLeaseResponse {
       const message = createBaseMsgCreateLeaseResponse();
@@ -199,10 +191,6 @@ export const MsgWithdrawLease: MessageFns<MsgWithdrawLease, "akash.market.v1beta
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgWithdrawLease>): MsgWithdrawLease {
-    return MsgWithdrawLease.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgWithdrawLease>): MsgWithdrawLease {
     const message = createBaseMsgWithdrawLease();
     message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
@@ -247,10 +235,6 @@ export const MsgWithdrawLeaseResponse: MessageFns<
   toJSON(_: MsgWithdrawLeaseResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgWithdrawLeaseResponse>): MsgWithdrawLeaseResponse {
-    return MsgWithdrawLeaseResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgWithdrawLeaseResponse>): MsgWithdrawLeaseResponse {
     const message = createBaseMsgWithdrawLeaseResponse();
@@ -324,10 +308,6 @@ export const MsgCloseLease: MessageFns<MsgCloseLease, "akash.market.v1beta5.MsgC
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgCloseLease>): MsgCloseLease {
-    return MsgCloseLease.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgCloseLease>): MsgCloseLease {
     const message = createBaseMsgCloseLease();
     message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
@@ -370,10 +350,6 @@ export const MsgCloseLeaseResponse: MessageFns<MsgCloseLeaseResponse, "akash.mar
   toJSON(_: MsgCloseLeaseResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCloseLeaseResponse>): MsgCloseLeaseResponse {
-    return MsgCloseLeaseResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgCloseLeaseResponse>): MsgCloseLeaseResponse {
     const message = createBaseMsgCloseLeaseResponse();

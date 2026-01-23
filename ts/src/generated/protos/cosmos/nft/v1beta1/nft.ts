@@ -184,10 +184,6 @@ export const Class: MessageFns<Class, "cosmos.nft.v1beta1.Class"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Class>): Class {
-    return Class.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Class>): Class {
     const message = createBaseClass();
     message.id = object.id ?? "";
@@ -311,10 +307,6 @@ export const NFT: MessageFns<NFT, "cosmos.nft.v1beta1.NFT"> = {
       obj.data = Any.toJSON(message.data);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<NFT>): NFT {
-    return NFT.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<NFT>): NFT {
     const message = createBaseNFT();

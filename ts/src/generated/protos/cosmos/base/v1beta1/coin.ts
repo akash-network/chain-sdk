@@ -114,10 +114,6 @@ export const Coin: MessageFns<Coin, "cosmos.base.v1beta1.Coin"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Coin>): Coin {
-    return Coin.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Coin>): Coin {
     const message = createBaseCoin();
     message.denom = object.denom ?? "";
@@ -192,10 +188,6 @@ export const DecCoin: MessageFns<DecCoin, "cosmos.base.v1beta1.DecCoin"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DecCoin>): DecCoin {
-    return DecCoin.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DecCoin>): DecCoin {
     const message = createBaseDecCoin();
     message.denom = object.denom ?? "";
@@ -253,10 +245,6 @@ export const IntProto: MessageFns<IntProto, "cosmos.base.v1beta1.IntProto"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<IntProto>): IntProto {
-    return IntProto.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<IntProto>): IntProto {
     const message = createBaseIntProto();
     message.int = object.int ?? "";
@@ -312,10 +300,6 @@ export const DecProto: MessageFns<DecProto, "cosmos.base.v1beta1.DecProto"> = {
       obj.dec = message.dec;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DecProto>): DecProto {
-    return DecProto.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DecProto>): DecProto {
     const message = createBaseDecProto();

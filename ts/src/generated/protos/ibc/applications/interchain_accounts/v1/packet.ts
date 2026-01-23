@@ -146,10 +146,6 @@ export const InterchainAccountPacketData: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<InterchainAccountPacketData>): InterchainAccountPacketData {
-    return InterchainAccountPacketData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<InterchainAccountPacketData>): InterchainAccountPacketData {
     const message = createBaseInterchainAccountPacketData();
     message.type = object.type ?? 0;
@@ -209,10 +205,6 @@ export const CosmosTx: MessageFns<CosmosTx, "ibc.applications.interchain_account
       obj.messages = message.messages.map((e) => Any.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<CosmosTx>): CosmosTx {
-    return CosmosTx.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<CosmosTx>): CosmosTx {
     const message = createBaseCosmosTx();

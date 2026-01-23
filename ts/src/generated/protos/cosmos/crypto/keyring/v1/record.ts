@@ -183,10 +183,6 @@ export const Record: MessageFns<Record, "cosmos.crypto.keyring.v1.Record"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Record>): Record {
-    return Record.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Record>): Record {
     const message = createBaseRecord();
     message.name = object.name ?? "";
@@ -258,10 +254,6 @@ export const Record_Local: MessageFns<Record_Local, "cosmos.crypto.keyring.v1.Re
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Record_Local>): Record_Local {
-    return Record_Local.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Record_Local>): Record_Local {
     const message = createBaseRecord_Local();
     message.privKey = (object.privKey !== undefined && object.privKey !== null)
@@ -320,10 +312,6 @@ export const Record_Ledger: MessageFns<Record_Ledger, "cosmos.crypto.keyring.v1.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Record_Ledger>): Record_Ledger {
-    return Record_Ledger.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Record_Ledger>): Record_Ledger {
     const message = createBaseRecord_Ledger();
     message.path = (object.path !== undefined && object.path !== null)
@@ -368,10 +356,6 @@ export const Record_Multi: MessageFns<Record_Multi, "cosmos.crypto.keyring.v1.Re
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<Record_Multi>): Record_Multi {
-    return Record_Multi.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<Record_Multi>): Record_Multi {
     const message = createBaseRecord_Multi();
     return message;
@@ -412,10 +396,6 @@ export const Record_Offline: MessageFns<Record_Offline, "cosmos.crypto.keyring.v
   toJSON(_: Record_Offline): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<Record_Offline>): Record_Offline {
-    return Record_Offline.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<Record_Offline>): Record_Offline {
     const message = createBaseRecord_Offline();
