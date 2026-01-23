@@ -4,7 +4,7 @@ package akash.provider.lease.v1;
 import "gogoproto/gogo.proto";
 
 import "akash/manifest/v2beta3/group.proto";
-import "akash/market/v2beta1/lease.proto";
+import "akash/market/v1/lease.proto";
 
 option go_package = "pkg.akt.dev/go/provider/lease/v1";
 
@@ -89,7 +89,7 @@ message ServiceStatus {
 
 // SendManifestRequest is request type for the SendManifest Providers RPC method
 message SendManifestRequest {
-  akash.market.v2beta1.LeaseID lease_id = 1 [
+  akash.market.v1.LeaseID lease_id = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "LeaseID",
     (gogoproto.moretags) = "yaml:\"LeaseID\""
@@ -109,7 +109,7 @@ message SendManifestResponse {}
 
 // ServiceLogsRequest
 message ServiceLogsRequest {
-  akash.market.v2beta1.LeaseID lease_id = 1 [
+  akash.market.v1.LeaseID lease_id = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "LeaseID",
     (gogoproto.moretags) = "yaml:\"LeaseID\""
@@ -142,7 +142,7 @@ message ServiceLogsResponse {
 
 // ShellRequest
 message ShellRequest {
-  akash.market.v2beta1.LeaseID lease_id = 1 [
+  akash.market.v1.LeaseID lease_id = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "LeaseID",
     (gogoproto.moretags) = "yaml:\"LeaseID\""
@@ -151,7 +151,7 @@ message ShellRequest {
 
 // ServiceStatusRequest
 message ServiceStatusRequest {
-  akash.market.v2beta1.LeaseID lease_id = 1 [
+  akash.market.v1.LeaseID lease_id = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "LeaseID",
     (gogoproto.moretags) = "yaml:\"LeaseID\""

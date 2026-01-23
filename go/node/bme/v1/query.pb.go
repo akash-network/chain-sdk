@@ -8,7 +8,7 @@ import (
 	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
-	types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -196,22 +196,22 @@ func (m *QueryVaultStateResponse) GetVaultState() State {
 	return State{}
 }
 
-// QueryCollateralRatioRequest is the request type for the Query/CollateralRatio RPC method
-type QueryCollateralRatioRequest struct {
+// QueryStatusRequest is the request type for the circuit breaker status
+type QueryStatusRequest struct {
 }
 
-func (m *QueryCollateralRatioRequest) Reset()         { *m = QueryCollateralRatioRequest{} }
-func (m *QueryCollateralRatioRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryCollateralRatioRequest) ProtoMessage()    {}
-func (*QueryCollateralRatioRequest) Descriptor() ([]byte, []int) {
+func (m *QueryStatusRequest) Reset()         { *m = QueryStatusRequest{} }
+func (m *QueryStatusRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryStatusRequest) ProtoMessage()    {}
+func (*QueryStatusRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_31e5434296a91ed0, []int{4}
 }
-func (m *QueryCollateralRatioRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryStatusRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryCollateralRatioRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryStatusRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryCollateralRatioRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryStatusRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -221,214 +221,22 @@ func (m *QueryCollateralRatioRequest) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-func (m *QueryCollateralRatioRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryCollateralRatioRequest.Merge(m, src)
+func (m *QueryStatusRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryStatusRequest.Merge(m, src)
 }
-func (m *QueryCollateralRatioRequest) XXX_Size() int {
+func (m *QueryStatusRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryCollateralRatioRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryCollateralRatioRequest.DiscardUnknown(m)
+func (m *QueryStatusRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryStatusRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryCollateralRatioRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryStatusRequest proto.InternalMessageInfo
 
-// QueryCollateralRatioResponse is the response type for the Query/CollateralRatio RPC method
-type QueryCollateralRatioResponse struct {
-	CollateralRatio CollateralRatio `protobuf:"bytes,1,opt,name=collateral_ratio,json=collateralRatio,proto3" json:"collateral_ratio"`
-}
-
-func (m *QueryCollateralRatioResponse) Reset()         { *m = QueryCollateralRatioResponse{} }
-func (m *QueryCollateralRatioResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryCollateralRatioResponse) ProtoMessage()    {}
-func (*QueryCollateralRatioResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31e5434296a91ed0, []int{5}
-}
-func (m *QueryCollateralRatioResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryCollateralRatioResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryCollateralRatioResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryCollateralRatioResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryCollateralRatioResponse.Merge(m, src)
-}
-func (m *QueryCollateralRatioResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryCollateralRatioResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryCollateralRatioResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryCollateralRatioResponse proto.InternalMessageInfo
-
-func (m *QueryCollateralRatioResponse) GetCollateralRatio() CollateralRatio {
-	if m != nil {
-		return m.CollateralRatio
-	}
-	return CollateralRatio{}
-}
-
-// QueryNetBurnRequest is the request type for the Query/NetBurn RPC method
-type QueryNetBurnRequest struct {
-	// period can be "24h" or "30d"
-	Period string `protobuf:"bytes,1,opt,name=period,proto3" json:"period,omitempty"`
-}
-
-func (m *QueryNetBurnRequest) Reset()         { *m = QueryNetBurnRequest{} }
-func (m *QueryNetBurnRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryNetBurnRequest) ProtoMessage()    {}
-func (*QueryNetBurnRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31e5434296a91ed0, []int{6}
-}
-func (m *QueryNetBurnRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryNetBurnRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryNetBurnRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryNetBurnRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryNetBurnRequest.Merge(m, src)
-}
-func (m *QueryNetBurnRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryNetBurnRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryNetBurnRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryNetBurnRequest proto.InternalMessageInfo
-
-func (m *QueryNetBurnRequest) GetPeriod() string {
-	if m != nil {
-		return m.Period
-	}
-	return ""
-}
-
-// QueryNetBurnResponse is the response type for the Query/NetBurn RPC method
-type QueryNetBurnResponse struct {
-	// net_burn is the net AKT burned in the period (positive = deflationary)
-	NetBurn types.Coin `protobuf:"bytes,1,opt,name=net_burn,json=netBurn,proto3" json:"net_burn"`
-	// total_burned is the total AKT burned in the period
-	TotalBurned types.Coin `protobuf:"bytes,2,opt,name=total_burned,json=totalBurned,proto3" json:"total_burned"`
-	// total_minted is the total AKT minted in the period
-	TotalMinted types.Coin `protobuf:"bytes,3,opt,name=total_minted,json=totalMinted,proto3" json:"total_minted"`
-}
-
-func (m *QueryNetBurnResponse) Reset()         { *m = QueryNetBurnResponse{} }
-func (m *QueryNetBurnResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryNetBurnResponse) ProtoMessage()    {}
-func (*QueryNetBurnResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31e5434296a91ed0, []int{7}
-}
-func (m *QueryNetBurnResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryNetBurnResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryNetBurnResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryNetBurnResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryNetBurnResponse.Merge(m, src)
-}
-func (m *QueryNetBurnResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryNetBurnResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryNetBurnResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryNetBurnResponse proto.InternalMessageInfo
-
-func (m *QueryNetBurnResponse) GetNetBurn() types.Coin {
-	if m != nil {
-		return m.NetBurn
-	}
-	return types.Coin{}
-}
-
-func (m *QueryNetBurnResponse) GetTotalBurned() types.Coin {
-	if m != nil {
-		return m.TotalBurned
-	}
-	return types.Coin{}
-}
-
-func (m *QueryNetBurnResponse) GetTotalMinted() types.Coin {
-	if m != nil {
-		return m.TotalMinted
-	}
-	return types.Coin{}
-}
-
-// QueryCircuitBreakerStatusRequest is the request type for the circuit breaker status
-type QueryCircuitBreakerStatusRequest struct {
-}
-
-func (m *QueryCircuitBreakerStatusRequest) Reset()         { *m = QueryCircuitBreakerStatusRequest{} }
-func (m *QueryCircuitBreakerStatusRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryCircuitBreakerStatusRequest) ProtoMessage()    {}
-func (*QueryCircuitBreakerStatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31e5434296a91ed0, []int{8}
-}
-func (m *QueryCircuitBreakerStatusRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryCircuitBreakerStatusRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryCircuitBreakerStatusRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryCircuitBreakerStatusRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryCircuitBreakerStatusRequest.Merge(m, src)
-}
-func (m *QueryCircuitBreakerStatusRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryCircuitBreakerStatusRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryCircuitBreakerStatusRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryCircuitBreakerStatusRequest proto.InternalMessageInfo
-
-// QueryCircuitBreakerStatusResponse is the response type for the circuit breaker status
-type QueryCircuitBreakerStatusResponse struct {
+// QueryMintStatusResponse is the response type for the circuit breaker status
+type QueryStatusResponse struct {
 	// status is the current circuit breaker status
-	Status CircuitBreakerStatus `protobuf:"varint,1,opt,name=status,proto3,enum=akash.bme.v1.CircuitBreakerStatus" json:"status,omitempty"`
+	Status MintStatus `protobuf:"varint,1,opt,name=status,proto3,enum=akash.bme.v1.MintStatus" json:"status,omitempty"`
 	// collateral_ratio is the current CR
 	CollateralRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=collateral_ratio,json=collateralRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"collateral_ratio"`
 	// warn_threshold is the warning threshold
@@ -437,24 +245,22 @@ type QueryCircuitBreakerStatusResponse struct {
 	HaltThreshold cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=halt_threshold,json=haltThreshold,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"halt_threshold"`
 	// mints_allowed indicates if new ACT mints are allowed
 	MintsAllowed bool `protobuf:"varint,5,opt,name=mints_allowed,json=mintsAllowed,proto3" json:"mints_allowed,omitempty"`
-	// settlements_allowed indicates if settlements are allowed
-	SettlementsAllowed bool `protobuf:"varint,6,opt,name=settlements_allowed,json=settlementsAllowed,proto3" json:"settlements_allowed,omitempty"`
 	// refunds_allowed indicates if ACT refunds are allowed
-	RefundsAllowed bool `protobuf:"varint,7,opt,name=refunds_allowed,json=refundsAllowed,proto3" json:"refunds_allowed,omitempty"`
+	RefundsAllowed bool `protobuf:"varint,6,opt,name=refunds_allowed,json=refundsAllowed,proto3" json:"refunds_allowed,omitempty"`
 }
 
-func (m *QueryCircuitBreakerStatusResponse) Reset()         { *m = QueryCircuitBreakerStatusResponse{} }
-func (m *QueryCircuitBreakerStatusResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryCircuitBreakerStatusResponse) ProtoMessage()    {}
-func (*QueryCircuitBreakerStatusResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31e5434296a91ed0, []int{9}
+func (m *QueryStatusResponse) Reset()         { *m = QueryStatusResponse{} }
+func (m *QueryStatusResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryStatusResponse) ProtoMessage()    {}
+func (*QueryStatusResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31e5434296a91ed0, []int{5}
 }
-func (m *QueryCircuitBreakerStatusResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryStatusResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryCircuitBreakerStatusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryStatusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryCircuitBreakerStatusResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryStatusResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -464,40 +270,33 @@ func (m *QueryCircuitBreakerStatusResponse) XXX_Marshal(b []byte, deterministic 
 		return b[:n], nil
 	}
 }
-func (m *QueryCircuitBreakerStatusResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryCircuitBreakerStatusResponse.Merge(m, src)
+func (m *QueryStatusResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryStatusResponse.Merge(m, src)
 }
-func (m *QueryCircuitBreakerStatusResponse) XXX_Size() int {
+func (m *QueryStatusResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryCircuitBreakerStatusResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryCircuitBreakerStatusResponse.DiscardUnknown(m)
+func (m *QueryStatusResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryStatusResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryCircuitBreakerStatusResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryStatusResponse proto.InternalMessageInfo
 
-func (m *QueryCircuitBreakerStatusResponse) GetStatus() CircuitBreakerStatus {
+func (m *QueryStatusResponse) GetStatus() MintStatus {
 	if m != nil {
 		return m.Status
 	}
-	return CircuitBreakerStatusUnspecified
+	return MintStatusUnspecified
 }
 
-func (m *QueryCircuitBreakerStatusResponse) GetMintsAllowed() bool {
+func (m *QueryStatusResponse) GetMintsAllowed() bool {
 	if m != nil {
 		return m.MintsAllowed
 	}
 	return false
 }
 
-func (m *QueryCircuitBreakerStatusResponse) GetSettlementsAllowed() bool {
-	if m != nil {
-		return m.SettlementsAllowed
-	}
-	return false
-}
-
-func (m *QueryCircuitBreakerStatusResponse) GetRefundsAllowed() bool {
+func (m *QueryStatusResponse) GetRefundsAllowed() bool {
 	if m != nil {
 		return m.RefundsAllowed
 	}
@@ -509,67 +308,51 @@ func init() {
 	proto.RegisterType((*QueryParamsResponse)(nil), "akash.bme.v1.QueryParamsResponse")
 	proto.RegisterType((*QueryVaultStateRequest)(nil), "akash.bme.v1.QueryVaultStateRequest")
 	proto.RegisterType((*QueryVaultStateResponse)(nil), "akash.bme.v1.QueryVaultStateResponse")
-	proto.RegisterType((*QueryCollateralRatioRequest)(nil), "akash.bme.v1.QueryCollateralRatioRequest")
-	proto.RegisterType((*QueryCollateralRatioResponse)(nil), "akash.bme.v1.QueryCollateralRatioResponse")
-	proto.RegisterType((*QueryNetBurnRequest)(nil), "akash.bme.v1.QueryNetBurnRequest")
-	proto.RegisterType((*QueryNetBurnResponse)(nil), "akash.bme.v1.QueryNetBurnResponse")
-	proto.RegisterType((*QueryCircuitBreakerStatusRequest)(nil), "akash.bme.v1.QueryCircuitBreakerStatusRequest")
-	proto.RegisterType((*QueryCircuitBreakerStatusResponse)(nil), "akash.bme.v1.QueryCircuitBreakerStatusResponse")
+	proto.RegisterType((*QueryStatusRequest)(nil), "akash.bme.v1.QueryStatusRequest")
+	proto.RegisterType((*QueryStatusResponse)(nil), "akash.bme.v1.QueryStatusResponse")
 }
 
 func init() { proto.RegisterFile("akash/bme/v1/query.proto", fileDescriptor_31e5434296a91ed0) }
 
 var fileDescriptor_31e5434296a91ed0 = []byte{
-	// 772 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x55, 0x5b, 0x4f, 0x13, 0x41,
-	0x14, 0xee, 0x72, 0x29, 0x30, 0xdc, 0xcc, 0xb4, 0x62, 0x29, 0x50, 0xca, 0x2a, 0x11, 0x4d, 0xba,
-	0x93, 0x56, 0x9f, 0x7c, 0xb3, 0xf0, 0x62, 0xa2, 0x44, 0xeb, 0x25, 0xc6, 0x98, 0x34, 0xd3, 0xdd,
-	0xb1, 0xdd, 0x74, 0x3b, 0xb3, 0xec, 0xce, 0x96, 0xf0, 0xea, 0x1f, 0xd0, 0xc4, 0x77, 0xfd, 0x13,
-	0xfe, 0x08, 0x1e, 0x89, 0xbe, 0x18, 0x1e, 0x88, 0x01, 0x7f, 0x80, 0x3f, 0xc1, 0xcc, 0xa5, 0x97,
-	0xa5, 0x2b, 0x22, 0x6f, 0xec, 0x39, 0xdf, 0xe5, 0xcc, 0x39, 0xa7, 0x07, 0x90, 0xc3, 0x6d, 0x1c,
-	0xb6, 0x50, 0xa3, 0x43, 0x50, 0xb7, 0x8c, 0xf6, 0x22, 0x12, 0x1c, 0x58, 0x7e, 0xc0, 0x38, 0x83,
-	0x73, 0x32, 0x63, 0x35, 0x3a, 0xc4, 0xea, 0x96, 0xf3, 0xd9, 0x26, 0x6b, 0x32, 0x99, 0x40, 0xe2,
-	0x2f, 0x85, 0xc9, 0xaf, 0x36, 0x19, 0x6b, 0x7a, 0x04, 0x61, 0xdf, 0x45, 0x98, 0x52, 0xc6, 0x31,
-	0x77, 0x19, 0x0d, 0x75, 0x76, 0xd9, 0x66, 0x61, 0x87, 0x85, 0x75, 0x45, 0x53, 0x1f, 0x3a, 0x55,
-	0x50, 0x5f, 0xa8, 0x81, 0x43, 0x61, 0xdc, 0x20, 0x1c, 0x97, 0x91, 0xcd, 0x5c, 0xda, 0xa3, 0xc6,
-	0xca, 0xf2, 0x71, 0x80, 0x3b, 0x3d, 0x6a, 0xbc, 0x62, 0x7e, 0xe0, 0x13, 0x9d, 0x31, 0xb3, 0x00,
-	0x3e, 0x13, 0x0f, 0x78, 0x2a, 0xe1, 0x35, 0xb2, 0x17, 0x91, 0x90, 0x9b, 0x8f, 0x40, 0x26, 0x16,
-	0x0d, 0x7d, 0x46, 0x43, 0x02, 0x2b, 0x20, 0xad, 0x64, 0x73, 0x46, 0xd1, 0xd8, 0x9a, 0xad, 0x64,
-	0xad, 0xe1, 0xf7, 0x5a, 0x0a, 0x5d, 0x9d, 0x38, 0x3c, 0x59, 0x4f, 0xd5, 0x34, 0xd2, 0xcc, 0x81,
-	0x25, 0x29, 0xf5, 0x0a, 0x47, 0x1e, 0x7f, 0xce, 0x31, 0x27, 0x3d, 0x93, 0x97, 0xe0, 0xc6, 0x48,
-	0x46, 0x1b, 0x3d, 0x00, 0xb3, 0x5d, 0x11, 0xad, 0x87, 0x22, 0xac, 0xdd, 0x32, 0x71, 0x37, 0xc9,
-	0xd0, 0x66, 0xa0, 0xdb, 0xd7, 0x30, 0xd7, 0xc0, 0x8a, 0x94, 0xdd, 0x66, 0x9e, 0x87, 0x39, 0x09,
-	0xb0, 0x57, 0x13, 0x1d, 0xee, 0xb9, 0x52, 0xb0, 0x9a, 0x9c, 0xd6, 0xd6, 0xbb, 0xe0, 0x9a, 0xdd,
-	0x4f, 0xd5, 0x03, 0x91, 0xd3, 0xfe, 0x6b, 0x71, 0xff, 0x73, 0x02, 0xba, 0x92, 0x45, 0x3b, 0x1e,
-	0x36, 0x4b, 0xba, 0x95, 0xbb, 0x84, 0x57, 0xa3, 0x80, 0xea, 0x32, 0xe0, 0x12, 0x48, 0xfb, 0x24,
-	0x70, 0x99, 0x23, 0xc5, 0x67, 0x6a, 0xfa, 0xcb, 0x3c, 0x36, 0x40, 0x36, 0x8e, 0xef, 0xb7, 0x64,
-	0x9a, 0x12, 0x5e, 0x6f, 0x44, 0x01, 0xd5, 0xf5, 0x2c, 0x5b, 0x7a, 0x3d, 0xc4, 0x42, 0x58, 0x7a,
-	0x21, 0xac, 0x6d, 0xe6, 0x52, 0x5d, 0xcb, 0x14, 0x55, 0x1a, 0xb0, 0x0a, 0xe6, 0x38, 0xe3, 0xd8,
-	0x93, 0x6c, 0xe2, 0xe4, 0xc6, 0x2e, 0xc7, 0x9f, 0x95, 0xa4, 0xaa, 0xe4, 0x0c, 0x34, 0x3a, 0x2e,
-	0xe5, 0xc4, 0xc9, 0x8d, 0xff, 0x8f, 0xc6, 0x13, 0xc9, 0x31, 0x4d, 0x50, 0x54, 0xbd, 0x77, 0x03,
-	0x3b, 0x72, 0x79, 0x35, 0x20, 0xb8, 0x4d, 0x02, 0x31, 0xb6, 0xa8, 0xbf, 0x7a, 0xbf, 0xc7, 0xc1,
-	0xc6, 0x05, 0xa0, 0x7e, 0x37, 0xd2, 0xa1, 0x8c, 0xc8, 0x5e, 0x2c, 0x54, 0xcc, 0x73, 0xb3, 0x49,
-	0xe2, 0x6a, 0x06, 0x7c, 0x9b, 0x30, 0x61, 0xd1, 0x91, 0x99, 0x6a, 0x59, 0x94, 0x7c, 0x7c, 0xb2,
-	0xbe, 0xa2, 0x1e, 0x15, 0x3a, 0x6d, 0xcb, 0x65, 0xa8, 0x83, 0x79, 0xcb, 0x7a, 0x4c, 0x9a, 0xd8,
-	0x3e, 0xd8, 0x21, 0xf6, 0xb7, 0xaf, 0x25, 0xa0, 0xdf, 0xbc, 0x43, 0xec, 0x91, 0x79, 0xc3, 0xd7,
-	0x60, 0x61, 0x1f, 0x07, 0xb4, 0xce, 0x5b, 0x01, 0x09, 0x5b, 0xcc, 0x53, 0x9d, 0xba, 0x92, 0xf6,
-	0xbc, 0x10, 0x7a, 0xd1, 0xd3, 0x11, 0xca, 0x2d, 0xec, 0xf1, 0x21, 0xe5, 0x89, 0x2b, 0x2b, 0x0b,
-	0xa1, 0x81, 0xf2, 0x4d, 0x30, 0x2f, 0xa6, 0x1a, 0xd6, 0xb1, 0xe7, 0xb1, 0x7d, 0xe2, 0xe4, 0x26,
-	0x8b, 0xc6, 0xd6, 0x74, 0x6d, 0x4e, 0x06, 0x1f, 0xaa, 0x18, 0x44, 0x20, 0x13, 0x12, 0xce, 0x3d,
-	0xd2, 0x21, 0xc3, 0xd0, 0xb4, 0x84, 0xc2, 0xa1, 0x54, 0x8f, 0x70, 0x1b, 0x2c, 0x06, 0xe4, 0x5d,
-	0x44, 0x9d, 0x01, 0x78, 0x4a, 0x82, 0x17, 0x74, 0x58, 0x03, 0x2b, 0x5f, 0x26, 0xc0, 0xa4, 0x1c,
-	0x39, 0x6c, 0x83, 0xb4, 0x3a, 0x22, 0xb0, 0x18, 0x1f, 0xe8, 0xe8, 0x8d, 0xca, 0x6f, 0x5c, 0x80,
-	0x50, 0x5b, 0x62, 0xae, 0xbe, 0xff, 0xfe, 0xeb, 0xd3, 0xd8, 0x12, 0xcc, 0xa2, 0x84, 0xd3, 0x08,
-	0xbb, 0x00, 0x0c, 0x4e, 0x0f, 0xbc, 0x95, 0x20, 0x37, 0x72, 0xb3, 0xf2, 0x9b, 0xff, 0x40, 0x69,
-	0xe3, 0x15, 0x69, 0x7c, 0x1d, 0x66, 0xe2, 0xc6, 0xf2, 0x4a, 0xc1, 0x0f, 0x06, 0x58, 0x3c, 0x77,
-	0x3c, 0xe0, 0x9d, 0x04, 0xdd, 0xe4, 0x03, 0x96, 0xbf, 0x7b, 0x19, 0xa8, 0xae, 0x63, 0x53, 0xd6,
-	0xb1, 0x0e, 0xd7, 0x86, 0xeb, 0x40, 0x83, 0x95, 0x2d, 0xc9, 0xed, 0x87, 0x9f, 0x0d, 0x90, 0x4d,
-	0xfa, 0xc9, 0x40, 0x2b, 0xc9, 0xeb, 0xef, 0x3f, 0xde, 0x3c, 0xba, 0x34, 0xfe, 0xa2, 0x02, 0xcb,
-	0xc8, 0x56, 0x9c, 0x52, 0x43, 0x91, 0xaa, 0xf7, 0x0f, 0x4f, 0x0b, 0xc6, 0xd1, 0x69, 0xc1, 0xf8,
-	0x79, 0x5a, 0x30, 0x3e, 0x9e, 0x15, 0x52, 0x47, 0x67, 0x85, 0xd4, 0x8f, 0xb3, 0x42, 0xea, 0x4d,
-	0xde, 0x6f, 0x37, 0x2d, 0xdc, 0xe6, 0x96, 0x43, 0xba, 0xa8, 0xc9, 0x10, 0x65, 0x0e, 0xd1, 0x2a,
-	0x8d, 0xb4, 0xfc, 0x17, 0x77, 0xef, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x5b, 0x19, 0x86, 0x7d,
-	0xb0, 0x07, 0x00, 0x00,
+	// 580 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xcb, 0x6e, 0xd3, 0x40,
+	0x14, 0x8d, 0xd3, 0x36, 0x82, 0x69, 0x9b, 0xa2, 0x49, 0x28, 0x26, 0xad, 0xdc, 0x10, 0x40, 0x64,
+	0x83, 0x87, 0x04, 0x56, 0xec, 0x88, 0xba, 0x41, 0x02, 0x09, 0xc2, 0x43, 0x08, 0x21, 0x45, 0x13,
+	0x7b, 0x70, 0xac, 0xd8, 0x33, 0xae, 0x67, 0xe2, 0x2a, 0x5b, 0xbe, 0x00, 0x89, 0x8f, 0xe0, 0x07,
+	0xf8, 0x88, 0x2e, 0x2b, 0xd8, 0x00, 0x8b, 0x0a, 0x25, 0x7c, 0x08, 0x9a, 0x47, 0x92, 0x5a, 0x09,
+	0x20, 0x75, 0x97, 0xb9, 0xf7, 0xdc, 0x73, 0xee, 0xd1, 0x3d, 0x31, 0xb0, 0xf1, 0x10, 0xf3, 0x01,
+	0xea, 0xc7, 0x04, 0x65, 0x2d, 0x74, 0x34, 0x22, 0xe9, 0xd8, 0x4d, 0x52, 0x26, 0x18, 0xdc, 0x52,
+	0x1d, 0xb7, 0x1f, 0x13, 0x37, 0x6b, 0xd5, 0xaa, 0x01, 0x0b, 0x98, 0x6a, 0x20, 0xf9, 0x4b, 0x63,
+	0x6a, 0xfb, 0x01, 0x63, 0x41, 0x44, 0x10, 0x4e, 0x42, 0x84, 0x29, 0x65, 0x02, 0x8b, 0x90, 0x51,
+	0x6e, 0xba, 0xd7, 0x3d, 0xc6, 0x63, 0xc6, 0x7b, 0x7a, 0x4c, 0x3f, 0x4c, 0xcb, 0xd1, 0x2f, 0xd4,
+	0xc7, 0x5c, 0x0a, 0xf7, 0x89, 0xc0, 0x2d, 0xe4, 0xb1, 0x90, 0xce, 0x46, 0x73, 0x6b, 0x25, 0x38,
+	0xc5, 0xf1, 0x6c, 0x34, 0xbf, 0xb1, 0x18, 0x27, 0xc4, 0x74, 0x1a, 0x55, 0x00, 0x9f, 0x4b, 0x03,
+	0xcf, 0x14, 0xbc, 0x4b, 0x8e, 0x46, 0x84, 0x8b, 0xc6, 0x63, 0x50, 0xc9, 0x55, 0x79, 0xc2, 0x28,
+	0x27, 0xb0, 0x0d, 0x4a, 0x9a, 0xd6, 0xb6, 0xea, 0x56, 0x73, 0xb3, 0x5d, 0x75, 0xcf, 0xfb, 0x75,
+	0x35, 0xba, 0xb3, 0x7e, 0x72, 0x76, 0x50, 0xe8, 0x1a, 0x64, 0xc3, 0x06, 0xbb, 0x8a, 0xea, 0x35,
+	0x1e, 0x45, 0xe2, 0x85, 0xc0, 0x82, 0xcc, 0x44, 0x5e, 0x81, 0x6b, 0x4b, 0x1d, 0x23, 0xf4, 0x10,
+	0x6c, 0x66, 0xb2, 0xda, 0xe3, 0xb2, 0x6c, 0xd4, 0x2a, 0x79, 0x35, 0x35, 0x61, 0xc4, 0x40, 0x36,
+	0xe7, 0x98, 0x3b, 0x92, 0xaf, 0xd1, 0xdc, 0xd1, 0xe7, 0x35, 0x63, 0x69, 0x56, 0x36, 0x4a, 0xf7,
+	0x40, 0x89, 0xab, 0x8a, 0x12, 0x29, 0xb7, 0xed, 0xbc, 0xc8, 0xd3, 0x90, 0x0a, 0x33, 0x61, 0x70,
+	0xf0, 0x1d, 0xb8, 0xe2, 0xb1, 0x28, 0xc2, 0x82, 0xa4, 0x38, 0xea, 0xa5, 0xf2, 0x7a, 0x76, 0xb1,
+	0x6e, 0x35, 0x2f, 0x77, 0x5a, 0x72, 0x97, 0x9f, 0x67, 0x07, 0x7b, 0xfa, 0x50, 0xdc, 0x1f, 0xba,
+	0x21, 0x43, 0x31, 0x16, 0x03, 0xf7, 0x09, 0x09, 0xb0, 0x37, 0x3e, 0x24, 0xde, 0xd7, 0x2f, 0x77,
+	0x81, 0xb9, 0xea, 0x21, 0xf1, 0xba, 0x3b, 0x0b, 0xaa, 0xae, 0x64, 0x82, 0x6f, 0x40, 0xf9, 0x18,
+	0xa7, 0xb4, 0x27, 0x06, 0x29, 0xe1, 0x03, 0x16, 0xf9, 0xf6, 0xda, 0x45, 0xb9, 0xb7, 0x25, 0xd1,
+	0xcb, 0x19, 0x8f, 0x64, 0x1e, 0xe0, 0x48, 0x9c, 0x63, 0x5e, 0xbf, 0x30, 0xb3, 0x24, 0x5a, 0x30,
+	0xdf, 0x04, 0xdb, 0x71, 0x48, 0x05, 0xef, 0xe1, 0x28, 0x62, 0xc7, 0xc4, 0xb7, 0x37, 0xea, 0x56,
+	0xf3, 0x52, 0x77, 0x4b, 0x15, 0x1f, 0xe9, 0x1a, 0xbc, 0x03, 0x76, 0x52, 0xf2, 0x7e, 0x44, 0xfd,
+	0x05, 0xac, 0xa4, 0x60, 0x65, 0x53, 0x36, 0xc0, 0xf6, 0x8f, 0x22, 0xd8, 0x50, 0x97, 0x82, 0x43,
+	0x50, 0xd2, 0x91, 0x82, 0xf5, 0xfc, 0x55, 0x96, 0x13, 0x5b, 0xbb, 0xf1, 0x0f, 0x84, 0x3e, 0x75,
+	0x63, 0xff, 0xc3, 0xb7, 0xdf, 0x9f, 0x8a, 0xbb, 0xb0, 0x8a, 0x56, 0xfc, 0x51, 0x60, 0x06, 0xc0,
+	0x22, 0x88, 0xf0, 0xd6, 0x0a, 0xba, 0xa5, 0x04, 0xd7, 0x6e, 0xff, 0x07, 0x65, 0x84, 0xf7, 0x94,
+	0xf0, 0x55, 0x58, 0xc9, 0x0b, 0xab, 0xcc, 0x4a, 0x93, 0x3a, 0x60, 0x2b, 0x4d, 0xe6, 0x42, 0xbc,
+	0xd2, 0x64, 0x3e, 0xcf, 0x7f, 0x33, 0xa9, 0xb3, 0xdb, 0x79, 0x70, 0x32, 0x71, 0xac, 0xd3, 0x89,
+	0x63, 0xfd, 0x9a, 0x38, 0xd6, 0xc7, 0xa9, 0x53, 0x38, 0x9d, 0x3a, 0x85, 0xef, 0x53, 0xa7, 0xf0,
+	0xb6, 0x96, 0x0c, 0x03, 0x17, 0x0f, 0x85, 0xeb, 0x93, 0x0c, 0x05, 0x0c, 0x51, 0xe6, 0x13, 0x33,
+	0xdc, 0x2f, 0xa9, 0x4f, 0xc5, 0xfd, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x1a, 0xfe, 0x6d, 0xda,
+	0xf8, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -588,10 +371,8 @@ type QueryClient interface {
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// VaultState returns the current vault state
 	VaultState(ctx context.Context, in *QueryVaultStateRequest, opts ...grpc.CallOption) (*QueryVaultStateResponse, error)
-	// CollateralRatio returns the current collateral ratio
-	CollateralRatio(ctx context.Context, in *QueryCollateralRatioRequest, opts ...grpc.CallOption) (*QueryCollateralRatioResponse, error)
-	// CircuitBreakerStatus returns the current circuit breaker status
-	CircuitBreakerStatus(ctx context.Context, in *QueryCircuitBreakerStatusRequest, opts ...grpc.CallOption) (*QueryCircuitBreakerStatusResponse, error)
+	// Status returns the current circuit breaker status
+	Status(ctx context.Context, in *QueryStatusRequest, opts ...grpc.CallOption) (*QueryStatusResponse, error)
 }
 
 type queryClient struct {
@@ -620,18 +401,9 @@ func (c *queryClient) VaultState(ctx context.Context, in *QueryVaultStateRequest
 	return out, nil
 }
 
-func (c *queryClient) CollateralRatio(ctx context.Context, in *QueryCollateralRatioRequest, opts ...grpc.CallOption) (*QueryCollateralRatioResponse, error) {
-	out := new(QueryCollateralRatioResponse)
-	err := c.cc.Invoke(ctx, "/akash.bme.v1.Query/CollateralRatio", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) CircuitBreakerStatus(ctx context.Context, in *QueryCircuitBreakerStatusRequest, opts ...grpc.CallOption) (*QueryCircuitBreakerStatusResponse, error) {
-	out := new(QueryCircuitBreakerStatusResponse)
-	err := c.cc.Invoke(ctx, "/akash.bme.v1.Query/CircuitBreakerStatus", in, out, opts...)
+func (c *queryClient) Status(ctx context.Context, in *QueryStatusRequest, opts ...grpc.CallOption) (*QueryStatusResponse, error) {
+	out := new(QueryStatusResponse)
+	err := c.cc.Invoke(ctx, "/akash.bme.v1.Query/Status", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -644,10 +416,8 @@ type QueryServer interface {
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// VaultState returns the current vault state
 	VaultState(context.Context, *QueryVaultStateRequest) (*QueryVaultStateResponse, error)
-	// CollateralRatio returns the current collateral ratio
-	CollateralRatio(context.Context, *QueryCollateralRatioRequest) (*QueryCollateralRatioResponse, error)
-	// CircuitBreakerStatus returns the current circuit breaker status
-	CircuitBreakerStatus(context.Context, *QueryCircuitBreakerStatusRequest) (*QueryCircuitBreakerStatusResponse, error)
+	// Status returns the current circuit breaker status
+	Status(context.Context, *QueryStatusRequest) (*QueryStatusResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -660,11 +430,8 @@ func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsReq
 func (*UnimplementedQueryServer) VaultState(ctx context.Context, req *QueryVaultStateRequest) (*QueryVaultStateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VaultState not implemented")
 }
-func (*UnimplementedQueryServer) CollateralRatio(ctx context.Context, req *QueryCollateralRatioRequest) (*QueryCollateralRatioResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CollateralRatio not implemented")
-}
-func (*UnimplementedQueryServer) CircuitBreakerStatus(ctx context.Context, req *QueryCircuitBreakerStatusRequest) (*QueryCircuitBreakerStatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CircuitBreakerStatus not implemented")
+func (*UnimplementedQueryServer) Status(ctx context.Context, req *QueryStatusRequest) (*QueryStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -707,38 +474,20 @@ func _Query_VaultState_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_CollateralRatio_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryCollateralRatioRequest)
+func _Query_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).CollateralRatio(ctx, in)
+		return srv.(QueryServer).Status(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/akash.bme.v1.Query/CollateralRatio",
+		FullMethod: "/akash.bme.v1.Query/Status",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).CollateralRatio(ctx, req.(*QueryCollateralRatioRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_CircuitBreakerStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryCircuitBreakerStatusRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).CircuitBreakerStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/akash.bme.v1.Query/CircuitBreakerStatus",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).CircuitBreakerStatus(ctx, req.(*QueryCircuitBreakerStatusRequest))
+		return srv.(QueryServer).Status(ctx, req.(*QueryStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -757,12 +506,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_VaultState_Handler,
 		},
 		{
-			MethodName: "CollateralRatio",
-			Handler:    _Query_CollateralRatio_Handler,
-		},
-		{
-			MethodName: "CircuitBreakerStatus",
-			Handler:    _Query_CircuitBreakerStatus_Handler,
+			MethodName: "Status",
+			Handler:    _Query_Status_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -881,7 +626,7 @@ func (m *QueryVaultStateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryCollateralRatioRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryStatusRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -891,12 +636,12 @@ func (m *QueryCollateralRatioRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryCollateralRatioRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryStatusRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryCollateralRatioRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryStatusRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -904,7 +649,7 @@ func (m *QueryCollateralRatioRequest) MarshalToSizedBuffer(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryCollateralRatioResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryStatusResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -914,151 +659,12 @@ func (m *QueryCollateralRatioResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryCollateralRatioResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryStatusResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryCollateralRatioResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size, err := m.CollateralRatio.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintQuery(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryNetBurnRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryNetBurnRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryNetBurnRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Period) > 0 {
-		i -= len(m.Period)
-		copy(dAtA[i:], m.Period)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Period)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryNetBurnResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryNetBurnResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryNetBurnResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size, err := m.TotalMinted.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintQuery(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x1a
-	{
-		size, err := m.TotalBurned.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintQuery(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x12
-	{
-		size, err := m.NetBurn.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintQuery(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryCircuitBreakerStatusRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryCircuitBreakerStatusRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryCircuitBreakerStatusRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryCircuitBreakerStatusResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryCircuitBreakerStatusResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryCircuitBreakerStatusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryStatusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1066,16 +672,6 @@ func (m *QueryCircuitBreakerStatusResponse) MarshalToSizedBuffer(dAtA []byte) (i
 	if m.RefundsAllowed {
 		i--
 		if m.RefundsAllowed {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x38
-	}
-	if m.SettlementsAllowed {
-		i--
-		if m.SettlementsAllowed {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
@@ -1182,7 +778,7 @@ func (m *QueryVaultStateResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryCollateralRatioRequest) Size() (n int) {
+func (m *QueryStatusRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1191,55 +787,7 @@ func (m *QueryCollateralRatioRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryCollateralRatioResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = m.CollateralRatio.Size()
-	n += 1 + l + sovQuery(uint64(l))
-	return n
-}
-
-func (m *QueryNetBurnRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Period)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *QueryNetBurnResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = m.NetBurn.Size()
-	n += 1 + l + sovQuery(uint64(l))
-	l = m.TotalBurned.Size()
-	n += 1 + l + sovQuery(uint64(l))
-	l = m.TotalMinted.Size()
-	n += 1 + l + sovQuery(uint64(l))
-	return n
-}
-
-func (m *QueryCircuitBreakerStatusRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *QueryCircuitBreakerStatusResponse) Size() (n int) {
+func (m *QueryStatusResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1255,9 +803,6 @@ func (m *QueryCircuitBreakerStatusResponse) Size() (n int) {
 	l = m.HaltThreshold.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	if m.MintsAllowed {
-		n += 2
-	}
-	if m.SettlementsAllowed {
 		n += 2
 	}
 	if m.RefundsAllowed {
@@ -1538,7 +1083,7 @@ func (m *QueryVaultStateResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryCollateralRatioRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryStatusRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1561,10 +1106,10 @@ func (m *QueryCollateralRatioRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryCollateralRatioRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryStatusRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryCollateralRatioRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryStatusRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -1588,7 +1133,7 @@ func (m *QueryCollateralRatioRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryCollateralRatioResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryStatusResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1611,374 +1156,10 @@ func (m *QueryCollateralRatioResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryCollateralRatioResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryStatusResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryCollateralRatioResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CollateralRatio", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.CollateralRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryNetBurnRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryNetBurnRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryNetBurnRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Period", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Period = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryNetBurnResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryNetBurnResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryNetBurnResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NetBurn", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.NetBurn.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TotalBurned", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.TotalBurned.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TotalMinted", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.TotalMinted.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryCircuitBreakerStatusRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryCircuitBreakerStatusRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryCircuitBreakerStatusRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryCircuitBreakerStatusResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryCircuitBreakerStatusResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryCircuitBreakerStatusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryStatusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1995,7 +1176,7 @@ func (m *QueryCircuitBreakerStatusResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Status |= CircuitBreakerStatus(b&0x7F) << shift
+				m.Status |= MintStatus(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -2123,26 +1304,6 @@ func (m *QueryCircuitBreakerStatusResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.MintsAllowed = bool(v != 0)
 		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SettlementsAllowed", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.SettlementsAllowed = bool(v != 0)
-		case 7:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RefundsAllowed", wireType)
 			}

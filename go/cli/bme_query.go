@@ -20,8 +20,7 @@ func GetQueryBMECmd() *cobra.Command {
 	cmd.AddCommand(
 		GetBMEParamsCmd(),
 		GetBMEVaultStateCmd(),
-		GetBMECollateralRatioCmd(),
-		GetBMECircuitBreakerStatusCmd(),
+		GetBMEStatusCmd(),
 	)
 
 	return cmd
@@ -79,45 +78,19 @@ func GetBMEVaultStateCmd() *cobra.Command {
 	return cmd
 }
 
-// GetBMECollateralRatioCmd returns the command to query the BME collateral ratio
-func GetBMECollateralRatioCmd() *cobra.Command {
+// GetBMEStatusCmd returns the command to query the BME circuit breaker status
+func GetBMEStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "collateral-ratio",
-		Short:             "Query the current BME collateral ratio",
+		Use:               "status",
+		Short:             "Query status of mint operations",
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
 
-			req := &types.QueryCollateralRatioRequest{}
+			req := &types.QueryStatusRequest{}
 
-			res, err := cl.Query().BME().CollateralRatio(ctx, req)
-			if err != nil {
-				return err
-			}
-
-			return cl.ClientContext().PrintProto(res)
-		},
-	}
-
-	cflags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetBMECircuitBreakerStatusCmd returns the command to query the BME circuit breaker status
-func GetBMECircuitBreakerStatusCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "circuit-breaker-status",
-		Short:             "Query the current BME circuit breaker status",
-		PersistentPreRunE: QueryPersistentPreRunE,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			ctx := cmd.Context()
-			cl := MustLightClientFromContext(ctx)
-
-			req := &types.QueryCircuitBreakerStatusRequest{}
-
-			res, err := cl.Query().BME().CircuitBreakerStatus(ctx, req)
+			res, err := cl.Query().BME().Status(ctx, req)
 			if err != nil {
 				return err
 			}

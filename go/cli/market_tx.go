@@ -7,13 +7,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	mtypes "pkg.akt.dev/go/node/market/v2beta1"
+	mv1 "pkg.akt.dev/go/node/market/v1"
+	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 )
 
 // GetTxMarketCmds returns the transaction commands for market module
 func GetTxMarketCmds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        mtypes.ModuleName,
+		Use:                        mv1.ModuleName,
 		Short:                      "Transaction subcommands",
 		SuggestionsMinimumDistance: 2,
 		RunE:                       sdkclient.ValidateCmd,
@@ -71,8 +72,8 @@ func GetTxMarketBidCreateCmd() *cobra.Command {
 			}
 
 			msg := &mtypes.MsgCreateBid{
-				ID:      mtypes.MakeBidID(id, cctx.GetFromAddress()),
-				Prices:  sdk.NewDecCoins(coin),
+				ID:      mv1.MakeBidID(id, cctx.GetFromAddress()),
+				Price:   coin,
 				Deposit: deposit,
 			}
 
@@ -261,7 +262,7 @@ func GetTxMarketLeaseCloseCmd() *cobra.Command {
 			// for lease closed tx reason is always owner
 			msg := &mtypes.MsgCloseLease{
 				ID:     id,
-				Reason: mtypes.LeaseClosedReasonOwner,
+				Reason: mv1.LeaseClosedReasonOwner,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

@@ -29,11 +29,15 @@ export interface Depositor {
   /** Source indicated origination of the funds */
   source: Source;
   /** Balance amount of funds available to spend in this deposit. */
-  balance: DecCoin | undefined;
+  balance:
+    | DecCoin
+    | undefined;
+  /** direct indicates if deposited currency should be swapped to ACT (false) at time of the deposit */
+  direct: boolean;
 }
 
 function createBaseDepositor(): Depositor {
-  return { owner: "", height: Long.ZERO, source: 0, balance: undefined };
+  return { owner: "", height: Long.ZERO, source: 0, balance: undefined, direct: false };
 }
 
 export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor"> = {
@@ -51,6 +55,9 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     }
     if (message.balance !== undefined) {
       DecCoin.encode(message.balance, writer.uint32(34).fork()).join();
+    }
+    if (message.direct !== false) {
+      writer.uint32(40).bool(message.direct);
     }
     return writer;
   },
@@ -94,6 +101,14 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
           message.balance = DecCoin.decode(reader, reader.uint32());
           continue;
         }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.direct = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -109,6 +124,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
       source: isSet(object.source) ? sourceFromJSON(object.source) : 0,
       balance: isSet(object.balance) ? DecCoin.fromJSON(object.balance) : undefined,
+      direct: isSet(object.direct) ? globalThis.Boolean(object.direct) : false,
     };
   },
 
@@ -126,6 +142,9 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     if (message.balance !== undefined) {
       obj.balance = DecCoin.toJSON(message.balance);
     }
+    if (message.direct !== false) {
+      obj.direct = message.direct;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Depositor>): Depositor {
@@ -138,6 +157,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     message.balance = (object.balance !== undefined && object.balance !== null)
       ? DecCoin.fromPartial(object.balance)
       : undefined;
+    message.direct = object.direct ?? false;
     return message;
   },
 };

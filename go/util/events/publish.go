@@ -16,7 +16,7 @@ import (
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
 	dtypes "pkg.akt.dev/go/node/deployment/v1"
-	mtypes "pkg.akt.dev/go/node/market/v2beta1"
+	mtypes "pkg.akt.dev/go/node/market/v1"
 
 	"pkg.akt.dev/go/util/pubsub"
 )

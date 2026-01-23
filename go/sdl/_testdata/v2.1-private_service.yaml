@@ -48,10 +48,10 @@ profiles:
           - 4
       pricing:
         pg:
-          denom: uakt
+          denom: uact
           amount: 1000
         bind:
-          denom: uakt
+          denom: uact
           amount: 333
 deployment:
   pg:

@@ -11,9 +11,8 @@ import (
 
 	cflags "pkg.akt.dev/go/cli/flags"
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
-	dv1beta "pkg.akt.dev/go/node/deployment/v1beta5"
+	dv1beta "pkg.akt.dev/go/node/deployment/v1beta4"
 	"pkg.akt.dev/go/node/types/constants"
-	deposit "pkg.akt.dev/go/node/types/deposit/v1"
 	"pkg.akt.dev/go/sdl"
 	cutils "pkg.akt.dev/go/util/tls"
 )
@@ -103,10 +102,10 @@ func GetTxDeploymentCreateCmd() *cobra.Command {
 			}
 
 			msg := &dv1beta.MsgCreateDeployment{
-				ID:       id,
-				Hash:     version,
-				Groups:   make(dv1beta.GroupSpecs, 0, len(groups)),
-				Deposits: deposit.Deposits{dep},
+				ID:      id,
+				Hash:    version,
+				Groups:  make(dv1beta.GroupSpecs, 0, len(groups)),
+				Deposit: dep,
 			}
 
 			msg.Groups = append(msg.Groups, groups...)

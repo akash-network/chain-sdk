@@ -3,10 +3,8 @@ package sdl
 import (
 	"sort"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	types "pkg.akt.dev/go/node/types/attributes/v1"
 )
 
@@ -82,7 +80,7 @@ func (sdl *v2) buildGroups() error {
 
 			group.dgroup.Resources = append(group.dgroup.Resources, dtypes.ResourceUnit{
 				Resources: res,
-				Prices:    sdk.DecCoins{prices.Value},
+				Price:     prices.Value,
 				Count:     svcdepl.Count,
 			})
 

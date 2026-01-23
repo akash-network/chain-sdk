@@ -28,7 +28,7 @@ profiles:
         region: sjc
       pricing:
         web:
-          denom: uakt
+          denom: uact
           amount: 25
 
 deployment:

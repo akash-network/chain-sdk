@@ -27,27 +27,27 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // EventCircuitBreakerStatusChange is emitted when circuit breaker status changes
-type EventCircuitBreakerStatusChange struct {
+type EventMintStatusChange struct {
 	// previous_status is the previous status
-	PreviousStatus CircuitBreakerStatus `protobuf:"varint,1,opt,name=previous_status,json=previousStatus,proto3,enum=akash.bme.v1.CircuitBreakerStatus" json:"previous_status,omitempty"`
+	PreviousStatus MintStatus `protobuf:"varint,1,opt,name=previous_status,json=previousStatus,proto3,enum=akash.bme.v1.MintStatus" json:"previous_status,omitempty"`
 	// new_status is the new status
-	NewStatus CircuitBreakerStatus `protobuf:"varint,2,opt,name=new_status,json=newStatus,proto3,enum=akash.bme.v1.CircuitBreakerStatus" json:"new_status,omitempty"`
+	NewStatus MintStatus `protobuf:"varint,2,opt,name=new_status,json=newStatus,proto3,enum=akash.bme.v1.MintStatus" json:"new_status,omitempty"`
 	// collateral_ratio is the CR that triggered the change
 	CollateralRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=collateral_ratio,json=collateralRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"collateral_ratio"`
 }
 
-func (m *EventCircuitBreakerStatusChange) Reset()         { *m = EventCircuitBreakerStatusChange{} }
-func (m *EventCircuitBreakerStatusChange) String() string { return proto.CompactTextString(m) }
-func (*EventCircuitBreakerStatusChange) ProtoMessage()    {}
-func (*EventCircuitBreakerStatusChange) Descriptor() ([]byte, []int) {
+func (m *EventMintStatusChange) Reset()         { *m = EventMintStatusChange{} }
+func (m *EventMintStatusChange) String() string { return proto.CompactTextString(m) }
+func (*EventMintStatusChange) ProtoMessage()    {}
+func (*EventMintStatusChange) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9866c556a255df13, []int{0}
 }
-func (m *EventCircuitBreakerStatusChange) XXX_Unmarshal(b []byte) error {
+func (m *EventMintStatusChange) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventCircuitBreakerStatusChange) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventMintStatusChange) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventCircuitBreakerStatusChange.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventMintStatusChange.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -57,30 +57,30 @@ func (m *EventCircuitBreakerStatusChange) XXX_Marshal(b []byte, deterministic bo
 		return b[:n], nil
 	}
 }
-func (m *EventCircuitBreakerStatusChange) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventCircuitBreakerStatusChange.Merge(m, src)
+func (m *EventMintStatusChange) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventMintStatusChange.Merge(m, src)
 }
-func (m *EventCircuitBreakerStatusChange) XXX_Size() int {
+func (m *EventMintStatusChange) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventCircuitBreakerStatusChange) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventCircuitBreakerStatusChange.DiscardUnknown(m)
+func (m *EventMintStatusChange) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventMintStatusChange.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventCircuitBreakerStatusChange proto.InternalMessageInfo
+var xxx_messageInfo_EventMintStatusChange proto.InternalMessageInfo
 
-func (m *EventCircuitBreakerStatusChange) GetPreviousStatus() CircuitBreakerStatus {
+func (m *EventMintStatusChange) GetPreviousStatus() MintStatus {
 	if m != nil {
 		return m.PreviousStatus
 	}
-	return CircuitBreakerStatusUnspecified
+	return MintStatusUnspecified
 }
 
-func (m *EventCircuitBreakerStatusChange) GetNewStatus() CircuitBreakerStatus {
+func (m *EventMintStatusChange) GetNewStatus() MintStatus {
 	if m != nil {
 		return m.NewStatus
 	}
-	return CircuitBreakerStatusUnspecified
+	return MintStatusUnspecified
 }
 
 // EventVaultSeeded is emitted when the vault is seeded with AKT
@@ -147,34 +147,24 @@ func (m *EventVaultSeeded) GetNewVaultBalance() types.Coin {
 	return types.Coin{}
 }
 
-// EventBMRecord emitted information of burn/mint event of token A burn to mint token B
-type EventBMRecord struct {
+// EventLedgerRecordExecuted emitted information of burn/mint event of token A burn to mint token B
+type EventLedgerRecordExecuted struct {
 	// burned_from source address of the tokens burned
-	BurnedFrom string `protobuf:"bytes,1,opt,name=burned_from,json=burnedFrom,proto3" json:"burned_from" yaml:"burned_from"`
-	// minted_to destination address of the tokens minted
-	MintedTo string `protobuf:"bytes,2,opt,name=minted_to,json=mintedTo,proto3" json:"minted_to" yaml:"minted_to"`
-	// module is module account performing burn
-	Burner string `protobuf:"bytes,3,opt,name=burner,proto3" json:"burner" yaml:"burner"`
-	// module is module account performing mint
-	Minter string `protobuf:"bytes,4,opt,name=minter,proto3" json:"minter" yaml:"minter"`
-	// burned is the coin burned at price
-	Burned CoinPrice `protobuf:"bytes,5,opt,name=burned,proto3" json:"burned" yaml:"burned"`
-	// minted is coin minted at price
-	Minted CoinPrice `protobuf:"bytes,6,opt,name=minted,proto3" json:"minted" yaml:"minted"`
+	ID LedgerRecordID `protobuf:"bytes,1,opt,name=id,proto3" json:"id" yaml:"burneidd_from"`
 }
 
-func (m *EventBMRecord) Reset()         { *m = EventBMRecord{} }
-func (m *EventBMRecord) String() string { return proto.CompactTextString(m) }
-func (*EventBMRecord) ProtoMessage()    {}
-func (*EventBMRecord) Descriptor() ([]byte, []int) {
+func (m *EventLedgerRecordExecuted) Reset()         { *m = EventLedgerRecordExecuted{} }
+func (m *EventLedgerRecordExecuted) String() string { return proto.CompactTextString(m) }
+func (*EventLedgerRecordExecuted) ProtoMessage()    {}
+func (*EventLedgerRecordExecuted) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9866c556a255df13, []int{2}
 }
-func (m *EventBMRecord) XXX_Unmarshal(b []byte) error {
+func (m *EventLedgerRecordExecuted) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventBMRecord) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventLedgerRecordExecuted) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventBMRecord.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventLedgerRecordExecuted.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -184,112 +174,69 @@ func (m *EventBMRecord) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
-func (m *EventBMRecord) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventBMRecord.Merge(m, src)
+func (m *EventLedgerRecordExecuted) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventLedgerRecordExecuted.Merge(m, src)
 }
-func (m *EventBMRecord) XXX_Size() int {
+func (m *EventLedgerRecordExecuted) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventBMRecord) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventBMRecord.DiscardUnknown(m)
+func (m *EventLedgerRecordExecuted) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventLedgerRecordExecuted.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventBMRecord proto.InternalMessageInfo
+var xxx_messageInfo_EventLedgerRecordExecuted proto.InternalMessageInfo
 
-func (m *EventBMRecord) GetBurnedFrom() string {
+func (m *EventLedgerRecordExecuted) GetID() LedgerRecordID {
 	if m != nil {
-		return m.BurnedFrom
+		return m.ID
 	}
-	return ""
-}
-
-func (m *EventBMRecord) GetMintedTo() string {
-	if m != nil {
-		return m.MintedTo
-	}
-	return ""
-}
-
-func (m *EventBMRecord) GetBurner() string {
-	if m != nil {
-		return m.Burner
-	}
-	return ""
-}
-
-func (m *EventBMRecord) GetMinter() string {
-	if m != nil {
-		return m.Minter
-	}
-	return ""
-}
-
-func (m *EventBMRecord) GetBurned() CoinPrice {
-	if m != nil {
-		return m.Burned
-	}
-	return CoinPrice{}
-}
-
-func (m *EventBMRecord) GetMinted() CoinPrice {
-	if m != nil {
-		return m.Minted
-	}
-	return CoinPrice{}
+	return LedgerRecordID{}
 }
 
 func init() {
-	proto.RegisterType((*EventCircuitBreakerStatusChange)(nil), "akash.bme.v1.EventCircuitBreakerStatusChange")
+	proto.RegisterType((*EventMintStatusChange)(nil), "akash.bme.v1.EventMintStatusChange")
 	proto.RegisterType((*EventVaultSeeded)(nil), "akash.bme.v1.EventVaultSeeded")
-	proto.RegisterType((*EventBMRecord)(nil), "akash.bme.v1.EventBMRecord")
+	proto.RegisterType((*EventLedgerRecordExecuted)(nil), "akash.bme.v1.EventLedgerRecordExecuted")
 }
 
 func init() { proto.RegisterFile("akash/bme/v1/events.proto", fileDescriptor_9866c556a255df13) }
 
 var fileDescriptor_9866c556a255df13 = []byte{
-	// 612 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x94, 0x4d, 0x4f, 0xd4, 0x4e,
-	0x1c, 0xc7, 0xb7, 0xfc, 0xf9, 0x6f, 0xdc, 0x41, 0x1e, 0x6c, 0x88, 0x2e, 0x98, 0xb4, 0xa4, 0x27,
-	0x2e, 0xb4, 0x59, 0x30, 0x31, 0x9a, 0x78, 0xa0, 0xa0, 0x17, 0x34, 0x21, 0xc5, 0x70, 0x30, 0xc6,
-	0xcd, 0xb4, 0xf3, 0xb3, 0x34, 0xbb, 0x9d, 0xd9, 0xcc, 0x4c, 0x4b, 0x78, 0x01, 0x9e, 0xf5, 0xa5,
-	0x78, 0xe0, 0x45, 0x70, 0x24, 0x9c, 0x8c, 0x87, 0xc6, 0xc0, 0x8d, 0x23, 0xaf, 0xc0, 0xcc, 0x03,
-	0xec, 0x4a, 0xc4, 0x70, 0xeb, 0xef, 0xe9, 0x33, 0xdf, 0xdf, 0x77, 0x9a, 0x41, 0x4b, 0x78, 0x80,
-	0xc5, 0x41, 0x94, 0x96, 0x10, 0xd5, 0xbd, 0x08, 0x6a, 0xa0, 0x52, 0x84, 0x23, 0xce, 0x24, 0x73,
-	0x1f, 0xea, 0x52, 0x98, 0x96, 0x10, 0xd6, 0xbd, 0xe5, 0xc5, 0x9c, 0xe5, 0x4c, 0x17, 0x22, 0xf5,
-	0x65, 0x7a, 0x96, 0x97, 0x32, 0x26, 0x4a, 0x26, 0xfa, 0xa6, 0x60, 0x02, 0x5b, 0xf2, 0x4c, 0x14,
-	0xa5, 0x58, 0x28, 0x76, 0x0a, 0x12, 0xf7, 0xa2, 0x8c, 0x15, 0xd4, 0xd6, 0xbb, 0x7f, 0x9c, 0x2c,
-	0x8f, 0x46, 0x60, 0x27, 0x83, 0xaf, 0x53, 0xc8, 0x7f, 0xad, 0x94, 0x6c, 0x15, 0x3c, 0xab, 0x0a,
-	0x19, 0x73, 0xc0, 0x03, 0xe0, 0x7b, 0x12, 0xcb, 0x4a, 0x6c, 0x1d, 0x60, 0x9a, 0x83, 0xbb, 0x83,
-	0xe6, 0x47, 0x1c, 0xea, 0x82, 0x55, 0xa2, 0x2f, 0x74, 0xa1, 0xeb, 0xac, 0x38, 0xab, 0x73, 0xeb,
-	0x41, 0x38, 0x29, 0x3b, 0xfc, 0x1b, 0x22, 0x99, 0xbb, 0x1e, 0x35, 0xb1, 0xbb, 0x89, 0x10, 0x85,
-	0xc3, 0x6b, 0xce, 0xd4, 0xbd, 0x39, 0x1d, 0x0a, 0x87, 0x16, 0xf1, 0x11, 0x2d, 0x64, 0x6c, 0x38,
-	0xc4, 0x12, 0x38, 0x1e, 0xf6, 0x39, 0x96, 0x05, 0xeb, 0xfe, 0xb7, 0xe2, 0xac, 0x76, 0xe2, 0xde,
-	0x49, 0xe3, 0xb7, 0x7e, 0x36, 0xfe, 0x53, 0xe3, 0x87, 0x20, 0x83, 0xb0, 0x60, 0x51, 0x89, 0xe5,
-	0x41, 0xf8, 0x16, 0x72, 0x9c, 0x1d, 0x6d, 0x43, 0x76, 0x76, 0xbc, 0x86, 0xac, 0x79, 0xdb, 0x90,
-	0x25, 0xf3, 0x63, 0x54, 0xa2, 0x48, 0xc1, 0x77, 0x07, 0x2d, 0x68, 0x47, 0xf6, 0x71, 0x35, 0x94,
-	0x7b, 0x00, 0x04, 0x88, 0xfb, 0x1c, 0xb5, 0x71, 0xc9, 0x2a, 0x2a, 0xf5, 0xe6, 0x33, 0xeb, 0x4b,
-	0xa1, 0x45, 0x28, 0xc7, 0x43, 0xeb, 0x78, 0xb8, 0xc5, 0x0a, 0x1a, 0x4f, 0x2b, 0x0d, 0x89, 0x6d,
-	0x77, 0x1f, 0xa3, 0xb6, 0x60, 0x15, 0xcf, 0x40, 0xaf, 0xda, 0x49, 0x6c, 0xe4, 0xee, 0xa0, 0x47,
-	0xca, 0x86, 0x5a, 0x9d, 0xd1, 0x4f, 0xf1, 0x10, 0xd3, 0x0c, 0xf4, 0x12, 0xf7, 0x60, 0xcf, 0x53,
-	0x38, 0xd4, 0xe2, 0x62, 0x33, 0x17, 0x7c, 0x99, 0x46, 0xb3, 0x5a, 0x72, 0xfc, 0x2e, 0x81, 0x8c,
-	0x71, 0xe2, 0x7e, 0x42, 0x33, 0x69, 0xc5, 0x29, 0x90, 0xfe, 0x67, 0xce, 0x4a, 0x2d, 0xba, 0x13,
-	0xbf, 0xba, 0x6c, 0xfc, 0xc9, 0xf4, 0x55, 0xe3, 0xbb, 0x47, 0xb8, 0x1c, 0xbe, 0x0c, 0x26, 0x92,
-	0xc1, 0xd9, 0xf1, 0xda, 0xa2, 0x15, 0xb0, 0x49, 0x08, 0x07, 0x21, 0xf6, 0x24, 0x2f, 0x68, 0x9e,
-	0x20, 0xd3, 0xf5, 0x86, 0xb3, 0xd2, 0xdd, 0x47, 0x9d, 0xb2, 0xa0, 0x12, 0x48, 0x5f, 0x32, 0xb3,
-	0x59, 0xfc, 0xe2, 0xb2, 0xf1, 0xc7, 0xc9, 0xab, 0xc6, 0x5f, 0x30, 0xec, 0x9b, 0xd4, 0xdd, 0xe4,
-	0x07, 0xa6, 0xe7, 0x3d, 0x73, 0x77, 0x50, 0x5b, 0x9f, 0xc2, 0xed, 0x85, 0x6e, 0x5c, 0x36, 0xbe,
-	0xcd, 0x5c, 0x35, 0xfe, 0xec, 0x84, 0x5a, 0x7e, 0x37, 0xce, 0x0e, 0x28, 0x98, 0x06, 0xf3, 0xee,
-	0xf4, 0x18, 0x66, 0x32, 0x63, 0x98, 0x89, 0xff, 0x01, 0x33, 0x0d, 0xee, 0xae, 0x55, 0x46, 0xba,
-	0xff, 0xeb, 0x5b, 0x7a, 0x72, 0xeb, 0x9f, 0x65, 0x05, 0xdd, 0xe5, 0x45, 0x06, 0xb1, 0xaf, 0xee,
-	0xe8, 0x46, 0x36, 0xb9, 0x25, 0x9b, 0x04, 0x56, 0x1e, 0x51, 0x44, 0xb3, 0x77, 0xb7, 0x7d, 0x4f,
-	0xa2, 0x69, 0xbf, 0xa5, 0x5d, 0x11, 0xcd, 0x47, 0xfc, 0xec, 0xe4, 0xdc, 0x73, 0x4e, 0xcf, 0x3d,
-	0xe7, 0xd7, 0xb9, 0xe7, 0x7c, 0xbb, 0xf0, 0x5a, 0xa7, 0x17, 0x5e, 0xeb, 0xc7, 0x85, 0xd7, 0xfa,
-	0xb0, 0x3c, 0x1a, 0xe4, 0x21, 0x1e, 0xc8, 0x90, 0x40, 0x1d, 0xe5, 0x2c, 0xa2, 0x8c, 0x80, 0x7d,
-	0x0e, 0xd2, 0xb6, 0x7e, 0x09, 0x36, 0x7e, 0x07, 0x00, 0x00, 0xff, 0xff, 0xee, 0x43, 0x4e, 0x46,
-	0x9f, 0x04, 0x00, 0x00,
+	// 486 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x52, 0xc1, 0x6e, 0xd3, 0x4c,
+	0x18, 0x8c, 0xf3, 0xff, 0x8a, 0x94, 0x05, 0x35, 0xc5, 0x2a, 0x28, 0x09, 0xc8, 0xa9, 0x7c, 0xca,
+	0x85, 0xb5, 0x52, 0x90, 0x2a, 0x71, 0xc3, 0x4d, 0x0f, 0x15, 0xe5, 0xe2, 0x4a, 0x3d, 0x20, 0x24,
+	0x6b, 0xbd, 0xfb, 0xe1, 0xac, 0x62, 0xef, 0x46, 0xde, 0xb5, 0x43, 0xde, 0x82, 0x47, 0xe1, 0xc0,
+	0x43, 0xf4, 0x58, 0x71, 0x42, 0x1c, 0x2c, 0x94, 0xdc, 0xb8, 0xc1, 0x13, 0x20, 0xaf, 0xb7, 0x6a,
+	0x7b, 0x82, 0xdb, 0x7e, 0x9a, 0x6f, 0x66, 0x67, 0x46, 0x1f, 0x1a, 0x91, 0x25, 0x51, 0x8b, 0x20,
+	0xc9, 0x21, 0xa8, 0x66, 0x01, 0x54, 0x20, 0xb4, 0xc2, 0xab, 0x42, 0x6a, 0xe9, 0x3e, 0x34, 0x10,
+	0x4e, 0x72, 0xc0, 0xd5, 0x6c, 0x7c, 0x90, 0xca, 0x54, 0x1a, 0x20, 0x68, 0x5e, 0xed, 0xce, 0x78,
+	0x44, 0xa5, 0xca, 0xa5, 0x8a, 0x5b, 0xa0, 0x1d, 0x2c, 0xe4, 0xb5, 0x53, 0x90, 0x10, 0xd5, 0x68,
+	0x27, 0xa0, 0xc9, 0x2c, 0xa0, 0x92, 0x0b, 0x8b, 0x0f, 0xef, 0xfd, 0xac, 0x37, 0x2b, 0xb0, 0x4c,
+	0xff, 0x97, 0x83, 0x1e, 0x9f, 0x36, 0x4e, 0xde, 0x72, 0xa1, 0x2f, 0x34, 0xd1, 0xa5, 0x3a, 0x59,
+	0x10, 0x91, 0x82, 0xfb, 0x1a, 0x0d, 0x56, 0x05, 0x54, 0x5c, 0x96, 0x2a, 0x56, 0x06, 0x18, 0x3a,
+	0x87, 0xce, 0x74, 0xef, 0x68, 0x88, 0xef, 0x9a, 0xc5, 0xb7, 0xc4, 0x68, 0xef, 0x86, 0xd0, 0xce,
+	0xee, 0x31, 0x42, 0x02, 0xd6, 0x37, 0xec, 0xee, 0x5f, 0xd8, 0x7d, 0x01, 0x6b, 0x4b, 0x7c, 0x8f,
+	0xf6, 0xa9, 0xcc, 0x32, 0xa2, 0xa1, 0x20, 0x59, 0x5c, 0x10, 0xcd, 0xe5, 0xf0, 0xbf, 0x43, 0x67,
+	0xda, 0x0f, 0x67, 0x57, 0xf5, 0xa4, 0xf3, 0xbd, 0x9e, 0x3c, 0x6d, 0x13, 0x2b, 0xb6, 0xc4, 0x5c,
+	0x06, 0x39, 0xd1, 0x0b, 0x7c, 0x0e, 0x29, 0xa1, 0x9b, 0x39, 0xd0, 0xaf, 0x5f, 0x9e, 0x23, 0x5b,
+	0xcf, 0x1c, 0x68, 0x34, 0xb8, 0x95, 0x8a, 0x1a, 0x25, 0xff, 0xb3, 0x83, 0xf6, 0x4d, 0xe6, 0x4b,
+	0x52, 0x66, 0xfa, 0x02, 0x80, 0x01, 0x73, 0x8f, 0x51, 0x8f, 0xe4, 0xb2, 0x14, 0xda, 0xa4, 0x7c,
+	0x70, 0x34, 0xc2, 0x56, 0xa2, 0xe9, 0x14, 0xdb, 0x4e, 0xf1, 0x89, 0xe4, 0x22, 0xfc, 0xbf, 0xf1,
+	0x10, 0xd9, 0x75, 0xf7, 0x09, 0xea, 0x29, 0x59, 0x16, 0x14, 0x4c, 0xc0, 0x7e, 0x64, 0x27, 0xf7,
+	0x0d, 0x7a, 0xd4, 0x84, 0xaf, 0x9a, 0x3f, 0xe2, 0x84, 0x64, 0x44, 0x50, 0x30, 0x21, 0xfe, 0x41,
+	0x7b, 0x20, 0x60, 0x6d, 0xcc, 0x85, 0x2d, 0xcf, 0x57, 0x68, 0x64, 0x1c, 0x9f, 0x03, 0x4b, 0xa1,
+	0x88, 0x80, 0xca, 0x82, 0x9d, 0x7e, 0x04, 0x5a, 0x6a, 0x60, 0xee, 0x25, 0xea, 0x72, 0x66, 0x6d,
+	0x3f, 0xbb, 0x5f, 0xef, 0xdd, 0xfd, 0xb3, 0x79, 0x38, 0x6d, 0xd4, 0xb7, 0xf5, 0xa4, 0x7b, 0x36,
+	0xff, 0x59, 0x4f, 0xba, 0x9c, 0xfd, 0xae, 0x27, 0x07, 0x1b, 0x92, 0x67, 0xaf, 0xfc, 0xa4, 0x2c,
+	0x04, 0x70, 0xc6, 0xe2, 0x0f, 0x85, 0xcc, 0xfd, 0xa8, 0xcb, 0x59, 0xf8, 0xf2, 0x6a, 0xeb, 0x39,
+	0xd7, 0x5b, 0xcf, 0xf9, 0xb1, 0xf5, 0x9c, 0x4f, 0x3b, 0xaf, 0x73, 0xbd, 0xf3, 0x3a, 0xdf, 0x76,
+	0x5e, 0xe7, 0xdd, 0x78, 0xb5, 0x4c, 0x31, 0x59, 0x6a, 0xcc, 0xa0, 0x0a, 0x52, 0x19, 0x08, 0xc9,
+	0xc0, 0x5e, 0x57, 0xd2, 0x33, 0x87, 0xf5, 0xe2, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x76, 0x49,
+	0xb7, 0xed, 0xee, 0x02, 0x00, 0x00,
 }
 
-func (m *EventCircuitBreakerStatusChange) Marshal() (dAtA []byte, err error) {
+func (m *EventMintStatusChange) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -299,12 +246,12 @@ func (m *EventCircuitBreakerStatusChange) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventCircuitBreakerStatusChange) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventMintStatusChange) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventCircuitBreakerStatusChange) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventMintStatusChange) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -382,7 +329,7 @@ func (m *EventVaultSeeded) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventBMRecord) Marshal() (dAtA []byte, err error) {
+func (m *EventLedgerRecordExecuted) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -392,18 +339,18 @@ func (m *EventBMRecord) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventBMRecord) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventLedgerRecordExecuted) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventBMRecord) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventLedgerRecordExecuted) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size, err := m.Minted.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.ID.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -411,45 +358,7 @@ func (m *EventBMRecord) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintEvents(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x32
-	{
-		size, err := m.Burned.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintEvents(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x2a
-	if len(m.Minter) > 0 {
-		i -= len(m.Minter)
-		copy(dAtA[i:], m.Minter)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Minter)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.Burner) > 0 {
-		i -= len(m.Burner)
-		copy(dAtA[i:], m.Burner)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Burner)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.MintedTo) > 0 {
-		i -= len(m.MintedTo)
-		copy(dAtA[i:], m.MintedTo)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.MintedTo)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.BurnedFrom) > 0 {
-		i -= len(m.BurnedFrom)
-		copy(dAtA[i:], m.BurnedFrom)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.BurnedFrom)))
-		i--
-		dAtA[i] = 0xa
-	}
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -464,7 +373,7 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *EventCircuitBreakerStatusChange) Size() (n int) {
+func (m *EventMintStatusChange) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -498,31 +407,13 @@ func (m *EventVaultSeeded) Size() (n int) {
 	return n
 }
 
-func (m *EventBMRecord) Size() (n int) {
+func (m *EventLedgerRecordExecuted) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.BurnedFrom)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.MintedTo)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.Burner)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.Minter)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = m.Burned.Size()
-	n += 1 + l + sovEvents(uint64(l))
-	l = m.Minted.Size()
+	l = m.ID.Size()
 	n += 1 + l + sovEvents(uint64(l))
 	return n
 }
@@ -533,7 +424,7 @@ func sovEvents(x uint64) (n int) {
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *EventCircuitBreakerStatusChange) Unmarshal(dAtA []byte) error {
+func (m *EventMintStatusChange) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -556,10 +447,10 @@ func (m *EventCircuitBreakerStatusChange) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventCircuitBreakerStatusChange: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventMintStatusChange: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventCircuitBreakerStatusChange: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventMintStatusChange: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -576,7 +467,7 @@ func (m *EventCircuitBreakerStatusChange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PreviousStatus |= CircuitBreakerStatus(b&0x7F) << shift
+				m.PreviousStatus |= MintStatus(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -595,7 +486,7 @@ func (m *EventCircuitBreakerStatusChange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NewStatus |= CircuitBreakerStatus(b&0x7F) << shift
+				m.NewStatus |= MintStatus(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -803,7 +694,7 @@ func (m *EventVaultSeeded) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventBMRecord) Unmarshal(dAtA []byte) error {
+func (m *EventLedgerRecordExecuted) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -826,143 +717,15 @@ func (m *EventBMRecord) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventBMRecord: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventLedgerRecordExecuted: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventBMRecord: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventLedgerRecordExecuted: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BurnedFrom", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.BurnedFrom = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MintedTo", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.MintedTo = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Burner", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Burner = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Minter", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Minter = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Burned", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ID", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -989,40 +752,7 @@ func (m *EventBMRecord) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Burned.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Minted", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Minted.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.ID.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

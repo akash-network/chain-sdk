@@ -28,17 +28,17 @@ func (gs GenesisState) Validate() error {
 		if err := epoch.Validate(); err != nil {
 			return err
 		}
-		if epochIdentifiers[epoch.Identifier] {
+		if epochIdentifiers[epoch.ID] {
 			return errors.New("epoch identifier should be unique")
 		}
-		epochIdentifiers[epoch.Identifier] = true
+		epochIdentifiers[epoch.ID] = true
 	}
 	return nil
 }
 
 // Validate also validates epoch info.
 func (epoch EpochInfo) Validate() error {
-	if epoch.Identifier == "" {
+	if epoch.ID == "" {
 		return errors.New("epoch identifier should NOT be empty")
 	}
 	if epoch.Duration == 0 {
@@ -55,7 +55,7 @@ func (epoch EpochInfo) Validate() error {
 
 func NewGenesisEpochInfo(identifier string, duration time.Duration) EpochInfo {
 	return EpochInfo{
-		Identifier:              identifier,
+		ID:                      identifier,
 		StartTime:               time.Time{},
 		Duration:                duration,
 		CurrentEpoch:            0,

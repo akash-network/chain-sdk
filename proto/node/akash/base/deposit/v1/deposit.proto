@@ -1,8 +1,8 @@
 syntax = "proto3";
 package akash.base.deposit.v1;
 
-import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "pkg.akt.dev/go/node/types/deposit/v1";
 
@@ -11,11 +11,11 @@ enum Source {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // Prefix should start with 0 in enum. So declaring dummy state.
-  source_invalid = 0 [(gogoproto.enumvalue_customname) = "SourceInvalid"];
+  invalid = 0 [(gogoproto.enumvalue_customname) = "SourceInvalid"];
   // SourceBalance denotes account balance as source of funds
-  source_balance = 1 [(gogoproto.enumvalue_customname)  = "SourceBalance"];
+  balance = 1 [(gogoproto.enumvalue_customname) = "SourceBalance"];
   // SourceGrant denotes authz grants as source of funds
-  source_grant = 2 [(gogoproto.enumvalue_customname)  = "SourceGrant"];
+  grant = 2 [(gogoproto.enumvalue_customname) = "SourceGrant"];
 }
 
 // Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit.
@@ -26,20 +26,14 @@ message Deposit {
     (gogoproto.moretags) = "yaml:\"amount\""
   ];
 
-  // direct indicates if deposited currency should be swapped to ACT (false) at time of the deposit
-  bool direct = 2 [
-    (gogoproto.customname)   = "Direct",
-    (gogoproto.jsontag)      = "direct",
-    (gogoproto.moretags)     = "yaml:\"direct\""
-  ];
-
+  reserved 2;
   reserved 3;
   reserved 4;
 
   // Sources is the set of deposit sources, each entry must be unique.
   repeated Source sources = 5 [
     (gogoproto.castrepeated) = "Sources",
-    (gogoproto.jsontag)      = "deposit_sources",
-    (gogoproto.moretags)     = "yaml:\"deposit_sources\""
+    (gogoproto.jsontag) = "deposit_sources",
+    (gogoproto.moretags) = "yaml:\"deposit_sources\""
   ];
 }

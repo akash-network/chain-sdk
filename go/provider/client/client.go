@@ -25,8 +25,8 @@ import (
 
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
 	ctypes "pkg.akt.dev/go/node/cert/v1"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
-	mtypes "pkg.akt.dev/go/node/market/v2beta1"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
+	mtypes "pkg.akt.dev/go/node/market/v1"
 	ajwt "pkg.akt.dev/go/util/jwt"
 	atls "pkg.akt.dev/go/util/tls"
 )
