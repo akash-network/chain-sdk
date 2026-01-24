@@ -67,10 +67,6 @@ export const Params: MessageFns<Params, "akash.wasm.v1.Params"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.blockedAddresses = object.blockedAddresses?.map((e) => e) || [];

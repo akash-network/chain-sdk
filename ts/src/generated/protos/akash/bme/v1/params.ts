@@ -186,10 +186,6 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.circuitBreakerWarnThreshold = object.circuitBreakerWarnThreshold ?? 0;

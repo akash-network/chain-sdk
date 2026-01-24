@@ -101,10 +101,6 @@ export const EventMsgBlocked: MessageFns<EventMsgBlocked, "akash.wasm.v1.EventMs
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventMsgBlocked>): EventMsgBlocked {
-    return EventMsgBlocked.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventMsgBlocked>): EventMsgBlocked {
     const message = createBaseEventMsgBlocked();
     message.contractAddress = object.contractAddress ?? "";

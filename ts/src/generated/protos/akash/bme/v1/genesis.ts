@@ -121,10 +121,6 @@ export const GenesisLedgerRecord: MessageFns<GenesisLedgerRecord, "akash.bme.v1.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisLedgerRecord>): GenesisLedgerRecord {
-    return GenesisLedgerRecord.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisLedgerRecord>): GenesisLedgerRecord {
     const message = createBaseGenesisLedgerRecord();
     message.id = (object.id !== undefined && object.id !== null) ? LedgerRecordID.fromPartial(object.id) : undefined;
@@ -203,10 +199,6 @@ export const GenesisLedgerPendingRecord: MessageFns<
       obj.record = LedgerPendingRecord.toJSON(message.record);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisLedgerPendingRecord>): GenesisLedgerPendingRecord {
-    return GenesisLedgerPendingRecord.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisLedgerPendingRecord>): GenesisLedgerPendingRecord {
     const message = createBaseGenesisLedgerPendingRecord();
@@ -287,10 +279,6 @@ export const GenesisLedgerState: MessageFns<GenesisLedgerState, "akash.bme.v1.Ge
       obj.pending_records = message.pendingRecords.map((e) => GenesisLedgerPendingRecord.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisLedgerState>): GenesisLedgerState {
-    return GenesisLedgerState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisLedgerState>): GenesisLedgerState {
     const message = createBaseGenesisLedgerState();
@@ -387,10 +375,6 @@ export const GenesisVaultState: MessageFns<GenesisVaultState, "akash.bme.v1.Gene
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisVaultState>): GenesisVaultState {
-    return GenesisVaultState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisVaultState>): GenesisVaultState {
     const message = createBaseGenesisVaultState();
     message.totalBurned = object.totalBurned?.map((e) => Coin.fromPartial(e)) || [];
@@ -480,10 +464,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.bme.v1.GenesisState">
       obj.ledger = GenesisLedgerState.toJSON(message.ledger);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();

@@ -56,10 +56,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "akash.wasm.v1.Q
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
     return message;
@@ -114,10 +110,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "akash.wasm.v1
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();

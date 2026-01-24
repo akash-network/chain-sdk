@@ -237,10 +237,6 @@ export const EpochInfo: MessageFns<EpochInfo, "akash.epochs.v1beta1.EpochInfo"> 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EpochInfo>): EpochInfo {
-    return EpochInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EpochInfo>): EpochInfo {
     const message = createBaseEpochInfo();
     message.id = object.id ?? "";
@@ -311,10 +307,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.epochs.v1beta1.Genesi
       obj.epochs = message.epochs.map((e) => EpochInfo.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();

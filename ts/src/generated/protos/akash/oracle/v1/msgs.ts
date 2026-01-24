@@ -140,10 +140,6 @@ export const MsgAddPriceEntry: MessageFns<MsgAddPriceEntry, "akash.oracle.v1.Msg
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgAddPriceEntry>): MsgAddPriceEntry {
-    return MsgAddPriceEntry.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgAddPriceEntry>): MsgAddPriceEntry {
     const message = createBaseMsgAddPriceEntry();
     message.signer = object.signer ?? "";
@@ -192,10 +188,6 @@ export const MsgAddPriceEntryResponse: MessageFns<
   toJSON(_: MsgAddPriceEntryResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgAddPriceEntryResponse>): MsgAddPriceEntryResponse {
-    return MsgAddPriceEntryResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgAddPriceEntryResponse>): MsgAddPriceEntryResponse {
     const message = createBaseMsgAddPriceEntryResponse();
@@ -269,10 +261,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "akash.oracle.v1.MsgUp
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -317,10 +305,6 @@ export const MsgUpdateParamsResponse: MessageFns<MsgUpdateParamsResponse, "akash
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();

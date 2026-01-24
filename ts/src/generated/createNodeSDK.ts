@@ -133,23 +133,36 @@ export function createSDK(queryTransport: Transport, txTransport: Transport, opt
             return getClient(service).status(input, options);
           }, { path: [2, 2] }),
           /**
-           * updateParams updates the module parameters (governance only)
+           * updateParams updates the module parameters.
+           * This operation can only be performed through governance proposals.
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_bme_v1_msgs.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [3, 0] }),
           /**
-           * burnMint allows users to burn unused ACT back to AKT at current price
+           * burnMint allows users to burn one token and mint another at current oracle prices.
+           * Typically used to burn unused ACT tokens back to AKT.
+           * The operation may be delayed or rejected based on circuit breaker status.
            */
           burnMint: withMetadata(async function burnMint(input: DeepSimplify<akash_bme_v1_msgs.MsgBurnMint>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).burnMint(input, options);
           }, { path: [3, 1] }),
+          /**
+           * mintACT mints ACT tokens by burning the specified source token.
+           * The mint amount is calculated based on current oracle prices and
+           * the collateral ratio. May be halted if circuit breaker is triggered.
+           */
           mintACT: withMetadata(async function mintACT(input: DeepSimplify<akash_bme_v1_msgs.MsgMintACT>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).mintACT(input, options);
           }, { path: [3, 2] }),
+          /**
+           * burnACT burns ACT tokens and mints the specified destination token.
+           * The burn operation uses remint credits when available, otherwise
+           * requires adequate collateral backing based on oracle prices.
+           */
           burnACT: withMetadata(async function burnACT(input: DeepSimplify<akash_bme_v1_msgs.MsgBurnACT>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).burnACT(input, options);

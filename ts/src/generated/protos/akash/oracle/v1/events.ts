@@ -142,10 +142,6 @@ export const EventPriceData: MessageFns<EventPriceData, "akash.oracle.v1.EventPr
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventPriceData>): EventPriceData {
-    return EventPriceData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventPriceData>): EventPriceData {
     const message = createBaseEventPriceData();
     message.source = object.source ?? "";
@@ -253,10 +249,6 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventPriceStaleWarning>): EventPriceStaleWarning {
-    return EventPriceStaleWarning.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventPriceStaleWarning>): EventPriceStaleWarning {
     const message = createBaseEventPriceStaleWarning();
     message.source = object.source ?? "";
@@ -352,10 +344,6 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventPriceStaled>): EventPriceStaled {
-    return EventPriceStaled.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventPriceStaled>): EventPriceStaled {
     const message = createBaseEventPriceStaled();
     message.source = object.source ?? "";
@@ -447,10 +435,6 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
       obj.height = (message.height || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventPriceRecovered>): EventPriceRecovered {
-    return EventPriceRecovered.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventPriceRecovered>): EventPriceRecovered {
     const message = createBaseEventPriceRecovered();

@@ -61,11 +61,20 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// UpdateParams updates the module parameters (governance only)
+	// UpdateParams updates the module parameters.
+	// This operation can only be performed through governance proposals.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// BurnMint allows users to burn unused ACT back to AKT at current price
+	// BurnMint allows users to burn one token and mint another at current oracle prices.
+	// Typically used to burn unused ACT tokens back to AKT.
+	// The operation may be delayed or rejected based on circuit breaker status.
 	BurnMint(ctx context.Context, in *MsgBurnMint, opts ...grpc.CallOption) (*MsgBurnMintResponse, error)
+	// MintACT mints ACT tokens by burning the specified source token.
+	// The mint amount is calculated based on current oracle prices and
+	// the collateral ratio. May be halted if circuit breaker is triggered.
 	MintACT(ctx context.Context, in *MsgMintACT, opts ...grpc.CallOption) (*MsgMintACTResponse, error)
+	// BurnACT burns ACT tokens and mints the specified destination token.
+	// The burn operation uses remint credits when available, otherwise
+	// requires adequate collateral backing based on oracle prices.
 	BurnACT(ctx context.Context, in *MsgBurnACT, opts ...grpc.CallOption) (*MsgBurnACTResponse, error)
 }
 
@@ -115,11 +124,20 @@ func (c *msgClient) BurnACT(ctx context.Context, in *MsgBurnACT, opts ...grpc.Ca
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// UpdateParams updates the module parameters (governance only)
+	// UpdateParams updates the module parameters.
+	// This operation can only be performed through governance proposals.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// BurnMint allows users to burn unused ACT back to AKT at current price
+	// BurnMint allows users to burn one token and mint another at current oracle prices.
+	// Typically used to burn unused ACT tokens back to AKT.
+	// The operation may be delayed or rejected based on circuit breaker status.
 	BurnMint(context.Context, *MsgBurnMint) (*MsgBurnMintResponse, error)
+	// MintACT mints ACT tokens by burning the specified source token.
+	// The mint amount is calculated based on current oracle prices and
+	// the collateral ratio. May be halted if circuit breaker is triggered.
 	MintACT(context.Context, *MsgMintACT) (*MsgMintACTResponse, error)
+	// BurnACT burns ACT tokens and mints the specified destination token.
+	// The burn operation uses remint credits when available, otherwise
+	// requires adequate collateral backing based on oracle prices.
 	BurnACT(context.Context, *MsgBurnACT) (*MsgBurnACTResponse, error)
 }
 
