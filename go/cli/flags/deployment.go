@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
-	dv1beta "pkg.akt.dev/go/node/deployment/v1beta5"
+	dv1beta "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
 type DeploymentIDOptions struct {

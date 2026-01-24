@@ -1,5 +1,9 @@
-import type * as _protos_akash_deployment_v1beta4_resourceunit from "../protos/akash/deployment/v1beta4/resourceunit.ts";
 import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
+import type * as _protos_akash_bme_v1_types from "../protos/akash/bme/v1/types.ts";
+import type * as _protos_akash_bme_v1_events from "../protos/akash/bme/v1/events.ts";
+import type * as _protos_akash_bme_v1_genesis from "../protos/akash/bme/v1/genesis.ts";
+import type * as _protos_akash_bme_v1_query from "../protos/akash/bme/v1/query.ts";
+import type * as _protos_akash_deployment_v1beta4_resourceunit from "../protos/akash/deployment/v1beta4/resourceunit.ts";
 import type * as _protos_cosmos_base_v1beta1_coin from "../protos/cosmos/base/v1beta1/coin.ts";
 import type * as _protos_akash_deployment_v1beta4_groupspec from "../protos/akash/deployment/v1beta4/groupspec.ts";
 import type * as _protos_akash_deployment_v1beta4_deploymentmsg from "../protos/akash/deployment/v1beta4/deploymentmsg.ts";
@@ -19,8 +23,74 @@ import type * as _protos_akash_market_v1beta5_bidmsg from "../protos/akash/marke
 import type * as _protos_akash_market_v1beta5_order from "../protos/akash/market/v1beta5/order.ts";
 import type * as _protos_akash_market_v1beta5_genesis from "../protos/akash/market/v1beta5/genesis.ts";
 import type * as _protos_akash_market_v1beta5_query from "../protos/akash/market/v1beta5/query.ts";
+import type * as _protos_akash_oracle_v1_prices from "../protos/akash/oracle/v1/prices.ts";
+import type * as _protos_akash_oracle_v1_events from "../protos/akash/oracle/v1/events.ts";
+import type * as _protos_akash_oracle_v1_genesis from "../protos/akash/oracle/v1/genesis.ts";
+import type * as _protos_akash_oracle_v1_msgs from "../protos/akash/oracle/v1/msgs.ts";
+import type * as _protos_akash_oracle_v1_query from "../protos/akash/oracle/v1/query.ts";
 
 const p = {
+  "akash.bme.v1.CollateralRatio"(value: _protos_akash_bme_v1_types.CollateralRatio | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.ratio != null) newValue.ratio = LegacyDec[transformType](value.ratio);
+    if (value.referencePrice != null) newValue.referencePrice = LegacyDec[transformType](value.referencePrice);
+    return newValue;
+  },
+  "akash.bme.v1.CoinPrice"(value: _protos_akash_bme_v1_types.CoinPrice | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.price != null) newValue.price = LegacyDec[transformType](value.price);
+    return newValue;
+  },
+  "akash.bme.v1.BurnMintPair"(value: _protos_akash_bme_v1_types.BurnMintPair | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.burned != null) newValue.burned = p["akash.bme.v1.CoinPrice"](value.burned, transformType);
+    if (value.minted != null) newValue.minted = p["akash.bme.v1.CoinPrice"](value.minted, transformType);
+    return newValue;
+  },
+  "akash.bme.v1.LedgerRecord"(value: _protos_akash_bme_v1_types.LedgerRecord | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.burned != null) newValue.burned = p["akash.bme.v1.CoinPrice"](value.burned, transformType);
+    if (value.minted != null) newValue.minted = p["akash.bme.v1.CoinPrice"](value.minted, transformType);
+    if (value.remintCreditIssued != null) newValue.remintCreditIssued = p["akash.bme.v1.CoinPrice"](value.remintCreditIssued, transformType);
+    if (value.remintCreditAccrued != null) newValue.remintCreditAccrued = p["akash.bme.v1.CoinPrice"](value.remintCreditAccrued, transformType);
+    return newValue;
+  },
+  "akash.bme.v1.EventMintStatusChange"(value: _protos_akash_bme_v1_events.EventMintStatusChange | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.collateralRatio != null) newValue.collateralRatio = LegacyDec[transformType](value.collateralRatio);
+    return newValue;
+  },
+  "akash.bme.v1.GenesisLedgerRecord"(value: _protos_akash_bme_v1_genesis.GenesisLedgerRecord | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.record != null) newValue.record = p["akash.bme.v1.LedgerRecord"](value.record, transformType);
+    return newValue;
+  },
+  "akash.bme.v1.GenesisLedgerState"(value: _protos_akash_bme_v1_genesis.GenesisLedgerState | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.records) newValue.records = value.records.map((item) => p["akash.bme.v1.GenesisLedgerRecord"](item, transformType)!);
+    return newValue;
+  },
+  "akash.bme.v1.GenesisState"(value: _protos_akash_bme_v1_genesis.GenesisState | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.ledger != null) newValue.ledger = p["akash.bme.v1.GenesisLedgerState"](value.ledger, transformType);
+    return newValue;
+  },
+  "akash.bme.v1.QueryStatusResponse"(value: _protos_akash_bme_v1_query.QueryStatusResponse | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.collateralRatio != null) newValue.collateralRatio = LegacyDec[transformType](value.collateralRatio);
+    if (value.warnThreshold != null) newValue.warnThreshold = LegacyDec[transformType](value.warnThreshold);
+    if (value.haltThreshold != null) newValue.haltThreshold = LegacyDec[transformType](value.haltThreshold);
+    return newValue;
+  },
   "akash.deployment.v1beta4.ResourceUnit"(value: _protos_akash_deployment_v1beta4_resourceunit.ResourceUnit | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
@@ -221,6 +291,57 @@ const p = {
     const newValue = { ...value };
     if (value.lease != null) newValue.lease = p["akash.market.v1.Lease"](value.lease, transformType);
     if (value.escrowPayment != null) newValue.escrowPayment = p["akash.escrow.types.v1.Payment"](value.escrowPayment, transformType);
+    return newValue;
+  },
+  "akash.oracle.v1.PriceDataState"(value: _protos_akash_oracle_v1_prices.PriceDataState | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.price != null) newValue.price = LegacyDec[transformType](value.price);
+    return newValue;
+  },
+  "akash.oracle.v1.PriceData"(value: _protos_akash_oracle_v1_prices.PriceData | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.state != null) newValue.state = p["akash.oracle.v1.PriceDataState"](value.state, transformType);
+    return newValue;
+  },
+  "akash.oracle.v1.AggregatedPrice"(value: _protos_akash_oracle_v1_prices.AggregatedPrice | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.twap != null) newValue.twap = LegacyDec[transformType](value.twap);
+    if (value.medianPrice != null) newValue.medianPrice = LegacyDec[transformType](value.medianPrice);
+    if (value.minPrice != null) newValue.minPrice = LegacyDec[transformType](value.minPrice);
+    if (value.maxPrice != null) newValue.maxPrice = LegacyDec[transformType](value.maxPrice);
+    return newValue;
+  },
+  "akash.oracle.v1.QueryPricesResponse"(value: _protos_akash_oracle_v1_prices.QueryPricesResponse | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.prices) newValue.prices = value.prices.map((item) => p["akash.oracle.v1.PriceData"](item, transformType)!);
+    return newValue;
+  },
+  "akash.oracle.v1.EventPriceData"(value: _protos_akash_oracle_v1_events.EventPriceData | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.data != null) newValue.data = p["akash.oracle.v1.PriceDataState"](value.data, transformType);
+    return newValue;
+  },
+  "akash.oracle.v1.GenesisState"(value: _protos_akash_oracle_v1_genesis.GenesisState | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.prices) newValue.prices = value.prices.map((item) => p["akash.oracle.v1.PriceData"](item, transformType)!);
+    return newValue;
+  },
+  "akash.oracle.v1.MsgAddPriceEntry"(value: _protos_akash_oracle_v1_msgs.MsgAddPriceEntry | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.price != null) newValue.price = p["akash.oracle.v1.PriceDataState"](value.price, transformType);
+    return newValue;
+  },
+  "akash.oracle.v1.QueryAggregatedPriceResponse"(value: _protos_akash_oracle_v1_query.QueryAggregatedPriceResponse | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.aggregatedPrice != null) newValue.aggregatedPrice = p["akash.oracle.v1.AggregatedPrice"](value.aggregatedPrice, transformType);
     return newValue;
   }
 };

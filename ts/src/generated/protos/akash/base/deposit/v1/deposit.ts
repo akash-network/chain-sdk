@@ -15,9 +15,9 @@ import { Coin } from "../../../../cosmos/base/v1beta1/coin.ts";
 export enum Source {
   /** invalid - Prefix should start with 0 in enum. So declaring dummy state. */
   invalid = 0,
-  /** balance - DepositSourceBalance denotes account balance as source of funds */
+  /** balance - SourceBalance denotes account balance as source of funds */
   balance = 1,
-  /** grant - DepositSourceGrant denotes authz grants as source of funds */
+  /** grant - SourceGrant denotes authz grants as source of funds */
   grant = 2,
   UNRECOGNIZED = -1,
 }
@@ -56,7 +56,7 @@ export function sourceToJSON(object: Source): string {
 
 /** Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment and MsgCreateBid to indicate source of the deposit. */
 export interface Deposit {
-  /** Deposit specifies the amount of coins to include in the deployment's first deposit. */
+  /** amount specifies the amount of coins to include in the deployment's first deposit. */
   amount:
     | Coin
     | undefined;

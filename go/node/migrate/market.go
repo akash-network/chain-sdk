@@ -6,7 +6,6 @@ import (
 	v1 "pkg.akt.dev/go/node/market/v1"
 	"pkg.akt.dev/go/node/market/v1beta4"
 	"pkg.akt.dev/go/node/market/v1beta5"
-	"pkg.akt.dev/go/node/market/v2beta1"
 	rv1beta4 "pkg.akt.dev/go/node/types/resources/v1beta4"
 )
 
@@ -32,17 +31,6 @@ func LeaseIDFromV1beta4(from v1beta4.LeaseID) v1.LeaseID {
 	}
 }
 
-func LeaseIDFromV1beta5(from v1.LeaseID) v2beta1.LeaseID {
-	return v2beta1.LeaseID{
-		Owner:    from.Owner,
-		DSeq:     from.DSeq,
-		GSeq:     from.GSeq,
-		OSeq:     from.OSeq,
-		Provider: from.Provider,
-		BSeq:     from.BSeq,
-	}
-}
-
 func BidIDFromV1beta4(from v1beta4.BidID) v1.BidID {
 	return v1.BidID{
 		Owner:    from.Owner,
@@ -54,28 +42,8 @@ func BidIDFromV1beta4(from v1beta4.BidID) v1.BidID {
 	}
 }
 
-func BidIDFromV1beta5(from v1.BidID) v2beta1.BidID {
-	return v2beta1.BidID{
-		Owner:    from.Owner,
-		DSeq:     from.DSeq,
-		GSeq:     from.GSeq,
-		OSeq:     from.OSeq,
-		Provider: from.Provider,
-		BSeq:     from.BSeq,
-	}
-}
-
 func OrderIDFromV1beta4(from v1beta4.OrderID) v1.OrderID {
 	return v1.OrderID{
-		Owner: from.Owner,
-		DSeq:  from.DSeq,
-		GSeq:  from.GSeq,
-		OSeq:  from.OSeq,
-	}
-}
-
-func OrderIDFromV1beta5(from v1.OrderID) v2beta1.OrderID {
-	return v2beta1.OrderID{
 		Owner: from.Owner,
 		DSeq:  from.DSeq,
 		GSeq:  from.GSeq,
@@ -163,18 +131,6 @@ func OrderFromV1beta4(cdc codec.BinaryCodec, fromBz []byte) v1beta5.Order {
 		ID:        OrderIDFromV1beta4(from.OrderID),
 		State:     v1beta5.Order_State(from.State),
 		Spec:      GroupSpecFromV1Beta3(from.Spec),
-		CreatedAt: from.CreatedAt,
-	}
-}
-
-func OrderFromV1beta5(cdc codec.BinaryCodec, fromBz []byte) v2beta1.Order {
-	var from v1beta5.Order
-	cdc.MustUnmarshal(fromBz, &from)
-
-	return v2beta1.Order{
-		ID:        OrderIDFromV1beta5(from.ID),
-		State:     v2beta1.Order_State(from.State),
-		Spec:      GroupSpecFromV1Beta4(from.Spec),
 		CreatedAt: from.CreatedAt,
 	}
 }

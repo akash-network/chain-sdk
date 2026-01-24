@@ -55,7 +55,7 @@ profiles:
           - 4
       pricing:
         profilea:
-          denom: uakt
+          denom: uact
           amount: 50
 
 deployment:

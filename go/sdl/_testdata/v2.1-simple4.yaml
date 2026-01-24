@@ -74,10 +74,10 @@ profiles:
     akash:
       pricing:
         wordpress:
-          denom: uakt
+          denom: uact
           amount: 10000
         db:
-          denom: uakt
+          denom: uact
           amount: 10000
 deployment:
   wordpress:

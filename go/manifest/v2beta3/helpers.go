@@ -3,7 +3,7 @@ package v2beta3
 import (
 	k8svalidation "k8s.io/apimachinery/pkg/util/validation"
 
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	resources "pkg.akt.dev/go/node/types/resources/v1beta4"
 )
 
