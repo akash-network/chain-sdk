@@ -2028,14 +2028,16 @@ This is used to provide an initial volatility buffer
  <a name="akash.bme.v1.Msg"></a>
 
  ### Msg
- Msg defines the BME Msg service
+ Msg defines the BME (Burn/Mint Engine) transaction service.
+The BME module manages the burn and mint operations for ACT tokens,
+maintaining collateral ratios and enforcing circuit breaker rules.
 
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
- | `UpdateParams` | [MsgUpdateParams](#akash.bme.v1.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.bme.v1.MsgUpdateParamsResponse) | UpdateParams updates the module parameters (governance only) | |
- | `BurnMint` | [MsgBurnMint](#akash.bme.v1.MsgBurnMint) | [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse) | BurnMint allows users to burn unused ACT back to AKT at current price | |
- | `MintACT` | [MsgMintACT](#akash.bme.v1.MsgMintACT) | [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse) |  | |
- | `BurnACT` | [MsgBurnACT](#akash.bme.v1.MsgBurnACT) | [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse) |  | |
+ | `UpdateParams` | [MsgUpdateParams](#akash.bme.v1.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.bme.v1.MsgUpdateParamsResponse) | UpdateParams updates the module parameters. This operation can only be performed through governance proposals. | |
+ | `BurnMint` | [MsgBurnMint](#akash.bme.v1.MsgBurnMint) | [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse) | BurnMint allows users to burn one token and mint another at current oracle prices. Typically used to burn unused ACT tokens back to AKT. The operation may be delayed or rejected based on circuit breaker status. | |
+ | `MintACT` | [MsgMintACT](#akash.bme.v1.MsgMintACT) | [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse) | MintACT mints ACT tokens by burning the specified source token. The mint amount is calculated based on current oracle prices and the collateral ratio. May be halted if circuit breaker is triggered. | |
+ | `BurnACT` | [MsgBurnACT](#akash.bme.v1.MsgBurnACT) | [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse) | BurnACT burns ACT tokens and mints the specified destination token. The burn operation uses remint credits when available, otherwise requires adequate collateral backing based on oracle prices. | |
  
   <!-- end services -->
 

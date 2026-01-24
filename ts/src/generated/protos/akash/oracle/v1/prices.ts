@@ -197,10 +197,6 @@ export const DataID: MessageFns<DataID, "akash.oracle.v1.DataID"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DataID>): DataID {
-    return DataID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DataID>): DataID {
     const message = createBaseDataID();
     message.denom = object.denom ?? "";
@@ -289,10 +285,6 @@ export const PriceDataID: MessageFns<PriceDataID, "akash.oracle.v1.PriceDataID">
       obj.base_denom = message.baseDenom;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PriceDataID>): PriceDataID {
-    return PriceDataID.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PriceDataID>): PriceDataID {
     const message = createBasePriceDataID();
@@ -399,10 +391,6 @@ export const PriceDataRecordID: MessageFns<PriceDataRecordID, "akash.oracle.v1.P
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PriceDataRecordID>): PriceDataRecordID {
-    return PriceDataRecordID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PriceDataRecordID>): PriceDataRecordID {
     const message = createBasePriceDataRecordID();
     message.source = object.source ?? 0;
@@ -481,10 +469,6 @@ export const PriceDataState: MessageFns<PriceDataState, "akash.oracle.v1.PriceDa
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PriceDataState>): PriceDataState {
-    return PriceDataState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PriceDataState>): PriceDataState {
     const message = createBasePriceDataState();
     message.price = object.price ?? "";
@@ -558,10 +542,6 @@ export const PriceData: MessageFns<PriceData, "akash.oracle.v1.PriceData"> = {
       obj.state = PriceDataState.toJSON(message.state);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PriceData>): PriceData {
-    return PriceData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PriceData>): PriceData {
     const message = createBasePriceData();
@@ -738,10 +718,6 @@ export const AggregatedPrice: MessageFns<AggregatedPrice, "akash.oracle.v1.Aggre
     }
     return obj;
   },
-
-  create(base?: DeepPartial<AggregatedPrice>): AggregatedPrice {
-    return AggregatedPrice.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<AggregatedPrice>): AggregatedPrice {
     const message = createBaseAggregatedPrice();
     message.denom = object.denom ?? "";
@@ -909,10 +885,6 @@ export const PriceHealth: MessageFns<PriceHealth, "akash.oracle.v1.PriceHealth">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PriceHealth>): PriceHealth {
-    return PriceHealth.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PriceHealth>): PriceHealth {
     const message = createBasePriceHealth();
     message.denom = object.denom ?? "";
@@ -1007,10 +979,6 @@ export const PricesFilter: MessageFns<PricesFilter, "akash.oracle.v1.PricesFilte
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PricesFilter>): PricesFilter {
-    return PricesFilter.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PricesFilter>): PricesFilter {
     const message = createBasePricesFilter();
     message.assetDenom = object.assetDenom ?? "";
@@ -1087,10 +1055,6 @@ export const QueryPricesRequest: MessageFns<QueryPricesRequest, "akash.oracle.v1
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryPricesRequest>): QueryPricesRequest {
-    return QueryPricesRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryPricesRequest>): QueryPricesRequest {
     const message = createBaseQueryPricesRequest();
@@ -1169,10 +1133,6 @@ export const QueryPricesResponse: MessageFns<QueryPricesResponse, "akash.oracle.
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryPricesResponse>): QueryPricesResponse {
-    return QueryPricesResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryPricesResponse>): QueryPricesResponse {
     const message = createBaseQueryPricesResponse();

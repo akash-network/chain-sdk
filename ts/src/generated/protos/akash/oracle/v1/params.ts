@@ -85,10 +85,6 @@ export const PythContractParams: MessageFns<PythContractParams, "akash.oracle.v1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PythContractParams>): PythContractParams {
-    return PythContractParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PythContractParams>): PythContractParams {
     const message = createBasePythContractParams();
     message.aktPriceFeedId = object.aktPriceFeedId ?? "";
@@ -234,10 +230,6 @@ export const Params: MessageFns<Params, "akash.oracle.v1.Params"> = {
       obj.feed_contracts_params = message.feedContractsParams.map((e) => Any.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();

@@ -85,10 +85,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "akash.bme.v1.Qu
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
     return message;
@@ -144,10 +140,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "akash.bme.v1.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();
     message.params = (object.params !== undefined && object.params !== null)
@@ -191,10 +183,6 @@ export const QueryVaultStateRequest: MessageFns<QueryVaultStateRequest, "akash.b
   toJSON(_: QueryVaultStateRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryVaultStateRequest>): QueryVaultStateRequest {
-    return QueryVaultStateRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryVaultStateRequest>): QueryVaultStateRequest {
     const message = createBaseQueryVaultStateRequest();
@@ -251,10 +239,6 @@ export const QueryVaultStateResponse: MessageFns<QueryVaultStateResponse, "akash
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryVaultStateResponse>): QueryVaultStateResponse {
-    return QueryVaultStateResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryVaultStateResponse>): QueryVaultStateResponse {
     const message = createBaseQueryVaultStateResponse();
     message.vaultState = (object.vaultState !== undefined && object.vaultState !== null)
@@ -298,10 +282,6 @@ export const QueryStatusRequest: MessageFns<QueryStatusRequest, "akash.bme.v1.Qu
   toJSON(_: QueryStatusRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryStatusRequest>): QueryStatusRequest {
-    return QueryStatusRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryStatusRequest>): QueryStatusRequest {
     const message = createBaseQueryStatusRequest();
@@ -441,10 +421,6 @@ export const QueryStatusResponse: MessageFns<QueryStatusResponse, "akash.bme.v1.
       obj.refunds_allowed = message.refundsAllowed;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryStatusResponse>): QueryStatusResponse {
-    return QueryStatusResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryStatusResponse>): QueryStatusResponse {
     const message = createBaseQueryStatusResponse();

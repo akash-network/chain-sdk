@@ -4,13 +4,39 @@ modules:
   - path: go/vendor
     includes:
       - go/vendor/k8s.io/apimachinery/pkg/api/resource
+    lint:
+      use: []
+    breaking:
+      use: []
+      ignore:
+        - go/vendor/k8s.io/apimachinery/pkg/api/resource
   - path: go/vendor/github.com/cosmos/gogoproto
     includes:
       - go/vendor/github.com/cosmos/gogoproto/gogoproto
+    lint:
+      use: []
+    breaking:
+      use: []
   - path: go/vendor/github.com/cosmos/gogoproto/proto
+    lint:
+      use: []
+    breaking:
+      use: []
   - path: go/vendor/github.com/cosmos/cosmos-sdk/proto
+    lint:
+      use: []
+    breaking:
+      use: []
   - path: go/vendor/github.com/cosmos/cosmos-proto/proto
+    lint:
+      use: []
+    breaking:
+      use: []
   - path: go/vendor/github.com/cosmos/ibc-go/v10/proto
+    lint:
+      use: []
+    breaking:
+      use: []
   - path: proto/node
     excludes:
       - proto/node/akash/audit/v1beta3

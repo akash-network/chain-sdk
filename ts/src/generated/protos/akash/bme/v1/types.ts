@@ -299,10 +299,6 @@ export const LedgerID: MessageFns<LedgerID, "akash.bme.v1.LedgerID"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LedgerID>): LedgerID {
-    return LedgerID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LedgerID>): LedgerID {
     const message = createBaseLedgerID();
     message.height = (object.height !== undefined && object.height !== null)
@@ -395,10 +391,6 @@ export const CollateralRatio: MessageFns<CollateralRatio, "akash.bme.v1.Collater
       obj.reference_price = message.referencePrice;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<CollateralRatio>): CollateralRatio {
-    return CollateralRatio.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<CollateralRatio>): CollateralRatio {
     const message = createBaseCollateralRatio();
@@ -511,10 +503,6 @@ export const State: MessageFns<State, "akash.bme.v1.State"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<State>): State {
-    return State.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<State>): State {
     const message = createBaseState();
     message.balances = object.balances?.map((e) => Coin.fromPartial(e)) || [];
@@ -591,10 +579,6 @@ export const CoinPrice: MessageFns<CoinPrice, "akash.bme.v1.CoinPrice"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CoinPrice>): CoinPrice {
-    return CoinPrice.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CoinPrice>): CoinPrice {
     const message = createBaseCoinPrice();
     message.coin = (object.coin !== undefined && object.coin !== null) ? Coin.fromPartial(object.coin) : undefined;
@@ -668,10 +652,6 @@ export const BurnMintPair: MessageFns<BurnMintPair, "akash.bme.v1.BurnMintPair">
       obj.minted = CoinPrice.toJSON(message.minted);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<BurnMintPair>): BurnMintPair {
-    return BurnMintPair.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<BurnMintPair>): BurnMintPair {
     const message = createBaseBurnMintPair();
@@ -796,10 +776,6 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LedgerRecordID>): LedgerRecordID {
-    return LedgerRecordID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LedgerRecordID>): LedgerRecordID {
     const message = createBaseLedgerRecordID();
     message.denom = object.denom ?? "";
@@ -910,10 +886,6 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
       obj.denom_to_mint = message.denomToMint;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<LedgerPendingRecord>): LedgerPendingRecord {
-    return LedgerPendingRecord.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<LedgerPendingRecord>): LedgerPendingRecord {
     const message = createBaseLedgerPendingRecord();
@@ -1096,10 +1068,6 @@ export const LedgerRecord: MessageFns<LedgerRecord, "akash.bme.v1.LedgerRecord">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LedgerRecord>): LedgerRecord {
-    return LedgerRecord.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LedgerRecord>): LedgerRecord {
     const message = createBaseLedgerRecord();
     message.burnedFrom = object.burnedFrom ?? "";
@@ -1203,10 +1171,6 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Status>): Status {
-    return Status.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Status>): Status {
     const message = createBaseStatus();
     message.status = object.status ?? 0;
@@ -1266,10 +1230,6 @@ export const MintEpoch: MessageFns<MintEpoch, "akash.bme.v1.MintEpoch"> = {
       obj.next_epoch = (message.nextEpoch || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MintEpoch>): MintEpoch {
-    return MintEpoch.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MintEpoch>): MintEpoch {
     const message = createBaseMintEpoch();
