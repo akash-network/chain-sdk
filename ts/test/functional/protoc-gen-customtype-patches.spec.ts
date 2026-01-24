@@ -13,7 +13,7 @@ describe("protoc-gen-customtype-patches plugin", () => {
   const protoDir = "./ts/test/functional/proto";
 
   afterEach(async () => {
-    if (await access(outputDir, fsConst.W_OK).catch(() => false)) {
+    if (await access(outputDir, fsConst.W_OK).then(() => true, () => false)) {
       await rmdir(outputDir, { recursive: true });
     }
   });
