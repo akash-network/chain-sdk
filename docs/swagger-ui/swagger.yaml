@@ -1424,8 +1424,8 @@ paths:
                                 for deployment deposit.
 
                                  - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                                 - balance: DepositSourceBalance denotes account balance as source of funds
-                                 - grant: DepositSourceGrant denotes authz grants as source of funds
+                                 - balance: SourceBalance denotes account balance as source of funds
+                                 - grant: SourceGrant denotes authz grants as source of funds
                             balance:
                               type: object
                               properties:
@@ -1442,6 +1442,11 @@ paths:
                                 implements the custom method
 
                                 signatures required by gogoproto.
+                            direct:
+                              type: boolean
+                              title: >-
+                                direct indicates if deposited currency should be
+                                swapped to ACT (false) at time of the deposit
                           description: Depositor stores state of a deposit.
                     description: Account stores state for an escrow account.
                 title: Account
@@ -2082,8 +2087,8 @@ paths:
                                       funds for deployment deposit.
 
                                        - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                                       - balance: DepositSourceBalance denotes account balance as source of funds
-                                       - grant: DepositSourceGrant denotes authz grants as source of funds
+                                       - balance: SourceBalance denotes account balance as source of funds
+                                       - grant: SourceGrant denotes authz grants as source of funds
                                   balance:
                                     type: object
                                     properties:
@@ -2100,6 +2105,12 @@ paths:
                                       implements the custom method
 
                                       signatures required by gogoproto.
+                                  direct:
+                                    type: boolean
+                                    title: >-
+                                      direct indicates if deposited currency
+                                      should be swapped to ACT (false) at time
+                                      of the deposit
                                 description: Depositor stores state of a deposit.
                           description: Account stores state for an escrow account.
                       title: Account
@@ -3206,8 +3217,8 @@ paths:
                                 for deployment deposit.
 
                                  - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                                 - balance: DepositSourceBalance denotes account balance as source of funds
-                                 - grant: DepositSourceGrant denotes authz grants as source of funds
+                                 - balance: SourceBalance denotes account balance as source of funds
+                                 - grant: SourceGrant denotes authz grants as source of funds
                             balance:
                               type: object
                               properties:
@@ -3224,6 +3235,11 @@ paths:
                                 implements the custom method
 
                                 signatures required by gogoproto.
+                            direct:
+                              type: boolean
+                              title: >-
+                                direct indicates if deposited currency should be
+                                swapped to ACT (false) at time of the deposit
                           description: Depositor stores state of a deposit.
                     description: Account stores state for an escrow account.
                 title: Account
@@ -3813,8 +3829,8 @@ paths:
                                       funds for deployment deposit.
 
                                        - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                                       - balance: DepositSourceBalance denotes account balance as source of funds
-                                       - grant: DepositSourceGrant denotes authz grants as source of funds
+                                       - balance: SourceBalance denotes account balance as source of funds
+                                       - grant: SourceGrant denotes authz grants as source of funds
                                   balance:
                                     type: object
                                     properties:
@@ -3831,6 +3847,12 @@ paths:
                                       implements the custom method
 
                                       signatures required by gogoproto.
+                                  direct:
+                                    type: boolean
+                                    title: >-
+                                      direct indicates if deposited currency
+                                      should be swapped to ACT (false) at time
+                                      of the deposit
                                 description: Depositor stores state of a deposit.
                           description: Account stores state for an escrow account.
                       title: Account
@@ -45683,8 +45705,8 @@ definitions:
       Source is an enum which lists source of funds for deployment deposit.
 
        - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-       - balance: DepositSourceBalance denotes account balance as source of funds
-       - grant: DepositSourceGrant denotes authz grants as source of funds
+       - balance: SourceBalance denotes account balance as source of funds
+       - grant: SourceGrant denotes authz grants as source of funds
   akash.base.resources.v1beta4.CPU:
     type: object
     properties:
@@ -47406,8 +47428,8 @@ definitions:
                         deployment deposit.
 
                          - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                         - balance: DepositSourceBalance denotes account balance as source of funds
-                         - grant: DepositSourceGrant denotes authz grants as source of funds
+                         - balance: SourceBalance denotes account balance as source of funds
+                         - grant: SourceGrant denotes authz grants as source of funds
                     balance:
                       type: object
                       properties:
@@ -47424,6 +47446,11 @@ definitions:
                         custom method
 
                         signatures required by gogoproto.
+                    direct:
+                      type: boolean
+                      title: >-
+                        direct indicates if deposited currency should be swapped
+                        to ACT (false) at time of the deposit
                   description: Depositor stores state of a deposit.
             description: Account stores state for an escrow account.
         title: Account
@@ -47992,8 +48019,8 @@ definitions:
                               deployment deposit.
 
                                - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                               - balance: DepositSourceBalance denotes account balance as source of funds
-                               - grant: DepositSourceGrant denotes authz grants as source of funds
+                               - balance: SourceBalance denotes account balance as source of funds
+                               - grant: SourceGrant denotes authz grants as source of funds
                           balance:
                             type: object
                             properties:
@@ -48010,6 +48037,11 @@ definitions:
                               the custom method
 
                               signatures required by gogoproto.
+                          direct:
+                            type: boolean
+                            title: >-
+                              direct indicates if deposited currency should be
+                              swapped to ACT (false) at time of the deposit
                         description: Depositor stores state of a deposit.
                   description: Account stores state for an escrow account.
               title: Account
@@ -48803,8 +48835,8 @@ definitions:
                     deposit.
 
                      - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                     - balance: DepositSourceBalance denotes account balance as source of funds
-                     - grant: DepositSourceGrant denotes authz grants as source of funds
+                     - balance: SourceBalance denotes account balance as source of funds
+                     - grant: SourceGrant denotes authz grants as source of funds
                 balance:
                   type: object
                   properties:
@@ -48821,6 +48853,11 @@ definitions:
                     method
 
                     signatures required by gogoproto.
+                direct:
+                  type: boolean
+                  title: >-
+                    direct indicates if deposited currency should be swapped to
+                    ACT (false) at time of the deposit
               description: Depositor stores state of a deposit.
         description: Account stores state for an escrow account.
     title: Account
@@ -48923,8 +48960,8 @@ definitions:
                 deposit.
 
                  - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                 - balance: DepositSourceBalance denotes account balance as source of funds
-                 - grant: DepositSourceGrant denotes authz grants as source of funds
+                 - balance: SourceBalance denotes account balance as source of funds
+                 - grant: SourceGrant denotes authz grants as source of funds
             balance:
               type: object
               properties:
@@ -48941,6 +48978,11 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            direct:
+              type: boolean
+              title: >-
+                direct indicates if deposited currency should be swapped to ACT
+                (false) at time of the deposit
           description: Depositor stores state of a deposit.
     description: Account stores state for an escrow account.
   akash.escrow.types.v1.Balance:
@@ -48988,8 +49030,8 @@ definitions:
           Source is an enum which lists source of funds for deployment deposit.
 
            - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-           - balance: DepositSourceBalance denotes account balance as source of funds
-           - grant: DepositSourceGrant denotes authz grants as source of funds
+           - balance: SourceBalance denotes account balance as source of funds
+           - grant: SourceGrant denotes authz grants as source of funds
       balance:
         type: object
         properties:
@@ -49002,6 +49044,11 @@ definitions:
 
           NOTE: The amount field is an Dec which implements the custom method
           signatures required by gogoproto.
+      direct:
+        type: boolean
+        title: >-
+          direct indicates if deposited currency should be swapped to ACT
+          (false) at time of the deposit
     description: Depositor stores state of a deposit.
   akash.escrow.types.v1.State:
     type: string
@@ -49047,7 +49094,7 @@ definitions:
     properties:
       amount:
         description: >-
-          Deposit specifies the amount of coins to include in the deployment's
+          amount specifies the amount of coins to include in the deployment's
           first deposit.
         type: object
         properties:
@@ -49069,8 +49116,8 @@ definitions:
             deposit.
 
              - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-             - balance: DepositSourceBalance denotes account balance as source of funds
-             - grant: DepositSourceGrant denotes authz grants as source of funds
+             - balance: SourceBalance denotes account balance as source of funds
+             - grant: SourceGrant denotes authz grants as source of funds
         description: Sources is the set of deposit sources, each entry must be unique.
     description: >-
       Deposit is a data type used by MsgCreateDeployment, MsgDepositDeployment
@@ -50986,8 +51033,8 @@ definitions:
                         deployment deposit.
 
                          - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                         - balance: DepositSourceBalance denotes account balance as source of funds
-                         - grant: DepositSourceGrant denotes authz grants as source of funds
+                         - balance: SourceBalance denotes account balance as source of funds
+                         - grant: SourceGrant denotes authz grants as source of funds
                     balance:
                       type: object
                       properties:
@@ -51004,6 +51051,11 @@ definitions:
                         custom method
 
                         signatures required by gogoproto.
+                    direct:
+                      type: boolean
+                      title: >-
+                        direct indicates if deposited currency should be swapped
+                        to ACT (false) at time of the deposit
                   description: Depositor stores state of a deposit.
             description: Account stores state for an escrow account.
         title: Account
@@ -51474,8 +51526,8 @@ definitions:
                               deployment deposit.
 
                                - invalid: Prefix should start with 0 in enum. So declaring dummy state.
-                               - balance: DepositSourceBalance denotes account balance as source of funds
-                               - grant: DepositSourceGrant denotes authz grants as source of funds
+                               - balance: SourceBalance denotes account balance as source of funds
+                               - grant: SourceGrant denotes authz grants as source of funds
                           balance:
                             type: object
                             properties:
@@ -51492,6 +51544,11 @@ definitions:
                               the custom method
 
                               signatures required by gogoproto.
+                          direct:
+                            type: boolean
+                            title: >-
+                              direct indicates if deposited currency should be
+                              swapped to ACT (false) at time of the deposit
                         description: Depositor stores state of a deposit.
                   description: Account stores state for an escrow account.
               title: Account

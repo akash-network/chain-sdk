@@ -6,7 +6,7 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 
 	"pkg.akt.dev/go/node/deployment/v1"
-	dvbeta "pkg.akt.dev/go/node/deployment/v1beta5"
+	dvbeta "pkg.akt.dev/go/node/deployment/v1beta4"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 )

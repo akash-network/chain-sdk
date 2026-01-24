@@ -4,10 +4,8 @@ import (
 	"sort"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	types "pkg.akt.dev/go/node/types/attributes/v1"
 )
 
@@ -84,7 +82,7 @@ func (sdl *v2_1) buildGroups() error {
 
 				group.dgroup.Resources = append(group.dgroup.Resources, dtypes.ResourceUnit{
 					Resources: res,
-					Prices:    sdk.DecCoins{price.Value},
+					Price:     price.Value,
 					Count:     svcdepl.Count,
 				})
 

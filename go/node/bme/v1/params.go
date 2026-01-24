@@ -7,43 +7,31 @@ import (
 
 const (
 	DefaultOracleOutlierThresholdBps   = uint32(150)
-	DefaultSettlementEpochBlocks       = int64(1)
+	DefaultSettlementEpochName         = "bme"
 	DefaultCircuitBreakerWarnThreshold = uint32(9500)
 	DefaultCircuitBreakerHaltThreshold = uint32(9000)
 	DefaultMintSpreadBps               = uint32(25)
 	DefaultSettleSpreadBps             = uint32(0)
-	DefaultMinRunwayBlocks             = int64(7 * ((time.Hour * 24) / (6 * time.Second)))
-	DefaultEnabled                     = true
+	DefaultMinEpochBlocks              = 10
+	DefaultEpochBlocksBackoff          = 10
 )
 
 var DefaultOracleTWAPWindow = time.Hour
 
 func DefaultParams() Params {
 	return Params{
-		OracleTwapWindow:            DefaultOracleTWAPWindow,
-		OracleOutlierThresholdBps:   DefaultOracleOutlierThresholdBps,
-		SettlementEpochBlocks:       DefaultSettlementEpochBlocks,
 		CircuitBreakerWarnThreshold: DefaultCircuitBreakerWarnThreshold,
 		CircuitBreakerHaltThreshold: DefaultCircuitBreakerHaltThreshold,
 		MintSpreadBps:               DefaultMintSpreadBps,
 		SettleSpreadBps:             DefaultSettleSpreadBps,
-		MinRunwayBlocks:             DefaultMinRunwayBlocks,
-		Enabled:                     DefaultEnabled,
+		MinEpochBlocks:              DefaultMinEpochBlocks,
+		EpochBlocksBackoff:          DefaultEpochBlocksBackoff,
 	}
 }
 
 func (p Params) Validate() error {
-	if p.OracleTwapWindow <= 0 {
-		return fmt.Errorf("oracle_twap_window must be positive")
-	}
-	if p.OracleOutlierThresholdBps > 10000 {
-		return fmt.Errorf("oracle_outlier_threshold_bps cannot exceed 10000")
-	}
-	if p.SettlementEpochBlocks <= 0 {
-		return fmt.Errorf("settlement_epoch_blocks must be positive")
-	}
-	if p.MinRunwayBlocks <= 0 {
-		return fmt.Errorf("min_runway_blocks must be positive")
+	if p.MinEpochBlocks <= 0 {
+		return fmt.Errorf("min_epoch_blocks must be positive")
 	}
 	if p.CircuitBreakerWarnThreshold > 10000 {
 		return fmt.Errorf("circuit_breaker_warn_threshold cannot exceed 10000")

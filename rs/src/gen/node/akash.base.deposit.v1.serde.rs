@@ -10,18 +10,12 @@ impl serde::Serialize for Deposit {
         if self.amount.is_some() {
             len += 1;
         }
-        if self.direct {
-            len += 1;
-        }
         if !self.sources.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.base.deposit.v1.Deposit", len)?;
         if let Some(v) = self.amount.as_ref() {
             struct_ser.serialize_field("amount", v)?;
-        }
-        if self.direct {
-            struct_ser.serialize_field("direct", &self.direct)?;
         }
         if !self.sources.is_empty() {
             let v = self.sources.iter().cloned().map(|v| {
@@ -41,14 +35,12 @@ impl<'de> serde::Deserialize<'de> for Deposit {
     {
         const FIELDS: &[&str] = &[
             "amount",
-            "direct",
             "sources",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Amount,
-            Direct,
             Sources,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -72,7 +64,6 @@ impl<'de> serde::Deserialize<'de> for Deposit {
                     {
                         match value {
                             "amount" => Ok(GeneratedField::Amount),
-                            "direct" => Ok(GeneratedField::Direct),
                             "sources" => Ok(GeneratedField::Sources),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
@@ -94,7 +85,6 @@ impl<'de> serde::Deserialize<'de> for Deposit {
                     V: serde::de::MapAccess<'de>,
             {
                 let mut amount__ = None;
-                let mut direct__ = None;
                 let mut sources__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
@@ -103,12 +93,6 @@ impl<'de> serde::Deserialize<'de> for Deposit {
                                 return Err(serde::de::Error::duplicate_field("amount"));
                             }
                             amount__ = map_.next_value()?;
-                        }
-                        GeneratedField::Direct => {
-                            if direct__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("direct"));
-                            }
-                            direct__ = Some(map_.next_value()?);
                         }
                         GeneratedField::Sources => {
                             if sources__.is_some() {
@@ -120,7 +104,6 @@ impl<'de> serde::Deserialize<'de> for Deposit {
                 }
                 Ok(Deposit {
                     amount: amount__,
-                    direct: direct__.unwrap_or_default(),
                     sources: sources__.unwrap_or_default(),
                 })
             }

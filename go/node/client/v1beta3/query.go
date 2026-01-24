@@ -20,9 +20,9 @@ import (
 	atypes "pkg.akt.dev/go/node/audit/v1"
 	btypes "pkg.akt.dev/go/node/bme/v1"
 	ctypes "pkg.akt.dev/go/node/cert/v1"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	etypes "pkg.akt.dev/go/node/escrow/v1"
-	mtypes "pkg.akt.dev/go/node/market/v2beta1"
+	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	otypes "pkg.akt.dev/go/node/oracle/v1"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
 )

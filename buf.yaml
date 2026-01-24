@@ -17,8 +17,10 @@ modules:
       - proto/node/akash/base/v1beta3
       - proto/node/akash/cert/v1beta3
       - proto/node/akash/deployment/v1beta3
+      - proto/node/akash/deployment/v1beta5
       - proto/node/akash/escrow/v1beta3
       - proto/node/akash/market/v1beta4
+      - proto/node/akash/market/v2beta1
       - proto/node/akash/provider/v1beta3
       - proto/node/akash/take/v1beta3
     breaking:

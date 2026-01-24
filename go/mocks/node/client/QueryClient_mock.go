@@ -28,6 +28,8 @@ import (
 
 	proposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 
+	providerv1beta4 "pkg.akt.dev/go/node/provider/v1beta4"
+
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -42,11 +44,9 @@ import (
 
 	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	v1beta4 "pkg.akt.dev/go/node/provider/v1beta4"
+	v1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 
-	v1beta5 "pkg.akt.dev/go/node/deployment/v1beta5"
-
-	v2beta1 "pkg.akt.dev/go/node/market/v2beta1"
+	v1beta5 "pkg.akt.dev/go/node/market/v1beta5"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
@@ -392,19 +392,19 @@ func (_c *QueryClient_ClientContext_Call) RunAndReturn(run func() client.Context
 }
 
 // Deployment provides a mock function with no fields
-func (_m *QueryClient) Deployment() v1beta5.QueryClient {
+func (_m *QueryClient) Deployment() v1beta4.QueryClient {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Deployment")
 	}
 
-	var r0 v1beta5.QueryClient
-	if rf, ok := ret.Get(0).(func() v1beta5.QueryClient); ok {
+	var r0 v1beta4.QueryClient
+	if rf, ok := ret.Get(0).(func() v1beta4.QueryClient); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v1beta5.QueryClient)
+			r0 = ret.Get(0).(v1beta4.QueryClient)
 		}
 	}
 
@@ -428,12 +428,12 @@ func (_c *QueryClient_Deployment_Call) Run(run func()) *QueryClient_Deployment_C
 	return _c
 }
 
-func (_c *QueryClient_Deployment_Call) Return(_a0 v1beta5.QueryClient) *QueryClient_Deployment_Call {
+func (_c *QueryClient_Deployment_Call) Return(_a0 v1beta4.QueryClient) *QueryClient_Deployment_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *QueryClient_Deployment_Call) RunAndReturn(run func() v1beta5.QueryClient) *QueryClient_Deployment_Call {
+func (_c *QueryClient_Deployment_Call) RunAndReturn(run func() v1beta4.QueryClient) *QueryClient_Deployment_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -721,19 +721,19 @@ func (_c *QueryClient_GovLegacy_Call) RunAndReturn(run func() v1beta1.QueryClien
 }
 
 // Market provides a mock function with no fields
-func (_m *QueryClient) Market() v2beta1.QueryClient {
+func (_m *QueryClient) Market() v1beta5.QueryClient {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Market")
 	}
 
-	var r0 v2beta1.QueryClient
-	if rf, ok := ret.Get(0).(func() v2beta1.QueryClient); ok {
+	var r0 v1beta5.QueryClient
+	if rf, ok := ret.Get(0).(func() v1beta5.QueryClient); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v2beta1.QueryClient)
+			r0 = ret.Get(0).(v1beta5.QueryClient)
 		}
 	}
 
@@ -757,12 +757,12 @@ func (_c *QueryClient_Market_Call) Run(run func()) *QueryClient_Market_Call {
 	return _c
 }
 
-func (_c *QueryClient_Market_Call) Return(_a0 v2beta1.QueryClient) *QueryClient_Market_Call {
+func (_c *QueryClient_Market_Call) Return(_a0 v1beta5.QueryClient) *QueryClient_Market_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *QueryClient_Market_Call) RunAndReturn(run func() v2beta1.QueryClient) *QueryClient_Market_Call {
+func (_c *QueryClient_Market_Call) RunAndReturn(run func() v1beta5.QueryClient) *QueryClient_Market_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -909,19 +909,19 @@ func (_c *QueryClient_Params_Call) RunAndReturn(run func() proposal.QueryClient)
 }
 
 // Provider provides a mock function with no fields
-func (_m *QueryClient) Provider() v1beta4.QueryClient {
+func (_m *QueryClient) Provider() providerv1beta4.QueryClient {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Provider")
 	}
 
-	var r0 v1beta4.QueryClient
-	if rf, ok := ret.Get(0).(func() v1beta4.QueryClient); ok {
+	var r0 providerv1beta4.QueryClient
+	if rf, ok := ret.Get(0).(func() providerv1beta4.QueryClient); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v1beta4.QueryClient)
+			r0 = ret.Get(0).(providerv1beta4.QueryClient)
 		}
 	}
 
@@ -945,12 +945,12 @@ func (_c *QueryClient_Provider_Call) Run(run func()) *QueryClient_Provider_Call 
 	return _c
 }
 
-func (_c *QueryClient_Provider_Call) Return(_a0 v1beta4.QueryClient) *QueryClient_Provider_Call {
+func (_c *QueryClient_Provider_Call) Return(_a0 providerv1beta4.QueryClient) *QueryClient_Provider_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *QueryClient_Provider_Call) RunAndReturn(run func() v1beta4.QueryClient) *QueryClient_Provider_Call {
+func (_c *QueryClient_Provider_Call) RunAndReturn(run func() providerv1beta4.QueryClient) *QueryClient_Provider_Call {
 	_c.Call.Return(run)
 	return _c
 }

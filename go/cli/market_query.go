@@ -6,13 +6,14 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	mvbeta "pkg.akt.dev/go/node/market/v2beta1"
+	mv1 "pkg.akt.dev/go/node/market/v1"
+	mvbeta "pkg.akt.dev/go/node/market/v1beta5"
 )
 
 // GetQueryMarketCmds returns the transaction commands for the market module
 func GetQueryMarketCmds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        mvbeta.ModuleName,
+		Use:                        mv1.ModuleName,
 		Short:                      "Market query commands",
 		SuggestionsMinimumDistance: 2,
 		RunE:                       sdkclient.ValidateCmd,
@@ -273,7 +274,7 @@ func GetQueryMarketLeaseCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Market().Lease(cmd.Context(), &mvbeta.QueryLeaseRequest{ID: mvbeta.MakeLeaseID(bidID)})
+			res, err := cl.Query().Market().Lease(cmd.Context(), &mvbeta.QueryLeaseRequest{ID: mv1.MakeLeaseID(bidID)})
 			if err != nil {
 				return err
 			}

@@ -9,19 +9,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	types "pkg.akt.dev/go/node/types/resources/v1beta4"
 
 	// ensure sdkutil.init() to seal SDK config for the tests
-	_ "pkg.akt.dev/go/sdkutil"
-)
-
-// CoinDenom provides ability to create coins in test functions and
-// pass them into testutil functionality.
-const (
-	CoinDenom  = "uakt"
-	BechPrefix = "akash"
+	sdkutil "pkg.akt.dev/go/sdkutil"
 )
 
 // Name generates a random name with the given prefix
@@ -95,7 +88,7 @@ func Resources(t testing.TB) dtypes.ResourceUnits {
 
 	vals := make(dtypes.ResourceUnits, 0, count)
 	for i := 0; i < count; i++ {
-		coin := sdk.NewDecCoin(CoinDenom, sdkmath.NewInt(rand.Int63n(9999)+1))
+		coin := sdk.NewDecCoin(sdkutil.DenomUact, sdkmath.NewInt(rand.Int63n(9999)+1))
 		res := dtypes.ResourceUnit{
 			Resources: types.Resources{
 				ID: uint32(i) + 1, // nolint: gosec
@@ -114,8 +107,8 @@ func Resources(t testing.TB) dtypes.ResourceUnits {
 					},
 				},
 			},
-			Count:  1,
-			Prices: sdk.DecCoins{coin},
+			Count: 1,
+			Price: coin,
 		}
 		vals = append(vals, res)
 	}
@@ -131,7 +124,7 @@ func ResourcesList(t testing.TB, startID uint32) dtypes.ResourceUnits {
 
 	vals := make(dtypes.ResourceUnits, 0, count)
 	for i := uint32(0); i < count; i++ {
-		coin := sdk.NewDecCoin(CoinDenom, sdkmath.NewInt(rand.Int63n(9999)+1))
+		coin := sdk.NewDecCoin(sdkutil.DenomUact, sdkmath.NewInt(rand.Int63n(9999)+1))
 		res := dtypes.ResourceUnit{
 			Resources: types.Resources{
 				ID: i + startID,
@@ -151,8 +144,8 @@ func ResourcesList(t testing.TB, startID uint32) dtypes.ResourceUnits {
 				},
 				Endpoints: types.Endpoints{},
 			},
-			Count:  1,
-			Prices: sdk.DecCoins{coin},
+			Count: 1,
+			Price: coin,
 		}
 
 		startID++

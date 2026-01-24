@@ -9,10 +9,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	dvbeta "pkg.akt.dev/go/node/deployment/v1beta5"
+	dvbeta "pkg.akt.dev/go/node/deployment/v1beta4"
 	eid "pkg.akt.dev/go/node/escrow/id/v1"
 	"pkg.akt.dev/go/node/escrow/module"
-	mvbeta "pkg.akt.dev/go/node/market/v2beta1"
+	mvbeta "pkg.akt.dev/go/node/market/v1beta5"
 )
 
 type Authorization interface {
@@ -67,7 +67,7 @@ func (m *DepositAuthorization) TryAccept(_ context.Context, msg sdk.Msg, partial
 		amount = mt.Deposit.Amount
 	case *dvbeta.MsgCreateDeployment:
 		scope = DepositScopeDeployment
-		amount = mt.Deposits[0].Amount
+		amount = mt.Deposit.Amount
 	case *mvbeta.MsgCreateBid:
 		scope = DepositScopeBid
 		amount = mt.Deposit.Amount

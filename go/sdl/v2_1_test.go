@@ -3,15 +3,15 @@ package sdl
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
-	dtypes "pkg.akt.dev/go/node/deployment/v1beta5"
+	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	atypes "pkg.akt.dev/go/node/types/attributes/v1"
 	rtypes "pkg.akt.dev/go/node/types/resources/v1beta4"
 	"pkg.akt.dev/go/node/types/unit"
+	"pkg.akt.dev/go/testutil"
 )
 
 func TestV2_1_ParseSimpleGPU(t *testing.T) {
@@ -67,7 +67,7 @@ func TestV2_1_ParseSimpleGPU(t *testing.T) {
 				},
 			},
 		},
-		Prices: sdk.NewDecCoins(AkashDecCoin(t, 50)),
+		Price: testutil.ACTDecCoin(t, 50),
 	}, group.GetResourceUnits()[0])
 
 	mani, err := sdl.Manifest()
@@ -266,7 +266,7 @@ func Test_V2_1_Parse_simple(t *testing.T) {
 				},
 			},
 		},
-		Prices: sdk.NewDecCoins(AkashDecCoin(t, 50)),
+		Price: testutil.ACTDecCoin(t, 50),
 	}, group.GetResourceUnits()[0])
 
 	mani, err := sdl.Manifest()
@@ -459,7 +459,7 @@ func TestV2_1_ParseServiceMix(t *testing.T) {
 					},
 				},
 			},
-			Prices: sdk.NewDecCoins(AkashDecCoin(t, 50)),
+			Price: testutil.ACTDecCoin(t, 50),
 		},
 		{
 			Count: 1,
@@ -489,7 +489,7 @@ func TestV2_1_ParseServiceMix(t *testing.T) {
 					},
 				},
 			},
-			Prices: sdk.NewDecCoins(AkashDecCoin(t, 50)),
+			Price: testutil.ACTDecCoin(t, 50),
 		},
 	}, group.GetResourceUnits())
 
@@ -651,7 +651,7 @@ func TestV2_1_ParseServiceMix2(t *testing.T) {
 					},
 				},
 			},
-			Prices: sdk.NewDecCoins(AkashDecCoin(t, 50)),
+			Price: testutil.ACTDecCoin(t, 50),
 		},
 	}, group.GetResourceUnits())
 

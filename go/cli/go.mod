@@ -48,6 +48,31 @@ require (
 	sigs.k8s.io/yaml v1.6.0
 )
 
+replace (
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	github.com/bytedance/sonic => github.com/bytedance/sonic v1.14.1
+	// use akash fork of cometbft
+	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.21-akash.1
+
+	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.4-akash.12
+	// use akash version of cosmos ledger api
+	github.com/cosmos/ledger-cosmos-go => github.com/akash-network/ledger-go/cosmos v0.16.0
+
+	// Use regen gogoproto tag
+	// To be replaced by cosmos/gogoproto in future versions
+	github.com/gogo/protobuf => github.com/cosmos/gogoproto v1.3.3-alpha.regen.1
+
+	github.com/zondax/hid => github.com/troian/hid v0.14.0
+
+	github.com/zondax/ledger-go => github.com/akash-network/ledger-go v0.16.0
+
+	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
+	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
+
+	pkg.akt.dev/go => ../
+	pkg.akt.dev/go/sdl => ../sdl
+)
+
 require (
 	cel.dev/expr v0.24.0 // indirect
 	cloud.google.com/go v0.120.0 // indirect
@@ -247,29 +272,4 @@ require (
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
-)
-
-replace (
-	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/bytedance/sonic => github.com/bytedance/sonic v1.14.1
-	// use akash fork of cometbft
-	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.19-akash.1
-
-	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.4-akash.10
-	// use akash version of cosmos ledger api
-	github.com/cosmos/ledger-cosmos-go => github.com/akash-network/ledger-go/cosmos v0.16.0
-
-	// Use regen gogoproto tag
-	// To be replaced by cosmos/gogoproto in future versions
-	github.com/gogo/protobuf => github.com/cosmos/gogoproto v1.3.3-alpha.regen.1
-
-	github.com/zondax/hid => github.com/troian/hid v0.14.0
-
-	github.com/zondax/ledger-go => github.com/akash-network/ledger-go v0.16.0
-
-	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
-	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
-
-	pkg.akt.dev/go => ../
-	pkg.akt.dev/go/sdl => ../sdl
 )

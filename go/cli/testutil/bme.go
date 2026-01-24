@@ -24,12 +24,7 @@ func ExecQueryBMEVaultState(ctx context.Context, cctx client.Context, args ...st
 	return ExecTestCLICmd(ctx, cctx, cli.GetBMEVaultStateCmd(), args...)
 }
 
-// ExecQueryBMECollateralRatio is used for testing BME collateral ratio query
-func ExecQueryBMECollateralRatio(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetBMECollateralRatioCmd(), args...)
-}
-
-// ExecQueryBMECircuitBreakerStatus is used for testing BME circuit breaker status query
-func ExecQueryBMECircuitBreakerStatus(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetBMECircuitBreakerStatusCmd(), args...)
+// ExecQueryBMEStatus is used for testing BME status query
+func ExecQueryBMEStatus(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetBMEStatusCmd(), args...)
 }

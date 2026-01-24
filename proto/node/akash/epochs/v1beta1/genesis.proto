@@ -10,8 +10,10 @@ option go_package = "pkg.akt.dev/go/node/epochs/v1beta1";
 // EpochInfo is a struct that describes the data going into
 // a timer defined by the x/epochs module.
 message EpochInfo {
-  // identifier is a unique reference to this particular timer.
-  string identifier = 1;
+  // id is a unique reference to this particular timer.
+  string id = 1 [
+    (gogoproto.customname) = "ID"
+  ];
   // start_time is the time at which the timer first ever ticks.
   // If start_time is in the future, the epoch will not begin until the start
   // time.

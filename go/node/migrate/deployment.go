@@ -11,7 +11,6 @@ import (
 	v1 "pkg.akt.dev/go/node/deployment/v1"
 	"pkg.akt.dev/go/node/deployment/v1beta3"
 	"pkg.akt.dev/go/node/deployment/v1beta4"
-	"pkg.akt.dev/go/node/deployment/v1beta5"
 )
 
 func RegisterDeploymentInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -73,34 +72,11 @@ func ResourceUnitFromV1Beta3(id uint32, from v1beta3.ResourceUnit) v1beta4.Resou
 	}
 }
 
-func ResourceUnitFromV1Beta4(id uint32, from v1beta4.ResourceUnit) v1beta5.ResourceUnit {
-	price, err := sdk.ParseDecCoin(from.Price.String())
-	if err != nil {
-		panic(fmt.Sprintf("failed to parse price for resource unit id %d: %v", id, err))
-	}
-
-	return v1beta5.ResourceUnit{
-		Resources: from.Resources,
-		Count:     from.Count,
-		Prices:    sdk.DecCoins{price},
-	}
-}
-
 func ResourcesUnitsFromV1Beta3(from []v1beta3.ResourceUnit) v1beta4.ResourceUnits {
 	res := make(v1beta4.ResourceUnits, 0, len(from))
 
 	for i, oval := range from {
 		res = append(res, ResourceUnitFromV1Beta3(uint32(i+1), oval)) // nolint gosec
-	}
-
-	return res
-}
-
-func ResourcesUnitsFromV1Beta4(from []v1beta4.ResourceUnit) v1beta5.ResourceUnits {
-	res := make(v1beta5.ResourceUnits, 0, len(from))
-
-	for i, oval := range from {
-		res = append(res, ResourceUnitFromV1Beta4(uint32(i+1), oval)) // nolint gosec
 	}
 
 	return res
@@ -114,14 +90,6 @@ func GroupSpecFromV1Beta3(from v1beta3.GroupSpec) v1beta4.GroupSpec {
 	}
 }
 
-func GroupSpecFromV1Beta4(from v1beta4.GroupSpec) v1beta5.GroupSpec {
-	return v1beta5.GroupSpec{
-		Name:         from.Name,
-		Requirements: from.Requirements,
-		Resources:    ResourcesUnitsFromV1Beta4(from.Resources),
-	}
-}
-
 func GroupFromV1Beta3(cdc codec.BinaryCodec, fromBz []byte) v1beta4.Group {
 	var from v1beta3.Group
 	cdc.MustUnmarshal(fromBz, &from)
@@ -130,18 +98,6 @@ func GroupFromV1Beta3(cdc codec.BinaryCodec, fromBz []byte) v1beta4.Group {
 		ID:        GroupIDFromV1Beta3(from.GroupID),
 		State:     v1beta4.Group_State(from.State),
 		GroupSpec: GroupSpecFromV1Beta3(from.GroupSpec),
-		CreatedAt: from.CreatedAt,
-	}
-}
-
-func GroupFromV1Beta4(cdc codec.BinaryCodec, fromBz []byte) v1beta5.Group {
-	var from v1beta4.Group
-	cdc.MustUnmarshal(fromBz, &from)
-
-	return v1beta5.Group{
-		ID:        from.ID,
-		State:     v1beta5.Group_State(from.State),
-		GroupSpec: GroupSpecFromV1Beta4(from.GroupSpec),
 		CreatedAt: from.CreatedAt,
 	}
 }

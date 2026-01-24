@@ -32,6 +32,7 @@ func DefaultParams() Params {
 	return Params{
 		MinDeposits: sdk.Coins{
 			sdk.NewCoin("uakt", sdkmath.NewInt(500000)),
+			sdk.NewCoin("uact", sdkmath.NewInt(500000)),
 		},
 	}
 }
@@ -89,6 +90,10 @@ func validateMinDeposits(i interface{}) error {
 
 	if _, exists := check["uakt"]; !exists {
 		return fmt.Errorf("%w: Min Deposits - uakt not given: %#v", v1.ErrInvalidParam, vals)
+	}
+
+	if _, exists := check["uact"]; !exists {
+		return fmt.Errorf("%w: Min Deposits - uact not given: %#v", v1.ErrInvalidParam, vals)
 	}
 
 	return nil

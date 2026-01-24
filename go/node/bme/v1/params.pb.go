@@ -5,21 +5,16 @@ package v1
 
 import (
 	fmt "fmt"
-	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
-	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
-	_ "google.golang.org/protobuf/types/known/durationpb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
-var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -29,40 +24,32 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the BME module
 type Params struct {
-	// enabled indicates if BME is enabled
-	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// oracle_twap_window is the time window for TWAP calculation
-	OracleTwapWindow time.Duration `protobuf:"bytes,2,opt,name=oracle_twap_window,json=oracleTwapWindow,proto3,stdduration" json:"oracle_twap_window"`
-	// oracle_outlier_threshold_bps is the threshold in basis points for
-	// rejecting oracle price outliers (default: 150 = 1.5%)
-	OracleOutlierThresholdBps uint32 `protobuf:"varint,3,opt,name=oracle_outlier_threshold_bps,json=oracleOutlierThresholdBps,proto3" json:"oracle_outlier_threshold_bps,omitempty"`
 	// circuit_breaker_warn_threshold is the CR below which warning is triggered
 	// Stored as basis points * 100 (e.g., 9500 = 0.95)
-	CircuitBreakerWarnThreshold uint32 `protobuf:"varint,4,opt,name=circuit_breaker_warn_threshold,json=circuitBreakerWarnThreshold,proto3" json:"circuit_breaker_warn_threshold,omitempty"`
+	CircuitBreakerWarnThreshold uint32 `protobuf:"varint,1,opt,name=circuit_breaker_warn_threshold,json=circuitBreakerWarnThreshold,proto3" json:"circuit_breaker_warn_threshold,omitempty"`
 	// circuit_breaker_halt_threshold is the CR below which mints are halted
 	// Stored as basis points * 100 (e.g., 9000 = 0.90)
-	CircuitBreakerHaltThreshold uint32 `protobuf:"varint,5,opt,name=circuit_breaker_halt_threshold,json=circuitBreakerHaltThreshold,proto3" json:"circuit_breaker_halt_threshold,omitempty"`
+	CircuitBreakerHaltThreshold uint32 `protobuf:"varint,2,opt,name=circuit_breaker_halt_threshold,json=circuitBreakerHaltThreshold,proto3" json:"circuit_breaker_halt_threshold,omitempty"`
+	// min_epoch_blocks is the minimum amount of blocks required for ACT mints
+	MinEpochBlocks int64 `protobuf:"varint,3,opt,name=min_epoch_blocks,json=minEpochBlocks,proto3" json:"min_epoch_blocks,omitempty"`
+	// epoch_blocks_backoff increase of runway_blocks in % during warn threshold
+	// for drop in 1 basis point of circuit_breaker_warn_threshold
+	// Stored as basis points * 100 (e.g., 9500 = 0.95)
+	// e.g: runway_blocks = 100
+	//
+	//	min_runway_blocks_backoff = 1000
+	//	circuit_breaker_warn_threshold drops from 0.95 to 0.94
+	//	then runway_blocks = (100*0.1 + 100) = 110
+	//
+	//	circuit_breaker_warn_threshold drops from 0.94 to 0.92
+	//	then runway_blocks = (110*(0.1*2) + 110) = 132
+	EpochBlocksBackoff uint32 `protobuf:"varint,4,opt,name=epoch_blocks_backoff,json=epochBlocksBackoff,proto3" json:"epoch_blocks_backoff,omitempty"`
 	// mint_spread_bps is the spread in basis points applied during ACT mint
 	// (default: 25 bps = 0.25%)
 	MintSpreadBps uint32 `protobuf:"varint,6,opt,name=mint_spread_bps,json=mintSpreadBps,proto3" json:"mint_spread_bps,omitempty"`
 	// settle_spread_bps is the spread in basis points applied during settlement
 	// (default: 0 for no provider tax)
 	SettleSpreadBps uint32 `protobuf:"varint,7,opt,name=settle_spread_bps,json=settleSpreadBps,proto3" json:"settle_spread_bps,omitempty"`
-	// settlement_epoch_blocks is the number of blocks between settlement epochs
-	// Use 1 for per-block settlement, or higher for batched settlements
-	SettlementEpochBlocks int64 `protobuf:"varint,8,opt,name=settlement_epoch_blocks,json=settlementEpochBlocks,proto3" json:"settlement_epoch_blocks,omitempty"`
-	// min_runway_blocks is the minimum amount of blocks required for ACT mints
-	// during circuit breaker warning mode
-	MinRunwayBlocks int64 `protobuf:"varint,9,opt,name=min_runway_blocks,json=minRunwayBlocks,proto3" json:"min_runway_blocks,omitempty"`
-	// snapshot_interval_blocks is the number of blocks between snapshots
-	// for historical metrics tracking (e.g., 100 blocks)
-	SnapshotIntervalBlocks int64 `protobuf:"varint,10,opt,name=snapshot_interval_blocks,json=snapshotIntervalBlocks,proto3" json:"snapshot_interval_blocks,omitempty"`
-	// snapshot_retention_seconds is how long to retain snapshot data
-	// (e.g., 2592000 = 30 days)
-	SnapshotRetentionSeconds int64 `protobuf:"varint,11,opt,name=snapshot_retention_seconds,json=snapshotRetentionSeconds,proto3" json:"snapshot_retention_seconds,omitempty"`
-	// snapshot_bucket_duration is the duration of each snapshot bucket in seconds
-	// for aggregating metrics (e.g., 86400 = 1 day)
-	SnapshotBucketDuration int64 `protobuf:"varint,12,opt,name=snapshot_bucket_duration,json=snapshotBucketDuration,proto3" json:"snapshot_bucket_duration,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -98,27 +85,6 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-func (m *Params) GetEnabled() bool {
-	if m != nil {
-		return m.Enabled
-	}
-	return false
-}
-
-func (m *Params) GetOracleTwapWindow() time.Duration {
-	if m != nil {
-		return m.OracleTwapWindow
-	}
-	return 0
-}
-
-func (m *Params) GetOracleOutlierThresholdBps() uint32 {
-	if m != nil {
-		return m.OracleOutlierThresholdBps
-	}
-	return 0
-}
-
 func (m *Params) GetCircuitBreakerWarnThreshold() uint32 {
 	if m != nil {
 		return m.CircuitBreakerWarnThreshold
@@ -129,6 +95,20 @@ func (m *Params) GetCircuitBreakerWarnThreshold() uint32 {
 func (m *Params) GetCircuitBreakerHaltThreshold() uint32 {
 	if m != nil {
 		return m.CircuitBreakerHaltThreshold
+	}
+	return 0
+}
+
+func (m *Params) GetMinEpochBlocks() int64 {
+	if m != nil {
+		return m.MinEpochBlocks
+	}
+	return 0
+}
+
+func (m *Params) GetEpochBlocksBackoff() uint32 {
+	if m != nil {
+		return m.EpochBlocksBackoff
 	}
 	return 0
 }
@@ -147,41 +127,6 @@ func (m *Params) GetSettleSpreadBps() uint32 {
 	return 0
 }
 
-func (m *Params) GetSettlementEpochBlocks() int64 {
-	if m != nil {
-		return m.SettlementEpochBlocks
-	}
-	return 0
-}
-
-func (m *Params) GetMinRunwayBlocks() int64 {
-	if m != nil {
-		return m.MinRunwayBlocks
-	}
-	return 0
-}
-
-func (m *Params) GetSnapshotIntervalBlocks() int64 {
-	if m != nil {
-		return m.SnapshotIntervalBlocks
-	}
-	return 0
-}
-
-func (m *Params) GetSnapshotRetentionSeconds() int64 {
-	if m != nil {
-		return m.SnapshotRetentionSeconds
-	}
-	return 0
-}
-
-func (m *Params) GetSnapshotBucketDuration() int64 {
-	if m != nil {
-		return m.SnapshotBucketDuration
-	}
-	return 0
-}
-
 func init() {
 	proto.RegisterType((*Params)(nil), "akash.bme.v1.Params")
 }
@@ -189,39 +134,26 @@ func init() {
 func init() { proto.RegisterFile("akash/bme/v1/params.proto", fileDescriptor_a760be4b7ac184d2) }
 
 var fileDescriptor_a760be4b7ac184d2 = []byte{
-	// 502 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x93, 0x4f, 0x6b, 0xd4, 0x40,
-	0x18, 0xc6, 0x37, 0xd6, 0xb6, 0xeb, 0xb4, 0xa5, 0x1a, 0xfc, 0x93, 0x5d, 0x25, 0x5d, 0x3c, 0xc8,
-	0xe2, 0x21, 0xa1, 0x2a, 0xe2, 0x41, 0x10, 0xa2, 0x82, 0x9e, 0xd4, 0xb4, 0x50, 0xf0, 0x32, 0x4c,
-	0x92, 0xd7, 0x24, 0x64, 0x32, 0x33, 0xcc, 0x4c, 0x36, 0xf8, 0x2d, 0x3c, 0xfa, 0x19, 0xfc, 0x24,
-	0x3d, 0xf6, 0xe8, 0x49, 0x65, 0xf7, 0x8b, 0x48, 0x66, 0x92, 0xdd, 0x16, 0x7a, 0xdb, 0x79, 0x9f,
-	0xdf, 0xf3, 0x3c, 0x2f, 0xec, 0x1b, 0x34, 0x21, 0x15, 0x51, 0x45, 0x98, 0xd4, 0x10, 0x2e, 0x8e,
-	0x43, 0x41, 0x24, 0xa9, 0x55, 0x20, 0x24, 0xd7, 0xdc, 0xdd, 0x37, 0x52, 0x90, 0xd4, 0x10, 0x2c,
-	0x8e, 0xa7, 0x77, 0x73, 0x9e, 0x73, 0x23, 0x84, 0xdd, 0x2f, 0xcb, 0x4c, 0xfd, 0x9c, 0xf3, 0x9c,
-	0x42, 0x68, 0x5e, 0x49, 0xf3, 0x2d, 0xcc, 0x1a, 0x49, 0x74, 0xc9, 0x99, 0xd5, 0x1f, 0xff, 0xda,
-	0x46, 0x3b, 0x9f, 0x4d, 0xa8, 0xeb, 0xa1, 0x5d, 0x60, 0x24, 0xa1, 0x90, 0x79, 0xce, 0xcc, 0x99,
-	0x8f, 0xe3, 0xe1, 0xe9, 0x7e, 0x41, 0x2e, 0x97, 0x24, 0xa5, 0x80, 0x75, 0x4b, 0x04, 0x6e, 0x4b,
-	0x96, 0xf1, 0xd6, 0xbb, 0x31, 0x73, 0xe6, 0x7b, 0xcf, 0x26, 0x81, 0x6d, 0x08, 0x86, 0x86, 0xe0,
-	0x5d, 0xdf, 0x10, 0x8d, 0xcf, 0xff, 0x1c, 0x8d, 0x7e, 0xfe, 0x3d, 0x72, 0xe2, 0xdb, 0xd6, 0x7e,
-	0xda, 0x12, 0x71, 0x66, 0xcc, 0xee, 0x1b, 0xf4, 0xa8, 0x8f, 0xe4, 0x8d, 0xa6, 0x25, 0x48, 0xac,
-	0x0b, 0x09, 0xaa, 0xe0, 0x34, 0xc3, 0x89, 0x50, 0xde, 0xd6, 0xcc, 0x99, 0x1f, 0xc4, 0x13, 0xcb,
-	0x7c, 0xb2, 0xc8, 0xe9, 0x40, 0x44, 0x42, 0xb9, 0x6f, 0x91, 0x9f, 0x96, 0x32, 0x6d, 0x4a, 0x8d,
-	0x13, 0x09, 0xa4, 0x02, 0x89, 0x5b, 0x22, 0xd9, 0x26, 0xc6, 0xbb, 0x69, 0x22, 0x1e, 0xf6, 0x54,
-	0x64, 0xa1, 0x33, 0x22, 0xd9, 0x3a, 0xe7, 0xba, 0x90, 0x82, 0x50, 0x7d, 0x29, 0x64, 0xfb, 0xba,
-	0x90, 0x0f, 0x84, 0xea, 0x4d, 0xc8, 0x13, 0x74, 0x58, 0x97, 0x4c, 0x63, 0x25, 0x24, 0x10, 0xbb,
-	0xfd, 0x8e, 0x71, 0x1d, 0x74, 0xe3, 0x13, 0x33, 0xed, 0x36, 0x7e, 0x8a, 0xee, 0x28, 0xd0, 0x9a,
-	0xc2, 0x65, 0x72, 0xd7, 0x90, 0x87, 0x56, 0xd8, 0xb0, 0x2f, 0xd1, 0x03, 0x3b, 0xaa, 0x81, 0x69,
-	0x0c, 0x82, 0xa7, 0x05, 0x4e, 0x28, 0x4f, 0x2b, 0xe5, 0x8d, 0x67, 0xce, 0x7c, 0x2b, 0xbe, 0xb7,
-	0x91, 0xdf, 0x77, 0x6a, 0x64, 0xc4, 0xae, 0xa3, 0x2e, 0x19, 0x96, 0x0d, 0x6b, 0xc9, 0xf7, 0xc1,
-	0x71, 0xcb, 0x38, 0xba, 0x25, 0x63, 0x33, 0xef, 0xd9, 0x57, 0xc8, 0x53, 0x8c, 0x08, 0x55, 0x70,
-	0x8d, 0x4b, 0xa6, 0x41, 0x2e, 0x08, 0x1d, 0x2c, 0xc8, 0x58, 0xee, 0x0f, 0xfa, 0xc7, 0x5e, 0xee,
-	0x9d, 0xaf, 0xd1, 0x74, 0xed, 0x94, 0xa0, 0x81, 0x75, 0x7f, 0x37, 0x56, 0x90, 0x72, 0x96, 0x29,
-	0x6f, 0xcf, 0x78, 0xd7, 0xd9, 0xf1, 0x00, 0x9c, 0x58, 0xfd, 0x4a, 0x6f, 0xd2, 0xa4, 0x15, 0x68,
-	0x3c, 0x1c, 0xa5, 0xb7, 0x7f, 0xb5, 0x37, 0x32, 0xf2, 0xfa, 0xa0, 0x5e, 0x9c, 0x2f, 0x7d, 0xe7,
-	0x62, 0xe9, 0x3b, 0xff, 0x96, 0xbe, 0xf3, 0x63, 0xe5, 0x8f, 0x2e, 0x56, 0xfe, 0xe8, 0xf7, 0xca,
-	0x1f, 0x7d, 0x9d, 0x8a, 0x2a, 0x0f, 0x48, 0xa5, 0x83, 0x0c, 0x16, 0x61, 0xce, 0x43, 0xc6, 0x33,
-	0xe8, 0xbf, 0x99, 0x64, 0xc7, 0x5c, 0xe6, 0xf3, 0xff, 0x01, 0x00, 0x00, 0xff, 0xff, 0xdd, 0xbd,
-	0x0b, 0xfa, 0x4a, 0x03, 0x00, 0x00,
+	// 300 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0xd1, 0xcd, 0x4a, 0xc3, 0x40,
+	0x14, 0x05, 0xe0, 0xa6, 0x95, 0x0a, 0x83, 0xb5, 0x1a, 0x5c, 0x44, 0x85, 0xa1, 0xb8, 0x90, 0xe2,
+	0x22, 0xb1, 0xe8, 0x13, 0x44, 0x04, 0x97, 0x52, 0x05, 0xc1, 0xcd, 0x70, 0x27, 0xb9, 0x6d, 0x42,
+	0x32, 0x3f, 0xcc, 0x8c, 0xf5, 0x35, 0x7c, 0x26, 0x57, 0x2e, 0xbb, 0x74, 0x29, 0xed, 0x8b, 0x48,
+	0xa7, 0xd5, 0x66, 0xd1, 0xed, 0x39, 0x1f, 0xe7, 0x2e, 0x2e, 0x39, 0x85, 0x0a, 0x6c, 0x91, 0x70,
+	0x81, 0xc9, 0x6c, 0x94, 0x68, 0x30, 0x20, 0x6c, 0xac, 0x8d, 0x72, 0x2a, 0x3c, 0xf0, 0x55, 0xcc,
+	0x05, 0xc6, 0xb3, 0xd1, 0xc5, 0x67, 0x9b, 0x74, 0x1f, 0x7d, 0x1d, 0xde, 0x11, 0x9a, 0x95, 0x26,
+	0x7b, 0x2b, 0x1d, 0xe3, 0x06, 0xa1, 0x42, 0xc3, 0xde, 0xc1, 0x48, 0xe6, 0x0a, 0x83, 0xb6, 0x50,
+	0x75, 0x1e, 0x05, 0x83, 0x60, 0xd8, 0x1b, 0x9f, 0x6f, 0x54, 0xba, 0x46, 0x2f, 0x60, 0xe4, 0xf3,
+	0x1f, 0xd9, 0x35, 0x52, 0x40, 0xed, 0x1a, 0x23, 0xed, 0x5d, 0x23, 0x0f, 0x50, 0xbb, 0xed, 0xc8,
+	0x90, 0x1c, 0x89, 0x52, 0x32, 0xd4, 0x2a, 0x2b, 0x18, 0xaf, 0x55, 0x56, 0xd9, 0xa8, 0x33, 0x08,
+	0x86, 0x9d, 0xf1, 0xa1, 0x28, 0xe5, 0xfd, 0x2a, 0x4e, 0x7d, 0x1a, 0x5e, 0x93, 0x93, 0xa6, 0x62,
+	0x1c, 0xb2, 0x4a, 0x4d, 0x26, 0xd1, 0x9e, 0x3f, 0x12, 0xe2, 0x96, 0xa6, 0xeb, 0x26, 0xbc, 0x24,
+	0x7d, 0x51, 0x4a, 0xc7, 0xac, 0x36, 0x08, 0x39, 0xe3, 0xda, 0x46, 0x5d, 0x8f, 0x7b, 0xab, 0xf8,
+	0xc9, 0xa7, 0xa9, 0xb6, 0xe1, 0x15, 0x39, 0xb6, 0xe8, 0x5c, 0x8d, 0x4d, 0xb9, 0xef, 0x65, 0x7f,
+	0x5d, 0xfc, 0xdb, 0xf4, 0xf6, 0x6b, 0x41, 0x83, 0xf9, 0x82, 0x06, 0x3f, 0x0b, 0x1a, 0x7c, 0x2c,
+	0x69, 0x6b, 0xbe, 0xa4, 0xad, 0xef, 0x25, 0x6d, 0xbd, 0x9e, 0xe9, 0x6a, 0x1a, 0x43, 0xe5, 0xe2,
+	0x1c, 0x67, 0xc9, 0x54, 0x25, 0x52, 0xe5, 0xb8, 0xf9, 0x0a, 0xef, 0xfa, 0x7f, 0xdc, 0xfc, 0x06,
+	0x00, 0x00, 0xff, 0xff, 0xab, 0x42, 0xaf, 0xa3, 0xac, 0x01, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -244,31 +176,6 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.SnapshotBucketDuration != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.SnapshotBucketDuration))
-		i--
-		dAtA[i] = 0x60
-	}
-	if m.SnapshotRetentionSeconds != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.SnapshotRetentionSeconds))
-		i--
-		dAtA[i] = 0x58
-	}
-	if m.SnapshotIntervalBlocks != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.SnapshotIntervalBlocks))
-		i--
-		dAtA[i] = 0x50
-	}
-	if m.MinRunwayBlocks != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MinRunwayBlocks))
-		i--
-		dAtA[i] = 0x48
-	}
-	if m.SettlementEpochBlocks != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.SettlementEpochBlocks))
-		i--
-		dAtA[i] = 0x40
-	}
 	if m.SettleSpreadBps != 0 {
 		i = encodeVarintParams(dAtA, i, uint64(m.SettleSpreadBps))
 		i--
@@ -279,36 +186,23 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x30
 	}
-	if m.CircuitBreakerHaltThreshold != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.CircuitBreakerHaltThreshold))
-		i--
-		dAtA[i] = 0x28
-	}
-	if m.CircuitBreakerWarnThreshold != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.CircuitBreakerWarnThreshold))
+	if m.EpochBlocksBackoff != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.EpochBlocksBackoff))
 		i--
 		dAtA[i] = 0x20
 	}
-	if m.OracleOutlierThresholdBps != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.OracleOutlierThresholdBps))
+	if m.MinEpochBlocks != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.MinEpochBlocks))
 		i--
 		dAtA[i] = 0x18
 	}
-	n1, err1 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.OracleTwapWindow, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.OracleTwapWindow):])
-	if err1 != nil {
-		return 0, err1
-	}
-	i -= n1
-	i = encodeVarintParams(dAtA, i, uint64(n1))
-	i--
-	dAtA[i] = 0x12
-	if m.Enabled {
+	if m.CircuitBreakerHaltThreshold != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.CircuitBreakerHaltThreshold))
 		i--
-		if m.Enabled {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
+		dAtA[i] = 0x10
+	}
+	if m.CircuitBreakerWarnThreshold != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.CircuitBreakerWarnThreshold))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -332,40 +226,23 @@ func (m *Params) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Enabled {
-		n += 2
-	}
-	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.OracleTwapWindow)
-	n += 1 + l + sovParams(uint64(l))
-	if m.OracleOutlierThresholdBps != 0 {
-		n += 1 + sovParams(uint64(m.OracleOutlierThresholdBps))
-	}
 	if m.CircuitBreakerWarnThreshold != 0 {
 		n += 1 + sovParams(uint64(m.CircuitBreakerWarnThreshold))
 	}
 	if m.CircuitBreakerHaltThreshold != 0 {
 		n += 1 + sovParams(uint64(m.CircuitBreakerHaltThreshold))
 	}
+	if m.MinEpochBlocks != 0 {
+		n += 1 + sovParams(uint64(m.MinEpochBlocks))
+	}
+	if m.EpochBlocksBackoff != 0 {
+		n += 1 + sovParams(uint64(m.EpochBlocksBackoff))
+	}
 	if m.MintSpreadBps != 0 {
 		n += 1 + sovParams(uint64(m.MintSpreadBps))
 	}
 	if m.SettleSpreadBps != 0 {
 		n += 1 + sovParams(uint64(m.SettleSpreadBps))
-	}
-	if m.SettlementEpochBlocks != 0 {
-		n += 1 + sovParams(uint64(m.SettlementEpochBlocks))
-	}
-	if m.MinRunwayBlocks != 0 {
-		n += 1 + sovParams(uint64(m.MinRunwayBlocks))
-	}
-	if m.SnapshotIntervalBlocks != 0 {
-		n += 1 + sovParams(uint64(m.SnapshotIntervalBlocks))
-	}
-	if m.SnapshotRetentionSeconds != 0 {
-		n += 1 + sovParams(uint64(m.SnapshotRetentionSeconds))
-	}
-	if m.SnapshotBucketDuration != 0 {
-		n += 1 + sovParams(uint64(m.SnapshotBucketDuration))
 	}
 	return n
 }
@@ -407,78 +284,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.Enabled = bool(v != 0)
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OracleTwapWindow", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthParams
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthParams
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.OracleTwapWindow, dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OracleOutlierThresholdBps", wireType)
-			}
-			m.OracleOutlierThresholdBps = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.OracleOutlierThresholdBps |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CircuitBreakerWarnThreshold", wireType)
 			}
 			m.CircuitBreakerWarnThreshold = 0
@@ -496,7 +301,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 5:
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CircuitBreakerHaltThreshold", wireType)
 			}
@@ -511,6 +316,44 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.CircuitBreakerHaltThreshold |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinEpochBlocks", wireType)
+			}
+			m.MinEpochBlocks = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MinEpochBlocks |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EpochBlocksBackoff", wireType)
+			}
+			m.EpochBlocksBackoff = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EpochBlocksBackoff |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -549,101 +392,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.SettleSpreadBps |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 8:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SettlementEpochBlocks", wireType)
-			}
-			m.SettlementEpochBlocks = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SettlementEpochBlocks |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MinRunwayBlocks", wireType)
-			}
-			m.MinRunwayBlocks = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MinRunwayBlocks |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 10:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SnapshotIntervalBlocks", wireType)
-			}
-			m.SnapshotIntervalBlocks = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SnapshotIntervalBlocks |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 11:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SnapshotRetentionSeconds", wireType)
-			}
-			m.SnapshotRetentionSeconds = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SnapshotRetentionSeconds |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 12:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SnapshotBucketDuration", wireType)
-			}
-			m.SnapshotBucketDuration = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SnapshotBucketDuration |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

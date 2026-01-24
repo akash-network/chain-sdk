@@ -10,12 +10,12 @@ import "akash/bme/v1/types.proto";
 option go_package = "pkg.akt.dev/go/node/bme/v1";
 
 // EventCircuitBreakerStatusChange is emitted when circuit breaker status changes
-message EventCircuitBreakerStatusChange {
+message EventMintStatusChange {
   // previous_status is the previous status
-  CircuitBreakerStatus previous_status = 1;
+  MintStatus previous_status = 1;
 
   // new_status is the new status
-  CircuitBreakerStatus new_status = 2;
+  MintStatus new_status = 2;
 
   // collateral_ratio is the CR that triggered the change
   string collateral_ratio = 3 [
@@ -41,47 +41,13 @@ message EventVaultSeeded {
   ];
 }
 
-// EventBMRecord emitted information of burn/mint event of token A burn to mint token B
-message EventBMRecord {
+// EventLedgerRecordExecuted emitted information of burn/mint event of token A burn to mint token B
+message EventLedgerRecordExecuted {
   // burned_from source address of the tokens burned
-  string burned_from = 1 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "burned_from",
-    (gogoproto.moretags)  = "yaml:\"burned_from\""
-  ];
-
-  // minted_to destination address of the tokens minted
-  string minted_to = 2 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "minted_to",
-    (gogoproto.moretags)  = "yaml:\"minted_to\""
-  ];
-
-  // module is module account performing burn
-  string burner = 3 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "burner",
-    (gogoproto.moretags)  = "yaml:\"burner\""
-  ];
-
-  // module is module account performing mint
-  string minter = 4 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "minter",
-    (gogoproto.moretags)  = "yaml:\"minter\""
-  ];
-
-  // burned is the coin burned at price
-  CoinPrice burned = 5 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag)  = "burned",
-    (gogoproto.moretags) = "yaml:\"burned\""
-  ];
-
-  // minted is coin minted at price
-  CoinPrice minted = 6 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag)  = "minted",
-    (gogoproto.moretags) = "yaml:\"minted\""
+  LedgerRecordID id = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"burneidd_from\""
   ];
 }

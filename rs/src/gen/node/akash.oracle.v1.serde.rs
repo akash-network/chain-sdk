@@ -865,114 +865,6 @@ impl<'de> serde::Deserialize<'de> for EventPriceStaled {
         deserializer.deserialize_struct("akash.oracle.v1.EventPriceStaled", FIELDS, GeneratedVisitor)
     }
 }
-impl serde::Serialize for FeedContractParams {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if !self.name.is_empty() {
-            len += 1;
-        }
-        if self.config.is_some() {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.oracle.v1.FeedContractParams", len)?;
-        if !self.name.is_empty() {
-            struct_ser.serialize_field("name", &self.name)?;
-        }
-        if let Some(v) = self.config.as_ref() {
-            struct_ser.serialize_field("config", v)?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for FeedContractParams {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "name",
-            "config",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            Name,
-            Config,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "name" => Ok(GeneratedField::Name),
-                            "config" => Ok(GeneratedField::Config),
-                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = FeedContractParams;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.oracle.v1.FeedContractParams")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<FeedContractParams, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                let mut name__ = None;
-                let mut config__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::Name => {
-                            if name__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("name"));
-                            }
-                            name__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Config => {
-                            if config__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("config"));
-                            }
-                            config__ = map_.next_value()?;
-                        }
-                    }
-                }
-                Ok(FeedContractParams {
-                    name: name__.unwrap_or_default(),
-                    config: config__,
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.oracle.v1.FeedContractParams", FIELDS, GeneratedVisitor)
-    }
-}
 impl serde::Serialize for GenesisState {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -2182,7 +2074,10 @@ impl serde::Serialize for PriceHealth {
         if self.deviation_ok {
             len += 1;
         }
-        if self.all_sources_fresh {
+        if self.total_sources != 0 {
+            len += 1;
+        }
+        if self.total_healthy_sources != 0 {
             len += 1;
         }
         if !self.failure_reason.is_empty() {
@@ -2201,8 +2096,11 @@ impl serde::Serialize for PriceHealth {
         if self.deviation_ok {
             struct_ser.serialize_field("deviationOk", &self.deviation_ok)?;
         }
-        if self.all_sources_fresh {
-            struct_ser.serialize_field("allSourcesFresh", &self.all_sources_fresh)?;
+        if self.total_sources != 0 {
+            struct_ser.serialize_field("totalSources", &self.total_sources)?;
+        }
+        if self.total_healthy_sources != 0 {
+            struct_ser.serialize_field("totalHealthySources", &self.total_healthy_sources)?;
         }
         if !self.failure_reason.is_empty() {
             struct_ser.serialize_field("failureReason", &self.failure_reason)?;
@@ -2224,8 +2122,10 @@ impl<'de> serde::Deserialize<'de> for PriceHealth {
             "hasMinSources",
             "deviation_ok",
             "deviationOk",
-            "all_sources_fresh",
-            "allSourcesFresh",
+            "total_sources",
+            "totalSources",
+            "total_healthy_sources",
+            "totalHealthySources",
             "failure_reason",
             "failureReason",
         ];
@@ -2236,7 +2136,8 @@ impl<'de> serde::Deserialize<'de> for PriceHealth {
             IsHealthy,
             HasMinSources,
             DeviationOk,
-            AllSourcesFresh,
+            TotalSources,
+            TotalHealthySources,
             FailureReason,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -2263,7 +2164,8 @@ impl<'de> serde::Deserialize<'de> for PriceHealth {
                             "isHealthy" | "is_healthy" => Ok(GeneratedField::IsHealthy),
                             "hasMinSources" | "has_min_sources" => Ok(GeneratedField::HasMinSources),
                             "deviationOk" | "deviation_ok" => Ok(GeneratedField::DeviationOk),
-                            "allSourcesFresh" | "all_sources_fresh" => Ok(GeneratedField::AllSourcesFresh),
+                            "totalSources" | "total_sources" => Ok(GeneratedField::TotalSources),
+                            "totalHealthySources" | "total_healthy_sources" => Ok(GeneratedField::TotalHealthySources),
                             "failureReason" | "failure_reason" => Ok(GeneratedField::FailureReason),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
@@ -2288,7 +2190,8 @@ impl<'de> serde::Deserialize<'de> for PriceHealth {
                 let mut is_healthy__ = None;
                 let mut has_min_sources__ = None;
                 let mut deviation_ok__ = None;
-                let mut all_sources_fresh__ = None;
+                let mut total_sources__ = None;
+                let mut total_healthy_sources__ = None;
                 let mut failure_reason__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
@@ -2316,11 +2219,21 @@ impl<'de> serde::Deserialize<'de> for PriceHealth {
                             }
                             deviation_ok__ = Some(map_.next_value()?);
                         }
-                        GeneratedField::AllSourcesFresh => {
-                            if all_sources_fresh__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("allSourcesFresh"));
+                        GeneratedField::TotalSources => {
+                            if total_sources__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalSources"));
                             }
-                            all_sources_fresh__ = Some(map_.next_value()?);
+                            total_sources__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::TotalHealthySources => {
+                            if total_healthy_sources__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalHealthySources"));
+                            }
+                            total_healthy_sources__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
                         }
                         GeneratedField::FailureReason => {
                             if failure_reason__.is_some() {
@@ -2335,7 +2248,8 @@ impl<'de> serde::Deserialize<'de> for PriceHealth {
                     is_healthy: is_healthy__.unwrap_or_default(),
                     has_min_sources: has_min_sources__.unwrap_or_default(),
                     deviation_ok: deviation_ok__.unwrap_or_default(),
-                    all_sources_fresh: all_sources_fresh__.unwrap_or_default(),
+                    total_sources: total_sources__.unwrap_or_default(),
+                    total_healthy_sources: total_healthy_sources__.unwrap_or_default(),
                     failure_reason: failure_reason__.unwrap_or_default(),
                 })
             }
@@ -2564,6 +2478,207 @@ impl<'de> serde::Deserialize<'de> for PythContractParams {
             }
         }
         deserializer.deserialize_struct("akash.oracle.v1.PythContractParams", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for QueryAggregatedPriceRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.denom.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.oracle.v1.QueryAggregatedPriceRequest", len)?;
+        if !self.denom.is_empty() {
+            struct_ser.serialize_field("denom", &self.denom)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for QueryAggregatedPriceRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "denom",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Denom,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "denom" => Ok(GeneratedField::Denom),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = QueryAggregatedPriceRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.oracle.v1.QueryAggregatedPriceRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryAggregatedPriceRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut denom__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Denom => {
+                            if denom__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("denom"));
+                            }
+                            denom__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(QueryAggregatedPriceRequest {
+                    denom: denom__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.oracle.v1.QueryAggregatedPriceRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for QueryAggregatedPriceResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.aggregated_price.is_some() {
+            len += 1;
+        }
+        if self.price_health.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.oracle.v1.QueryAggregatedPriceResponse", len)?;
+        if let Some(v) = self.aggregated_price.as_ref() {
+            struct_ser.serialize_field("aggregatedPrice", v)?;
+        }
+        if let Some(v) = self.price_health.as_ref() {
+            struct_ser.serialize_field("priceHealth", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for QueryAggregatedPriceResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "aggregated_price",
+            "aggregatedPrice",
+            "price_health",
+            "priceHealth",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            AggregatedPrice,
+            PriceHealth,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "aggregatedPrice" | "aggregated_price" => Ok(GeneratedField::AggregatedPrice),
+                            "priceHealth" | "price_health" => Ok(GeneratedField::PriceHealth),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = QueryAggregatedPriceResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.oracle.v1.QueryAggregatedPriceResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryAggregatedPriceResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut aggregated_price__ = None;
+                let mut price_health__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::AggregatedPrice => {
+                            if aggregated_price__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("aggregatedPrice"));
+                            }
+                            aggregated_price__ = map_.next_value()?;
+                        }
+                        GeneratedField::PriceHealth => {
+                            if price_health__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("priceHealth"));
+                            }
+                            price_health__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(QueryAggregatedPriceResponse {
+                    aggregated_price: aggregated_price__,
+                    price_health: price_health__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.oracle.v1.QueryAggregatedPriceResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for QueryParamsRequest {

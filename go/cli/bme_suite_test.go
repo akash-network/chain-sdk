@@ -166,100 +166,6 @@ func (s *BMECLITestSuite) TestCLIQueryBMEVaultState() {
 	}
 }
 
-func (s *BMECLITestSuite) TestCLIQueryBMECollateralRatio() {
-	testCases := []struct {
-		name      string
-		args      []string
-		expectErr bool
-	}{
-		{
-			"query collateral ratio with json output",
-			cli.TestFlags().
-				WithOutputJSON(),
-			false,
-		},
-		{
-			"query collateral ratio with text output",
-			cli.TestFlags().
-				WithOutputText(),
-			false,
-		},
-		{
-			"query collateral ratio with height flag",
-			cli.TestFlags().
-				WithOutputJSON().
-				WithHeight(1),
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			cmd := cli.GetBMECollateralRatioCmd()
-			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
-
-			if tc.expectErr {
-				s.Require().Error(err)
-			} else {
-				s.Require().NoError(err)
-				output := out.String()
-				s.Require().NotEmpty(output)
-				if strings.Contains(tc.name, "json") {
-					var resp bme.QueryCollateralRatioResponse
-					s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &resp), output)
-				}
-			}
-		})
-	}
-}
-
-func (s *BMECLITestSuite) TestCLIQueryBMECircuitBreakerStatus() {
-	testCases := []struct {
-		name      string
-		args      []string
-		expectErr bool
-	}{
-		{
-			"query circuit breaker status with json output",
-			cli.TestFlags().
-				WithOutputJSON(),
-			false,
-		},
-		{
-			"query circuit breaker status with text output",
-			cli.TestFlags().
-				WithOutputText(),
-			false,
-		},
-		{
-			"query circuit breaker status with height flag",
-			cli.TestFlags().
-				WithOutputJSON().
-				WithHeight(1),
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			cmd := cli.GetBMECircuitBreakerStatusCmd()
-			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
-
-			if tc.expectErr {
-				s.Require().Error(err)
-			} else {
-				s.Require().NoError(err)
-				output := out.String()
-				s.Require().NotEmpty(output)
-				if strings.Contains(tc.name, "json") {
-					var resp bme.QueryCircuitBreakerStatusResponse
-					s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &resp), output)
-				}
-			}
-		})
-	}
-}
-
 func (s *BMECLITestSuite) TestCLIQueryBMEOutputFormats() {
 	// Test different output formats for various commands
 	s.Run("query params with json output succeeds", func() {
@@ -278,16 +184,8 @@ func (s *BMECLITestSuite) TestCLIQueryBMEOutputFormats() {
 		s.Require().NotEmpty(out.String())
 	})
 
-	s.Run("query collateral ratio with json output succeeds", func() {
-		cmd := cli.GetBMECollateralRatioCmd()
-		args := cli.TestFlags().WithOutputJSON()
-		out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, args...)
-		s.Require().NoError(err)
-		s.Require().NotEmpty(out.String())
-	})
-
 	s.Run("query circuit breaker with json output succeeds", func() {
-		cmd := cli.GetBMECircuitBreakerStatusCmd()
+		cmd := cli.GetBMEStatusCmd()
 		args := cli.TestFlags().WithOutputJSON()
 		out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, args...)
 		s.Require().NoError(err)
@@ -368,7 +266,6 @@ func (s *BMECLITestSuite) TestCLITxBMEBurnMintWithToFlag() {
 			cli.TestFlags().
 				With("1000000uakt", "uact").
 				WithFrom(s.addrs[0].String()).
-				WithFlag(cflags.FlagTo, s.addrs[0].String()).
 				WithSkipConfirm().
 				WithBroadcastModeSync().
 				WithFees(sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10)))),
@@ -379,7 +276,6 @@ func (s *BMECLITestSuite) TestCLITxBMEBurnMintWithToFlag() {
 			cli.TestFlags().
 				With("1000000uakt", "uact").
 				WithFrom(s.addrs[0].String()).
-				WithFlag(cflags.FlagTo, "akash1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq5rsxjy").
 				WithSkipConfirm().
 				WithBroadcastModeSync().
 				WithFees(sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10)))),
@@ -686,47 +582,7 @@ func (s *BMECLITestSuite) TestCLIQueryBMEVaultStateExec() {
 	}
 }
 
-func (s *BMECLITestSuite) TestCLIQueryBMECollateralRatioExec() {
-	testCases := []struct {
-		name      string
-		args      []string
-		expectErr bool
-	}{
-		{
-			"query collateral ratio successfully",
-			cli.TestFlags().
-				WithOutputJSON(),
-			false,
-		},
-		{
-			"query collateral ratio with text output",
-			cli.TestFlags().
-				WithOutputText(),
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			cmd := cli.GetBMECollateralRatioCmd()
-			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
-
-			if tc.expectErr {
-				s.Require().Error(err)
-			} else {
-				s.Require().NoError(err)
-				output := out.String()
-				s.Require().NotEmpty(output)
-				if strings.Contains(tc.name, "successfully") {
-					var resp bme.QueryCollateralRatioResponse
-					s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &resp), output)
-				}
-			}
-		})
-	}
-}
-
-func (s *BMECLITestSuite) TestCLIQueryBMECircuitBreakerStatusExec() {
+func (s *BMECLITestSuite) TestCLIQueryBMEStatusExec() {
 	testCases := []struct {
 		name      string
 		args      []string
@@ -748,7 +604,7 @@ func (s *BMECLITestSuite) TestCLIQueryBMECircuitBreakerStatusExec() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetBMECircuitBreakerStatusCmd()
+			cmd := cli.GetBMEStatusCmd()
 			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
 
 			if tc.expectErr {
@@ -758,7 +614,7 @@ func (s *BMECLITestSuite) TestCLIQueryBMECircuitBreakerStatusExec() {
 				output := out.String()
 				s.Require().NotEmpty(output)
 				if strings.Contains(tc.name, "successfully") {
-					var resp bme.QueryCircuitBreakerStatusResponse
+					var resp bme.QueryStatusResponse
 					s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &resp), output)
 				}
 			}
