@@ -121,10 +121,6 @@ export const EventMintStatusChange: MessageFns<EventMintStatusChange, "akash.bme
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventMintStatusChange>): EventMintStatusChange {
-    return EventMintStatusChange.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventMintStatusChange>): EventMintStatusChange {
     const message = createBaseEventMintStatusChange();
     message.previousStatus = object.previousStatus ?? 0;
@@ -215,10 +211,6 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventVaultSeeded>): EventVaultSeeded {
-    return EventVaultSeeded.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventVaultSeeded>): EventVaultSeeded {
     const message = createBaseEventVaultSeeded();
     message.amount = (object.amount !== undefined && object.amount !== null)
@@ -283,10 +275,6 @@ export const EventLedgerRecordExecuted: MessageFns<
       obj.id = LedgerRecordID.toJSON(message.id);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventLedgerRecordExecuted>): EventLedgerRecordExecuted {
-    return EventLedgerRecordExecuted.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventLedgerRecordExecuted>): EventLedgerRecordExecuted {
     const message = createBaseEventLedgerRecordExecuted();

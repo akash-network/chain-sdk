@@ -97,10 +97,6 @@ export const GenesisDowntimeEntry: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisDowntimeEntry>): GenesisDowntimeEntry {
-    return GenesisDowntimeEntry.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisDowntimeEntry>): GenesisDowntimeEntry {
     const message = createBaseGenesisDowntimeEntry();
     message.duration = object.duration ?? 0;
@@ -176,10 +172,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.downtimedetector.v1be
       obj.last_block_time = message.lastBlockTime.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();

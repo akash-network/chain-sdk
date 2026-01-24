@@ -102,10 +102,6 @@ export const RecoveredSinceDowntimeOfLengthRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RecoveredSinceDowntimeOfLengthRequest>): RecoveredSinceDowntimeOfLengthRequest {
-    return RecoveredSinceDowntimeOfLengthRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RecoveredSinceDowntimeOfLengthRequest>): RecoveredSinceDowntimeOfLengthRequest {
     const message = createBaseRecoveredSinceDowntimeOfLengthRequest();
     message.downtime = object.downtime ?? 0;
@@ -171,10 +167,6 @@ export const RecoveredSinceDowntimeOfLengthResponse: MessageFns<
       obj.succesfully_recovered = message.succesfullyRecovered;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RecoveredSinceDowntimeOfLengthResponse>): RecoveredSinceDowntimeOfLengthResponse {
-    return RecoveredSinceDowntimeOfLengthResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RecoveredSinceDowntimeOfLengthResponse>): RecoveredSinceDowntimeOfLengthResponse {
     const message = createBaseRecoveredSinceDowntimeOfLengthResponse();

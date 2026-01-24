@@ -89,10 +89,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "akash.oracle.v1
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
     return message;
@@ -147,10 +143,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "akash.oracle.
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();
@@ -212,10 +204,6 @@ export const QueryPriceFeedConfigRequest: MessageFns<
       obj.denom = message.denom;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryPriceFeedConfigRequest>): QueryPriceFeedConfigRequest {
-    return QueryPriceFeedConfigRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryPriceFeedConfigRequest>): QueryPriceFeedConfigRequest {
     const message = createBaseQueryPriceFeedConfigRequest();
@@ -308,10 +296,6 @@ export const QueryPriceFeedConfigResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryPriceFeedConfigResponse>): QueryPriceFeedConfigResponse {
-    return QueryPriceFeedConfigResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryPriceFeedConfigResponse>): QueryPriceFeedConfigResponse {
     const message = createBaseQueryPriceFeedConfigResponse();
     message.priceFeedId = object.priceFeedId ?? "";
@@ -372,10 +356,6 @@ export const QueryAggregatedPriceRequest: MessageFns<
       obj.denom = message.denom;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAggregatedPriceRequest>): QueryAggregatedPriceRequest {
-    return QueryAggregatedPriceRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAggregatedPriceRequest>): QueryAggregatedPriceRequest {
     const message = createBaseQueryAggregatedPriceRequest();
@@ -452,10 +432,6 @@ export const QueryAggregatedPriceResponse: MessageFns<
       obj.price_health = PriceHealth.toJSON(message.priceHealth);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAggregatedPriceResponse>): QueryAggregatedPriceResponse {
-    return QueryAggregatedPriceResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAggregatedPriceResponse>): QueryAggregatedPriceResponse {
     const message = createBaseQueryAggregatedPriceResponse();

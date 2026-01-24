@@ -182,10 +182,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "akash.bme.v1.MsgUpdat
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -230,10 +226,6 @@ export const MsgUpdateParamsResponse: MessageFns<MsgUpdateParamsResponse, "akash
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
@@ -322,10 +314,6 @@ export const MsgSeedVault: MessageFns<MsgSeedVault, "akash.bme.v1.MsgSeedVault">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgSeedVault>): MsgSeedVault {
-    return MsgSeedVault.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgSeedVault>): MsgSeedVault {
     const message = createBaseMsgSeedVault();
     message.authority = object.authority ?? "";
@@ -385,10 +373,6 @@ export const MsgSeedVaultResponse: MessageFns<MsgSeedVaultResponse, "akash.bme.v
       obj.vault_akt = message.vaultAkt;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgSeedVaultResponse>): MsgSeedVaultResponse {
-    return MsgSeedVaultResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgSeedVaultResponse>): MsgSeedVaultResponse {
     const message = createBaseMsgSeedVaultResponse();
@@ -493,10 +477,6 @@ export const MsgBurnMint: MessageFns<MsgBurnMint, "akash.bme.v1.MsgBurnMint"> = 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgBurnMint>): MsgBurnMint {
-    return MsgBurnMint.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgBurnMint>): MsgBurnMint {
     const message = createBaseMsgBurnMint();
     message.owner = object.owner ?? "";
@@ -590,10 +570,6 @@ export const MsgMintACT: MessageFns<MsgMintACT, "akash.bme.v1.MsgMintACT"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgMintACT>): MsgMintACT {
-    return MsgMintACT.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgMintACT>): MsgMintACT {
     const message = createBaseMsgMintACT();
     message.owner = object.owner ?? "";
@@ -686,10 +662,6 @@ export const MsgBurnACT: MessageFns<MsgBurnACT, "akash.bme.v1.MsgBurnACT"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgBurnACT>): MsgBurnACT {
-    return MsgBurnACT.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgBurnACT>): MsgBurnACT {
     const message = createBaseMsgBurnACT();
     message.owner = object.owner ?? "";
@@ -767,10 +739,6 @@ export const MsgBurnMintResponse: MessageFns<MsgBurnMintResponse, "akash.bme.v1.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgBurnMintResponse>): MsgBurnMintResponse {
-    return MsgBurnMintResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgBurnMintResponse>): MsgBurnMintResponse {
     const message = createBaseMsgBurnMintResponse();
     message.id = (object.id !== undefined && object.id !== null) ? LedgerRecordID.fromPartial(object.id) : undefined;
@@ -845,10 +813,6 @@ export const MsgMintACTResponse: MessageFns<MsgMintACTResponse, "akash.bme.v1.Ms
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgMintACTResponse>): MsgMintACTResponse {
-    return MsgMintACTResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgMintACTResponse>): MsgMintACTResponse {
     const message = createBaseMsgMintACTResponse();
     message.id = (object.id !== undefined && object.id !== null) ? LedgerRecordID.fromPartial(object.id) : undefined;
@@ -922,10 +886,6 @@ export const MsgBurnACTResponse: MessageFns<MsgBurnACTResponse, "akash.bme.v1.Ms
       obj.status = ledgerRecordStatusToJSON(message.status);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgBurnACTResponse>): MsgBurnACTResponse {
-    return MsgBurnACTResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgBurnACTResponse>): MsgBurnACTResponse {
     const message = createBaseMsgBurnACTResponse();
