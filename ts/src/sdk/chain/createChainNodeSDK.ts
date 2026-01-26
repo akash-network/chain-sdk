@@ -1,7 +1,5 @@
 import { createSDK as createCosmosSDK } from "../../generated/createCosmosSDK.ts";
 import { createSDK as createNodeSDK } from "../../generated/createNodeSDK.ts";
-import { patches as cosmosPatches } from "../../generated/patches/cosmosCustomTypePatches.ts";
-import { patches as nodePatches } from "../../generated/patches/nodeCustomTypePatches.ts";
 import { getMessageType } from "../getMessageType.ts";
 import { createNoopTransport } from "../transport/createNoopTransport.ts";
 import type { GrpcTransportOptions } from "../transport/grpc/createGrpcTransport.ts";
@@ -33,12 +31,8 @@ export function createChainNodeSDK(options: ChainNodeSDKOptions) {
       unaryErrorMessage: `Unable to sign transaction. "tx" option is not provided during chain SDK creation`,
     });
   }
-  const nodeSDK = createNodeSDK(queryTransport, txTransport, {
-    clientOptions: { typePatches: { ...cosmosPatches, ...nodePatches } },
-  });
-  const cosmosSDK = createCosmosSDK(queryTransport, txTransport, {
-    clientOptions: { typePatches: cosmosPatches },
-  });
+  const nodeSDK = createNodeSDK(queryTransport, txTransport);
+  const cosmosSDK = createCosmosSDK(queryTransport, txTransport);
   return { ...nodeSDK, ...cosmosSDK };
 }
 

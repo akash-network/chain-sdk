@@ -1,5 +1,4 @@
 import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
-import { SDKOptions } from "../sdk/types.ts";
 
 import type * as akash_audit_v1_query from "./protos/akash/audit/v1/query.ts";
 import type * as akash_audit_v1_msg from "./protos/akash/audit/v1/msg.ts";
@@ -58,9 +57,9 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/akash/wasm/v1/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/wasm/v1/service_akash.ts").then(m => m.Msg)
 ] as const);
-export function createSDK(queryTransport: Transport, txTransport: Transport, options?: SDKOptions) {
-  const getClient = createClientFactory<CallOptions>(queryTransport, options?.clientOptions);
-  const getMsgClient = createClientFactory<TxCallOptions>(txTransport, options?.clientOptions);
+export function createSDK(queryTransport: Transport, txTransport: Transport) {
+  const getClient = createClientFactory<CallOptions>(queryTransport);
+  const getMsgClient = createClientFactory<TxCallOptions>(txTransport);
   return {
     akash: {
       audit: {

@@ -2,7 +2,6 @@
 
 exports[`protoc-sdk-objec plugin generates SDK object from proto files 1`] = `
 "import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
-import { SDKOptions } from "../sdk/types.ts";
 
 import type * as msg from "./protos/msg.ts";
 import type * as query from "./protos/query.ts";
@@ -16,9 +15,9 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/msg_akash.ts").then(m => m.Msg),
   () => import("./protos/query_akash.ts").then(m => m.Query)
 ] as const);
-export function createSDK(queryTransport: Transport, txTransport: Transport, options?: SDKOptions) {
-  const getClient = createClientFactory<CallOptions>(queryTransport, options?.clientOptions);
-  const getMsgClient = createClientFactory<TxCallOptions>(txTransport, options?.clientOptions);
+export function createSDK(queryTransport: Transport, txTransport: Transport) {
+  const getClient = createClientFactory<CallOptions>(queryTransport);
+  const getMsgClient = createClientFactory<TxCallOptions>(txTransport);
   return {
     akash: {
       test: {

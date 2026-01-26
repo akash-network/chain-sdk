@@ -10,11 +10,6 @@ import { TransportError } from "../TransportError.ts";
 import { createGrpcTransport, type GrpcTransportOptions } from "./createGrpcTransport.ts";
 
 describe(createGrpcTransport.name, () => {
-  it("has `requiresTypePatching` set to true", async () => {
-    const transport = createGrpcTransport({ baseUrl: "https://api.example.com" });
-    expect(transport.requiresTypePatching).toBe(true);
-  });
-
   describe("unary method", () => {
     it("makes POST request to correct URL", async () => {
       const { transport, httpClient, TestMethodSchema } = await setup();

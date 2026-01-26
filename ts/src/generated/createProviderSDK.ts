@@ -1,5 +1,4 @@
 import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
-import { SDKOptions } from "../sdk/types.ts";
 
 import type * as google_protobuf_empty from "./protos/google/protobuf/empty.ts";
 import type * as akash_provider_lease_v1_service from "./protos/akash/provider/lease/v1/service.ts";
@@ -15,8 +14,8 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/akash/provider/lease/v1/service_akash.ts").then(m => m.LeaseRPC),
   () => import("./protos/akash/provider/v1/service_akash.ts").then(m => m.ProviderRPC)
 ] as const);
-export function createSDK(transport: Transport, options?: SDKOptions) {
-  const getClient = createClientFactory<CallOptions>(transport, options?.clientOptions);
+export function createSDK(transport: Transport) {
+  const getClient = createClientFactory<CallOptions>(transport);
   return {
     akash: {
       inventory: {
