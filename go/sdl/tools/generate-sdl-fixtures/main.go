@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	inputRoot := "../../testdata/sdl/input"
-	outputRoot := "../../testdata/sdl/output-fixtures"
+	inputRoot := filepath.Join("testdata", "sdl", "input")
+	outputRoot := filepath.Join("testdata", "sdl", "output-fixtures")
 	versions := []string{"v2.0", "v2.1"}
 
 	for _, version := range versions {

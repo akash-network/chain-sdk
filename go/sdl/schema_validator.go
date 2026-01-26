@@ -20,6 +20,8 @@ import (
 //go:embed sdl-input.schema.yaml
 var embeddedSchemaYAML []byte
 
+type loggerHolder struct{ log.Logger }
+
 type SchemaValidator struct {
 	compiledSchema     *gojsonschema.Schema
 	schemaCompileOnce  sync.Once
@@ -30,7 +32,7 @@ type SchemaValidator struct {
 var defaultValidator = &SchemaValidator{}
 
 func init() {
-	defaultValidator.logger.Store(log.Logger(noop.NewLogger()))
+	defaultValidator.logger.Store(loggerHolder{noop.NewLogger()})
 }
 
 // SetSchemaLogger configures the logger for schema validation warnings.
@@ -47,7 +49,7 @@ func SetSchemaLogger(logger log.Logger) {
 	if logger == nil {
 		logger = noop.NewLogger()
 	}
-	defaultValidator.logger.Store(logger)
+	defaultValidator.logger.Store(loggerHolder{logger})
 }
 
 // loadSchemaBytes loads the embedded schema compiled into the binary.
@@ -132,7 +134,7 @@ func checkSchemaValidationResult(schemaErr error, goValidationErr error) {
 
 func (sv *SchemaValidator) checkSchemaValidationResult(schemaErr error, goValidationErr error) {
 	if schemaErr == nil && goValidationErr != nil {
-		logger := sv.logger.Load().(log.Logger)
+		logger := sv.logger.Load().(loggerHolder).Logger
 		logger.Warn(
 			"SDL schema validation mismatch",
 			"schema_validation", "passed",
