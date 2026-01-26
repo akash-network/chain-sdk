@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.0"
+services:
+  web:
+    image: nginx:latest
+    expose:
+      - port: 80
+        as: 80
+        proto: tcp
+        to:
+          - global: true
+            ip: endpoint-http
+      - port: 443
+        as: 443
+        proto: tcp
+        to:
+          - global: true
+            ip: endpoint-https
+profiles:
+  compute:
+    web-compute:
+      resources:
+        cpu:
+          units: 250m
+        memory:
+          size: 512Mi
+        storage:
+          size: 1Gi
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        web-compute:
+          denom: uakt
+          amount: 200
+deployment:
+  web:
+    akash:
+      profile: web-compute
+      count: 1
+endpoints:
+  endpoint-http:
+    kind: ip
+  endpoint-https:
+    kind: ip
+

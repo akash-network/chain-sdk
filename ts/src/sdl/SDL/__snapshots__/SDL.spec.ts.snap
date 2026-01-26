@@ -119,20 +119,20 @@ exports[`SDL SDL GPU Tests should generate correct manifest 1`] = `
               },
             ],
             "units": {
-              "val": 1,
+              "val": "1",
             },
           },
           "id": 1,
           "memory": {
             "size": {
-              "val": 134217728,
+              "val": "134217728",
             },
           },
           "storage": [
             {
               "name": "default",
               "size": {
-                "val": 1073741824,
+                "val": "1073741824",
               },
             },
           ],
@@ -222,10 +222,10 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
   {
     "name": "akash",
     "requirements": {
-      "attributes": [],
-      "signedBy": {
-        "allOf": [],
-        "anyOf": [
+      "attributes": null,
+      "signed_by": {
+        "all_of": null,
+        "any_of": [
           "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63",
           "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4",
         ],
@@ -235,65 +235,32 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
       {
         "count": 1,
         "price": {
-          "amount": "10000",
+          "amount": "10000.000000000000000000",
           "denom": "uakt",
         },
         "resource": {
           "cpu": {
-            "attributes": undefined,
             "units": {
-              "val": Uint8Array [
-                49,
-                48,
-                48,
-                48,
-              ],
+              "val": "1000",
             },
           },
           "endpoints": [],
           "gpu": {
-            "attributes": undefined,
             "units": {
-              "val": Uint8Array [
-                48,
-              ],
+              "val": "0",
             },
           },
           "id": 1,
           "memory": {
-            "attributes": undefined,
-            "quantity": {
-              "val": Uint8Array [
-                49,
-                48,
-                55,
-                51,
-                55,
-                52,
-                49,
-                56,
-                50,
-                52,
-              ],
+            "size": {
+              "val": "1073741824",
             },
           },
           "storage": [
             {
-              "attributes": undefined,
               "name": "default",
-              "quantity": {
-                "val": Uint8Array [
-                  49,
-                  48,
-                  55,
-                  51,
-                  55,
-                  52,
-                  49,
-                  56,
-                  50,
-                  52,
-                ],
+              "size": {
+                "val": "1073741824",
               },
             },
             {
@@ -308,19 +275,8 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
                 },
               ],
               "name": "wordpress-db",
-              "quantity": {
-                "val": Uint8Array [
-                  56,
-                  53,
-                  56,
-                  57,
-                  57,
-                  51,
-                  52,
-                  53,
-                  57,
-                  50,
-                ],
+              "size": {
+                "val": "8589934592",
               },
             },
           ],
@@ -329,19 +285,13 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
       {
         "count": 1,
         "price": {
-          "amount": "10000",
+          "amount": "10000.000000000000000000",
           "denom": "uakt",
         },
         "resource": {
           "cpu": {
-            "attributes": undefined,
             "units": {
-              "val": Uint8Array [
-                52,
-                48,
-                48,
-                48,
-              ],
+              "val": "4000",
             },
           },
           "endpoints": [
@@ -350,48 +300,21 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
             },
           ],
           "gpu": {
-            "attributes": undefined,
             "units": {
-              "val": Uint8Array [
-                48,
-              ],
+              "val": "0",
             },
           },
           "id": 2,
           "memory": {
-            "attributes": undefined,
-            "quantity": {
-              "val": Uint8Array [
-                52,
-                50,
-                57,
-                52,
-                57,
-                54,
-                55,
-                50,
-                57,
-                54,
-              ],
+            "size": {
+              "val": "4294967296",
             },
           },
           "storage": [
             {
-              "attributes": undefined,
               "name": "default",
-              "quantity": {
-                "val": Uint8Array [
-                  52,
-                  50,
-                  57,
-                  52,
-                  57,
-                  54,
-                  55,
-                  50,
-                  57,
-                  54,
-                ],
+              "size": {
+                "val": "4294967296",
               },
             },
             {
@@ -406,20 +329,8 @@ exports[`SDL SDL WordPress Deployment Groups should generate the correct deploym
                 },
               ],
               "name": "wordpress-data",
-              "quantity": {
-                "val": Uint8Array [
-                  51,
-                  52,
-                  51,
-                  53,
-                  57,
-                  55,
-                  51,
-                  56,
-                  51,
-                  54,
-                  56,
-                ],
+              "size": {
+                "val": "34359738368",
               },
             },
           ],
@@ -482,12 +393,12 @@ exports[`SDL SDL v3 Resource Groups should create v3 resource groups: Groups mat
           "value": "us-west",
         },
       ],
-      "signedBy": {
-        "allOf": [
+      "signed_by": {
+        "all_of": [
           "akash1123123",
           "akash1124123123",
         ],
-        "anyOf": [
+        "any_of": [
           "akash1123123",
           "akash1124123123",
         ],
@@ -497,18 +408,13 @@ exports[`SDL SDL v3 Resource Groups should create v3 resource groups: Groups mat
       {
         "count": 2,
         "price": {
-          "amount": "50",
+          "amount": "50.000000000000000000",
           "denom": "uakt",
         },
         "resource": {
           "cpu": {
-            "attributes": undefined,
             "units": {
-              "val": Uint8Array [
-                49,
-                48,
-                48,
-              ],
+              "val": "100",
             },
           },
           "endpoints": [
@@ -528,45 +434,20 @@ exports[`SDL SDL v3 Resource Groups should create v3 resource groups: Groups mat
               },
             ],
             "units": {
-              "val": Uint8Array [
-                49,
-              ],
+              "val": "1",
             },
           },
           "id": 1,
           "memory": {
-            "attributes": undefined,
-            "quantity": {
-              "val": Uint8Array [
-                49,
-                51,
-                52,
-                50,
-                49,
-                55,
-                55,
-                50,
-                56,
-              ],
+            "size": {
+              "val": "134217728",
             },
           },
           "storage": [
             {
-              "attributes": undefined,
               "name": "default",
-              "quantity": {
-                "val": Uint8Array [
-                  49,
-                  48,
-                  55,
-                  51,
-                  55,
-                  52,
-                  49,
-                  56,
-                  50,
-                  52,
-                ],
+              "size": {
+                "val": "1073741824",
               },
             },
           ],
@@ -626,14 +507,14 @@ exports[`SDL SDL: IP Lease Manifest should generate the correct manifest: Manife
           ],
           "memory": {
             "size": {
-              "val": 536870912,
+              "val": "536870912",
             },
           },
           "storage": [
             {
               "name": "default",
               "size": {
-                "val": 536870912,
+                "val": "536870912",
               },
             },
           ],
@@ -730,14 +611,14 @@ exports[`SDL test sdl persistent storage SDL: Persistent Storage Manifest: SDL: 
           "endpoints": null,
           "memory": {
             "size": {
-              "val": 4294967296,
+              "val": "4294967296",
             },
           },
           "storage": [
             {
               "name": "default",
               "size": {
-                "val": 4294967296,
+                "val": "4294967296",
               },
             },
             {
@@ -753,7 +634,7 @@ exports[`SDL test sdl persistent storage SDL: Persistent Storage Manifest: SDL: 
               ],
               "name": "wordpress-data",
               "size": {
-                "val": 34359738368,
+                "val": "34359738368",
               },
             },
           ],
@@ -833,14 +714,14 @@ exports[`SDL test sdl persistent storage SDL: Persistent Storage Manifest: SDL: 
           "endpoints": null,
           "memory": {
             "size": {
-              "val": 1073741824,
+              "val": "1073741824",
             },
           },
           "storage": [
             {
               "name": "default",
               "size": {
-                "val": 1073741824,
+                "val": "1073741824",
               },
             },
             {
@@ -856,7 +737,7 @@ exports[`SDL test sdl persistent storage SDL: Persistent Storage Manifest: SDL: 
               ],
               "name": "wordpress-db",
               "size": {
-                "val": 8589934592,
+                "val": "8589934592",
               },
             },
             {
@@ -872,7 +753,7 @@ exports[`SDL test sdl persistent storage SDL: Persistent Storage Manifest: SDL: 
               ],
               "name": "shm",
               "size": {
-                "val": 1073741824,
+                "val": "1073741824",
               },
             },
             {
@@ -888,7 +769,7 @@ exports[`SDL test sdl persistent storage SDL: Persistent Storage Manifest: SDL: 
               ],
               "name": "shm2",
               "size": {
-                "val": 1073741824,
+                "val": "1073741824",
               },
             },
           ],

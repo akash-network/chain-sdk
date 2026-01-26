@@ -47,3 +47,17 @@ test-coverage-go: export GO111MODULE := $(GO111MODULE)
 test-coverage-go: export GOWORK := $(GOWORK)
 test-coverage-go:
 	@$(TOOLS) gocoverage "$(GO_MODULES)" "$(test_go_flags)" "$(GO_TEST_DIRS)"
+
+.PHONY: generate-sdl-fixtures
+generate-sdl-fixtures: ## Generate SDL test fixtures (manifest.json and groups.json from input.yaml files)
+	@echo "Generating SDL fixtures..."
+	@cd go/sdl && go run ./tools/generate-sdl-fixtures
+
+.PHONY: test-sdl-parity
+test-sdl-parity: generate-sdl-fixtures $(AKASH_TS_NODE_MODULES) ## Run SDL parity tests for Go and TypeScript
+	@echo "Running Go SDL parity and validation tests..."
+	@cd go/sdl && go test -v -run "TestParity|TestInvalidSDLsRejected|TestSchemaValidation"
+	@echo ""
+	@echo "Running TypeScript SDL parity tests..."
+	@echo "  (includes: v2.0 fixtures, v2.1 fixtures, and invalid SDL rejection)"
+	@cd ts && npm test -- --testPathPattern=parity.spec.ts

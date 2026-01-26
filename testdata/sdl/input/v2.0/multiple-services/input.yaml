@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.0"
+services:
+  web:
+    image: nginx:latest
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+    dependencies:
+      - service: api
+  api:
+    image: node:18
+    env:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://db:5432
+    expose:
+      - port: 3000
+        as: 3000
+        to:
+          - service: web
+    dependencies:
+      - service: db
+  db:
+    image: postgres:14
+    env:
+      - POSTGRES_PASSWORD=secret
+    expose:
+      - port: 5432
+        to:
+          - service: api
+profiles:
+  compute:
+    web-compute:
+      resources:
+        cpu:
+          units: 100m
+        memory:
+          size: 256Mi
+        storage:
+          size: 512Mi
+    api-compute:
+      resources:
+        cpu:
+          units: 500m
+        memory:
+          size: 1Gi
+        storage:
+          size: 2Gi
+    db-compute:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+  placement:
+    datacenter:
+      attributes:
+        region: us-east
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+          - akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4
+        allOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        web-compute:
+          denom: uakt
+          amount: 100
+        api-compute:
+          denom: uakt
+          amount: 300
+        db-compute:
+          denom: uakt
+          amount: 500
+deployment:
+  web:
+    datacenter:
+      profile: web-compute
+      count: 2
+  api:
+    datacenter:
+      profile: api-compute
+      count: 3
+  db:
+    datacenter:
+      profile: db-compute
+      count: 1
+

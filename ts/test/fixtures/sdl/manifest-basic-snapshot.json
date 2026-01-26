@@ -46,20 +46,20 @@
           ],
           "gpu": {
             "units": {
-              "val": 0
+              "val": "0"
             }
           },
           "id": 1,
           "memory": {
             "size": {
-              "val": 536870912
+              "val": "536870912"
             }
           },
           "storage": [
             {
               "name": "default",
               "size": {
-                "val": 536870912
+                "val": "536870912"
               }
             }
           ]

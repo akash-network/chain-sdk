@@ -1,0 +1,92 @@
+[
+  {
+    "name": "datacenter",
+    "services": [
+      {
+        "name": "database",
+        "image": "postgres:14",
+        "command": null,
+        "args": null,
+        "env": [
+          "POSTGRES_PASSWORD=secret"
+        ],
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "500"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "1073741824"
+            }
+          },
+          "storage": [
+            {
+              "name": "data",
+              "size": {
+                "val": "53687091200"
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta2"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "kind": 1,
+              "sequence_number": 0
+            }
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 5432,
+            "externalPort": 0,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "",
+            "endpointSequenceNumber": 0
+          }
+        ],
+        "params": {
+          "storage": [
+            {
+              "name": "data",
+              "mount": "/var/lib/postgresql/data",
+              "readOnly": false
+            }
+          ]
+        },
+        "credentials": null
+      }
+    ]
+  }
+]

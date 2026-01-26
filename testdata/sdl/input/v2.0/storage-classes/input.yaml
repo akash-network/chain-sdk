@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.0"
+services:
+  app:
+    image: myapp:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    params:
+      storage:
+        cache:
+          mount: /tmp/cache
+          readOnly: false
+        logs:
+          mount: /var/log
+          readOnly: false
+        data:
+          mount: /data
+          readOnly: false
+profiles:
+  compute:
+    app-compute:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 2Gi
+        storage:
+          - name: cache
+            size: 1Gi
+            attributes:
+              persistent: false
+          - name: logs
+            size: 5Gi
+          - name: data
+            size: 20Gi
+            attributes:
+              class: beta3
+              persistent: true
+  placement:
+    datacenter:
+      attributes:
+        region: us-central
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        app-compute:
+          denom: uakt
+          amount: 400
+deployment:
+  app:
+    datacenter:
+      profile: app-compute
+      count: 1
+

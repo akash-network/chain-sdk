@@ -1,0 +1,117 @@
+[
+  {
+    "name": "datacenter",
+    "services": [
+      {
+        "name": "app",
+        "image": "myapp:latest",
+        "command": null,
+        "args": null,
+        "env": null,
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "1000"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "2147483648"
+            }
+          },
+          "storage": [
+            {
+              "name": "cache",
+              "size": {
+                "val": "1073741824"
+              },
+              "attributes": [
+                {
+                  "key": "persistent",
+                  "value": "false"
+                }
+              ]
+            },
+            {
+              "name": "logs",
+              "size": {
+                "val": "5368709120"
+              }
+            },
+            {
+              "name": "data",
+              "size": {
+                "val": "21474836480"
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            }
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 8080,
+            "externalPort": 80,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "",
+            "endpointSequenceNumber": 0
+          }
+        ],
+        "params": {
+          "storage": [
+            {
+              "name": "cache",
+              "mount": "/tmp/cache",
+              "readOnly": false
+            },
+            {
+              "name": "data",
+              "mount": "/data",
+              "readOnly": false
+            },
+            {
+              "name": "logs",
+              "mount": "/var/log",
+              "readOnly": false
+            }
+          ]
+        },
+        "credentials": null
+      }
+    ]
+  }
+]

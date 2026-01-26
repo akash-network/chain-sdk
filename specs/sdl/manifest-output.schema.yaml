@@ -1,0 +1,314 @@
+items:
+  additionalProperties: false
+  properties:
+    name:
+      type: string
+    services:
+      anyOf:
+        - items:
+            additionalProperties: false
+            properties:
+              args:
+                anyOf:
+                  - items:
+                      type: string
+                    type: array
+                  - type: 'null'
+              command:
+                anyOf:
+                  - items:
+                      type: string
+                    type: array
+                  - type: 'null'
+              count:
+                type: number
+              credentials:
+                $ref: '#/$defs/credentials'
+              env:
+                anyOf:
+                  - items:
+                      type: string
+                    type: array
+                  - type: 'null'
+              expose:
+                anyOf:
+                  - items:
+                      additionalProperties: false
+                      properties:
+                        endpointSequenceNumber:
+                          type: number
+                        externalPort:
+                          type: number
+                        global:
+                          type: boolean
+                        hosts:
+                          anyOf:
+                            - items:
+                                type: string
+                              type: array
+                            - type: 'null'
+                        httpOptions:
+                          additionalProperties: false
+                          properties:
+                            maxBodySize:
+                              type: number
+                            nextCases:
+                              anyOf:
+                                - items:
+                                    type: string
+                                  type: array
+                                - type: 'null'
+                            nextTimeout:
+                              type: number
+                            nextTries:
+                              type: number
+                            readTimeout:
+                              type: number
+                            sendTimeout:
+                              type: number
+                          required:
+                            - maxBodySize
+                            - readTimeout
+                            - sendTimeout
+                            - nextTries
+                            - nextTimeout
+                          type: object
+                        ip:
+                          type: string
+                        port:
+                          type: number
+                        proto:
+                          type: string
+                        service:
+                          type: string
+                      required:
+                        - port
+                        - externalPort
+                        - proto
+                        - service
+                        - global
+                        - httpOptions
+                        - ip
+                        - endpointSequenceNumber
+                      type: object
+                    type: array
+                  - type: 'null'
+              image:
+                type: string
+              name:
+                type: string
+              params:
+                anyOf:
+                  - additionalProperties: false
+                    properties:
+                      credentials:
+                        $ref: '#/$defs/credentials'
+                      storage:
+                        anyOf:
+                          - items:
+                              additionalProperties: false
+                              properties:
+                                mount:
+                                  type: string
+                                name:
+                                  type: string
+                                readOnly:
+                                  type: boolean
+                              required:
+                                - name
+                                - mount
+                                - readOnly
+                              type: object
+                            type: array
+                          - type: 'null'
+                    type: object
+                  - type: 'null'
+              resources:
+                additionalProperties: false
+                properties:
+                  cpu:
+                    anyOf:
+                      - additionalProperties: false
+                        properties:
+                          attributes:
+                            anyOf:
+                              - items:
+                                  additionalProperties: false
+                                  properties:
+                                    key:
+                                      anyOf:
+                                        - type: string
+                                        - type: 'null'
+                                    value:
+                                      anyOf:
+                                        - type: string
+                                        - type: 'null'
+                                  type: object
+                                type: array
+                              - type: 'null'
+                          units:
+                            additionalProperties: false
+                            properties:
+                              val:
+                                type: string
+                            required:
+                              - val
+                            type: object
+                        required:
+                          - units
+                        type: object
+                      - type: 'null'
+                  endpoints:
+                    anyOf:
+                      - items:
+                          additionalProperties: false
+                          properties:
+                            kind:
+                              anyOf:
+                                - type: number
+                                - type: 'null'
+                            sequence_number:
+                              type: number
+                          required:
+                            - sequence_number
+                          type: object
+                        type: array
+                      - type: 'null'
+                  gpu:
+                    anyOf:
+                      - additionalProperties: false
+                        properties:
+                          attributes:
+                            anyOf:
+                              - items:
+                                  additionalProperties: false
+                                  properties:
+                                    key:
+                                      anyOf:
+                                        - type: string
+                                        - type: 'null'
+                                    value:
+                                      anyOf:
+                                        - type: string
+                                        - type: 'null'
+                                  type: object
+                                type: array
+                              - type: 'null'
+                          units:
+                            additionalProperties: false
+                            properties:
+                              val:
+                                type: string
+                            required:
+                              - val
+                            type: object
+                        required:
+                          - units
+                        type: object
+                      - type: 'null'
+                  id:
+                    type: number
+                  memory:
+                    anyOf:
+                      - additionalProperties: false
+                        properties:
+                          attributes:
+                            anyOf:
+                              - items:
+                                  additionalProperties: false
+                                  properties:
+                                    key:
+                                      anyOf:
+                                        - type: string
+                                        - type: 'null'
+                                    value:
+                                      anyOf:
+                                        - type: string
+                                        - type: 'null'
+                                  type: object
+                                type: array
+                              - type: 'null'
+                          size:
+                            additionalProperties: false
+                            properties:
+                              val:
+                                type: string
+                            required:
+                              - val
+                            type: object
+                        required:
+                          - size
+                        type: object
+                      - type: 'null'
+                  storage:
+                    anyOf:
+                      - items:
+                          additionalProperties: false
+                          properties:
+                            attributes:
+                              anyOf:
+                                - items:
+                                    additionalProperties: false
+                                    properties:
+                                      key:
+                                        anyOf:
+                                          - type: string
+                                          - type: 'null'
+                                      value:
+                                        anyOf:
+                                          - type: string
+                                          - type: 'null'
+                                    type: object
+                                  type: array
+                                - type: 'null'
+                            name:
+                              type: string
+                            size:
+                              additionalProperties: false
+                              properties:
+                                val:
+                                  type: string
+                              required:
+                                - val
+                              type: object
+                          required:
+                            - name
+                            - size
+                          type: object
+                        type: array
+                      - type: 'null'
+                required:
+                  - id
+                type: object
+            required:
+              - name
+              - image
+              - resources
+              - count
+            type: object
+          type: array
+        - type: 'null'
+  required:
+    - name
+  type: object
+type: array
+$defs:
+  credentials:
+    anyOf:
+      - additionalProperties: false
+        properties:
+          email:
+            type: string
+          host:
+            type: string
+          password:
+            type: string
+          username:
+            type: string
+        required:
+          - host
+          - email
+          - username
+          - password
+        type: object
+      - type: 'null'
