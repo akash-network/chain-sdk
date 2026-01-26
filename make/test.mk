@@ -29,7 +29,7 @@ test: $(patsubst %, test-%,$(SUB_TESTS))
 test-coverage: $(patsubst %, test-coverage-%,$(SUB_TESTS))
 
 .PHONY: test-ts
-test-ts: $(AKASH_TS_NODE_MODULES)
+test-ts: $(AKASH_TS_NODE_MODULES) $(BUF)
 	cd $(TS_ROOT) && (npm run build && npm run test)
 
 .PHONY: test-coverage-ts
