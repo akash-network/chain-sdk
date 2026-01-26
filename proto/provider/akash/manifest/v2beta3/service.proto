@@ -39,9 +39,9 @@ message ServiceParams {
     (gogoproto.jsontag)  = "credentials,omitempty",
     (gogoproto.moretags) = "yaml:\"credentials,omitempty\""
   ];
-  bool automount_service_account_token = 11 [
-    (gogoproto.jsontag)  = "automountServiceAccountToken,omitempty",
-    (gogoproto.moretags) = "yaml:\"automountServiceAccountToken,omitempty\""
+  bool log_access = 11 [
+    (gogoproto.jsontag)  = "logAccess,omitempty",
+    (gogoproto.moretags) = "yaml:\"log-access,omitempty\""
   ];
 }
 

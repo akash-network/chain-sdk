@@ -166,8 +166,8 @@ type v2Dependency struct {
 }
 
 type v2ServiceParams struct {
-	Storage                      map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
-	AutomountServiceAccountToken bool                             `yaml:"automountServiceAccountToken,omitempty"`
+	Storage   map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
+	LogAccess bool                              `yaml:"log-access,omitempty"`
 }
 
 type v2Service struct {
