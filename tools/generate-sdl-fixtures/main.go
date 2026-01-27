@@ -10,9 +10,11 @@ import (
 )
 
 func main() {
-	inputRoot := filepath.Join("testdata", "sdl", "input")
-	outputRoot := filepath.Join("testdata", "sdl", "output-fixtures")
+	inputRoot := filepath.Join("..", "..", "testdata", "sdl", "input")
+	outputRoot := filepath.Join("..", "..", "testdata", "sdl", "output-fixtures")
 	versions := []string{"v2.0", "v2.1"}
+
+	fixturesProcessed := 0
 
 	for _, version := range versions {
 		inputVersionDir := filepath.Join(inputRoot, version)
@@ -65,7 +67,14 @@ func main() {
 				fmt.Printf("  %v\n", err)
 				os.Exit(1)
 			}
+
+			fixturesProcessed++
 		}
+	}
+
+	if fixturesProcessed == 0 {
+		fmt.Printf("Error: no input fixtures processed in %s\n", inputRoot)
+		os.Exit(1)
 	}
 
 	fmt.Println("\nFixture generation complete!")
