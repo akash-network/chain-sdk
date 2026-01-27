@@ -51,7 +51,7 @@ test-coverage-go:
 .PHONY: generate-sdl-fixtures
 generate-sdl-fixtures: ## Generate SDL test fixtures (manifest.json and groups.json from input.yaml files)
 	@echo "Generating SDL fixtures..."
-	@cd go/sdl && go run ./tools/generate-sdl-fixtures
+	go run ./tools/generate-sdl-fixtures
 
 .PHONY: test-sdl-parity
 test-sdl-parity: generate-sdl-fixtures $(AKASH_TS_NODE_MODULES) ## Run SDL parity tests for Go and TypeScript
