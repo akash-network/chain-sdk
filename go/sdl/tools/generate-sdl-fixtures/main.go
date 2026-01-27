@@ -35,7 +35,11 @@ func main() {
 			inputPath := filepath.Join(inputVersionDir, entry.Name(), "input.yaml")
 
 			if _, err := os.Stat(inputPath); os.IsNotExist(err) {
-				continue
+				fmt.Printf("Missing input.yaml for fixture %s (%s)\n", entry.Name(), inputPath)
+				os.Exit(1)
+			} else if err != nil {
+				fmt.Printf("Error accessing %s: %v\n", inputPath, err)
+				os.Exit(1)
 			}
 
 			outputDir := filepath.Join(outputRoot, version, entry.Name())

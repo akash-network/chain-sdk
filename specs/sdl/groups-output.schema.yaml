@@ -52,15 +52,12 @@ items:
                 additionalProperties: false
                 properties:
                   amount:
-                    anyOf:
-                      - type: string
-                      - type: 'null'
+                    type: string
                   denom:
-                    anyOf:
-                      - type: string
-                      - type: 'null'
+                    type: string
                 required:
                   - amount
+                  - denom
                 type: object
               prices:
                 anyOf:
