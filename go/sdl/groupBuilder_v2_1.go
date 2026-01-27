@@ -112,7 +112,13 @@ func (sdl *v2_1) buildGroups() error {
 
 				if len(svc.Params.Storage) > 0 {
 					params.Storage = make([]manifest.StorageParams, 0, len(svc.Params.Storage))
-					for volName, volParams := range svc.Params.Storage {
+					storageNames := make([]string, 0, len(svc.Params.Storage))
+					for volName := range svc.Params.Storage {
+						storageNames = append(storageNames, volName)
+					}
+					sort.Strings(storageNames)
+					for _, volName := range storageNames {
+						volParams := svc.Params.Storage[volName]
 						params.Storage = append(params.Storage, manifest.StorageParams{
 							Name:     volName,
 							Mount:    volParams.Mount,

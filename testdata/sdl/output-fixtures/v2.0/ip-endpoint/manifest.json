@@ -1,0 +1,103 @@
+[
+  {
+    "name": "akash",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx:latest",
+        "command": null,
+        "args": null,
+        "env": null,
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "250"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "536870912"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "1073741824"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 1
+            },
+            {
+              "kind": 1,
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 2
+            }
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 80,
+            "externalPort": 80,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "endpoint-http",
+            "endpointSequenceNumber": 1
+          },
+          {
+            "port": 443,
+            "externalPort": 443,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "endpoint-https",
+            "endpointSequenceNumber": 2
+          }
+        ],
+        "credentials": null
+      }
+    ]
+  }
+]

@@ -610,9 +610,9 @@ describe("SDL", () => {
               value: "akash.network",
             },
           ],
-          signedBy: {
-            allOf: [],
-            anyOf: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
+          signed_by: {
+            all_of: null,
+            any_of: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
           },
         },
         resources: [
@@ -620,43 +620,19 @@ describe("SDL", () => {
             resources: {
               cpu: {
                 units: {
-                  val: {
-                    0: 49,
-                    1: 48,
-                    2: 48,
-                  },
+                  val: "100",
                 },
               },
               memory: {
-                quantity: {
-                  val: {
-                    0: 53,
-                    1: 51,
-                    2: 54,
-                    3: 56,
-                    4: 55,
-                    5: 48,
-                    6: 57,
-                    7: 49,
-                    8: 50,
-                  },
+                size: {
+                  val: "536870912",
                 },
               },
               storage: [
                 {
                   name: "default",
-                  quantity: {
-                    val: {
-                      0: 53,
-                      1: 51,
-                      2: 54,
-                      3: 56,
-                      4: 55,
-                      5: 48,
-                      6: 57,
-                      7: 49,
-                      8: 50,
-                    },
+                  size: {
+                    val: "536870912",
                   },
                 },
               ],
@@ -666,6 +642,11 @@ describe("SDL", () => {
                   sequence_number: 0,
                 },
               ],
+              gpu: {
+                units: {
+                  val: "0",
+                },
+              },
             },
             price: {
               denom: "uakt",
@@ -1322,9 +1303,9 @@ describe("SDL", () => {
               value: "akash",
             },
           ],
-          signedBy: {
-            allOf: [],
-            anyOf: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
+          signed_by: {
+            all_of: null,
+            any_of: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
           },
         },
         resources: [
@@ -1332,23 +1313,20 @@ describe("SDL", () => {
             resources: {
               cpu: {
                 units: {
-                  val: new Uint8Array([49, 48, 48, 48]),
+                  val: "1000",
                 },
-                attributes: undefined,
               },
               memory: {
-                quantity: {
-                  val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
+                size: {
+                  val: "536870912",
                 },
-                attributes: undefined,
               },
               storage: [
                 {
                   name: "default",
-                  quantity: {
-                    val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
+                  size: {
+                    val: "536870912",
                   },
-                  attributes: undefined,
                 },
               ],
               endpoints: [
@@ -1357,6 +1335,11 @@ describe("SDL", () => {
                   sequence_number: 0,
                 },
               ],
+              gpu: {
+                units: {
+                  val: "0",
+                },
+              },
             },
             price: {
               denom: "uakt",
@@ -1458,9 +1441,9 @@ describe("SDL", () => {
               value: "akash",
             },
           ],
-          signedBy: {
-            allOf: [],
-            anyOf: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
+          signed_by: {
+            all_of: null,
+            any_of: ["akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63", "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"],
           },
         },
         resources: [
@@ -1468,30 +1451,26 @@ describe("SDL", () => {
             resource: {
               cpu: {
                 units: {
-                  val: new Uint8Array([49, 48, 48, 48]),
+                  val: "1000",
                 },
-                attributes: undefined,
               },
               memory: {
-                quantity: {
-                  val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
+                size: {
+                  val: "536870912",
                 },
-                attributes: undefined,
               },
               storage: [
                 {
                   name: "default",
-                  quantity: {
-                    val: new Uint8Array([53, 51, 54, 56, 55, 48, 57, 49, 50]),
+                  size: {
+                    val: "536870912",
                   },
-                  attributes: undefined,
                 },
               ],
               gpu: {
                 units: {
-                  val: new Uint8Array([48]),
+                  val: "0",
                 },
-                attributes: undefined,
               },
               endpoints: [
                 {
@@ -1502,7 +1481,7 @@ describe("SDL", () => {
             },
             price: {
               denom: "uakt",
-              amount: "10000",
+              amount: "10000.000000000000000000",
             },
             count: 1,
           },

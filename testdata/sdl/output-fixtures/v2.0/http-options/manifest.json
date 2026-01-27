@@ -1,0 +1,73 @@
+[
+  {
+    "name": "akash",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx:latest",
+        "command": null,
+        "args": null,
+        "env": null,
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "500"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "536870912"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "1073741824"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            }
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 80,
+            "externalPort": 80,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 10485760,
+              "readTimeout": 30000,
+              "sendTimeout": 30000,
+              "nextTries": 5,
+              "nextTimeout": 1000,
+              "nextCases": [
+                "error",
+                "timeout",
+                "500",
+                "502",
+                "503"
+              ]
+            },
+            "ip": "",
+            "endpointSequenceNumber": 0
+          }
+        ],
+        "credentials": null
+      }
+    ]
+  }
+]
