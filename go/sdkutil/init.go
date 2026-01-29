@@ -20,8 +20,9 @@ const (
 
 	BondDenom = DenomUakt
 
-	DenomMExponent = 3
-	DenomUExponent = 6
+	DenomMExponent    = 3
+	DenomUExponent    = 6
+	DenomUaktExponent = DenomUExponent // alias for compatibility
 
 	Bech32PrefixAccAddr = "akash"
 	Bech32PrefixAccPub  = "akashpub"

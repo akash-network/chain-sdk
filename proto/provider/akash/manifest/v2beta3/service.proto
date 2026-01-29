@@ -27,6 +27,14 @@ message StorageParams {
     ];
 }
 
+// ServicePermissions defines RBAC permissions for a service
+message ServicePermissions {
+  repeated string read = 1 [
+    (gogoproto.jsontag)  = "read,omitempty",
+    (gogoproto.moretags) = "yaml:\"read,omitempty\""
+  ];
+}
+
 // ServiceParams
 message ServiceParams {
   repeated StorageParams storage = 1 [
@@ -39,9 +47,10 @@ message ServiceParams {
     (gogoproto.jsontag)  = "credentials,omitempty",
     (gogoproto.moretags) = "yaml:\"credentials,omitempty\""
   ];
-  bool log_access = 11 [
-    (gogoproto.jsontag)  = "logAccess,omitempty",
-    (gogoproto.moretags) = "yaml:\"log-access,omitempty\""
+  ServicePermissions permissions = 12 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "permissions,omitempty",
+    (gogoproto.moretags) = "yaml:\"permissions,omitempty\""
   ];
 }
 
