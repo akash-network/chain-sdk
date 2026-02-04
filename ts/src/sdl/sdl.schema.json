@@ -1,0 +1,713 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://akash.network/schemas/sdl.schema.json",
+  "title": "Akash SDL Schema",
+  "description": "JSON Schema for Akash Network Stack Definition Language (SDL) - defines deployment workloads for the Akash Network",
+  "type": "object",
+  "required": ["version", "services", "profiles", "deployment"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "$ref": "#/$defs/version"
+    },
+    "services": {
+      "$ref": "#/$defs/services"
+    },
+    "profiles": {
+      "$ref": "#/$defs/profiles"
+    },
+    "deployment": {
+      "$ref": "#/$defs/deployment"
+    },
+    "endpoints": {
+      "$ref": "#/$defs/endpoints"
+    }
+  },
+  "$defs": {
+    "version": {
+      "type": "string",
+      "description": "SDL version. Supported versions: 2.0, 2.1, or semver compatible",
+      "pattern": "^2\\.(0|1)(\\.[0-9]+)?$",
+      "examples": ["2.0", "2.1", "2.1.0"]
+    },
+    "services": {
+      "type": "object",
+      "description": "Map of service names to service definitions",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/service"
+      }
+    },
+    "service": {
+      "type": "object",
+      "description": "Service definition for a container workload",
+      "required": ["image"],
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": "Docker image to deploy",
+          "minLength": 1,
+          "examples": ["nginx", "nginx:latest", "ghcr.io/org/image:tag"]
+        },
+        "command": {
+          "type": "array",
+          "description": "Command to run in the container (overrides ENTRYPOINT)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "args": {
+          "type": "array",
+          "description": "Arguments to the command (overrides CMD)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env": {
+          "type": "array",
+          "description": "Environment variables in KEY=value format",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*=.*$"
+          },
+          "examples": [["PORT=8080", "NODE_ENV=production"]]
+        },
+        "expose": {
+          "type": "array",
+          "description": "Port exposure configuration",
+          "items": {
+            "$ref": "#/$defs/expose"
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "Service dependencies (services that must start first)",
+          "items": {
+            "$ref": "#/$defs/dependency"
+          }
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "Service dependencies as simple string list (alternative to dependencies)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "params": {
+          "$ref": "#/$defs/serviceParams"
+        },
+        "credentials": {
+          "$ref": "#/$defs/credentials"
+        }
+      }
+    },
+    "expose": {
+      "type": "object",
+      "description": "Port exposure definition",
+      "required": ["port"],
+      "additionalProperties": false,
+      "properties": {
+        "port": {
+          "type": "integer",
+          "description": "Internal container port to expose",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "as": {
+          "type": "integer",
+          "description": "External port number (defaults to same as port)",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "proto": {
+          "type": "string",
+          "description": "Protocol for the exposed port",
+          "enum": ["tcp", "udp", "TCP", "UDP"],
+          "default": "TCP"
+        },
+        "accept": {
+          "type": "array",
+          "description": "Hostnames to accept for HTTP routing",
+          "items": {
+            "type": "string",
+            "format": "hostname"
+          },
+          "examples": [["myapp.example.com", "api.example.com"]]
+        },
+        "to": {
+          "type": "array",
+          "description": "Exposure targets (services or global)",
+          "items": {
+            "$ref": "#/$defs/exposeTo"
+          }
+        },
+        "http_options": {
+          "$ref": "#/$defs/httpOptions"
+        }
+      }
+    },
+    "exposeTo": {
+      "type": "object",
+      "description": "Target for port exposure",
+      "additionalProperties": false,
+      "properties": {
+        "service": {
+          "type": "string",
+          "description": "Target service name for internal exposure"
+        },
+        "global": {
+          "type": "boolean",
+          "description": "Whether to expose to the internet",
+          "default": false
+        },
+        "ip": {
+          "type": "string",
+          "description": "Endpoint name for leased IP (requires global: true)",
+          "pattern": "^[a-z]+[-_\\da-z]+$"
+        },
+        "http_options": {
+          "$ref": "#/$defs/httpOptions"
+        }
+      }
+    },
+    "httpOptions": {
+      "type": "object",
+      "description": "HTTP-specific options for the exposure",
+      "additionalProperties": false,
+      "properties": {
+        "max_body_size": {
+          "type": "integer",
+          "description": "Maximum body size in bytes",
+          "minimum": 0,
+          "maximum": 104857600,
+          "default": 1048576
+        },
+        "read_timeout": {
+          "type": "integer",
+          "description": "Read timeout in milliseconds",
+          "minimum": 0,
+          "maximum": 60000,
+          "default": 60000
+        },
+        "send_timeout": {
+          "type": "integer",
+          "description": "Send timeout in milliseconds",
+          "minimum": 0,
+          "maximum": 60000,
+          "default": 60000
+        },
+        "next_tries": {
+          "type": "integer",
+          "description": "Number of retry attempts",
+          "minimum": 0,
+          "default": 3
+        },
+        "next_timeout": {
+          "type": "integer",
+          "description": "Timeout for next upstream in milliseconds",
+          "minimum": 0,
+          "default": 0
+        },
+        "next_cases": {
+          "type": "array",
+          "description": "Cases that trigger retry to next upstream",
+          "items": {
+            "type": "string",
+            "enum": ["error", "timeout", "500", "502", "503", "504", "403", "404", "429", "off"]
+          },
+          "default": ["error", "timeout"]
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "description": "Service dependency definition",
+      "required": ["service"],
+      "additionalProperties": false,
+      "properties": {
+        "service": {
+          "type": "string",
+          "description": "Name of the service this depends on"
+        }
+      }
+    },
+    "serviceParams": {
+      "type": "object",
+      "description": "Service parameters for storage mounts",
+      "additionalProperties": false,
+      "properties": {
+        "storage": {
+          "type": "object",
+          "description": "Storage volume mount configurations",
+          "additionalProperties": {
+            "$ref": "#/$defs/storageParams"
+          }
+        }
+      }
+    },
+    "storageParams": {
+      "description": "Storage mount parameters (can be null for ephemeral storage without mount)",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mount": {
+              "type": "string",
+              "description": "Absolute path to mount the volume",
+              "pattern": "^(\\/|([a-zA-Z]:)?([\\\\]|[\\/]))"
+            },
+            "readOnly": {
+              "type": "boolean",
+              "description": "Whether the mount is read-only",
+              "default": false
+            }
+          }
+        }
+      ]
+    },
+    "credentials": {
+      "type": "object",
+      "description": "Private registry credentials",
+      "required": ["host", "username", "password"],
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "Registry host URL",
+          "minLength": 1
+        },
+        "username": {
+          "type": "string",
+          "description": "Registry username",
+          "minLength": 1
+        },
+        "password": {
+          "type": "string",
+          "description": "Registry password",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "description": "Registry email (optional)",
+          "format": "email"
+        }
+      }
+    },
+    "profiles": {
+      "type": "object",
+      "description": "Compute and placement profiles",
+      "required": ["compute", "placement"],
+      "additionalProperties": false,
+      "properties": {
+        "compute": {
+          "$ref": "#/$defs/computeProfiles"
+        },
+        "placement": {
+          "$ref": "#/$defs/placementProfiles"
+        }
+      }
+    },
+    "computeProfiles": {
+      "type": "object",
+      "description": "Map of compute profile names to resource definitions",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/computeProfile"
+      }
+    },
+    "computeProfile": {
+      "type": "object",
+      "description": "Compute resource profile",
+      "required": ["resources"],
+      "additionalProperties": false,
+      "properties": {
+        "resources": {
+          "$ref": "#/$defs/computeResources"
+        }
+      }
+    },
+    "computeResources": {
+      "type": "object",
+      "description": "Compute resource requirements",
+      "required": ["cpu", "memory", "storage"],
+      "additionalProperties": false,
+      "properties": {
+        "cpu": {
+          "$ref": "#/$defs/cpuResource"
+        },
+        "memory": {
+          "$ref": "#/$defs/memoryResource"
+        },
+        "storage": {
+          "$ref": "#/$defs/storageResource"
+        },
+        "gpu": {
+          "$ref": "#/$defs/gpuResource"
+        }
+      }
+    },
+    "cpuResource": {
+      "type": "object",
+      "description": "CPU resource requirements",
+      "required": ["units"],
+      "additionalProperties": false,
+      "properties": {
+        "units": {
+          "description": "CPU units. Can be: millicores string (e.g., '100m'), decimal string (e.g., '0.1'), integer (e.g., 1), or number",
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?(m)?$"
+            },
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          ],
+          "examples": ["100m", "0.1", "1", 1, 0.5]
+        },
+        "attributes": {
+          "$ref": "#/$defs/cpuAttributes"
+        }
+      }
+    },
+    "cpuAttributes": {
+      "type": "object",
+      "description": "CPU-specific attributes",
+      "additionalProperties": false,
+      "properties": {
+        "arch": {
+          "type": "string",
+          "description": "CPU architecture requirement",
+          "examples": ["amd64", "arm64"]
+        }
+      }
+    },
+    "memoryResource": {
+      "type": "object",
+      "description": "Memory resource requirements",
+      "required": ["size"],
+      "additionalProperties": false,
+      "properties": {
+        "size": {
+          "type": "string",
+          "description": "Memory size with suffix (Ki, Mi, Gi, Ti, Pi, Ei)",
+          "pattern": "^[0-9]+(\\.[0-9]+)?(Ki|Mi|Gi|Ti|Pi|Ei)$",
+          "examples": ["512Mi", "1Gi", "2Gi"]
+        },
+        "attributes": {
+          "type": "object",
+          "description": "Memory-specific attributes",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "storageResource": {
+      "description": "Storage resource requirements - can be a single object or array",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/storageEntry"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/storageEntry"
+          },
+          "minItems": 1
+        }
+      ]
+    },
+    "storageEntry": {
+      "type": "object",
+      "description": "Storage volume definition",
+      "required": ["size"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Volume name (default: 'default')",
+          "default": "default"
+        },
+        "size": {
+          "type": "string",
+          "description": "Storage size with suffix (k, Ki, M, Mi, G, Gi, T, Ti, P, Pi, E, Ei)",
+          "pattern": "^[0-9]+(\\.[0-9]+)?(k|Ki|M|Mi|G|Gi|T|Ti|P|Pi|E|Ei)?$",
+          "examples": ["1Gi", "10Gi", "100Gi"]
+        },
+        "attributes": {
+          "$ref": "#/$defs/storageAttributes"
+        }
+      }
+    },
+    "storageAttributes": {
+      "type": "object",
+      "description": "Storage-specific attributes",
+      "additionalProperties": false,
+      "properties": {
+        "persistent": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "enum": ["true", "false"] }
+          ],
+          "description": "Whether storage persists across restarts",
+          "default": false
+        },
+        "class": {
+          "type": "string",
+          "description": "Storage class type",
+          "enum": ["default", "beta1", "beta2", "beta3", "ram"]
+        }
+      }
+    },
+    "gpuResource": {
+      "type": "object",
+      "description": "GPU resource requirements",
+      "required": ["units"],
+      "additionalProperties": false,
+      "properties": {
+        "units": {
+          "description": "Number of GPU units",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          ],
+          "examples": [0, 1, 2]
+        },
+        "attributes": {
+          "$ref": "#/$defs/gpuAttributes"
+        }
+      },
+      "if": {
+        "properties": {
+          "units": {
+            "oneOf": [
+              { "type": "integer", "minimum": 1 },
+              { "type": "string", "pattern": "^[1-9][0-9]*$" }
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": ["units", "attributes"]
+      }
+    },
+    "gpuAttributes": {
+      "type": "object",
+      "description": "GPU-specific attributes",
+      "required": ["vendor"],
+      "additionalProperties": false,
+      "properties": {
+        "vendor": {
+          "$ref": "#/$defs/gpuVendor"
+        }
+      }
+    },
+    "gpuVendor": {
+      "type": "object",
+      "description": "GPU vendor configuration",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "nvidia": {
+          "type": "array",
+          "description": "NVIDIA GPU models",
+          "items": {
+            "$ref": "#/$defs/gpuModel"
+          }
+        },
+        "amd": {
+          "type": "array",
+          "description": "AMD GPU models",
+          "items": {
+            "$ref": "#/$defs/gpuModel"
+          }
+        }
+      }
+    },
+    "gpuModel": {
+      "type": "object",
+      "description": "GPU model specification",
+      "required": ["model"],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "GPU model name",
+          "examples": ["a100", "h100", "rtx3090", "rtx4090"]
+        },
+        "ram": {
+          "type": "string",
+          "description": "GPU memory size with suffix",
+          "pattern": "^[0-9]+(\\.[0-9]+)?(Ki|Mi|Gi|Ti|Pi|Ei)$",
+          "examples": ["40Gi", "80Gi"]
+        },
+        "interface": {
+          "type": "string",
+          "description": "GPU interface type",
+          "enum": ["pcie", "sxm"]
+        }
+      }
+    },
+    "placementProfiles": {
+      "type": "object",
+      "description": "Map of placement profile names to placement definitions",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/placementProfile"
+      }
+    },
+    "placementProfile": {
+      "type": "object",
+      "description": "Placement profile for provider matching and pricing",
+      "required": ["pricing"],
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "$ref": "#/$defs/placementAttributes"
+        },
+        "signedBy": {
+          "$ref": "#/$defs/signedBy"
+        },
+        "pricing": {
+          "$ref": "#/$defs/pricing"
+        }
+      }
+    },
+    "placementAttributes": {
+      "type": "object",
+      "description": "Provider matching attributes",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "examples": [{ "region": "us-west", "datacenter": "dc1" }]
+    },
+    "signedBy": {
+      "type": "object",
+      "description": "Provider signature requirements",
+      "additionalProperties": false,
+      "properties": {
+        "allOf": {
+          "type": "array",
+          "description": "All of these signers must have signed the provider",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "integer" }
+            ]
+          }
+        },
+        "anyOf": {
+          "type": "array",
+          "description": "Any of these signers must have signed the provider",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "integer" }
+            ]
+          }
+        }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "description": "Pricing per compute profile",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/price"
+      }
+    },
+    "price": {
+      "type": "object",
+      "description": "Price specification",
+      "required": ["denom", "amount"],
+      "additionalProperties": false,
+      "properties": {
+        "denom": {
+          "type": "string",
+          "description": "Token denomination",
+          "examples": ["uakt", "ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1"]
+        },
+        "amount": {
+          "description": "Amount per block",
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$"
+            }
+          ]
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "description": "Deployment configuration mapping services to placements",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/serviceDeployment"
+      }
+    },
+    "serviceDeployment": {
+      "type": "object",
+      "description": "Deployment configuration for a service",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/deploymentPlacement"
+      }
+    },
+    "deploymentPlacement": {
+      "type": "object",
+      "description": "Deployment placement configuration",
+      "required": ["profile", "count"],
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "string",
+          "description": "Name of the compute profile to use"
+        },
+        "count": {
+          "type": "integer",
+          "description": "Number of instances to deploy",
+          "minimum": 1
+        }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "description": "Leased IP endpoint definitions",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z]+[-_\\da-z]+$": {
+          "$ref": "#/$defs/endpoint"
+        }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "description": "Endpoint definition",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "Endpoint type",
+          "enum": ["ip"]
+        }
+      }
+    }
+  }
+}
