@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.0-alpha.21](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.20...ts/v1.0.0-alpha.21) (2026-01-25)
+
+### Code Refactoring
+
+* **ts:** reduces generated types size
+
 ## [1.0.0-alpha.20](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.19...ts/v1.0.0-alpha.20) (2026-01-20)
 
 
