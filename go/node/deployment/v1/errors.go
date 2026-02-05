@@ -29,6 +29,8 @@ const (
 	errInvalidIDPath
 	errInvalidParam
 	errInvalidEscrowID
+	errInvalidPrice
+	errDuplicateGroupName
 )
 
 var (
@@ -78,4 +80,8 @@ var (
 	ErrInvalidParam = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidParam, codes.InvalidArgument, "parameter invalid")
 	// ErrInvalidEscrowID indicates an invalid escrow ID
 	ErrInvalidEscrowID = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidEscrowID, codes.InvalidArgument, "invalid escrow id")
+	// ErrInvalidPrice indicates group price is invalid
+	ErrInvalidPrice = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidPrice, codes.InvalidArgument, "invalid price")
+	// ErrDuplicateGroupName indicates group name already exists
+	ErrDuplicateGroupName = sdkerrors.RegisterWithGRPCCode(ModuleName, errDuplicateGroupName, codes.InvalidArgument, "duplicate group name")
 )

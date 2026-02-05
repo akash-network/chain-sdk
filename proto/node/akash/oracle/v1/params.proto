@@ -11,10 +11,21 @@ option go_package = "pkg.akt.dev/go/node/oracle/v1";
 // PythContractParams contains configuration for Pyth price feeds
 message PythContractParams {
   option (gogoproto.equal) = true;
-  option (cosmos_proto.implements_interface) = "FeedContractConfig";
 
   // akt_price_feed_id is the Pyth price feed identifier for AKT/USD
   string akt_price_feed_id = 1;
+}
+
+// WormholeContractParams contains configuration for Wormhole guardian set.
+// This allows the Wormhole contract to pull guardian public keys from x/oracle
+// module params, enabling guardian set updates via Akash governance.
+message WormholeContractParams {
+  option (gogoproto.equal) = true;
+
+  // guardian_addresses is the list of Wormhole guardian addresses.
+  // Each address is a 20-byte Ethereum-style address, hex-encoded.
+  // The Wormhole contract uses these to verify VAA signatures.
+  repeated string guardian_addresses = 1;
 }
 
 // Params defines the parameters for the oracle module
