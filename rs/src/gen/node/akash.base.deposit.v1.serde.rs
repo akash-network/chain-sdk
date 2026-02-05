@@ -118,9 +118,9 @@ impl serde::Serialize for Source {
         S: serde::Serializer,
     {
         let variant = match self {
-            Self::Invalid => "source_invalid",
-            Self::Balance => "source_balance",
-            Self::Grant => "source_grant",
+            Self::Invalid => "invalid",
+            Self::Balance => "balance",
+            Self::Grant => "grant",
         };
         serializer.serialize_str(variant)
     }
@@ -132,9 +132,9 @@ impl<'de> serde::Deserialize<'de> for Source {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "source_invalid",
-            "source_balance",
-            "source_grant",
+            "invalid",
+            "balance",
+            "grant",
         ];
 
         struct GeneratedVisitor;
@@ -175,9 +175,9 @@ impl<'de> serde::Deserialize<'de> for Source {
                 E: serde::de::Error,
             {
                 match value {
-                    "source_invalid" => Ok(Source::Invalid),
-                    "source_balance" => Ok(Source::Balance),
-                    "source_grant" => Ok(Source::Grant),
+                    "invalid" => Ok(Source::Invalid),
+                    "balance" => Ok(Source::Balance),
+                    "grant" => Ok(Source::Grant),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

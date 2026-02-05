@@ -23,6 +23,13 @@ func execSetContext(ctx context.Context, cctx client.Context, cmd *cobra.Command
 	ctx = context.WithValue(ctx, cli.ClientContextKey, &client.Context{})
 	ctx = context.WithValue(ctx, server.ServerContextKey, server.NewDefaultContext())
 
+	// Set address and validator codecs from TxConfig's signing context
+	if cctx.TxConfig != nil {
+		signingCtx := cctx.TxConfig.SigningContext()
+		ctx = context.WithValue(ctx, cli.ContextTypeAddressCodec, signingCtx.AddressCodec())
+		ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, signingCtx.ValidatorAddressCodec())
+	}
+
 	cmd.SetContext(ctx)
 	cctx.CmdContext = ctx
 

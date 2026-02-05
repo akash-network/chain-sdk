@@ -7,7 +7,7 @@ impl serde::Serialize for EpochInfo {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if !self.identifier.is_empty() {
+        if !self.id.is_empty() {
             len += 1;
         }
         if self.start_time.is_some() {
@@ -29,8 +29,8 @@ impl serde::Serialize for EpochInfo {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.epochs.v1beta1.EpochInfo", len)?;
-        if !self.identifier.is_empty() {
-            struct_ser.serialize_field("identifier", &self.identifier)?;
+        if !self.id.is_empty() {
+            struct_ser.serialize_field("id", &self.id)?;
         }
         if let Some(v) = self.start_time.as_ref() {
             struct_ser.serialize_field("startTime", v)?;
@@ -64,7 +64,7 @@ impl<'de> serde::Deserialize<'de> for EpochInfo {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "identifier",
+            "id",
             "start_time",
             "startTime",
             "duration",
@@ -80,7 +80,7 @@ impl<'de> serde::Deserialize<'de> for EpochInfo {
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Identifier,
+            Id,
             StartTime,
             Duration,
             CurrentEpoch,
@@ -108,7 +108,7 @@ impl<'de> serde::Deserialize<'de> for EpochInfo {
                         E: serde::de::Error,
                     {
                         match value {
-                            "identifier" => Ok(GeneratedField::Identifier),
+                            "id" => Ok(GeneratedField::Id),
                             "startTime" | "start_time" => Ok(GeneratedField::StartTime),
                             "duration" => Ok(GeneratedField::Duration),
                             "currentEpoch" | "current_epoch" => Ok(GeneratedField::CurrentEpoch),
@@ -134,7 +134,7 @@ impl<'de> serde::Deserialize<'de> for EpochInfo {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut identifier__ = None;
+                let mut id__ = None;
                 let mut start_time__ = None;
                 let mut duration__ = None;
                 let mut current_epoch__ = None;
@@ -143,11 +143,11 @@ impl<'de> serde::Deserialize<'de> for EpochInfo {
                 let mut current_epoch_start_height__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Identifier => {
-                            if identifier__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("identifier"));
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            identifier__ = Some(map_.next_value()?);
+                            id__ = Some(map_.next_value()?);
                         }
                         GeneratedField::StartTime => {
                             if start_time__.is_some() {
@@ -192,7 +192,7 @@ impl<'de> serde::Deserialize<'de> for EpochInfo {
                     }
                 }
                 Ok(EpochInfo {
-                    identifier: identifier__.unwrap_or_default(),
+                    id: id__.unwrap_or_default(),
                     start_time: start_time__,
                     duration: duration__,
                     current_epoch: current_epoch__.unwrap_or_default(),
