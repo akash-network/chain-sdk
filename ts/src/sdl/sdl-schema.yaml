@@ -405,6 +405,17 @@ properties:
                     type: boolean
                 type: object
               type: object
+            permissions:
+              additionalProperties: false
+              properties:
+                read:
+                  items:
+                    type: string
+                    enum:
+                      - deployment
+                      - logs
+                  type: array
+              type: object
           type: object
       required:
         - image
