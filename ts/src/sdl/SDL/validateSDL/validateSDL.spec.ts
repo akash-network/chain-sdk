@@ -4,6 +4,7 @@ import { merge } from "lodash";
 import type { DeepPartial } from "../../../encoding/typeEncodingHelpers.ts";
 import type { NetworkId } from "../../../network/index.ts";
 import { AKT_DENOM, USDC_IBC_DENOMS } from "../../../network/index.ts";
+import type { v2ServicePermissions } from "../../types.ts";
 import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
 describe(validateSDL.name, () => {
@@ -483,6 +484,50 @@ describe(validateSDL.name, () => {
       });
 
       expect(validate()).toBeUndefined();
+    });
+  });
+
+  describe("permissions validation", () => {
+    it("accepts valid permissions params", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            expose: [{ port: 80, as: 80, to: [{ global: true }] }],
+            params: {
+              permissions: {
+                read: ["deployment", "logs"],
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+
+    it("returns an error for unknown properties in permissions", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            expose: [{ port: 80, as: 80, to: [{ global: true }] }],
+            params: {
+              permissions: {
+                read: ["deployment"],
+                write: ["logs"],
+              } as v2ServicePermissions,
+            },
+          },
+        },
+      });
+
+      const errors = validate();
+
+      expect(errors).toContainEqual(expect.objectContaining({
+        keyword: "additionalProperties",
+        params: { additionalProperty: "write" },
+      }));
     });
   });
 

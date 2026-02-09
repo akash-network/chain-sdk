@@ -82,12 +82,20 @@ export type v3ServiceExpose = {
   endpointSequenceNumber: number;
 };
 
+type v2ServicePermissionsScope = "deployment" | "logs";
+
+export type v2ServicePermissions = {
+  read?: v2ServicePermissionsScope[];
+};
+
 export type v2ManifestServiceParams = {
   Storage: v2ServiceStorageParams[];
+  Permissions?: v2ServicePermissions;
 };
 
 export type v3ManifestServiceParams = {
   storage: v2ServiceStorageParams[];
+  permissions?: v2ServicePermissions;
 };
 
 export type v2Sdl = {
@@ -149,6 +157,7 @@ export type v2ServiceStorageParams = {
 
 export type v2ServiceParams = {
   storage?: Record<string, v2ServiceStorageParams>;
+  permissions?: v2ServicePermissions;
 };
 
 export type v2ServiceImageCredentials = {
