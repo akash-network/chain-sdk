@@ -111,7 +111,11 @@ func (sdl *v2) buildGroups() error {
 					}
 				}
 
-				params.AutomountServiceAccountToken = svc.Params.AutomountServiceAccountToken
+				if svc.Params.Permissions != nil {
+					params.Permissions = &manifest.ServicePermissions{
+						Read: svc.Params.Permissions.Read,
+					}
+				}
 
 				msvc.Params = params
 			}
