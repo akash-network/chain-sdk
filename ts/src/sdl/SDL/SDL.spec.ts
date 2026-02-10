@@ -36,7 +36,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrow(
-        new SdlValidationError("Invalid format: \"denom\" at \"/profiles/placement/dcloud/pricing/web\" does not match pattern \"^(uakt|ibc/.*)$\""),
+        new SdlValidationError("Invalid format: \"denom\" at \"/profiles/placement/dcloud/pricing/web\" does not match pattern \"^(uakt|uact|ibc/.*)$\""),
       );
 
       const anotherYaml = createSdlYml({
@@ -44,7 +44,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(anotherYaml, "beta3", "sandbox")).toThrow(
-        new SdlValidationError(`Invalid denom: "ibc/1234567890" at path "/profiles/placement/dcloud/pricing/web/denom". Only "uakt" and "ibc/12C6A0C374171B595A0A9E18B83FA09D295FB1F2D8C6DAA3AC28683471752D84" are supported.`),
+        new SdlValidationError(`Invalid format: "denom" at "/profiles/placement/dcloud/pricing/web/denom" does not match pattern "^(uakt|uact|ibc/12C6A0C374171B595A0A9E18B83FA09D295FB1F2D8C6DAA3AC28683471752D84)$"`),
       );
     });
   });
