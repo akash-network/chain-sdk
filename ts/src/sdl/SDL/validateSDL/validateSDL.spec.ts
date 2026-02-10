@@ -98,7 +98,7 @@ describe(validateSDL.name, () => {
       const errors = validate();
 
       expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("Invalid denom: \"ibc/invalid\""),
+        message: expect.stringContaining(`Invalid format: "denom" at "/profiles/placement/dcloud/pricing/web/denom" does not match pattern "^(uakt|uact|ibc/12C6A0C374171B595A0A9E18B83FA09D295FB1F2D8C6DAA3AC28683471752D84)$"`),
         instancePath: "/profiles/placement/dcloud/pricing/web/denom",
         schemaPath: "#/definitions/priceCoin/properties/denom",
         keyword: "pattern",
@@ -132,9 +132,67 @@ describe(validateSDL.name, () => {
 
       const errors = validate();
       expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining(`Invalid denom: "${USDC_IBC_DENOMS.sandbox}"`),
+        message: expect.stringContaining(`Invalid format: "denom" at "/profiles/placement/dcloud/pricing/web/denom" does not match pattern "^(uakt|uact|ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1)$"`),
         keyword: "pattern",
       }));
+    });
+
+    it("accets uakt denom", () => {
+      const { validate } = setup({
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+              },
+            },
+          },
+          placement: {
+            dcloud: {
+              pricing: {
+                web: {
+                  amount: "1000",
+                  denom: "uakt",
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const errors = validate();
+      expect(errors).toBeUndefined();
+    });
+
+    it("accets uact denom", () => {
+      const { validate } = setup({
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+              },
+            },
+          },
+          placement: {
+            dcloud: {
+              pricing: {
+                web: {
+                  amount: "1000",
+                  denom: "uact",
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const errors = validate();
+      expect(errors).toBeUndefined();
     });
   });
 
@@ -2067,7 +2125,7 @@ describe(validateSDL.name, () => {
         message: expect.stringContaining("\"denom\""),
       }));
       expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("pattern \"^(uakt|ibc/.*)$\""),
+        message: expect.stringContaining("pattern \"^(uakt|uact|ibc/.*)$\""),
       }));
     });
 
