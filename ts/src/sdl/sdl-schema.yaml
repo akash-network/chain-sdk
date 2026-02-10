@@ -50,7 +50,7 @@ definitions:
             minimum: 0
             description: Positive number
       denom:
-        pattern: '^(uakt|ibc/.*)$'
+        pattern: '^(uakt|uact|ibc/.*)$'
         type: string
     required:
       - denom
@@ -404,6 +404,17 @@ properties:
                   readOnly:
                     type: boolean
                 type: object
+              type: object
+            permissions:
+              additionalProperties: false
+              properties:
+                read:
+                  items:
+                    type: string
+                    enum:
+                      - deployment
+                      - logs
+                  type: array
               type: object
           type: object
       required:

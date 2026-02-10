@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.0-alpha.22](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.21...ts/v1.0.0-alpha.22) (2026-02-09)
+
+
+### Features
+
+* **ts:** adds sdl permissions validation ([419e3b7](https://github.com/akash-network/chain-sdk/commit/419e3b7f73ec3c7b49926ec079d4cf357d61853c))
+
+## [1.0.0-alpha.21](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.20...ts/v1.0.0-alpha.21) (2026-02-09)
+
+
+### Features
+
+* **ts:** adds sdl permissions validation ([419e3b7](https://github.com/akash-network/chain-sdk/commit/419e3b7f73ec3c7b49926ec079d4cf357d61853c))
+
+## [1.0.0-alpha.21](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.20...ts/v1.0.0-alpha.21) (2026-01-25)
+
+### Code Refactoring
+
+* **ts:** reduces generated types size
+
 ## [1.0.0-alpha.20](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.19...ts/v1.0.0-alpha.20) (2026-01-20)
 
 

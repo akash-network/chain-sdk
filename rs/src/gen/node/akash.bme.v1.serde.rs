@@ -1,182 +1,4 @@
 // @generated
-impl serde::Serialize for BmRecord {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if !self.burned_from.is_empty() {
-            len += 1;
-        }
-        if !self.minted_to.is_empty() {
-            len += 1;
-        }
-        if !self.burner.is_empty() {
-            len += 1;
-        }
-        if !self.minter.is_empty() {
-            len += 1;
-        }
-        if self.burned.is_some() {
-            len += 1;
-        }
-        if self.minted.is_some() {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.BMRecord", len)?;
-        if !self.burned_from.is_empty() {
-            struct_ser.serialize_field("burnedFrom", &self.burned_from)?;
-        }
-        if !self.minted_to.is_empty() {
-            struct_ser.serialize_field("mintedTo", &self.minted_to)?;
-        }
-        if !self.burner.is_empty() {
-            struct_ser.serialize_field("burner", &self.burner)?;
-        }
-        if !self.minter.is_empty() {
-            struct_ser.serialize_field("minter", &self.minter)?;
-        }
-        if let Some(v) = self.burned.as_ref() {
-            struct_ser.serialize_field("burned", v)?;
-        }
-        if let Some(v) = self.minted.as_ref() {
-            struct_ser.serialize_field("minted", v)?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for BmRecord {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "burned_from",
-            "burnedFrom",
-            "minted_to",
-            "mintedTo",
-            "burner",
-            "minter",
-            "burned",
-            "minted",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            BurnedFrom,
-            MintedTo,
-            Burner,
-            Minter,
-            Burned,
-            Minted,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "burnedFrom" | "burned_from" => Ok(GeneratedField::BurnedFrom),
-                            "mintedTo" | "minted_to" => Ok(GeneratedField::MintedTo),
-                            "burner" => Ok(GeneratedField::Burner),
-                            "minter" => Ok(GeneratedField::Minter),
-                            "burned" => Ok(GeneratedField::Burned),
-                            "minted" => Ok(GeneratedField::Minted),
-                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = BmRecord;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.BMRecord")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<BmRecord, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                let mut burned_from__ = None;
-                let mut minted_to__ = None;
-                let mut burner__ = None;
-                let mut minter__ = None;
-                let mut burned__ = None;
-                let mut minted__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::BurnedFrom => {
-                            if burned_from__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burnedFrom"));
-                            }
-                            burned_from__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::MintedTo => {
-                            if minted_to__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("mintedTo"));
-                            }
-                            minted_to__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Burner => {
-                            if burner__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burner"));
-                            }
-                            burner__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Minter => {
-                            if minter__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("minter"));
-                            }
-                            minter__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Burned => {
-                            if burned__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burned"));
-                            }
-                            burned__ = map_.next_value()?;
-                        }
-                        GeneratedField::Minted => {
-                            if minted__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("minted"));
-                            }
-                            minted__ = map_.next_value()?;
-                        }
-                    }
-                }
-                Ok(BmRecord {
-                    burned_from: burned_from__.unwrap_or_default(),
-                    minted_to: minted_to__.unwrap_or_default(),
-                    burner: burner__.unwrap_or_default(),
-                    minter: minter__.unwrap_or_default(),
-                    burned: burned__,
-                    minted: minted__,
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.BMRecord", FIELDS, GeneratedVisitor)
-    }
-}
 impl serde::Serialize for BurnMintPair {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -283,83 +105,6 @@ impl<'de> serde::Deserialize<'de> for BurnMintPair {
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.BurnMintPair", FIELDS, GeneratedVisitor)
-    }
-}
-impl serde::Serialize for CircuitBreakerStatus {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let variant = match self {
-            Self::Unspecified => "CIRCUIT_BREAKER_STATUS_UNSPECIFIED",
-            Self::Healthy => "CIRCUIT_BREAKER_STATUS_HEALTHY",
-            Self::Warning => "CIRCUIT_BREAKER_STATUS_WARNING",
-            Self::Halt => "CIRCUIT_BREAKER_STATUS_HALT",
-        };
-        serializer.serialize_str(variant)
-    }
-}
-impl<'de> serde::Deserialize<'de> for CircuitBreakerStatus {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "CIRCUIT_BREAKER_STATUS_UNSPECIFIED",
-            "CIRCUIT_BREAKER_STATUS_HEALTHY",
-            "CIRCUIT_BREAKER_STATUS_WARNING",
-            "CIRCUIT_BREAKER_STATUS_HALT",
-        ];
-
-        struct GeneratedVisitor;
-
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = CircuitBreakerStatus;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(formatter, "expected one of: {:?}", &FIELDS)
-            }
-
-            fn visit_i64<E>(self, v: i64) -> std::result::Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                i32::try_from(v)
-                    .ok()
-                    .and_then(|x| x.try_into().ok())
-                    .ok_or_else(|| {
-                        serde::de::Error::invalid_value(serde::de::Unexpected::Signed(v), &self)
-                    })
-            }
-
-            fn visit_u64<E>(self, v: u64) -> std::result::Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                i32::try_from(v)
-                    .ok()
-                    .and_then(|x| x.try_into().ok())
-                    .ok_or_else(|| {
-                        serde::de::Error::invalid_value(serde::de::Unexpected::Unsigned(v), &self)
-                    })
-            }
-
-            fn visit_str<E>(self, value: &str) -> std::result::Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                match value {
-                    "CIRCUIT_BREAKER_STATUS_UNSPECIFIED" => Ok(CircuitBreakerStatus::Unspecified),
-                    "CIRCUIT_BREAKER_STATUS_HEALTHY" => Ok(CircuitBreakerStatus::Healthy),
-                    "CIRCUIT_BREAKER_STATUS_WARNING" => Ok(CircuitBreakerStatus::Warning),
-                    "CIRCUIT_BREAKER_STATUS_HALT" => Ok(CircuitBreakerStatus::Halt),
-                    _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
-                }
-            }
-        }
-        deserializer.deserialize_any(GeneratedVisitor)
     }
 }
 impl serde::Serialize for CoinPrice {
@@ -492,7 +237,7 @@ impl serde::Serialize for CollateralRatio {
             struct_ser.serialize_field("ratio", &self.ratio)?;
         }
         if self.status != 0 {
-            let v = CircuitBreakerStatus::try_from(self.status)
+            let v = MintStatus::try_from(self.status)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.status)))?;
             struct_ser.serialize_field("status", &v)?;
         }
@@ -578,7 +323,7 @@ impl<'de> serde::Deserialize<'de> for CollateralRatio {
                             if status__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("status"));
                             }
-                            status__ = Some(map_.next_value::<CircuitBreakerStatus>()? as i32);
+                            status__ = Some(map_.next_value::<MintStatus>()? as i32);
                         }
                         GeneratedField::ReferencePrice => {
                             if reference_price__.is_some() {
@@ -598,7 +343,7 @@ impl<'de> serde::Deserialize<'de> for CollateralRatio {
         deserializer.deserialize_struct("akash.bme.v1.CollateralRatio", FIELDS, GeneratedVisitor)
     }
 }
-impl serde::Serialize for EventBmRecord {
+impl serde::Serialize for EventLedgerRecordExecuted {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -606,71 +351,29 @@ impl serde::Serialize for EventBmRecord {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if !self.burned_from.is_empty() {
+        if self.id.is_some() {
             len += 1;
         }
-        if !self.minted_to.is_empty() {
-            len += 1;
-        }
-        if !self.burner.is_empty() {
-            len += 1;
-        }
-        if !self.minter.is_empty() {
-            len += 1;
-        }
-        if self.burned.is_some() {
-            len += 1;
-        }
-        if self.minted.is_some() {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventBMRecord", len)?;
-        if !self.burned_from.is_empty() {
-            struct_ser.serialize_field("burnedFrom", &self.burned_from)?;
-        }
-        if !self.minted_to.is_empty() {
-            struct_ser.serialize_field("mintedTo", &self.minted_to)?;
-        }
-        if !self.burner.is_empty() {
-            struct_ser.serialize_field("burner", &self.burner)?;
-        }
-        if !self.minter.is_empty() {
-            struct_ser.serialize_field("minter", &self.minter)?;
-        }
-        if let Some(v) = self.burned.as_ref() {
-            struct_ser.serialize_field("burned", v)?;
-        }
-        if let Some(v) = self.minted.as_ref() {
-            struct_ser.serialize_field("minted", v)?;
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventLedgerRecordExecuted", len)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
         }
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for EventBmRecord {
+impl<'de> serde::Deserialize<'de> for EventLedgerRecordExecuted {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "burned_from",
-            "burnedFrom",
-            "minted_to",
-            "mintedTo",
-            "burner",
-            "minter",
-            "burned",
-            "minted",
+            "id",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            BurnedFrom,
-            MintedTo,
-            Burner,
-            Minter,
-            Burned,
-            Minted,
+            Id,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -692,12 +395,7 @@ impl<'de> serde::Deserialize<'de> for EventBmRecord {
                         E: serde::de::Error,
                     {
                         match value {
-                            "burnedFrom" | "burned_from" => Ok(GeneratedField::BurnedFrom),
-                            "mintedTo" | "minted_to" => Ok(GeneratedField::MintedTo),
-                            "burner" => Ok(GeneratedField::Burner),
-                            "minter" => Ok(GeneratedField::Minter),
-                            "burned" => Ok(GeneratedField::Burned),
-                            "minted" => Ok(GeneratedField::Minted),
+                            "id" => Ok(GeneratedField::Id),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -707,76 +405,36 @@ impl<'de> serde::Deserialize<'de> for EventBmRecord {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = EventBmRecord;
+            type Value = EventLedgerRecordExecuted;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.EventBMRecord")
+                formatter.write_str("struct akash.bme.v1.EventLedgerRecordExecuted")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventBmRecord, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventLedgerRecordExecuted, V::Error>
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut burned_from__ = None;
-                let mut minted_to__ = None;
-                let mut burner__ = None;
-                let mut minter__ = None;
-                let mut burned__ = None;
-                let mut minted__ = None;
+                let mut id__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::BurnedFrom => {
-                            if burned_from__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burnedFrom"));
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            burned_from__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::MintedTo => {
-                            if minted_to__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("mintedTo"));
-                            }
-                            minted_to__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Burner => {
-                            if burner__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burner"));
-                            }
-                            burner__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Minter => {
-                            if minter__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("minter"));
-                            }
-                            minter__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Burned => {
-                            if burned__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burned"));
-                            }
-                            burned__ = map_.next_value()?;
-                        }
-                        GeneratedField::Minted => {
-                            if minted__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("minted"));
-                            }
-                            minted__ = map_.next_value()?;
+                            id__ = map_.next_value()?;
                         }
                     }
                 }
-                Ok(EventBmRecord {
-                    burned_from: burned_from__.unwrap_or_default(),
-                    minted_to: minted_to__.unwrap_or_default(),
-                    burner: burner__.unwrap_or_default(),
-                    minter: minter__.unwrap_or_default(),
-                    burned: burned__,
-                    minted: minted__,
+                Ok(EventLedgerRecordExecuted {
+                    id: id__,
                 })
             }
         }
-        deserializer.deserialize_struct("akash.bme.v1.EventBMRecord", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("akash.bme.v1.EventLedgerRecordExecuted", FIELDS, GeneratedVisitor)
     }
 }
-impl serde::Serialize for EventCircuitBreakerStatusChange {
+impl serde::Serialize for EventMintStatusChange {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -793,14 +451,14 @@ impl serde::Serialize for EventCircuitBreakerStatusChange {
         if !self.collateral_ratio.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventCircuitBreakerStatusChange", len)?;
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventMintStatusChange", len)?;
         if self.previous_status != 0 {
-            let v = CircuitBreakerStatus::try_from(self.previous_status)
+            let v = MintStatus::try_from(self.previous_status)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.previous_status)))?;
             struct_ser.serialize_field("previousStatus", &v)?;
         }
         if self.new_status != 0 {
-            let v = CircuitBreakerStatus::try_from(self.new_status)
+            let v = MintStatus::try_from(self.new_status)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.new_status)))?;
             struct_ser.serialize_field("newStatus", &v)?;
         }
@@ -810,7 +468,7 @@ impl serde::Serialize for EventCircuitBreakerStatusChange {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for EventCircuitBreakerStatusChange {
+impl<'de> serde::Deserialize<'de> for EventMintStatusChange {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -863,13 +521,13 @@ impl<'de> serde::Deserialize<'de> for EventCircuitBreakerStatusChange {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = EventCircuitBreakerStatusChange;
+            type Value = EventMintStatusChange;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.EventCircuitBreakerStatusChange")
+                formatter.write_str("struct akash.bme.v1.EventMintStatusChange")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventCircuitBreakerStatusChange, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventMintStatusChange, V::Error>
                 where
                     V: serde::de::MapAccess<'de>,
             {
@@ -882,13 +540,13 @@ impl<'de> serde::Deserialize<'de> for EventCircuitBreakerStatusChange {
                             if previous_status__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("previousStatus"));
                             }
-                            previous_status__ = Some(map_.next_value::<CircuitBreakerStatus>()? as i32);
+                            previous_status__ = Some(map_.next_value::<MintStatus>()? as i32);
                         }
                         GeneratedField::NewStatus => {
                             if new_status__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("newStatus"));
                             }
-                            new_status__ = Some(map_.next_value::<CircuitBreakerStatus>()? as i32);
+                            new_status__ = Some(map_.next_value::<MintStatus>()? as i32);
                         }
                         GeneratedField::CollateralRatio => {
                             if collateral_ratio__.is_some() {
@@ -898,14 +556,14 @@ impl<'de> serde::Deserialize<'de> for EventCircuitBreakerStatusChange {
                         }
                     }
                 }
-                Ok(EventCircuitBreakerStatusChange {
+                Ok(EventMintStatusChange {
                     previous_status: previous_status__.unwrap_or_default(),
                     new_status: new_status__.unwrap_or_default(),
                     collateral_ratio: collateral_ratio__.unwrap_or_default(),
                 })
             }
         }
-        deserializer.deserialize_struct("akash.bme.v1.EventCircuitBreakerStatusChange", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("akash.bme.v1.EventMintStatusChange", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for EventVaultSeeded {
@@ -1034,6 +692,331 @@ impl<'de> serde::Deserialize<'de> for EventVaultSeeded {
         deserializer.deserialize_struct("akash.bme.v1.EventVaultSeeded", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for GenesisLedgerPendingRecord {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.record.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.GenesisLedgerPendingRecord", len)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if let Some(v) = self.record.as_ref() {
+            struct_ser.serialize_field("record", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GenesisLedgerPendingRecord {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "record",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Record,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "record" => Ok(GeneratedField::Record),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GenesisLedgerPendingRecord;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.GenesisLedgerPendingRecord")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenesisLedgerPendingRecord, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut record__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Record => {
+                            if record__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("record"));
+                            }
+                            record__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(GenesisLedgerPendingRecord {
+                    id: id__,
+                    record: record__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.GenesisLedgerPendingRecord", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GenesisLedgerRecord {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.record.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.GenesisLedgerRecord", len)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if let Some(v) = self.record.as_ref() {
+            struct_ser.serialize_field("record", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GenesisLedgerRecord {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "record",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Record,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "record" => Ok(GeneratedField::Record),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GenesisLedgerRecord;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.GenesisLedgerRecord")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenesisLedgerRecord, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut record__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Record => {
+                            if record__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("record"));
+                            }
+                            record__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(GenesisLedgerRecord {
+                    id: id__,
+                    record: record__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.GenesisLedgerRecord", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GenesisLedgerState {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.records.is_empty() {
+            len += 1;
+        }
+        if !self.pending_records.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.GenesisLedgerState", len)?;
+        if !self.records.is_empty() {
+            struct_ser.serialize_field("records", &self.records)?;
+        }
+        if !self.pending_records.is_empty() {
+            struct_ser.serialize_field("pendingRecords", &self.pending_records)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GenesisLedgerState {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "records",
+            "pending_records",
+            "pendingRecords",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Records,
+            PendingRecords,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "records" => Ok(GeneratedField::Records),
+                            "pendingRecords" | "pending_records" => Ok(GeneratedField::PendingRecords),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GenesisLedgerState;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.GenesisLedgerState")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenesisLedgerState, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut records__ = None;
+                let mut pending_records__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Records => {
+                            if records__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("records"));
+                            }
+                            records__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::PendingRecords => {
+                            if pending_records__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("pendingRecords"));
+                            }
+                            pending_records__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(GenesisLedgerState {
+                    records: records__.unwrap_or_default(),
+                    pending_records: pending_records__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.GenesisLedgerState", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GenesisState {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -1048,12 +1031,18 @@ impl serde::Serialize for GenesisState {
         if self.state.is_some() {
             len += 1;
         }
+        if self.ledger.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.bme.v1.GenesisState", len)?;
         if let Some(v) = self.params.as_ref() {
             struct_ser.serialize_field("params", v)?;
         }
         if let Some(v) = self.state.as_ref() {
             struct_ser.serialize_field("state", v)?;
+        }
+        if let Some(v) = self.ledger.as_ref() {
+            struct_ser.serialize_field("ledger", v)?;
         }
         struct_ser.end()
     }
@@ -1067,12 +1056,14 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
         const FIELDS: &[&str] = &[
             "params",
             "state",
+            "ledger",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Params,
             State,
+            Ledger,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1096,6 +1087,7 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                         match value {
                             "params" => Ok(GeneratedField::Params),
                             "state" => Ok(GeneratedField::State),
+                            "ledger" => Ok(GeneratedField::Ledger),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1117,6 +1109,7 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
             {
                 let mut params__ = None;
                 let mut state__ = None;
+                let mut ledger__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Params => {
@@ -1131,15 +1124,150 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             }
                             state__ = map_.next_value()?;
                         }
+                        GeneratedField::Ledger => {
+                            if ledger__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("ledger"));
+                            }
+                            ledger__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(GenesisState {
                     params: params__,
                     state: state__,
+                    ledger: ledger__,
                 })
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.GenesisState", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GenesisVaultState {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.total_burned.is_empty() {
+            len += 1;
+        }
+        if !self.total_minted.is_empty() {
+            len += 1;
+        }
+        if !self.remint_credits.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.GenesisVaultState", len)?;
+        if !self.total_burned.is_empty() {
+            struct_ser.serialize_field("totalBurned", &self.total_burned)?;
+        }
+        if !self.total_minted.is_empty() {
+            struct_ser.serialize_field("totalMinted", &self.total_minted)?;
+        }
+        if !self.remint_credits.is_empty() {
+            struct_ser.serialize_field("remintCredits", &self.remint_credits)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GenesisVaultState {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "total_burned",
+            "totalBurned",
+            "total_minted",
+            "totalMinted",
+            "remint_credits",
+            "remintCredits",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            TotalBurned,
+            TotalMinted,
+            RemintCredits,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "totalBurned" | "total_burned" => Ok(GeneratedField::TotalBurned),
+                            "totalMinted" | "total_minted" => Ok(GeneratedField::TotalMinted),
+                            "remintCredits" | "remint_credits" => Ok(GeneratedField::RemintCredits),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GenesisVaultState;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.GenesisVaultState")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenesisVaultState, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut total_burned__ = None;
+                let mut total_minted__ = None;
+                let mut remint_credits__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::TotalBurned => {
+                            if total_burned__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalBurned"));
+                            }
+                            total_burned__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TotalMinted => {
+                            if total_minted__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalMinted"));
+                            }
+                            total_minted__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::RemintCredits => {
+                            if remint_credits__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("remintCredits"));
+                            }
+                            remint_credits__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(GenesisVaultState {
+                    total_burned: total_burned__.unwrap_or_default(),
+                    total_minted: total_minted__.unwrap_or_default(),
+                    remint_credits: remint_credits__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.GenesisVaultState", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for LedgerId {
@@ -1256,6 +1384,1018 @@ impl<'de> serde::Deserialize<'de> for LedgerId {
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.LedgerID", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for LedgerPendingRecord {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.to.is_empty() {
+            len += 1;
+        }
+        if self.coins_to_burn.is_some() {
+            len += 1;
+        }
+        if !self.denom_to_mint.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.LedgerPendingRecord", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.to.is_empty() {
+            struct_ser.serialize_field("to", &self.to)?;
+        }
+        if let Some(v) = self.coins_to_burn.as_ref() {
+            struct_ser.serialize_field("coinsToBurn", v)?;
+        }
+        if !self.denom_to_mint.is_empty() {
+            struct_ser.serialize_field("denomToMint", &self.denom_to_mint)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for LedgerPendingRecord {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "to",
+            "coins_to_burn",
+            "coinsToBurn",
+            "denom_to_mint",
+            "denomToMint",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            To,
+            CoinsToBurn,
+            DenomToMint,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "to" => Ok(GeneratedField::To),
+                            "coinsToBurn" | "coins_to_burn" => Ok(GeneratedField::CoinsToBurn),
+                            "denomToMint" | "denom_to_mint" => Ok(GeneratedField::DenomToMint),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = LedgerPendingRecord;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.LedgerPendingRecord")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<LedgerPendingRecord, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut to__ = None;
+                let mut coins_to_burn__ = None;
+                let mut denom_to_mint__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::To => {
+                            if to__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("to"));
+                            }
+                            to__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CoinsToBurn => {
+                            if coins_to_burn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("coinsToBurn"));
+                            }
+                            coins_to_burn__ = map_.next_value()?;
+                        }
+                        GeneratedField::DenomToMint => {
+                            if denom_to_mint__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("denomToMint"));
+                            }
+                            denom_to_mint__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(LedgerPendingRecord {
+                    owner: owner__.unwrap_or_default(),
+                    to: to__.unwrap_or_default(),
+                    coins_to_burn: coins_to_burn__,
+                    denom_to_mint: denom_to_mint__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.LedgerPendingRecord", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for LedgerRecord {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.burned_from.is_empty() {
+            len += 1;
+        }
+        if !self.minted_to.is_empty() {
+            len += 1;
+        }
+        if !self.burner.is_empty() {
+            len += 1;
+        }
+        if !self.minter.is_empty() {
+            len += 1;
+        }
+        if self.burned.is_some() {
+            len += 1;
+        }
+        if self.minted.is_some() {
+            len += 1;
+        }
+        if self.remint_credit_issued.is_some() {
+            len += 1;
+        }
+        if self.remint_credit_accrued.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.LedgerRecord", len)?;
+        if !self.burned_from.is_empty() {
+            struct_ser.serialize_field("burnedFrom", &self.burned_from)?;
+        }
+        if !self.minted_to.is_empty() {
+            struct_ser.serialize_field("mintedTo", &self.minted_to)?;
+        }
+        if !self.burner.is_empty() {
+            struct_ser.serialize_field("burner", &self.burner)?;
+        }
+        if !self.minter.is_empty() {
+            struct_ser.serialize_field("minter", &self.minter)?;
+        }
+        if let Some(v) = self.burned.as_ref() {
+            struct_ser.serialize_field("burned", v)?;
+        }
+        if let Some(v) = self.minted.as_ref() {
+            struct_ser.serialize_field("minted", v)?;
+        }
+        if let Some(v) = self.remint_credit_issued.as_ref() {
+            struct_ser.serialize_field("remintCreditIssued", v)?;
+        }
+        if let Some(v) = self.remint_credit_accrued.as_ref() {
+            struct_ser.serialize_field("remintCreditAccrued", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for LedgerRecord {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "burned_from",
+            "burnedFrom",
+            "minted_to",
+            "mintedTo",
+            "burner",
+            "minter",
+            "burned",
+            "minted",
+            "remint_credit_issued",
+            "remintCreditIssued",
+            "remint_credit_accrued",
+            "remintCreditAccrued",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            BurnedFrom,
+            MintedTo,
+            Burner,
+            Minter,
+            Burned,
+            Minted,
+            RemintCreditIssued,
+            RemintCreditAccrued,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "burnedFrom" | "burned_from" => Ok(GeneratedField::BurnedFrom),
+                            "mintedTo" | "minted_to" => Ok(GeneratedField::MintedTo),
+                            "burner" => Ok(GeneratedField::Burner),
+                            "minter" => Ok(GeneratedField::Minter),
+                            "burned" => Ok(GeneratedField::Burned),
+                            "minted" => Ok(GeneratedField::Minted),
+                            "remintCreditIssued" | "remint_credit_issued" => Ok(GeneratedField::RemintCreditIssued),
+                            "remintCreditAccrued" | "remint_credit_accrued" => Ok(GeneratedField::RemintCreditAccrued),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = LedgerRecord;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.LedgerRecord")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<LedgerRecord, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut burned_from__ = None;
+                let mut minted_to__ = None;
+                let mut burner__ = None;
+                let mut minter__ = None;
+                let mut burned__ = None;
+                let mut minted__ = None;
+                let mut remint_credit_issued__ = None;
+                let mut remint_credit_accrued__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::BurnedFrom => {
+                            if burned_from__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("burnedFrom"));
+                            }
+                            burned_from__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::MintedTo => {
+                            if minted_to__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("mintedTo"));
+                            }
+                            minted_to__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Burner => {
+                            if burner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("burner"));
+                            }
+                            burner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Minter => {
+                            if minter__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("minter"));
+                            }
+                            minter__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Burned => {
+                            if burned__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("burned"));
+                            }
+                            burned__ = map_.next_value()?;
+                        }
+                        GeneratedField::Minted => {
+                            if minted__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("minted"));
+                            }
+                            minted__ = map_.next_value()?;
+                        }
+                        GeneratedField::RemintCreditIssued => {
+                            if remint_credit_issued__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("remintCreditIssued"));
+                            }
+                            remint_credit_issued__ = map_.next_value()?;
+                        }
+                        GeneratedField::RemintCreditAccrued => {
+                            if remint_credit_accrued__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("remintCreditAccrued"));
+                            }
+                            remint_credit_accrued__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(LedgerRecord {
+                    burned_from: burned_from__.unwrap_or_default(),
+                    minted_to: minted_to__.unwrap_or_default(),
+                    burner: burner__.unwrap_or_default(),
+                    minter: minter__.unwrap_or_default(),
+                    burned: burned__,
+                    minted: minted__,
+                    remint_credit_issued: remint_credit_issued__,
+                    remint_credit_accrued: remint_credit_accrued__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.LedgerRecord", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for LedgerRecordId {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.denom.is_empty() {
+            len += 1;
+        }
+        if !self.to_denom.is_empty() {
+            len += 1;
+        }
+        if !self.source.is_empty() {
+            len += 1;
+        }
+        if self.height != 0 {
+            len += 1;
+        }
+        if self.sequence != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.LedgerRecordID", len)?;
+        if !self.denom.is_empty() {
+            struct_ser.serialize_field("denom", &self.denom)?;
+        }
+        if !self.to_denom.is_empty() {
+            struct_ser.serialize_field("toDenom", &self.to_denom)?;
+        }
+        if !self.source.is_empty() {
+            struct_ser.serialize_field("source", &self.source)?;
+        }
+        if self.height != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("height", ToString::to_string(&self.height).as_str())?;
+        }
+        if self.sequence != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("sequence", ToString::to_string(&self.sequence).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for LedgerRecordId {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "denom",
+            "to_denom",
+            "toDenom",
+            "source",
+            "height",
+            "sequence",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Denom,
+            ToDenom,
+            Source,
+            Height,
+            Sequence,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "denom" => Ok(GeneratedField::Denom),
+                            "toDenom" | "to_denom" => Ok(GeneratedField::ToDenom),
+                            "source" => Ok(GeneratedField::Source),
+                            "height" => Ok(GeneratedField::Height),
+                            "sequence" => Ok(GeneratedField::Sequence),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = LedgerRecordId;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.LedgerRecordID")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<LedgerRecordId, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut denom__ = None;
+                let mut to_denom__ = None;
+                let mut source__ = None;
+                let mut height__ = None;
+                let mut sequence__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Denom => {
+                            if denom__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("denom"));
+                            }
+                            denom__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ToDenom => {
+                            if to_denom__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("toDenom"));
+                            }
+                            to_denom__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Source => {
+                            if source__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("source"));
+                            }
+                            source__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Height => {
+                            if height__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("height"));
+                            }
+                            height__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Sequence => {
+                            if sequence__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sequence"));
+                            }
+                            sequence__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(LedgerRecordId {
+                    denom: denom__.unwrap_or_default(),
+                    to_denom: to_denom__.unwrap_or_default(),
+                    source: source__.unwrap_or_default(),
+                    height: height__.unwrap_or_default(),
+                    sequence: sequence__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.LedgerRecordID", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for LedgerRecordStatus {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let variant = match self {
+            Self::Invalid => "ledger_record_status_invalid",
+            Self::Pending => "ledger_record_status_pending",
+            Self::Executed => "ledger_record_status_executed",
+        };
+        serializer.serialize_str(variant)
+    }
+}
+impl<'de> serde::Deserialize<'de> for LedgerRecordStatus {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "ledger_record_status_invalid",
+            "ledger_record_status_pending",
+            "ledger_record_status_executed",
+        ];
+
+        struct GeneratedVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = LedgerRecordStatus;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(formatter, "expected one of: {:?}", &FIELDS)
+            }
+
+            fn visit_i64<E>(self, v: i64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Signed(v), &self)
+                    })
+            }
+
+            fn visit_u64<E>(self, v: u64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Unsigned(v), &self)
+                    })
+            }
+
+            fn visit_str<E>(self, value: &str) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                match value {
+                    "ledger_record_status_invalid" => Ok(LedgerRecordStatus::Invalid),
+                    "ledger_record_status_pending" => Ok(LedgerRecordStatus::Pending),
+                    "ledger_record_status_executed" => Ok(LedgerRecordStatus::Executed),
+                    _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
+                }
+            }
+        }
+        deserializer.deserialize_any(GeneratedVisitor)
+    }
+}
+impl serde::Serialize for MintEpoch {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.next_epoch != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.MintEpoch", len)?;
+        if self.next_epoch != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("nextEpoch", ToString::to_string(&self.next_epoch).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for MintEpoch {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "next_epoch",
+            "nextEpoch",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            NextEpoch,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "nextEpoch" | "next_epoch" => Ok(GeneratedField::NextEpoch),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = MintEpoch;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.MintEpoch")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MintEpoch, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut next_epoch__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::NextEpoch => {
+                            if next_epoch__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextEpoch"));
+                            }
+                            next_epoch__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(MintEpoch {
+                    next_epoch: next_epoch__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.MintEpoch", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for MintStatus {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let variant = match self {
+            Self::Unspecified => "mint_status_unspecified",
+            Self::Healthy => "mint_status_healthy",
+            Self::Warning => "mint_status_warning",
+            Self::HaltCr => "mint_status_halt_cr",
+            Self::HaltOracle => "mint_status_halt_oracle",
+        };
+        serializer.serialize_str(variant)
+    }
+}
+impl<'de> serde::Deserialize<'de> for MintStatus {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "mint_status_unspecified",
+            "mint_status_healthy",
+            "mint_status_warning",
+            "mint_status_halt_cr",
+            "mint_status_halt_oracle",
+        ];
+
+        struct GeneratedVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = MintStatus;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(formatter, "expected one of: {:?}", &FIELDS)
+            }
+
+            fn visit_i64<E>(self, v: i64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Signed(v), &self)
+                    })
+            }
+
+            fn visit_u64<E>(self, v: u64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Unsigned(v), &self)
+                    })
+            }
+
+            fn visit_str<E>(self, value: &str) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                match value {
+                    "mint_status_unspecified" => Ok(MintStatus::Unspecified),
+                    "mint_status_healthy" => Ok(MintStatus::Healthy),
+                    "mint_status_warning" => Ok(MintStatus::Warning),
+                    "mint_status_halt_cr" => Ok(MintStatus::HaltCr),
+                    "mint_status_halt_oracle" => Ok(MintStatus::HaltOracle),
+                    _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
+                }
+            }
+        }
+        deserializer.deserialize_any(GeneratedVisitor)
+    }
+}
+impl serde::Serialize for MsgBurnAct {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.to.is_empty() {
+            len += 1;
+        }
+        if self.coins_to_burn.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.MsgBurnACT", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.to.is_empty() {
+            struct_ser.serialize_field("to", &self.to)?;
+        }
+        if let Some(v) = self.coins_to_burn.as_ref() {
+            struct_ser.serialize_field("coinsToBurn", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for MsgBurnAct {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "to",
+            "coins_to_burn",
+            "coinsToBurn",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            To,
+            CoinsToBurn,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "to" => Ok(GeneratedField::To),
+                            "coinsToBurn" | "coins_to_burn" => Ok(GeneratedField::CoinsToBurn),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = MsgBurnAct;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.MsgBurnACT")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MsgBurnAct, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut to__ = None;
+                let mut coins_to_burn__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::To => {
+                            if to__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("to"));
+                            }
+                            to__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CoinsToBurn => {
+                            if coins_to_burn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("coinsToBurn"));
+                            }
+                            coins_to_burn__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(MsgBurnAct {
+                    owner: owner__.unwrap_or_default(),
+                    to: to__.unwrap_or_default(),
+                    coins_to_burn: coins_to_burn__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.MsgBurnACT", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for MsgBurnActResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.status != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.MsgBurnACTResponse", len)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if self.status != 0 {
+            let v = LedgerRecordStatus::try_from(self.status)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.status)))?;
+            struct_ser.serialize_field("status", &v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for MsgBurnActResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "status",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Status,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "status" => Ok(GeneratedField::Status),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = MsgBurnActResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.MsgBurnACTResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MsgBurnActResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut status__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value::<LedgerRecordStatus>()? as i32);
+                        }
+                    }
+                }
+                Ok(MsgBurnActResponse {
+                    id: id__,
+                    status: status__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.MsgBurnACTResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for MsgBurnMint {
@@ -1410,30 +2550,20 @@ impl serde::Serialize for MsgBurnMintResponse {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if !self.owner.is_empty() {
+        if self.id.is_some() {
             len += 1;
         }
-        if !self.to.is_empty() {
-            len += 1;
-        }
-        if self.burned.is_some() {
-            len += 1;
-        }
-        if self.minted.is_some() {
+        if self.status != 0 {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.bme.v1.MsgBurnMintResponse", len)?;
-        if !self.owner.is_empty() {
-            struct_ser.serialize_field("owner", &self.owner)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
         }
-        if !self.to.is_empty() {
-            struct_ser.serialize_field("to", &self.to)?;
-        }
-        if let Some(v) = self.burned.as_ref() {
-            struct_ser.serialize_field("burned", v)?;
-        }
-        if let Some(v) = self.minted.as_ref() {
-            struct_ser.serialize_field("minted", v)?;
+        if self.status != 0 {
+            let v = LedgerRecordStatus::try_from(self.status)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.status)))?;
+            struct_ser.serialize_field("status", &v)?;
         }
         struct_ser.end()
     }
@@ -1445,18 +2575,131 @@ impl<'de> serde::Deserialize<'de> for MsgBurnMintResponse {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "id",
+            "status",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Status,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "status" => Ok(GeneratedField::Status),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = MsgBurnMintResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.MsgBurnMintResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MsgBurnMintResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut status__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value::<LedgerRecordStatus>()? as i32);
+                        }
+                    }
+                }
+                Ok(MsgBurnMintResponse {
+                    id: id__,
+                    status: status__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.MsgBurnMintResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for MsgMintAct {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.to.is_empty() {
+            len += 1;
+        }
+        if self.coins_to_burn.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.MsgMintACT", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.to.is_empty() {
+            struct_ser.serialize_field("to", &self.to)?;
+        }
+        if let Some(v) = self.coins_to_burn.as_ref() {
+            struct_ser.serialize_field("coinsToBurn", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for MsgMintAct {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
             "owner",
             "to",
-            "burned",
-            "minted",
+            "coins_to_burn",
+            "coinsToBurn",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Owner,
             To,
-            Burned,
-            Minted,
+            CoinsToBurn,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1480,8 +2723,7 @@ impl<'de> serde::Deserialize<'de> for MsgBurnMintResponse {
                         match value {
                             "owner" => Ok(GeneratedField::Owner),
                             "to" => Ok(GeneratedField::To),
-                            "burned" => Ok(GeneratedField::Burned),
-                            "minted" => Ok(GeneratedField::Minted),
+                            "coinsToBurn" | "coins_to_burn" => Ok(GeneratedField::CoinsToBurn),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1491,20 +2733,19 @@ impl<'de> serde::Deserialize<'de> for MsgBurnMintResponse {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = MsgBurnMintResponse;
+            type Value = MsgMintAct;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.MsgBurnMintResponse")
+                formatter.write_str("struct akash.bme.v1.MsgMintACT")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MsgBurnMintResponse, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MsgMintAct, V::Error>
                 where
                     V: serde::de::MapAccess<'de>,
             {
                 let mut owner__ = None;
                 let mut to__ = None;
-                let mut burned__ = None;
-                let mut minted__ = None;
+                let mut coins_to_burn__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Owner => {
@@ -1519,29 +2760,132 @@ impl<'de> serde::Deserialize<'de> for MsgBurnMintResponse {
                             }
                             to__ = Some(map_.next_value()?);
                         }
-                        GeneratedField::Burned => {
-                            if burned__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burned"));
+                        GeneratedField::CoinsToBurn => {
+                            if coins_to_burn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("coinsToBurn"));
                             }
-                            burned__ = map_.next_value()?;
-                        }
-                        GeneratedField::Minted => {
-                            if minted__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("minted"));
-                            }
-                            minted__ = map_.next_value()?;
+                            coins_to_burn__ = map_.next_value()?;
                         }
                     }
                 }
-                Ok(MsgBurnMintResponse {
+                Ok(MsgMintAct {
                     owner: owner__.unwrap_or_default(),
                     to: to__.unwrap_or_default(),
-                    burned: burned__,
-                    minted: minted__,
+                    coins_to_burn: coins_to_burn__,
                 })
             }
         }
-        deserializer.deserialize_struct("akash.bme.v1.MsgBurnMintResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("akash.bme.v1.MsgMintACT", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for MsgMintActResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.status != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.MsgMintACTResponse", len)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if self.status != 0 {
+            let v = LedgerRecordStatus::try_from(self.status)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.status)))?;
+            struct_ser.serialize_field("status", &v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for MsgMintActResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "status",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Status,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "status" => Ok(GeneratedField::Status),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = MsgMintActResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.MsgMintACTResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MsgMintActResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut status__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value::<LedgerRecordStatus>()? as i32);
+                        }
+                    }
+                }
+                Ok(MsgMintActResponse {
+                    id: id__,
+                    status: status__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.MsgMintACTResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for MsgSeedVault {
@@ -1948,19 +3292,16 @@ impl serde::Serialize for Params {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.enabled {
-            len += 1;
-        }
-        if self.oracle_twap_window.is_some() {
-            len += 1;
-        }
-        if self.oracle_outlier_threshold_bps != 0 {
-            len += 1;
-        }
         if self.circuit_breaker_warn_threshold != 0 {
             len += 1;
         }
         if self.circuit_breaker_halt_threshold != 0 {
+            len += 1;
+        }
+        if self.min_epoch_blocks != 0 {
+            len += 1;
+        }
+        if self.epoch_blocks_backoff != 0 {
             len += 1;
         }
         if self.mint_spread_bps != 0 {
@@ -1969,67 +3310,26 @@ impl serde::Serialize for Params {
         if self.settle_spread_bps != 0 {
             len += 1;
         }
-        if self.settlement_epoch_blocks != 0 {
-            len += 1;
-        }
-        if self.min_runway_blocks != 0 {
-            len += 1;
-        }
-        if self.snapshot_interval_blocks != 0 {
-            len += 1;
-        }
-        if self.snapshot_retention_seconds != 0 {
-            len += 1;
-        }
-        if self.snapshot_bucket_duration != 0 {
-            len += 1;
-        }
         let mut struct_ser = serializer.serialize_struct("akash.bme.v1.Params", len)?;
-        if self.enabled {
-            struct_ser.serialize_field("enabled", &self.enabled)?;
-        }
-        if let Some(v) = self.oracle_twap_window.as_ref() {
-            struct_ser.serialize_field("oracleTwapWindow", v)?;
-        }
-        if self.oracle_outlier_threshold_bps != 0 {
-            struct_ser.serialize_field("oracleOutlierThresholdBps", &self.oracle_outlier_threshold_bps)?;
-        }
         if self.circuit_breaker_warn_threshold != 0 {
             struct_ser.serialize_field("circuitBreakerWarnThreshold", &self.circuit_breaker_warn_threshold)?;
         }
         if self.circuit_breaker_halt_threshold != 0 {
             struct_ser.serialize_field("circuitBreakerHaltThreshold", &self.circuit_breaker_halt_threshold)?;
         }
+        if self.min_epoch_blocks != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("minEpochBlocks", ToString::to_string(&self.min_epoch_blocks).as_str())?;
+        }
+        if self.epoch_blocks_backoff != 0 {
+            struct_ser.serialize_field("epochBlocksBackoff", &self.epoch_blocks_backoff)?;
+        }
         if self.mint_spread_bps != 0 {
             struct_ser.serialize_field("mintSpreadBps", &self.mint_spread_bps)?;
         }
         if self.settle_spread_bps != 0 {
             struct_ser.serialize_field("settleSpreadBps", &self.settle_spread_bps)?;
-        }
-        if self.settlement_epoch_blocks != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("settlementEpochBlocks", ToString::to_string(&self.settlement_epoch_blocks).as_str())?;
-        }
-        if self.min_runway_blocks != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("minRunwayBlocks", ToString::to_string(&self.min_runway_blocks).as_str())?;
-        }
-        if self.snapshot_interval_blocks != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("snapshotIntervalBlocks", ToString::to_string(&self.snapshot_interval_blocks).as_str())?;
-        }
-        if self.snapshot_retention_seconds != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("snapshotRetentionSeconds", ToString::to_string(&self.snapshot_retention_seconds).as_str())?;
-        }
-        if self.snapshot_bucket_duration != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("snapshotBucketDuration", ToString::to_string(&self.snapshot_bucket_duration).as_str())?;
         }
         struct_ser.end()
     }
@@ -2041,45 +3341,28 @@ impl<'de> serde::Deserialize<'de> for Params {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "enabled",
-            "oracle_twap_window",
-            "oracleTwapWindow",
-            "oracle_outlier_threshold_bps",
-            "oracleOutlierThresholdBps",
             "circuit_breaker_warn_threshold",
             "circuitBreakerWarnThreshold",
             "circuit_breaker_halt_threshold",
             "circuitBreakerHaltThreshold",
+            "min_epoch_blocks",
+            "minEpochBlocks",
+            "epoch_blocks_backoff",
+            "epochBlocksBackoff",
             "mint_spread_bps",
             "mintSpreadBps",
             "settle_spread_bps",
             "settleSpreadBps",
-            "settlement_epoch_blocks",
-            "settlementEpochBlocks",
-            "min_runway_blocks",
-            "minRunwayBlocks",
-            "snapshot_interval_blocks",
-            "snapshotIntervalBlocks",
-            "snapshot_retention_seconds",
-            "snapshotRetentionSeconds",
-            "snapshot_bucket_duration",
-            "snapshotBucketDuration",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Enabled,
-            OracleTwapWindow,
-            OracleOutlierThresholdBps,
             CircuitBreakerWarnThreshold,
             CircuitBreakerHaltThreshold,
+            MinEpochBlocks,
+            EpochBlocksBackoff,
             MintSpreadBps,
             SettleSpreadBps,
-            SettlementEpochBlocks,
-            MinRunwayBlocks,
-            SnapshotIntervalBlocks,
-            SnapshotRetentionSeconds,
-            SnapshotBucketDuration,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -2101,18 +3384,12 @@ impl<'de> serde::Deserialize<'de> for Params {
                         E: serde::de::Error,
                     {
                         match value {
-                            "enabled" => Ok(GeneratedField::Enabled),
-                            "oracleTwapWindow" | "oracle_twap_window" => Ok(GeneratedField::OracleTwapWindow),
-                            "oracleOutlierThresholdBps" | "oracle_outlier_threshold_bps" => Ok(GeneratedField::OracleOutlierThresholdBps),
                             "circuitBreakerWarnThreshold" | "circuit_breaker_warn_threshold" => Ok(GeneratedField::CircuitBreakerWarnThreshold),
                             "circuitBreakerHaltThreshold" | "circuit_breaker_halt_threshold" => Ok(GeneratedField::CircuitBreakerHaltThreshold),
+                            "minEpochBlocks" | "min_epoch_blocks" => Ok(GeneratedField::MinEpochBlocks),
+                            "epochBlocksBackoff" | "epoch_blocks_backoff" => Ok(GeneratedField::EpochBlocksBackoff),
                             "mintSpreadBps" | "mint_spread_bps" => Ok(GeneratedField::MintSpreadBps),
                             "settleSpreadBps" | "settle_spread_bps" => Ok(GeneratedField::SettleSpreadBps),
-                            "settlementEpochBlocks" | "settlement_epoch_blocks" => Ok(GeneratedField::SettlementEpochBlocks),
-                            "minRunwayBlocks" | "min_runway_blocks" => Ok(GeneratedField::MinRunwayBlocks),
-                            "snapshotIntervalBlocks" | "snapshot_interval_blocks" => Ok(GeneratedField::SnapshotIntervalBlocks),
-                            "snapshotRetentionSeconds" | "snapshot_retention_seconds" => Ok(GeneratedField::SnapshotRetentionSeconds),
-                            "snapshotBucketDuration" | "snapshot_bucket_duration" => Ok(GeneratedField::SnapshotBucketDuration),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -2132,40 +3409,14 @@ impl<'de> serde::Deserialize<'de> for Params {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut enabled__ = None;
-                let mut oracle_twap_window__ = None;
-                let mut oracle_outlier_threshold_bps__ = None;
                 let mut circuit_breaker_warn_threshold__ = None;
                 let mut circuit_breaker_halt_threshold__ = None;
+                let mut min_epoch_blocks__ = None;
+                let mut epoch_blocks_backoff__ = None;
                 let mut mint_spread_bps__ = None;
                 let mut settle_spread_bps__ = None;
-                let mut settlement_epoch_blocks__ = None;
-                let mut min_runway_blocks__ = None;
-                let mut snapshot_interval_blocks__ = None;
-                let mut snapshot_retention_seconds__ = None;
-                let mut snapshot_bucket_duration__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Enabled => {
-                            if enabled__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("enabled"));
-                            }
-                            enabled__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::OracleTwapWindow => {
-                            if oracle_twap_window__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("oracleTwapWindow"));
-                            }
-                            oracle_twap_window__ = map_.next_value()?;
-                        }
-                        GeneratedField::OracleOutlierThresholdBps => {
-                            if oracle_outlier_threshold_bps__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("oracleOutlierThresholdBps"));
-                            }
-                            oracle_outlier_threshold_bps__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
                         GeneratedField::CircuitBreakerWarnThreshold => {
                             if circuit_breaker_warn_threshold__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("circuitBreakerWarnThreshold"));
@@ -2179,6 +3430,22 @@ impl<'de> serde::Deserialize<'de> for Params {
                                 return Err(serde::de::Error::duplicate_field("circuitBreakerHaltThreshold"));
                             }
                             circuit_breaker_halt_threshold__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::MinEpochBlocks => {
+                            if min_epoch_blocks__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("minEpochBlocks"));
+                            }
+                            min_epoch_blocks__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::EpochBlocksBackoff => {
+                            if epoch_blocks_backoff__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("epochBlocksBackoff"));
+                            }
+                            epoch_blocks_backoff__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2198,719 +3465,19 @@ impl<'de> serde::Deserialize<'de> for Params {
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
-                        GeneratedField::SettlementEpochBlocks => {
-                            if settlement_epoch_blocks__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("settlementEpochBlocks"));
-                            }
-                            settlement_epoch_blocks__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
-                        GeneratedField::MinRunwayBlocks => {
-                            if min_runway_blocks__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("minRunwayBlocks"));
-                            }
-                            min_runway_blocks__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
-                        GeneratedField::SnapshotIntervalBlocks => {
-                            if snapshot_interval_blocks__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("snapshotIntervalBlocks"));
-                            }
-                            snapshot_interval_blocks__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
-                        GeneratedField::SnapshotRetentionSeconds => {
-                            if snapshot_retention_seconds__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("snapshotRetentionSeconds"));
-                            }
-                            snapshot_retention_seconds__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
-                        GeneratedField::SnapshotBucketDuration => {
-                            if snapshot_bucket_duration__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("snapshotBucketDuration"));
-                            }
-                            snapshot_bucket_duration__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
                     }
                 }
                 Ok(Params {
-                    enabled: enabled__.unwrap_or_default(),
-                    oracle_twap_window: oracle_twap_window__,
-                    oracle_outlier_threshold_bps: oracle_outlier_threshold_bps__.unwrap_or_default(),
                     circuit_breaker_warn_threshold: circuit_breaker_warn_threshold__.unwrap_or_default(),
                     circuit_breaker_halt_threshold: circuit_breaker_halt_threshold__.unwrap_or_default(),
+                    min_epoch_blocks: min_epoch_blocks__.unwrap_or_default(),
+                    epoch_blocks_backoff: epoch_blocks_backoff__.unwrap_or_default(),
                     mint_spread_bps: mint_spread_bps__.unwrap_or_default(),
                     settle_spread_bps: settle_spread_bps__.unwrap_or_default(),
-                    settlement_epoch_blocks: settlement_epoch_blocks__.unwrap_or_default(),
-                    min_runway_blocks: min_runway_blocks__.unwrap_or_default(),
-                    snapshot_interval_blocks: snapshot_interval_blocks__.unwrap_or_default(),
-                    snapshot_retention_seconds: snapshot_retention_seconds__.unwrap_or_default(),
-                    snapshot_bucket_duration: snapshot_bucket_duration__.unwrap_or_default(),
                 })
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.Params", FIELDS, GeneratedVisitor)
-    }
-}
-impl serde::Serialize for QueryCircuitBreakerStatusRequest {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let len = 0;
-        let struct_ser = serializer.serialize_struct("akash.bme.v1.QueryCircuitBreakerStatusRequest", len)?;
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for QueryCircuitBreakerStatusRequest {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                            Err(serde::de::Error::unknown_field(value, FIELDS))
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = QueryCircuitBreakerStatusRequest;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.QueryCircuitBreakerStatusRequest")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryCircuitBreakerStatusRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                while map_.next_key::<GeneratedField>()?.is_some() {
-                    let _ = map_.next_value::<serde::de::IgnoredAny>()?;
-                }
-                Ok(QueryCircuitBreakerStatusRequest {
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.QueryCircuitBreakerStatusRequest", FIELDS, GeneratedVisitor)
-    }
-}
-impl serde::Serialize for QueryCircuitBreakerStatusResponse {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if self.status != 0 {
-            len += 1;
-        }
-        if !self.collateral_ratio.is_empty() {
-            len += 1;
-        }
-        if !self.warn_threshold.is_empty() {
-            len += 1;
-        }
-        if !self.halt_threshold.is_empty() {
-            len += 1;
-        }
-        if self.mints_allowed {
-            len += 1;
-        }
-        if self.settlements_allowed {
-            len += 1;
-        }
-        if self.refunds_allowed {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.QueryCircuitBreakerStatusResponse", len)?;
-        if self.status != 0 {
-            let v = CircuitBreakerStatus::try_from(self.status)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.status)))?;
-            struct_ser.serialize_field("status", &v)?;
-        }
-        if !self.collateral_ratio.is_empty() {
-            struct_ser.serialize_field("collateralRatio", &self.collateral_ratio)?;
-        }
-        if !self.warn_threshold.is_empty() {
-            struct_ser.serialize_field("warnThreshold", &self.warn_threshold)?;
-        }
-        if !self.halt_threshold.is_empty() {
-            struct_ser.serialize_field("haltThreshold", &self.halt_threshold)?;
-        }
-        if self.mints_allowed {
-            struct_ser.serialize_field("mintsAllowed", &self.mints_allowed)?;
-        }
-        if self.settlements_allowed {
-            struct_ser.serialize_field("settlementsAllowed", &self.settlements_allowed)?;
-        }
-        if self.refunds_allowed {
-            struct_ser.serialize_field("refundsAllowed", &self.refunds_allowed)?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for QueryCircuitBreakerStatusResponse {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "status",
-            "collateral_ratio",
-            "collateralRatio",
-            "warn_threshold",
-            "warnThreshold",
-            "halt_threshold",
-            "haltThreshold",
-            "mints_allowed",
-            "mintsAllowed",
-            "settlements_allowed",
-            "settlementsAllowed",
-            "refunds_allowed",
-            "refundsAllowed",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            Status,
-            CollateralRatio,
-            WarnThreshold,
-            HaltThreshold,
-            MintsAllowed,
-            SettlementsAllowed,
-            RefundsAllowed,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "status" => Ok(GeneratedField::Status),
-                            "collateralRatio" | "collateral_ratio" => Ok(GeneratedField::CollateralRatio),
-                            "warnThreshold" | "warn_threshold" => Ok(GeneratedField::WarnThreshold),
-                            "haltThreshold" | "halt_threshold" => Ok(GeneratedField::HaltThreshold),
-                            "mintsAllowed" | "mints_allowed" => Ok(GeneratedField::MintsAllowed),
-                            "settlementsAllowed" | "settlements_allowed" => Ok(GeneratedField::SettlementsAllowed),
-                            "refundsAllowed" | "refunds_allowed" => Ok(GeneratedField::RefundsAllowed),
-                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = QueryCircuitBreakerStatusResponse;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.QueryCircuitBreakerStatusResponse")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryCircuitBreakerStatusResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                let mut status__ = None;
-                let mut collateral_ratio__ = None;
-                let mut warn_threshold__ = None;
-                let mut halt_threshold__ = None;
-                let mut mints_allowed__ = None;
-                let mut settlements_allowed__ = None;
-                let mut refunds_allowed__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::Status => {
-                            if status__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("status"));
-                            }
-                            status__ = Some(map_.next_value::<CircuitBreakerStatus>()? as i32);
-                        }
-                        GeneratedField::CollateralRatio => {
-                            if collateral_ratio__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("collateralRatio"));
-                            }
-                            collateral_ratio__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::WarnThreshold => {
-                            if warn_threshold__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("warnThreshold"));
-                            }
-                            warn_threshold__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::HaltThreshold => {
-                            if halt_threshold__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("haltThreshold"));
-                            }
-                            halt_threshold__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::MintsAllowed => {
-                            if mints_allowed__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("mintsAllowed"));
-                            }
-                            mints_allowed__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::SettlementsAllowed => {
-                            if settlements_allowed__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("settlementsAllowed"));
-                            }
-                            settlements_allowed__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::RefundsAllowed => {
-                            if refunds_allowed__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("refundsAllowed"));
-                            }
-                            refunds_allowed__ = Some(map_.next_value()?);
-                        }
-                    }
-                }
-                Ok(QueryCircuitBreakerStatusResponse {
-                    status: status__.unwrap_or_default(),
-                    collateral_ratio: collateral_ratio__.unwrap_or_default(),
-                    warn_threshold: warn_threshold__.unwrap_or_default(),
-                    halt_threshold: halt_threshold__.unwrap_or_default(),
-                    mints_allowed: mints_allowed__.unwrap_or_default(),
-                    settlements_allowed: settlements_allowed__.unwrap_or_default(),
-                    refunds_allowed: refunds_allowed__.unwrap_or_default(),
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.QueryCircuitBreakerStatusResponse", FIELDS, GeneratedVisitor)
-    }
-}
-impl serde::Serialize for QueryCollateralRatioRequest {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let len = 0;
-        let struct_ser = serializer.serialize_struct("akash.bme.v1.QueryCollateralRatioRequest", len)?;
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for QueryCollateralRatioRequest {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                            Err(serde::de::Error::unknown_field(value, FIELDS))
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = QueryCollateralRatioRequest;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.QueryCollateralRatioRequest")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryCollateralRatioRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                while map_.next_key::<GeneratedField>()?.is_some() {
-                    let _ = map_.next_value::<serde::de::IgnoredAny>()?;
-                }
-                Ok(QueryCollateralRatioRequest {
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.QueryCollateralRatioRequest", FIELDS, GeneratedVisitor)
-    }
-}
-impl serde::Serialize for QueryCollateralRatioResponse {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if self.collateral_ratio.is_some() {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.QueryCollateralRatioResponse", len)?;
-        if let Some(v) = self.collateral_ratio.as_ref() {
-            struct_ser.serialize_field("collateralRatio", v)?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for QueryCollateralRatioResponse {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "collateral_ratio",
-            "collateralRatio",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            CollateralRatio,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "collateralRatio" | "collateral_ratio" => Ok(GeneratedField::CollateralRatio),
-                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = QueryCollateralRatioResponse;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.QueryCollateralRatioResponse")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryCollateralRatioResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                let mut collateral_ratio__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::CollateralRatio => {
-                            if collateral_ratio__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("collateralRatio"));
-                            }
-                            collateral_ratio__ = map_.next_value()?;
-                        }
-                    }
-                }
-                Ok(QueryCollateralRatioResponse {
-                    collateral_ratio: collateral_ratio__,
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.QueryCollateralRatioResponse", FIELDS, GeneratedVisitor)
-    }
-}
-impl serde::Serialize for QueryNetBurnRequest {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if !self.period.is_empty() {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.QueryNetBurnRequest", len)?;
-        if !self.period.is_empty() {
-            struct_ser.serialize_field("period", &self.period)?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for QueryNetBurnRequest {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "period",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            Period,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "period" => Ok(GeneratedField::Period),
-                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = QueryNetBurnRequest;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.QueryNetBurnRequest")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryNetBurnRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                let mut period__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::Period => {
-                            if period__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("period"));
-                            }
-                            period__ = Some(map_.next_value()?);
-                        }
-                    }
-                }
-                Ok(QueryNetBurnRequest {
-                    period: period__.unwrap_or_default(),
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.QueryNetBurnRequest", FIELDS, GeneratedVisitor)
-    }
-}
-impl serde::Serialize for QueryNetBurnResponse {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if self.net_burn.is_some() {
-            len += 1;
-        }
-        if self.total_burned.is_some() {
-            len += 1;
-        }
-        if self.total_minted.is_some() {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.QueryNetBurnResponse", len)?;
-        if let Some(v) = self.net_burn.as_ref() {
-            struct_ser.serialize_field("netBurn", v)?;
-        }
-        if let Some(v) = self.total_burned.as_ref() {
-            struct_ser.serialize_field("totalBurned", v)?;
-        }
-        if let Some(v) = self.total_minted.as_ref() {
-            struct_ser.serialize_field("totalMinted", v)?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for QueryNetBurnResponse {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "net_burn",
-            "netBurn",
-            "total_burned",
-            "totalBurned",
-            "total_minted",
-            "totalMinted",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            NetBurn,
-            TotalBurned,
-            TotalMinted,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "netBurn" | "net_burn" => Ok(GeneratedField::NetBurn),
-                            "totalBurned" | "total_burned" => Ok(GeneratedField::TotalBurned),
-                            "totalMinted" | "total_minted" => Ok(GeneratedField::TotalMinted),
-                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = QueryNetBurnResponse;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.QueryNetBurnResponse")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryNetBurnResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                let mut net_burn__ = None;
-                let mut total_burned__ = None;
-                let mut total_minted__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::NetBurn => {
-                            if net_burn__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("netBurn"));
-                            }
-                            net_burn__ = map_.next_value()?;
-                        }
-                        GeneratedField::TotalBurned => {
-                            if total_burned__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("totalBurned"));
-                            }
-                            total_burned__ = map_.next_value()?;
-                        }
-                        GeneratedField::TotalMinted => {
-                            if total_minted__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("totalMinted"));
-                            }
-                            total_minted__ = map_.next_value()?;
-                        }
-                    }
-                }
-                Ok(QueryNetBurnResponse {
-                    net_burn: net_burn__,
-                    total_burned: total_burned__,
-                    total_minted: total_minted__,
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.QueryNetBurnResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for QueryParamsRequest {
@@ -3073,6 +3640,260 @@ impl<'de> serde::Deserialize<'de> for QueryParamsResponse {
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.QueryParamsResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for QueryStatusRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let len = 0;
+        let struct_ser = serializer.serialize_struct("akash.bme.v1.QueryStatusRequest", len)?;
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for QueryStatusRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                            Err(serde::de::Error::unknown_field(value, FIELDS))
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = QueryStatusRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.QueryStatusRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryStatusRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                while map_.next_key::<GeneratedField>()?.is_some() {
+                    let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                }
+                Ok(QueryStatusRequest {
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.QueryStatusRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for QueryStatusResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.status != 0 {
+            len += 1;
+        }
+        if !self.collateral_ratio.is_empty() {
+            len += 1;
+        }
+        if !self.warn_threshold.is_empty() {
+            len += 1;
+        }
+        if !self.halt_threshold.is_empty() {
+            len += 1;
+        }
+        if self.mints_allowed {
+            len += 1;
+        }
+        if self.refunds_allowed {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.QueryStatusResponse", len)?;
+        if self.status != 0 {
+            let v = MintStatus::try_from(self.status)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.status)))?;
+            struct_ser.serialize_field("status", &v)?;
+        }
+        if !self.collateral_ratio.is_empty() {
+            struct_ser.serialize_field("collateralRatio", &self.collateral_ratio)?;
+        }
+        if !self.warn_threshold.is_empty() {
+            struct_ser.serialize_field("warnThreshold", &self.warn_threshold)?;
+        }
+        if !self.halt_threshold.is_empty() {
+            struct_ser.serialize_field("haltThreshold", &self.halt_threshold)?;
+        }
+        if self.mints_allowed {
+            struct_ser.serialize_field("mintsAllowed", &self.mints_allowed)?;
+        }
+        if self.refunds_allowed {
+            struct_ser.serialize_field("refundsAllowed", &self.refunds_allowed)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for QueryStatusResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "status",
+            "collateral_ratio",
+            "collateralRatio",
+            "warn_threshold",
+            "warnThreshold",
+            "halt_threshold",
+            "haltThreshold",
+            "mints_allowed",
+            "mintsAllowed",
+            "refunds_allowed",
+            "refundsAllowed",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Status,
+            CollateralRatio,
+            WarnThreshold,
+            HaltThreshold,
+            MintsAllowed,
+            RefundsAllowed,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "status" => Ok(GeneratedField::Status),
+                            "collateralRatio" | "collateral_ratio" => Ok(GeneratedField::CollateralRatio),
+                            "warnThreshold" | "warn_threshold" => Ok(GeneratedField::WarnThreshold),
+                            "haltThreshold" | "halt_threshold" => Ok(GeneratedField::HaltThreshold),
+                            "mintsAllowed" | "mints_allowed" => Ok(GeneratedField::MintsAllowed),
+                            "refundsAllowed" | "refunds_allowed" => Ok(GeneratedField::RefundsAllowed),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = QueryStatusResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.QueryStatusResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryStatusResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut status__ = None;
+                let mut collateral_ratio__ = None;
+                let mut warn_threshold__ = None;
+                let mut halt_threshold__ = None;
+                let mut mints_allowed__ = None;
+                let mut refunds_allowed__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value::<MintStatus>()? as i32);
+                        }
+                        GeneratedField::CollateralRatio => {
+                            if collateral_ratio__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("collateralRatio"));
+                            }
+                            collateral_ratio__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::WarnThreshold => {
+                            if warn_threshold__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("warnThreshold"));
+                            }
+                            warn_threshold__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::HaltThreshold => {
+                            if halt_threshold__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("haltThreshold"));
+                            }
+                            halt_threshold__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::MintsAllowed => {
+                            if mints_allowed__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("mintsAllowed"));
+                            }
+                            mints_allowed__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::RefundsAllowed => {
+                            if refunds_allowed__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("refundsAllowed"));
+                            }
+                            refunds_allowed__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(QueryStatusResponse {
+                    status: status__.unwrap_or_default(),
+                    collateral_ratio: collateral_ratio__.unwrap_or_default(),
+                    warn_threshold: warn_threshold__.unwrap_or_default(),
+                    halt_threshold: halt_threshold__.unwrap_or_default(),
+                    mints_allowed: mints_allowed__.unwrap_or_default(),
+                    refunds_allowed: refunds_allowed__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.QueryStatusResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for QueryVaultStateRequest {
@@ -3246,35 +4067,27 @@ impl serde::Serialize for State {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.last_updated != 0 {
-            len += 1;
-        }
-        if !self.burned.is_empty() {
-            len += 1;
-        }
-        if !self.minted.is_empty() {
-            len += 1;
-        }
         if !self.balances.is_empty() {
+            len += 1;
+        }
+        if !self.total_burned.is_empty() {
+            len += 1;
+        }
+        if !self.total_minted.is_empty() {
             len += 1;
         }
         if !self.remint_credits.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.bme.v1.State", len)?;
-        if self.last_updated != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("lastUpdated", ToString::to_string(&self.last_updated).as_str())?;
-        }
-        if !self.burned.is_empty() {
-            struct_ser.serialize_field("burned", &self.burned)?;
-        }
-        if !self.minted.is_empty() {
-            struct_ser.serialize_field("minted", &self.minted)?;
-        }
         if !self.balances.is_empty() {
             struct_ser.serialize_field("balances", &self.balances)?;
+        }
+        if !self.total_burned.is_empty() {
+            struct_ser.serialize_field("totalBurned", &self.total_burned)?;
+        }
+        if !self.total_minted.is_empty() {
+            struct_ser.serialize_field("totalMinted", &self.total_minted)?;
         }
         if !self.remint_credits.is_empty() {
             struct_ser.serialize_field("remintCredits", &self.remint_credits)?;
@@ -3289,21 +4102,20 @@ impl<'de> serde::Deserialize<'de> for State {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "last_updated",
-            "lastUpdated",
-            "burned",
-            "minted",
             "balances",
+            "total_burned",
+            "totalBurned",
+            "total_minted",
+            "totalMinted",
             "remint_credits",
             "remintCredits",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            LastUpdated,
-            Burned,
-            Minted,
             Balances,
+            TotalBurned,
+            TotalMinted,
             RemintCredits,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -3326,10 +4138,9 @@ impl<'de> serde::Deserialize<'de> for State {
                         E: serde::de::Error,
                     {
                         match value {
-                            "lastUpdated" | "last_updated" => Ok(GeneratedField::LastUpdated),
-                            "burned" => Ok(GeneratedField::Burned),
-                            "minted" => Ok(GeneratedField::Minted),
                             "balances" => Ok(GeneratedField::Balances),
+                            "totalBurned" | "total_burned" => Ok(GeneratedField::TotalBurned),
+                            "totalMinted" | "total_minted" => Ok(GeneratedField::TotalMinted),
                             "remintCredits" | "remint_credits" => Ok(GeneratedField::RemintCredits),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
@@ -3350,38 +4161,29 @@ impl<'de> serde::Deserialize<'de> for State {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut last_updated__ = None;
-                let mut burned__ = None;
-                let mut minted__ = None;
                 let mut balances__ = None;
+                let mut total_burned__ = None;
+                let mut total_minted__ = None;
                 let mut remint_credits__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::LastUpdated => {
-                            if last_updated__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("lastUpdated"));
-                            }
-                            last_updated__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
-                        GeneratedField::Burned => {
-                            if burned__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("burned"));
-                            }
-                            burned__ = Some(map_.next_value()?);
-                        }
-                        GeneratedField::Minted => {
-                            if minted__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("minted"));
-                            }
-                            minted__ = Some(map_.next_value()?);
-                        }
                         GeneratedField::Balances => {
                             if balances__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("balances"));
                             }
                             balances__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TotalBurned => {
+                            if total_burned__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalBurned"));
+                            }
+                            total_burned__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TotalMinted => {
+                            if total_minted__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalMinted"));
+                            }
+                            total_minted__ = Some(map_.next_value()?);
                         }
                         GeneratedField::RemintCredits => {
                             if remint_credits__.is_some() {
@@ -3392,14 +4194,148 @@ impl<'de> serde::Deserialize<'de> for State {
                     }
                 }
                 Ok(State {
-                    last_updated: last_updated__.unwrap_or_default(),
-                    burned: burned__.unwrap_or_default(),
-                    minted: minted__.unwrap_or_default(),
                     balances: balances__.unwrap_or_default(),
+                    total_burned: total_burned__.unwrap_or_default(),
+                    total_minted: total_minted__.unwrap_or_default(),
                     remint_credits: remint_credits__.unwrap_or_default(),
                 })
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.State", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for Status {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.status != 0 {
+            len += 1;
+        }
+        if self.previous_status != 0 {
+            len += 1;
+        }
+        if self.epoch_height_diff != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.Status", len)?;
+        if self.status != 0 {
+            let v = MintStatus::try_from(self.status)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.status)))?;
+            struct_ser.serialize_field("status", &v)?;
+        }
+        if self.previous_status != 0 {
+            let v = MintStatus::try_from(self.previous_status)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.previous_status)))?;
+            struct_ser.serialize_field("previousStatus", &v)?;
+        }
+        if self.epoch_height_diff != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("epochHeightDiff", ToString::to_string(&self.epoch_height_diff).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for Status {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "status",
+            "previous_status",
+            "previousStatus",
+            "epoch_height_diff",
+            "epochHeightDiff",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Status,
+            PreviousStatus,
+            EpochHeightDiff,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "status" => Ok(GeneratedField::Status),
+                            "previousStatus" | "previous_status" => Ok(GeneratedField::PreviousStatus),
+                            "epochHeightDiff" | "epoch_height_diff" => Ok(GeneratedField::EpochHeightDiff),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = Status;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.Status")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Status, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut status__ = None;
+                let mut previous_status__ = None;
+                let mut epoch_height_diff__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value::<MintStatus>()? as i32);
+                        }
+                        GeneratedField::PreviousStatus => {
+                            if previous_status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("previousStatus"));
+                            }
+                            previous_status__ = Some(map_.next_value::<MintStatus>()? as i32);
+                        }
+                        GeneratedField::EpochHeightDiff => {
+                            if epoch_height_diff__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("epochHeightDiff"));
+                            }
+                            epoch_height_diff__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(Status {
+                    status: status__.unwrap_or_default(),
+                    previous_status: previous_status__.unwrap_or_default(),
+                    epoch_height_diff: epoch_height_diff__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.Status", FIELDS, GeneratedVisitor)
     }
 }

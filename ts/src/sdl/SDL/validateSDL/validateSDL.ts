@@ -1,4 +1,4 @@
-import { AKT_DENOM, type NetworkId, USDC_IBC_DENOMS } from "../../../network/index.ts";
+import { type NetworkId, USDC_IBC_DENOMS } from "../../../network/index.ts";
 import type { ErrorMessages, ValidationError, ValidationFunction } from "../../../utils/jsonSchemaValidation.ts";
 import { dirname, getErrorLocation, humanizeErrors } from "../../../utils/jsonSchemaValidation.ts";
 import { castArray, stringToBoolean } from "../utils.ts";
@@ -55,25 +55,35 @@ class SDLValidator {
     if (!this.#sdl.profiles?.placement) return;
 
     const usdcDenom = USDC_IBC_DENOMS[networkId];
-    const denoms = Object.entries(this.#sdl.profiles.placement).map(([placementName, placement]) => {
-      if (!placement.pricing) return [];
-      return Object.entries(placement.pricing).map(([profile, pricing]) => ({
-        path: `/profiles/placement/${placementName}/pricing/${profile}/denom`,
-        denom: pricing.denom,
-      }));
-    }).flat();
-    const invalidDenom = denoms.find(({ denom }) => denom !== AKT_DENOM && denom !== usdcDenom);
+    const invalidDenom = this.#findInvalidUsdcDenom(usdcDenom);
+
     if (invalidDenom) {
       this.#errors.push({
-        message: `Invalid denom: "${invalidDenom.denom}" at path "${invalidDenom.path}". Only "uakt" and "${usdcDenom}" are supported.`,
+        message: `Invalid format: "denom" at "${invalidDenom.path}" does not match pattern "^(uakt|uact|${usdcDenom})$"`,
         instancePath: invalidDenom.path,
         schemaPath: "#/definitions/priceCoin/properties/denom",
         keyword: "pattern",
         params: {
-          pattern: "^(uakt|ibc/.*)$",
+          pattern: "^(uakt|uact|ibc/.*)$",
         },
       });
     }
+  }
+
+  #findInvalidUsdcDenom(usdcDenom: string): { denom: string; path: string } | null {
+    for (const [placementName, placement] of Object.entries(this.#sdl.profiles.placement)) {
+      if (!placement.pricing) continue;
+      for (const [profile, pricing] of Object.entries(placement.pricing)) {
+        if (pricing.denom.startsWith("ibc/") && pricing.denom !== usdcDenom) {
+          return {
+            path: `/profiles/placement/${placementName}/pricing/${profile}/denom`,
+            denom: pricing.denom,
+          };
+        }
+      }
+    }
+
+    return null;
   }
 
   #validateDeploymentWithRelations(serviceName: string) {

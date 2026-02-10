@@ -133,11 +133,11 @@ pub mod query_client {
                 .insert(GrpcMethod::new("akash.bme.v1.Query", "VaultState"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn collateral_ratio(
+        pub async fn status(
             &mut self,
-            request: impl tonic::IntoRequest<super::QueryCollateralRatioRequest>,
+            request: impl tonic::IntoRequest<super::QueryStatusRequest>,
         ) -> std::result::Result<
-            tonic::Response<super::QueryCollateralRatioResponse>,
+            tonic::Response<super::QueryStatusResponse>,
             tonic::Status,
         > {
             self.inner
@@ -151,36 +151,10 @@ pub mod query_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/akash.bme.v1.Query/CollateralRatio",
+                "/akash.bme.v1.Query/Status",
             );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("akash.bme.v1.Query", "CollateralRatio"));
-            self.inner.unary(req, path, codec).await
-        }
-        pub async fn circuit_breaker_status(
-            &mut self,
-            request: impl tonic::IntoRequest<super::QueryCircuitBreakerStatusRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryCircuitBreakerStatusResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.bme.v1.Query/CircuitBreakerStatus",
-            );
-            let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("akash.bme.v1.Query", "CircuitBreakerStatus"));
+            req.extensions_mut().insert(GrpcMethod::new("akash.bme.v1.Query", "Status"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -206,18 +180,11 @@ pub mod query_server {
             tonic::Response<super::QueryVaultStateResponse>,
             tonic::Status,
         >;
-        async fn collateral_ratio(
+        async fn status(
             &self,
-            request: tonic::Request<super::QueryCollateralRatioRequest>,
+            request: tonic::Request<super::QueryStatusRequest>,
         ) -> std::result::Result<
-            tonic::Response<super::QueryCollateralRatioResponse>,
-            tonic::Status,
-        >;
-        async fn circuit_breaker_status(
-            &self,
-            request: tonic::Request<super::QueryCircuitBreakerStatusRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryCircuitBreakerStatusResponse>,
+            tonic::Response<super::QueryStatusResponse>,
             tonic::Status,
         >;
     }
@@ -385,25 +352,23 @@ pub mod query_server {
                     };
                     Box::pin(fut)
                 }
-                "/akash.bme.v1.Query/CollateralRatio" => {
+                "/akash.bme.v1.Query/Status" => {
                     #[allow(non_camel_case_types)]
-                    struct CollateralRatioSvc<T: Query>(pub Arc<T>);
-                    impl<
-                        T: Query,
-                    > tonic::server::UnaryService<super::QueryCollateralRatioRequest>
-                    for CollateralRatioSvc<T> {
-                        type Response = super::QueryCollateralRatioResponse;
+                    struct StatusSvc<T: Query>(pub Arc<T>);
+                    impl<T: Query> tonic::server::UnaryService<super::QueryStatusRequest>
+                    for StatusSvc<T> {
+                        type Response = super::QueryStatusResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::QueryCollateralRatioRequest>,
+                            request: tonic::Request<super::QueryStatusRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Query>::collateral_ratio(&inner, request).await
+                                <T as Query>::status(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -414,55 +379,7 @@ pub mod query_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = CollateralRatioSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/akash.bme.v1.Query/CircuitBreakerStatus" => {
-                    #[allow(non_camel_case_types)]
-                    struct CircuitBreakerStatusSvc<T: Query>(pub Arc<T>);
-                    impl<
-                        T: Query,
-                    > tonic::server::UnaryService<
-                        super::QueryCircuitBreakerStatusRequest,
-                    > for CircuitBreakerStatusSvc<T> {
-                        type Response = super::QueryCircuitBreakerStatusResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<
-                                super::QueryCircuitBreakerStatusRequest,
-                            >,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Query>::circuit_breaker_status(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = CircuitBreakerStatusSvc(inner);
+                        let method = StatusSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -517,8 +434,6 @@ pub mod msg_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
-    /** Msg defines the BME Msg service
-*/
     #[derive(Debug, Clone)]
     pub struct MsgClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -624,6 +539,10 @@ pub mod msg_client {
                 .insert(GrpcMethod::new("akash.bme.v1.Msg", "UpdateParams"));
             self.inner.unary(req, path, codec).await
         }
+        /** BurnMint allows users to burn one token and mint another at current oracle prices.
+ Typically used to burn unused ACT tokens back to AKT.
+ The operation may be delayed or rejected based on circuit breaker status.
+*/
         pub async fn burn_mint(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgBurnMint>,
@@ -648,6 +567,58 @@ pub mod msg_client {
             req.extensions_mut().insert(GrpcMethod::new("akash.bme.v1.Msg", "BurnMint"));
             self.inner.unary(req, path, codec).await
         }
+        /** MintACT mints ACT tokens by burning the specified source token.
+ The mint amount is calculated based on current oracle prices and
+ the collateral ratio. May be halted if circuit breaker is triggered.
+*/
+        pub async fn mint_act(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgMintAct>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgMintActResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/akash.bme.v1.Msg/MintACT");
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("akash.bme.v1.Msg", "MintACT"));
+            self.inner.unary(req, path, codec).await
+        }
+        /** BurnACT burns ACT tokens and mints the specified destination token.
+ The burn operation uses remint credits when available, otherwise
+ requires adequate collateral backing based on oracle prices.
+*/
+        pub async fn burn_act(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgBurnAct>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgBurnActResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/akash.bme.v1.Msg/BurnACT");
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("akash.bme.v1.Msg", "BurnACT"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -664,6 +635,10 @@ pub mod msg_server {
             tonic::Response<super::MsgUpdateParamsResponse>,
             tonic::Status,
         >;
+        /** BurnMint allows users to burn one token and mint another at current oracle prices.
+ Typically used to burn unused ACT tokens back to AKT.
+ The operation may be delayed or rejected based on circuit breaker status.
+*/
         async fn burn_mint(
             &self,
             request: tonic::Request<super::MsgBurnMint>,
@@ -671,9 +646,29 @@ pub mod msg_server {
             tonic::Response<super::MsgBurnMintResponse>,
             tonic::Status,
         >;
-    }
-    /** Msg defines the BME Msg service
+        /** MintACT mints ACT tokens by burning the specified source token.
+ The mint amount is calculated based on current oracle prices and
+ the collateral ratio. May be halted if circuit breaker is triggered.
 */
+        async fn mint_act(
+            &self,
+            request: tonic::Request<super::MsgMintAct>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgMintActResponse>,
+            tonic::Status,
+        >;
+        /** BurnACT burns ACT tokens and mints the specified destination token.
+ The burn operation uses remint credits when available, otherwise
+ requires adequate collateral backing based on oracle prices.
+*/
+        async fn burn_act(
+            &self,
+            request: tonic::Request<super::MsgBurnAct>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgBurnActResponse>,
+            tonic::Status,
+        >;
+    }
     #[derive(Debug)]
     pub struct MsgServer<T: Msg> {
         inner: Arc<T>,
@@ -821,6 +816,92 @@ pub mod msg_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = BurnMintSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.bme.v1.Msg/MintACT" => {
+                    #[allow(non_camel_case_types)]
+                    struct MintACTSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgMintAct>
+                    for MintACTSvc<T> {
+                        type Response = super::MsgMintActResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgMintAct>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Msg>::mint_act(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = MintACTSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.bme.v1.Msg/BurnACT" => {
+                    #[allow(non_camel_case_types)]
+                    struct BurnACTSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgBurnAct>
+                    for BurnACTSvc<T> {
+                        type Response = super::MsgBurnActResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgBurnAct>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Msg>::burn_act(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = BurnACTSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
