@@ -23,6 +23,7 @@ export interface StorageParams {
 export interface ServiceParams {
   storage: StorageParams[];
   credentials: ImageCredentials | undefined;
+  automountServiceAccountToken: boolean;
 }
 
 /** Credentials to fetch image from registry */
@@ -142,7 +143,7 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
 };
 
 function createBaseServiceParams(): ServiceParams {
-  return { storage: [], credentials: undefined };
+  return { storage: [], credentials: undefined, automountServiceAccountToken: false };
 }
 
 export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.ServiceParams"> = {
@@ -154,6 +155,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     }
     if (message.credentials !== undefined) {
       ImageCredentials.encode(message.credentials, writer.uint32(82).fork()).join();
+    }
+    if (message.automountServiceAccountToken !== false) {
+      writer.uint32(88).bool(message.automountServiceAccountToken);
     }
     return writer;
   },
@@ -181,6 +185,14 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
           message.credentials = ImageCredentials.decode(reader, reader.uint32());
           continue;
         }
+        case 11: {
+          if (tag !== 88) {
+            break;
+          }
+
+          message.automountServiceAccountToken = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -196,6 +208,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
         ? object.storage.map((e: any) => StorageParams.fromJSON(e))
         : [],
       credentials: isSet(object.credentials) ? ImageCredentials.fromJSON(object.credentials) : undefined,
+      automountServiceAccountToken: isSet(object.automount_service_account_token)
+        ? globalThis.Boolean(object.automount_service_account_token)
+        : false,
     };
   },
 
@@ -206,6 +221,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     }
     if (message.credentials !== undefined) {
       obj.credentials = ImageCredentials.toJSON(message.credentials);
+    }
+    if (message.automountServiceAccountToken !== false) {
+      obj.automount_service_account_token = message.automountServiceAccountToken;
     }
     return obj;
   },
@@ -219,6 +237,7 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     message.credentials = (object.credentials !== undefined && object.credentials !== null)
       ? ImageCredentials.fromPartial(object.credentials)
       : undefined;
+    message.automountServiceAccountToken = object.automountServiceAccountToken ?? false;
     return message;
   },
 };
