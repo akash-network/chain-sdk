@@ -249,9 +249,10 @@ Exactly the same `transportOptions` options can be passed to chain web sdk and t
 ### Stack Definition Language (SDL)
 
 ```typescript
-import { SDL } from "@akashnetwork/chain-sdk";
+import { generateManifest, yaml } from "@akashnetwork/chain-sdk";
 
-const yaml = `
+// Install https://marketplace.visualstudio.com/items?itemName=brandonkal.yaml-embed for VSCode to highlight yaml in sdl variable
+const sdl = yaml`
 version: "2.0"
 services:
   web:
@@ -263,8 +264,7 @@ services:
           - global: true
 `;
 
-const sdl = SDL.fromString(yaml);
-const manifest = sdl.manifest();
+const manifest = generateManifest(sdl);
 ```
 
 ### Contributing

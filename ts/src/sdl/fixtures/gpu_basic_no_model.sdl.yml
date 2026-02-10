@@ -34,11 +34,11 @@ profiles:
         foo: bar
       signedBy:
         anyOf:
-          - 1
-          - 2
+          - akash1123123
+          - akash1123123123
         allOf:
-          - 3
-          - 4
+          - akash1123123
+          - akash1123123123
       pricing:
         web:
           denom: uakt

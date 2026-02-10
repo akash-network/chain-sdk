@@ -1,3 +1,6 @@
+/**
+ * @deprecated This class is deprecated and will be removed in future versions. Please use `ValidationError` from the `@chain-sdk/sdl` package instead.
+ */
 export class SdlValidationError extends Error {
   /**
    * Asserts a condition and throws an `SdlValidationError` if the condition is false.

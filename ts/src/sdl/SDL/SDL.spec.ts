@@ -10,7 +10,7 @@ import type { v2ServiceImageCredentials } from "../types.ts";
 import { SDL } from "./SDL.ts";
 import { SdlValidationError } from "./SdlValidationError.ts";
 
-describe("SDL", () => {
+describe(SDL.name, () => {
   describe("profiles placement pricing denomination", () => {
     it.each([AKT_DENOM, USDC_IBC_DENOMS[SANDBOX_ID]])("should resolve a group with a valid \"%s\" denomination", (denom) => {
       const sdl = SDL.fromString(
@@ -412,7 +412,7 @@ describe("SDL", () => {
 
   describe("test sdl persistent storage", () => {
     it("SDL: Persistent Storage Manifest", () => {
-      const validSDL = readFileSync("./fixtures/persistent_storage_valid.sdl.yml");
+      const validSDL = readFileSync("../fixtures/persistent_storage_valid.sdl.yml");
 
       const sdl = SDL.fromString(validSDL, "beta2");
       const result = sdl.manifest();
@@ -422,9 +422,9 @@ describe("SDL", () => {
   });
 
   describe("test GPU with interface", () => {
-    const testSDL = readFileSync("./fixtures/gpu_basic_ram_interface.sdl.yml");
+    const testSDL = readFileSync("../fixtures/gpu_basic_ram_interface.sdl.yml");
 
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/gpu_basic_ram_interface.manifest.json"));
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/gpu_basic_ram_interface.manifest.json"));
 
     it("SDL: GPU Manifest with ram & interface", () => {
       const sdl = SDL.fromString(testSDL, "beta3");
@@ -442,7 +442,7 @@ describe("SDL", () => {
 
   describe("SDL GPU Invalid Vendor", () => {
     it("SDL: GPU must throw if the vendor is invalid", () => {
-      const invalidSDL = readFileSync("./fixtures/gpu_invalid_vendor.sdl.yml");
+      const invalidSDL = readFileSync("../fixtures/gpu_invalid_vendor.sdl.yml");
 
       const t = () => {
         SDL.fromString(invalidSDL, "beta3");
@@ -452,7 +452,7 @@ describe("SDL", () => {
     });
 
     it("SDL: GPU without vendor name should throw", () => {
-      const invalidSDL = readFileSync("./fixtures/gpu_invalid_no_vendor_name.sdl.yml");
+      const invalidSDL = readFileSync("../fixtures/gpu_invalid_no_vendor_name.sdl.yml");
 
       const t = () => {
         SDL.fromString(invalidSDL, "beta3");
@@ -463,8 +463,8 @@ describe("SDL", () => {
   });
 
   describe("SDL WordPress", () => {
-    const testSDL = readFileSync("./fixtures/wordpress.sdl.yml");
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/wordpress.manifest.json"));
+    const testSDL = readFileSync("../fixtures/wordpress.sdl.yml");
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/wordpress.manifest.json"));
 
     describe("Manifest", () => {
       it("should generate the correct manifest", () => {
@@ -496,7 +496,7 @@ describe("SDL", () => {
 
   describe("SDL v3 Resource Groups", () => {
     it("should create v3 resource groups", async () => {
-      const testSDL = readFileSync("./fixtures/gpu_basic.sdl.yml");
+      const testSDL = readFileSync("../fixtures/gpu_basic.sdl.yml");
       const sdl = SDL.fromString(testSDL, "beta3");
 
       expect(sdl.groups()).toMatchSnapshot("Groups matches expected result");
@@ -720,7 +720,7 @@ describe("SDL", () => {
 
   describe("SDL: IP Lease Manifest", () => {
     it("should generate the correct manifest", async () => {
-      const validSDL = readFileSync("./fixtures/ip_lease_valid.sdl.yml");
+      const validSDL = readFileSync("../fixtures/ip_lease_valid.sdl.yml");
 
       const sdl = SDL.fromString(validSDL, "beta2");
       const result = sdl.manifest();
@@ -843,8 +843,8 @@ describe("SDL", () => {
   });
 
   describe("SDL GPU", () => {
-    const testSDL = readFileSync("./fixtures/gpu_basic.sdl.yml");
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/gpu_basic.manifest.json"));
+    const testSDL = readFileSync("../fixtures/gpu_basic.sdl.yml");
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/gpu_basic.manifest.json"));
 
     it("should generate the correct manifest", () => {
       const sdl = SDL.fromString(testSDL, "beta3");
@@ -931,8 +931,8 @@ describe("SDL", () => {
   });
 
   describe("SDL GPU RAM", () => {
-    const testSDL = readFileSync("./fixtures/gpu_basic_ram.sdl.yml");
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/gpu_basic_ram.manifest.json"));
+    const testSDL = readFileSync("../fixtures/gpu_basic_ram.sdl.yml");
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/gpu_basic_ram.manifest.json"));
 
     it("should generate correct manifest", () => {
       const sdl = SDL.fromString(testSDL, "beta3");
@@ -950,10 +950,10 @@ describe("SDL", () => {
   });
 
   describe("SDL: fromString", () => {
-    const validSDL = readFileSync("./fixtures/gpu_no_gpu_valid.sdl.yml");
-    const hasAttrSDL = readFileSync("./fixtures/gpu_no_gpu_invalid_has_attributes.sdl.yml");
-    const noVendorSdl = readFileSync("./fixtures/gpu_invalid_no_vendor.sdl.yml");
-    const invalidIntefaceSdl = readFileSync("./fixtures/gpu_invalid_interface.sdl.yml");
+    const validSDL = readFileSync("../fixtures/gpu_no_gpu_valid.sdl.yml");
+    const hasAttrSDL = readFileSync("../fixtures/gpu_no_gpu_invalid_has_attributes.sdl.yml");
+    const noVendorSdl = readFileSync("../fixtures/gpu_invalid_no_vendor.sdl.yml");
+    const invalidIntefaceSdl = readFileSync("../fixtures/gpu_invalid_interface.sdl.yml");
 
     it("should accept if GPU units is 0, and no attributes are present", () => {
       expect(() => SDL.fromString(validSDL, "beta3")).not.toThrow();
