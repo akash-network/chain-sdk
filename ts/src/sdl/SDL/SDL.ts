@@ -493,7 +493,7 @@ export class SDL {
             readOnly: params.storage[name]?.readOnly || false,
           };
         }),
-        ...(params?.permissions ? { permissions: params.permissions } : {}),
+      ...(params?.permissions ? { permissions: params.permissions } : {}),
     };
   }
 
