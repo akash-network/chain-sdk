@@ -7,7 +7,8 @@ import { GroupSpec } from "../../generated/protos/index.akash.v1beta4.ts";
 import { Group } from "../../generated/protos/index.provider.akash.v2beta3.ts";
 import { yaml } from "../../utils/yaml.ts";
 import type { SDLInput } from "../validateSDL/validateSDL.ts";
-import { type BuildResult, generateManifest } from "./generateManifest.ts";
+import type { GenerateManifestResult } from "./generateManifest.ts";
+import { generateManifest } from "./generateManifest.ts";
 
 describe(generateManifest.name, () => {
   describe("basic manifest generation", () => {
@@ -36,8 +37,7 @@ describe(generateManifest.name, () => {
 
     it("parses CPU units correctly", () => {
       const sdl = createBasicSdl({ cpu: 0.5 });
-      const result = generateManifest(sdl);
-      assertBuildResult(result);
+      const { result } = setup({ sdl });
 
       const cpuVal = result.groups[0].services[0].resources?.cpu?.units?.val;
       expect(new TextDecoder().decode(cpuVal)).toBe("500");
@@ -45,8 +45,7 @@ describe(generateManifest.name, () => {
 
     it("parses CPU units from string format", () => {
       const sdl = createBasicSdl({ cpu: "100m" });
-      const result = generateManifest(sdl);
-      assertBuildResult(result);
+      const { result } = setup({ sdl });
 
       const cpuVal = result.groups[0].services[0].resources?.cpu?.units?.val;
       expect(new TextDecoder().decode(cpuVal)).toBe("100");
@@ -54,8 +53,7 @@ describe(generateManifest.name, () => {
 
     it("parses memory size correctly", () => {
       const sdl = createBasicSdl({ memory: "512Mi" });
-      const result = generateManifest(sdl);
-      assertBuildResult(result);
+      const { result } = setup({ sdl });
 
       const memVal = result.groups[0].services[0].resources?.memory?.quantity?.val;
       expect(new TextDecoder().decode(memVal)).toBe("536870912");
@@ -63,8 +61,7 @@ describe(generateManifest.name, () => {
 
     it("parses storage correctly", () => {
       const sdl = createBasicSdl({ storage: [{ size: "1Gi" }] });
-      const result = generateManifest(sdl);
-      assertBuildResult(result);
+      const { result } = setup({ sdl });
 
       const storage = result.groups[0].services[0].resources?.storage;
       expect(storage).toHaveLength(1);
@@ -769,11 +766,11 @@ describe(generateManifest.name, () => {
   }) {
     const result = generateManifest(input?.sdl ?? createBasicSdl());
     assertBuildResult(result);
-    return { result };
+    return { result: result.value };
   }
 
-  function assertBuildResult(result: ReturnType<typeof generateManifest>): asserts result is BuildResult {
-    if (Array.isArray(result)) {
+  function assertBuildResult(result: ReturnType<typeof generateManifest>): asserts result is Extract<GenerateManifestResult, { ok: true }> {
+    if (!result.ok) {
       throw new Error(`Expected BuildResult but got validation errors: ${JSON.stringify(result)}`);
     }
   }

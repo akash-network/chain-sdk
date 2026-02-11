@@ -1,20 +1,20 @@
 import { default as stableStringify } from "json-stable-stringify";
 
-import type { Group } from "../../generated/protos/index.provider.akash.v2beta3.ts";
+import type { Manifest } from "./generateManifest.ts";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts"]);
 const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 
-export async function generateManifestVersion(manifest: Group[]): Promise<Uint8Array> {
+export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {
   const jsonStr = manifestToSortedJSON(manifest);
   const sortedBytes = encoder.encode(jsonStr);
   const sum = await crypto.subtle.digest("SHA-256", sortedBytes);
   return new Uint8Array(sum);
 }
 
-export function manifestToSortedJSON(manifest: Group[]): string {
+export function manifestToSortedJSON(manifest: Manifest): string {
   const json = stableStringify(manifest, { replacer: manifestReplacer }) || "";
   return escapeHtml(renameFields(json));
 }

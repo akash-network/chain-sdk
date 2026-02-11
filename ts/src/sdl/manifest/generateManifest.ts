@@ -1,24 +1,14 @@
-import {
-  PlacementRequirements,
-  SignedBy,
-} from "../../generated/protos/index.akash.v1.ts";
-import {
-  CPU,
-  GPU,
-  GroupSpec,
-  Memory,
-  Resources,
-  ResourceUnit,
-  Storage,
-} from "../../generated/protos/index.akash.v1beta4.ts";
-import {
-  Group,
-  ImageCredentials,
-  Service,
-  ServiceExpose,
-  ServiceParams,
-  StorageParams,
-} from "../../generated/protos/index.provider.akash.v2beta3.ts";
+import { PlacementRequirements, SignedBy } from "../../generated/protos/akash/base/attributes/v1/attribute.ts";
+import { CPU } from "../../generated/protos/akash/base/resources/v1beta4/cpu.ts";
+import { GPU } from "../../generated/protos/akash/base/resources/v1beta4/gpu.ts";
+import { Memory } from "../../generated/protos/akash/base/resources/v1beta4/memory.ts";
+import { Resources } from "../../generated/protos/akash/base/resources/v1beta4/resources.ts";
+import { Storage } from "../../generated/protos/akash/base/resources/v1beta4/storage.ts";
+import { GroupSpec } from "../../generated/protos/akash/deployment/v1beta4/groupspec.ts";
+import { ResourceUnit } from "../../generated/protos/akash/deployment/v1beta4/resourceunit.ts";
+import { Group } from "../../generated/protos/akash/manifest/v2beta3/group.ts";
+import { ImageCredentials, Service, ServiceParams, StorageParams } from "../../generated/protos/akash/manifest/v2beta3/service.ts";
+import { ServiceExpose } from "../../generated/protos/akash/manifest/v2beta3/serviceexpose.ts";
 import { MAINNET_ID } from "../../network/config.ts";
 import type { NetworkId } from "../../network/types.ts";
 import type { ValidationError } from "../../utils/jsonSchemaValidation.ts";
@@ -48,9 +38,12 @@ export interface BuildResult {
 }
 
 export type Manifest = BuildResult["groups"];
-export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_ID): ValidationError[] | BuildResult {
+export type GenerateManifestResult =
+  | { ok?: false; value: ValidationError[] }
+  | { ok: true; value: BuildResult };
+export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_ID): GenerateManifestResult {
   const errors = validateSDL(sdl, networkId);
-  if (errors) return errors;
+  if (errors) return { ok: false, value: errors };
 
   const endpointSequenceNumbers = computeEndpointSequenceNumbers(sdl.services);
   const groupsMap = new Map<string, {
@@ -153,7 +146,7 @@ export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_I
   let groups: Group[] | undefined;
   let groupSpecs: GroupSpec[] | undefined;
 
-  return {
+  const manifest = {
     get groups() {
       groups ??= sortedGroupNames.map((placementName) => {
         const deployments = deploymentsByPlacement.get(placementName)!;
@@ -184,6 +177,8 @@ export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_I
       return groupSpecs;
     },
   };
+
+  return { ok: true, value: manifest };
 }
 
 function buildResources(

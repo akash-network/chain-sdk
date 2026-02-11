@@ -3,7 +3,7 @@ import { describe, expect, it } from "@jest/globals";
 import type { Group } from "../../generated/protos/index.provider.akash.v2beta3.ts";
 import { yaml } from "../../utils/yaml.ts";
 import type { SDLInput } from "../validateSDL/validateSDL.ts";
-import { type BuildResult, generateManifest } from "./generateManifest.ts";
+import { generateManifest, type GenerateManifestResult } from "./generateManifest.ts";
 import { generateManifestVersion, manifestToSortedJSON } from "./generateManifestVersion.ts";
 
 describe(generateManifestVersion.name, () => {
@@ -649,11 +649,11 @@ describe(generateManifestVersion.name, () => {
     const result = generateManifest(sdl);
     assertBuildResult(result);
 
-    return { manifest: result.groups };
+    return { manifest: result.value.groups };
   }
 
-  function assertBuildResult(result: ReturnType<typeof generateManifest>): asserts result is BuildResult {
-    if (Array.isArray(result)) {
+  function assertBuildResult(result: ReturnType<typeof generateManifest>): asserts result is Extract<GenerateManifestResult, { ok: true }> {
+    if (!result.ok) {
       throw new Error(`Expected BuildResult but got validation errors: ${JSON.stringify(result)}`);
     }
   }
