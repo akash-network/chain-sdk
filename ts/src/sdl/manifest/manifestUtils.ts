@@ -28,16 +28,24 @@ export function encodeResourceValue(value: number): Uint8Array {
 }
 
 export function computeEndpointSequenceNumbers(services: SDLInput["services"]): Record<string, number> {
-  return Object.fromEntries(
-    Object.values(services).flatMap((service) =>
-      (service.expose ?? []).flatMap((expose) =>
-        (expose.to ?? [])
-          .filter((to) => to.global && to.ip && to.ip.length > 0)
-          .sort((a, b) => a.ip!.localeCompare(b.ip!))
-          .map((expose, index) => [expose.ip!, index + 1]),
-      ),
-    ),
-  );
+  const endpointNames: string[] = [];
+
+  for (const service of Object.values(services)) {
+    if (!service.expose) continue;
+    for (const expose of service.expose) {
+      if (!expose.to) continue;
+      for (const to of expose.to) {
+        if (to.global && to.ip && to.ip.length > 0) {
+          endpointNames.push(to.ip);
+        }
+      }
+    }
+  }
+
+  return endpointNames.sort().reduce<Record<string, number>>((result, name, seqNumber) => {
+    result[name] = seqNumber + 1;
+    return result;
+  }, {});
 }
 
 export function isIngress(proto: string, global: boolean, externalPort: number, port: number): boolean {
@@ -57,18 +65,18 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
           if (model.interface) key += `/interface/${model.interface}`;
           return { key, value: "true" };
         })
-      : { key: `vendor/${vendorName}/model/*`, value: "true" },
+      : [{ key: `vendor/${vendorName}/model/*`, value: "true" }],
   );
 }
 
 export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTTPOptions {
   return ServiceExposeHTTPOptions.fromPartial({
-    maxBodySize: httpOptions?.max_body_size || 1048576,
-    readTimeout: httpOptions?.read_timeout || 60000,
-    sendTimeout: httpOptions?.send_timeout || 60000,
-    nextTries: httpOptions?.next_tries || 3,
-    nextTimeout: httpOptions?.next_timeout || 0,
-    nextCases: httpOptions?.next_cases || ["error", "timeout"],
+    maxBodySize: httpOptions?.max_body_size ?? 1048576,
+    readTimeout: httpOptions?.read_timeout ?? 60000,
+    sendTimeout: httpOptions?.send_timeout ?? 60000,
+    nextTries: httpOptions?.next_tries ?? 3,
+    nextTimeout: httpOptions?.next_timeout ?? 0,
+    nextCases: httpOptions?.next_cases ?? ["error", "timeout"],
   });
 }
 
@@ -114,7 +122,7 @@ export function buildServiceEndpoints(
         const leasedEp = to.ip && to.ip.length > 0
           ? Endpoint.fromPartial({
               kind: Endpoint_Kind.LEASED_IP,
-              sequenceNumber: endpointSequenceNumbers[to.ip] || 0,
+              sequenceNumber: endpointSequenceNumbers[to.ip],
             })
           : undefined;
 

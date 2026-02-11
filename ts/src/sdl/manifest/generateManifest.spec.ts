@@ -476,6 +476,19 @@ describe(generateManifest.name, () => {
       const endpoints = result.groups[0].services[0].resources?.endpoints;
       expect(endpoints).toContainEqual(expect.objectContaining({ kind: 2, sequenceNumber: 1 }));
     });
+
+    it("assigns sequence numbers to global endpoints in sorted order", async () => {
+      const sdlContent = readFileSync("../fixtures/shared-ip.yml");
+      const sdl = yaml.template<SDLInput>(sdlContent);
+      const { result } = setup({ sdl });
+
+      const sequenceNumbers = result.groups
+        .flatMap((g) => g.services)
+        .flatMap((s) => s.expose ?? [])
+        .map((e) => e.endpointSequenceNumber);
+
+      expect(sequenceNumbers).toEqual([2, 2]);
+    });
   });
 
   describe("complex scenarios", () => {
@@ -610,14 +623,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/gpu_basic.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("GPU basic manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("GPU basic groupSpecs");
@@ -628,14 +641,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/gpu_basic_ram.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("GPU basic RAM manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("GPU basic RAM groupSpecs");
@@ -646,14 +659,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/gpu_basic_ram_interface.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("GPU basic RAM interface manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("GPU basic RAM interface groupSpecs");
@@ -664,14 +677,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/wordpress.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("WordPress manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("WordPress groupSpecs");
@@ -682,14 +695,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/persistent_storage_valid.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("Persistent storage manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("Persistent storage groupSpecs");
@@ -700,14 +713,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/ip_lease_valid.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("IP lease manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("IP lease groupSpecs");
@@ -718,14 +731,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/gpu_basic_no_model.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("GPU no model manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("GPU no model groupSpecs");
@@ -736,14 +749,14 @@ describe(generateManifest.name, () => {
       const sdlContent = readFileSync("../fixtures/gpu_no_gpu_valid.sdl.yml");
 
       it("generates manifest (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroups(result.groups)).toMatchSnapshot("GPU zero units manifest");
       });
 
       it("generates groupSpecs (snapshot)", () => {
-        const sdl = yaml<SDLInput>`${sdlContent}`;
+        const sdl = yaml.template<SDLInput>(sdlContent);
         const { result } = setup({ sdl });
 
         expect(stringifyGroupSpecs(result.groupSpecs)).toMatchSnapshot("GPU zero units groupSpecs");
@@ -859,10 +872,8 @@ describe(generateManifest.name, () => {
     return sdl;
   }
 
-  /**
-   * @param filePath Relative path from current directory
-   */
-  function readFileSync(filePath: string): string {
+  type RelativeFilePath<T extends string> = string & { baseDir?: T };
+  function readFileSync(filePath: RelativeFilePath<"$dir">): string {
     const fullPath = path.join(__dirname, filePath);
     return fs.readFileSync(fullPath, "utf8");
   }

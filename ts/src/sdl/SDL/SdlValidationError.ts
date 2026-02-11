@@ -1,5 +1,5 @@
 /**
- * @deprecated This class is deprecated and will be removed in future versions. Please use `ValidationError` from the `@chain-sdk/sdl` package instead.
+ * @deprecated This class is deprecated and will be removed in future versions.
  */
 export class SdlValidationError extends Error {
   /**

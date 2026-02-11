@@ -40,13 +40,14 @@ import {
   type SDLCompute,
   type SDLService,
   transformGpuAttributes,
-} from "./helpers.ts";
+} from "./manifestUtils.ts";
 
 export interface BuildResult {
   groups: Group[];
   groupSpecs: GroupSpec[];
 }
 
+export type Manifest = BuildResult["groups"];
 export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_ID): ValidationError[] | BuildResult {
   const errors = validateSDL(sdl, networkId);
   if (errors) return errors;
@@ -199,11 +200,10 @@ function buildResources(
     id,
     cpu: CPU.fromPartial({
       units: { val: encodeResourceValue(parseCpuUnits(res.cpu)) },
-      attributes: cpuAttributes || [],
+      attributes: cpuAttributes,
     }),
     memory: Memory.fromPartial({
       quantity: { val: encodeResourceValue(parseMemoryBytes(res.memory)) },
-      attributes: [],
     }),
     storage: castArray(res.storage).map((s) =>
       Storage.fromPartial({
@@ -284,14 +284,14 @@ function buildManifestExpose(
       (expose.to ?? []).map((to) =>
         ServiceExpose.fromPartial({
           port: expose.port,
-          externalPort: expose.as || 0,
+          externalPort: expose.as,
           proto: parseServiceProto(expose.proto),
           service: to.service || "",
           global: to.global || false,
           hosts: expose.accept || [],
           httpOptions: buildHttpOptions(expose.http_options),
           ip: to.ip || "",
-          endpointSequenceNumber: endpointSequenceNumbers[to.ip!] || 0,
+          endpointSequenceNumber: endpointSequenceNumbers[to.ip!],
         }),
       ),
     )

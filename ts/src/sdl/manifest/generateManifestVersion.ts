@@ -1,10 +1,11 @@
 import { default as stableStringify } from "json-stable-stringify";
 
-import type { Resources, ResourceValue } from "../../generated/protos/index.akash.v1beta4.ts";
-import type { Group, Service, ServiceExpose } from "../../generated/protos/index.provider.akash.v2beta3.ts";
+import type { Group } from "../../generated/protos/index.provider.akash.v2beta3.ts";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
+const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts"]);
+const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 
 export async function generateManifestVersion(manifest: Group[]): Promise<Uint8Array> {
   const jsonStr = manifestToSortedJSON(manifest);
@@ -14,114 +15,50 @@ export async function generateManifestVersion(manifest: Group[]): Promise<Uint8A
 }
 
 export function manifestToSortedJSON(manifest: Group[]): string {
-  const jsonReady = manifest.map((group) => ({
-    name: group.name,
-    services: group.services.map(serviceToJSON),
-  }));
-
-  const sorted = stableStringify(jsonReady) || "";
-  return escapeHtml(sorted);
+  const json = stableStringify(manifest, { replacer: manifestReplacer }) || "";
+  return escapeHtml(renameFields(json));
 }
 
-function serviceToJSON(svc: Service): unknown {
-  return {
-    name: svc.name,
-    image: svc.image,
-    command: svc.command.length > 0 ? svc.command : null,
-    args: svc.args.length > 0 ? svc.args : null,
-    env: svc.env.length > 0 ? svc.env : null,
-    resources: resourcesToJSON(svc.resources!),
-    count: svc.count,
-    expose: svc.expose.map(exposeToJSON),
-    ...(svc.params
-      ? {
-          params: {
-            storage: svc.params.storage.map((s) => ({
-              name: s.name,
-              mount: s.mount,
-              readOnly: s.readOnly,
-            })),
-            ...(Object.hasOwn(svc.params, "permissions")
-              ? { permissions: (svc.params as unknown as Record<string, unknown>).permissions }
-              : {}),
-          },
-        }
-      : {}),
-    credentials: svc.credentials
-      ? {
-          host: svc.credentials.host,
-          email: svc.credentials.email,
-          username: svc.credentials.username,
-          password: svc.credentials.password,
-        }
-      : null,
-  };
+function manifestReplacer(this: unknown, key: string | number, value: unknown): unknown {
+  if (value && value instanceof Uint8Array) {
+    return decoder.decode(value);
+  }
+
+  if (typeof key !== "string") {
+    return value;
+  }
+
+  // only top-level "credentials" field can be null, credentials in params should be omitted
+  if (typeof this === "object" && this && Object.hasOwn(this, "command") && key === "credentials" && value == null) {
+    return null;
+  }
+
+  if (NULLABLE_MANIFEST_KEYS.has(key) && ((Array.isArray(value) && value.length === 0) || value == null)) {
+    return null;
+  }
+
+  if (OMITTED_MANIFEST_KEYS.has(key) && ((Array.isArray(value) && value.length === 0) || value === 0)) {
+    return undefined;
+  }
+
+  return value;
 }
 
-function exposeToJSON(e: ServiceExpose): unknown {
-  return {
-    port: e.port,
-    externalPort: e.externalPort,
-    proto: e.proto,
-    service: e.service,
-    global: e.global,
-    hosts: e.hosts.length > 0 ? e.hosts : null,
-    httpOptions: e.httpOptions
-      ? {
-          maxBodySize: e.httpOptions.maxBodySize,
-          readTimeout: e.httpOptions.readTimeout,
-          sendTimeout: e.httpOptions.sendTimeout,
-          nextTries: e.httpOptions.nextTries,
-          nextTimeout: e.httpOptions.nextTimeout,
-          nextCases: e.httpOptions.nextCases,
-        }
-      : undefined,
-    ip: e.ip,
-    endpointSequenceNumber: e.endpointSequenceNumber,
-  };
+const MANIFEST_VERSION_FIELD_MAPPING: Record<string, string> = { quantity: "size", sequenceNumber: "sequence_number" };
+const MANIFEST_VERSION_FIELD_REGEX = new RegExp(`"(${Object.keys(MANIFEST_VERSION_FIELD_MAPPING).join("|")})":`, "g");
+function renameFields(jsonStr: string): string {
+  MANIFEST_VERSION_FIELD_REGEX.lastIndex = 0; // reset regex state
+  return jsonStr.replace(MANIFEST_VERSION_FIELD_REGEX, (_, field) => `"${MANIFEST_VERSION_FIELD_MAPPING[field]}":`);
 }
 
-function resourceValueToString(rv: ResourceValue | undefined): string {
-  if (!rv || rv.val.length === 0) return "0";
-  return decoder.decode(rv.val);
-}
+const htmlEscapes: Record<string, string> = {
+  "<": "\\u003c",
+  ">": "\\u003e",
+  "&": "\\u0026",
+};
 
-function resourcesToJSON(resources: Resources): unknown {
-  return {
-    id: resources.id,
-    cpu: {
-      units: { val: resourceValueToString(resources.cpu?.units) },
-      ...(resources.cpu?.attributes && resources.cpu.attributes.length > 0
-        ? { attributes: resources.cpu.attributes }
-        : {}),
-    },
-    memory: {
-      size: { val: resourceValueToString(resources.memory?.quantity) },
-      ...(resources.memory?.attributes && resources.memory.attributes.length > 0
-        ? { attributes: resources.memory.attributes }
-        : {}),
-    },
-    storage: resources.storage.map((s) => ({
-      name: s.name,
-      size: { val: resourceValueToString(s.quantity) },
-      ...(s.attributes && s.attributes.length > 0 ? { attributes: s.attributes } : {}),
-    })),
-    gpu: {
-      units: { val: resourceValueToString(resources.gpu?.units) },
-      ...(resources.gpu?.attributes && resources.gpu.attributes.length > 0
-        ? { attributes: resources.gpu.attributes }
-        : {}),
-    },
-    endpoints: resources.endpoints.map((e) => ({
-      ...(e.kind !== 0 ? { kind: e.kind } : {}),
-      sequence_number: e.sequenceNumber,
-    })),
-  };
-}
-
+const HTML_SPECIAL_CHARS_REGEX = new RegExp(`[${Object.keys(htmlEscapes).join("")}]`, "g");
 function escapeHtml(raw: string): string {
-  return raw
-    .replace(/</g, "\\u003c")
-    .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026");
+  HTML_SPECIAL_CHARS_REGEX.lastIndex = 0; // reset regex state
+  return raw.replace(HTML_SPECIAL_CHARS_REGEX, (ch) => htmlEscapes[ch]);
 }

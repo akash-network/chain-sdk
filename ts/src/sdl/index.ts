@@ -32,4 +32,5 @@ export * from "./types.ts";
 export { SdlValidationError } from "./SDL/SdlValidationError.ts";
 
 export { generateManifest } from "./manifest/generateManifest.ts";
-export { generateManifestVersion } from "./manifest/generateManifestVersion.ts";
+export type { Manifest } from "./manifest/generateManifest.ts";
+export { generateManifestVersion, manifestToSortedJSON } from "./manifest/generateManifestVersion.ts";
