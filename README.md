@@ -69,6 +69,7 @@ Currently, two `buf` packages are defined, with potential future publication to 
 Proto documentation is available for:
 - [Node](docs/proto/node.md)
 - [Provider](docs/proto/provider.md)
+- [Service Permissions](docs/service-permissions.md) - Guide to using Kubernetes RBAC permissions in SDL
 
 Documentation in swagger format combining both node and provider packages can be located [here](./docs/swagger-ui/swagger.yaml)
 

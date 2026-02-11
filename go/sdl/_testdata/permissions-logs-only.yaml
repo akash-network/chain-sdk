@@ -1,0 +1,36 @@
+---
+version: "2.0"
+services:
+  monitor:
+    image: myapp/log-monitor:latest
+    expose:
+      - port: 8080
+        to:
+          - global: true
+    params:
+      permissions:
+        read:
+          - logs
+profiles:
+  compute:
+    monitor:
+      resources:
+        cpu:
+          units: "200m"
+        memory:
+          size: "256Mi"
+        storage:
+          size: "1Gi"
+  placement:
+    westcoast:
+      attributes:
+        region: us-west
+      pricing:
+        monitor:
+          denom: uact
+          amount: 100
+deployment:
+  monitor:
+    westcoast:
+      profile: monitor
+      count: 1

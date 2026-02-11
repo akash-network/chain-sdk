@@ -27,6 +27,40 @@ message StorageParams {
     ];
 }
 
+// ServicePermissions defines Kubernetes RBAC read permissions for the service.
+// Grants access to specific cluster resources within the service's namespace.
+//
+// By default, services have no access to cluster resources (logs, events, etc).
+// This follows Kubernetes security best practices of least privilege.
+//
+// Supported permission types:
+//   - logs: Grants read access to pod logs and deployment info
+//   - events: Grants read access to Kubernetes events
+//
+// Example SDL usage:
+//   params:
+//     permissions:
+//       read:
+//         - logs
+//         - events
+//
+// Use cases:
+//   - Self-monitoring applications that display their own logs
+//   - Services that track deployment events for debugging
+//   - Log aggregation tools running as sidecars
+//
+// Security note: Permissions are scoped to the service's own resources only.
+// Services cannot access logs or events from other deployments.
+//
+// See docs/service-permissions.md for detailed documentation and examples.
+// See: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+message ServicePermissions {
+  repeated string read = 1 [
+    (gogoproto.jsontag)  = "read,omitempty",
+    (gogoproto.moretags) = "yaml:\"read,omitempty\""
+  ];
+}
+
 // ServiceParams
 message ServiceParams {
   repeated StorageParams storage = 1 [
@@ -38,6 +72,11 @@ message ServiceParams {
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "credentials,omitempty",
     (gogoproto.moretags) = "yaml:\"credentials,omitempty\""
+  ];
+  ServicePermissions permissions = 11 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "permissions,omitempty",
+    (gogoproto.moretags) = "yaml:\"permissions,omitempty\""
   ];
 }
 
