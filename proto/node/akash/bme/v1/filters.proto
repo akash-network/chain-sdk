@@ -1,0 +1,39 @@
+syntax = "proto3";
+package akash.bme.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "pkg.akt.dev/go/node/bme/v1";
+
+// LedgerRecordFilters defines filters used to filter ledger records
+message LedgerRecordFilters {
+  option (gogoproto.equal) = false;
+
+  // source is the account address of the user who initiated the burn/mint
+  string source = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "source",
+    (gogoproto.moretags)  = "yaml:\"source\""
+  ];
+
+  // denom filters by the burn denomination
+  string denom = 2 [
+    (gogoproto.jsontag)  = "denom",
+    (gogoproto.moretags) = "yaml:\"denom\""
+  ];
+
+  // to_denom filters by the mint denomination
+  string to_denom = 3 [
+    (gogoproto.jsontag)  = "to_denom",
+    (gogoproto.moretags) = "yaml:\"to_denom\""
+  ];
+
+  // status filters by record status (pending or executed).
+  // Uses the string representation of LedgerRecordStatus enum values.
+  // If empty, returns both pending and executed records.
+  string status = 4 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+}

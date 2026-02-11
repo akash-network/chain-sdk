@@ -3,11 +3,13 @@ package akash.bme.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 
 import "cosmos_proto/cosmos.proto";
 
 import "akash/bme/v1/params.proto";
 import "akash/bme/v1/types.proto";
+import "akash/bme/v1/filters.proto";
 
 option go_package = "pkg.akt.dev/go/node/bme/v1";
 
@@ -26,6 +28,11 @@ service Query {
   // Status returns the current circuit breaker status
   rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
     option (google.api.http).get = "/akash/bme/v1/status";
+  }
+
+  // LedgerRecords queries ledger records with optional filters for status, source, denom, to_denom
+  rpc LedgerRecords(QueryLedgerRecordsRequest) returns (QueryLedgerRecordsResponse) {
+    option (google.api.http).get = "/akash/bme/v1/ledger";
   }
 }
 
@@ -79,4 +86,49 @@ message QueryStatusResponse {
 
   // refunds_allowed indicates if ACT refunds are allowed
   bool refunds_allowed = 6;
+}
+
+// QueryLedgerRecordEntry wraps a ledger record with its ID and status
+message QueryLedgerRecordEntry {
+  // id is the unique identifier of the ledger record
+  LedgerRecordID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // status indicates whether this record is pending or executed
+  LedgerRecordStatus status = 2;
+
+  // record contains either a pending or executed record
+  oneof record {
+    // pending_record is set when the record status is pending
+    LedgerPendingRecord pending_record = 3;
+
+    // executed_record is set when the record status is executed
+    LedgerRecord executed_record = 4;
+  }
+}
+
+// QueryLedgerRecordsRequest is the request type for the Query/LedgerRecords RPC method
+message QueryLedgerRecordsRequest {
+  // filters holds the ledger record fields to filter the request
+  LedgerRecordFilters filters = 1 [
+    (gogoproto.nullable) = false
+  ];
+
+  // pagination defines the pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryLedgerRecordsResponse is the response type for the Query/LedgerRecords RPC method
+message QueryLedgerRecordsResponse {
+  // records is a list of ledger records matching the filters
+  repeated QueryLedgerRecordEntry records = 1 [
+    (gogoproto.nullable) = false
+  ];
+
+  // pagination contains the information about response pagination
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
