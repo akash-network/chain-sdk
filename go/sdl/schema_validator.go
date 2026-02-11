@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -75,6 +76,11 @@ func (sv *SchemaValidator) getCompiledSchema() (*gojsonschema.Schema, error) {
 			return
 		}
 
+		if err := sanitizeSchemaRefs(schemaJSON); err != nil {
+			sv.schemaCompileError = fmt.Errorf("invalid schema: %w", err)
+			return
+		}
+
 		jsonBytes, err := json.Marshal(schemaJSON)
 		if err != nil {
 			sv.schemaCompileError = fmt.Errorf("failed to convert schema to JSON: %w", err)
@@ -141,4 +147,34 @@ func (sv *SchemaValidator) checkSchemaValidationResult(schemaErr error, goValida
 			"go_error", goValidationErr.Error(),
 		)
 	}
+}
+
+func sanitizeSchemaRefs(node any) error {
+	switch typed := node.(type) {
+	case map[string]any:
+		for key, value := range typed {
+			if key == "$ref" {
+				ref, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("schema $ref must be string")
+				}
+
+				if !strings.HasPrefix(ref, "#") {
+					return fmt.Errorf("external schema reference %q is not allowed", ref)
+				}
+			}
+
+			if err := sanitizeSchemaRefs(value); err != nil {
+				return err
+			}
+		}
+	case []any:
+		for _, item := range typed {
+			if err := sanitizeSchemaRefs(item); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

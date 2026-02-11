@@ -188,6 +188,10 @@ func compileSchemaFromPath(schemaPath string) (*gojsonschema.Schema, error) {
 		return nil, fmt.Errorf("failed to parse YAML schema: %w", err)
 	}
 
+	if err := sanitizeSchemaRefs(schemaData); err != nil {
+		return nil, fmt.Errorf("invalid schema: %w", err)
+	}
+
 	jsonBytes, err := json.Marshal(schemaData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
