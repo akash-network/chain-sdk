@@ -1,0 +1,1609 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateManifest fixture file tests GPU basic generates groupSpecs (snapshot): GPU basic groupSpecs 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "akash1123123",
+          "akash1124123123"
+        ],
+        "any_of": [
+          "akash1123123",
+          "akash1124123123"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "foo",
+          "value": "bar"
+        },
+        {
+          "key": "region",
+          "value": "us-west"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "50"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU basic generates manifest (snapshot): GPU basic manifest 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx",
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "hosts": [
+              "ahostname.com"
+            ],
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 12345,
+            "proto": "UDP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU basic with RAM and interface generates groupSpecs (snapshot): GPU basic RAM interface groupSpecs 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "akash1123123",
+          "akash11241231"
+        ],
+        "any_of": [
+          "akash1123123",
+          "akash1124123123"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "foo",
+          "value": "bar"
+        },
+        {
+          "key": "region",
+          "value": "us-west"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100/ram/40Gi/interface/pcie",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "50"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU basic with RAM and interface generates manifest (snapshot): GPU basic RAM interface manifest 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx",
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100/ram/40Gi/interface/pcie",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "hosts": [
+              "ahostname.com"
+            ],
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 12345,
+            "proto": "UDP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU basic with RAM generates groupSpecs (snapshot): GPU basic RAM groupSpecs 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "akash1123123",
+          "akash1124123123"
+        ],
+        "any_of": [
+          "akash1123123",
+          "akash1124123123"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "foo",
+          "value": "bar"
+        },
+        {
+          "key": "region",
+          "value": "us-west"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100/ram/40Gi",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "50"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU basic with RAM generates manifest (snapshot): GPU basic RAM manifest 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx",
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100/ram/40Gi",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "hosts": [
+              "ahostname.com"
+            ],
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 12345,
+            "proto": "UDP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU without GPU (units=0) generates groupSpecs (snapshot): GPU zero units groupSpecs 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "akash1123123",
+          "akash1124123123"
+        ],
+        "any_of": [
+          "akash1123123",
+          "akash1124123123"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "blalbla",
+          "value": "foo"
+        },
+        {
+          "key": "region",
+          "value": "us-west"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "50"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU without GPU (units=0) generates manifest (snapshot): GPU zero units manifest 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx",
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "hosts": [
+              "ahostname.com"
+            ],
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 12345,
+            "proto": "UDP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU without model generates groupSpecs (snapshot): GPU no model groupSpecs 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "akash1123123",
+          "akash1123123123"
+        ],
+        "any_of": [
+          "akash1123123",
+          "akash1123123123"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "foo",
+          "value": "bar"
+        },
+        {
+          "key": "region",
+          "value": "us-west"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/*",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "50"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests GPU without model generates manifest (snapshot): GPU no model manifest 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx",
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/*",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "hosts": [
+              "ahostname.com"
+            ],
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 12345,
+            "proto": "UDP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests IP lease generates groupSpecs (snapshot): IP lease groupSpecs 1`] = `
+"[
+  {
+    "name": "dcloud",
+    "requirements": {
+      "signed_by": {}
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "NTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "NTM2ODcwOTEy"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "NTM2ODcwOTEy"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "LEASED_IP",
+              "sequence_number": 1
+            }
+          ]
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "1000"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests IP lease generates manifest (snapshot): IP lease manifest 1`] = `
+"[
+  {
+    "name": "dcloud",
+    "services": [
+      {
+        "name": "web",
+        "image": "akashlytics/hello-akash-world:0.2.0",
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "NTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "NTM2ODcwOTEy"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "NTM2ODcwOTEy"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "LEASED_IP",
+              "sequence_number": 1
+            }
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 3000,
+            "external_port": 80,
+            "proto": "TCP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "myendpoint",
+            "endpoint_sequence_number": 1
+          }
+        ]
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests Persistent storage generates groupSpecs (snapshot): Persistent storage groupSpecs 1`] = `
+"[
+  {
+    "name": "akash",
+    "requirements": {
+      "signed_by": {
+        "any_of": [
+          "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63",
+          "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"
+        ]
+      }
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTA3Mzc0MTgyNA=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            },
+            {
+              "name": "wordpress-db",
+              "quantity": {
+                "val": "ODU4OTkzNDU5Mg=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            },
+            {
+              "name": "shm",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "ram"
+                },
+                {
+                  "key": "persistent",
+                  "value": "false"
+                }
+              ]
+            },
+            {
+              "name": "shm2",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "ram"
+                },
+                {
+                  "key": "persistent",
+                  "value": "false"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          }
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "10000"
+        }
+      },
+      {
+        "resource": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "NDAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "NDI5NDk2NzI5Ng=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "NDI5NDk2NzI5Ng=="
+              }
+            },
+            {
+              "name": "wordpress-data",
+              "quantity": {
+                "val": "MzQzNTk3MzgzNjg="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {}
+          ]
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "10000"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests Persistent storage generates manifest (snapshot): Persistent storage manifest 1`] = `
+"[
+  {
+    "name": "akash",
+    "services": [
+      {
+        "name": "db",
+        "image": "mariadb:10.6.4",
+        "env": [
+          "MYSQL_RANDOM_ROOT_PASSWORD=1",
+          "MYSQL_DATABASE=wordpress",
+          "MYSQL_USER=wordpress",
+          "MYSQL_PASSWORD=testpass4you"
+        ],
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTA3Mzc0MTgyNA=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            },
+            {
+              "name": "wordpress-db",
+              "quantity": {
+                "val": "ODU4OTkzNDU5Mg=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            },
+            {
+              "name": "shm",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "ram"
+                },
+                {
+                  "key": "persistent",
+                  "value": "false"
+                }
+              ]
+            },
+            {
+              "name": "shm2",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "ram"
+                },
+                {
+                  "key": "persistent",
+                  "value": "false"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          }
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 3306,
+            "proto": "TCP",
+            "service": "wordpress",
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 33060,
+            "proto": "TCP",
+            "service": "wordpress",
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ],
+        "params": {
+          "storage": [
+            {
+              "name": "wordpress-db",
+              "mount": "/var/lib/mysql"
+            },
+            {
+              "name": "shm",
+              "mount": "/dev/shm"
+            }
+          ]
+        }
+      },
+      {
+        "name": "wordpress",
+        "image": "wordpress",
+        "env": [
+          "WORDPRESS_DB_HOST=db",
+          "WORDPRESS_DB_USER=wordpress",
+          "WORDPRESS_DB_PASSWORD=testpass4you",
+          "WORDPRESS_DB_NAME=wordpress"
+        ],
+        "resources": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "NDAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "NDI5NDk2NzI5Ng=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "NDI5NDk2NzI5Ng=="
+              }
+            },
+            {
+              "name": "wordpress-data",
+              "quantity": {
+                "val": "MzQzNTk3MzgzNjg="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {}
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 104857600,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ],
+        "params": {
+          "storage": [
+            {
+              "name": "wordpress-data",
+              "mount": "/var/www/html"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests WordPress multi-service generates groupSpecs (snapshot): WordPress groupSpecs 1`] = `
+"[
+  {
+    "name": "akash",
+    "requirements": {
+      "signed_by": {
+        "any_of": [
+          "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63",
+          "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"
+        ]
+      }
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTA3Mzc0MTgyNA=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            },
+            {
+              "name": "wordpress-db",
+              "quantity": {
+                "val": "ODU4OTkzNDU5Mg=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          }
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "10000"
+        }
+      },
+      {
+        "resource": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "NDAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "NDI5NDk2NzI5Ng=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "NDI5NDk2NzI5Ng=="
+              }
+            },
+            {
+              "name": "wordpress-data",
+              "quantity": {
+                "val": "MzQzNTk3MzgzNjg="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {}
+          ]
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "10000"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest fixture file tests WordPress multi-service generates manifest (snapshot): WordPress manifest 1`] = `
+"[
+  {
+    "name": "akash",
+    "services": [
+      {
+        "name": "db",
+        "image": "mariadb:10.6.4",
+        "env": [
+          "MYSQL_RANDOM_ROOT_PASSWORD=1",
+          "MYSQL_DATABASE=wordpress",
+          "MYSQL_USER=wordpress",
+          "MYSQL_PASSWORD=testpass4you"
+        ],
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTA3Mzc0MTgyNA=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            },
+            {
+              "name": "wordpress-db",
+              "quantity": {
+                "val": "ODU4OTkzNDU5Mg=="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          }
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 3306,
+            "proto": "TCP",
+            "service": "wordpress",
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 33060,
+            "proto": "TCP",
+            "service": "wordpress",
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ],
+        "params": {
+          "storage": [
+            {
+              "name": "wordpress-db",
+              "mount": "/var/lib/mysql"
+            }
+          ]
+        }
+      },
+      {
+        "name": "wordpress",
+        "image": "wordpress",
+        "env": [
+          "WORDPRESS_DB_HOST=db",
+          "WORDPRESS_DB_USER=wordpress",
+          "WORDPRESS_DB_PASSWORD=testpass4you",
+          "WORDPRESS_DB_NAME=wordpress"
+        ],
+        "resources": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "NDAwMA=="
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "NDI5NDk2NzI5Ng=="
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "NDI5NDk2NzI5Ng=="
+              }
+            },
+            {
+              "name": "wordpress-data",
+              "quantity": {
+                "val": "MzQzNTk3MzgzNjg="
+              },
+              "attributes": [
+                {
+                  "key": "class",
+                  "value": "beta3"
+                },
+                {
+                  "key": "persistent",
+                  "value": "true"
+                }
+              ]
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MA=="
+            }
+          },
+          "endpoints": [
+            {}
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 104857600,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ],
+        "params": {
+          "storage": [
+            {
+              "name": "wordpress-data",
+              "mount": "/var/www/html"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]"
+`;

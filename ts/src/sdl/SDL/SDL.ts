@@ -35,9 +35,9 @@ import type {
   v3Sdl,
   v3ServiceExpose,
   v3ServiceExposeHttpOptions } from "../types.ts";
+import type { SDLInput } from "../validateSDL/validateSDL.ts";
+import { validateSDL } from "../validateSDL/validateSDL.ts";
 import { SdlValidationError } from "./SdlValidationError.ts";
-import type { SDLInput } from "./validateSDL/validateSDL.ts";
-import { validateSDL } from "./validateSDL/validateSDL.ts";
 
 const Endpoint_SHARED_HTTP = 0;
 const Endpoint_RANDOM_PORT = 1;
@@ -56,6 +56,8 @@ type NetworkVersion = "beta2" | "beta3";
 /**
  * SDL (Stack Definition Language) parser and validator
  * Handles parsing and validation of Akash deployment manifests
+ *
+ * @deprecated Use `generateManifest` instead.
  *
  * @example
  * ```ts

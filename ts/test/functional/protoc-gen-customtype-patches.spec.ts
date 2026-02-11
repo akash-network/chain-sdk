@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "@jest/globals";
 import { exec } from "child_process";
-import { access, constants as fsConst, readFile, rmdir } from "fs/promises";
+import { access, constants as fsConst, readFile, rm } from "fs/promises";
 import { tmpdir } from "os";
 import { join as joinPath } from "path";
 import type { PluginOptions } from "../../script/protoc-gen-customtype-patches.ts";
@@ -14,7 +14,7 @@ describe("protoc-gen-customtype-patches plugin", () => {
 
   afterEach(async () => {
     if (await access(outputDir, fsConst.W_OK).then(() => true, () => false)) {
-      await rmdir(outputDir, { recursive: true });
+      await rm(outputDir, { force: true, recursive: true });
     }
   });
 

@@ -24,9 +24,13 @@
  */
 export { SDL } from "./SDL/SDL.ts";
 
-export { validateSDL, validationSDLSchema } from "./SDL/validateSDL/validateSDL.ts";
-export type { SDLInput } from "./SDL/validateSDL/validateSDLInput.ts";
+export { validateSDL, validationSDLSchema } from "./validateSDL/validateSDL.ts";
+export type { SDLInput } from "./validateSDL/validateSDLInput.ts";
 export type { ValidationError } from "../utils/jsonSchemaValidation.ts";
 
 export * from "./types.ts";
 export { SdlValidationError } from "./SDL/SdlValidationError.ts";
+
+export { generateManifest } from "./manifest/generateManifest.ts";
+export type { Manifest, GenerateManifestResult } from "./manifest/generateManifest.ts";
+export { generateManifestVersion, manifestToSortedJSON } from "./manifest/generateManifestVersion.ts";
