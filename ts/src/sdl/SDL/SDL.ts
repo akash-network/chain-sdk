@@ -484,21 +484,26 @@ export class SDL {
   }
 
   v3ManifestServiceParams(params: v2ServiceParams | undefined): v3ManifestServiceParams | null {
-    if (params === undefined) {
+    if (params === undefined || Object.keys(params).length === 0) {
       return null;
     }
 
-    return {
-      storage: Object.keys(params?.storage ?? {}).map((name) => {
-        if (!params?.storage) throw new Error("Storage is undefined");
-        return {
-          name: name,
-          mount: params.storage[name]?.mount,
-          readOnly: params.storage[name]?.readOnly || false,
-        };
-      }),
-      ...(params?.permissions ? { permissions: params.permissions } : {}),
+    const res: v3ManifestServiceParams = {
+      storage:
+        params.storage && Object.keys(params.storage).length > 0
+          ? Object.keys(params.storage).map((name) => ({
+              name: name,
+              mount: params.storage![name]?.mount,
+              readOnly: params.storage![name]?.readOnly || false,
+            }))
+          : null,
     };
+
+    if (params.permissions) {
+      res.permissions = params.permissions;
+    }
+
+    return res;
   }
 
   v2ManifestService(placement: string, name: string, asString: boolean): v2ManifestService {

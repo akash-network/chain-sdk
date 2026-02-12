@@ -259,6 +259,93 @@ describe(SDL.name, () => {
     });
   });
 
+  describe("service permissions", () => {
+    it("should include permissions in the manifest when defined", () => {
+      const yml = createSdlYml({
+        "services.web.params": {
+          $set: {
+            permissions: {
+              read: ["deployment", "logs"],
+            },
+          },
+        },
+      });
+      const sdl = SDL.fromString(yml, "beta3", "sandbox");
+      const manifest = sdl.manifest();
+
+      expect(manifest).toMatchObject([
+        {
+          name: "dcloud",
+          services: [
+            {
+              name: "web",
+              params: {
+                storage: null,
+                permissions: {
+                  read: ["deployment", "logs"],
+                },
+              },
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("should not include params when neither storage nor permissions are defined", () => {
+      const sdl = SDL.fromString(createSdlYml({}), "beta3", "sandbox");
+      const manifest = sdl.manifest() as Record<string, unknown>[];
+
+      expect((manifest[0] as Record<string, unknown[]>).services[0]).not.toHaveProperty("params");
+    });
+
+    it("should set storage to null when only permissions are defined", () => {
+      const yml = createSdlYml({
+        "services.web.params": {
+          $set: {
+            permissions: {
+              read: ["deployment"],
+            },
+          },
+        },
+      });
+      const sdl = SDL.fromString(yml, "beta3", "sandbox");
+      const manifest = sdl.manifest() as Record<string, unknown>[];
+      const params = (manifest[0] as Record<string, unknown[]>).services[0] as Record<string, unknown>;
+
+      expect(params.params).toEqual({
+        storage: null,
+        permissions: {
+          read: ["deployment"],
+        },
+      });
+    });
+
+    it("should include both storage and permissions when both are defined", () => {
+      const yml = createSdlYml({
+        "services.web.params": {
+          $set: {
+            storage: { default: { mount: "/data", readOnly: false } },
+            permissions: {
+              read: ["deployment"],
+            },
+          },
+        },
+        "profiles.compute.web.resources.storage": {
+          $set: [{ name: "default", size: "512Mi" }],
+        },
+      });
+      const sdl = SDL.fromString(yml, "beta3", "sandbox");
+      const manifest = sdl.manifest() as Record<string, unknown>[];
+
+      expect((manifest[0] as Record<string, unknown[]>).services[0]).toHaveProperty("params", {
+        storage: [{ name: "default", mount: "/data", readOnly: false }],
+        permissions: {
+          read: ["deployment"],
+        },
+      });
+    });
+  });
+
   describe("storage validation", () => {
     it("should throw an error when a service references a non-existing volume", () => {
       const yml = createSdlYml({

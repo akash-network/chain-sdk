@@ -111,7 +111,7 @@ export type v2ManifestServiceParams = {
 
 /** @deprecated Use `Manifest[number]['services'][number]['params']` type instead. */
 export type v3ManifestServiceParams = {
-  storage: v2ServiceStorageParams[];
+  storage: v2ServiceStorageParams[] | null;
   permissions?: v2ServicePermissions;
 };
 
