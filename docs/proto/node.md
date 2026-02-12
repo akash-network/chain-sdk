@@ -91,6 +91,9 @@
      - [EventMintStatusChange](#akash.bme.v1.EventMintStatusChange)
      - [EventVaultSeeded](#akash.bme.v1.EventVaultSeeded)
    
+ - [akash/bme/v1/filters.proto](#akash/bme/v1/filters.proto)
+     - [LedgerRecordFilters](#akash.bme.v1.LedgerRecordFilters)
+   
  - [akash/bme/v1/params.proto](#akash/bme/v1/params.proto)
      - [Params](#akash.bme.v1.Params)
    
@@ -114,6 +117,9 @@
      - [MsgUpdateParamsResponse](#akash.bme.v1.MsgUpdateParamsResponse)
    
  - [akash/bme/v1/query.proto](#akash/bme/v1/query.proto)
+     - [QueryLedgerRecordEntry](#akash.bme.v1.QueryLedgerRecordEntry)
+     - [QueryLedgerRecordsRequest](#akash.bme.v1.QueryLedgerRecordsRequest)
+     - [QueryLedgerRecordsResponse](#akash.bme.v1.QueryLedgerRecordsResponse)
      - [QueryParamsRequest](#akash.bme.v1.QueryParamsRequest)
      - [QueryParamsResponse](#akash.bme.v1.QueryParamsResponse)
      - [QueryStatusRequest](#akash.bme.v1.QueryStatusRequest)
@@ -419,6 +425,7 @@
  - [akash/oracle/v1/params.proto](#akash/oracle/v1/params.proto)
      - [Params](#akash.oracle.v1.Params)
      - [PythContractParams](#akash.oracle.v1.PythContractParams)
+     - [WormholeContractParams](#akash.oracle.v1.WormholeContractParams)
    
  - [akash/oracle/v1/genesis.proto](#akash/oracle/v1/genesis.proto)
      - [GenesisState](#akash.oracle.v1.GenesisState)
@@ -1590,6 +1597,40 @@ if field is nil resource is not present in the given data-structure
 
  
  
+ <a name="akash/bme/v1/filters.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/bme/v1/filters.proto
+ 
+
+ 
+ <a name="akash.bme.v1.LedgerRecordFilters"></a>
+
+ ### LedgerRecordFilters
+ LedgerRecordFilters defines filters used to filter ledger records
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `source` | [string](#string) |  | source is the account address of the user who initiated the burn/mint |
+ | `denom` | [string](#string) |  | denom filters by the burn denomination |
+ | `to_denom` | [string](#string) |  | to_denom filters by the mint denomination |
+ | `status` | [string](#string) |  | status filters by record status (pending or executed). Uses the string representation of LedgerRecordStatus enum values. If empty, returns both pending and executed records. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/bme/v1/params.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -1911,6 +1952,56 @@ This is used to provide an initial volatility buffer
  
 
  
+ <a name="akash.bme.v1.QueryLedgerRecordEntry"></a>
+
+ ### QueryLedgerRecordEntry
+ QueryLedgerRecordEntry wraps a ledger record with its ID and status
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | id is the unique identifier of the ledger record |
+ | `status` | [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus) |  | status indicates whether this record is pending or executed |
+ | `pending_record` | [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord) |  | pending_record is set when the record status is pending |
+ | `executed_record` | [LedgerRecord](#akash.bme.v1.LedgerRecord) |  | executed_record is set when the record status is executed |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.QueryLedgerRecordsRequest"></a>
+
+ ### QueryLedgerRecordsRequest
+ QueryLedgerRecordsRequest is the request type for the Query/LedgerRecords RPC method
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `filters` | [LedgerRecordFilters](#akash.bme.v1.LedgerRecordFilters) |  | filters holds the ledger record fields to filter the request |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines the pagination for the request |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.QueryLedgerRecordsResponse"></a>
+
+ ### QueryLedgerRecordsResponse
+ QueryLedgerRecordsResponse is the response type for the Query/LedgerRecords RPC method
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `records` | [QueryLedgerRecordEntry](#akash.bme.v1.QueryLedgerRecordEntry) | repeated | records is a list of ledger records matching the filters |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination contains the information about response pagination |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.QueryParamsRequest"></a>
 
  ### QueryParamsRequest
@@ -2007,6 +2098,7 @@ This is used to provide an initial volatility buffer
  | `Params` | [QueryParamsRequest](#akash.bme.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.bme.v1.QueryParamsResponse) | Params returns the module parameters | GET|/akash/bme/v1/params|
  | `VaultState` | [QueryVaultStateRequest](#akash.bme.v1.QueryVaultStateRequest) | [QueryVaultStateResponse](#akash.bme.v1.QueryVaultStateResponse) | VaultState returns the current vault state | GET|/akash/bme/v1/vault|
  | `Status` | [QueryStatusRequest](#akash.bme.v1.QueryStatusRequest) | [QueryStatusResponse](#akash.bme.v1.QueryStatusResponse) | Status returns the current circuit breaker status | GET|/akash/bme/v1/status|
+ | `LedgerRecords` | [QueryLedgerRecordsRequest](#akash.bme.v1.QueryLedgerRecordsRequest) | [QueryLedgerRecordsResponse](#akash.bme.v1.QueryLedgerRecordsResponse) | LedgerRecords queries ledger records with optional filters for status, source, denom, to_denom | GET|/akash/bme/v1/ledger|
  
   <!-- end services -->
 
@@ -5580,6 +5672,23 @@ It also represents a single data point in TWAP history
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `akt_price_feed_id` | [string](#string) |  | akt_price_feed_id is the Pyth price feed identifier for AKT/USD |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v1.WormholeContractParams"></a>
+
+ ### WormholeContractParams
+ WormholeContractParams contains configuration for Wormhole guardian set.
+This allows the Wormhole contract to pull guardian public keys from x/oracle
+module params, enabling guardian set updates via Akash governance.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `guardian_addresses` | [string](#string) | repeated | guardian_addresses is the list of Wormhole guardian addresses. Each address is a 20-byte Ethereum-style address, hex-encoded. The Wormhole contract uses these to verify VAA signatures. |
  
  
 
