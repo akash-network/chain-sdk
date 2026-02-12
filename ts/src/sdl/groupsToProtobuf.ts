@@ -115,7 +115,7 @@ function normalizeEndpoint(ep: Record<string, unknown>): Record<string, unknown>
 export function protobufJsonToGoFormat(obj: unknown, parentKey?: string): unknown {
   if (obj === null || obj === undefined) return obj;
   if (Array.isArray(obj)) {
-    const arr = obj.map((item, i) => protobufJsonToGoFormat(item, parentKey));
+    const arr = obj.map((item) => protobufJsonToGoFormat(item, parentKey));
     if (parentKey === "endpoints") {
       return arr.map((item) => normalizeEndpoint((item as Record<string, unknown>) ?? {}));
     }

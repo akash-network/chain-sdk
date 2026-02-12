@@ -10,7 +10,6 @@ import { SDL } from "./SDL.ts";
 
 const fixturesInputRoot = path.join(__dirname, "../../../../testdata/sdl/input");
 const fixturesOutputRoot = path.join(__dirname, "../../../../testdata/sdl/output-fixtures");
-const schemasRoot = path.join(__dirname, "../../../../specs/sdl");
 const inputSchemaPath = path.join(__dirname, "../../../../go/sdl/sdl-input.schema.yaml");
 // @ts-expect-error - AjvModule has non-standard export, cast needed for instantiation
 const ajv: { compile: (schema: Record<string, unknown>) => ValidateFunction } = new (AjvModule as unknown as new (options?: { allErrors?: boolean }) => typeof AjvModule)({ allErrors: true });
@@ -114,18 +113,19 @@ function formatAmount(amount: unknown): string {
   return `${s}.${"0".repeat(18)}`;
 }
 
-function normalizeResourceVal(obj: any): any {
+function normalizeResourceVal(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;
   if (Array.isArray(obj)) return obj.map(normalizeResourceVal);
   if (typeof obj === "object") {
-    const out: any = {};
-    for (const key of Object.keys(obj)) {
+    const out: Record<string, unknown> = {};
+    const rec = obj as Record<string, unknown>;
+    for (const key of Object.keys(rec)) {
       if (key === "val") {
-        out[key] = strVal(obj[key]);
-      } else if (key === "amount" && typeof obj.denom !== "undefined") {
-        out[key] = formatAmount(obj[key]);
+        out[key] = strVal(rec[key]);
+      } else if (key === "amount" && typeof rec.denom !== "undefined") {
+        out[key] = formatAmount(rec[key]);
       } else {
-        out[key] = normalizeResourceVal(obj[key]);
+        out[key] = normalizeResourceVal(rec[key]);
       }
     }
     return out;

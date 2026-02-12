@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import YAML from "js-yaml";
+import { load as yamlLoad } from "js-yaml";
 import { default as stableStringify } from "json-stable-stringify";
 
 import { MAINNET_ID } from "../../network/config.ts";
@@ -111,7 +111,7 @@ export class SDL {
    * ```
    */
   static fromString(yaml: string, version: NetworkVersion = "beta3", networkId: NetworkId = MAINNET_ID): SDL {
-    const data = YAML.load(yaml) as v3Sdl;
+    const data = yamlLoad(yaml) as v3Sdl;
     return new SDL(data, version, networkId);
   }
 
@@ -811,8 +811,6 @@ export class SDL {
           groups.set(placementName, group);
         }
 
-        group = groups.get(placementName)!;
-
         if (!group.boundComputes[placementName]) {
           group.boundComputes[placementName] = {};
         }
@@ -843,7 +841,7 @@ export class SDL {
           res.endpoints.push(...endpoints);
           res.endpoints.sort(
             (a: { sequence_number?: number }, b: { sequence_number?: number }) =>
-              (a.sequence_number ?? 0) - (b.sequence_number ?? 0)
+              (a.sequence_number ?? 0) - (b.sequence_number ?? 0),
           );
         }
       }

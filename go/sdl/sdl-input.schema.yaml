@@ -70,14 +70,27 @@ definitions:
         oneOf:
           - type: boolean
           - type: string
-    not:
-      properties:
-        class: { const: ram }
-        persistent:
-          oneOf:
-            - { const: true }
-            - { const: "true" }
-      required: [class, persistent]
+    allOf:
+      - not:
+          properties:
+            class: { const: ram }
+            persistent:
+              oneOf:
+                - { const: true }
+                - { const: "true" }
+          required: [class, persistent]
+      - if:
+          properties:
+            class: { enum: [beta1, beta2, beta3, default] }
+          required: [class]
+        then:
+          properties:
+            persistent:
+              oneOf:
+                - { const: true }
+                - { const: "true" }
+          required: [persistent]
+    required: [class, persistent]
     type: object
   
   storageVolume:

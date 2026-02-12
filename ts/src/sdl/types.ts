@@ -330,7 +330,6 @@ export type Attribute = {
 /** @deprecated will be removed in favor of `SDLInput` and `Manifest` types. */
 export type v3DeploymentGroup = {
   name: string;
-  
   resources: Array<{
     resource: v3ComputeResources;
     price: number;

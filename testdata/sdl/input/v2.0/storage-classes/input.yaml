@@ -32,6 +32,7 @@ profiles:
           - name: cache
             size: 1Gi
             attributes:
+              class: ram
               persistent: false
           - name: logs
             size: 5Gi

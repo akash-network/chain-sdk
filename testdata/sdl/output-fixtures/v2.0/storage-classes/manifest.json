@@ -28,6 +28,10 @@
               },
               "attributes": [
                 {
+                  "key": "class",
+                  "value": "ram"
+                },
+                {
                   "key": "persistent",
                   "value": "false"
                 }
