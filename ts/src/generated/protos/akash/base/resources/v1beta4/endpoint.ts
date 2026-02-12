@@ -127,10 +127,6 @@ export const Endpoint: MessageFns<Endpoint, "akash.base.resources.v1beta4.Endpoi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Endpoint>): Endpoint {
-    return Endpoint.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Endpoint>): Endpoint {
     const message = createBaseEndpoint();
     message.kind = object.kind ?? 0;

@@ -97,10 +97,6 @@ export const GenesisDeployment: MessageFns<GenesisDeployment, "akash.deployment.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisDeployment>): GenesisDeployment {
-    return GenesisDeployment.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisDeployment>): GenesisDeployment {
     const message = createBaseGenesisDeployment();
     message.deployment = (object.deployment !== undefined && object.deployment !== null)
@@ -178,10 +174,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.deployment.v1beta4.Ge
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();

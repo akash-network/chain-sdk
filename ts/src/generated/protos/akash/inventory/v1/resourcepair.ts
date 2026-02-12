@@ -118,10 +118,6 @@ export const ResourcePair: MessageFns<ResourcePair, "akash.inventory.v1.Resource
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResourcePair>): ResourcePair {
-    return ResourcePair.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResourcePair>): ResourcePair {
     const message = createBaseResourcePair();
     message.allocatable = (object.allocatable !== undefined && object.allocatable !== null)

@@ -222,10 +222,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.staking.v1beta1.Gene
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.params = (object.params !== undefined && object.params !== null)
@@ -307,10 +303,6 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
       obj.power = (message.power || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<LastValidatorPower>): LastValidatorPower {
-    return LastValidatorPower.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<LastValidatorPower>): LastValidatorPower {
     const message = createBaseLastValidatorPower();

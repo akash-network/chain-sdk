@@ -9,13 +9,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
+	cflags "pkg.akt.dev/go/cli/flags"
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
-	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
+	dv1beta "pkg.akt.dev/go/node/deployment/v1beta4"
 	"pkg.akt.dev/go/node/types/constants"
 	"pkg.akt.dev/go/sdl"
 	cutils "pkg.akt.dev/go/util/tls"
-
-	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 var (
@@ -97,16 +96,16 @@ func GetTxDeploymentCreateCmd() *cobra.Command {
 				return err
 			}
 
-			deposit, err := DetectDeposit(ctx, cmd.Flags(), cl.Query(), DetectDeploymentDeposit)
+			dep, err := DetectDeposit(ctx, cmd.Flags(), cl.Query(), DetectDeploymentDeposit)
 			if err != nil {
 				return err
 			}
 
-			msg := &dv1beta4.MsgCreateDeployment{
+			msg := &dv1beta.MsgCreateDeployment{
 				ID:      id,
 				Hash:    version,
-				Groups:  make(dv1beta4.GroupSpecs, 0, len(groups)),
-				Deposit: deposit,
+				Groups:  make(dv1beta.GroupSpecs, 0, len(groups)),
+				Deposit: dep,
 			}
 
 			msg.Groups = append(msg.Groups, groups...)
@@ -147,7 +146,7 @@ func GetTxDeploymentCloseCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &dv1beta4.MsgCloseDeployment{ID: id}
+			msg := &dv1beta.MsgCloseDeployment{ID: id}
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
 			if err != nil {
@@ -195,7 +194,7 @@ func GetTxDeploymentUpdateCmd() *cobra.Command {
 			}
 
 			// Query the RPC node to make sure the existing groups are identical
-			existingDeployment, err := cl.Query().Deployment().Deployment(ctx, &dv1beta4.QueryDeploymentRequest{
+			existingDeployment, err := cl.Query().Deployment().Deployment(ctx, &dv1beta.QueryDeploymentRequest{
 				ID: id,
 			})
 			if err != nil {
@@ -217,7 +216,7 @@ func GetTxDeploymentUpdateCmd() *cobra.Command {
 
 			warnIfGroupVolumesExceeds(cctx, groups)
 
-			msg := &dv1beta4.MsgUpdateDeployment{
+			msg := &dv1beta.MsgUpdateDeployment{
 				ID:   id,
 				Hash: hash,
 			}
@@ -268,7 +267,7 @@ func GetTxDeploymentGroupCloseCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &dv1beta4.MsgCloseGroup{
+			msg := &dv1beta.MsgCloseGroup{
 				ID: id,
 			}
 
@@ -308,7 +307,7 @@ func GetDeploymentGroupPauseCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &dv1beta4.MsgPauseGroup{
+			msg := &dv1beta.MsgPauseGroup{
 				ID: id,
 			}
 
@@ -348,7 +347,7 @@ func GetDeploymentGroupStartCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &dv1beta4.MsgStartGroup{
+			msg := &dv1beta.MsgStartGroup{
 				ID: id,
 			}
 
@@ -372,7 +371,7 @@ func GetDeploymentGroupStartCmd() *cobra.Command {
 	return cmd
 }
 
-func warnIfGroupVolumesExceeds(cctx sdkclient.Context, dgroups []dv1beta4.GroupSpec) {
+func warnIfGroupVolumesExceeds(cctx sdkclient.Context, dgroups []dv1beta.GroupSpec) {
 	for _, group := range dgroups {
 		for _, resources := range group.GetResourceUnits() {
 			if len(resources.Storage) > constants.DefaultMaxGroupVolumes {

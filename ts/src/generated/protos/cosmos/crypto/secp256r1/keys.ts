@@ -74,10 +74,6 @@ export const PubKey: MessageFns<PubKey, "cosmos.crypto.secp256r1.PubKey"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PubKey>): PubKey {
-    return PubKey.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PubKey>): PubKey {
     const message = createBasePubKey();
     message.key = object.key ?? new Uint8Array(0);
@@ -133,10 +129,6 @@ export const PrivKey: MessageFns<PrivKey, "cosmos.crypto.secp256r1.PrivKey"> = {
       obj.secret = base64FromBytes(message.secret);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PrivKey>): PrivKey {
-    return PrivKey.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PrivKey>): PrivKey {
     const message = createBasePrivKey();

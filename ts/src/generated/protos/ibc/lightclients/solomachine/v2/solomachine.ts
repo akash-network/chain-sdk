@@ -374,10 +374,6 @@ export const ClientState: MessageFns<ClientState, "ibc.lightclients.solomachine.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ClientState>): ClientState {
-    return ClientState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ClientState>): ClientState {
     const message = createBaseClientState();
     message.sequence = (object.sequence !== undefined && object.sequence !== null)
@@ -472,10 +468,6 @@ export const ConsensusState: MessageFns<ConsensusState, "ibc.lightclients.soloma
       obj.timestamp = (message.timestamp || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ConsensusState>): ConsensusState {
-    return ConsensusState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ConsensusState>): ConsensusState {
     const message = createBaseConsensusState();
@@ -607,10 +599,6 @@ export const Header: MessageFns<Header, "ibc.lightclients.solomachine.v2.Header"
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Header>): Header {
-    return Header.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Header>): Header {
     const message = createBaseHeader();
     message.sequence = (object.sequence !== undefined && object.sequence !== null)
@@ -724,10 +712,6 @@ export const Misbehaviour: MessageFns<Misbehaviour, "ibc.lightclients.solomachin
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Misbehaviour>): Misbehaviour {
-    return Misbehaviour.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Misbehaviour>): Misbehaviour {
     const message = createBaseMisbehaviour();
     message.clientId = object.clientId ?? "";
@@ -840,10 +824,6 @@ export const SignatureAndData: MessageFns<SignatureAndData, "ibc.lightclients.so
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignatureAndData>): SignatureAndData {
-    return SignatureAndData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignatureAndData>): SignatureAndData {
     const message = createBaseSignatureAndData();
     message.signature = object.signature ?? new Uint8Array(0);
@@ -924,10 +904,6 @@ export const TimestampedSignatureData: MessageFns<
       obj.timestamp = (message.timestamp || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<TimestampedSignatureData>): TimestampedSignatureData {
-    return TimestampedSignatureData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<TimestampedSignatureData>): TimestampedSignatureData {
     const message = createBaseTimestampedSignatureData();
@@ -1050,10 +1026,6 @@ export const SignBytes: MessageFns<SignBytes, "ibc.lightclients.solomachine.v2.S
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignBytes>): SignBytes {
-    return SignBytes.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignBytes>): SignBytes {
     const message = createBaseSignBytes();
     message.sequence = (object.sequence !== undefined && object.sequence !== null)
@@ -1135,10 +1107,6 @@ export const HeaderData: MessageFns<HeaderData, "ibc.lightclients.solomachine.v2
     }
     return obj;
   },
-
-  create(base?: DeepPartial<HeaderData>): HeaderData {
-    return HeaderData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<HeaderData>): HeaderData {
     const message = createBaseHeaderData();
     message.newPubKey = (object.newPubKey !== undefined && object.newPubKey !== null)
@@ -1214,10 +1182,6 @@ export const ClientStateData: MessageFns<ClientStateData, "ibc.lightclients.solo
       obj.client_state = Any.toJSON(message.clientState);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ClientStateData>): ClientStateData {
-    return ClientStateData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ClientStateData>): ClientStateData {
     const message = createBaseClientStateData();
@@ -1295,10 +1259,6 @@ export const ConsensusStateData: MessageFns<ConsensusStateData, "ibc.lightclient
         obj.consensus_state = Any.toJSON(message.consensusState);
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<ConsensusStateData>): ConsensusStateData {
-      return ConsensusStateData.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<ConsensusStateData>): ConsensusStateData {
       const message = createBaseConsensusStateData();
@@ -1379,10 +1339,6 @@ export const ConnectionStateData: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ConnectionStateData>): ConnectionStateData {
-    return ConnectionStateData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ConnectionStateData>): ConnectionStateData {
     const message = createBaseConnectionStateData();
     message.path = object.path ?? new Uint8Array(0);
@@ -1458,10 +1414,6 @@ export const ChannelStateData: MessageFns<ChannelStateData, "ibc.lightclients.so
       obj.channel = Channel.toJSON(message.channel);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ChannelStateData>): ChannelStateData {
-    return ChannelStateData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ChannelStateData>): ChannelStateData {
     const message = createBaseChannelStateData();
@@ -1542,10 +1494,6 @@ export const PacketCommitmentData: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PacketCommitmentData>): PacketCommitmentData {
-    return PacketCommitmentData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PacketCommitmentData>): PacketCommitmentData {
     const message = createBasePacketCommitmentData();
     message.path = object.path ?? new Uint8Array(0);
@@ -1623,10 +1571,6 @@ export const PacketAcknowledgementData: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PacketAcknowledgementData>): PacketAcknowledgementData {
-    return PacketAcknowledgementData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PacketAcknowledgementData>): PacketAcknowledgementData {
     const message = createBasePacketAcknowledgementData();
     message.path = object.path ?? new Uint8Array(0);
@@ -1686,10 +1630,6 @@ export const PacketReceiptAbsenceData: MessageFns<
       obj.path = base64FromBytes(message.path);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PacketReceiptAbsenceData>): PacketReceiptAbsenceData {
-    return PacketReceiptAbsenceData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PacketReceiptAbsenceData>): PacketReceiptAbsenceData {
     const message = createBasePacketReceiptAbsenceData();
@@ -1766,10 +1706,6 @@ export const NextSequenceRecvData: MessageFns<
       obj.next_seq_recv = (message.nextSeqRecv || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<NextSequenceRecvData>): NextSequenceRecvData {
-    return NextSequenceRecvData.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<NextSequenceRecvData>): NextSequenceRecvData {
     const message = createBaseNextSequenceRecvData();

@@ -144,10 +144,6 @@ export const AuditedProvider: MessageFns<AuditedProvider, "akash.audit.v1.Audite
     }
     return obj;
   },
-
-  create(base?: DeepPartial<AuditedProvider>): AuditedProvider {
-    return AuditedProvider.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<AuditedProvider>): AuditedProvider {
     const message = createBaseAuditedProvider();
     message.owner = object.owner ?? "";
@@ -209,10 +205,6 @@ export const AuditedAttributesStore: MessageFns<AuditedAttributesStore, "akash.a
       obj.attributes = message.attributes.map((e) => Attribute.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<AuditedAttributesStore>): AuditedAttributesStore {
-    return AuditedAttributesStore.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<AuditedAttributesStore>): AuditedAttributesStore {
     const message = createBaseAuditedAttributesStore();
@@ -286,10 +278,6 @@ export const AttributesFilters: MessageFns<AttributesFilters, "akash.audit.v1.At
       obj.owners = message.owners;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<AttributesFilters>): AttributesFilters {
-    return AttributesFilters.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<AttributesFilters>): AttributesFilters {
     const message = createBaseAttributesFilters();

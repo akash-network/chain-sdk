@@ -36,13 +36,13 @@ describe("JwtValidator", () => {
   it("should validate required fields in payload", () => {
     const result = validator.validateToken("eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJmb28iOiJiYXIifQ.signature");
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain("Missing required field: iss");
-    expect(result.errors).toContain("Missing required field: iat");
-    expect(result.errors).toContain("Missing required field: exp");
-    expect(result.errors).toContain("Missing required field: nbf");
-    expect(result.errors).toContain("Missing required field: version");
-    expect(result.errors).toContain("Missing required field: leases");
-    expect(result.errors).toContain("Additional properties are not allowed");
+    expect(result.errors).toContain("Missing required field: \"iss\".");
+    expect(result.errors).toContain("Missing required field: \"iat\".");
+    expect(result.errors).toContain("Missing required field: \"exp\".");
+    expect(result.errors).toContain("Missing required field: \"nbf\".");
+    expect(result.errors).toContain("Missing required field: \"version\".");
+    expect(result.errors).toContain("Missing required field: \"leases\".");
+    expect(result.errors).toContain("Additional property \"foo\" is not allowed.");
   });
 
   it("should validate leases object when present", () => {
@@ -50,7 +50,7 @@ describe("JwtValidator", () => {
       = "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJha2FzaDFhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejEyMzQ1Njc4OTBhYiIsImlhdCI6MTY1NDAwMDAwMCwiZXhwIjoxNjU0MDAzNjAwLCJuYmYiOjE2NTQwMDAwMDAsInZlcnNpb24iOiJ2MSIsImxlYXNlcyI6e319.signature";
     const result = validator.validateToken(token);
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain("Missing required field: access");
+    expect(result.errors).toContain("Missing required field: \"access\" at \"/leases\".");
   });
 
   it("should validate granular access requires permissions", () => {

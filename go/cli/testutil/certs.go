@@ -29,9 +29,9 @@ func TxPublishClientExec(ctx context.Context, cctx client.Context, args ...strin
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxCertPublishClientCmd(), args...)
 }
 
-// TxRevokeServerExec is used for testing create server certificate tx
+// TxRevokeServerExec is used for testing revoke server certificate tx
 func TxRevokeServerExec(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetTxCertRevokeCmd(), args...)
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxCertRevokeServerCmd(), args...)
 }
 
 // TxRevokeClientExec is used for testing create client certificate tx

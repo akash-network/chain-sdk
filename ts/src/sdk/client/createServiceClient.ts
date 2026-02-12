@@ -1,7 +1,5 @@
 import type { CallOptions, Transport } from "../transport/types.ts";
-import type { TypePatches } from "./applyPatches.ts";
-import { applyPatches } from "./applyPatches.ts";
-import { createAsyncIterable, handleStreamResponse, mapStream } from "./stream.ts";
+import { createAsyncIterable, handleStreamResponse } from "./stream.ts";
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc, ServiceDesc } from "./types.ts";
 
 export type Client<Desc extends ServiceDesc, TCallOptions> = {
@@ -13,50 +11,31 @@ export type Client<Desc extends ServiceDesc, TCallOptions> = {
           : never;
 };
 
-const defaultEncoder: MethodOptions = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  encode: (type: MessageDesc<unknown>, value: unknown) => type.fromPartial(value as any),
-  decode: (_: MessageDesc<unknown>, value: unknown) => value,
-};
-
 export function createServiceClient<TSchema extends ServiceDesc, TCallOptions>(
   service: TSchema,
   transport: Transport<TCallOptions>,
-  options?: ServiceClientOptions,
 ): Client<TSchema, TCallOptions> {
-  const methodOptions: MethodOptions = transport.requiresTypePatching && options?.typePatches
-    ? { encode: createEncodeWithPatches(options.typePatches), decode: createDecodeWithPatches(options.typePatches) }
-    : defaultEncoder;
   const client: Record<string, ReturnType<typeof createMethod>> = {};
   const methodNames = Object.keys(service.methods);
   for (let i = 0; i < methodNames.length; i++) {
     const methodDesc = service.methods[methodNames[i]];
-    client[methodNames[i]] = createMethod(methodDesc as MethodDesc, transport, methodOptions);
+    client[methodNames[i]] = createMethod(methodDesc as MethodDesc, transport);
   }
 
   return client as Client<TSchema, TCallOptions>;
 }
 
-export interface ServiceClientOptions {
-  typePatches?: TypePatches;
-}
-
-function createMethod(methodDesc: MethodDesc, transport: Transport, options: MethodOptions) {
+function createMethod(methodDesc: MethodDesc, transport: Transport) {
   switch (methodDesc.kind) {
     case "server_streaming":
-      return createServerStreamingFn(transport, methodDesc as MethodDesc<"server_streaming", MessageDesc, MessageDesc>, options);
+      return createServerStreamingFn(transport, methodDesc as MethodDesc<"server_streaming", MessageDesc, MessageDesc>);
     case "client_streaming":
-      return createClientStreamingFn(transport, methodDesc as MethodDesc<"client_streaming", MessageDesc, MessageDesc>, options);
+      return createClientStreamingFn(transport, methodDesc as MethodDesc<"client_streaming", MessageDesc, MessageDesc>);
     case "bidi_streaming":
-      return createBiDiStreamingFn(transport, methodDesc as MethodDesc<"bidi_streaming", MessageDesc, MessageDesc>, options);
+      return createBiDiStreamingFn(transport, methodDesc as MethodDesc<"bidi_streaming", MessageDesc, MessageDesc>);
     default:
-      return createUnaryFn(transport, methodDesc as MethodDesc<"unary", MessageDesc, MessageDesc>, options);
+      return createUnaryFn(transport, methodDesc as MethodDesc<"unary", MessageDesc, MessageDesc>);
   }
-}
-
-interface MethodOptions {
-  encode(schema: MessageDesc<unknown>, value: unknown): unknown;
-  decode(schema: MessageDesc<unknown>, value: unknown): unknown;
 }
 
 type UnaryFn<I extends MessageDesc<unknown>, O extends MessageDesc<unknown>> = (
@@ -67,18 +46,17 @@ type UnaryFn<I extends MessageDesc<unknown>, O extends MessageDesc<unknown>> = (
 function createUnaryFn<I extends MessageDesc<unknown>, O extends MessageDesc<unknown>>(
   transport: Transport,
   method: MethodDesc<"unary", I, O>,
-  methodOptions: MethodOptions,
 ): UnaryFn<I, O> {
   return async (input, options) => {
     const response = await transport.unary(
       method,
-      methodOptions.encode(method.input, input) as MessageInitShape<I>,
+      input,
       options,
     );
     options?.onHeader?.(response.header);
     options?.onTrailer?.(response.trailer);
 
-    return methodOptions.decode(method.output, response.message) as MessageShape<O>;
+    return response.message;
   };
 }
 
@@ -93,19 +71,16 @@ function createServerStreamingFn<
 >(
   transport: Transport,
   method: MethodDesc<"server_streaming", I, O>,
-  methodOptions: MethodOptions,
 ): ServerStreamingFn<I, O> {
   return (input, options) => {
     return handleStreamResponse(
       method,
       transport.stream(
         method,
-        createAsyncIterable([methodOptions.encode(method.input, input) as MessageInitShape<I>]),
+        createAsyncIterable([input]),
         options,
       ),
       options,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      methodOptions.decode as any,
     );
   };
 }
@@ -121,12 +96,11 @@ function createClientStreamingFn<
 >(
   transport: Transport,
   method: MethodDesc<"client_streaming", I, O>,
-  methodOptions: MethodOptions,
 ): ClientStreamingFn<I, O> {
   return async (input, options) => {
     const response = await transport.stream(
       method,
-      mapStream(input, (json) => methodOptions.encode(method.input, json) as MessageInitShape<I>),
+      input,
       options,
     );
     options?.onHeader?.(response.header);
@@ -143,7 +117,7 @@ function createClientStreamingFn<
       throw new Error("akash sdk protocol error: received extra messages for client streaming method");
     }
     options?.onTrailer?.(response.trailer);
-    return methodOptions.decode(method.output, singleMessage) as MessageShape<O>;
+    return singleMessage;
   };
 }
 
@@ -158,42 +132,16 @@ function createBiDiStreamingFn<
 >(
   transport: Transport,
   method: MethodDesc<"bidi_streaming", I, O>,
-  methodOptions: MethodOptions,
 ): BiDiStreamingFn<I, O> {
   return (input, options) => {
     return handleStreamResponse(
       method,
       transport.stream(
         method,
-        mapStream(input, (json) => methodOptions.encode(method.input, json) as MessageInitShape<I>),
+        input,
         options,
       ),
       options,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      methodOptions.decode as any,
     );
   };
-}
-
-const PATCHED_FROM_JSON_CACHE = new Map<TypePatches, MethodOptions["encode"]>();
-function createEncodeWithPatches(patches: TypePatches): MethodOptions["encode"] {
-  if (PATCHED_FROM_JSON_CACHE.has(patches)) return PATCHED_FROM_JSON_CACHE.get(patches)!;
-
-  const encode: MethodOptions["encode"] = (messageDesc, value) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return applyPatches("encode", messageDesc, messageDesc.fromPartial(value as any), patches);
-  };
-  PATCHED_FROM_JSON_CACHE.set(patches, encode);
-  return encode;
-}
-
-const PATCHED_TO_JSON_CACHE = new Map<TypePatches, MethodOptions["decode"]>();
-function createDecodeWithPatches(patches: TypePatches): MethodOptions["decode"] {
-  if (PATCHED_TO_JSON_CACHE.has(patches)) return PATCHED_TO_JSON_CACHE.get(patches)!;
-
-  const decode: MethodOptions["decode"] = (schema, message) => {
-    return applyPatches("decode", schema, message, patches);
-  };
-  PATCHED_TO_JSON_CACHE.set(patches, decode);
-  return decode;
 }

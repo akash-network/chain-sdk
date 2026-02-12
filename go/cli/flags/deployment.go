@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
-	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
+	dv1beta "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
 type DeploymentIDOptions struct {
@@ -152,8 +152,8 @@ func AddDeploymentFilterFlags(flags *pflag.FlagSet) {
 }
 
 // DepFiltersFromFlags returns DeploymentFilters with given flags and error if occurred
-func DepFiltersFromFlags(flags *pflag.FlagSet) (dv1beta4.DeploymentFilters, error) {
-	var dfilters dv1beta4.DeploymentFilters
+func DepFiltersFromFlags(flags *pflag.FlagSet) (dv1beta.DeploymentFilters, error) {
+	var dfilters dv1beta.DeploymentFilters
 	owner, err := flags.GetString(FlagOwner)
 	if err != nil {
 		return dfilters, err

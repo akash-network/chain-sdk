@@ -6,8 +6,7 @@ import type { SigningStargateClient, StdFee } from "@cosmjs/stargate";
 import { describe, expect, it, jest } from "@jest/globals";
 import { mock } from "jest-mock-extended";
 
-import type { TxClient } from "../TxClient.ts";
-import { createGenericStargateClient } from "./createGenericStargateClient.ts";
+import { createGenericStargateClient, type StargateTxClient } from "./createGenericStargateClient.ts";
 
 describe(createGenericStargateClient.name, () => {
   const MESSAGE_TYPE = "/test.type";
@@ -69,7 +68,7 @@ describe(createGenericStargateClient.name, () => {
     });
   });
 
-  function includeSigningTests(sign: (client: TxClient) => Promise<unknown>) {
+  function includeSigningTests(sign: (client: StargateTxClient) => Promise<unknown>) {
     it("does not calls `getMessageType` when signing message with types that are already registered", async () => {
       const getMessageType = jest.fn(() => {
         throw new Error("no types");

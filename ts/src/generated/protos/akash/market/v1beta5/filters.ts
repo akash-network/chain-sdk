@@ -219,10 +219,6 @@ export const BidFilters: MessageFns<BidFilters, "akash.market.v1beta5.BidFilters
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BidFilters>): BidFilters {
-    return BidFilters.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BidFilters>): BidFilters {
     const message = createBaseBidFilters();
     message.owner = object.owner ?? "";
@@ -346,10 +342,6 @@ export const OrderFilters: MessageFns<OrderFilters, "akash.market.v1beta5.OrderF
       obj.state = message.state;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<OrderFilters>): OrderFilters {
-    return OrderFilters.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<OrderFilters>): OrderFilters {
     const message = createBaseOrderFilters();

@@ -148,10 +148,6 @@ export const Quantity: MessageFns<Quantity, "k8s.io.apimachinery.pkg.api.resourc
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Quantity>): Quantity {
-    return Quantity.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Quantity>): Quantity {
     const message = createBaseQuantity();
     message.string = object.string ?? "";
@@ -207,10 +203,6 @@ export const QuantityValue: MessageFns<QuantityValue, "k8s.io.apimachinery.pkg.a
       obj.string = message.string;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QuantityValue>): QuantityValue {
-    return QuantityValue.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QuantityValue>): QuantityValue {
     const message = createBaseQuantityValue();

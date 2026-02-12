@@ -14,7 +14,9 @@ export function convertResourceString(resourceStr: string): number {
   const power = prefixes.indexOf(prefix);
   const base = unit === "i" ? 1024 : 1000;
 
-  return power !== -1 ? value * Math.pow(base, power + 1) : value;
+  const result = power !== -1 ? value * Math.pow(base, power + 1) : value;
+
+  return Math.ceil(result);
 }
 
 /**

@@ -83,10 +83,6 @@ export const Cluster: MessageFns<Cluster, "akash.inventory.v1.Cluster"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Cluster>): Cluster {
-    return Cluster.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Cluster>): Cluster {
     const message = createBaseCluster();
     message.nodes = object.nodes?.map((e) => Node.fromPartial(e)) || [];

@@ -92,10 +92,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "cosmos.slashing
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
     return message;
@@ -150,10 +146,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.slashi
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();
@@ -215,10 +207,6 @@ export const QuerySigningInfoRequest: MessageFns<
       obj.cons_address = message.consAddress;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QuerySigningInfoRequest>): QuerySigningInfoRequest {
-    return QuerySigningInfoRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QuerySigningInfoRequest>): QuerySigningInfoRequest {
     const message = createBaseQuerySigningInfoRequest();
@@ -283,10 +271,6 @@ export const QuerySigningInfoResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QuerySigningInfoResponse>): QuerySigningInfoResponse {
-    return QuerySigningInfoResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QuerySigningInfoResponse>): QuerySigningInfoResponse {
     const message = createBaseQuerySigningInfoResponse();
     message.valSigningInfo = (object.valSigningInfo !== undefined && object.valSigningInfo !== null)
@@ -347,10 +331,6 @@ export const QuerySigningInfosRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QuerySigningInfosRequest>): QuerySigningInfosRequest {
-    return QuerySigningInfosRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QuerySigningInfosRequest>): QuerySigningInfosRequest {
     const message = createBaseQuerySigningInfosRequest();
@@ -429,10 +409,6 @@ export const QuerySigningInfosResponse: MessageFns<
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QuerySigningInfosResponse>): QuerySigningInfosResponse {
-    return QuerySigningInfosResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QuerySigningInfosResponse>): QuerySigningInfosResponse {
     const message = createBaseQuerySigningInfosResponse();

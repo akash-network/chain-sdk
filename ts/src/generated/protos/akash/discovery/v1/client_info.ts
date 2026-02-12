@@ -65,10 +65,6 @@ export const ClientInfo: MessageFns<ClientInfo, "akash.discovery.v1.ClientInfo">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ClientInfo>): ClientInfo {
-    return ClientInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ClientInfo>): ClientInfo {
     const message = createBaseClientInfo();
     message.apiVersion = object.apiVersion ?? "";

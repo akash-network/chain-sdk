@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { exec } from "child_process";
-import { access, constants as fsConst, readFile, rmdir } from "fs/promises";
+import { access, constants as fsConst, readFile, rm } from "fs/promises";
 import { tmpdir } from "os";
 import { join as joinPath } from "path";
 import { promisify } from "util";
@@ -57,7 +57,7 @@ describe("protoc-sdk-objec plugin", () => {
       expect(await readFile(joinPath(outputDir, "protos", "query_akash.ts"), "utf-8")).toMatchSnapshot();
     } finally {
       if (await access(outputDir, fsConst.W_OK).catch(() => false)) {
-        await rmdir(outputDir, { recursive: true });
+        await rm(outputDir, { force: true, recursive: true });
       }
     }
   });

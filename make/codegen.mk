@@ -2,12 +2,37 @@ PROTO_GEN_MODS ?= go \
 ts \
 doc
 
+RUST_SDK_DIR        := $(AKASH_ROOT)/rs
+RUST_GEN_DIR        := $(RUST_SDK_DIR)/src/gen
+BUF_GEN_RUST_CONFIG := buf.gen.rs.yaml
+
 .PHONY: proto-gen
-proto-gen: buf-deps $(patsubst %, proto-gen-%,$(PROTO_GEN_MODS))
+proto-gen: $(patsubst %, proto-gen-%,$(PROTO_GEN_MODS))
 
 .PHONY: proto-gen-go
 proto-gen-go: $(BUF) $(PROTOC) $(GOGOPROTO) $(PROTOC_GEN_GOCOSMOS) $(PROTOC_GEN_GRPC_GATEWAY) $(PROTOC_GEN_GO) $(PROTOC_GEN_GOGO)
 	./script/protocgen.sh go $(GO_MOD_NAME) $(GO_ROOT)
+
+.PHONY: proto-gen-rust
+proto-gen-rust: proto-gen-rust-clean proto-gen-rust-buf proto-gen-rust-fmt
+
+.PHONY: proto-gen-rust-clean
+proto-gen-rust-clean:
+	rm -rf $(RUST_GEN_DIR)
+	mkdir -p $(RUST_GEN_DIR)
+
+.PHONY: proto-gen-rust-buf
+proto-gen-rust-buf: $(BUF) $(PROTOC) $(GOGOPROTO) $(PROTOC_GEN_PROST)
+	$(BUF) generate --template $(BUF_GEN_RUST_CONFIG)
+
+.PHONY: proto-gen-rust-fmt
+proto-gen-rust-fmt:
+	@echo "Formatting generated Rust code..."
+	@if command -v $(RUSTFMT) > /dev/null 2>&1; then \
+		find $(RUST_GEN_DIR) -name "*.rs" -exec $(RUSTFMT) {} \; 2>/dev/null || true; \
+	else \
+		echo "Warning: rustfmt not found, skipping formatting"; \
+	fi
 
 .PHONY: proto-gen-pulsar
 proto-gen-pulsar: $(BUF) $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_PULSAR)

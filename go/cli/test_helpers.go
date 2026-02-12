@@ -100,6 +100,26 @@ func (df FlagsSet) WithGas(val int) FlagsSet {
 	return res
 }
 
+func (df FlagsSet) WithGasAdjustment(val float64) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%f", cflags.FlagGasAdjustment, val))
+
+	return res
+}
+
+func (df FlagsSet) WithGasPrices(val string) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%s", cflags.FlagGasPrices, val))
+
+	return res
+}
+
 func (df FlagsSet) WithGasAuto() FlagsSet {
 	res := make([]string, len(df), len(df)+3)
 
@@ -794,6 +814,66 @@ func (df FlagsSet) WithMoniker(val string) FlagsSet {
 	copy(res, df)
 
 	res = append(res, fmt.Sprintf("--%s=%s", cflags.FlagMoniker, val))
+
+	return res
+}
+
+func (df FlagsSet) WithTimeoutHeight(val uint64) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%d", cflags.FlagTimeoutHeight, val))
+
+	return res
+}
+
+func (df FlagsSet) WithTimeoutDuration(val interface{}) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%v", cflags.TimeoutDuration, val))
+
+	return res
+}
+
+func (df FlagsSet) WithUnordered(val bool) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%t", cflags.FlagUnordered, val))
+
+	return res
+}
+
+func (df FlagsSet) WithOffset(val uint64) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%d", cflags.FlagOffset, val))
+
+	return res
+}
+
+func (df FlagsSet) WithCountTotal(val bool) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%t", cflags.FlagCountTotal, val))
+
+	return res
+}
+
+func (df FlagsSet) WithReverse(val bool) FlagsSet {
+	res := make([]string, len(df), len(df)+1)
+
+	copy(res, df)
+
+	res = append(res, fmt.Sprintf("--%s=%t", cflags.FlagReverse, val))
 
 	return res
 }

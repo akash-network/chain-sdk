@@ -162,10 +162,6 @@ export const QueryProvidersResponse: MessageFns<QueryProvidersResponse, "akash.a
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryProvidersResponse>): QueryProvidersResponse {
-    return QueryProvidersResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryProvidersResponse>): QueryProvidersResponse {
     const message = createBaseQueryProvidersResponse();
     message.providers = object.providers?.map((e) => AuditedProvider.fromPartial(e)) || [];
@@ -242,10 +238,6 @@ export const QueryProviderRequest: MessageFns<QueryProviderRequest, "akash.audit
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryProviderRequest>): QueryProviderRequest {
-    return QueryProviderRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryProviderRequest>): QueryProviderRequest {
     const message = createBaseQueryProviderRequest();
     message.auditor = object.auditor ?? "";
@@ -305,10 +297,6 @@ export const QueryAllProvidersAttributesRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAllProvidersAttributesRequest>): QueryAllProvidersAttributesRequest {
-    return QueryAllProvidersAttributesRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAllProvidersAttributesRequest>): QueryAllProvidersAttributesRequest {
     const message = createBaseQueryAllProvidersAttributesRequest();
@@ -387,10 +375,6 @@ export const QueryProviderAttributesRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryProviderAttributesRequest>): QueryProviderAttributesRequest {
-    return QueryProviderAttributesRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryProviderAttributesRequest>): QueryProviderAttributesRequest {
     const message = createBaseQueryProviderAttributesRequest();
@@ -471,10 +455,6 @@ export const QueryProviderAuditorRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryProviderAuditorRequest>): QueryProviderAuditorRequest {
-    return QueryProviderAuditorRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryProviderAuditorRequest>): QueryProviderAuditorRequest {
     const message = createBaseQueryProviderAuditorRequest();
     message.auditor = object.auditor ?? "";
@@ -551,10 +531,6 @@ export const QueryAuditorAttributesRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryAuditorAttributesRequest>): QueryAuditorAttributesRequest {
-    return QueryAuditorAttributesRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryAuditorAttributesRequest>): QueryAuditorAttributesRequest {
     const message = createBaseQueryAuditorAttributesRequest();

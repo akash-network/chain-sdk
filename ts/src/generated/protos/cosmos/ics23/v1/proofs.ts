@@ -480,10 +480,6 @@ export const ExistenceProof: MessageFns<ExistenceProof, "cosmos.ics23.v1.Existen
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ExistenceProof>): ExistenceProof {
-    return ExistenceProof.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ExistenceProof>): ExistenceProof {
     const message = createBaseExistenceProof();
     message.key = object.key ?? new Uint8Array(0);
@@ -574,10 +570,6 @@ export const NonExistenceProof: MessageFns<NonExistenceProof, "cosmos.ics23.v1.N
       obj.right = ExistenceProof.toJSON(message.right);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<NonExistenceProof>): NonExistenceProof {
-    return NonExistenceProof.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<NonExistenceProof>): NonExistenceProof {
     const message = createBaseNonExistenceProof();
@@ -687,10 +679,6 @@ export const CommitmentProof: MessageFns<CommitmentProof, "cosmos.ics23.v1.Commi
       obj.compressed = CompressedBatchProof.toJSON(message.compressed);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<CommitmentProof>): CommitmentProof {
-    return CommitmentProof.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<CommitmentProof>): CommitmentProof {
     const message = createBaseCommitmentProof();
@@ -821,10 +809,6 @@ export const LeafOp: MessageFns<LeafOp, "cosmos.ics23.v1.LeafOp"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LeafOp>): LeafOp {
-    return LeafOp.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LeafOp>): LeafOp {
     const message = createBaseLeafOp();
     message.hash = object.hash ?? 0;
@@ -916,10 +900,6 @@ export const InnerOp: MessageFns<InnerOp, "cosmos.ics23.v1.InnerOp"> = {
       obj.suffix = base64FromBytes(message.suffix);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<InnerOp>): InnerOp {
-    return InnerOp.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<InnerOp>): InnerOp {
     const message = createBaseInnerOp();
@@ -1042,10 +1022,6 @@ export const ProofSpec: MessageFns<ProofSpec, "cosmos.ics23.v1.ProofSpec"> = {
       obj.prehash_key_before_comparison = message.prehashKeyBeforeComparison;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ProofSpec>): ProofSpec {
-    return ProofSpec.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ProofSpec>): ProofSpec {
     const message = createBaseProofSpec();
@@ -1209,10 +1185,6 @@ export const InnerSpec: MessageFns<InnerSpec, "cosmos.ics23.v1.InnerSpec"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<InnerSpec>): InnerSpec {
-    return InnerSpec.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<InnerSpec>): InnerSpec {
     const message = createBaseInnerSpec();
     message.childOrder = object.childOrder?.map((e) => e) || [];
@@ -1275,10 +1247,6 @@ export const BatchProof: MessageFns<BatchProof, "cosmos.ics23.v1.BatchProof"> = 
       obj.entries = message.entries.map((e) => BatchEntry.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<BatchProof>): BatchProof {
-    return BatchProof.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<BatchProof>): BatchProof {
     const message = createBaseBatchProof();
@@ -1352,10 +1320,6 @@ export const BatchEntry: MessageFns<BatchEntry, "cosmos.ics23.v1.BatchEntry"> = 
       obj.nonexist = NonExistenceProof.toJSON(message.nonexist);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<BatchEntry>): BatchEntry {
-    return BatchEntry.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<BatchEntry>): BatchEntry {
     const message = createBaseBatchEntry();
@@ -1439,10 +1403,6 @@ export const CompressedBatchProof: MessageFns<CompressedBatchProof, "cosmos.ics2
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CompressedBatchProof>): CompressedBatchProof {
-    return CompressedBatchProof.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CompressedBatchProof>): CompressedBatchProof {
     const message = createBaseCompressedBatchProof();
     message.entries = object.entries?.map((e) => CompressedBatchEntry.fromPartial(e)) || [];
@@ -1516,10 +1476,6 @@ export const CompressedBatchEntry: MessageFns<CompressedBatchEntry, "cosmos.ics2
       obj.nonexist = CompressedNonExistenceProof.toJSON(message.nonexist);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<CompressedBatchEntry>): CompressedBatchEntry {
-    return CompressedBatchEntry.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<CompressedBatchEntry>): CompressedBatchEntry {
     const message = createBaseCompressedBatchEntry();
@@ -1644,10 +1600,6 @@ export const CompressedExistenceProof: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CompressedExistenceProof>): CompressedExistenceProof {
-    return CompressedExistenceProof.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CompressedExistenceProof>): CompressedExistenceProof {
     const message = createBaseCompressedExistenceProof();
     message.key = object.key ?? new Uint8Array(0);
@@ -1741,10 +1693,6 @@ export const CompressedNonExistenceProof: MessageFns<
       obj.right = CompressedExistenceProof.toJSON(message.right);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<CompressedNonExistenceProof>): CompressedNonExistenceProof {
-    return CompressedNonExistenceProof.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<CompressedNonExistenceProof>): CompressedNonExistenceProof {
     const message = createBaseCompressedNonExistenceProof();

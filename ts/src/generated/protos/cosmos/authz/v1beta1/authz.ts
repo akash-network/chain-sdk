@@ -103,10 +103,6 @@ export const GenericAuthorization: MessageFns<GenericAuthorization, "cosmos.auth
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenericAuthorization>): GenericAuthorization {
-    return GenericAuthorization.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenericAuthorization>): GenericAuthorization {
     const message = createBaseGenericAuthorization();
     message.msg = object.msg ?? "";
@@ -179,10 +175,6 @@ export const Grant: MessageFns<Grant, "cosmos.authz.v1beta1.Grant"> = {
       obj.expiration = message.expiration.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Grant>): Grant {
-    return Grant.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Grant>): Grant {
     const message = createBaseGrant();
@@ -290,10 +282,6 @@ export const GrantAuthorization: MessageFns<GrantAuthorization, "cosmos.authz.v1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GrantAuthorization>): GrantAuthorization {
-    return GrantAuthorization.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GrantAuthorization>): GrantAuthorization {
     const message = createBaseGrantAuthorization();
     message.granter = object.granter ?? "";
@@ -358,10 +346,6 @@ export const GrantQueueItem: MessageFns<GrantQueueItem, "cosmos.authz.v1beta1.Gr
       obj.msg_type_urls = message.msgTypeUrls;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GrantQueueItem>): GrantQueueItem {
-    return GrantQueueItem.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GrantQueueItem>): GrantQueueItem {
     const message = createBaseGrantQueueItem();

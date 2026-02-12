@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 
 	v1 "pkg.akt.dev/go/node/deployment/v1"
+	"pkg.akt.dev/go/sdkutil"
 )
 
 var (
@@ -20,6 +21,15 @@ var (
 	// Deprecated: ModuleCdc use is deprecated
 	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
 )
+
+func init() {
+	sdkutil.RegisterCustomSignerField(&MsgCreateDeployment{}, "id", "owner")
+	sdkutil.RegisterCustomSignerField(&MsgUpdateDeployment{}, "id", "owner")
+	sdkutil.RegisterCustomSignerField(&MsgCloseDeployment{}, "id", "owner")
+	sdkutil.RegisterCustomSignerField(&MsgStartGroup{}, "id", "owner")
+	sdkutil.RegisterCustomSignerField(&MsgPauseGroup{}, "id", "owner")
+	sdkutil.RegisterCustomSignerField(&MsgCloseGroup{}, "id", "owner")
+}
 
 // RegisterLegacyAminoCodec register concrete types on codec
 //

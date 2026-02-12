@@ -14,14 +14,7 @@ import (
 	types "pkg.akt.dev/go/node/types/resources/v1beta4"
 
 	// ensure sdkutil.init() to seal SDK config for the tests
-	_ "pkg.akt.dev/go/sdkutil"
-)
-
-// CoinDenom provides ability to create coins in test functions and
-// pass them into testutil functionality.
-const (
-	CoinDenom  = "uakt"
-	BechPrefix = "akash"
+	sdkutil "pkg.akt.dev/go/sdkutil"
 )
 
 // Name generates a random name with the given prefix
@@ -95,7 +88,7 @@ func Resources(t testing.TB) dtypes.ResourceUnits {
 
 	vals := make(dtypes.ResourceUnits, 0, count)
 	for i := 0; i < count; i++ {
-		coin := sdk.NewDecCoin(CoinDenom, sdkmath.NewInt(rand.Int63n(9999)+1))
+		coin := sdk.NewDecCoin(sdkutil.DenomUact, sdkmath.NewInt(rand.Int63n(9999)+1))
 		res := dtypes.ResourceUnit{
 			Resources: types.Resources{
 				ID: uint32(i) + 1, // nolint: gosec
@@ -131,7 +124,7 @@ func ResourcesList(t testing.TB, startID uint32) dtypes.ResourceUnits {
 
 	vals := make(dtypes.ResourceUnits, 0, count)
 	for i := uint32(0); i < count; i++ {
-		coin := sdk.NewDecCoin(CoinDenom, sdkmath.NewInt(rand.Int63n(9999)+1))
+		coin := sdk.NewDecCoin(sdkutil.DenomUact, sdkmath.NewInt(rand.Int63n(9999)+1))
 		res := dtypes.ResourceUnit{
 			Resources: types.Resources{
 				ID: i + startID,

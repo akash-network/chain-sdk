@@ -1,14 +1,16 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it } from "@jest/globals";
 import { createGroups, createManifest, createSdlJson, createSdlYml } from "@test/helpers/sdl";
-import fs from "fs";
 
 import { AKT_DENOM, SANDBOX_ID, USDC_IBC_DENOMS } from "../../network/config.ts";
 import type { v2ServiceImageCredentials } from "../types.ts";
 import { SDL } from "./SDL.ts";
 import { SdlValidationError } from "./SdlValidationError.ts";
 
-describe("SDL", () => {
+describe(SDL.name, () => {
   describe("profiles placement pricing denomination", () => {
     it.each([AKT_DENOM, USDC_IBC_DENOMS[SANDBOX_ID]])("should resolve a group with a valid \"%s\" denomination", (denom) => {
       const sdl = SDL.fromString(
@@ -34,7 +36,15 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrow(
-        new SdlValidationError(`Invalid denom: "${denom}". Only uakt and ${USDC_IBC_DENOMS[SANDBOX_ID]} are supported.`),
+        new SdlValidationError("Invalid format: \"denom\" at \"/profiles/placement/dcloud/pricing/web\" does not match pattern \"^(uakt|uact|ibc/.*)$\""),
+      );
+
+      const anotherYaml = createSdlYml({
+        "profiles.placement.dcloud.pricing.web.denom": { $set: "ibc/1234567890" },
+      });
+
+      expect(() => SDL.fromString(anotherYaml, "beta3", "sandbox")).toThrow(
+        new SdlValidationError(`Invalid format: "denom" at "/profiles/placement/dcloud/pricing/web/denom" does not match pattern "^(uakt|uact|ibc/12C6A0C374171B595A0A9E18B83FA09D295FB1F2D8C6DAA3AC28683471752D84)$"`),
       );
     });
   });
@@ -96,7 +106,9 @@ describe("SDL", () => {
         endpoints: { $set: endpoint },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint named "${endpointName}" is not a valid name.`));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(
+        `Field "${endpointName}" at "/endpoints" doesn't satisfy any of the allowed patterns: ^[a-z]+[-_0-9a-z]+$.`,
+      ));
     });
 
     it("should throw provided no endpoint kind", () => {
@@ -108,7 +120,7 @@ describe("SDL", () => {
         endpoints: { $set: endpoint },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint named "${endpointName}" has no kind.`));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Missing required field: "kind" at "/endpoints/${endpointName}".`));
     });
 
     it("should throw provided invalid endpoint kind", () => {
@@ -124,7 +136,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError(`Endpoint named "${endpointName}" has an unknown kind "${endpointKind}".`),
+        new SdlValidationError(`"kind" at "/endpoints/${endpointName}" should be one of: ip.`),
       );
     });
 
@@ -139,7 +151,7 @@ describe("SDL", () => {
         endpoints: { $set: endpoint },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint ${endpointName} declared but never used.`));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError(`Endpoint "${endpointName}" declared but never used.`));
     });
   });
 
@@ -201,7 +213,7 @@ describe("SDL", () => {
 
         expect(() => {
           SDL.fromString(yml, "beta3", "sandbox");
-        }).toThrowError(new SdlValidationError(`service "web" credentials missing "${field}"`));
+        }).toThrowError(new SdlValidationError(`Missing required field: "${field}" at "/services/web/credentials".`));
       });
 
       it.each(fields)("should throw an error when credentials \"%s\" is empty", (field) => {
@@ -212,18 +224,7 @@ describe("SDL", () => {
 
         expect(() => {
           SDL.fromString(yml, "beta3", "sandbox");
-        }).toThrowError(new SdlValidationError(`service "web" credentials missing "${field}"`));
-      });
-
-      it.each(fields)("should throw an error when credentials \"%s\" contains spaces only", (field) => {
-        credentials[field] = "   ";
-        const yml = createSdlYml({
-          "services.web.credentials": { $set: credentials },
-        });
-
-        expect(() => {
-          SDL.fromString(yml, "beta3", "sandbox");
-        }).toThrowError(new SdlValidationError(`service "web" credentials missing "${field}"`));
+        }).toThrowError(new RegExp(`"${field}" at "/services/web/credentials" must be at least \\d+ characters long`));
       });
     });
   });
@@ -234,7 +235,7 @@ describe("SDL", () => {
         deployment: { $unset: ["web"] },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Service \"web\" is not defined in the \"deployment\" section."));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Service \"web\" is not defined at \"/deployment\" section."));
     });
 
     it("should throw an error when deployment is not defined in profile placement", () => {
@@ -258,6 +259,93 @@ describe("SDL", () => {
     });
   });
 
+  describe("service permissions", () => {
+    it("should include permissions in the manifest when defined", () => {
+      const yml = createSdlYml({
+        "services.web.params": {
+          $set: {
+            permissions: {
+              read: ["deployment", "logs"],
+            },
+          },
+        },
+      });
+      const sdl = SDL.fromString(yml, "beta3", "sandbox");
+      const manifest = sdl.manifest();
+
+      expect(manifest).toMatchObject([
+        {
+          name: "dcloud",
+          services: [
+            {
+              name: "web",
+              params: {
+                storage: null,
+                permissions: {
+                  read: ["deployment", "logs"],
+                },
+              },
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("should not include params when neither storage nor permissions are defined", () => {
+      const sdl = SDL.fromString(createSdlYml({}), "beta3", "sandbox");
+      const manifest = sdl.manifest() as Record<string, unknown>[];
+
+      expect((manifest[0] as Record<string, unknown[]>).services[0]).not.toHaveProperty("params");
+    });
+
+    it("should set storage to null when only permissions are defined", () => {
+      const yml = createSdlYml({
+        "services.web.params": {
+          $set: {
+            permissions: {
+              read: ["deployment"],
+            },
+          },
+        },
+      });
+      const sdl = SDL.fromString(yml, "beta3", "sandbox");
+      const manifest = sdl.manifest() as Record<string, unknown>[];
+      const params = (manifest[0] as Record<string, unknown[]>).services[0] as Record<string, unknown>;
+
+      expect(params.params).toEqual({
+        storage: null,
+        permissions: {
+          read: ["deployment"],
+        },
+      });
+    });
+
+    it("should include both storage and permissions when both are defined", () => {
+      const yml = createSdlYml({
+        "services.web.params": {
+          $set: {
+            storage: { default: { mount: "/data", readOnly: false } },
+            permissions: {
+              read: ["deployment"],
+            },
+          },
+        },
+        "profiles.compute.web.resources.storage": {
+          $set: [{ name: "default", size: "512Mi" }],
+        },
+      });
+      const sdl = SDL.fromString(yml, "beta3", "sandbox");
+      const manifest = sdl.manifest() as Record<string, unknown>[];
+
+      expect((manifest[0] as Record<string, unknown[]>).services[0]).toHaveProperty("params", {
+        storage: [{ name: "default", mount: "/data", readOnly: false }],
+        permissions: {
+          read: ["deployment"],
+        },
+      });
+    });
+  });
+
   describe("storage validation", () => {
     it("should throw an error when a service references a non-existing volume", () => {
       const yml = createSdlYml({
@@ -265,7 +353,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("Service \"web\" references to non-existing compute volume names \"data\"."),
+        new SdlValidationError("Service \"web\" references non-existing compute volume \"data\"."),
       );
     });
 
@@ -276,7 +364,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("Invalid value for \"service.web.params.data.mount\" parameter. expected absolute path."),
+        new SdlValidationError(`Invalid format: "mount" at "/services/web/params/storage/data" does not match pattern "^/"`),
       );
     });
 
@@ -298,7 +386,7 @@ describe("SDL", () => {
         },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Multiple root ephemeral storages are not allowed"));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Multiple root ephemeral storages are not allowed."));
     });
 
     it("should throw an error when mount is used by multiple volumes", () => {
@@ -312,7 +400,7 @@ describe("SDL", () => {
         },
       });
 
-      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Mount / already in use by volume \"data\"."));
+      expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Mount \"/\" already in use by volume \"data\"."));
     });
 
     it("should require a service storage mount if volume is persistent", () => {
@@ -324,7 +412,7 @@ describe("SDL", () => {
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("compute.storage.data has persistent=true which requires service.web.params.storage.data to have mount."),
+        new SdlValidationError("Persistent storage \"data\" requires a mount path in /services/web/params/storage/data/mount."),
       );
     });
 
@@ -333,7 +421,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.storage": { $set: { name: "data", size: "1Gi", attributes: { class: "ram", persistent: true } } },
       });
       expect(() => new SDL(yml, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError(`Storage attribute "ram" must have "persistent" set to "false" or not defined for service "web".`),
+        new SdlValidationError("\"ram\" storage at \"/profiles/compute/web/resources/storage\" cannot be persistent"),
       );
     });
 
@@ -341,7 +429,7 @@ describe("SDL", () => {
       const yml = createSdlJson({
         "profiles.compute.web.resources.storage": { $set: { name: "data" } },
       });
-      expect(() => new SDL(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Storage size is required for service \"web\"."));
+      expect(() => new SDL(yml, "beta3", "sandbox")).toThrowError(new SdlValidationError("Missing required field: \"size\" at \"/profiles/compute/web/resources/storage\"."));
     });
   });
 
@@ -351,7 +439,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.gpu": { $set: {} },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU units must be specified for profile \"web\"."));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("Missing required field: \"units\" at \"/profiles/compute/web/resources/gpu\"."));
     });
 
     it("should throw an error when gpu units > 0 and attributes is not defined", () => {
@@ -359,7 +447,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.gpu": { $set: { units: 1 } },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must have attributes if units is not 0"));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must have attributes if units is not 0."));
     });
 
     it("should throw an error when gpu units is 0 and attributes is defined", () => {
@@ -367,7 +455,7 @@ describe("SDL", () => {
         "profiles.compute.web.resources.gpu": { $set: { units: 0, attributes: {} } },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must not have attributes if units is 0"));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must not have attributes if units is 0."));
     });
 
     it("should throw an error when gpu units > 0 and attributes vendor is not supported", () => {
@@ -385,7 +473,7 @@ describe("SDL", () => {
       });
 
       expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("GPU configuration must be an array of GPU models with optional ram."),
+        new SdlValidationError("\"nvidia\" at \"/profiles/compute/web/resources/gpu/attributes/vendor\" should be array."),
       );
     });
 
@@ -404,14 +492,14 @@ describe("SDL", () => {
       });
 
       expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(
-        new SdlValidationError("GPU interface must be one of the supported interfaces (pcie,sxm)."),
+        new SdlValidationError("\"interface\" at \"/profiles/compute/web/resources/gpu/attributes/vendor/nvidia/0\" should be one of: pcie, sxm."),
       );
     });
   });
 
   describe("test sdl persistent storage", () => {
     it("SDL: Persistent Storage Manifest", () => {
-      const validSDL = readFileSync("./fixtures/persistent_storage_valid.sdl.yml");
+      const validSDL = readFileSync("../fixtures/persistent_storage_valid.sdl.yml");
 
       const sdl = SDL.fromString(validSDL, "beta2");
       const result = sdl.manifest();
@@ -421,9 +509,9 @@ describe("SDL", () => {
   });
 
   describe("test GPU with interface", () => {
-    const testSDL = readFileSync("./fixtures/gpu_basic_ram_interface.sdl.yml");
+    const testSDL = readFileSync("../fixtures/gpu_basic_ram_interface.sdl.yml");
 
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/gpu_basic_ram_interface.manifest.json"));
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/gpu_basic_ram_interface.manifest.json"));
 
     it("SDL: GPU Manifest with ram & interface", () => {
       const sdl = SDL.fromString(testSDL, "beta3");
@@ -441,29 +529,29 @@ describe("SDL", () => {
 
   describe("SDL GPU Invalid Vendor", () => {
     it("SDL: GPU must throw if the vendor is invalid", () => {
-      const invalidSDL = readFileSync("./fixtures/gpu_invalid_vendor.sdl.yml");
+      const invalidSDL = readFileSync("../fixtures/gpu_invalid_vendor.sdl.yml");
 
       const t = () => {
         SDL.fromString(invalidSDL, "beta3");
       };
 
-      expect(t).toThrow(`GPU must be one of the supported vendors (nvidia,amd).`);
+      expect(t).toThrow(`Additional property "invalidvendor" is not allowed at "/profiles/compute/web/resources/gpu/attributes/vendor".`);
     });
 
     it("SDL: GPU without vendor name should throw", () => {
-      const invalidSDL = readFileSync("./fixtures/gpu_invalid_no_vendor_name.sdl.yml");
+      const invalidSDL = readFileSync("../fixtures/gpu_invalid_no_vendor_name.sdl.yml");
 
       const t = () => {
         SDL.fromString(invalidSDL, "beta3");
       };
 
-      expect(t).toThrow(`GPU must be one of the supported vendors (nvidia,amd).`);
+      expect(t).toThrow("\"vendor\" at \"/profiles/compute/web/resources/gpu/attributes\" must have at least 1 property.");
     });
   });
 
   describe("SDL WordPress", () => {
-    const testSDL = readFileSync("./fixtures/wordpress.sdl.yml");
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/wordpress.manifest.json"));
+    const testSDL = readFileSync("../fixtures/wordpress.sdl.yml");
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/wordpress.manifest.json"));
 
     describe("Manifest", () => {
       it("should generate the correct manifest", () => {
@@ -495,7 +583,7 @@ describe("SDL", () => {
 
   describe("SDL v3 Resource Groups", () => {
     it("should create v3 resource groups", async () => {
-      const testSDL = readFileSync("./fixtures/gpu_basic.sdl.yml");
+      const testSDL = readFileSync("../fixtures/gpu_basic.sdl.yml");
       const sdl = SDL.fromString(testSDL, "beta3");
 
       expect(sdl.groups()).toMatchSnapshot("Groups matches expected result");
@@ -719,7 +807,7 @@ describe("SDL", () => {
 
   describe("SDL: IP Lease Manifest", () => {
     it("should generate the correct manifest", async () => {
-      const validSDL = readFileSync("./fixtures/ip_lease_valid.sdl.yml");
+      const validSDL = readFileSync("../fixtures/ip_lease_valid.sdl.yml");
 
       const sdl = SDL.fromString(validSDL, "beta2");
       const result = sdl.manifest();
@@ -842,8 +930,8 @@ describe("SDL", () => {
   });
 
   describe("SDL GPU", () => {
-    const testSDL = readFileSync("./fixtures/gpu_basic.sdl.yml");
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/gpu_basic.manifest.json"));
+    const testSDL = readFileSync("../fixtures/gpu_basic.sdl.yml");
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/gpu_basic.manifest.json"));
 
     it("should generate the correct manifest", () => {
       const sdl = SDL.fromString(testSDL, "beta3");
@@ -898,11 +986,11 @@ describe("SDL", () => {
             blalbla: foo
           signedBy:
             anyOf:
-              - 1
-              - 2
+              - akash1123123
+              - akash1124123123
             allOf:
-              - 3
-              - 4
+              - akash1123123
+              - akash1124123123
           pricing:
             web:
               denom: uakt
@@ -930,8 +1018,8 @@ describe("SDL", () => {
   });
 
   describe("SDL GPU RAM", () => {
-    const testSDL = readFileSync("./fixtures/gpu_basic_ram.sdl.yml");
-    const expectedManifest = JSON.parse(readFileSync("./fixtures/gpu_basic_ram.manifest.json"));
+    const testSDL = readFileSync("../fixtures/gpu_basic_ram.sdl.yml");
+    const expectedManifest = JSON.parse(readFileSync("../fixtures/gpu_basic_ram.manifest.json"));
 
     it("should generate correct manifest", () => {
       const sdl = SDL.fromString(testSDL, "beta3");
@@ -949,10 +1037,10 @@ describe("SDL", () => {
   });
 
   describe("SDL: fromString", () => {
-    const validSDL = readFileSync("./fixtures/gpu_no_gpu_valid.sdl.yml");
-    const hasAttrSDL = readFileSync("./fixtures/gpu_no_gpu_invalid_has_attributes.sdl.yml");
-    const noVendorSdl = readFileSync("./fixtures/gpu_invalid_no_vendor.sdl.yml");
-    const invalidIntefaceSdl = readFileSync("./fixtures/gpu_invalid_interface.sdl.yml");
+    const validSDL = readFileSync("../fixtures/gpu_no_gpu_valid.sdl.yml");
+    const hasAttrSDL = readFileSync("../fixtures/gpu_no_gpu_invalid_has_attributes.sdl.yml");
+    const noVendorSdl = readFileSync("../fixtures/gpu_invalid_no_vendor.sdl.yml");
+    const invalidIntefaceSdl = readFileSync("../fixtures/gpu_invalid_interface.sdl.yml");
 
     it("should accept if GPU units is 0, and no attributes are present", () => {
       expect(() => SDL.fromString(validSDL, "beta3")).not.toThrow();
@@ -972,7 +1060,7 @@ describe("SDL", () => {
 
     it("should throw an error if GPU interface is not supported", () => {
       expect(() => SDL.fromString(invalidIntefaceSdl, "beta3")).toThrow(
-        /GPU interface must be one of the supported interfaces \(pcie,sxm\)/,
+        /"interface" at "\/profiles\/compute\/web\/resources\/gpu\/attributes\/vendor\/nvidia\/0" should be one of: pcie, sxm\./,
       );
     });
   });
@@ -1524,7 +1612,11 @@ describe("SDL", () => {
     });
   });
 
-  function readFileSync(path: string) {
-    return fs.readFileSync(`${__dirname}/${path}`, "utf8");
+  /**
+   * @param {FilePath} filePath Relative path from current directory
+   */
+  function readFileSync(filePath: string) {
+    const fullPath = path.join(__dirname, filePath);
+    return fs.readFileSync(fullPath, "utf8");
   }
 });

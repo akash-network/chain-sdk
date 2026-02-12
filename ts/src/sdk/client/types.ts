@@ -35,3 +35,6 @@ export interface MessageDesc<TValue = unknown, TTypeName = string> {
 export type MessageShape<T> = T extends Pick<MessageDesc, "decode"> ? ReturnType<T["decode"]> : never;
 
 export type MessageInitShape<T> = T extends Pick<MessageDesc, "decode"> ? DeepPartial<ReturnType<T["decode"]>> : never;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TypePatches = Record<string, (value: any, transform: "encode" | "decode") => any>;

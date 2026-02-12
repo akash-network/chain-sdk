@@ -13,6 +13,7 @@ import (
 	evdtypes "cosmossdk.io/x/evidence/types"
 	feegranttypes "cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -27,11 +28,13 @@ import (
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
+	btypes "pkg.akt.dev/go/node/bme/v1"
 	ctypes "pkg.akt.dev/go/node/cert/v1"
 	cltypes "pkg.akt.dev/go/node/client/types"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
+	otypes "pkg.akt.dev/go/node/oracle/v1"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
 )
 
@@ -56,6 +59,9 @@ type QueryClient interface {
 	Staking() staketypes.QueryClient
 	Upgrade() upgradetypes.QueryClient
 	Params() paramstypes.QueryClient
+	Wasm() wasmtypes.QueryClient
+	Oracle() otypes.QueryClient
+	BME() btypes.QueryClient
 
 	ClientContext() sdkclient.Context
 }

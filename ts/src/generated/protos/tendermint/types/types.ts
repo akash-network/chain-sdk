@@ -293,10 +293,6 @@ export const PartSetHeader: MessageFns<PartSetHeader, "tendermint.types.PartSetH
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PartSetHeader>): PartSetHeader {
-    return PartSetHeader.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PartSetHeader>): PartSetHeader {
     const message = createBasePartSetHeader();
     message.total = object.total ?? 0;
@@ -386,10 +382,6 @@ export const Part: MessageFns<Part, "tendermint.types.Part"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Part>): Part {
-    return Part.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Part>): Part {
     const message = createBasePart();
     message.index = object.index ?? 0;
@@ -464,10 +456,6 @@ export const BlockID: MessageFns<BlockID, "tendermint.types.BlockID"> = {
       obj.part_set_header = PartSetHeader.toJSON(message.partSetHeader);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<BlockID>): BlockID {
-    return BlockID.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<BlockID>): BlockID {
     const message = createBaseBlockID();
@@ -742,10 +730,6 @@ export const Header: MessageFns<Header, "tendermint.types.Header"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Header>): Header {
-    return Header.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Header>): Header {
     const message = createBaseHeader();
     message.version = (object.version !== undefined && object.version !== null)
@@ -820,10 +804,6 @@ export const Data: MessageFns<Data, "tendermint.types.Data"> = {
       obj.txs = message.txs.map((e) => base64FromBytes(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Data>): Data {
-    return Data.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Data>): Data {
     const message = createBaseData();
@@ -1031,10 +1011,6 @@ export const Vote: MessageFns<Vote, "tendermint.types.Vote"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Vote>): Vote {
-    return Vote.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Vote>): Vote {
     const message = createBaseVote();
     message.type = object.type ?? 0;
@@ -1153,10 +1129,6 @@ export const Commit: MessageFns<Commit, "tendermint.types.Commit"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Commit>): Commit {
-    return Commit.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Commit>): Commit {
     const message = createBaseCommit();
     message.height = (object.height !== undefined && object.height !== null)
@@ -1267,10 +1239,6 @@ export const CommitSig: MessageFns<CommitSig, "tendermint.types.CommitSig"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CommitSig>): CommitSig {
-    return CommitSig.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CommitSig>): CommitSig {
     const message = createBaseCommitSig();
     message.blockIdFlag = object.blockIdFlag ?? 0;
@@ -1378,10 +1346,6 @@ export const ExtendedCommit: MessageFns<ExtendedCommit, "tendermint.types.Extend
       obj.extended_signatures = message.extendedSignatures.map((e) => ExtendedCommitSig.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ExtendedCommit>): ExtendedCommit {
-    return ExtendedCommit.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ExtendedCommit>): ExtendedCommit {
     const message = createBaseExtendedCommit();
@@ -1531,10 +1495,6 @@ export const ExtendedCommitSig: MessageFns<ExtendedCommitSig, "tendermint.types.
       obj.extension_signature = base64FromBytes(message.extensionSignature);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ExtendedCommitSig>): ExtendedCommitSig {
-    return ExtendedCommitSig.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ExtendedCommitSig>): ExtendedCommitSig {
     const message = createBaseExtendedCommitSig();
@@ -1697,10 +1657,6 @@ export const Proposal: MessageFns<Proposal, "tendermint.types.Proposal"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Proposal>): Proposal {
-    return Proposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Proposal>): Proposal {
     const message = createBaseProposal();
     message.type = object.type ?? 0;
@@ -1784,10 +1740,6 @@ export const SignedHeader: MessageFns<SignedHeader, "tendermint.types.SignedHead
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SignedHeader>): SignedHeader {
-    return SignedHeader.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SignedHeader>): SignedHeader {
     const message = createBaseSignedHeader();
     message.header = (object.header !== undefined && object.header !== null)
@@ -1865,10 +1817,6 @@ export const LightBlock: MessageFns<LightBlock, "tendermint.types.LightBlock"> =
       obj.validator_set = ValidatorSet.toJSON(message.validatorSet);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<LightBlock>): LightBlock {
-    return LightBlock.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<LightBlock>): LightBlock {
     const message = createBaseLightBlock();
@@ -1978,10 +1926,6 @@ export const BlockMeta: MessageFns<BlockMeta, "tendermint.types.BlockMeta"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BlockMeta>): BlockMeta {
-    return BlockMeta.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BlockMeta>): BlockMeta {
     const message = createBaseBlockMeta();
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
@@ -2080,10 +2024,6 @@ export const TxProof: MessageFns<TxProof, "tendermint.types.TxProof"> = {
       obj.proof = Proof.toJSON(message.proof);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<TxProof>): TxProof {
-    return TxProof.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<TxProof>): TxProof {
     const message = createBaseTxProof();

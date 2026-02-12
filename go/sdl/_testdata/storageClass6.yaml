@@ -44,7 +44,7 @@ profiles:
           - 4
       pricing:
         web:
-          denom: uakt
+          denom: uact
           amount: 50
 deployment:
   web:

@@ -68,10 +68,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.authz.v1beta1.Genesi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.authorization = object.authorization?.map((e) => GrantAuthorization.fromPartial(e)) || [];

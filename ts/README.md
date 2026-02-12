@@ -8,10 +8,10 @@ This package provides TypeScript bindings for the Akash API, generated from prot
 
 ## Installation
 
-⚠️ **NOTICE:** 
+⚠️ **NOTICE:**
 
 The new Chain SDK for TypeScript is currently in alpha. As such, small breaking changes may occur between versions.
-To ensure stability of your own scripts, pin a specific version of the SDK in your package.json (avoid using `^` or `~` in front of version). 
+To ensure stability of your own scripts, pin a specific version of the SDK in your package.json (avoid using `^` or `~` in front of version).
 
 We are actively gathering developer feedback and improving the DX (Developer Experience).
 Please report any issues or suggestions via:
@@ -27,6 +27,8 @@ npm install @akashnetwork/chain-sdk@alpha
 ## Usage
 
 This package supports commonjs and ESM environments.
+
+> Check out [examples](./examples/) folder for details.
 
 ### Chain SDK
 
@@ -85,7 +87,11 @@ This implementation can be used in both browser and nodejs, since it uses gRPC G
 ```typescript
 import { createChainNodeWebSDK, type TxClient } from "@akashnetwork/chain-sdk/web";
 
-const wallet: TxClient = // kplr or leap wallet object in browser exposed by corresponding extension
+const wallet: TxClient = {
+  async signAndBroadcast(messages, options) {
+    // use web wallet object in browser exposed by corresponding extension to signAndBroadcast
+  }
+};
 const sdk = createChainNodeWebSDK({
   query: {
     baseUrl: "https://api.sandbox-2.aksh.pw:443", // gRPC Gateway api url
@@ -211,13 +217,42 @@ const leaseDetails = await fetch(`https://some-provider.url:8443/lease/${lease.d
 - Do not create a new certificate for every request
 - Verify the provider's identity when it responds with a self-signed certificate
 
+### Transport Retry logic
+
+The SDK supports **automatic retries** with exponential backoff for **query** requests in all SDKs. By default, retry is disabled. To enable it, pass `transportOptions.retry`. Afterwards, it will retry on the next gRPC failure codes:
+
+- 14 - `TransportError.Code.Unavailable`
+- 4  - `TransportError.Code.DeadlineExceeded`,
+- 13 - `TransportError.Code.Internal`,
+- 2  - `TransportError.Code.Unknown`,
+
+**Example:**
+
+```ts
+import { createChainNodeSDK } from "@akashnetwork/chain-sdk";
+
+const sdk = createChainNodeSDK({
+  query: {
+    baseUrl: "http://grpc.sandbox-2.aksh.pw:9090",
+    transportOptions: {
+      retry: {
+        maxAttempts: 3,
+        maxDelayMs: 5_000,
+      },
+    },
+  },
+});
+```
+
+Exactly the same `transportOptions` options can be passed to chain web sdk and to provider sdk, to enable retries.
 
 ### Stack Definition Language (SDL)
 
 ```typescript
-import { SDL } from "@akashnetwork/chain-sdk";
+import { generateManifest, yaml, type SDLInput } from "@akashnetwork/chain-sdk";
 
-const yaml = `
+// Install https://marketplace.visualstudio.com/items?itemName=brandonkal.yaml-embed for VSCode to highlight yaml in sdl variable
+const sdl: SDLInput = yaml`
 version: "2.0"
 services:
   web:
@@ -229,8 +264,45 @@ services:
           - global: true
 `;
 
-const sdl = SDL.fromString(yaml);
-const manifest = sdl.manifest();
+const manifest = generateManifest(sdl);
+```
+
+`yaml` helper supports interpolation of simple and complex values. So, you can do this:
+
+```ts
+const version = "2.1";
+const expose = [
+  { port: 80, as: 80, to: [{ global: true }] }
+];
+const pricing = {
+  web: { denom: "uakt", amount: 1000 }
+};
+
+const sdl: SDLInput = yaml`
+version: ${version}
+services:
+  web:
+    image: nginx
+    expose: ${expose}
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 1Gi
+  placement:
+    dcloud:
+      pricing: ${pricing}
+deployment:
+  web:
+    dcloud:
+      profile: web
+      count: 1
+`;
 ```
 
 ### Contributing

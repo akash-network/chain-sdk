@@ -70,10 +70,6 @@ export const EventEpochEnd: MessageFns<EventEpochEnd, "cosmos.epochs.v1beta1.Eve
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventEpochEnd>): EventEpochEnd {
-    return EventEpochEnd.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventEpochEnd>): EventEpochEnd {
     const message = createBaseEventEpochEnd();
     message.epochNumber = (object.epochNumber !== undefined && object.epochNumber !== null)
@@ -148,10 +144,6 @@ export const EventEpochStart: MessageFns<EventEpochStart, "cosmos.epochs.v1beta1
       obj.epoch_start_time = (message.epochStartTime || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventEpochStart>): EventEpochStart {
-    return EventEpochStart.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventEpochStart>): EventEpochStart {
     const message = createBaseEventEpochStart();

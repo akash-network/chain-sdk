@@ -93,10 +93,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.nft.v1beta1.GenesisS
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.classes = object.classes?.map((e) => Class.fromPartial(e)) || [];
@@ -170,10 +166,6 @@ export const Entry: MessageFns<Entry, "cosmos.nft.v1beta1.Entry"> = {
       obj.nfts = message.nfts.map((e) => NFT.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Entry>): Entry {
-    return Entry.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Entry>): Entry {
     const message = createBaseEntry();

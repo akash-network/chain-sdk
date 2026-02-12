@@ -539,10 +539,6 @@ export const Member: MessageFns<Member, "cosmos.group.v1.Member"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Member>): Member {
-    return Member.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Member>): Member {
     const message = createBaseMember();
     message.address = object.address ?? "";
@@ -634,10 +630,6 @@ export const MemberRequest: MessageFns<MemberRequest, "cosmos.group.v1.MemberReq
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MemberRequest>): MemberRequest {
-    return MemberRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MemberRequest>): MemberRequest {
     const message = createBaseMemberRequest();
     message.address = object.address ?? "";
@@ -712,10 +704,6 @@ export const ThresholdDecisionPolicy: MessageFns<ThresholdDecisionPolicy, "cosmo
       obj.windows = DecisionPolicyWindows.toJSON(message.windows);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ThresholdDecisionPolicy>): ThresholdDecisionPolicy {
-    return ThresholdDecisionPolicy.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ThresholdDecisionPolicy>): ThresholdDecisionPolicy {
     const message = createBaseThresholdDecisionPolicy();
@@ -796,10 +784,6 @@ export const PercentageDecisionPolicy: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PercentageDecisionPolicy>): PercentageDecisionPolicy {
-    return PercentageDecisionPolicy.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PercentageDecisionPolicy>): PercentageDecisionPolicy {
     const message = createBasePercentageDecisionPolicy();
     message.percentage = object.percentage ?? "";
@@ -877,10 +861,6 @@ export const DecisionPolicyWindows: MessageFns<DecisionPolicyWindows, "cosmos.gr
       obj.min_execution_period = Duration.toJSON(message.minExecutionPeriod);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DecisionPolicyWindows>): DecisionPolicyWindows {
-    return DecisionPolicyWindows.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DecisionPolicyWindows>): DecisionPolicyWindows {
     const message = createBaseDecisionPolicyWindows();
@@ -1020,10 +1000,6 @@ export const GroupInfo: MessageFns<GroupInfo, "cosmos.group.v1.GroupInfo"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GroupInfo>): GroupInfo {
-    return GroupInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GroupInfo>): GroupInfo {
     const message = createBaseGroupInfo();
     message.id = (object.id !== undefined && object.id !== null) ? Long.fromValue(object.id) : Long.UZERO;
@@ -1103,10 +1079,6 @@ export const GroupMember: MessageFns<GroupMember, "cosmos.group.v1.GroupMember">
       obj.member = Member.toJSON(message.member);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GroupMember>): GroupMember {
-    return GroupMember.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GroupMember>): GroupMember {
     const message = createBaseGroupMember();
@@ -1268,10 +1240,6 @@ export const GroupPolicyInfo: MessageFns<GroupPolicyInfo, "cosmos.group.v1.Group
       obj.created_at = message.createdAt.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GroupPolicyInfo>): GroupPolicyInfo {
-    return GroupPolicyInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GroupPolicyInfo>): GroupPolicyInfo {
     const message = createBaseGroupPolicyInfo();
@@ -1555,10 +1523,6 @@ export const Proposal: MessageFns<Proposal, "cosmos.group.v1.Proposal"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Proposal>): Proposal {
-    return Proposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Proposal>): Proposal {
     const message = createBaseProposal();
     message.id = (object.id !== undefined && object.id !== null) ? Long.fromValue(object.id) : Long.UZERO;
@@ -1681,10 +1645,6 @@ export const TallyResult: MessageFns<TallyResult, "cosmos.group.v1.TallyResult">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<TallyResult>): TallyResult {
-    return TallyResult.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<TallyResult>): TallyResult {
     const message = createBaseTallyResult();
     message.yesCount = object.yesCount ?? "";
@@ -1805,10 +1765,6 @@ export const Vote: MessageFns<Vote, "cosmos.group.v1.Vote"> = {
       obj.submit_time = message.submitTime.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Vote>): Vote {
-    return Vote.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Vote>): Vote {
     const message = createBaseVote();

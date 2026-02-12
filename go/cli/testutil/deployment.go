@@ -5,10 +5,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdktest "github.com/cosmos/cosmos-sdk/testutil"
-	// sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.akt.dev/go/cli"
-	// dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
 // ExecDeploymentCreate is used for testing create deployment tx
@@ -25,6 +23,12 @@ func ExecDeploymentUpdate(ctx context.Context, cctx client.Context, args ...stri
 // requires --dseq, --fees
 func ExecDeploymentClose(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
 	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentCloseCmd(), args...)
+}
+
+// ExecDeploymentGroupClose is used for testing close deployment group tx
+// requires --dseq, --fees
+func ExecDeploymentGroupClose(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxDeploymentGroupCloseCmd(), args...)
 }
 
 // ExecQueryDeployments is used for testing deployments query

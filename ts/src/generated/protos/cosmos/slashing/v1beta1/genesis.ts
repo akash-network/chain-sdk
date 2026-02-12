@@ -141,10 +141,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.slashing.v1beta1.Gen
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.params = (object.params !== undefined && object.params !== null)
@@ -223,10 +219,6 @@ export const SigningInfo: MessageFns<SigningInfo, "cosmos.slashing.v1beta1.Signi
       obj.validator_signing_info = ValidatorSigningInfo.toJSON(message.validatorSigningInfo);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SigningInfo>): SigningInfo {
-    return SigningInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SigningInfo>): SigningInfo {
     const message = createBaseSigningInfo();
@@ -307,10 +299,6 @@ export const ValidatorMissedBlocks: MessageFns<ValidatorMissedBlocks, "cosmos.sl
       }
       return obj;
     },
-
-    create(base?: DeepPartial<ValidatorMissedBlocks>): ValidatorMissedBlocks {
-      return ValidatorMissedBlocks.fromPartial(base ?? {});
-    },
     fromPartial(object: DeepPartial<ValidatorMissedBlocks>): ValidatorMissedBlocks {
       const message = createBaseValidatorMissedBlocks();
       message.address = object.address ?? "";
@@ -384,10 +372,6 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
       obj.missed = message.missed;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MissedBlock>): MissedBlock {
-    return MissedBlock.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MissedBlock>): MissedBlock {
     const message = createBaseMissedBlock();

@@ -9,10 +9,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	dv1beta "pkg.akt.dev/go/node/deployment/v1beta4"
+	dvbeta "pkg.akt.dev/go/node/deployment/v1beta4"
 	eid "pkg.akt.dev/go/node/escrow/id/v1"
 	"pkg.akt.dev/go/node/escrow/module"
-	mv1beta5 "pkg.akt.dev/go/node/market/v1beta5"
+	mvbeta "pkg.akt.dev/go/node/market/v1beta5"
 )
 
 type Authorization interface {
@@ -27,7 +27,7 @@ var (
 	_ Authorization = &DepositAuthorization{}
 )
 
-// NewDepositAuthorization creates a new DepositAuthorization object.
+// NewDepositAuthorization creates a new DepositAuthorization object with a single spend limit.
 func NewDepositAuthorization(scopes DepositAuthorizationScopes, spendLimit sdk.Coin) *DepositAuthorization {
 	return &DepositAuthorization{
 		Scopes:     scopes,
@@ -65,10 +65,10 @@ func (m *DepositAuthorization) TryAccept(_ context.Context, msg sdk.Msg, partial
 		}
 
 		amount = mt.Deposit.Amount
-	case *dv1beta.MsgCreateDeployment:
+	case *dvbeta.MsgCreateDeployment:
 		scope = DepositScopeDeployment
 		amount = mt.Deposit.Amount
-	case *mv1beta5.MsgCreateBid:
+	case *mvbeta.MsgCreateBid:
 		scope = DepositScopeBid
 		amount = mt.Deposit.Amount
 	default:
@@ -98,7 +98,11 @@ func (m *DepositAuthorization) TryAccept(_ context.Context, msg sdk.Msg, partial
 		return authz.AcceptResponse{}, err
 	}
 
-	return authz.AcceptResponse{Accept: true, Delete: limitLeft.IsZero(), Updated: &DepositAuthorization{Scopes: m.Scopes, SpendLimit: limitLeft}}, nil
+	return authz.AcceptResponse{
+			Accept:  true,
+			Delete:  limitLeft.IsZero(),
+			Updated: &DepositAuthorization{Scopes: m.Scopes, SpendLimit: limitLeft}},
+		nil
 }
 
 // ValidateBasic implements Authorization.ValidateBasic.

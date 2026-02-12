@@ -96,10 +96,6 @@ export const CPU: MessageFns<CPU, "akash.base.resources.v1beta4.CPU"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<CPU>): CPU {
-    return CPU.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<CPU>): CPU {
     const message = createBaseCPU();
     message.units = (object.units !== undefined && object.units !== null)

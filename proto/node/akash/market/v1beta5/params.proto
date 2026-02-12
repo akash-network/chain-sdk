@@ -8,7 +8,6 @@ option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
 // Params is the params for the x/market module.
 message Params {
-
   // BidMinDeposit is a parameter for the minimum deposit on a Bid.
   cosmos.base.v1beta1.Coin bid_min_deposit = 1 [
     (gogoproto.customname) = "BidMinDeposit",

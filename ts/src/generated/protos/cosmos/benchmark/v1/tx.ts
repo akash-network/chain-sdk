@@ -89,10 +89,6 @@ export const MsgLoadTest: MessageFns<MsgLoadTest, "cosmos.benchmark.v1.MsgLoadTe
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgLoadTest>): MsgLoadTest {
-    return MsgLoadTest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgLoadTest>): MsgLoadTest {
     const message = createBaseMsgLoadTest();
     message.caller = object.caller ?? new Uint8Array(0);
@@ -166,10 +162,6 @@ export const MsgLoadTestResponse: MessageFns<MsgLoadTestResponse, "cosmos.benchm
       obj.total_errors = (message.totalErrors || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgLoadTestResponse>): MsgLoadTestResponse {
-    return MsgLoadTestResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgLoadTestResponse>): MsgLoadTestResponse {
     const message = createBaseMsgLoadTestResponse();

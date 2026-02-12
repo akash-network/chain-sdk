@@ -4,6 +4,7 @@ import (
 	evdtypes "cosmossdk.io/x/evidence/types"
 	feegranttypes "cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -17,10 +18,12 @@ import (
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	atypes "pkg.akt.dev/go/node/audit/v1"
+	btypes "pkg.akt.dev/go/node/bme/v1"
 	ctypes "pkg.akt.dev/go/node/cert/v1"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
+	otypes "pkg.akt.dev/go/node/oracle/v1"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
 )
 
@@ -40,6 +43,9 @@ type sdkQueryClient struct {
 	staking   staketypes.QueryClient
 	upgrade   upgradetypes.QueryClient
 	params    paramstypes.QueryClient
+	wasm      wasmtypes.QueryClient
+	oracle    otypes.QueryClient
+	bme       btypes.QueryClient
 }
 
 type queryClient struct {
@@ -80,6 +86,9 @@ func newQueryClient(cctx sdkclient.Context) *queryClient {
 			staking:   staketypes.NewQueryClient(cctx),
 			upgrade:   upgradetypes.NewQueryClient(cctx),
 			params:    paramstypes.NewQueryClient(cctx),
+			wasm:      wasmtypes.NewQueryClient(cctx),
+			oracle:    otypes.NewQueryClient(cctx),
+			bme:       btypes.NewQueryClient(cctx),
 		},
 		cctx: cctx,
 	}
@@ -178,4 +187,19 @@ func (c *queryClient) Upgrade() upgradetypes.QueryClient {
 // Params implements QueryClient by returning the params Cosmos SDK query client.
 func (c *queryClient) Params() paramstypes.QueryClient {
 	return c.sdk.params
+}
+
+// Wasm implements QueryClient by returning the wasm query client.
+func (c *queryClient) Wasm() wasmtypes.QueryClient {
+	return c.sdk.wasm
+}
+
+// Oracle implements QueryClient by returning the oracle query client.
+func (c *queryClient) Oracle() otypes.QueryClient {
+	return c.sdk.oracle
+}
+
+// BME implements QueryClient by returning the bme query client.
+func (c *queryClient) BME() btypes.QueryClient {
+	return c.sdk.bme
 }

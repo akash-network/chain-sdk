@@ -186,9 +186,7 @@ func (s *JWTTestSuite) prepareTestCases(t *testing.T) []jwtTestCase {
 	res := make([]jwtTestCase, 0, len(testCases))
 
 	for i := range testCases {
-		for _, tc := range s.initClaims(testCases[i]) {
-			res = append(res, tc)
-		}
+		res = append(res, s.initClaims(testCases[i])...)
 	}
 
 	return res

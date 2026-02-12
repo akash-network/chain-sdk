@@ -111,10 +111,6 @@ export const EventGrant: MessageFns<EventGrant, "cosmos.authz.v1beta1.EventGrant
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventGrant>): EventGrant {
-    return EventGrant.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventGrant>): EventGrant {
     const message = createBaseEventGrant();
     message.msgTypeUrl = object.msgTypeUrl ?? "";
@@ -204,10 +200,6 @@ export const EventRevoke: MessageFns<EventRevoke, "cosmos.authz.v1beta1.EventRev
       obj.grantee = message.grantee;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventRevoke>): EventRevoke {
-    return EventRevoke.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventRevoke>): EventRevoke {
     const message = createBaseEventRevoke();

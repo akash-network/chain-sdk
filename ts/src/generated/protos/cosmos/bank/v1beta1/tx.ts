@@ -162,10 +162,6 @@ export const MsgSend: MessageFns<MsgSend, "cosmos.bank.v1beta1.MsgSend"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgSend>): MsgSend {
-    return MsgSend.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgSend>): MsgSend {
     const message = createBaseMsgSend();
     message.fromAddress = object.fromAddress ?? "";
@@ -209,10 +205,6 @@ export const MsgSendResponse: MessageFns<MsgSendResponse, "cosmos.bank.v1beta1.M
   toJSON(_: MsgSendResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgSendResponse>): MsgSendResponse {
-    return MsgSendResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgSendResponse>): MsgSendResponse {
     const message = createBaseMsgSendResponse();
@@ -286,10 +278,6 @@ export const MsgMultiSend: MessageFns<MsgMultiSend, "cosmos.bank.v1beta1.MsgMult
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgMultiSend>): MsgMultiSend {
-    return MsgMultiSend.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgMultiSend>): MsgMultiSend {
     const message = createBaseMsgMultiSend();
     message.inputs = object.inputs?.map((e) => Input.fromPartial(e)) || [];
@@ -332,10 +320,6 @@ export const MsgMultiSendResponse: MessageFns<MsgMultiSendResponse, "cosmos.bank
   toJSON(_: MsgMultiSendResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgMultiSendResponse>): MsgMultiSendResponse {
-    return MsgMultiSendResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgMultiSendResponse>): MsgMultiSendResponse {
     const message = createBaseMsgMultiSendResponse();
@@ -409,10 +393,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.bank.v1beta1.M
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -460,10 +440,6 @@ export const MsgUpdateParamsResponse: MessageFns<
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
@@ -556,10 +532,6 @@ export const MsgSetSendEnabled: MessageFns<MsgSetSendEnabled, "cosmos.bank.v1bet
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgSetSendEnabled>): MsgSetSendEnabled {
-    return MsgSetSendEnabled.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgSetSendEnabled>): MsgSetSendEnabled {
     const message = createBaseMsgSetSendEnabled();
     message.authority = object.authority ?? "";
@@ -606,10 +578,6 @@ export const MsgSetSendEnabledResponse: MessageFns<
   toJSON(_: MsgSetSendEnabledResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgSetSendEnabledResponse>): MsgSetSendEnabledResponse {
-    return MsgSetSendEnabledResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgSetSendEnabledResponse>): MsgSetSendEnabledResponse {
     const message = createBaseMsgSetSendEnabledResponse();

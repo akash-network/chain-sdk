@@ -12,22 +12,48 @@ import { basename, normalize as normalizePath } from "path";
 
 import { findPathsToCustomField, getCustomType } from "../src/encoding/customTypes/utils.ts";
 
-runNodeJs(
-  createEcmaScriptPlugin({
-    name: "protoc-gen-customtype-patches",
-    version: "v1",
-    generateTs,
-  }),
-);
+export interface PluginOptions {
+  /**
+   * if true, we will patch the whole tree of the message type, starting from the custom field type and up to the root
+   * in case of patching ts-proto generated types which has self-references, we need to patch only leaf level
+   * @default false
+   */
+  patchWholeTree: boolean;
+}
+
+runNodeJs(createEcmaScriptPlugin<PluginOptions>({ name: "protoc-gen-customtype-patches", version: "v1", parseOptions, generateTs }));
 
 const PROTO_PATH = "../protos";
-function generateTs(schema: Schema): void {
+
+function parseOptions(rawOptions: Array<{
+  key: string;
+  value: string;
+}>): PluginOptions {
+  const options: PluginOptions = {
+    patchWholeTree: false,
+  };
+
+  for (const { key, value } of rawOptions) {
+    if (key === "patch_whole_tree") {
+      options.patchWholeTree = value === "true";
+    }
+  }
+
+  return options;
+}
+
+function generateTs(schema: Schema<PluginOptions>): void {
   const allPaths: DescField[][] = [];
 
   schema.files.forEach((file) => {
     file.messages.forEach((message) => {
       const paths = findPathsToCustomField(message, () => true);
-      allPaths.push(...paths);
+      if (schema.options.patchWholeTree) {
+        allPaths.push(...paths);
+      } else {
+        const leaves = paths.map((path) => path.slice(-1));
+        allPaths.push(...leaves);
+      }
     });
   });
   if (!allPaths.length) {
@@ -99,6 +125,24 @@ function generateTs(schema: Schema): void {
   patchesFile.print("");
   patchesFile.print(`const p = {\n${indent(patches.join(",\n"))}\n};\n`);
   patchesFile.print(`export const patches = p;`);
+
+  const patchesTypeFileName = fileName.replace("CustomTypePatches", "PatchMessage");
+  const patchTypeFile = schema.generateFile(patchesTypeFileName);
+  patchTypeFile.print(`import { patches } from "./${fileName}";`);
+  patchTypeFile.print(`import type { MessageDesc } from "../../sdk/client/types.ts";`);
+  patchTypeFile.print(`export const patched = <T extends MessageDesc>(messageDesc: T): T => {`);
+  patchTypeFile.print(`  const patchMessage = patches[messageDesc.$type as keyof typeof patches] as any;`);
+  patchTypeFile.print(`  if (!patchMessage) return messageDesc;`);
+  patchTypeFile.print(`  return {`);
+  patchTypeFile.print(`    ...messageDesc,`);
+  patchTypeFile.print(`    encode(message, writer) {`);
+  patchTypeFile.print(`      return messageDesc.encode(patchMessage(message, 'encode'), writer);`);
+  patchTypeFile.print(`    },`);
+  patchTypeFile.print(`    decode(input, length) {`);
+  patchTypeFile.print(`      return patchMessage(messageDesc.decode(input, length), 'decode');`);
+  patchTypeFile.print(`    },`);
+  patchTypeFile.print(`  };`);
+  patchTypeFile.print(`};`);
 
   const testsFile = schema.generateFile(fileName.replace(/\.ts$/, ".spec.ts"));
   generateTests(basename(fileName), testsFile, messageToCustomFields);
@@ -185,13 +229,13 @@ function generateTests(fileName: string, testsFile: GeneratedFile, messageToCust
   testsFile.print(`import { expect, describe, it } from "@jest/globals";`);
   testsFile.print(`import { patches } from "./${basename(fileName)}";`);
   testsFile.print(`import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";`);
-  testsFile.print(`import type { TypePatches } from "../../sdk/client/applyPatches.ts";`);
+  testsFile.print(`import type { TypePatches } from "../../sdk/client/types.ts";`);
   testsFile.print("");
   testsFile.print(`const messageTypes: Record<string, MessageSchema> = {`);
   for (const [message, fields] of messageToCustomFields.entries()) {
     testsFile.print(`  "${message.typeName}": {`);
     testsFile.print(`    type: `, testsFile.import(message.name, `${PROTO_PATH}/${message.file.name}.ts`), `,`);
-    testsFile.print(`    fields: [`, ...Array.from(fields, f => serializeField(f, testsFile)), `],`);
+    testsFile.print(`    fields: [`, ...Array.from(fields, (f) => serializeField(f, testsFile)), `],`);
     testsFile.print(`  },`);
   }
   testsFile.print(`};`);
@@ -236,7 +280,7 @@ function serializeField(f: DescField, file: GeneratedFile): Printable {
     field.push(`scalarType: ${f.scalar},`);
   }
   if (f.fieldKind === "enum") {
-    field.push(`enum: `, JSON.stringify(f.enum.values.map(v => v.localName)), `,`);
+    field.push(`enum: `, JSON.stringify(f.enum.values.map((v) => v.localName)), `,`);
   }
   if (getCustomType(f)) {
     field.push(`customType: "${getCustomType(f)!.shortName}",`);
@@ -246,10 +290,10 @@ function serializeField(f: DescField, file: GeneratedFile): Printable {
   }
   if (f.message) {
     field.push(`message: {fields: [`,
-      ...f.message.fields.map(nf => serializeField(nf, file)),
+      ...f.message.fields.map((nf) => serializeField(nf, file)),
       `],`,
       `type: `, file.import(f.message.name, `${PROTO_PATH}/${f.message.file.name}.ts`),
-      `},`
+      `},`,
     );
   }
   field.push(`},`);

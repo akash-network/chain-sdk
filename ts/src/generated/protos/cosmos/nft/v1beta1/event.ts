@@ -138,10 +138,6 @@ export const EventSend: MessageFns<EventSend, "cosmos.nft.v1beta1.EventSend"> = 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventSend>): EventSend {
-    return EventSend.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventSend>): EventSend {
     const message = createBaseEventSend();
     message.classId = object.classId ?? "";
@@ -233,10 +229,6 @@ export const EventMint: MessageFns<EventMint, "cosmos.nft.v1beta1.EventMint"> = 
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventMint>): EventMint {
-    return EventMint.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventMint>): EventMint {
     const message = createBaseEventMint();
     message.classId = object.classId ?? "";
@@ -326,10 +318,6 @@ export const EventBurn: MessageFns<EventBurn, "cosmos.nft.v1beta1.EventBurn"> = 
       obj.owner = message.owner;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventBurn>): EventBurn {
-    return EventBurn.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventBurn>): EventBurn {
     const message = createBaseEventBurn();
