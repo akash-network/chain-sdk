@@ -12,6 +12,7 @@ option go_package = "pkg.akt.dev/go/node/market/v1beta4";
 // ResourceOffer describes resources that provider is offering
 // for deployment
 message ResourceOffer {
+  option deprecated = true;
   option (gogoproto.equal) = true;
   akash.base.v1beta3.Resources resources = 1 [
     (gogoproto.nullable)   = false,
