@@ -17,7 +17,7 @@ const SCHEMAS = {
   },
   sdlInput: {
     typeName: "SDLInput",
-    output: path.join(import.meta.dirname, "../src/sdl/SDL/validateSDL/validateSDLInput.ts"),
+    output: path.join(import.meta.dirname, "../src/sdl/validateSDL/validateSDLInput.ts"),
     get content() {
       return YAML.load(fs.readFileSync(path.join(import.meta.dirname, "../src/sdl/sdl-schema.yaml"), "utf8"));
     },

@@ -287,7 +287,8 @@ const (
 
 	// bme flags
 
-	FlagTo = "to"
+	FlagTo      = "to"
+	FlagToDenom = "to-denom"
 
 	// wasm flags
 

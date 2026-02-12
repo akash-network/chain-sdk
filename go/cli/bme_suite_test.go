@@ -331,7 +331,7 @@ func (s *BMECLITestSuite) TestCLITxBMEBurnMintEdgeCases() {
 				WithSkipConfirm().
 				WithBroadcastModeSync().
 				WithFees(sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10)))),
-			false, // Zero amount might be valid at CLI level, rejected by chain
+			true, // ValidateBasic rejects zero amount at CLI level
 		},
 		{
 			"burn mint with very large amount",

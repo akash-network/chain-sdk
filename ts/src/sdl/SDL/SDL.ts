@@ -35,9 +35,9 @@ import type {
   v3Sdl,
   v3ServiceExpose,
   v3ServiceExposeHttpOptions } from "../types.ts";
+import type { SDLInput } from "../validateSDL/validateSDL.ts";
+import { validateSDL } from "../validateSDL/validateSDL.ts";
 import { SdlValidationError } from "./SdlValidationError.ts";
-import type { SDLInput } from "./validateSDL/validateSDL.ts";
-import { validateSDL } from "./validateSDL/validateSDL.ts";
 
 const Endpoint_SHARED_HTTP = 0;
 const Endpoint_RANDOM_PORT = 1;
@@ -56,6 +56,8 @@ type NetworkVersion = "beta2" | "beta3";
 /**
  * SDL (Stack Definition Language) parser and validator
  * Handles parsing and validation of Akash deployment manifests
+ *
+ * @deprecated Use `generateManifest` instead.
  *
  * @example
  * ```ts
@@ -481,17 +483,26 @@ export class SDL {
   }
 
   v3ManifestServiceParams(params: v2ServiceParams | undefined): v3ManifestServiceParams | null {
-    if (params === undefined) return null;
-    const storage = params.storage ?? {};
-    const names = Object.keys(storage).sort();
-    return {
-      storage: names.map((name) => ({
-        name,
-        mount: storage[name]?.mount,
-        readOnly: storage[name]?.readOnly || false,
-      })),
-      ...(params?.permissions ? { permissions: params.permissions } : {}),
+    if (params === undefined || Object.keys(params).length === 0) {
+      return null;
+    }
+
+    const res: v3ManifestServiceParams = {
+      storage:
+        params.storage && Object.keys(params.storage).length > 0
+          ? Object.keys(params.storage).sort().map((name) => ({
+              name: name,
+              mount: params.storage![name]?.mount,
+              readOnly: params.storage![name]?.readOnly || false,
+            }))
+          : null,
     };
+
+    if (params.permissions) {
+      res.permissions = params.permissions;
+    }
+
+    return res;
   }
 
   v2ManifestService(placement: string, name: string, asString: boolean): v2ManifestService {

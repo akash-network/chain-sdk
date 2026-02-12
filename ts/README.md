@@ -249,9 +249,10 @@ Exactly the same `transportOptions` options can be passed to chain web sdk and t
 ### Stack Definition Language (SDL)
 
 ```typescript
-import { SDL } from "@akashnetwork/chain-sdk";
+import { generateManifest, yaml, type SDLInput } from "@akashnetwork/chain-sdk";
 
-const yaml = `
+// Install https://marketplace.visualstudio.com/items?itemName=brandonkal.yaml-embed for VSCode to highlight yaml in sdl variable
+const sdl: SDLInput = yaml`
 version: "2.0"
 services:
   web:
@@ -263,8 +264,45 @@ services:
           - global: true
 `;
 
-const sdl = SDL.fromString(yaml);
-const manifest = sdl.manifest();
+const manifest = generateManifest(sdl);
+```
+
+`yaml` helper supports interpolation of simple and complex values. So, you can do this:
+
+```ts
+const version = "2.1";
+const expose = [
+  { port: 80, as: 80, to: [{ global: true }] }
+];
+const pricing = {
+  web: { denom: "uakt", amount: 1000 }
+};
+
+const sdl: SDLInput = yaml`
+version: ${version}
+services:
+  web:
+    image: nginx
+    expose: ${expose}
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 1Gi
+  placement:
+    dcloud:
+      pricing: ${pricing}
+deployment:
+  web:
+    dcloud:
+      profile: web
+      count: 1
+`;
 ```
 
 ### Contributing

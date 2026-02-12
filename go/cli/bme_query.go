@@ -21,6 +21,7 @@ func GetQueryBMECmd() *cobra.Command {
 		GetBMEParamsCmd(),
 		GetBMEVaultStateCmd(),
 		GetBMEStatusCmd(),
+		GetBMELedgerRecordsCmd(),
 	)
 
 	return cmd
@@ -100,6 +101,46 @@ func GetBMEStatusCmd() *cobra.Command {
 	}
 
 	cflags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetBMELedgerRecordsCmd returns the command to query BME ledger records
+func GetBMELedgerRecordsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "ledger",
+		Short:             "Query ledger records",
+		Args:              cobra.ExactArgs(0),
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+
+			filters, err := cflags.BMELedgerFiltersFromFlags(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			pageReq, err := ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			res, err := cl.Query().BME().LedgerRecords(ctx, &types.QueryLedgerRecordsRequest{
+				Filters:    filters,
+				Pagination: pageReq,
+			})
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
+	cflags.AddPaginationFlagsToCmd(cmd, "ledger records")
+	cflags.AddBMELedgerFilterFlags(cmd.Flags())
 
 	return cmd
 }
