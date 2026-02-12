@@ -26,6 +26,7 @@ message ResourceOffer {
 
 // MsgCreateBid defines an SDK message for creating Bid
 message MsgCreateBid {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   OrderID order = 1 [
@@ -58,10 +59,13 @@ message MsgCreateBid {
 }
 
 // MsgCreateBidResponse defines the Msg/CreateBid response type.
-message MsgCreateBidResponse {}
+message MsgCreateBidResponse {
+  option deprecated = true;
+}
 
 // MsgCloseBid defines an SDK message for closing bid
 message MsgCloseBid {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   BidID bid_id = 1 [
@@ -73,7 +77,9 @@ message MsgCloseBid {
 }
 
 // MsgCloseBidResponse defines the Msg/CloseBid response type.
-message MsgCloseBidResponse {}
+message MsgCloseBidResponse {
+  option deprecated = true;
+}
 
 // BidID stores owner and all other seq numbers
 // A successful bid becomes a Lease(ID).

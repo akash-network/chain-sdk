@@ -119,6 +119,7 @@ message LeaseFilters {
 
 // MsgCreateLease is sent to create a lease
 message MsgCreateLease {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   BidID bid_id = 1 [
@@ -130,10 +131,13 @@ message MsgCreateLease {
 }
 
 // MsgCreateLeaseResponse is the response from creating a lease
-message MsgCreateLeaseResponse {}
+message MsgCreateLeaseResponse {
+  option deprecated = true;
+}
 
 // MsgWithdrawLease defines an SDK message for closing bid
 message MsgWithdrawLease {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   LeaseID bid_id = 1 [
@@ -145,11 +149,14 @@ message MsgWithdrawLease {
 }
 
 // MsgWithdrawLeaseResponse defines the Msg/WithdrawLease response type.
-message MsgWithdrawLeaseResponse {}
+message MsgWithdrawLeaseResponse {
+  option deprecated = true;
+}
 
 
 // MsgCloseLease defines an SDK message for closing order
 message MsgCloseLease {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   LeaseID lease_id = 1 [
@@ -161,4 +168,6 @@ message MsgCloseLease {
 }
 
 // MsgCloseLeaseResponse defines the Msg/CloseLease response type.
-message MsgCloseLeaseResponse {}
+message MsgCloseLeaseResponse {
+  option deprecated = true;
+}
