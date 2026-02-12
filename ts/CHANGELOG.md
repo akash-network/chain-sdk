@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0-alpha.23](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.22...ts/v1.0.0-alpha.23) (2026-02-11)
+
+
+### Features
+
+* allows uact denom ([#222](https://github.com/akash-network/chain-sdk/issues/222)) ([39e2329](https://github.com/akash-network/chain-sdk/commit/39e23295da6114afde9d5642907e3f4458ee9051))
+* implements generate manifest function ([#225](https://github.com/akash-network/chain-sdk/issues/225)) ([6ad9d64](https://github.com/akash-network/chain-sdk/commit/6ad9d6488c8af74ae1a91783353469cbbb368964))
+
 ## [1.0.0-alpha.22](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.21...ts/v1.0.0-alpha.22) (2026-02-09)
 
 
