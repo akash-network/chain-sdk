@@ -278,6 +278,7 @@ export type Attribute = {
 
 export type v3DeploymentGroup = {
   name: string;
+  
   resources: Array<{
     resource: v3ComputeResources;
     price: number;
@@ -285,10 +286,10 @@ export type v3DeploymentGroup = {
     endpoints: Array<{ kind: number; sequence_number: number }>;
   }>;
   requirements: {
-    attributes: Array<Attribute> | null;
-    signed_by: {
-      all_of: string[] | null;
-      any_of: string[] | null;
+    attributes: Array<Attribute>;
+    signedBy: {
+      allOf: string[];
+      anyOf: string[];
     };
   };
 };
