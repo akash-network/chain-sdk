@@ -7,12 +7,12 @@
 
 This repository is a development gateway to the Akash Blockchain.
 It aims following:
+
 - Define data types and API via [protobuf](./proto)
-    - Akash Blockchain and it's stores, aka [node](./proto/node)
-    - Akash Provider Interface, aka [provider](./proto/provider)
+  - Akash Blockchain and it's stores, aka [node](./proto/node)
+  - Akash Provider Interface, aka [provider](./proto/provider)
 - Define data types and API (both REST and GRPC) of Akash Provider Interface
 - Provide official reference clients for supported [programming languages](#supported-languages)
-
 
 ## Supported languages
 
@@ -20,6 +20,7 @@ It aims following:
 
 [This implementation](./go) provider all necessary code-generation as well as client defining Akash Blockchain
 There are a few packages this implementation exports. All packages available via Vanity URLs which are hosted as [Github Pages](https://github.com/akash-network/vanity).
+
 #### Go package
 
 Source code is located within [go](./go) directory
@@ -33,6 +34,7 @@ import "pkg.akt.dev/go"
 ##### Migrate package
 
 Depending on difference in API and stores between current and previous versions of the blockchain, there may be a **migrate** package. It is intended to be used by [node](https://github.com/akash-network/node) only.
+
 ```go
 import "pkg.akt.dev/go/node/migrate"
 ```
@@ -40,13 +42,15 @@ import "pkg.akt.dev/go/node/migrate"
 #### SDL package
 
 Reference implementation of the SDL.
+
 ```go
 import "pkg.akt.dev/go/sdl"
 ```
 
 #### CLI package
 
-CLI package which combines improved version of cli clients from node](https://github.com/akash-network/node) and [cosmos-sdk](https://github.com/cosmos/cosmos-sdk)
+CLI package which combines improved version of cli clients from node](<https://github.com/akash-network/node>) and [cosmos-sdk](https://github.com/cosmos/cosmos-sdk)
+
 ```go
 import "pkg.akt.dev/go/cli"
 ```
@@ -55,7 +59,6 @@ import "pkg.akt.dev/go/cli"
 
 Source code is located within [ts](./ts) directory
 
-
 ## Protobuf
 
 All protobuf definitions are located within [proto](./proto) directory.
@@ -63,10 +66,12 @@ All protobuf definitions are located within [proto](./proto) directory.
 This repository consolidates gRPC API definitions for the [Akash Node](https://github.com/akash-network/node) and [Akash Provider](https://github.com/akash-network/provider). It also includes related code generation.
 
 Currently, two `buf` packages are defined, with potential future publication to BSR based on demand:
+
 - **Node Package**: `buf.build/pkg.akt.dev/node`
 - **Provider Package**: `buf.build/pkg.akt.dev/provider`
 
 Proto documentation is available for:
+
 - [Node](docs/proto/node.md)
 - [Provider](docs/proto/provider.md)
 
@@ -78,10 +83,13 @@ If there is a need to run regenerate protobuf (in case of API or documentation c
 
 1. Install [direnv](https://direnv.net) and hook it to the [shell](https://direnv.net/docs/hook.html)
     - **MacOS**
+
     ```shell
     brew install make direnv
     ```
+
 2. Allow direnv within project
+
     ```shell
     direnv allow
     ```
@@ -93,16 +101,43 @@ If there is a need to run regenerate protobuf (in case of API or documentation c
     ```shell
     make modvendor
     ```
-    
+
     - generate changes to all [supported programming languages](#supported-languages)
 
     ```shell
     make proto-gen
     ```
+
     - to run codegen for specific language use `make proto-gen-<lang>`. For example
+
     ```shell
     make proto-gen-go
     ```
+
+
+## Latest Proto Definition Versions
+
+| Module | Latest Version | Deprecated Version(s) |
+|--------|---------------|----------------------|
+| Audit | `akash/audit/v1` | `v1beta3` |
+| Base: Attributes | `akash/base/attributes/v1` | - |
+| Base: Deposit | `akash/base/deposit/v1` | - |
+| Base: Offchain Sign | `akash/base/offchain/sign/v1` | - |
+| Base: Resources | `akash/base/resources/v1beta4` | `v1beta3` |
+| Bme | `akash/bme/v1` | - |
+| Cert | `akash/cert/v1` | `v1beta3` |
+| Deployment | `akash/deployment/v1beta4` | `v1beta3` |
+| Discovery | `akash/discovery/v1` | - |
+| Downtime Detector | `akash/downtimedetector/v1beta1` | - |
+| Epochs | `akash/epochs/v1beta1` | - |
+| Escrow | `akash/escrow/v1` | `v1beta3` |
+| Market | `akash/market/v1beta5` | `v1beta4` |
+| Oracle | `akash/oracle/v1` | - |
+| Provider | `akash/provider/v1beta4` | `v1beta3` |
+| Take | `akash/take/v1` | `v1beta3` |
+| Wasm | `akash/wasm/v1` | - |
+
+For details on changes between deprecated and current versions, see the [Proto Migration Guide](docs/api-proto-migration-guide.md).
 
 ## Releases
 
