@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.24](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.23...ts/v1.0.0-alpha.24) (2026-02-12)
+
+
+### Features
+
+* **ts:** support service permissions in SDL manifest ([b58ab52](https://github.com/akash-network/chain-sdk/commit/b58ab52554cf08f911569b9e115c715ddd29d32a))
+
 ## [1.0.0-alpha.23](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.22...ts/v1.0.0-alpha.23) (2026-02-11)
 
 
