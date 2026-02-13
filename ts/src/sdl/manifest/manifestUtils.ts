@@ -57,16 +57,21 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
   const vendor = attributes.vendor;
   if (!vendor) return [];
 
-  return Object.entries(vendor).flatMap(([vendorName, models]) =>
-    models
-      ? models.map((model) => {
-          let key = `vendor/${vendorName}/model/${model.model}`;
-          if (model.ram) key += `/ram/${model.ram}`;
-          if (model.interface) key += `/interface/${model.interface}`;
-          return { key, value: "true" };
-        })
-      : [{ key: `vendor/${vendorName}/model/*`, value: "true" }],
-  );
+  return Object.keys(vendor)
+    .sort((a, b) => a.localeCompare(b))
+    .flatMap((vendorName) => {
+      const models = vendor[vendorName as keyof typeof vendor];
+      if (!models) {
+        return [{ key: `vendor/${vendorName}/model/*`, value: "true" }];
+      }
+
+      return models.map((model) => {
+        let key = `vendor/${vendorName}/model/${model.model}`;
+        if (model.ram) key += `/ram/${model.ram}`;
+        if (model.interface) key += `/interface/${model.interface}`;
+        return { key, value: "true" };
+      });
+    });
 }
 
 export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTTPOptions {
@@ -119,14 +124,16 @@ export function buildServiceEndpoints(
           sequenceNumber: 0,
         });
 
-        const leasedEp = to.ip && to.ip.length > 0
-          ? Endpoint.fromPartial({
-              kind: Endpoint_Kind.LEASED_IP,
-              sequenceNumber: endpointSequenceNumbers[to.ip],
-            })
-          : undefined;
+        if (!to.ip?.length) {
+          return [defaultEp];
+        }
 
-        return leasedEp ? [defaultEp, leasedEp] : [defaultEp];
+        const leasedEp = Endpoint.fromPartial({
+          kind: Endpoint_Kind.LEASED_IP,
+          sequenceNumber: endpointSequenceNumbers[to.ip] ?? 0,
+        });
+
+        return [defaultEp, leasedEp];
       }),
   );
 }
@@ -153,7 +160,7 @@ export function parseGpuUnits(gpu?: SDLCompute["resources"]["gpu"]): number {
 
 export function buildResourceAttributes(attributes?: Record<string, unknown>): Attribute[] | undefined {
   if (!attributes) return undefined;
-  return Object.entries(attributes)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => ({ key, value: String(value) }));
+  return Object.keys(attributes)
+    .sort((a, b) => a.localeCompare(b))
+    .map((key) => ({ key, value: String(attributes[key]) }));
 }

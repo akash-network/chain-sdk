@@ -32,15 +32,15 @@ import {
   transformGpuAttributes,
 } from "./manifestUtils.ts";
 
-export interface BuildResult {
+export interface GenerateManifestOkResult {
   groups: Group[];
   groupSpecs: GroupSpec[];
 }
 
-export type Manifest = BuildResult["groups"];
+export type Manifest = GenerateManifestOkResult["groups"];
 export type GenerateManifestResult =
   | { ok?: false; value: ValidationError[] }
-  | { ok: true; value: BuildResult };
+  | { ok: true; value: GenerateManifestOkResult };
 export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_ID): GenerateManifestResult {
   const errors = validateSDL(sdl, networkId);
   if (errors) return { ok: false, value: errors };
@@ -87,7 +87,7 @@ export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_I
             name: placementName,
             resources: [],
             requirements: PlacementRequirements.fromPartial({
-              attributes: buildResourceAttributes(infra.attributes) ?? [],
+              attributes: buildResourceAttributes(infra.attributes),
               signedBy: SignedBy.fromPartial({
                 allOf: infra.signedBy?.allOf,
                 anyOf: infra.signedBy?.anyOf,
@@ -251,15 +251,17 @@ function buildManifestService(
 function buildParams(service: SDLService): ServiceParams | undefined {
   if (!service.params) return undefined;
 
-  const storageEntries = Object.entries(service.params.storage ?? {});
+  const storage = service.params.storage || {};
+  const storageNames = service.params.storage ? Object.keys(storage).sort() : [];
   const result = ServiceParams.fromPartial({
-    storage: storageEntries.map(([name, config]) =>
-      StorageParams.fromPartial({
+    storage: storageNames.map((name) => {
+      const config = storage[name];
+      return StorageParams.fromPartial({
         name,
         mount: config.mount || "",
         readOnly: config.readOnly || false,
-      }),
-    ),
+      });
+    }),
   });
 
   // Permissions are not in the protobuf type but need to be preserved

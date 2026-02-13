@@ -1,6 +1,9 @@
 import { load } from "js-yaml";
 
 /**
+ * Generate YAML string from template literal and parse it into object of type T.
+ * If some interpolated value is undefined, the whole line containing it will be removed from the resulting YAML string.
+ *
  * @example
  * ```ts
  * const version = "2.1";
@@ -36,11 +39,20 @@ import { load } from "js-yaml";
  */
 export function yaml<T>(chunks: TemplateStringsArray, ...args: unknown[]): T {
   const str = chunks.reduce((acc, chunk, i) => {
-    const value = args[i];
     const intermediateResult = acc + chunk;
-    if (value === undefined) return intermediateResult;
+    if (i >= args.length) return intermediateResult;
 
-    return intermediateResult + JSON.stringify(value);
+    const value = args[i];
+    if (value !== undefined) {
+      return intermediateResult + JSON.stringify(value);
+    }
+
+    const lastNewlineIndex = intermediateResult.lastIndexOf("\n");
+    if (lastNewlineIndex !== -1) {
+      return intermediateResult.slice(0, lastNewlineIndex);
+    }
+
+    return intermediateResult;
   }, "");
 
   return load(str) as T;

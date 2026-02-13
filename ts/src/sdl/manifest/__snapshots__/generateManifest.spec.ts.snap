@@ -1209,12 +1209,12 @@ exports[`generateManifest fixture file tests Persistent storage generates manife
         "params": {
           "storage": [
             {
-              "name": "wordpress-db",
-              "mount": "/var/lib/mysql"
-            },
-            {
               "name": "shm",
               "mount": "/dev/shm"
+            },
+            {
+              "name": "wordpress-db",
+              "mount": "/var/lib/mysql"
             }
           ]
         }
