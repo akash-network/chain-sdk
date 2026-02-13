@@ -10,10 +10,9 @@ Please note that this project is released with a Contributor Code of Conduct. By
 
 ### Prerequisites
 
-- **Git**: Version control system
-- **Go**: 1.25.0 or later (for Go modules)
-- **Node.js**: For TypeScript development
 - **direnv**: For environment management
+
+Direnv will prompt for any other missing dependency.
 
 ### Development Environment Setup
 
@@ -28,6 +27,8 @@ Please note that this project is released with a Contributor Code of Conduct. By
    ```bash
    # Install direnv (macOS example)
    brew install direnv
+   # Install direnv (Ubuntu-based)
+   apt install direnv
    
    # Hook direnv to your shell
    # For bash: echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
@@ -96,7 +97,7 @@ Types:
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
+- `style`: Codestyle changes (formatting, etc.)
 - `refactor`: Code refactoring
 - `test`: Adding or updating tests
 - `chore`: Maintenance tasks
@@ -109,7 +110,7 @@ feat(node): add new query endpoint for deployment status
 - Update client libraries
 - Add comprehensive tests
 
-Closes #123
+closes/fixes/refs #123
 ```
 
 ## Release and Versioning
@@ -119,13 +120,19 @@ Closes #123
 This repository uses semantic versioning with module-specific tagging. When tagging Go modules, use the `repo-tools` utility instead of creating tags manually:
 
 ```bash
-# Main Go module
+# Command structure:
+repo-tools bump-go <major/minor/patch/prerel> <module>
+```
+
+
+```bash
+# Main Go module pre release
 repo-tools bump-go prerel go
 
-# CLI module
+# CLI module pre-release
 repo-tools bump-go prerel go/cli
 
-# SDL module
+# SDL module pre-release
 repo-tools bump-go prerel go/sdl
 ```
 
