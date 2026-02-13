@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { load as yamlLoad } from "js-yaml";
+import YAML from "js-yaml";
 import { default as stableStringify } from "json-stable-stringify";
 
 import { MAINNET_ID } from "../../network/config.ts";
@@ -111,7 +111,7 @@ export class SDL {
    * ```
    */
   static fromString(yaml: string, version: NetworkVersion = "beta3", networkId: NetworkId = MAINNET_ID): SDL {
-    const data = yamlLoad(yaml) as v3Sdl;
+    const data = YAML.load(yaml) as v3Sdl;
     return new SDL(data, version, networkId);
   }
 
@@ -470,14 +470,15 @@ export class SDL {
   }
 
   v2ManifestServiceParams(params: v2ServiceParams): v2ManifestServiceParams | undefined {
-    const storage = params?.storage ?? {};
-    const names = Object.keys(storage).sort();
     return {
-      Storage: names.map((name) => ({
-        name,
-        mount: storage[name].mount,
-        readOnly: storage[name].readOnly || false,
-      })),
+      Storage: Object.keys(params?.storage ?? {}).map((name) => {
+        if (!params?.storage) throw new Error("Storage is undefined");
+        return {
+          name: name,
+          mount: params.storage[name].mount,
+          readOnly: params.storage[name].readOnly || false,
+        };
+      }),
       ...(params?.permissions ? { Permissions: params.permissions } : {}),
     };
   }
