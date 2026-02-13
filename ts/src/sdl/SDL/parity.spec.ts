@@ -5,6 +5,8 @@ import fs from "fs";
 import { load } from "js-yaml";
 import path from "path";
 
+import { generateManifest, manifestToFixtureFormat } from "../manifest/generateManifest.ts";
+import type { SDLInput } from "../validateSDL/validateSDL.ts";
 import { SDL } from "./SDL.ts";
 
 const fixturesInputRoot = path.join(__dirname, "../../../../testdata/sdl/input");
@@ -75,13 +77,14 @@ function loadFixtures(version: string): Fixture[] {
     });
 }
 
-function validateSchemas(inputBytes: string, version: "beta2" | "beta3") {
-  const inputYAML = load(inputBytes);
+function validateSchemas(inputBytes: string) {
+  const inputYAML = load(inputBytes) as SDLInput;
   validateAgainstSchema("input", inputYAML, inputSchemaPath);
 
-  const sdl = SDL.fromString(inputBytes, version);
-  const manifest = sdl.v3Manifest(false);
+  const result = generateManifest(inputYAML);
+  if (!result.ok) throw new Error(`generateManifest failed: ${JSON.stringify(result.value)}`);
 
+  const manifest = manifestToFixtureFormat(result.value.groups);
   return { manifest };
 }
 
@@ -121,9 +124,9 @@ function normalizeResourceVal(obj: unknown): unknown {
   return obj;
 }
 
-function validateFixtures(fixture: Fixture, version: "beta2" | "beta3") {
+function validateFixtures(fixture: Fixture) {
   const inputBytes = fs.readFileSync(fixture.inputPath, "utf8");
-  const { manifest: actualManifest } = validateSchemas(inputBytes, version);
+  const { manifest: actualManifest } = validateSchemas(inputBytes);
 
   const expectedManifest = JSON.parse(fs.readFileSync(fixture.manifestPath, "utf8"));
 
@@ -133,13 +136,13 @@ function validateFixtures(fixture: Fixture, version: "beta2" | "beta3") {
 describe("SDL Parity Tests", () => {
   describe("v2.0", () => {
     loadFixtures("v2.0").forEach((fixture) => {
-      it(fixture.name, () => validateFixtures(fixture, "beta2"));
+      it(fixture.name, () => validateFixtures(fixture));
     });
   });
 
   describe("v2.1", () => {
     loadFixtures("v2.1").forEach((fixture) => {
-      it(fixture.name, () => validateFixtures(fixture, "beta3"));
+      it(fixture.name, () => validateFixtures(fixture));
     });
   });
 

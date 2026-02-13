@@ -491,9 +491,7 @@ export class SDL {
     const res: v3ManifestServiceParams = {
       storage:
         params.storage && Object.keys(params.storage).length > 0
-          ? Object.keys(params.storage)
-              .sort()
-              .map((name) => ({
+          ? Object.keys(params.storage).map((name) => ({
               name: name,
               mount: params.storage![name]?.mount,
               readOnly: params.storage![name]?.readOnly || false,
@@ -569,19 +567,15 @@ export class SDL {
   }
 
   v3Manifest(asString: boolean = false): v3Manifest {
-    const groupsWithMap = this.v3Groups();
+    const groups = this.v3Groups();
+    const serviceId = (pIdx: number, sIdx: number) => groups[pIdx].resources[sIdx].resource.id;
 
-    return Object.keys(this.placements()).map((name, pIdx) => {
-      const { dgroup, serviceToResourceId } = groupsWithMap[pIdx];
-      const serviceId = (svc: string) => serviceToResourceId[svc] ?? 0;
-
-      return {
-        name: name,
-        services: this.deploymentsByPlacement(name)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([service]) => this.v3ManifestService(serviceId(service), name, service, asString)),
-      };
-    });
+    return Object.keys(this.placements()).map((name, pIdx) => ({
+      name: name,
+      services: this.deploymentsByPlacement(name)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([service], idx) => this.v3ManifestService(serviceId(pIdx, idx), name, service, asString)),
+    }));
   }
 
   manifest(asString: boolean = false): v2Manifest | v3Manifest {
@@ -601,25 +595,19 @@ export class SDL {
    * ```
    */
   computeEndpointSequenceNumbers(sdl: v2Sdl) {
-    const endpointNames: string[] = [];
-    const svcNames = Object.keys(sdl.deployment).sort();
-    for (const svcName of svcNames) {
-      const service = sdl.services[svcName];
-      for (const expose of service.expose) {
-        if (!expose.to) continue;
-        for (const to of expose.to) {
-          if (to.global && to.ip?.length) endpointNames.push(to.ip);
-        }
-      }
-    }
-    endpointNames.sort();
-    const res: Record<string, number> = {};
-    let seq = 0;
-    for (const ip of endpointNames) {
-      seq += 1;
-      res[ip] = seq;
-    }
-    return res;
+    return Object.fromEntries(
+      Object.values(sdl.services).flatMap((service) =>
+        service.expose.flatMap((expose) =>
+          expose.to
+            ? expose.to
+                .filter((to) => to.global && to.ip?.length > 0)
+                .map((to) => to.ip)
+                .sort()
+                .map((ip, index) => [ip, index + 1])
+            : [],
+        ),
+      ),
+    );
   }
 
   resourceUnitCpu(computeResources: v2ComputeResources, asString: boolean) {
@@ -727,7 +715,7 @@ export class SDL {
       units.storage = this.resourceUnitStorage(resource, asString);
     }
 
-    if (this.version === "beta3" || (resource as v3ComputeResources).gpu) {
+    if (this.version === "beta3") {
       units.gpu = this.resourceUnitGpu(resource as v3ComputeResources, asString);
     }
 
@@ -741,8 +729,7 @@ export class SDL {
   }
 
   groups() {
-    if (this.version === "beta2") return this.v2Groups();
-    return this.v3Groups().map((g) => g.dgroup);
+    return this.version === "beta2" ? this.v2Groups() : this.v3Groups();
   }
 
   v3Groups() {
@@ -751,16 +738,12 @@ export class SDL {
       {
         dgroup: v3DeploymentGroup;
         boundComputes: Record<string, Record<string, number>>;
-        serviceToResourceId: Record<string, number>;
       }
     >();
-    const svcNames = Object.keys(this.data.services).sort();
-    const placementNames = (svc: string) => Object.keys(this.data.deployment[svc]).sort();
+    const services = Object.entries(this.data.services).sort(([a], [b]) => a.localeCompare(b));
 
-    for (const svcName of svcNames) {
-      const service = this.data.services[svcName];
-      for (const placementName of placementNames(svcName)) {
-        const svcdepl = this.data.deployment[svcName][placementName];
+    for (const [svcName, service] of services) {
+      for (const [placementName, svcdepl] of Object.entries(this.data.deployment[svcName])) {
         // objects below have been ensured to exist
         const compute = this.data.profiles.compute[svcdepl.profile];
         const infra = this.data.profiles.placement[placementName];
@@ -795,7 +778,6 @@ export class SDL {
               },
             },
             boundComputes: {},
-            serviceToResourceId: {},
           };
 
           groups.set(placementName, group);
@@ -805,10 +787,10 @@ export class SDL {
           group.boundComputes[placementName] = {};
         }
 
+        // const resources = this.serviceResourcesBeta3(0, compute as v3ProfileCompute, service, false);
         const location = group.boundComputes[placementName][svcdepl.profile];
-        const isBound = location !== undefined && location !== null;
 
-        if (!isBound) {
+        if (!location) {
           const res = this.groupResourceUnits(compute.resources, false);
           res.endpoints = this.v3ServiceResourceEndpoints(service);
 
@@ -823,27 +805,20 @@ export class SDL {
           } as any);
 
           group.boundComputes[placementName][svcdepl.profile] = group.dgroup.resources.length - 1;
-          group.serviceToResourceId[svcName] = resID;
         } else {
           const endpoints = this.v3ServiceResourceEndpoints(service);
-          const existing = group.dgroup.resources[location] as unknown as {
-            resource: { id: number; endpoints: Array<{ sequence_number?: number }> };
-            count: number;
-          };
-          existing.count += svcdepl.count;
-          existing.resource.endpoints.push(...endpoints);
-          existing.resource.endpoints.sort((a, b) => (a.sequence_number ?? 0) - (b.sequence_number ?? 0));
-          group.serviceToResourceId[svcName] = existing.resource.id;
+          // resources.id = group.dgroup.resources[location].id;
+
+          group.dgroup.resources[location].count += svcdepl.count;
+          group.dgroup.resources[location].endpoints += endpoints as any;
+          group.dgroup.resources[location].endpoints.sort();
         }
       }
     }
 
+    // keep ordering stable
     const names: string[] = [...groups.keys()].sort();
-    return names.map((name) => {
-      const g = groups.get(name);
-      if (!g) return { dgroup: {} as v3DeploymentGroup, serviceToResourceId: {} };
-      return { dgroup: g.dgroup as v3DeploymentGroup, serviceToResourceId: g.serviceToResourceId };
-    });
+    return names.map((name) => groups.get(name)).map((group) => (group ? (group.dgroup as typeof group.dgroup) : {})) as Array<v3DeploymentGroup>;
   }
 
   v2Groups() {
