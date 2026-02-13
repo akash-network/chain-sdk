@@ -1,6 +1,6 @@
 import { default as stableStringify } from "json-stable-stringify";
 
-import type { Manifest } from "./generateManifest.ts";
+import type { GenerateManifestOkResult, Manifest } from "./generateManifest.ts";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
@@ -14,7 +14,7 @@ export async function generateManifestVersion(manifest: Manifest): Promise<Uint8
   return new Uint8Array(sum);
 }
 
-export function manifestToSortedJSON(manifest: Manifest): string {
+export function manifestToSortedJSON(manifest: Manifest | GenerateManifestOkResult["groupSpecs"]): string {
   const json = stableStringify(manifest, { replacer: manifestReplacer }) || "";
   return escapeHtml(renameFields(json));
 }
