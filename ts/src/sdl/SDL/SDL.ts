@@ -815,7 +815,6 @@ export class SDL {
           group.boundComputes[placementName] = {};
         }
 
-        // const resources = this.serviceResourcesBeta3(0, compute as v3ProfileCompute, service, false);
         const location = group.boundComputes[placementName][svcdepl.profile];
         const isBound = location !== undefined && location !== null;
 
@@ -825,7 +824,6 @@ export class SDL {
 
           const resID = group.dgroup.resources.length > 0 ? group.dgroup.resources.length + 1 : 1;
           res.id = resID;
-          // resources.id = res.id;
 
           group.dgroup.resources.push({
             resource: res,

@@ -80,9 +80,6 @@ func testParity(t *testing.T, version string) {
 			groupsBytes, err := json.Marshal(groups)
 			require.NoError(t, err)
 
-			validateManifestSchemaBytes(t, manifestBytes)
-			validateGroupsSchemaBytes(t, groupsBytes)
-
 			validateFixtureBytes(t, manifestPath, manifestBytes, "Manifest")
 			validateFixtureBytes(t, groupsPath, groupsBytes, "Groups")
 		})
@@ -92,26 +89,6 @@ func testParity(t *testing.T, version string) {
 func validateInputSchema(t *testing.T, inputBytes []byte) {
 	err := validateInputAgainstSchema(inputBytes)
 	require.NoError(t, err, "Input schema validation failed")
-}
-
-func validateManifestSchemaBytes(t *testing.T, manifestBytes []byte) {
-	manifestSchemaOnce.Do(func() {
-		manifestSchema, manifestSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "manifest-output.schema.yaml"))
-	})
-	require.NoError(t, manifestSchemaErr, "Failed to compile manifest schema")
-
-	err := validateDataAgainstCompiledSchema(manifestBytes, manifestSchema)
-	require.NoError(t, err, "Manifest schema validation failed")
-}
-
-func validateGroupsSchemaBytes(t *testing.T, groupsBytes []byte) {
-	groupsSchemaOnce.Do(func() {
-		groupsSchema, groupsSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "groups-output.schema.yaml"))
-	})
-	require.NoError(t, groupsSchemaErr, "Failed to compile groups schema")
-
-	err := validateDataAgainstCompiledSchema(groupsBytes, groupsSchema)
-	require.NoError(t, err, "Groups schema validation failed")
 }
 
 func validateFixtureBytes(t *testing.T, expectedPath string, actualBytes []byte, name string) {

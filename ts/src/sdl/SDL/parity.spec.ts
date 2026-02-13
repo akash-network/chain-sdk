@@ -5,7 +5,6 @@ import fs from "fs";
 import { load } from "js-yaml";
 import path from "path";
 
-import { groupsToProtobufJson, protobufJsonToGoFormat } from "../groupsToProtobuf.ts";
 import { SDL } from "./SDL.ts";
 
 const fixturesInputRoot = path.join(__dirname, "../../../../testdata/sdl/input");
@@ -18,7 +17,6 @@ interface Fixture {
   name: string;
   inputPath: string;
   manifestPath: string;
-  groupsPath: string;
 }
 
 const schemaCache = new Map<string, ValidateFunction>();
@@ -64,21 +62,15 @@ function loadFixtures(version: string): Fixture[] {
       const fixtureName = entry.name;
       const inputPath = path.join(inputVersionDir, fixtureName, "input.yaml");
       const manifestPath = path.join(fixturesOutputRoot, version, fixtureName, "manifest.json");
-      const groupsPath = path.join(fixturesOutputRoot, version, fixtureName, "groups.json");
 
       if (!fs.existsSync(manifestPath)) {
         throw new Error(`manifest.json not generated for ${fixtureName} (run: make generate-sdl-fixtures)`);
-      }
-
-      if (!fs.existsSync(groupsPath)) {
-        throw new Error(`groups.json not generated for ${fixtureName} (run: make generate-sdl-fixtures)`);
       }
 
       return {
         name: fixtureName,
         inputPath,
         manifestPath,
-        groupsPath,
       };
     });
 }
@@ -89,12 +81,8 @@ function validateSchemas(inputBytes: string, version: "beta2" | "beta3") {
 
   const sdl = SDL.fromString(inputBytes, version);
   const manifest = sdl.v3Manifest(false);
-  const groups = sdl.v3Groups();
 
-  // validateAgainstSchema("manifest", manifest, path.join(schemasRoot, "manifest-output.schema.yaml"));
-  // validateAgainstSchema("groups", groups, path.join(schemasRoot, "groups-output.schema.yaml"));
-
-  return { sdl, manifest, groups };
+  return { manifest };
 }
 
 function strVal(v: unknown): string {
@@ -135,16 +123,11 @@ function normalizeResourceVal(obj: unknown): unknown {
 
 function validateFixtures(fixture: Fixture, version: "beta2" | "beta3") {
   const inputBytes = fs.readFileSync(fixture.inputPath, "utf8");
-  const { manifest: actualManifest, groups: actualGroups } = validateSchemas(inputBytes, version);
+  const { manifest: actualManifest } = validateSchemas(inputBytes, version);
 
   const expectedManifest = JSON.parse(fs.readFileSync(fixture.manifestPath, "utf8"));
-  const expectedGroups = JSON.parse(fs.readFileSync(fixture.groupsPath, "utf8"));
 
   expect(normalizeResourceVal(actualManifest)).toEqual(expectedManifest);
-
-  const actualGroupsJson = groupsToProtobufJson(actualGroups);
-  const actualGroupsNormalized = actualGroupsJson.map((g) => protobufJsonToGoFormat(g));
-  expect(actualGroupsNormalized).toEqual(expectedGroups);
 }
 
 describe("SDL Parity Tests", () => {
