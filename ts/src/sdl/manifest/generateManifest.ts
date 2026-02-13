@@ -41,7 +41,6 @@ export type Manifest = GenerateManifestOkResult["groups"];
 export type GenerateManifestResult =
   | { ok?: false; value: ValidationError[] }
   | { ok: true; value: GenerateManifestOkResult };
-
 export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_ID): GenerateManifestResult {
   const errors = validateSDL(sdl, networkId);
   if (errors) return { ok: false, value: errors };
@@ -265,6 +264,7 @@ function buildParams(service: SDLService): ServiceParams | undefined {
     }),
   });
 
+  // Permissions are not in the protobuf type but need to be preserved
   if (service.params.permissions) {
     (result as unknown as Record<string, unknown>).permissions = service.params.permissions;
   }
@@ -299,129 +299,4 @@ function buildManifestExpose(
       if (a.global !== b.global) return a.global ? -1 : 1;
       return 0;
     });
-}
-
-const SNAKE_TO_CAMEL: Record<string, string> = {
-  endpoint_sequence_number: "endpointSequenceNumber",
-  external_port: "externalPort",
-  http_options: "httpOptions",
-  max_body_size: "maxBodySize",
-  next_cases: "nextCases",
-  next_timeout: "nextTimeout",
-  next_tries: "nextTries",
-  read_timeout: "readTimeout",
-  send_timeout: "sendTimeout",
-};
-
-export function manifestToFixtureFormat(groups: Group[]): unknown[] {
-  return groups.map((g) => Group.toJSON(g)).map((groupJson) => {
-    const obj = JSON.parse(JSON.stringify(groupJson)) as Record<string, unknown>;
-    return convertToFixtureFormat(obj);
-  });
-}
-
-const SERVICE_DEFAULTS: Record<string, unknown> = {
-  args: null,
-  command: null,
-  credentials: null,
-  env: null,
-};
-
-const EXPOSE_DEFAULTS: Record<string, unknown> = {
-  endpointSequenceNumber: 0,
-  externalPort: 0,
-  service: "",
-  ip: "",
-  hosts: null,
-  global: false,
-};
-
-const HTTP_OPTIONS_DEFAULTS: Record<string, unknown> = {
-  nextTimeout: 0,
-};
-
-const STORAGE_PARAM_DEFAULTS: Record<string, unknown> = {
-  readOnly: false,
-};
-
-function convertToFixtureFormat(obj: unknown, parentKey?: string): unknown {
-  if (obj === null || obj === undefined) return obj;
-  if (Array.isArray(obj)) {
-    const converted = obj.map((item) => convertToFixtureFormat(item, parentKey));
-    if (parentKey === "endpoints") {
-      return converted.map((ep) => {
-        const e = ep as Record<string, unknown>;
-        if (Object.keys(e).length === 0) return { sequence_number: 0 };
-        if (e.sequence_number === undefined) return { ...e, sequence_number: 0 };
-        return e;
-      });
-    }
-    return converted;
-  }
-  if (typeof obj === "object") {
-    const rec = obj as Record<string, unknown>;
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(rec)) {
-      const camelKey = SNAKE_TO_CAMEL[key] ?? key;
-      if (key === "quantity" && rec.quantity && typeof rec.quantity === "object") {
-        const q = rec.quantity as Record<string, unknown>;
-        out.size = q.val !== undefined ? { val: decodeVal(q.val) } : convertToFixtureFormat(rec.quantity);
-      } else if (key === "val") {
-        out[camelKey] = decodeVal(rec[key]);
-      } else if (key === "kind" && typeof rec.kind === "string") {
-        out[camelKey] = endpointKindToNumber(rec.kind);
-      } else if (key !== "quantity") {
-        out[camelKey] = convertToFixtureFormat(rec[key], key);
-      }
-    }
-    if (parentKey === "services") {
-      for (const [k, v] of Object.entries(SERVICE_DEFAULTS)) {
-        if (!(k in out)) out[k] = v;
-      }
-    }
-    if (parentKey === "resources" && !("endpoints" in out)) {
-      out.endpoints = [];
-    }
-    if (parentKey === "expose") {
-      for (const [k, v] of Object.entries(EXPOSE_DEFAULTS)) {
-        if (!(k in out)) out[k] = v;
-      }
-      if (Array.isArray(out.hosts) && out.hosts.length === 0) out.hosts = null;
-      if (out.httpOptions && typeof out.httpOptions === "object") {
-        const ho = out.httpOptions as Record<string, unknown>;
-        for (const [k, v] of Object.entries(HTTP_OPTIONS_DEFAULTS)) {
-          if (!(k in ho)) ho[k] = v;
-        }
-      }
-    }
-    if (parentKey === "storage" && "name" in out && "mount" in out) {
-      for (const [k, v] of Object.entries(STORAGE_PARAM_DEFAULTS)) {
-        if (!(k in out)) out[k] = v;
-      }
-    }
-    return out;
-  }
-  return obj;
-}
-
-function decodeVal(v: unknown): string {
-  if (v === null || v === undefined) return "";
-  if (typeof v === "string") {
-    try {
-      const bytes = Uint8Array.from(atob(v), (c) => c.charCodeAt(0));
-      return new TextDecoder().decode(bytes);
-    } catch {
-      return v;
-    }
-  }
-  return String(v);
-}
-
-function endpointKindToNumber(kind: string): number {
-  const map: Record<string, number> = {
-    SHARED_HTTP: 0,
-    RANDOM_PORT: 1,
-    LEASED_IP: 2,
-  };
-  return map[kind] ?? 0;
 }
