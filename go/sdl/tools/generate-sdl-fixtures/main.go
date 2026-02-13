@@ -62,7 +62,6 @@ func main() {
 				fmt.Printf("  %v\n", err)
 				os.Exit(1)
 			}
-
 			if err := generateGroups(obj, outputDir); err != nil {
 				fmt.Printf("  %v\n", err)
 				os.Exit(1)

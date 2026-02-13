@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: git fetch --prune --unshallow
       - name: Setup env
         uses: HatsuneMiku3939/direnv-action@v1
       - run: |
@@ -28,7 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: git fetch --prune --unshallow
+        with:
+          fetch-depth: 0
       - name: Setup env
         uses: HatsuneMiku3939/direnv-action@v1
       - run: |
@@ -58,7 +58,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: git fetch --prune --unshallow
       - name: Setup env
         uses: HatsuneMiku3939/direnv-action@v1
       - run: |
@@ -67,7 +66,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.14.0
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: ts/package-lock.json
       - uses: actions/setup-go@v5

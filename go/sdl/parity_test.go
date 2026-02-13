@@ -1,31 +1,41 @@
+// Package sdl provides SDL parsing and validation.
+//
+// Schema files:
+//
+//	sdl-input.schema.yaml (go/sdl/)
+//	  - Validates user YAML input
+//	  - Embedded in Go binary for runtime validation (logs warnings, doesn't block)
+//	  - Enforces stricter rules than Go parser (email length, denom pattern, GPU vendor, version enum)
+//
+// Validation capabilities (sdl-input.schema.yaml):
+//   - Types & constraints: required fields, enums, string patterns, min/max, minLength
+//   - Patterns: endpoint names (^[a-z]+[-_\da-z]+$), denom (^(uakt|ibc/.*)$)
+//   - Conditionals: RAM storage -> persistent=false, IP endpoint -> global=true
+//   - Strict rules: email >=5 chars, password >=6 chars, version in {2.0, 2.1}, GPU vendor (nvidia only)
+//
+// Validation limitations:
+// Schema validates structure only. Go/TS parsers handle:
+//   - Cross-references (deployment -> profiles, params.storage -> compute.storage)
+//   - Semantic constraints (unused endpoints, port collisions, mount uniqueness)
+//   - Parser-level checks (count >= 1, unknown fields - TS validates, Go rejects during unmarshal)
+//
+// Test fixtures:
+//   - testdata/sdl/input/invalid/ - Both schema and Go parser reject
+//   - testdata/sdl/input/schema-only-invalid/ - Schema rejects, Go parser accepts (stricter rules)
+//   - testdata/sdl/input/v2.0/, v2.1/ - Valid fixtures for parity tests (pure fixtures comparison, no output schema validation)
 package sdl
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/xeipuuv/gojsonschema"
-	"gopkg.in/yaml.v3"
 )
 
 const fixturesInputRoot = "../../testdata/sdl/input"
 const fixturesOutputRoot = "../../testdata/sdl/output-fixtures"
-const schemasRoot = "../../specs/sdl" // Output schemas for tests
-
-var (
-	manifestSchema     *gojsonschema.Schema
-	manifestSchemaOnce sync.Once
-	manifestSchemaErr  error
-
-	groupsSchema     *gojsonschema.Schema
-	groupsSchemaOnce sync.Once
-	groupsSchemaErr  error
-)
 
 func TestParityV2_0(t *testing.T) {
 	testParity(t, "v2.0")
@@ -152,50 +162,4 @@ func TestSchemaOnlyValidations(t *testing.T) {
 			require.NoError(t, goErr, "Go should accept this input (schema-only validation)")
 		})
 	}
-}
-
-func compileSchemaFromPath(schemaPath string) (*gojsonschema.Schema, error) {
-	schemaBytes, err := os.ReadFile(schemaPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read schema file: %w", err)
-	}
-
-	var schemaData any
-	if err := yaml.Unmarshal(schemaBytes, &schemaData); err != nil {
-		return nil, fmt.Errorf("failed to parse YAML schema: %w", err)
-	}
-
-	if err := sanitizeSchemaRefs(schemaData); err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
-	}
-
-	jsonBytes, err := json.Marshal(schemaData)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
-	}
-
-	schemaLoader := gojsonschema.NewSchemaLoader()
-	schema, err := schemaLoader.Compile(gojsonschema.NewBytesLoader(jsonBytes))
-	if err != nil {
-		return nil, fmt.Errorf("failed to compile schema: %w", err)
-	}
-
-	return schema, nil
-}
-
-func validateDataAgainstCompiledSchema(data []byte, schema *gojsonschema.Schema) error {
-	result, err := schema.Validate(gojsonschema.NewBytesLoader(data))
-	if err != nil {
-		return fmt.Errorf("failed to validate against schema: %w", err)
-	}
-
-	if !result.Valid() {
-		var errors []string
-		for _, desc := range result.Errors() {
-			errors = append(errors, desc.String())
-		}
-		return fmt.Errorf("schema validation failed: %v", errors)
-	}
-
-	return nil
 }
