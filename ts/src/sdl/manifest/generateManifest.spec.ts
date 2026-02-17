@@ -69,6 +69,51 @@ describe(generateManifest.name, () => {
       const storageVal = storage?.[0].quantity?.val;
       expect(new TextDecoder().decode(storageVal)).toBe("1073741824");
     });
+
+    it("parses storage params in ASC order", () => {
+      const sdl: SDLInput = yaml`
+        version: "2.0"
+        services:
+          web:
+            image: nginx
+            params:
+              storage:
+                data:
+                  mount: /mnt/data
+                  readOnly: true
+                cache:
+                  mount: /mnt/cache
+        profiles:
+          compute:
+            web:
+              resources:
+                cpu:
+                  units: 0.5
+                memory:
+                  size: 512Mi
+                storage:
+                  - name: data
+                    size: 1Gi
+                  - name: cache
+                    size: 512Mi
+          placement:
+            datacenter:
+              pricing:
+                web:
+                  denom: uakt
+                  amount: 200
+        deployment:
+          web:
+            datacenter:
+              profile: web
+              count: 1
+      `;
+      const { result } = setup({ sdl });
+      expect(result.groups[0].services[0].params?.storage).toEqual([
+        expect.objectContaining({ name: "cache" }),
+        expect.objectContaining({ name: "data" }),
+      ]);
+    });
   });
 
   describe("service features", () => {
@@ -775,8 +820,7 @@ describe(generateManifest.name, () => {
     }
   }
 
-  function createBasicSdl(options: {
-    serviceName?: string;
+  function createBasicSdl(input: {
     image?: string;
     port?: number;
     cpu?: number | string;
@@ -785,7 +829,6 @@ describe(generateManifest.name, () => {
     gpu?: SDLInput["profiles"]["compute"][string]["resources"]["gpu"];
     denom?: string;
     amount?: number;
-    placement?: string;
     placementAttributes?: SDLInput["profiles"]["placement"][string]["attributes"];
     signedBy?: SDLInput["profiles"]["placement"][string]["signedBy"];
     env?: SDLInput["services"][string]["env"];
@@ -796,8 +839,6 @@ describe(generateManifest.name, () => {
     endpoints?: SDLInput["endpoints"];
   } = {}): SDLInput {
     const {
-      serviceName = "web",
-      image = "nginx",
       port = 80,
       cpu = 0.5,
       memory = "512Mi",
@@ -805,68 +846,41 @@ describe(generateManifest.name, () => {
       gpu,
       denom = "uakt",
       amount = 1000,
-      placement = "dcloud",
-      placementAttributes,
-      signedBy,
-      env,
-      command,
-      args,
-      credentials,
-      expose,
-      endpoints,
-    } = options;
+    } = input;
 
-    const sdl: SDLInput = {
-      version: "2.0",
-      services: {
-        [serviceName]: {
-          image,
-          expose: expose ?? [
-            {
-              port,
-              as: port,
-              to: [{ global: true }],
-            },
-          ],
-          ...(env && { env }),
-          ...(command && { command }),
-          ...(args && { args }),
-          ...(credentials && { credentials }),
-        },
-      },
-      profiles: {
-        compute: {
-          [serviceName]: {
-            resources: {
-              cpu: { units: cpu },
-              memory: { size: memory },
-              storage: typeof storage === "string" ? { size: storage } : storage,
-              ...(gpu && { gpu }),
-            },
-          },
-        },
-        placement: {
-          [placement]: {
-            pricing: {
-              [serviceName]: { denom, amount },
-            },
-            ...(placementAttributes && { attributes: placementAttributes }),
-            ...(signedBy && { signedBy }),
-          },
-        },
-      },
-      deployment: {
-        [serviceName]: {
-          [placement]: {
-            profile: serviceName,
-            count: 1,
-          },
-        },
-      },
-      ...(endpoints && { endpoints }),
-    };
-
-    return sdl;
+    return yaml`
+      version: "2.1"
+      services:
+        web:
+          image: ${input.image ?? "nginx"}
+          env: ${input.env}
+          command: ${input.command}
+          args: ${input.args}
+          credentials: ${input.credentials}
+          expose: ${input.expose ?? [{ port, as: port, to: [{ global: true }] }]}
+      profiles:
+        compute:
+          web:
+            resources:
+              cpu:
+                units: ${cpu}
+              memory:
+                size: ${memory}
+              storage: ${typeof storage === "string" ? { size: storage } : storage}
+              gpu: ${gpu}
+        placement:
+          dcloud:
+            pricing:
+              web: ${{ denom, amount }}
+            attributes: ${input.placementAttributes}
+            signedBy: ${input.signedBy}
+      deployment:
+        web:
+          dcloud:
+            profile: web
+            count: 1
+      endpoints: ${input.endpoints}
+    `;
   }
 
   type RelativeFilePath<T extends string> = string & { baseDir?: T };
