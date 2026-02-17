@@ -22,8 +22,7 @@ export interface StorageParams {
 /**
  * ServicePermissions defines resource access permissions for the service.
  * Resources map to Kubernetes RBAC permissions:
- *   - logs: pods, pods/log, deployments
- *   - events: events
+ *   - logs
  */
 export interface ServicePermissions {
   read: string[];
@@ -196,10 +195,6 @@ export const ServicePermissions: MessageFns<ServicePermissions, "akash.manifest.
       obj.read = message.read;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ServicePermissions>): ServicePermissions {
-    return ServicePermissions.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ServicePermissions>): ServicePermissions {
     const message = createBaseServicePermissions();
