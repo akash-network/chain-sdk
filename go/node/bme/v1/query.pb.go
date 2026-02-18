@@ -609,7 +609,7 @@ type QueryClient interface {
 	VaultState(ctx context.Context, in *QueryVaultStateRequest, opts ...grpc.CallOption) (*QueryVaultStateResponse, error)
 	// Status returns the current circuit breaker status
 	Status(ctx context.Context, in *QueryStatusRequest, opts ...grpc.CallOption) (*QueryStatusResponse, error)
-	// LedgerRecords queries ledger records with optional filters for status, source, denom
+	// LedgerRecords queries ledger records with optional filters for status, source, denom, to_denom
 	LedgerRecords(ctx context.Context, in *QueryLedgerRecordsRequest, opts ...grpc.CallOption) (*QueryLedgerRecordsResponse, error)
 }
 
@@ -665,7 +665,7 @@ type QueryServer interface {
 	VaultState(context.Context, *QueryVaultStateRequest) (*QueryVaultStateResponse, error)
 	// Status returns the current circuit breaker status
 	Status(context.Context, *QueryStatusRequest) (*QueryStatusResponse, error)
-	// LedgerRecords queries ledger records with optional filters for status, source, denom
+	// LedgerRecords queries ledger records with optional filters for status, source, denom, to_denom
 	LedgerRecords(context.Context, *QueryLedgerRecordsRequest) (*QueryLedgerRecordsResponse, error)
 }
 

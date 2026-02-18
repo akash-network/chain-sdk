@@ -157,6 +157,31 @@ pub mod query_client {
             req.extensions_mut().insert(GrpcMethod::new("akash.bme.v1.Query", "Status"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn ledger_records(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryLedgerRecordsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryLedgerRecordsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.bme.v1.Query/LedgerRecords",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.bme.v1.Query", "LedgerRecords"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -185,6 +210,13 @@ pub mod query_server {
             request: tonic::Request<super::QueryStatusRequest>,
         ) -> std::result::Result<
             tonic::Response<super::QueryStatusResponse>,
+            tonic::Status,
+        >;
+        async fn ledger_records(
+            &self,
+            request: tonic::Request<super::QueryLedgerRecordsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryLedgerRecordsResponse>,
             tonic::Status,
         >;
     }
@@ -380,6 +412,51 @@ pub mod query_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = StatusSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.bme.v1.Query/LedgerRecords" => {
+                    #[allow(non_camel_case_types)]
+                    struct LedgerRecordsSvc<T: Query>(pub Arc<T>);
+                    impl<
+                        T: Query,
+                    > tonic::server::UnaryService<super::QueryLedgerRecordsRequest>
+                    for LedgerRecordsSvc<T> {
+                        type Response = super::QueryLedgerRecordsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryLedgerRecordsRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Query>::ledger_records(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = LedgerRecordsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

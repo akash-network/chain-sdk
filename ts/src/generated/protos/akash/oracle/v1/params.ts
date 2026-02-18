@@ -17,6 +17,20 @@ export interface PythContractParams {
   aktPriceFeedId: string;
 }
 
+/**
+ * WormholeContractParams contains configuration for Wormhole guardian set.
+ * This allows the Wormhole contract to pull guardian public keys from x/oracle
+ * module params, enabling guardian set updates via Akash governance.
+ */
+export interface WormholeContractParams {
+  /**
+   * guardian_addresses is the list of Wormhole guardian addresses.
+   * Each address is a 20-byte Ethereum-style address, hex-encoded.
+   * The Wormhole contract uses these to verify VAA signatures.
+   */
+  guardianAddresses: string[];
+}
+
 /** Params defines the parameters for the oracle module */
 export interface Params {
   /**
@@ -88,6 +102,66 @@ export const PythContractParams: MessageFns<PythContractParams, "akash.oracle.v1
   fromPartial(object: DeepPartial<PythContractParams>): PythContractParams {
     const message = createBasePythContractParams();
     message.aktPriceFeedId = object.aktPriceFeedId ?? "";
+    return message;
+  },
+};
+
+function createBaseWormholeContractParams(): WormholeContractParams {
+  return { guardianAddresses: [] };
+}
+
+export const WormholeContractParams: MessageFns<WormholeContractParams, "akash.oracle.v1.WormholeContractParams"> = {
+  $type: "akash.oracle.v1.WormholeContractParams" as const,
+
+  encode(message: WormholeContractParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.guardianAddresses) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WormholeContractParams {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWormholeContractParams();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.guardianAddresses.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WormholeContractParams {
+    return {
+      guardianAddresses: globalThis.Array.isArray(object?.guardian_addresses)
+        ? object.guardian_addresses.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: WormholeContractParams): unknown {
+    const obj: any = {};
+    if (message.guardianAddresses?.length) {
+      obj.guardian_addresses = message.guardianAddresses;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<WormholeContractParams>): WormholeContractParams {
+    const message = createBaseWormholeContractParams();
+    message.guardianAddresses = object.guardianAddresses?.map((e) => e) || [];
     return message;
   },
 };

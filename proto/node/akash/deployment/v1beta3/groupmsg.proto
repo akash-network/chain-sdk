@@ -8,6 +8,7 @@ option go_package = "pkg.akt.dev/go/node/deployment/v1beta3";
 
 // MsgCloseGroup defines SDK message to close a single Group within a Deployment.
 message MsgCloseGroup {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   GroupID id = 1 [
@@ -19,10 +20,13 @@ message MsgCloseGroup {
 }
 
 // MsgCloseGroupResponse defines the Msg/CloseGroup response type.
-message MsgCloseGroupResponse {}
+message MsgCloseGroupResponse {
+  option deprecated = true;
+}
 
 // MsgPauseGroup defines SDK message to close a single Group within a Deployment.
 message MsgPauseGroup {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   GroupID id = 1 [
@@ -34,10 +38,13 @@ message MsgPauseGroup {
 }
 
 // MsgPauseGroupResponse defines the Msg/PauseGroup response type.
-message MsgPauseGroupResponse {}
+message MsgPauseGroupResponse {
+  option deprecated = true;
+}
 
 // MsgStartGroup defines SDK message to close a single Group within a Deployment.
 message MsgStartGroup {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   GroupID id = 1 [
@@ -49,4 +56,6 @@ message MsgStartGroup {
 }
 
 // MsgStartGroupResponse defines the Msg/StartGroup response type.
-message MsgStartGroupResponse {}
+message MsgStartGroupResponse {
+  option deprecated = true;
+}
