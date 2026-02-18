@@ -165,8 +165,13 @@ type v2Dependency struct {
 	Service string `yaml:"service"`
 }
 
+type v2ServicePermissions struct {
+	Read []string `yaml:"read,omitempty"`
+}
+
 type v2ServiceParams struct {
-	Storage map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
+	Storage     map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
+	Permissions *v2ServicePermissions             `yaml:"permissions,omitempty"`
 }
 
 type v2Service struct {
