@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-alpha.25](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.24...ts/v1.0.0-alpha.25) (2026-02-18)
+
+
+### Features
+
+* **go/sdl:** add permissions params ([#200](https://github.com/akash-network/chain-sdk/issues/200)) ([38be010](https://github.com/akash-network/chain-sdk/commit/38be010ce056239b063ab9a66d70ad17b571ab24))
+
+
+### Bug Fixes
+
+* **ts:** sort storage keys during manifest generation ([#233](https://github.com/akash-network/chain-sdk/issues/233)) ([1d5e0e4](https://github.com/akash-network/chain-sdk/commit/1d5e0e4c8bd9d417f7829ab9d65467054d695341))
+
 ## [1.0.0-alpha.24](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.23...ts/v1.0.0-alpha.24) (2026-02-12)
 
 
