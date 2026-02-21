@@ -39,6 +39,7 @@
     "test:cov": "jest --selectProjects unit functional --coverage",
     "test:functional": "jest --selectProjects functional",
     "test:unit": "jest --selectProjects unit",
+    "test:sdk-compatibility": "jest --selectProjects unit functional --testPathPattern=parity.spec.ts",
     "compile:validators": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts",
     "release": "npm run build && npm test && npm publish --tag alpha"
   },
