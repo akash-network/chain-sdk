@@ -87,15 +87,40 @@ func RandStorageQuantity() uint64 {
 		dtypes.GetValidationConfig().Unit.Max.Storage)
 }
 
+type ResourceOptions struct {
+	Denom string
+}
+
+type ResourceOption func(options *ResourceOptions) error
+
+func WithDenom(denom string) ResourceOption {
+	return func(options *ResourceOptions) error {
+		options.Denom = denom
+		return nil
+	}
+}
+
 // Resources produce an attribute list for populating a Group's
 // 'Resources' fields.
-func Resources(t testing.TB) dtypes.ResourceUnits {
+func Resources(t testing.TB, opts ...ResourceOption) dtypes.ResourceUnits {
 	t.Helper()
 	count := rand.Intn(10) + 1
 
+	ropts := ResourceOptions{}
+
+	for _, opt := range opts {
+		if err := opt(&ropts); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if ropts.Denom == "" {
+		ropts.Denom = CoinDenom
+	}
+
 	vals := make(dtypes.ResourceUnits, 0, count)
 	for i := 0; i < count; i++ {
-		coin := sdk.NewDecCoin(CoinDenom, sdkmath.NewInt(rand.Int63n(9999)+1))
+		coin := sdk.NewDecCoin(ropts.Denom, sdkmath.NewInt(rand.Int63n(9999)+1))
 		res := dtypes.ResourceUnit{
 			Resources: types.Resources{
 				ID: uint32(i) + 1, // nolint: gosec
@@ -124,14 +149,26 @@ func Resources(t testing.TB) dtypes.ResourceUnits {
 
 // ResourcesList produces an attribute list for populating a Group's
 // 'Resources' fields.
-func ResourcesList(t testing.TB, startID uint32) dtypes.ResourceUnits {
+func ResourcesList(t testing.TB, startID uint32, opts ...ResourceOption) dtypes.ResourceUnits {
 	require.GreaterOrEqual(t, startID, uint32(1))
+
+	ropts := ResourceOptions{}
+
+	for _, opt := range opts {
+		if err := opt(&ropts); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if ropts.Denom == "" {
+		ropts.Denom = CoinDenom
+	}
 
 	count := uint32(rand.Intn(10)) + 1 // nolint: gosec
 
 	vals := make(dtypes.ResourceUnits, 0, count)
 	for i := uint32(0); i < count; i++ {
-		coin := sdk.NewDecCoin(CoinDenom, sdkmath.NewInt(rand.Int63n(9999)+1))
+		coin := sdk.NewDecCoin(ropts.Denom, sdkmath.NewInt(rand.Int63n(9999)+1))
 		res := dtypes.ResourceUnit{
 			Resources: types.Resources{
 				ID: i + startID,
