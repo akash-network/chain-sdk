@@ -27,6 +27,7 @@ import (
 	ctypes "pkg.akt.dev/go/node/cert/v1"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	mtypes "pkg.akt.dev/go/node/market/v1"
+	providerv1 "pkg.akt.dev/go/provider/v1"
 	ajwt "pkg.akt.dev/go/util/jwt"
 	atls "pkg.akt.dev/go/util/tls"
 )
@@ -62,7 +63,7 @@ type ReqClient interface {
 type Client interface {
 	NewReqClient(ctx context.Context) ReqClient
 	Status(ctx context.Context) (*ProviderStatus, error)
-	Validate(ctx context.Context, gspec dtypes.GroupSpec) (ValidateGroupSpecResult, error)
+	Validate(ctx context.Context, gspec dtypes.GroupSpec) (*providerv1.BidScreeningResponse, error)
 	SubmitManifest(ctx context.Context, dseq uint64, mani manifest.Manifest) error
 	GetManifest(ctx context.Context, id mtypes.LeaseID) (manifest.Manifest, error)
 	LeaseStatus(ctx context.Context, id mtypes.LeaseID) (LeaseStatus, error)
@@ -361,35 +362,35 @@ func (c *client) Status(ctx context.Context) (*ProviderStatus, error) {
 	return &obj, nil
 }
 
-func (c *client) Validate(ctx context.Context, gspec dtypes.GroupSpec) (ValidateGroupSpecResult, error) {
+func (c *client) Validate(ctx context.Context, gspec dtypes.GroupSpec) (*providerv1.BidScreeningResponse, error) {
 	uri, err := MakeURI(c.host, ValidatePath())
 	if err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
 	if err = gspec.ValidateBasic(); err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
 	bgspec, err := json.Marshal(gspec)
 	if err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", uri, bytes.NewReader(bgspec))
 	if err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", contentTypeJSON)
 
 	if err = c.setAuth(req.Header); err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
 	rCl := c.NewReqClient(ctx)
 	resp, err := rCl.Do(req)
 	if err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
 	buf := &bytes.Buffer{}
@@ -399,20 +400,20 @@ func (c *client) Validate(ctx context.Context, gspec dtypes.GroupSpec) (Validate
 	}()
 
 	if err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
 	err = createClientResponseErrorIfNotOK(resp, buf)
 	if err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
-	var obj ValidateGroupSpecResult
+	var obj providerv1.BidScreeningResponse
 	if err = json.NewDecoder(buf).Decode(&obj); err != nil {
-		return ValidateGroupSpecResult{}, err
+		return nil, err
 	}
 
-	return obj, nil
+	return &obj, nil
 }
 
 func (c *client) SubmitManifest(ctx context.Context, dseq uint64, mani manifest.Manifest) error {
