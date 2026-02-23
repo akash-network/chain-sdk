@@ -9,6 +9,7 @@ option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 // Params is the params for the x/market module.
 message Params {
   // BidMinDeposit is a parameter for the minimum deposit on a Bid.
+  // Deprecated: use BidMinDeposits
   cosmos.base.v1beta1.Coin bid_min_deposit = 1 [
     (gogoproto.customname) = "BidMinDeposit",
     (gogoproto.nullable)   = false,
@@ -22,4 +23,14 @@ message Params {
     (gogoproto.jsontag)    = "order_max_bids",
     (gogoproto.moretags)   = "yaml:\"order_max_bids\""
   ];
+
+  // BidMinDeposits is a parameter for the minimum deposits per denom on a Bid.
+  repeated cosmos.base.v1beta1.Coin bid_min_deposits = 3 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.customname)   = "BidMinDeposits",
+    (gogoproto.nullable)     = false,
+    (gogoproto.jsontag)      = "bid_min_deposits",
+    (gogoproto.moretags)     = "yaml:\"bid_min_deposits\""
+  ];
+
 }

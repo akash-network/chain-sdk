@@ -88,7 +88,7 @@ func (m *StorageParams) GetReadOnly() bool {
 
 // ServicePermissions defines resource access permissions for the service.
 // Resources map to Kubernetes RBAC permissions:
-//   - logs: pods, pods/log, deployments
+//   - logs
 type ServicePermissions struct {
 	Read []string `protobuf:"bytes,1,rep,name=read,proto3" json:"read,omitempty" yaml:"read,omitempty"`
 }

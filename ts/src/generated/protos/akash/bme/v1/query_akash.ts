@@ -1,4 +1,4 @@
-import { QueryParamsRequest, QueryParamsResponse, QueryStatusRequest, QueryStatusResponse, QueryVaultStateRequest, QueryVaultStateResponse } from "./query.ts";
+import { QueryLedgerRecordsRequest, QueryLedgerRecordsResponse, QueryParamsRequest, QueryParamsResponse, QueryStatusRequest, QueryStatusResponse, QueryVaultStateRequest, QueryVaultStateResponse } from "./query.ts";
 
 export const Query = {
   typeName: "akash.bme.v1.Query",
@@ -22,6 +22,13 @@ export const Query = {
       httpPath: "/akash/bme/v1/status",
       input: QueryStatusRequest,
       output: QueryStatusResponse,
+      get parent() { return Query; },
+    },
+    ledgerRecords: {
+      name: "LedgerRecords",
+      httpPath: "/akash/bme/v1/ledger",
+      input: QueryLedgerRecordsRequest,
+      output: QueryLedgerRecordsResponse,
       get parent() { return Query; },
     },
   },

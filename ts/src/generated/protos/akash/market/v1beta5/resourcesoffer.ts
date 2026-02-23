@@ -9,7 +9,102 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
+import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
+import { Endpoint_Kind, endpoint_KindFromJSON, endpoint_KindToJSON } from "../../base/resources/v1beta4/endpoint.ts";
 import { Resources } from "../../base/resources/v1beta4/resources.ts";
+
+/**
+ * StorageOfferPrice represents the price a provider is offering for a specific
+ * class of persistent storage. Providers may offer multiple storage classes
+ * (e.g., SSD, HDD, NVMe), each identified by name and priced independently.
+ * This type is used as a repeated field within OfferPrices to express
+ * per-class storage pricing in a bid.
+ */
+export interface StorageOfferPrice {
+  /**
+   * Name holds an arbitrary name for the storage class (e.g., "default", "ssd", "hdd").
+   * This must match a storage class name from the corresponding resource specification.
+   */
+  name: string;
+  /**
+   * Price is the offered price per unit of this storage class, expressed as a
+   * DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit
+   * price is set for this storage class.
+   */
+  price: DecCoin | undefined;
+}
+
+/**
+ * EndpointOfferPrice represents the price a provider is offering for a specific
+ * kind of network endpoint. Providers may price each endpoint kind differently
+ * (e.g., a leased IP may cost more than a shared HTTP ingress). This type is
+ * used as a repeated field within OfferPrices to express per-kind endpoint
+ * pricing in a bid.
+ */
+export interface EndpointOfferPrice {
+  /**
+   * Kind specifies the type of network endpoint being priced. Possible values:
+   *   - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+   *   - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+   *   - LEASED_IP   (2): A dedicated leased IP endpoint.
+   */
+  kind: Endpoint_Kind;
+  /**
+   * Price is the offered price per unit of this endpoint kind, expressed as a
+   * DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit
+   * price is set for this endpoint kind.
+   */
+  price: DecCoin | undefined;
+}
+
+/**
+ * OfferPrices contains the complete pricing breakdown that a provider includes
+ * in a bid for a deployment resource group. Each field represents the price for
+ * a specific compute resource type. All price fields use DecCoin (decimal coin)
+ * to support fractional pricing denominated in any supported token.
+ *
+ * This message is embedded as a nullable field on ResourceOffer, which in turn
+ * is carried by Bid and MsgCreateBid messages. A nil OfferPrices on a
+ * ResourceOffer indicates that no per-resource pricing was specified.
+ *
+ * Field 1 is reserved for backward compatibility with a previously removed field.
+ */
+export interface OfferPrices {
+  /**
+   * Cpu is the offered price for CPU resources. When nil, no explicit
+   * CPU price is set.
+   */
+  cpu:
+    | DecCoin
+    | undefined;
+  /**
+   * Memory is the offered price for memory resources. When nil, no explicit
+   * memory price is set.
+   */
+  memory:
+    | DecCoin
+    | undefined;
+  /**
+   * Storage is a list of per-class storage prices. Each entry corresponds to a
+   * named storage class (e.g., "default", "ssd") and its associated price.
+   * Multiple entries allow providers to price different storage tiers independently.
+   */
+  storage: StorageOfferPrice[];
+  /**
+   * Gpu is the offered price for GPU resources. When nil, no explicit
+   * GPU price is set.
+   */
+  gpu:
+    | DecCoin
+    | undefined;
+  /**
+   * Endpoints is a list of per-kind endpoint prices. Each entry corresponds to
+   * a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or LEASED_IP) and its
+   * associated price. Multiple entries allow providers to price different
+   * endpoint types independently.
+   */
+  endpoints: EndpointOfferPrice[];
+}
 
 /**
  * ResourceOffer describes resources that provider is offering
@@ -22,10 +117,292 @@ export interface ResourceOffer {
     | undefined;
   /** Count is the number of resources. */
   count: number;
+  /** Prices contains per-resource pricing details (CPU, memory, storage, GPU, endpoints) for this offer. */
+  prices: OfferPrices | undefined;
 }
 
+function createBaseStorageOfferPrice(): StorageOfferPrice {
+  return { name: "", price: undefined };
+}
+
+export const StorageOfferPrice: MessageFns<StorageOfferPrice, "akash.market.v1beta5.StorageOfferPrice"> = {
+  $type: "akash.market.v1beta5.StorageOfferPrice" as const,
+
+  encode(message: StorageOfferPrice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.price !== undefined) {
+      DecCoin.encode(message.price, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StorageOfferPrice {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStorageOfferPrice();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.price = DecCoin.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StorageOfferPrice {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
+    };
+  },
+
+  toJSON(message: StorageOfferPrice): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.price !== undefined) {
+      obj.price = DecCoin.toJSON(message.price);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<StorageOfferPrice>): StorageOfferPrice {
+    const message = createBaseStorageOfferPrice();
+    message.name = object.name ?? "";
+    message.price = (object.price !== undefined && object.price !== null)
+      ? DecCoin.fromPartial(object.price)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseEndpointOfferPrice(): EndpointOfferPrice {
+  return { kind: 0, price: undefined };
+}
+
+export const EndpointOfferPrice: MessageFns<EndpointOfferPrice, "akash.market.v1beta5.EndpointOfferPrice"> = {
+  $type: "akash.market.v1beta5.EndpointOfferPrice" as const,
+
+  encode(message: EndpointOfferPrice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.kind !== 0) {
+      writer.uint32(8).int32(message.kind);
+    }
+    if (message.price !== undefined) {
+      DecCoin.encode(message.price, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EndpointOfferPrice {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEndpointOfferPrice();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.kind = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.price = DecCoin.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EndpointOfferPrice {
+    return {
+      kind: isSet(object.kind) ? endpoint_KindFromJSON(object.kind) : 0,
+      price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
+    };
+  },
+
+  toJSON(message: EndpointOfferPrice): unknown {
+    const obj: any = {};
+    if (message.kind !== 0) {
+      obj.kind = endpoint_KindToJSON(message.kind);
+    }
+    if (message.price !== undefined) {
+      obj.price = DecCoin.toJSON(message.price);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<EndpointOfferPrice>): EndpointOfferPrice {
+    const message = createBaseEndpointOfferPrice();
+    message.kind = object.kind ?? 0;
+    message.price = (object.price !== undefined && object.price !== null)
+      ? DecCoin.fromPartial(object.price)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseOfferPrices(): OfferPrices {
+  return { cpu: undefined, memory: undefined, storage: [], gpu: undefined, endpoints: [] };
+}
+
+export const OfferPrices: MessageFns<OfferPrices, "akash.market.v1beta5.OfferPrices"> = {
+  $type: "akash.market.v1beta5.OfferPrices" as const,
+
+  encode(message: OfferPrices, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.cpu !== undefined) {
+      DecCoin.encode(message.cpu, writer.uint32(18).fork()).join();
+    }
+    if (message.memory !== undefined) {
+      DecCoin.encode(message.memory, writer.uint32(26).fork()).join();
+    }
+    for (const v of message.storage) {
+      StorageOfferPrice.encode(v!, writer.uint32(34).fork()).join();
+    }
+    if (message.gpu !== undefined) {
+      DecCoin.encode(message.gpu, writer.uint32(42).fork()).join();
+    }
+    for (const v of message.endpoints) {
+      EndpointOfferPrice.encode(v!, writer.uint32(50).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): OfferPrices {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseOfferPrices();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.cpu = DecCoin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.memory = DecCoin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.storage.push(StorageOfferPrice.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.gpu = DecCoin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.endpoints.push(EndpointOfferPrice.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): OfferPrices {
+    return {
+      cpu: isSet(object.cpu) ? DecCoin.fromJSON(object.cpu) : undefined,
+      memory: isSet(object.memory) ? DecCoin.fromJSON(object.memory) : undefined,
+      storage: globalThis.Array.isArray(object?.storage)
+        ? object.storage.map((e: any) => StorageOfferPrice.fromJSON(e))
+        : [],
+      gpu: isSet(object.gpu) ? DecCoin.fromJSON(object.gpu) : undefined,
+      endpoints: globalThis.Array.isArray(object?.endpoints)
+        ? object.endpoints.map((e: any) => EndpointOfferPrice.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: OfferPrices): unknown {
+    const obj: any = {};
+    if (message.cpu !== undefined) {
+      obj.cpu = DecCoin.toJSON(message.cpu);
+    }
+    if (message.memory !== undefined) {
+      obj.memory = DecCoin.toJSON(message.memory);
+    }
+    if (message.storage?.length) {
+      obj.storage = message.storage.map((e) => StorageOfferPrice.toJSON(e));
+    }
+    if (message.gpu !== undefined) {
+      obj.gpu = DecCoin.toJSON(message.gpu);
+    }
+    if (message.endpoints?.length) {
+      obj.endpoints = message.endpoints.map((e) => EndpointOfferPrice.toJSON(e));
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<OfferPrices>): OfferPrices {
+    const message = createBaseOfferPrices();
+    message.cpu = (object.cpu !== undefined && object.cpu !== null) ? DecCoin.fromPartial(object.cpu) : undefined;
+    message.memory = (object.memory !== undefined && object.memory !== null)
+      ? DecCoin.fromPartial(object.memory)
+      : undefined;
+    message.storage = object.storage?.map((e) => StorageOfferPrice.fromPartial(e)) || [];
+    message.gpu = (object.gpu !== undefined && object.gpu !== null) ? DecCoin.fromPartial(object.gpu) : undefined;
+    message.endpoints = object.endpoints?.map((e) => EndpointOfferPrice.fromPartial(e)) || [];
+    return message;
+  },
+};
+
 function createBaseResourceOffer(): ResourceOffer {
-  return { resources: undefined, count: 0 };
+  return { resources: undefined, count: 0, prices: undefined };
 }
 
 export const ResourceOffer: MessageFns<ResourceOffer, "akash.market.v1beta5.ResourceOffer"> = {
@@ -37,6 +414,9 @@ export const ResourceOffer: MessageFns<ResourceOffer, "akash.market.v1beta5.Reso
     }
     if (message.count !== 0) {
       writer.uint32(16).uint32(message.count);
+    }
+    if (message.prices !== undefined) {
+      OfferPrices.encode(message.prices, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -64,6 +444,14 @@ export const ResourceOffer: MessageFns<ResourceOffer, "akash.market.v1beta5.Reso
           message.count = reader.uint32();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.prices = OfferPrices.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -77,6 +465,7 @@ export const ResourceOffer: MessageFns<ResourceOffer, "akash.market.v1beta5.Reso
     return {
       resources: isSet(object.resources) ? Resources.fromJSON(object.resources) : undefined,
       count: isSet(object.count) ? globalThis.Number(object.count) : 0,
+      prices: isSet(object.prices) ? OfferPrices.fromJSON(object.prices) : undefined,
     };
   },
 
@@ -88,6 +477,9 @@ export const ResourceOffer: MessageFns<ResourceOffer, "akash.market.v1beta5.Reso
     if (message.count !== 0) {
       obj.count = Math.round(message.count);
     }
+    if (message.prices !== undefined) {
+      obj.prices = OfferPrices.toJSON(message.prices);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ResourceOffer>): ResourceOffer {
@@ -96,6 +488,9 @@ export const ResourceOffer: MessageFns<ResourceOffer, "akash.market.v1beta5.Reso
       ? Resources.fromPartial(object.resources)
       : undefined;
     message.count = object.count ?? 0;
+    message.prices = (object.prices !== undefined && object.prices !== null)
+      ? OfferPrices.fromPartial(object.prices)
+      : undefined;
     return message;
   },
 };
