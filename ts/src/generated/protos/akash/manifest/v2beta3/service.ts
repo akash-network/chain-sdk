@@ -200,6 +200,10 @@ export const ServicePermissions: MessageFns<ServicePermissions, "akash.manifest.
     }
     return obj;
   },
+
+  create(base?: DeepPartial<ServicePermissions>): ServicePermissions {
+    return ServicePermissions.fromPartial(base ?? {});
+  },
   fromPartial(object: DeepPartial<ServicePermissions>): ServicePermissions {
     const message = createBaseServicePermissions();
     message.read = object.read?.map((e) => e) || [];

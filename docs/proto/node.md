@@ -253,7 +253,10 @@
      - [LeaseFilters](#akash.market.v1.LeaseFilters)
    
  - [akash/market/v1beta5/resourcesoffer.proto](#akash/market/v1beta5/resourcesoffer.proto)
+     - [EndpointOfferPrice](#akash.market.v1beta5.EndpointOfferPrice)
+     - [OfferPrices](#akash.market.v1beta5.OfferPrices)
      - [ResourceOffer](#akash.market.v1beta5.ResourceOffer)
+     - [StorageOfferPrice](#akash.market.v1beta5.StorageOfferPrice)
    
  - [akash/market/v1beta5/bid.proto](#akash/market/v1beta5/bid.proto)
      - [Bid](#akash.market.v1beta5.Bid)
@@ -3292,6 +3295,54 @@ Example: "akash1..." |
  
 
  
+ <a name="akash.market.v1beta5.EndpointOfferPrice"></a>
+
+ ### EndpointOfferPrice
+ EndpointOfferPrice represents the price a provider is offering for a specific
+kind of network endpoint. Providers may price each endpoint kind differently
+(e.g., a leased IP may cost more than a shared HTTP ingress). This type is
+used as a repeated field within OfferPrices to express per-kind endpoint
+pricing in a bid.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `kind` | [akash.base.resources.v1beta4.Endpoint.Kind](#akash.base.resources.v1beta4.Endpoint.Kind) |  | Kind specifies the type of network endpoint being priced. Possible values: - SHARED_HTTP (0): A Kubernetes Ingress endpoint. - RANDOM_PORT (1): A Kubernetes NodePort endpoint. - LEASED_IP (2): A dedicated leased IP endpoint. |
+ | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price is the offered price per unit of this endpoint kind, expressed as a DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit price is set for this endpoint kind. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1beta5.OfferPrices"></a>
+
+ ### OfferPrices
+ OfferPrices contains the complete pricing breakdown that a provider includes
+in a bid for a deployment resource group. Each field represents the price for
+a specific compute resource type. All price fields use DecCoin (decimal coin)
+to support fractional pricing denominated in any supported token.
+
+This message is embedded as a nullable field on ResourceOffer, which in turn
+is carried by Bid and MsgCreateBid messages. A nil OfferPrices on a
+ResourceOffer indicates that no per-resource pricing was specified.
+
+Field 1 is reserved for backward compatibility with a previously removed field.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `cpu` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Cpu is the offered price for CPU resources. When nil, no explicit CPU price is set. |
+ | `memory` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Memory is the offered price for memory resources. When nil, no explicit memory price is set. |
+ | `storage` | [StorageOfferPrice](#akash.market.v1beta5.StorageOfferPrice) | repeated | Storage is a list of per-class storage prices. Each entry corresponds to a named storage class (e.g., "default", "ssd") and its associated price. Multiple entries allow providers to price different storage tiers independently. |
+ | `gpu` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Gpu is the offered price for GPU resources. When nil, no explicit GPU price is set. |
+ | `endpoints` | [EndpointOfferPrice](#akash.market.v1beta5.EndpointOfferPrice) | repeated | Endpoints is a list of per-kind endpoint prices. Each entry corresponds to a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or LEASED_IP) and its associated price. Multiple entries allow providers to price different endpoint types independently. |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.market.v1beta5.ResourceOffer"></a>
 
  ### ResourceOffer
@@ -3303,6 +3354,27 @@ for deployment.
  | ----- | ---- | ----- | ----------- |
  | `resources` | [akash.base.resources.v1beta4.Resources](#akash.base.resources.v1beta4.Resources) |  | Resources holds information about bid resources. |
  | `count` | [uint32](#uint32) |  | Count is the number of resources. |
+ | `prices` | [OfferPrices](#akash.market.v1beta5.OfferPrices) |  | Prices contains per-resource pricing details (CPU, memory, storage, GPU, endpoints) for this offer. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1beta5.StorageOfferPrice"></a>
+
+ ### StorageOfferPrice
+ StorageOfferPrice represents the price a provider is offering for a specific
+class of persistent storage. Providers may offer multiple storage classes
+(e.g., SSD, HDD, NVMe), each identified by name and priced independently.
+This type is used as a repeated field within OfferPrices to express
+per-class storage pricing in a bid.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `name` | [string](#string) |  | Name holds an arbitrary name for the storage class (e.g., "default", "ssd", "hdd"). This must match a storage class name from the corresponding resource specification. |
+ | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price is the offered price per unit of this storage class, expressed as a DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit price is set for this storage class. |
  
  
 
@@ -3515,8 +3587,9 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `bid_min_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BidMinDeposit is a parameter for the minimum deposit on a Bid. |
+ | `bid_min_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BidMinDeposit is a parameter for the minimum deposit on a Bid. Deprecated: use BidMinDeposits |
  | `order_max_bids` | [uint32](#uint32) |  | OrderMaxBids is a parameter for the maximum number of bids in an order. |
+ | `bid_min_deposits` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | BidMinDeposits is a parameter for the minimum deposits per denom on a Bid. |
  
  
 

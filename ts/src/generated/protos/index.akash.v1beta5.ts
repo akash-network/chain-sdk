@@ -1,6 +1,15 @@
 import { patched } from "./nodePatchMessage.ts";
 
-export { ResourceOffer } from "./akash/market/v1beta5/resourcesoffer.ts";
+
+import { StorageOfferPrice as _StorageOfferPrice, EndpointOfferPrice as _EndpointOfferPrice, OfferPrices as _OfferPrices, ResourceOffer as _ResourceOffer } from "./akash/market/v1beta5/resourcesoffer.ts";
+export const StorageOfferPrice = patched(_StorageOfferPrice);
+export type StorageOfferPrice = _StorageOfferPrice
+export const EndpointOfferPrice = patched(_EndpointOfferPrice);
+export type EndpointOfferPrice = _EndpointOfferPrice
+export const OfferPrices = patched(_OfferPrices);
+export type OfferPrices = _OfferPrices
+export const ResourceOffer = patched(_ResourceOffer);
+export type ResourceOffer = _ResourceOffer
 export { Bid_State } from "./akash/market/v1beta5/bid.ts";
 
 import { Bid as _Bid } from "./akash/market/v1beta5/bid.ts";

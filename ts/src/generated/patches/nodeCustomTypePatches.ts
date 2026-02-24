@@ -14,6 +14,7 @@ import type * as _protos_akash_escrow_v1_genesis from "../protos/akash/escrow/v1
 import type * as _protos_akash_escrow_v1_query from "../protos/akash/escrow/v1/query.ts";
 import type * as _protos_akash_market_v1_lease from "../protos/akash/market/v1/lease.ts";
 import type * as _protos_akash_market_v1_event from "../protos/akash/market/v1/event.ts";
+import type * as _protos_akash_market_v1beta5_resourcesoffer from "../protos/akash/market/v1beta5/resourcesoffer.ts";
 import type * as _protos_akash_market_v1beta5_bid from "../protos/akash/market/v1beta5/bid.ts";
 import type * as _protos_akash_market_v1beta5_bidmsg from "../protos/akash/market/v1beta5/bidmsg.ts";
 import type * as _protos_akash_market_v1beta5_order from "../protos/akash/market/v1beta5/order.ts";
@@ -159,16 +160,46 @@ const p = {
     if (value.price != null) newValue.price = p["cosmos.base.v1beta1.DecCoin"](value.price, transformType);
     return newValue;
   },
+  "akash.market.v1beta5.StorageOfferPrice"(value: _protos_akash_market_v1beta5_resourcesoffer.StorageOfferPrice | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.price != null) newValue.price = p["cosmos.base.v1beta1.DecCoin"](value.price, transformType);
+    return newValue;
+  },
+  "akash.market.v1beta5.EndpointOfferPrice"(value: _protos_akash_market_v1beta5_resourcesoffer.EndpointOfferPrice | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.price != null) newValue.price = p["cosmos.base.v1beta1.DecCoin"](value.price, transformType);
+    return newValue;
+  },
+  "akash.market.v1beta5.OfferPrices"(value: _protos_akash_market_v1beta5_resourcesoffer.OfferPrices | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.cpu != null) newValue.cpu = p["cosmos.base.v1beta1.DecCoin"](value.cpu, transformType);
+    if (value.memory != null) newValue.memory = p["cosmos.base.v1beta1.DecCoin"](value.memory, transformType);
+    if (value.storage) newValue.storage = value.storage.map((item) => p["akash.market.v1beta5.StorageOfferPrice"](item, transformType)!);
+    if (value.gpu != null) newValue.gpu = p["cosmos.base.v1beta1.DecCoin"](value.gpu, transformType);
+    if (value.endpoints) newValue.endpoints = value.endpoints.map((item) => p["akash.market.v1beta5.EndpointOfferPrice"](item, transformType)!);
+    return newValue;
+  },
+  "akash.market.v1beta5.ResourceOffer"(value: _protos_akash_market_v1beta5_resourcesoffer.ResourceOffer | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.prices != null) newValue.prices = p["akash.market.v1beta5.OfferPrices"](value.prices, transformType);
+    return newValue;
+  },
   "akash.market.v1beta5.Bid"(value: _protos_akash_market_v1beta5_bid.Bid | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
     if (value.price != null) newValue.price = p["cosmos.base.v1beta1.DecCoin"](value.price, transformType);
+    if (value.resourcesOffer) newValue.resourcesOffer = value.resourcesOffer.map((item) => p["akash.market.v1beta5.ResourceOffer"](item, transformType)!);
     return newValue;
   },
   "akash.market.v1beta5.MsgCreateBid"(value: _protos_akash_market_v1beta5_bidmsg.MsgCreateBid | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
     if (value.price != null) newValue.price = p["cosmos.base.v1beta1.DecCoin"](value.price, transformType);
+    if (value.resourcesOffer) newValue.resourcesOffer = value.resourcesOffer.map((item) => p["akash.market.v1beta5.ResourceOffer"](item, transformType)!);
     return newValue;
   },
   "akash.market.v1beta5.Order"(value: _protos_akash_market_v1beta5_order.Order | undefined | null, transformType: 'encode' | 'decode') {

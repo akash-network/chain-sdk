@@ -3066,6 +3066,158 @@ paths:
                           type: integer
                           format: int64
                           description: Count is the number of resources.
+                        prices:
+                          description: >-
+                            Prices contains per-resource pricing details (CPU,
+                            memory, storage, GPU, endpoints) for this offer.
+                          type: object
+                          properties:
+                            cpu:
+                              description: >-
+                                Cpu is the offered price for CPU resources. When
+                                nil, no explicit
+
+                                CPU price is set.
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                            memory:
+                              description: >-
+                                Memory is the offered price for memory
+                                resources. When nil, no explicit
+
+                                memory price is set.
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                            storage:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    description: >-
+                                      Name holds an arbitrary name for the
+                                      storage class (e.g., "default", "ssd",
+                                      "hdd").
+
+                                      This must match a storage class name from
+                                      the corresponding resource specification.
+                                  price:
+                                    description: >-
+                                      Price is the offered price per unit of
+                                      this storage class, expressed as a
+
+                                      DecCoin (decimal coin) to allow fractional
+                                      pricing. When nil, no explicit
+
+                                      price is set for this storage class.
+                                    type: object
+                                    properties:
+                                      denom:
+                                        type: string
+                                      amount:
+                                        type: string
+                                description: >-
+                                  StorageOfferPrice represents the price a
+                                  provider is offering for a specific
+
+                                  class of persistent storage. Providers may
+                                  offer multiple storage classes
+
+                                  (e.g., SSD, HDD, NVMe), each identified by
+                                  name and priced independently.
+
+                                  This type is used as a repeated field within
+                                  OfferPrices to express
+
+                                  per-class storage pricing in a bid.
+                              description: >-
+                                Storage is a list of per-class storage prices.
+                                Each entry corresponds to a
+
+                                named storage class (e.g., "default", "ssd") and
+                                its associated price.
+
+                                Multiple entries allow providers to price
+                                different storage tiers independently.
+                            gpu:
+                              description: >-
+                                Gpu is the offered price for GPU resources. When
+                                nil, no explicit
+
+                                GPU price is set.
+                              type: object
+                              properties:
+                                denom:
+                                  type: string
+                                amount:
+                                  type: string
+                            endpoints:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  kind:
+                                    description: >-
+                                      Kind specifies the type of network
+                                      endpoint being priced. Possible values:
+                                        - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+                                        - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+                                        - LEASED_IP   (2): A dedicated leased IP endpoint.
+                                    type: string
+                                    enum:
+                                      - SHARED_HTTP
+                                      - RANDOM_PORT
+                                      - LEASED_IP
+                                    default: SHARED_HTTP
+                                  price:
+                                    description: >-
+                                      Price is the offered price per unit of
+                                      this endpoint kind, expressed as a
+
+                                      DecCoin (decimal coin) to allow fractional
+                                      pricing. When nil, no explicit
+
+                                      price is set for this endpoint kind.
+                                    type: object
+                                    properties:
+                                      denom:
+                                        type: string
+                                      amount:
+                                        type: string
+                                description: >-
+                                  EndpointOfferPrice represents the price a
+                                  provider is offering for a specific
+
+                                  kind of network endpoint. Providers may price
+                                  each endpoint kind differently
+
+                                  (e.g., a leased IP may cost more than a shared
+                                  HTTP ingress). This type is
+
+                                  used as a repeated field within OfferPrices to
+                                  express per-kind endpoint
+
+                                  pricing in a bid.
+                              description: >-
+                                Endpoints is a list of per-kind endpoint prices.
+                                Each entry corresponds to
+
+                                a network endpoint kind (SHARED_HTTP,
+                                RANDOM_PORT, or LEASED_IP) and its
+
+                                associated price. Multiple entries allow
+                                providers to price different
+
+                                endpoint types independently.
                       description: >-
                         ResourceOffer describes resources that provider is
                         offering
@@ -3666,6 +3818,162 @@ paths:
                                 type: integer
                                 format: int64
                                 description: Count is the number of resources.
+                              prices:
+                                description: >-
+                                  Prices contains per-resource pricing details
+                                  (CPU, memory, storage, GPU, endpoints) for
+                                  this offer.
+                                type: object
+                                properties:
+                                  cpu:
+                                    description: >-
+                                      Cpu is the offered price for CPU
+                                      resources. When nil, no explicit
+
+                                      CPU price is set.
+                                    type: object
+                                    properties:
+                                      denom:
+                                        type: string
+                                      amount:
+                                        type: string
+                                  memory:
+                                    description: >-
+                                      Memory is the offered price for memory
+                                      resources. When nil, no explicit
+
+                                      memory price is set.
+                                    type: object
+                                    properties:
+                                      denom:
+                                        type: string
+                                      amount:
+                                        type: string
+                                  storage:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                          description: >-
+                                            Name holds an arbitrary name for the
+                                            storage class (e.g., "default", "ssd",
+                                            "hdd").
+
+                                            This must match a storage class name
+                                            from the corresponding resource
+                                            specification.
+                                        price:
+                                          description: >-
+                                            Price is the offered price per unit of
+                                            this storage class, expressed as a
+
+                                            DecCoin (decimal coin) to allow
+                                            fractional pricing. When nil, no
+                                            explicit
+
+                                            price is set for this storage class.
+                                          type: object
+                                          properties:
+                                            denom:
+                                              type: string
+                                            amount:
+                                              type: string
+                                      description: >-
+                                        StorageOfferPrice represents the price a
+                                        provider is offering for a specific
+
+                                        class of persistent storage. Providers
+                                        may offer multiple storage classes
+
+                                        (e.g., SSD, HDD, NVMe), each identified
+                                        by name and priced independently.
+
+                                        This type is used as a repeated field
+                                        within OfferPrices to express
+
+                                        per-class storage pricing in a bid.
+                                    description: >-
+                                      Storage is a list of per-class storage
+                                      prices. Each entry corresponds to a
+
+                                      named storage class (e.g., "default",
+                                      "ssd") and its associated price.
+
+                                      Multiple entries allow providers to price
+                                      different storage tiers independently.
+                                  gpu:
+                                    description: >-
+                                      Gpu is the offered price for GPU
+                                      resources. When nil, no explicit
+
+                                      GPU price is set.
+                                    type: object
+                                    properties:
+                                      denom:
+                                        type: string
+                                      amount:
+                                        type: string
+                                  endpoints:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        kind:
+                                          description: >-
+                                            Kind specifies the type of network
+                                            endpoint being priced. Possible values:
+                                              - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+                                              - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+                                              - LEASED_IP   (2): A dedicated leased IP endpoint.
+                                          type: string
+                                          enum:
+                                            - SHARED_HTTP
+                                            - RANDOM_PORT
+                                            - LEASED_IP
+                                          default: SHARED_HTTP
+                                        price:
+                                          description: >-
+                                            Price is the offered price per unit of
+                                            this endpoint kind, expressed as a
+
+                                            DecCoin (decimal coin) to allow
+                                            fractional pricing. When nil, no
+                                            explicit
+
+                                            price is set for this endpoint kind.
+                                          type: object
+                                          properties:
+                                            denom:
+                                              type: string
+                                            amount:
+                                              type: string
+                                      description: >-
+                                        EndpointOfferPrice represents the price
+                                        a provider is offering for a specific
+
+                                        kind of network endpoint. Providers may
+                                        price each endpoint kind differently
+
+                                        (e.g., a leased IP may cost more than a
+                                        shared HTTP ingress). This type is
+
+                                        used as a repeated field within
+                                        OfferPrices to express per-kind endpoint
+
+                                        pricing in a bid.
+                                    description: >-
+                                      Endpoints is a list of per-kind endpoint
+                                      prices. Each entry corresponds to
+
+                                      a network endpoint kind (SHARED_HTTP,
+                                      RANDOM_PORT, or LEASED_IP) and its
+
+                                      associated price. Multiple entries allow
+                                      providers to price different
+
+                                      endpoint types independently.
                             description: >-
                               ResourceOffer describes resources that provider is
                               offering
@@ -5845,21 +6153,51 @@ paths:
                 type: object
                 properties:
                   bid_min_deposit:
-                    description: >-
+                    title: >-
                       BidMinDeposit is a parameter for the minimum deposit on a
                       Bid.
+
+                      Deprecated: use BidMinDeposits
                     type: object
                     properties:
                       denom:
                         type: string
                       amount:
                         type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
                   order_max_bids:
                     type: integer
                     format: int64
                     description: >-
                       OrderMaxBids is a parameter for the maximum number of bids
                       in an order.
+                  bid_min_deposits:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    description: >-
+                      BidMinDeposits is a parameter for the minimum deposits per
+                      denom on a Bid.
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -50002,6 +50340,157 @@ definitions:
               type: integer
               format: int64
               description: Count is the number of resources.
+            prices:
+              description: >-
+                Prices contains per-resource pricing details (CPU, memory,
+                storage, GPU, endpoints) for this offer.
+              type: object
+              properties:
+                cpu:
+                  description: >-
+                    Cpu is the offered price for CPU resources. When nil, no
+                    explicit
+
+                    CPU price is set.
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                memory:
+                  description: >-
+                    Memory is the offered price for memory resources. When nil,
+                    no explicit
+
+                    memory price is set.
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                storage:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: >-
+                          Name holds an arbitrary name for the storage class
+                          (e.g., "default", "ssd", "hdd").
+
+                          This must match a storage class name from the
+                          corresponding resource specification.
+                      price:
+                        description: >-
+                          Price is the offered price per unit of this storage
+                          class, expressed as a
+
+                          DecCoin (decimal coin) to allow fractional pricing.
+                          When nil, no explicit
+
+                          price is set for this storage class.
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                    description: >-
+                      StorageOfferPrice represents the price a provider is
+                      offering for a specific
+
+                      class of persistent storage. Providers may offer multiple
+                      storage classes
+
+                      (e.g., SSD, HDD, NVMe), each identified by name and priced
+                      independently.
+
+                      This type is used as a repeated field within OfferPrices
+                      to express
+
+                      per-class storage pricing in a bid.
+                  description: >-
+                    Storage is a list of per-class storage prices. Each entry
+                    corresponds to a
+
+                    named storage class (e.g., "default", "ssd") and its
+                    associated price.
+
+                    Multiple entries allow providers to price different storage
+                    tiers independently.
+                gpu:
+                  description: >-
+                    Gpu is the offered price for GPU resources. When nil, no
+                    explicit
+
+                    GPU price is set.
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                endpoints:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      kind:
+                        description: >-
+                          Kind specifies the type of network endpoint being
+                          priced. Possible values:
+                            - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+                            - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+                            - LEASED_IP   (2): A dedicated leased IP endpoint.
+                        type: string
+                        enum:
+                          - SHARED_HTTP
+                          - RANDOM_PORT
+                          - LEASED_IP
+                        default: SHARED_HTTP
+                      price:
+                        description: >-
+                          Price is the offered price per unit of this endpoint
+                          kind, expressed as a
+
+                          DecCoin (decimal coin) to allow fractional pricing.
+                          When nil, no explicit
+
+                          price is set for this endpoint kind.
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                    description: >-
+                      EndpointOfferPrice represents the price a provider is
+                      offering for a specific
+
+                      kind of network endpoint. Providers may price each
+                      endpoint kind differently
+
+                      (e.g., a leased IP may cost more than a shared HTTP
+                      ingress). This type is
+
+                      used as a repeated field within OfferPrices to express
+                      per-kind endpoint
+
+                      pricing in a bid.
+                  description: >-
+                    Endpoints is a list of per-kind endpoint prices. Each entry
+                    corresponds to
+
+                    a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or
+                    LEASED_IP) and its
+
+                    associated price. Multiple entries allow providers to price
+                    different
+
+                    endpoint types independently.
           description: |-
             ResourceOffer describes resources that provider is offering
             for deployment.
@@ -50082,6 +50571,213 @@ definitions:
           BSeq (bid sequence) distinguishes multiple bids associated with a
           single deployment from same provider.
     description: BidFilters defines flags for bid list filter.
+  akash.market.v1beta5.EndpointOfferPrice:
+    type: object
+    properties:
+      kind:
+        description: >-
+          Kind specifies the type of network endpoint being priced. Possible
+          values:
+            - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+            - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+            - LEASED_IP   (2): A dedicated leased IP endpoint.
+        type: string
+        enum:
+          - SHARED_HTTP
+          - RANDOM_PORT
+          - LEASED_IP
+        default: SHARED_HTTP
+      price:
+        description: >-
+          Price is the offered price per unit of this endpoint kind, expressed
+          as a
+
+          DecCoin (decimal coin) to allow fractional pricing. When nil, no
+          explicit
+
+          price is set for this endpoint kind.
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+    description: >-
+      EndpointOfferPrice represents the price a provider is offering for a
+      specific
+
+      kind of network endpoint. Providers may price each endpoint kind
+      differently
+
+      (e.g., a leased IP may cost more than a shared HTTP ingress). This type is
+
+      used as a repeated field within OfferPrices to express per-kind endpoint
+
+      pricing in a bid.
+  akash.market.v1beta5.OfferPrices:
+    type: object
+    properties:
+      cpu:
+        description: |-
+          Cpu is the offered price for CPU resources. When nil, no explicit
+          CPU price is set.
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+      memory:
+        description: >-
+          Memory is the offered price for memory resources. When nil, no
+          explicit
+
+          memory price is set.
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+      storage:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: >-
+                Name holds an arbitrary name for the storage class (e.g.,
+                "default", "ssd", "hdd").
+
+                This must match a storage class name from the corresponding
+                resource specification.
+            price:
+              description: >-
+                Price is the offered price per unit of this storage class,
+                expressed as a
+
+                DecCoin (decimal coin) to allow fractional pricing. When nil, no
+                explicit
+
+                price is set for this storage class.
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+          description: >-
+            StorageOfferPrice represents the price a provider is offering for a
+            specific
+
+            class of persistent storage. Providers may offer multiple storage
+            classes
+
+            (e.g., SSD, HDD, NVMe), each identified by name and priced
+            independently.
+
+            This type is used as a repeated field within OfferPrices to express
+
+            per-class storage pricing in a bid.
+        description: >-
+          Storage is a list of per-class storage prices. Each entry corresponds
+          to a
+
+          named storage class (e.g., "default", "ssd") and its associated price.
+
+          Multiple entries allow providers to price different storage tiers
+          independently.
+      gpu:
+        description: |-
+          Gpu is the offered price for GPU resources. When nil, no explicit
+          GPU price is set.
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+      endpoints:
+        type: array
+        items:
+          type: object
+          properties:
+            kind:
+              description: >-
+                Kind specifies the type of network endpoint being priced.
+                Possible values:
+                  - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+                  - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+                  - LEASED_IP   (2): A dedicated leased IP endpoint.
+              type: string
+              enum:
+                - SHARED_HTTP
+                - RANDOM_PORT
+                - LEASED_IP
+              default: SHARED_HTTP
+            price:
+              description: >-
+                Price is the offered price per unit of this endpoint kind,
+                expressed as a
+
+                DecCoin (decimal coin) to allow fractional pricing. When nil, no
+                explicit
+
+                price is set for this endpoint kind.
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+          description: >-
+            EndpointOfferPrice represents the price a provider is offering for a
+            specific
+
+            kind of network endpoint. Providers may price each endpoint kind
+            differently
+
+            (e.g., a leased IP may cost more than a shared HTTP ingress). This
+            type is
+
+            used as a repeated field within OfferPrices to express per-kind
+            endpoint
+
+            pricing in a bid.
+        description: >-
+          Endpoints is a list of per-kind endpoint prices. Each entry
+          corresponds to
+
+          a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or LEASED_IP) and
+          its
+
+          associated price. Multiple entries allow providers to price different
+
+          endpoint types independently.
+    description: >-
+      OfferPrices contains the complete pricing breakdown that a provider
+      includes
+
+      in a bid for a deployment resource group. Each field represents the price
+      for
+
+      a specific compute resource type. All price fields use DecCoin (decimal
+      coin)
+
+      to support fractional pricing denominated in any supported token.
+
+
+      This message is embedded as a nullable field on ResourceOffer, which in
+      turn
+
+      is carried by Bid and MsgCreateBid messages. A nil OfferPrices on a
+
+      ResourceOffer indicates that no per-resource pricing was specified.
+
+
+      Field 1 is reserved for backward compatibility with a previously removed
+      field.
   akash.market.v1beta5.Order:
     type: object
     properties:
@@ -50522,19 +51218,43 @@ definitions:
     type: object
     properties:
       bid_min_deposit:
-        description: BidMinDeposit is a parameter for the minimum deposit on a Bid.
+        title: |-
+          BidMinDeposit is a parameter for the minimum deposit on a Bid.
+          Deprecated: use BidMinDeposits
         type: object
         properties:
           denom:
             type: string
           amount:
             type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
       order_max_bids:
         type: integer
         format: int64
         description: >-
           OrderMaxBids is a parameter for the maximum number of bids in an
           order.
+      bid_min_deposits:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a token with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+        description: >-
+          BidMinDeposits is a parameter for the minimum deposits per denom on a
+          Bid.
     description: Params is the params for the x/market module.
   akash.market.v1beta5.QueryBidResponse:
     type: object
@@ -50856,6 +51576,157 @@ definitions:
                   type: integer
                   format: int64
                   description: Count is the number of resources.
+                prices:
+                  description: >-
+                    Prices contains per-resource pricing details (CPU, memory,
+                    storage, GPU, endpoints) for this offer.
+                  type: object
+                  properties:
+                    cpu:
+                      description: >-
+                        Cpu is the offered price for CPU resources. When nil, no
+                        explicit
+
+                        CPU price is set.
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                    memory:
+                      description: >-
+                        Memory is the offered price for memory resources. When
+                        nil, no explicit
+
+                        memory price is set.
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                    storage:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            description: >-
+                              Name holds an arbitrary name for the storage class
+                              (e.g., "default", "ssd", "hdd").
+
+                              This must match a storage class name from the
+                              corresponding resource specification.
+                          price:
+                            description: >-
+                              Price is the offered price per unit of this
+                              storage class, expressed as a
+
+                              DecCoin (decimal coin) to allow fractional
+                              pricing. When nil, no explicit
+
+                              price is set for this storage class.
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                        description: >-
+                          StorageOfferPrice represents the price a provider is
+                          offering for a specific
+
+                          class of persistent storage. Providers may offer
+                          multiple storage classes
+
+                          (e.g., SSD, HDD, NVMe), each identified by name and
+                          priced independently.
+
+                          This type is used as a repeated field within
+                          OfferPrices to express
+
+                          per-class storage pricing in a bid.
+                      description: >-
+                        Storage is a list of per-class storage prices. Each
+                        entry corresponds to a
+
+                        named storage class (e.g., "default", "ssd") and its
+                        associated price.
+
+                        Multiple entries allow providers to price different
+                        storage tiers independently.
+                    gpu:
+                      description: >-
+                        Gpu is the offered price for GPU resources. When nil, no
+                        explicit
+
+                        GPU price is set.
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                    endpoints:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          kind:
+                            description: >-
+                              Kind specifies the type of network endpoint being
+                              priced. Possible values:
+                                - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+                                - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+                                - LEASED_IP   (2): A dedicated leased IP endpoint.
+                            type: string
+                            enum:
+                              - SHARED_HTTP
+                              - RANDOM_PORT
+                              - LEASED_IP
+                            default: SHARED_HTTP
+                          price:
+                            description: >-
+                              Price is the offered price per unit of this
+                              endpoint kind, expressed as a
+
+                              DecCoin (decimal coin) to allow fractional
+                              pricing. When nil, no explicit
+
+                              price is set for this endpoint kind.
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                        description: >-
+                          EndpointOfferPrice represents the price a provider is
+                          offering for a specific
+
+                          kind of network endpoint. Providers may price each
+                          endpoint kind differently
+
+                          (e.g., a leased IP may cost more than a shared HTTP
+                          ingress). This type is
+
+                          used as a repeated field within OfferPrices to express
+                          per-kind endpoint
+
+                          pricing in a bid.
+                      description: >-
+                        Endpoints is a list of per-kind endpoint prices. Each
+                        entry corresponds to
+
+                        a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or
+                        LEASED_IP) and its
+
+                        associated price. Multiple entries allow providers to
+                        price different
+
+                        endpoint types independently.
               description: |-
                 ResourceOffer describes resources that provider is offering
                 for deployment.
@@ -51338,6 +52209,157 @@ definitions:
                         type: integer
                         format: int64
                         description: Count is the number of resources.
+                      prices:
+                        description: >-
+                          Prices contains per-resource pricing details (CPU,
+                          memory, storage, GPU, endpoints) for this offer.
+                        type: object
+                        properties:
+                          cpu:
+                            description: >-
+                              Cpu is the offered price for CPU resources. When
+                              nil, no explicit
+
+                              CPU price is set.
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                          memory:
+                            description: >-
+                              Memory is the offered price for memory resources.
+                              When nil, no explicit
+
+                              memory price is set.
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                          storage:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  description: >-
+                                    Name holds an arbitrary name for the storage
+                                    class (e.g., "default", "ssd", "hdd").
+
+                                    This must match a storage class name from
+                                    the corresponding resource specification.
+                                price:
+                                  description: >-
+                                    Price is the offered price per unit of this
+                                    storage class, expressed as a
+
+                                    DecCoin (decimal coin) to allow fractional
+                                    pricing. When nil, no explicit
+
+                                    price is set for this storage class.
+                                  type: object
+                                  properties:
+                                    denom:
+                                      type: string
+                                    amount:
+                                      type: string
+                              description: >-
+                                StorageOfferPrice represents the price a
+                                provider is offering for a specific
+
+                                class of persistent storage. Providers may offer
+                                multiple storage classes
+
+                                (e.g., SSD, HDD, NVMe), each identified by name
+                                and priced independently.
+
+                                This type is used as a repeated field within
+                                OfferPrices to express
+
+                                per-class storage pricing in a bid.
+                            description: >-
+                              Storage is a list of per-class storage prices.
+                              Each entry corresponds to a
+
+                              named storage class (e.g., "default", "ssd") and
+                              its associated price.
+
+                              Multiple entries allow providers to price
+                              different storage tiers independently.
+                          gpu:
+                            description: >-
+                              Gpu is the offered price for GPU resources. When
+                              nil, no explicit
+
+                              GPU price is set.
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                          endpoints:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                kind:
+                                  description: >-
+                                    Kind specifies the type of network endpoint
+                                    being priced. Possible values:
+                                      - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+                                      - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+                                      - LEASED_IP   (2): A dedicated leased IP endpoint.
+                                  type: string
+                                  enum:
+                                    - SHARED_HTTP
+                                    - RANDOM_PORT
+                                    - LEASED_IP
+                                  default: SHARED_HTTP
+                                price:
+                                  description: >-
+                                    Price is the offered price per unit of this
+                                    endpoint kind, expressed as a
+
+                                    DecCoin (decimal coin) to allow fractional
+                                    pricing. When nil, no explicit
+
+                                    price is set for this endpoint kind.
+                                  type: object
+                                  properties:
+                                    denom:
+                                      type: string
+                                    amount:
+                                      type: string
+                              description: >-
+                                EndpointOfferPrice represents the price a
+                                provider is offering for a specific
+
+                                kind of network endpoint. Providers may price
+                                each endpoint kind differently
+
+                                (e.g., a leased IP may cost more than a shared
+                                HTTP ingress). This type is
+
+                                used as a repeated field within OfferPrices to
+                                express per-kind endpoint
+
+                                pricing in a bid.
+                            description: >-
+                              Endpoints is a list of per-kind endpoint prices.
+                              Each entry corresponds to
+
+                              a network endpoint kind (SHARED_HTTP, RANDOM_PORT,
+                              or LEASED_IP) and its
+
+                              associated price. Multiple entries allow providers
+                              to price different
+
+                              endpoint types independently.
                     description: >-
                       ResourceOffer describes resources that provider is
                       offering
@@ -52843,19 +53865,49 @@ definitions:
         type: object
         properties:
           bid_min_deposit:
-            description: BidMinDeposit is a parameter for the minimum deposit on a Bid.
+            title: |-
+              BidMinDeposit is a parameter for the minimum deposit on a Bid.
+              Deprecated: use BidMinDeposits
             type: object
             properties:
               denom:
                 type: string
               amount:
                 type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
           order_max_bids:
             type: integer
             format: int64
             description: >-
               OrderMaxBids is a parameter for the maximum number of bids in an
               order.
+          bid_min_deposits:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a token with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            description: >-
+              BidMinDeposits is a parameter for the minimum deposits per denom
+              on a Bid.
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   akash.market.v1beta5.ResourceOffer:
     type: object
@@ -53068,9 +54120,193 @@ definitions:
         type: integer
         format: int64
         description: Count is the number of resources.
+      prices:
+        description: >-
+          Prices contains per-resource pricing details (CPU, memory, storage,
+          GPU, endpoints) for this offer.
+        type: object
+        properties:
+          cpu:
+            description: |-
+              Cpu is the offered price for CPU resources. When nil, no explicit
+              CPU price is set.
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+          memory:
+            description: >-
+              Memory is the offered price for memory resources. When nil, no
+              explicit
+
+              memory price is set.
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+          storage:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: >-
+                    Name holds an arbitrary name for the storage class (e.g.,
+                    "default", "ssd", "hdd").
+
+                    This must match a storage class name from the corresponding
+                    resource specification.
+                price:
+                  description: >-
+                    Price is the offered price per unit of this storage class,
+                    expressed as a
+
+                    DecCoin (decimal coin) to allow fractional pricing. When
+                    nil, no explicit
+
+                    price is set for this storage class.
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+              description: >-
+                StorageOfferPrice represents the price a provider is offering
+                for a specific
+
+                class of persistent storage. Providers may offer multiple
+                storage classes
+
+                (e.g., SSD, HDD, NVMe), each identified by name and priced
+                independently.
+
+                This type is used as a repeated field within OfferPrices to
+                express
+
+                per-class storage pricing in a bid.
+            description: >-
+              Storage is a list of per-class storage prices. Each entry
+              corresponds to a
+
+              named storage class (e.g., "default", "ssd") and its associated
+              price.
+
+              Multiple entries allow providers to price different storage tiers
+              independently.
+          gpu:
+            description: |-
+              Gpu is the offered price for GPU resources. When nil, no explicit
+              GPU price is set.
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+          endpoints:
+            type: array
+            items:
+              type: object
+              properties:
+                kind:
+                  description: >-
+                    Kind specifies the type of network endpoint being priced.
+                    Possible values:
+                      - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+                      - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+                      - LEASED_IP   (2): A dedicated leased IP endpoint.
+                  type: string
+                  enum:
+                    - SHARED_HTTP
+                    - RANDOM_PORT
+                    - LEASED_IP
+                  default: SHARED_HTTP
+                price:
+                  description: >-
+                    Price is the offered price per unit of this endpoint kind,
+                    expressed as a
+
+                    DecCoin (decimal coin) to allow fractional pricing. When
+                    nil, no explicit
+
+                    price is set for this endpoint kind.
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+              description: >-
+                EndpointOfferPrice represents the price a provider is offering
+                for a specific
+
+                kind of network endpoint. Providers may price each endpoint kind
+                differently
+
+                (e.g., a leased IP may cost more than a shared HTTP ingress).
+                This type is
+
+                used as a repeated field within OfferPrices to express per-kind
+                endpoint
+
+                pricing in a bid.
+            description: >-
+              Endpoints is a list of per-kind endpoint prices. Each entry
+              corresponds to
+
+              a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or LEASED_IP)
+              and its
+
+              associated price. Multiple entries allow providers to price
+              different
+
+              endpoint types independently.
     description: |-
       ResourceOffer describes resources that provider is offering
       for deployment.
+  akash.market.v1beta5.StorageOfferPrice:
+    type: object
+    properties:
+      name:
+        type: string
+        description: >-
+          Name holds an arbitrary name for the storage class (e.g., "default",
+          "ssd", "hdd").
+
+          This must match a storage class name from the corresponding resource
+          specification.
+      price:
+        description: >-
+          Price is the offered price per unit of this storage class, expressed
+          as a
+
+          DecCoin (decimal coin) to allow fractional pricing. When nil, no
+          explicit
+
+          price is set for this storage class.
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+    description: >-
+      StorageOfferPrice represents the price a provider is offering for a
+      specific
+
+      class of persistent storage. Providers may offer multiple storage classes
+
+      (e.g., SSD, HDD, NVMe), each identified by name and priced independently.
+
+      This type is used as a repeated field within OfferPrices to express
+
+      per-class storage pricing in a bid.
   akash.market.v1beta5.MsgCloseBidResponse:
     type: object
     description: MsgCloseBidResponse defines the Msg/CloseBid response type.
