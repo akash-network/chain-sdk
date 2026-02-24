@@ -202,7 +202,7 @@ func (df FlagsSet) WithSpendLimit(val string) FlagsSet {
 	return res
 }
 
-func (df FlagsSet) WithScope(val []string) FlagsSet {
+func (df FlagsSet) WithScope(val ...string) FlagsSet {
 	res := make([]string, len(df), len(df)+1)
 
 	copy(res, df)
@@ -512,7 +512,7 @@ func (df FlagsSet) WithFeePayer(val sdk.AccAddress) FlagsSet {
 	return res
 }
 
-func (df FlagsSet) WithDepositSources(sources []string) FlagsSet {
+func (df FlagsSet) WithDepositSources(sources ...string) FlagsSet {
 	res := make([]string, len(df), len(df)+1)
 
 	copy(res, df)
