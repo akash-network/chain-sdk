@@ -1,5 +1,6 @@
 import { Empty } from "../../../google/protobuf/empty.ts";
 import { Status } from "./status.ts";
+import { BidScreeningRequest, BidScreeningResponse } from "./validation.ts";
 
 export const ProviderRPC = {
   typeName: "akash.provider.v1.ProviderRPC",
@@ -16,6 +17,12 @@ export const ProviderRPC = {
       kind: "server_streaming",
       input: Empty,
       output: Status,
+      get parent() { return ProviderRPC; },
+    },
+    bidScreening: {
+      name: "BidScreening",
+      input: BidScreeningRequest,
+      output: BidScreeningResponse,
       get parent() { return ProviderRPC; },
     },
   },

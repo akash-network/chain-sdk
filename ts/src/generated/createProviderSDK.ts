@@ -3,6 +3,7 @@ import { SDKOptions } from "../sdk/types.ts";
 
 import type * as google_protobuf_empty from "./protos/google/protobuf/empty.ts";
 import type * as akash_provider_lease_v1_service from "./protos/akash/provider/lease/v1/service.ts";
+import type * as akash_provider_v1_validation from "./protos/akash/provider/v1/validation.ts";
 import { createClientFactory } from "../sdk/client/createClientFactory.ts";
 import type { Transport, CallOptions } from "../sdk/transport/types.ts";
 import { withMetadata } from "../sdk/client/sdkMetadata.ts";
@@ -105,7 +106,14 @@ export function createSDK(transport: Transport, options?: SDKOptions) {
           streamStatus: withMetadata(async function streamStatus(input: DeepPartial<google_protobuf_empty.Empty> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getClient(service).streamStatus(input, options);
-          }, { path: [3, 1] })
+          }, { path: [3, 1] }),
+          /**
+           * bidScreening screens a deployment group spec for bid eligibility and returns pricing
+           */
+          bidScreening: withMetadata(async function bidScreening(input: DeepPartial<akash_provider_v1_validation.BidScreeningRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(3);
+            return getClient(service).bidScreening(input, options);
+          }, { path: [3, 2] })
         }
       }
     }
