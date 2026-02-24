@@ -47,6 +47,7 @@
      - [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials)
      - [Service](#akash.manifest.v2beta3.Service)
      - [ServiceParams](#akash.manifest.v2beta3.ServiceParams)
+     - [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions)
      - [StorageParams](#akash.manifest.v2beta3.StorageParams)
    
  - [akash/manifest/v2beta3/group.proto](#akash/manifest/v2beta3/group.proto)
@@ -609,6 +610,24 @@
  | ----- | ---- | ----- | ----------- |
  | `storage` | [StorageParams](#akash.manifest.v2beta3.StorageParams) | repeated |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
+ | `permissions` | [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.manifest.v2beta3.ServicePermissions"></a>
+
+ ### ServicePermissions
+ ServicePermissions defines resource access permissions for the service.
+Resources map to Kubernetes RBAC permissions:
+  - logs
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `read` | [string](#string) | repeated |  |
  
  
 

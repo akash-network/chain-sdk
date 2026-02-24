@@ -91,6 +91,9 @@
      - [EventMintStatusChange](#akash.bme.v1.EventMintStatusChange)
      - [EventVaultSeeded](#akash.bme.v1.EventVaultSeeded)
    
+ - [akash/bme/v1/filters.proto](#akash/bme/v1/filters.proto)
+     - [LedgerRecordFilters](#akash.bme.v1.LedgerRecordFilters)
+   
  - [akash/bme/v1/params.proto](#akash/bme/v1/params.proto)
      - [Params](#akash.bme.v1.Params)
    
@@ -114,6 +117,9 @@
      - [MsgUpdateParamsResponse](#akash.bme.v1.MsgUpdateParamsResponse)
    
  - [akash/bme/v1/query.proto](#akash/bme/v1/query.proto)
+     - [QueryLedgerRecordEntry](#akash.bme.v1.QueryLedgerRecordEntry)
+     - [QueryLedgerRecordsRequest](#akash.bme.v1.QueryLedgerRecordsRequest)
+     - [QueryLedgerRecordsResponse](#akash.bme.v1.QueryLedgerRecordsResponse)
      - [QueryParamsRequest](#akash.bme.v1.QueryParamsRequest)
      - [QueryParamsResponse](#akash.bme.v1.QueryParamsResponse)
      - [QueryStatusRequest](#akash.bme.v1.QueryStatusRequest)
@@ -337,7 +343,10 @@
      - [LeaseFilters](#akash.market.v1.LeaseFilters)
    
  - [akash/market/v1beta5/resourcesoffer.proto](#akash/market/v1beta5/resourcesoffer.proto)
+     - [EndpointOfferPrice](#akash.market.v1beta5.EndpointOfferPrice)
+     - [OfferPrices](#akash.market.v1beta5.OfferPrices)
      - [ResourceOffer](#akash.market.v1beta5.ResourceOffer)
+     - [StorageOfferPrice](#akash.market.v1beta5.StorageOfferPrice)
    
  - [akash/market/v1beta5/bid.proto](#akash/market/v1beta5/bid.proto)
      - [Bid](#akash.market.v1beta5.Bid)
@@ -419,6 +428,7 @@
  - [akash/oracle/v1/params.proto](#akash/oracle/v1/params.proto)
      - [Params](#akash.oracle.v1.Params)
      - [PythContractParams](#akash.oracle.v1.PythContractParams)
+     - [WormholeContractParams](#akash.oracle.v1.WormholeContractParams)
    
  - [akash/oracle/v1/genesis.proto](#akash/oracle/v1/genesis.proto)
      - [GenesisState](#akash.oracle.v1.GenesisState)
@@ -1590,6 +1600,40 @@ if field is nil resource is not present in the given data-structure
 
  
  
+ <a name="akash/bme/v1/filters.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/bme/v1/filters.proto
+ 
+
+ 
+ <a name="akash.bme.v1.LedgerRecordFilters"></a>
+
+ ### LedgerRecordFilters
+ LedgerRecordFilters defines filters used to filter ledger records
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `source` | [string](#string) |  | source is the account address of the user who initiated the burn/mint |
+ | `denom` | [string](#string) |  | denom filters by the burn denomination |
+ | `to_denom` | [string](#string) |  | to_denom filters by the mint denomination |
+ | `status` | [string](#string) |  | status filters by record status (pending or executed). Uses the string representation of LedgerRecordStatus enum values. If empty, returns both pending and executed records. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/bme/v1/params.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -1911,6 +1955,56 @@ This is used to provide an initial volatility buffer
  
 
  
+ <a name="akash.bme.v1.QueryLedgerRecordEntry"></a>
+
+ ### QueryLedgerRecordEntry
+ QueryLedgerRecordEntry wraps a ledger record with its ID and status
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | id is the unique identifier of the ledger record |
+ | `status` | [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus) |  | status indicates whether this record is pending or executed |
+ | `pending_record` | [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord) |  | pending_record is set when the record status is pending |
+ | `executed_record` | [LedgerRecord](#akash.bme.v1.LedgerRecord) |  | executed_record is set when the record status is executed |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.QueryLedgerRecordsRequest"></a>
+
+ ### QueryLedgerRecordsRequest
+ QueryLedgerRecordsRequest is the request type for the Query/LedgerRecords RPC method
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `filters` | [LedgerRecordFilters](#akash.bme.v1.LedgerRecordFilters) |  | filters holds the ledger record fields to filter the request |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines the pagination for the request |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.QueryLedgerRecordsResponse"></a>
+
+ ### QueryLedgerRecordsResponse
+ QueryLedgerRecordsResponse is the response type for the Query/LedgerRecords RPC method
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `records` | [QueryLedgerRecordEntry](#akash.bme.v1.QueryLedgerRecordEntry) | repeated | records is a list of ledger records matching the filters |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination contains the information about response pagination |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.QueryParamsRequest"></a>
 
  ### QueryParamsRequest
@@ -2007,6 +2101,7 @@ This is used to provide an initial volatility buffer
  | `Params` | [QueryParamsRequest](#akash.bme.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.bme.v1.QueryParamsResponse) | Params returns the module parameters | GET|/akash/bme/v1/params|
  | `VaultState` | [QueryVaultStateRequest](#akash.bme.v1.QueryVaultStateRequest) | [QueryVaultStateResponse](#akash.bme.v1.QueryVaultStateResponse) | VaultState returns the current vault state | GET|/akash/bme/v1/vault|
  | `Status` | [QueryStatusRequest](#akash.bme.v1.QueryStatusRequest) | [QueryStatusResponse](#akash.bme.v1.QueryStatusResponse) | Status returns the current circuit breaker status | GET|/akash/bme/v1/status|
+ | `LedgerRecords` | [QueryLedgerRecordsRequest](#akash.bme.v1.QueryLedgerRecordsRequest) | [QueryLedgerRecordsResponse](#akash.bme.v1.QueryLedgerRecordsResponse) | LedgerRecords queries ledger records with optional filters for status, source, denom, to_denom | GET|/akash/bme/v1/ledger|
  
   <!-- end services -->
 
@@ -4526,6 +4621,54 @@ Example: "akash1..." |
  
 
  
+ <a name="akash.market.v1beta5.EndpointOfferPrice"></a>
+
+ ### EndpointOfferPrice
+ EndpointOfferPrice represents the price a provider is offering for a specific
+kind of network endpoint. Providers may price each endpoint kind differently
+(e.g., a leased IP may cost more than a shared HTTP ingress). This type is
+used as a repeated field within OfferPrices to express per-kind endpoint
+pricing in a bid.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `kind` | [akash.base.resources.v1beta4.Endpoint.Kind](#akash.base.resources.v1beta4.Endpoint.Kind) |  | Kind specifies the type of network endpoint being priced. Possible values: - SHARED_HTTP (0): A Kubernetes Ingress endpoint. - RANDOM_PORT (1): A Kubernetes NodePort endpoint. - LEASED_IP (2): A dedicated leased IP endpoint. |
+ | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price is the offered price per unit of this endpoint kind, expressed as a DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit price is set for this endpoint kind. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1beta5.OfferPrices"></a>
+
+ ### OfferPrices
+ OfferPrices contains the complete pricing breakdown that a provider includes
+in a bid for a deployment resource group. Each field represents the price for
+a specific compute resource type. All price fields use DecCoin (decimal coin)
+to support fractional pricing denominated in any supported token.
+
+This message is embedded as a nullable field on ResourceOffer, which in turn
+is carried by Bid and MsgCreateBid messages. A nil OfferPrices on a
+ResourceOffer indicates that no per-resource pricing was specified.
+
+Field 1 is reserved for backward compatibility with a previously removed field.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `cpu` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Cpu is the offered price for CPU resources. When nil, no explicit CPU price is set. |
+ | `memory` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Memory is the offered price for memory resources. When nil, no explicit memory price is set. |
+ | `storage` | [StorageOfferPrice](#akash.market.v1beta5.StorageOfferPrice) | repeated | Storage is a list of per-class storage prices. Each entry corresponds to a named storage class (e.g., "default", "ssd") and its associated price. Multiple entries allow providers to price different storage tiers independently. |
+ | `gpu` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Gpu is the offered price for GPU resources. When nil, no explicit GPU price is set. |
+ | `endpoints` | [EndpointOfferPrice](#akash.market.v1beta5.EndpointOfferPrice) | repeated | Endpoints is a list of per-kind endpoint prices. Each entry corresponds to a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or LEASED_IP) and its associated price. Multiple entries allow providers to price different endpoint types independently. |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.market.v1beta5.ResourceOffer"></a>
 
  ### ResourceOffer
@@ -4537,6 +4680,27 @@ for deployment.
  | ----- | ---- | ----- | ----------- |
  | `resources` | [akash.base.resources.v1beta4.Resources](#akash.base.resources.v1beta4.Resources) |  | Resources holds information about bid resources. |
  | `count` | [uint32](#uint32) |  | Count is the number of resources. |
+ | `prices` | [OfferPrices](#akash.market.v1beta5.OfferPrices) |  | Prices contains per-resource pricing details (CPU, memory, storage, GPU, endpoints) for this offer. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1beta5.StorageOfferPrice"></a>
+
+ ### StorageOfferPrice
+ StorageOfferPrice represents the price a provider is offering for a specific
+class of persistent storage. Providers may offer multiple storage classes
+(e.g., SSD, HDD, NVMe), each identified by name and priced independently.
+This type is used as a repeated field within OfferPrices to express
+per-class storage pricing in a bid.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `name` | [string](#string) |  | Name holds an arbitrary name for the storage class (e.g., "default", "ssd", "hdd"). This must match a storage class name from the corresponding resource specification. |
+ | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price is the offered price per unit of this storage class, expressed as a DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit price is set for this storage class. |
  
  
 
@@ -4749,8 +4913,9 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `bid_min_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BidMinDeposit is a parameter for the minimum deposit on a Bid. |
+ | `bid_min_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BidMinDeposit is a parameter for the minimum deposit on a Bid. Deprecated: use BidMinDeposits |
  | `order_max_bids` | [uint32](#uint32) |  | OrderMaxBids is a parameter for the maximum number of bids in an order. |
+ | `bid_min_deposits` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | BidMinDeposits is a parameter for the minimum deposits per denom on a Bid. |
  
  
 
@@ -5580,6 +5745,23 @@ It also represents a single data point in TWAP history
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `akt_price_feed_id` | [string](#string) |  | akt_price_feed_id is the Pyth price feed identifier for AKT/USD |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v1.WormholeContractParams"></a>
+
+ ### WormholeContractParams
+ WormholeContractParams contains configuration for Wormhole guardian set.
+This allows the Wormhole contract to pull guardian public keys from x/oracle
+module params, enabling guardian set updates via Akash governance.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `guardian_addresses` | [string](#string) | repeated | guardian_addresses is the list of Wormhole guardian addresses. Each address is a 20-byte Ethereum-style address, hex-encoded. The Wormhole contract uses these to verify VAA signatures. |
  
  
 

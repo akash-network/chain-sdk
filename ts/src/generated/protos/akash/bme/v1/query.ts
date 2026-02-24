@@ -10,8 +10,21 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
+import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
+import { LedgerRecordFilters } from "./filters.ts";
 import { Params } from "./params.ts";
-import { MintStatus, mintStatusFromJSON, mintStatusToJSON, State } from "./types.ts";
+import {
+  LedgerPendingRecord,
+  LedgerRecord,
+  LedgerRecordID,
+  LedgerRecordStatus,
+  ledgerRecordStatusFromJSON,
+  ledgerRecordStatusToJSON,
+  MintStatus,
+  mintStatusFromJSON,
+  mintStatusToJSON,
+  State,
+} from "./types.ts";
 
 /** QueryParamsRequest is the request type for the Query/Params RPC method */
 export interface QueryParamsRequest {
@@ -49,6 +62,40 @@ export interface QueryStatusResponse {
   mintsAllowed: boolean;
   /** refunds_allowed indicates if ACT refunds are allowed */
   refundsAllowed: boolean;
+}
+
+/** QueryLedgerRecordEntry wraps a ledger record with its ID and status */
+export interface QueryLedgerRecordEntry {
+  /** id is the unique identifier of the ledger record */
+  id:
+    | LedgerRecordID
+    | undefined;
+  /** status indicates whether this record is pending or executed */
+  status: LedgerRecordStatus;
+  /** pending_record is set when the record status is pending */
+  pendingRecord?:
+    | LedgerPendingRecord
+    | undefined;
+  /** executed_record is set when the record status is executed */
+  executedRecord?: LedgerRecord | undefined;
+}
+
+/** QueryLedgerRecordsRequest is the request type for the Query/LedgerRecords RPC method */
+export interface QueryLedgerRecordsRequest {
+  /** filters holds the ledger record fields to filter the request */
+  filters:
+    | LedgerRecordFilters
+    | undefined;
+  /** pagination defines the pagination for the request */
+  pagination: PageRequest | undefined;
+}
+
+/** QueryLedgerRecordsResponse is the response type for the Query/LedgerRecords RPC method */
+export interface QueryLedgerRecordsResponse {
+  /** records is a list of ledger records matching the filters */
+  records: QueryLedgerRecordEntry[];
+  /** pagination contains the information about response pagination */
+  pagination: PageResponse | undefined;
 }
 
 function createBaseQueryParamsRequest(): QueryParamsRequest {
@@ -431,6 +478,278 @@ const _QueryStatusResponse: MessageFns<QueryStatusResponse, "akash.bme.v1.QueryS
     message.haltThreshold = object.haltThreshold ?? "";
     message.mintsAllowed = object.mintsAllowed ?? false;
     message.refundsAllowed = object.refundsAllowed ?? false;
+    return message;
+  },
+};
+
+function createBaseQueryLedgerRecordEntry(): QueryLedgerRecordEntry {
+  return { id: undefined, status: 0, pendingRecord: undefined, executedRecord: undefined };
+}
+
+export const QueryLedgerRecordEntry: MessageFns<QueryLedgerRecordEntry, "akash.bme.v1.QueryLedgerRecordEntry"> = {
+  $type: "akash.bme.v1.QueryLedgerRecordEntry" as const,
+
+  encode(message: QueryLedgerRecordEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      LedgerRecordID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.status !== 0) {
+      writer.uint32(16).int32(message.status);
+    }
+    if (message.pendingRecord !== undefined) {
+      LedgerPendingRecord.encode(message.pendingRecord, writer.uint32(26).fork()).join();
+    }
+    if (message.executedRecord !== undefined) {
+      LedgerRecord.encode(message.executedRecord, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryLedgerRecordEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryLedgerRecordEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = LedgerRecordID.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.pendingRecord = LedgerPendingRecord.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.executedRecord = LedgerRecord.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryLedgerRecordEntry {
+    return {
+      id: isSet(object.id) ? LedgerRecordID.fromJSON(object.id) : undefined,
+      status: isSet(object.status) ? ledgerRecordStatusFromJSON(object.status) : 0,
+      pendingRecord: isSet(object.pending_record) ? LedgerPendingRecord.fromJSON(object.pending_record) : undefined,
+      executedRecord: isSet(object.executed_record) ? LedgerRecord.fromJSON(object.executed_record) : undefined,
+    };
+  },
+
+  toJSON(message: QueryLedgerRecordEntry): unknown {
+    const obj: any = {};
+    if (message.id !== undefined) {
+      obj.id = LedgerRecordID.toJSON(message.id);
+    }
+    if (message.status !== 0) {
+      obj.status = ledgerRecordStatusToJSON(message.status);
+    }
+    if (message.pendingRecord !== undefined) {
+      obj.pending_record = LedgerPendingRecord.toJSON(message.pendingRecord);
+    }
+    if (message.executedRecord !== undefined) {
+      obj.executed_record = LedgerRecord.toJSON(message.executedRecord);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryLedgerRecordEntry>): QueryLedgerRecordEntry {
+    const message = createBaseQueryLedgerRecordEntry();
+    message.id = (object.id !== undefined && object.id !== null) ? LedgerRecordID.fromPartial(object.id) : undefined;
+    message.status = object.status ?? 0;
+    message.pendingRecord = (object.pendingRecord !== undefined && object.pendingRecord !== null)
+      ? LedgerPendingRecord.fromPartial(object.pendingRecord)
+      : undefined;
+    message.executedRecord = (object.executedRecord !== undefined && object.executedRecord !== null)
+      ? LedgerRecord.fromPartial(object.executedRecord)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryLedgerRecordsRequest(): QueryLedgerRecordsRequest {
+  return { filters: undefined, pagination: undefined };
+}
+
+export const QueryLedgerRecordsRequest: MessageFns<
+  QueryLedgerRecordsRequest,
+  "akash.bme.v1.QueryLedgerRecordsRequest"
+> = {
+  $type: "akash.bme.v1.QueryLedgerRecordsRequest" as const,
+
+  encode(message: QueryLedgerRecordsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.filters !== undefined) {
+      LedgerRecordFilters.encode(message.filters, writer.uint32(10).fork()).join();
+    }
+    if (message.pagination !== undefined) {
+      PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryLedgerRecordsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryLedgerRecordsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.filters = LedgerRecordFilters.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.pagination = PageRequest.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryLedgerRecordsRequest {
+    return {
+      filters: isSet(object.filters) ? LedgerRecordFilters.fromJSON(object.filters) : undefined,
+      pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryLedgerRecordsRequest): unknown {
+    const obj: any = {};
+    if (message.filters !== undefined) {
+      obj.filters = LedgerRecordFilters.toJSON(message.filters);
+    }
+    if (message.pagination !== undefined) {
+      obj.pagination = PageRequest.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryLedgerRecordsRequest>): QueryLedgerRecordsRequest {
+    const message = createBaseQueryLedgerRecordsRequest();
+    message.filters = (object.filters !== undefined && object.filters !== null)
+      ? LedgerRecordFilters.fromPartial(object.filters)
+      : undefined;
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageRequest.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryLedgerRecordsResponse(): QueryLedgerRecordsResponse {
+  return { records: [], pagination: undefined };
+}
+
+export const QueryLedgerRecordsResponse: MessageFns<
+  QueryLedgerRecordsResponse,
+  "akash.bme.v1.QueryLedgerRecordsResponse"
+> = {
+  $type: "akash.bme.v1.QueryLedgerRecordsResponse" as const,
+
+  encode(message: QueryLedgerRecordsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.records) {
+      QueryLedgerRecordEntry.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryLedgerRecordsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryLedgerRecordsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.records.push(QueryLedgerRecordEntry.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.pagination = PageResponse.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryLedgerRecordsResponse {
+    return {
+      records: globalThis.Array.isArray(object?.records)
+        ? object.records.map((e: any) => QueryLedgerRecordEntry.fromJSON(e))
+        : [],
+      pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryLedgerRecordsResponse): unknown {
+    const obj: any = {};
+    if (message.records?.length) {
+      obj.records = message.records.map((e) => QueryLedgerRecordEntry.toJSON(e));
+    }
+    if (message.pagination !== undefined) {
+      obj.pagination = PageResponse.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryLedgerRecordsResponse>): QueryLedgerRecordsResponse {
+    const message = createBaseQueryLedgerRecordsResponse();
+    message.records = object.records?.map((e) => QueryLedgerRecordEntry.fromPartial(e)) || [];
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageResponse.fromPartial(object.pagination)
+      : undefined;
     return message;
   },
 };

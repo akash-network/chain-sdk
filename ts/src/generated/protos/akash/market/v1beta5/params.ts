@@ -13,16 +13,21 @@ import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 
 /** Params is the params for the x/market module. */
 export interface Params {
-  /** BidMinDeposit is a parameter for the minimum deposit on a Bid. */
+  /**
+   * BidMinDeposit is a parameter for the minimum deposit on a Bid.
+   * Deprecated: use BidMinDeposits
+   */
   bidMinDeposit:
     | Coin
     | undefined;
   /** OrderMaxBids is a parameter for the maximum number of bids in an order. */
   orderMaxBids: number;
+  /** BidMinDeposits is a parameter for the minimum deposits per denom on a Bid. */
+  bidMinDeposits: Coin[];
 }
 
 function createBaseParams(): Params {
-  return { bidMinDeposit: undefined, orderMaxBids: 0 };
+  return { bidMinDeposit: undefined, orderMaxBids: 0, bidMinDeposits: [] };
 }
 
 export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
@@ -34,6 +39,9 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
     }
     if (message.orderMaxBids !== 0) {
       writer.uint32(16).uint32(message.orderMaxBids);
+    }
+    for (const v of message.bidMinDeposits) {
+      Coin.encode(v!, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -61,6 +69,14 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
           message.orderMaxBids = reader.uint32();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.bidMinDeposits.push(Coin.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -74,6 +90,9 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
     return {
       bidMinDeposit: isSet(object.bid_min_deposit) ? Coin.fromJSON(object.bid_min_deposit) : undefined,
       orderMaxBids: isSet(object.order_max_bids) ? globalThis.Number(object.order_max_bids) : 0,
+      bidMinDeposits: globalThis.Array.isArray(object?.bid_min_deposits)
+        ? object.bid_min_deposits.map((e: any) => Coin.fromJSON(e))
+        : [],
     };
   },
 
@@ -85,6 +104,9 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
     if (message.orderMaxBids !== 0) {
       obj.order_max_bids = Math.round(message.orderMaxBids);
     }
+    if (message.bidMinDeposits?.length) {
+      obj.bid_min_deposits = message.bidMinDeposits.map((e) => Coin.toJSON(e));
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Params>): Params {
@@ -93,6 +115,7 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
       ? Coin.fromPartial(object.bidMinDeposit)
       : undefined;
     message.orderMaxBids = object.orderMaxBids ?? 0;
+    message.bidMinDeposits = object.bidMinDeposits?.map((e) => Coin.fromPartial(e)) || [];
     return message;
   },
 };
