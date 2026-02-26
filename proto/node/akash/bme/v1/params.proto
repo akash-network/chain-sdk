@@ -26,7 +26,7 @@ message Params {
   //
   //      circuit_breaker_warn_threshold drops from 0.94 to 0.92
   //      then runway_blocks = (110*(0.1*2) + 110) = 132
-  uint32 epoch_blocks_backoff = 4;
+  uint32 epoch_blocks_backoff_percent = 4;
 
   // mint_spread_bps is the spread in basis points applied during ACT mint
   // (default: 25 bps = 0.25%)
@@ -35,4 +35,8 @@ message Params {
   // settle_spread_bps is the spread in basis points applied during settlement
   // (default: 0 for no provider tax)
   uint32 settle_spread_bps = 7;
+
+  // max_endblocker_records is the deterministic upper bound on pending ledger
+  // records processed in a single EndBlocker invocation.
+  uint32 max_endblocker_records = 8;
 }

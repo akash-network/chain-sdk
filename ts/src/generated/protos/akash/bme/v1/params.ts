@@ -36,7 +36,7 @@ export interface Params {
    *      circuit_breaker_warn_threshold drops from 0.94 to 0.92
    *      then runway_blocks = (110*(0.1*2) + 110) = 132
    */
-  epochBlocksBackoff: number;
+  epochBlocksBackoffPercent: number;
   /**
    * mint_spread_bps is the spread in basis points applied during ACT mint
    * (default: 25 bps = 0.25%)
@@ -47,6 +47,11 @@ export interface Params {
    * (default: 0 for no provider tax)
    */
   settleSpreadBps: number;
+  /**
+   * max_endblocker_records is the deterministic upper bound on pending ledger
+   * records processed in a single EndBlocker invocation.
+   */
+  maxEndblockerRecords: number;
 }
 
 function createBaseParams(): Params {
@@ -54,9 +59,10 @@ function createBaseParams(): Params {
     circuitBreakerWarnThreshold: 0,
     circuitBreakerHaltThreshold: 0,
     minEpochBlocks: Long.ZERO,
-    epochBlocksBackoff: 0,
+    epochBlocksBackoffPercent: 0,
     mintSpreadBps: 0,
     settleSpreadBps: 0,
+    maxEndblockerRecords: 0,
   };
 }
 
@@ -73,14 +79,17 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     if (!message.minEpochBlocks.equals(Long.ZERO)) {
       writer.uint32(24).int64(message.minEpochBlocks.toString());
     }
-    if (message.epochBlocksBackoff !== 0) {
-      writer.uint32(32).uint32(message.epochBlocksBackoff);
+    if (message.epochBlocksBackoffPercent !== 0) {
+      writer.uint32(32).uint32(message.epochBlocksBackoffPercent);
     }
     if (message.mintSpreadBps !== 0) {
       writer.uint32(48).uint32(message.mintSpreadBps);
     }
     if (message.settleSpreadBps !== 0) {
       writer.uint32(56).uint32(message.settleSpreadBps);
+    }
+    if (message.maxEndblockerRecords !== 0) {
+      writer.uint32(64).uint32(message.maxEndblockerRecords);
     }
     return writer;
   },
@@ -121,7 +130,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
             break;
           }
 
-          message.epochBlocksBackoff = reader.uint32();
+          message.epochBlocksBackoffPercent = reader.uint32();
           continue;
         }
         case 6: {
@@ -138,6 +147,14 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
           }
 
           message.settleSpreadBps = reader.uint32();
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.maxEndblockerRecords = reader.uint32();
           continue;
         }
       }
@@ -158,9 +175,12 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
         ? globalThis.Number(object.circuit_breaker_halt_threshold)
         : 0,
       minEpochBlocks: isSet(object.min_epoch_blocks) ? Long.fromValue(object.min_epoch_blocks) : Long.ZERO,
-      epochBlocksBackoff: isSet(object.epoch_blocks_backoff) ? globalThis.Number(object.epoch_blocks_backoff) : 0,
+      epochBlocksBackoffPercent: isSet(object.epoch_blocks_backoff_percent)
+        ? globalThis.Number(object.epoch_blocks_backoff_percent)
+        : 0,
       mintSpreadBps: isSet(object.mint_spread_bps) ? globalThis.Number(object.mint_spread_bps) : 0,
       settleSpreadBps: isSet(object.settle_spread_bps) ? globalThis.Number(object.settle_spread_bps) : 0,
+      maxEndblockerRecords: isSet(object.max_endblocker_records) ? globalThis.Number(object.max_endblocker_records) : 0,
     };
   },
 
@@ -175,14 +195,17 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     if (!message.minEpochBlocks.equals(Long.ZERO)) {
       obj.min_epoch_blocks = (message.minEpochBlocks || Long.ZERO).toString();
     }
-    if (message.epochBlocksBackoff !== 0) {
-      obj.epoch_blocks_backoff = Math.round(message.epochBlocksBackoff);
+    if (message.epochBlocksBackoffPercent !== 0) {
+      obj.epoch_blocks_backoff_percent = Math.round(message.epochBlocksBackoffPercent);
     }
     if (message.mintSpreadBps !== 0) {
       obj.mint_spread_bps = Math.round(message.mintSpreadBps);
     }
     if (message.settleSpreadBps !== 0) {
       obj.settle_spread_bps = Math.round(message.settleSpreadBps);
+    }
+    if (message.maxEndblockerRecords !== 0) {
+      obj.max_endblocker_records = Math.round(message.maxEndblockerRecords);
     }
     return obj;
   },
@@ -193,9 +216,10 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     message.minEpochBlocks = (object.minEpochBlocks !== undefined && object.minEpochBlocks !== null)
       ? Long.fromValue(object.minEpochBlocks)
       : Long.ZERO;
-    message.epochBlocksBackoff = object.epochBlocksBackoff ?? 0;
+    message.epochBlocksBackoffPercent = object.epochBlocksBackoffPercent ?? 0;
     message.mintSpreadBps = object.mintSpreadBps ?? 0;
     message.settleSpreadBps = object.settleSpreadBps ?? 0;
+    message.maxEndblockerRecords = object.maxEndblockerRecords ?? 0;
     return message;
   },
 };
