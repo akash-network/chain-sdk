@@ -16,7 +16,6 @@ import (
 )
 
 // Embed the SDL input schema at compile time.
-// Note: sdl-input.schema.yaml must be in this directory.
 //
 //go:embed sdl-input.schema.yaml
 var embeddedSchemaYAML []byte
