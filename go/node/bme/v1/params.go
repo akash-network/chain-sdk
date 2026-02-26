@@ -13,7 +13,8 @@ const (
 	DefaultMintSpreadBps               = uint32(25)
 	DefaultSettleSpreadBps             = uint32(0)
 	DefaultMinEpochBlocks              = 10
-	DefaultEpochBlocksBackoff          = 10
+	DefaultEpochBlocksBackoffPercent   = 10
+	DefaultMaxEndblockerRecords        = 50
 )
 
 var DefaultOracleTWAPWindow = time.Hour
@@ -25,7 +26,8 @@ func DefaultParams() Params {
 		MintSpreadBps:               DefaultMintSpreadBps,
 		SettleSpreadBps:             DefaultSettleSpreadBps,
 		MinEpochBlocks:              DefaultMinEpochBlocks,
-		EpochBlocksBackoff:          DefaultEpochBlocksBackoff,
+		EpochBlocksBackoffPercent:   DefaultEpochBlocksBackoffPercent,
+		MaxEndblockerRecords:        DefaultMaxEndblockerRecords,
 	}
 }
 
@@ -48,5 +50,9 @@ func (p Params) Validate() error {
 	if p.SettleSpreadBps > 1000 {
 		return fmt.Errorf("settle_spread_bps cannot exceed 1000 (10%%)")
 	}
+	if p.EpochBlocksBackoffPercent > 100 {
+		return fmt.Errorf("epoch_blocks_backoff cannot exceed 100%%")
+	}
+
 	return nil
 }

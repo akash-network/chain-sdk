@@ -27,6 +27,16 @@ message StorageParams {
     ];
 }
 
+// ServicePermissions defines resource access permissions for the service.
+// Resources map to Kubernetes RBAC permissions:
+//   - logs
+message ServicePermissions {
+  repeated string read = 1 [
+    (gogoproto.jsontag)  = "read,omitempty",
+    (gogoproto.moretags) = "yaml:\"read,omitempty\""
+  ];
+}
+
 // ServiceParams
 message ServiceParams {
   repeated StorageParams storage = 1 [
@@ -38,6 +48,11 @@ message ServiceParams {
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "credentials,omitempty",
     (gogoproto.moretags) = "yaml:\"credentials,omitempty\""
+  ];
+  ServicePermissions permissions = 11 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "permissions,omitempty",
+    (gogoproto.moretags) = "yaml:\"permissions,omitempty\""
   ];
 }
 

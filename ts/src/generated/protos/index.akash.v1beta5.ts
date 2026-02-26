@@ -1,4 +1,4 @@
-export { ResourceOffer } from "./akash/market/v1beta5/resourcesoffer.ts";
+export { StorageOfferPrice, EndpointOfferPrice, OfferPrices, ResourceOffer } from "./akash/market/v1beta5/resourcesoffer.ts";
 export { Bid, Bid_State } from "./akash/market/v1beta5/bid.ts";
 export { MsgCreateBid, MsgCreateBidResponse, MsgCloseBid, MsgCloseBidResponse } from "./akash/market/v1beta5/bidmsg.ts";
 export { BidFilters, OrderFilters } from "./akash/market/v1beta5/filters.ts";

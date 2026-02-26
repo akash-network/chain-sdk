@@ -1,0 +1,60 @@
+syntax = "proto3";
+package akash.provider.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+import "akash/deployment/v1beta4/groupspec.proto";
+import "akash/market/v1beta5/resourcesoffer.proto";
+
+option go_package = "pkg.akt.dev/go/provider/v1";
+
+// BidScreeningRequest represents a request to screen a deployment group
+// specification for bid eligibility against the provider's capabilities.
+message BidScreeningRequest {
+  // GroupSpec is the deployment group specification to screen for bid eligibility.
+  akash.deployment.v1beta4.GroupSpec group_spec = 1 [
+    (gogoproto.customname) = "GroupSpec",
+    (gogoproto.jsontag)    = "group_spec",
+    (gogoproto.moretags)   = "yaml:\"group_spec\""
+  ];
+  // Hostnames is the list of hostnames requested by the deployment.
+  repeated string hostnames = 2 [
+    (gogoproto.jsontag)    = "hostnames",
+    (gogoproto.moretags)   = "yaml:\"hostnames\""
+  ];
+}
+
+// BidScreeningResponse represents the result of screening a deployment group
+// specification for bid eligibility against the provider's capabilities.
+message BidScreeningResponse {
+  // Passed indicates whether the deployment group passed bid screening.
+  bool passed = 1 [
+    (gogoproto.customname) = "Passed",
+    (gogoproto.jsontag)    = "passed",
+    (gogoproto.moretags)   = "yaml:\"passed\""
+  ];
+
+  // Reasons contains explanations when screening fails.
+  repeated string reasons = 2 [
+    (gogoproto.customname) = "Reasons",
+    (gogoproto.jsontag)    = "reasons,omitempty",
+    (gogoproto.moretags)   = "yaml:\"reasons,omitempty\""
+  ];
+
+  // ResourceOffer is the provider's resource offer for the screened group, if passed.
+  akash.market.v1beta5.ResourceOffer resource_offer = 3 [
+    (gogoproto.nullable)   = true,
+    (gogoproto.customname) = "ResourceOffer",
+    (gogoproto.jsontag)    = "resource_offer,omitempty",
+    (gogoproto.moretags)   = "yaml:\"resource_offer,omitempty\""
+  ];
+
+  // Price is the minimum bid price for the screened group.
+  cosmos.base.v1beta1.DecCoin price = 4 [
+    (gogoproto.nullable)   = true,
+    (gogoproto.customname) = "Price",
+    (gogoproto.jsontag)    = "price,omitempty",
+    (gogoproto.moretags)   = "yaml:\"price,omitempty\""
+  ];
+}

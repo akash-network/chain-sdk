@@ -19,10 +19,20 @@ export interface StorageParams {
   readOnly: boolean;
 }
 
+/**
+ * ServicePermissions defines resource access permissions for the service.
+ * Resources map to Kubernetes RBAC permissions:
+ *   - logs
+ */
+export interface ServicePermissions {
+  read: string[];
+}
+
 /** ServiceParams */
 export interface ServiceParams {
   storage: StorageParams[];
   credentials: ImageCredentials | undefined;
+  permissions: ServicePermissions | undefined;
 }
 
 /** Credentials to fetch image from registry */
@@ -137,8 +147,64 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
   },
 };
 
+function createBaseServicePermissions(): ServicePermissions {
+  return { read: [] };
+}
+
+export const ServicePermissions: MessageFns<ServicePermissions, "akash.manifest.v2beta3.ServicePermissions"> = {
+  $type: "akash.manifest.v2beta3.ServicePermissions" as const,
+
+  encode(message: ServicePermissions, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.read) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ServicePermissions {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseServicePermissions();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.read.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ServicePermissions {
+    return { read: globalThis.Array.isArray(object?.read) ? object.read.map((e: any) => globalThis.String(e)) : [] };
+  },
+
+  toJSON(message: ServicePermissions): unknown {
+    const obj: any = {};
+    if (message.read?.length) {
+      obj.read = message.read;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<ServicePermissions>): ServicePermissions {
+    const message = createBaseServicePermissions();
+    message.read = object.read?.map((e) => e) || [];
+    return message;
+  },
+};
+
 function createBaseServiceParams(): ServiceParams {
-  return { storage: [], credentials: undefined };
+  return { storage: [], credentials: undefined, permissions: undefined };
 }
 
 export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.ServiceParams"> = {
@@ -150,6 +216,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     }
     if (message.credentials !== undefined) {
       ImageCredentials.encode(message.credentials, writer.uint32(82).fork()).join();
+    }
+    if (message.permissions !== undefined) {
+      ServicePermissions.encode(message.permissions, writer.uint32(90).fork()).join();
     }
     return writer;
   },
@@ -177,6 +246,14 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
           message.credentials = ImageCredentials.decode(reader, reader.uint32());
           continue;
         }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.permissions = ServicePermissions.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -192,6 +269,7 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
         ? object.storage.map((e: any) => StorageParams.fromJSON(e))
         : [],
       credentials: isSet(object.credentials) ? ImageCredentials.fromJSON(object.credentials) : undefined,
+      permissions: isSet(object.permissions) ? ServicePermissions.fromJSON(object.permissions) : undefined,
     };
   },
 
@@ -203,6 +281,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     if (message.credentials !== undefined) {
       obj.credentials = ImageCredentials.toJSON(message.credentials);
     }
+    if (message.permissions !== undefined) {
+      obj.permissions = ServicePermissions.toJSON(message.permissions);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ServiceParams>): ServiceParams {
@@ -210,6 +291,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     message.storage = object.storage?.map((e) => StorageParams.fromPartial(e)) || [];
     message.credentials = (object.credentials !== undefined && object.credentials !== null)
       ? ImageCredentials.fromPartial(object.credentials)
+      : undefined;
+    message.permissions = (object.permissions !== undefined && object.permissions !== null)
+      ? ServicePermissions.fromPartial(object.permissions)
       : undefined;
     return message;
   },

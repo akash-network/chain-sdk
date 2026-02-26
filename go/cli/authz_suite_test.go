@@ -683,7 +683,7 @@ func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
 					grantee.String(),
 					"deposit",
 				).
-				WithScope([]string{"test"}).
+				WithScope("test").
 				WithSpendLimit("0stake").
 				WithFrom(val[0].Address.String()).
 				WithExpiration(fmt.Sprintf("%d", twoHours)),
@@ -697,7 +697,7 @@ func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
 					grantee.String(),
 					"deposit",
 				).
-				WithScope([]string{"deployment"}).
+				WithScope("deployment").
 				WithSpendLimit("0stake").
 				WithFrom(val[0].Address.String()).
 				WithExpiration(fmt.Sprintf("%d", twoHours)),
@@ -711,7 +711,7 @@ func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
 					grantee.String(),
 					"deposit",
 				).
-				WithScope([]string{"deployment"}).
+				WithScope("deployment").
 				WithSpendLimit("100uakt").
 				WithFrom(val[0].Address.String()).
 				WithExpiration(fmt.Sprintf("%d", pastHour)),
@@ -726,7 +726,7 @@ func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
 					"deposit",
 				).
 				WithMsgType(typeMsgDeposit).
-				WithScope([]string{"deployment"}).
+				WithScope("deployment").
 				WithSpendLimit("1000000uakt").
 				WithSkipConfirm().
 				WithFrom(val[0].Address.String()).
@@ -744,7 +744,7 @@ func (s *AuthzCLITestSuite) TestCLITxGrantDepositAuthorization() {
 					"deposit",
 				).
 				WithMsgType(typeMsgDeposit).
-				WithScope([]string{"deployment"}).
+				WithScope("deployment").
 				WithSpendLimit("1akt").
 				WithSkipConfirm().
 				WithFrom(val[0].Address.String()).
