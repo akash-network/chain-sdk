@@ -62,7 +62,7 @@ func main() {
 				fmt.Printf("  %v\n", err)
 				os.Exit(1)
 			}
-			if err := generateGroups(obj, outputDir); err != nil {
+			if err := generateGroupSpecs(obj, outputDir); err != nil {
 				fmt.Printf("  %v\n", err)
 				os.Exit(1)
 			}
@@ -99,22 +99,22 @@ func generateManifest(obj sdl.SDL, fixtureDir string) error {
 	return nil
 }
 
-func generateGroups(obj sdl.SDL, fixtureDir string) error {
-	groups, err := obj.DeploymentGroups()
+func generateGroupSpecs(obj sdl.SDL, fixtureDir string) error {
+	groupSpecs, err := obj.DeploymentGroups()
 	if err != nil {
-		return fmt.Errorf("groups error: %w", err)
+		return fmt.Errorf("group specs error: %w", err)
 	}
 
-	groupsJSON, err := json.MarshalIndent(groups, "", "  ")
+	groupSpecsJSON, err := json.MarshalIndent(groupSpecs, "", "  ")
 	if err != nil {
 		return fmt.Errorf("JSON marshal error: %w", err)
 	}
 
-	groupsPath := filepath.Join(fixtureDir, "groups.json")
-	if err := os.WriteFile(groupsPath, groupsJSON, 0600); err != nil {
+	groupSpecsPath := filepath.Join(fixtureDir, "group-specs.json")
+	if err := os.WriteFile(groupSpecsPath, groupSpecsJSON, 0600); err != nil {
 		return fmt.Errorf("write error: %w", err)
 	}
 
-	fmt.Printf("  Generated %s\n", groupsPath)
+	fmt.Printf("  Generated %s\n", groupSpecsPath)
 	return nil
 }

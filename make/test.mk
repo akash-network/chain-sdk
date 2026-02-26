@@ -49,7 +49,7 @@ test-coverage-go:
 	@$(TOOLS) gocoverage "$(GO_MODULES)" "$(test_go_flags)" "$(GO_TEST_DIRS)"
 
 .PHONY: generate-sdl-fixtures
-generate-sdl-fixtures: ## Regenerate manifest.json and groups.json. Run only when Go SDL output changes; commit updated testdata/sdl/output-fixtures/
+generate-sdl-fixtures: ## Regenerate manifest.json and group-specs.json. Run only when Go SDL output changes; commit updated testdata/sdl/output-fixtures/
 	@echo "Generating SDL fixtures..."
 	cd  go/sdl/tools/generate-sdl-fixtures && go run .
 

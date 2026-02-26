@@ -59,14 +59,14 @@ func testParity(t *testing.T, version string) {
 		fixtureName := entry.Name()
 		inputPath := filepath.Join(inputDir, fixtureName, "input.yaml")
 		manifestPath := filepath.Join(fixturesOutputRoot, version, fixtureName, "manifest.json")
-		groupsPath := filepath.Join(fixturesOutputRoot, version, fixtureName, "groups.json")
+		groupSpecsPath := filepath.Join(fixturesOutputRoot, version, fixtureName, "group-specs.json")
 
 		if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
 			t.Fatalf("manifest.json not generated for %s (run: make generate-sdl-fixtures)", fixtureName)
 		}
 
-		if _, err := os.Stat(groupsPath); os.IsNotExist(err) {
-			t.Fatalf("groups.json not generated for %s (run: make generate-sdl-fixtures)", fixtureName)
+		if _, err := os.Stat(groupSpecsPath); os.IsNotExist(err) {
+			t.Fatalf("group-specs.json not generated for %s (run: make generate-sdl-fixtures)", fixtureName)
 		}
 
 		t.Run(fixtureName, func(t *testing.T) {
@@ -81,17 +81,17 @@ func testParity(t *testing.T, version string) {
 			manifest, err := sdl.Manifest()
 			require.NoError(t, err)
 
-			groups, err := sdl.DeploymentGroups()
+			groupSpecs, err := sdl.DeploymentGroups()
 			require.NoError(t, err)
 
 			manifestBytes, err := json.Marshal(manifest)
 			require.NoError(t, err)
 
-			groupsBytes, err := json.Marshal(groups)
+			groupSpecsBytes, err := json.Marshal(groupSpecs)
 			require.NoError(t, err)
 
 			validateFixtureBytes(t, manifestPath, manifestBytes, "Manifest")
-			validateFixtureBytes(t, groupsPath, groupsBytes, "Groups")
+			validateFixtureBytes(t, groupSpecsPath, groupSpecsBytes, "GroupSpecs")
 		})
 	}
 }
