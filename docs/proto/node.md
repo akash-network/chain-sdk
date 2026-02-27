@@ -109,10 +109,10 @@
      - [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse)
      - [MsgBurnMint](#akash.bme.v1.MsgBurnMint)
      - [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse)
+     - [MsgFundVault](#akash.bme.v1.MsgFundVault)
+     - [MsgFundVaultResponse](#akash.bme.v1.MsgFundVaultResponse)
      - [MsgMintACT](#akash.bme.v1.MsgMintACT)
      - [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse)
-     - [MsgSeedVault](#akash.bme.v1.MsgSeedVault)
-     - [MsgSeedVaultResponse](#akash.bme.v1.MsgSeedVaultResponse)
      - [MsgUpdateParams](#akash.bme.v1.MsgUpdateParams)
      - [MsgUpdateParamsResponse](#akash.bme.v1.MsgUpdateParamsResponse)
    
@@ -1847,6 +1847,34 @@ Allows burning AKT to mint ACT, or burning unused ACT back to AKT
  
 
  
+ <a name="akash.bme.v1.MsgFundVault"></a>
+
+ ### MsgFundVault
+ MsgFundVault defines the message for funding the BME vault with AKT
+This is used to provide an initial volatility buffer
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | authority is the address that controls the module (governance) |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the AKT amount to seed the vault with |
+ | `source` | [string](#string) |  | source is the source of funds (e.g., community pool) |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.MsgFundVaultResponse"></a>
+
+ ### MsgFundVaultResponse
+ MsgFundVaultResponse is the response type for MsgFundVault
+
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.MsgMintACT"></a>
 
  ### MsgMintACT
@@ -1875,39 +1903,6 @@ Allows burning AKT to mint ACT, or burning unused ACT back to AKT
  | ----- | ---- | ----- | ----------- |
  | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  |  |
  | `status` | [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus) |  |  |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MsgSeedVault"></a>
-
- ### MsgSeedVault
- MsgSeedVault defines the message for seeding the BME vault with AKT
-This is used to provide an initial volatility buffer
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `authority` | [string](#string) |  | authority is the address that controls the module (governance) |
- | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the AKT amount to seed the vault with |
- | `source` | [string](#string) |  | source is the source of funds (e.g., community pool) |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MsgSeedVaultResponse"></a>
-
- ### MsgSeedVaultResponse
- MsgSeedVaultResponse is the response type for MsgSeedVault
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `vault_akt` | [string](#string) |  | vault_akt is the new vault AKT balance |
  
  
 
@@ -2134,6 +2129,7 @@ maintaining collateral ratios and enforcing circuit breaker rules.
  | `BurnMint` | [MsgBurnMint](#akash.bme.v1.MsgBurnMint) | [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse) | BurnMint allows users to burn one token and mint another at current oracle prices. Typically used to burn unused ACT tokens back to AKT. The operation may be delayed or rejected based on circuit breaker status. | |
  | `MintACT` | [MsgMintACT](#akash.bme.v1.MsgMintACT) | [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse) | MintACT mints ACT tokens by burning the specified source token. The mint amount is calculated based on current oracle prices and the collateral ratio. May be halted if circuit breaker is triggered. | |
  | `BurnACT` | [MsgBurnACT](#akash.bme.v1.MsgBurnACT) | [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse) | BurnACT burns ACT tokens and mints the specified destination token. The burn operation uses remint credits when available, otherwise requires adequate collateral backing based on oracle prices. | |
+ | `FundVault` | [MsgFundVault](#akash.bme.v1.MsgFundVault) | [MsgFundVaultResponse](#akash.bme.v1.MsgFundVaultResponse) | FundVault seeds the BME vault with AKT from a designated source (e.g., community pool). This provides the initial volatility buffer required for burn/mint operations. Can only be executed through governance proposals. | |
  
   <!-- end services -->
 

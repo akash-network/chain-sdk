@@ -11,7 +11,7 @@ export { EventMintStatusChange, EventVaultSeeded, EventLedgerRecordExecuted } fr
 export { LedgerRecordFilters } from "./akash/bme/v1/filters.ts";
 export { Params } from "./akash/bme/v1/params.ts";
 export { GenesisLedgerRecord, GenesisLedgerPendingRecord, GenesisLedgerState, GenesisVaultState, GenesisState as Bme_GenesisState } from "./akash/bme/v1/genesis.ts";
-export { MsgUpdateParams, MsgUpdateParamsResponse, MsgSeedVault, MsgSeedVaultResponse, MsgBurnMint, MsgMintACT, MsgBurnACT, MsgBurnMintResponse, MsgMintACTResponse, MsgBurnACTResponse } from "./akash/bme/v1/msgs.ts";
+export { MsgUpdateParams, MsgUpdateParamsResponse, MsgFundVault, MsgFundVaultResponse, MsgBurnMint, MsgMintACT, MsgBurnACT, MsgBurnMintResponse, MsgMintACTResponse, MsgBurnACTResponse } from "./akash/bme/v1/msgs.ts";
 export { QueryParamsRequest, QueryParamsResponse, QueryVaultStateRequest, QueryVaultStateResponse, QueryStatusRequest, QueryStatusResponse, QueryLedgerRecordEntry, QueryLedgerRecordsRequest, QueryLedgerRecordsResponse } from "./akash/bme/v1/query.ts";
 export { ID, Certificate, State as Cert_State } from "./akash/cert/v1/cert.ts";
 export { CertificateFilter } from "./akash/cert/v1/filters.ts";

@@ -449,6 +449,116 @@ impl<'de> serde::Deserialize<'de> for BidFilters {
         deserializer.deserialize_struct("akash.market.v1beta5.BidFilters", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for EndpointOfferPrice {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.kind != 0 {
+            len += 1;
+        }
+        if self.price.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.market.v1beta5.EndpointOfferPrice", len)?;
+        if self.kind != 0 {
+            let v = super::super::base::resources::v1beta4::endpoint::Kind::try_from(self.kind)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.kind)))?;
+            struct_ser.serialize_field("kind", &v)?;
+        }
+        if let Some(v) = self.price.as_ref() {
+            struct_ser.serialize_field("price", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for EndpointOfferPrice {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "kind",
+            "price",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Kind,
+            Price,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "kind" => Ok(GeneratedField::Kind),
+                            "price" => Ok(GeneratedField::Price),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = EndpointOfferPrice;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.market.v1beta5.EndpointOfferPrice")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EndpointOfferPrice, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut kind__ = None;
+                let mut price__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Kind => {
+                            if kind__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("kind"));
+                            }
+                            kind__ = Some(map_.next_value::<super::super::base::resources::v1beta4::endpoint::Kind>()? as i32);
+                        }
+                        GeneratedField::Price => {
+                            if price__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("price"));
+                            }
+                            price__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(EndpointOfferPrice {
+                    kind: kind__.unwrap_or_default(),
+                    price: price__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.market.v1beta5.EndpointOfferPrice", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GenesisState {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -1671,6 +1781,165 @@ impl<'de> serde::Deserialize<'de> for MsgWithdrawLeaseResponse {
         deserializer.deserialize_struct("akash.market.v1beta5.MsgWithdrawLeaseResponse", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for OfferPrices {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.cpu.is_some() {
+            len += 1;
+        }
+        if self.memory.is_some() {
+            len += 1;
+        }
+        if !self.storage.is_empty() {
+            len += 1;
+        }
+        if self.gpu.is_some() {
+            len += 1;
+        }
+        if !self.endpoints.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.market.v1beta5.OfferPrices", len)?;
+        if let Some(v) = self.cpu.as_ref() {
+            struct_ser.serialize_field("cpu", v)?;
+        }
+        if let Some(v) = self.memory.as_ref() {
+            struct_ser.serialize_field("memory", v)?;
+        }
+        if !self.storage.is_empty() {
+            struct_ser.serialize_field("storage", &self.storage)?;
+        }
+        if let Some(v) = self.gpu.as_ref() {
+            struct_ser.serialize_field("gpu", v)?;
+        }
+        if !self.endpoints.is_empty() {
+            struct_ser.serialize_field("endpoints", &self.endpoints)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for OfferPrices {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "cpu",
+            "memory",
+            "storage",
+            "gpu",
+            "endpoints",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Cpu,
+            Memory,
+            Storage,
+            Gpu,
+            Endpoints,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "cpu" => Ok(GeneratedField::Cpu),
+                            "memory" => Ok(GeneratedField::Memory),
+                            "storage" => Ok(GeneratedField::Storage),
+                            "gpu" => Ok(GeneratedField::Gpu),
+                            "endpoints" => Ok(GeneratedField::Endpoints),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = OfferPrices;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.market.v1beta5.OfferPrices")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<OfferPrices, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut cpu__ = None;
+                let mut memory__ = None;
+                let mut storage__ = None;
+                let mut gpu__ = None;
+                let mut endpoints__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Cpu => {
+                            if cpu__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("cpu"));
+                            }
+                            cpu__ = map_.next_value()?;
+                        }
+                        GeneratedField::Memory => {
+                            if memory__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("memory"));
+                            }
+                            memory__ = map_.next_value()?;
+                        }
+                        GeneratedField::Storage => {
+                            if storage__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("storage"));
+                            }
+                            storage__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Gpu => {
+                            if gpu__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("gpu"));
+                            }
+                            gpu__ = map_.next_value()?;
+                        }
+                        GeneratedField::Endpoints => {
+                            if endpoints__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("endpoints"));
+                            }
+                            endpoints__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(OfferPrices {
+                    cpu: cpu__,
+                    memory: memory__,
+                    storage: storage__.unwrap_or_default(),
+                    gpu: gpu__,
+                    endpoints: endpoints__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.market.v1beta5.OfferPrices", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for Order {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -2078,12 +2347,18 @@ impl serde::Serialize for Params {
         if self.order_max_bids != 0 {
             len += 1;
         }
+        if !self.bid_min_deposits.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.market.v1beta5.Params", len)?;
         if let Some(v) = self.bid_min_deposit.as_ref() {
             struct_ser.serialize_field("bidMinDeposit", v)?;
         }
         if self.order_max_bids != 0 {
             struct_ser.serialize_field("orderMaxBids", &self.order_max_bids)?;
+        }
+        if !self.bid_min_deposits.is_empty() {
+            struct_ser.serialize_field("bidMinDeposits", &self.bid_min_deposits)?;
         }
         struct_ser.end()
     }
@@ -2099,12 +2374,15 @@ impl<'de> serde::Deserialize<'de> for Params {
             "bidMinDeposit",
             "order_max_bids",
             "orderMaxBids",
+            "bid_min_deposits",
+            "bidMinDeposits",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             BidMinDeposit,
             OrderMaxBids,
+            BidMinDeposits,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -2128,6 +2406,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                         match value {
                             "bidMinDeposit" | "bid_min_deposit" => Ok(GeneratedField::BidMinDeposit),
                             "orderMaxBids" | "order_max_bids" => Ok(GeneratedField::OrderMaxBids),
+                            "bidMinDeposits" | "bid_min_deposits" => Ok(GeneratedField::BidMinDeposits),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -2149,6 +2428,7 @@ impl<'de> serde::Deserialize<'de> for Params {
             {
                 let mut bid_min_deposit__ = None;
                 let mut order_max_bids__ = None;
+                let mut bid_min_deposits__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::BidMinDeposit => {
@@ -2165,11 +2445,18 @@ impl<'de> serde::Deserialize<'de> for Params {
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
+                        GeneratedField::BidMinDeposits => {
+                            if bid_min_deposits__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("bidMinDeposits"));
+                            }
+                            bid_min_deposits__ = Some(map_.next_value()?);
+                        }
                     }
                 }
                 Ok(Params {
                     bid_min_deposit: bid_min_deposit__,
                     order_max_bids: order_max_bids__.unwrap_or_default(),
+                    bid_min_deposits: bid_min_deposits__.unwrap_or_default(),
                 })
             }
         }
@@ -3582,12 +3869,18 @@ impl serde::Serialize for ResourceOffer {
         if self.count != 0 {
             len += 1;
         }
+        if self.prices.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.market.v1beta5.ResourceOffer", len)?;
         if let Some(v) = self.resources.as_ref() {
             struct_ser.serialize_field("resources", v)?;
         }
         if self.count != 0 {
             struct_ser.serialize_field("count", &self.count)?;
+        }
+        if let Some(v) = self.prices.as_ref() {
+            struct_ser.serialize_field("prices", v)?;
         }
         struct_ser.end()
     }
@@ -3601,12 +3894,14 @@ impl<'de> serde::Deserialize<'de> for ResourceOffer {
         const FIELDS: &[&str] = &[
             "resources",
             "count",
+            "prices",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Resources,
             Count,
+            Prices,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -3630,6 +3925,7 @@ impl<'de> serde::Deserialize<'de> for ResourceOffer {
                         match value {
                             "resources" => Ok(GeneratedField::Resources),
                             "count" => Ok(GeneratedField::Count),
+                            "prices" => Ok(GeneratedField::Prices),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -3651,6 +3947,7 @@ impl<'de> serde::Deserialize<'de> for ResourceOffer {
             {
                 let mut resources__ = None;
                 let mut count__ = None;
+                let mut prices__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Resources => {
@@ -3667,14 +3964,129 @@ impl<'de> serde::Deserialize<'de> for ResourceOffer {
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
+                        GeneratedField::Prices => {
+                            if prices__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("prices"));
+                            }
+                            prices__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(ResourceOffer {
                     resources: resources__,
                     count: count__.unwrap_or_default(),
+                    prices: prices__,
                 })
             }
         }
         deserializer.deserialize_struct("akash.market.v1beta5.ResourceOffer", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for StorageOfferPrice {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if self.price.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.market.v1beta5.StorageOfferPrice", len)?;
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if let Some(v) = self.price.as_ref() {
+            struct_ser.serialize_field("price", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for StorageOfferPrice {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "name",
+            "price",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Name,
+            Price,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "name" => Ok(GeneratedField::Name),
+                            "price" => Ok(GeneratedField::Price),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = StorageOfferPrice;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.market.v1beta5.StorageOfferPrice")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<StorageOfferPrice, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut name__ = None;
+                let mut price__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Price => {
+                            if price__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("price"));
+                            }
+                            price__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(StorageOfferPrice {
+                    name: name__.unwrap_or_default(),
+                    price: price__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.market.v1beta5.StorageOfferPrice", FIELDS, GeneratedVisitor)
     }
 }

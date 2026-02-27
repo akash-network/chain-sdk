@@ -26,10 +26,10 @@ export interface MsgUpdateParamsResponse {
 }
 
 /**
- * MsgSeedVault defines the message for seeding the BME vault with AKT
+ * MsgFundVault defines the message for funding the BME vault with AKT
  * This is used to provide an initial volatility buffer
  */
-export interface MsgSeedVault {
+export interface MsgFundVault {
   /** authority is the address that controls the module (governance) */
   authority: string;
   /** amount is the AKT amount to seed the vault with */
@@ -40,10 +40,8 @@ export interface MsgSeedVault {
   source: string;
 }
 
-/** MsgSeedVaultResponse is the response type for MsgSeedVault */
-export interface MsgSeedVaultResponse {
-  /** vault_akt is the new vault AKT balance */
-  vaultAkt: string;
+/** MsgFundVaultResponse is the response type for MsgFundVault */
+export interface MsgFundVaultResponse {
 }
 
 /**
@@ -233,14 +231,14 @@ export const MsgUpdateParamsResponse: MessageFns<MsgUpdateParamsResponse, "akash
   },
 };
 
-function createBaseMsgSeedVault(): MsgSeedVault {
+function createBaseMsgFundVault(): MsgFundVault {
   return { authority: "", amount: undefined, source: "" };
 }
 
-export const MsgSeedVault: MessageFns<MsgSeedVault, "akash.bme.v1.MsgSeedVault"> = {
-  $type: "akash.bme.v1.MsgSeedVault" as const,
+export const MsgFundVault: MessageFns<MsgFundVault, "akash.bme.v1.MsgFundVault"> = {
+  $type: "akash.bme.v1.MsgFundVault" as const,
 
-  encode(message: MsgSeedVault, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: MsgFundVault, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.authority !== "") {
       writer.uint32(10).string(message.authority);
     }
@@ -253,10 +251,10 @@ export const MsgSeedVault: MessageFns<MsgSeedVault, "akash.bme.v1.MsgSeedVault">
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): MsgSeedVault {
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgFundVault {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMsgSeedVault();
+    const message = createBaseMsgFundVault();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -293,7 +291,7 @@ export const MsgSeedVault: MessageFns<MsgSeedVault, "akash.bme.v1.MsgSeedVault">
     return message;
   },
 
-  fromJSON(object: any): MsgSeedVault {
+  fromJSON(object: any): MsgFundVault {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
@@ -301,7 +299,7 @@ export const MsgSeedVault: MessageFns<MsgSeedVault, "akash.bme.v1.MsgSeedVault">
     };
   },
 
-  toJSON(message: MsgSeedVault): unknown {
+  toJSON(message: MsgFundVault): unknown {
     const obj: any = {};
     if (message.authority !== "") {
       obj.authority = message.authority;
@@ -314,8 +312,8 @@ export const MsgSeedVault: MessageFns<MsgSeedVault, "akash.bme.v1.MsgSeedVault">
     }
     return obj;
   },
-  fromPartial(object: DeepPartial<MsgSeedVault>): MsgSeedVault {
-    const message = createBaseMsgSeedVault();
+  fromPartial(object: DeepPartial<MsgFundVault>): MsgFundVault {
+    const message = createBaseMsgFundVault();
     message.authority = object.authority ?? "";
     message.amount = (object.amount !== undefined && object.amount !== null)
       ? Coin.fromPartial(object.amount)
@@ -325,35 +323,24 @@ export const MsgSeedVault: MessageFns<MsgSeedVault, "akash.bme.v1.MsgSeedVault">
   },
 };
 
-function createBaseMsgSeedVaultResponse(): MsgSeedVaultResponse {
-  return { vaultAkt: "" };
+function createBaseMsgFundVaultResponse(): MsgFundVaultResponse {
+  return {};
 }
 
-export const MsgSeedVaultResponse: MessageFns<MsgSeedVaultResponse, "akash.bme.v1.MsgSeedVaultResponse"> = {
-  $type: "akash.bme.v1.MsgSeedVaultResponse" as const,
+export const MsgFundVaultResponse: MessageFns<MsgFundVaultResponse, "akash.bme.v1.MsgFundVaultResponse"> = {
+  $type: "akash.bme.v1.MsgFundVaultResponse" as const,
 
-  encode(message: MsgSeedVaultResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.vaultAkt !== "") {
-      writer.uint32(10).string(message.vaultAkt);
-    }
+  encode(_: MsgFundVaultResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): MsgSeedVaultResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgFundVaultResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMsgSeedVaultResponse();
+    const message = createBaseMsgFundVaultResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.vaultAkt = reader.string();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -363,20 +350,16 @@ export const MsgSeedVaultResponse: MessageFns<MsgSeedVaultResponse, "akash.bme.v
     return message;
   },
 
-  fromJSON(object: any): MsgSeedVaultResponse {
-    return { vaultAkt: isSet(object.vault_akt) ? globalThis.String(object.vault_akt) : "" };
+  fromJSON(_: any): MsgFundVaultResponse {
+    return {};
   },
 
-  toJSON(message: MsgSeedVaultResponse): unknown {
+  toJSON(_: MsgFundVaultResponse): unknown {
     const obj: any = {};
-    if (message.vaultAkt !== "") {
-      obj.vault_akt = message.vaultAkt;
-    }
     return obj;
   },
-  fromPartial(object: DeepPartial<MsgSeedVaultResponse>): MsgSeedVaultResponse {
-    const message = createBaseMsgSeedVaultResponse();
-    message.vaultAkt = object.vaultAkt ?? "";
+  fromPartial(_: DeepPartial<MsgFundVaultResponse>): MsgFundVaultResponse {
+    const message = createBaseMsgFundVaultResponse();
     return message;
   },
 };

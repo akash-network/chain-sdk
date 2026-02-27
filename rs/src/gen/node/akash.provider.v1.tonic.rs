@@ -4,8 +4,6 @@ pub mod provider_rpc_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
-    /** ProviderRPC defines the RPC server for provider
-*/
     #[derive(Debug, Clone)]
     pub struct ProviderRpcClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -86,10 +84,6 @@ pub mod provider_rpc_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        /** GetStatus defines a method to query provider state
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
         pub async fn get_status(
             &mut self,
             request: impl tonic::IntoRequest<::pbjson_types::Empty>,
@@ -143,6 +137,35 @@ pub mod provider_rpc_client {
                 );
             self.inner.server_streaming(req, path, codec).await
         }
+        /** BidScreening screens a deployment group spec for bid eligibility and returns pricing
+*/
+        pub async fn bid_screening(
+            &mut self,
+            request: impl tonic::IntoRequest<super::BidScreeningRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::BidScreeningResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1.ProviderRPC/BidScreening",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("akash.provider.v1.ProviderRPC", "BidScreening"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -152,10 +175,6 @@ pub mod provider_rpc_server {
     /// Generated trait containing gRPC methods that should be implemented for use with ProviderRpcServer.
     #[async_trait]
     pub trait ProviderRpc: Send + Sync + 'static {
-        /** GetStatus defines a method to query provider state
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
         async fn get_status(
             &self,
             request: tonic::Request<::pbjson_types::Empty>,
@@ -177,9 +196,16 @@ pub mod provider_rpc_server {
             tonic::Response<Self::StreamStatusStream>,
             tonic::Status,
         >;
-    }
-    /** ProviderRPC defines the RPC server for provider
+        /** BidScreening screens a deployment group spec for bid eligibility and returns pricing
 */
+        async fn bid_screening(
+            &self,
+            request: tonic::Request<super::BidScreeningRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::BidScreeningResponse>,
+            tonic::Status,
+        >;
+    }
     #[derive(Debug)]
     pub struct ProviderRpcServer<T: ProviderRpc> {
         inner: Arc<T>,
@@ -343,6 +369,51 @@ pub mod provider_rpc_server {
                                 max_encoding_message_size,
                             );
                         let res = grpc.server_streaming(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1.ProviderRPC/BidScreening" => {
+                    #[allow(non_camel_case_types)]
+                    struct BidScreeningSvc<T: ProviderRpc>(pub Arc<T>);
+                    impl<
+                        T: ProviderRpc,
+                    > tonic::server::UnaryService<super::BidScreeningRequest>
+                    for BidScreeningSvc<T> {
+                        type Response = super::BidScreeningResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::BidScreeningRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as ProviderRpc>::bid_screening(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = BidScreeningSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)

@@ -1,4 +1,4 @@
-import { MsgBurnACT, MsgBurnACTResponse, MsgBurnMint, MsgBurnMintResponse, MsgMintACT, MsgMintACTResponse, MsgUpdateParams, MsgUpdateParamsResponse } from "./msgs.ts";
+import { MsgBurnACT, MsgBurnACTResponse, MsgBurnMint, MsgBurnMintResponse, MsgFundVault, MsgFundVaultResponse, MsgMintACT, MsgMintACTResponse, MsgUpdateParams, MsgUpdateParamsResponse } from "./msgs.ts";
 
 export const Msg = {
   typeName: "akash.bme.v1.Msg",
@@ -25,6 +25,12 @@ export const Msg = {
       name: "BurnACT",
       input: MsgBurnACT,
       output: MsgBurnACTResponse,
+      get parent() { return Msg; },
+    },
+    fundVault: {
+      name: "FundVault",
+      input: MsgFundVault,
+      output: MsgFundVaultResponse,
       get parent() { return Msg; },
     },
   },

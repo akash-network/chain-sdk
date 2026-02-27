@@ -157,6 +157,31 @@ pub mod query_client {
             req.extensions_mut().insert(GrpcMethod::new("akash.bme.v1.Query", "Status"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn ledger_records(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryLedgerRecordsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryLedgerRecordsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.bme.v1.Query/LedgerRecords",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.bme.v1.Query", "LedgerRecords"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -185,6 +210,13 @@ pub mod query_server {
             request: tonic::Request<super::QueryStatusRequest>,
         ) -> std::result::Result<
             tonic::Response<super::QueryStatusResponse>,
+            tonic::Status,
+        >;
+        async fn ledger_records(
+            &self,
+            request: tonic::Request<super::QueryLedgerRecordsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryLedgerRecordsResponse>,
             tonic::Status,
         >;
     }
@@ -395,6 +427,51 @@ pub mod query_server {
                     };
                     Box::pin(fut)
                 }
+                "/akash.bme.v1.Query/LedgerRecords" => {
+                    #[allow(non_camel_case_types)]
+                    struct LedgerRecordsSvc<T: Query>(pub Arc<T>);
+                    impl<
+                        T: Query,
+                    > tonic::server::UnaryService<super::QueryLedgerRecordsRequest>
+                    for LedgerRecordsSvc<T> {
+                        type Response = super::QueryLedgerRecordsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryLedgerRecordsRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Query>::ledger_records(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = LedgerRecordsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 _ => {
                     Box::pin(async move {
                         Ok(
@@ -434,6 +511,10 @@ pub mod msg_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    /** Msg defines the BME (Burn/Mint Engine) transaction service.
+ The BME module manages the burn and mint operations for ACT tokens,
+ maintaining collateral ratios and enforcing circuit breaker rules.
+*/
     #[derive(Debug, Clone)]
     pub struct MsgClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -514,6 +595,9 @@ pub mod msg_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
+        /** UpdateParams updates the module parameters.
+ This operation can only be performed through governance proposals.
+*/
         pub async fn update_params(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgUpdateParams>,
@@ -619,6 +703,35 @@ pub mod msg_client {
             req.extensions_mut().insert(GrpcMethod::new("akash.bme.v1.Msg", "BurnACT"));
             self.inner.unary(req, path, codec).await
         }
+        /** FundVault seeds the BME vault with AKT from a designated source (e.g., community pool).
+ This provides the initial volatility buffer required for burn/mint operations.
+ Can only be executed through governance proposals.
+*/
+        pub async fn fund_vault(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgFundVault>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgFundVaultResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.bme.v1.Msg/FundVault",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.bme.v1.Msg", "FundVault"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -628,6 +741,9 @@ pub mod msg_server {
     /// Generated trait containing gRPC methods that should be implemented for use with MsgServer.
     #[async_trait]
     pub trait Msg: Send + Sync + 'static {
+        /** UpdateParams updates the module parameters.
+ This operation can only be performed through governance proposals.
+*/
         async fn update_params(
             &self,
             request: tonic::Request<super::MsgUpdateParams>,
@@ -668,7 +784,22 @@ pub mod msg_server {
             tonic::Response<super::MsgBurnActResponse>,
             tonic::Status,
         >;
+        /** FundVault seeds the BME vault with AKT from a designated source (e.g., community pool).
+ This provides the initial volatility buffer required for burn/mint operations.
+ Can only be executed through governance proposals.
+*/
+        async fn fund_vault(
+            &self,
+            request: tonic::Request<super::MsgFundVault>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgFundVaultResponse>,
+            tonic::Status,
+        >;
     }
+    /** Msg defines the BME (Burn/Mint Engine) transaction service.
+ The BME module manages the burn and mint operations for ACT tokens,
+ maintaining collateral ratios and enforcing circuit breaker rules.
+*/
     #[derive(Debug)]
     pub struct MsgServer<T: Msg> {
         inner: Arc<T>,
@@ -902,6 +1033,49 @@ pub mod msg_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = BurnACTSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.bme.v1.Msg/FundVault" => {
+                    #[allow(non_camel_case_types)]
+                    struct FundVaultSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgFundVault>
+                    for FundVaultSvc<T> {
+                        type Response = super::MsgFundVaultResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgFundVault>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Msg>::fund_vault(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = FundVaultSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

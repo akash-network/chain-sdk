@@ -1,4 +1,5 @@
 PROTO_GEN_MODS ?= go \
+rust \
 ts \
 doc
 

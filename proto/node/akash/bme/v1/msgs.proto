@@ -29,11 +29,11 @@ message MsgUpdateParams {
 // MsgUpdateParamsResponse is the response type for MsgUpdateParams
 message MsgUpdateParamsResponse {}
 
-// MsgSeedVault defines the message for seeding the BME vault with AKT
+// MsgFundVault defines the message for funding the BME vault with AKT
 // This is used to provide an initial volatility buffer
-message MsgSeedVault {
+message MsgFundVault {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name) = "akash/bme/v1/MsgSeedVault";
+  option (amino.name) = "akash/bme/v1/MsgFundVault";
 
   // authority is the address that controls the module (governance)
   string authority = 1 [
@@ -46,18 +46,13 @@ message MsgSeedVault {
   ];
 
   // source is the source of funds (e.g., community pool)
-  string source = 3;
-}
-
-// MsgSeedVaultResponse is the response type for MsgSeedVault
-message MsgSeedVaultResponse {
-  // vault_akt is the new vault AKT balance
-  string vault_akt = 1 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
+  string source = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString"
   ];
 }
+
+// MsgFundVaultResponse is the response type for MsgFundVault
+message MsgFundVaultResponse {}
 
 // MsgBurnMint defines the message for burning one token to mint another
 // Allows burning AKT to mint ACT, or burning unused ACT back to AKT
@@ -155,7 +150,6 @@ message MsgBurnACT {
     (gogoproto.moretags)   = "yaml:\"coins_to_burn\""
   ];
 }
-
 
 // MsgBurnMintResponse is the response type for MsgBurnMint
 message MsgBurnMintResponse {

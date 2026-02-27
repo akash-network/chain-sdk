@@ -92,6 +92,258 @@ impl<'de> serde::Deserialize<'de> for BidEngineStatus {
         deserializer.deserialize_struct("akash.provider.v1.BidEngineStatus", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for BidScreeningRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.group_spec.is_some() {
+            len += 1;
+        }
+        if !self.hostnames.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.provider.v1.BidScreeningRequest", len)?;
+        if let Some(v) = self.group_spec.as_ref() {
+            struct_ser.serialize_field("groupSpec", v)?;
+        }
+        if !self.hostnames.is_empty() {
+            struct_ser.serialize_field("hostnames", &self.hostnames)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for BidScreeningRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "group_spec",
+            "groupSpec",
+            "hostnames",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            GroupSpec,
+            Hostnames,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "groupSpec" | "group_spec" => Ok(GeneratedField::GroupSpec),
+                            "hostnames" => Ok(GeneratedField::Hostnames),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = BidScreeningRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.v1.BidScreeningRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<BidScreeningRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut group_spec__ = None;
+                let mut hostnames__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::GroupSpec => {
+                            if group_spec__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("groupSpec"));
+                            }
+                            group_spec__ = map_.next_value()?;
+                        }
+                        GeneratedField::Hostnames => {
+                            if hostnames__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("hostnames"));
+                            }
+                            hostnames__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(BidScreeningRequest {
+                    group_spec: group_spec__,
+                    hostnames: hostnames__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.provider.v1.BidScreeningRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for BidScreeningResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.passed {
+            len += 1;
+        }
+        if !self.reasons.is_empty() {
+            len += 1;
+        }
+        if self.resource_offer.is_some() {
+            len += 1;
+        }
+        if self.price.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.provider.v1.BidScreeningResponse", len)?;
+        if self.passed {
+            struct_ser.serialize_field("passed", &self.passed)?;
+        }
+        if !self.reasons.is_empty() {
+            struct_ser.serialize_field("reasons", &self.reasons)?;
+        }
+        if let Some(v) = self.resource_offer.as_ref() {
+            struct_ser.serialize_field("resourceOffer", v)?;
+        }
+        if let Some(v) = self.price.as_ref() {
+            struct_ser.serialize_field("price", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for BidScreeningResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "passed",
+            "reasons",
+            "resource_offer",
+            "resourceOffer",
+            "price",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Passed,
+            Reasons,
+            ResourceOffer,
+            Price,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "passed" => Ok(GeneratedField::Passed),
+                            "reasons" => Ok(GeneratedField::Reasons),
+                            "resourceOffer" | "resource_offer" => Ok(GeneratedField::ResourceOffer),
+                            "price" => Ok(GeneratedField::Price),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = BidScreeningResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.v1.BidScreeningResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<BidScreeningResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut passed__ = None;
+                let mut reasons__ = None;
+                let mut resource_offer__ = None;
+                let mut price__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Passed => {
+                            if passed__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("passed"));
+                            }
+                            passed__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Reasons => {
+                            if reasons__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("reasons"));
+                            }
+                            reasons__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ResourceOffer => {
+                            if resource_offer__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("resourceOffer"));
+                            }
+                            resource_offer__ = map_.next_value()?;
+                        }
+                        GeneratedField::Price => {
+                            if price__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("price"));
+                            }
+                            price__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(BidScreeningResponse {
+                    passed: passed__.unwrap_or_default(),
+                    reasons: reasons__.unwrap_or_default(),
+                    resource_offer: resource_offer__,
+                    price: price__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.provider.v1.BidScreeningResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for ClusterStatus {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>

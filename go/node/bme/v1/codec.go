@@ -29,8 +29,11 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 // RegisterInterfaces registers the bme module interfaces types with the interface registry
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgBurnMint{},
+		&MsgMintACT{},
+		&MsgBurnACT{},
 		&MsgUpdateParams{},
-		&MsgSeedVault{},
+		&MsgFundVault{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
