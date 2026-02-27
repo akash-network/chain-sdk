@@ -172,7 +172,16 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           burnACT: withMetadata(async function burnACT(input: DeepSimplify<akash_bme_v1_msgs.MsgBurnACT>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).burnACT(input, options);
-          }, { path: [3, "burnACT"], serviceLoader })
+          }, { path: [3, "burnACT"], serviceLoader }),
+          /**
+           * fundVault seeds the BME vault with AKT from a designated source (e.g., community pool).
+           * This provides the initial volatility buffer required for burn/mint operations.
+           * Can only be executed through governance proposals.
+           */
+          fundVault: withMetadata(async function fundVault(input: DeepSimplify<akash_bme_v1_msgs.MsgFundVault>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(3);
+            return getMsgClient(service).fundVault(input, options);
+          }, { path: [3, "fundVault"], serviceLoader })
         }
       },
       cert: {

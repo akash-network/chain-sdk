@@ -36,9 +36,9 @@ func DetectDeploymentDeposit(ctx context.Context, flags *pflag.FlagSet, cl aclie
 			return sdk.Coin{}, err
 		}
 
-		// always default to AKT
+		// always default to ACT
 		for _, sCoin := range resp.Params.MinDeposits {
-			if sCoin.Denom == "uakt" {
+			if sCoin.Denom == "uact" {
 				depositStr = fmt.Sprintf("%s%s", sCoin.Amount, sCoin.Denom)
 				break
 			}

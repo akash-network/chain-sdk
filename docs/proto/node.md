@@ -109,10 +109,10 @@
      - [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse)
      - [MsgBurnMint](#akash.bme.v1.MsgBurnMint)
      - [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse)
+     - [MsgFundVault](#akash.bme.v1.MsgFundVault)
+     - [MsgFundVaultResponse](#akash.bme.v1.MsgFundVaultResponse)
      - [MsgMintACT](#akash.bme.v1.MsgMintACT)
      - [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse)
-     - [MsgSeedVault](#akash.bme.v1.MsgSeedVault)
-     - [MsgSeedVaultResponse](#akash.bme.v1.MsgSeedVaultResponse)
      - [MsgUpdateParams](#akash.bme.v1.MsgUpdateParams)
      - [MsgUpdateParamsResponse](#akash.bme.v1.MsgUpdateParamsResponse)
    
@@ -427,8 +427,6 @@
    
  - [akash/oracle/v1/params.proto](#akash/oracle/v1/params.proto)
      - [Params](#akash.oracle.v1.Params)
-     - [PythContractParams](#akash.oracle.v1.PythContractParams)
-     - [WormholeContractParams](#akash.oracle.v1.WormholeContractParams)
    
  - [akash/oracle/v1/genesis.proto](#akash/oracle/v1/genesis.proto)
      - [GenesisState](#akash.oracle.v1.GenesisState)
@@ -1551,6 +1549,14 @@ if field is nil resource is not present in the given data-structure
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | burned_from source address of the tokens burned |
+ | `burned_from` | [string](#string) |  | burned_from source address of the tokens burned |
+ | `minted_to` | [string](#string) |  | minted_to destination address of the tokens minted |
+ | `burner` | [string](#string) |  | module is module account performing burn |
+ | `minter` | [string](#string) |  | module is module account performing mint |
+ | `burned` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | burned is the coin burned at price |
+ | `minted` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | minted is coin minted at price |
+ | `remint_credit_issued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
+ | `remint_credit_accrued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  
  
 
@@ -1847,6 +1853,34 @@ Allows burning AKT to mint ACT, or burning unused ACT back to AKT
  
 
  
+ <a name="akash.bme.v1.MsgFundVault"></a>
+
+ ### MsgFundVault
+ MsgFundVault defines the message for funding the BME vault with AKT
+This is used to provide an initial volatility buffer
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | authority is the address that controls the module (governance) |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the AKT amount to seed the vault with |
+ | `source` | [string](#string) |  | source is the source of funds (e.g., community pool) |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.MsgFundVaultResponse"></a>
+
+ ### MsgFundVaultResponse
+ MsgFundVaultResponse is the response type for MsgFundVault
+
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.MsgMintACT"></a>
 
  ### MsgMintACT
@@ -1875,39 +1909,6 @@ Allows burning AKT to mint ACT, or burning unused ACT back to AKT
  | ----- | ---- | ----- | ----------- |
  | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  |  |
  | `status` | [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus) |  |  |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MsgSeedVault"></a>
-
- ### MsgSeedVault
- MsgSeedVault defines the message for seeding the BME vault with AKT
-This is used to provide an initial volatility buffer
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `authority` | [string](#string) |  | authority is the address that controls the module (governance) |
- | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the AKT amount to seed the vault with |
- | `source` | [string](#string) |  | source is the source of funds (e.g., community pool) |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MsgSeedVaultResponse"></a>
-
- ### MsgSeedVaultResponse
- MsgSeedVaultResponse is the response type for MsgSeedVault
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `vault_akt` | [string](#string) |  | vault_akt is the new vault AKT balance |
  
  
 
@@ -2134,6 +2135,7 @@ maintaining collateral ratios and enforcing circuit breaker rules.
  | `BurnMint` | [MsgBurnMint](#akash.bme.v1.MsgBurnMint) | [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse) | BurnMint allows users to burn one token and mint another at current oracle prices. Typically used to burn unused ACT tokens back to AKT. The operation may be delayed or rejected based on circuit breaker status. | |
  | `MintACT` | [MsgMintACT](#akash.bme.v1.MsgMintACT) | [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse) | MintACT mints ACT tokens by burning the specified source token. The mint amount is calculated based on current oracle prices and the collateral ratio. May be halted if circuit breaker is triggered. | |
  | `BurnACT` | [MsgBurnACT](#akash.bme.v1.MsgBurnACT) | [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse) | BurnACT burns ACT tokens and mints the specified destination token. The burn operation uses remint credits when available, otherwise requires adequate collateral backing based on oracle prices. | |
+ | `FundVault` | [MsgFundVault](#akash.bme.v1.MsgFundVault) | [MsgFundVaultResponse](#akash.bme.v1.MsgFundVaultResponse) | FundVault seeds the BME vault with AKT from a designated source (e.g., community pool). This provides the initial volatility buffer required for burn/mint operations. Can only be executed through governance proposals. | |
  
   <!-- end services -->
 
@@ -3278,7 +3280,6 @@ Example: "akash1..." If depositor is same as the owner, then any incoming coins 
  | `height` | [int64](#int64) |  | Height blockchain height at which deposit was created |
  | `source` | [akash.base.deposit.v1.Source](#akash.base.deposit.v1.Source) |  | Source indicated origination of the funds |
  | `balance` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Balance amount of funds available to spend in this deposit. |
- | `direct` | [bool](#bool) |  | direct indicates if deposited currency should be swapped to ACT (false) at time of the deposit |
  
  
 
@@ -4042,8 +4043,9 @@ what types of deposits the grantee is authorized to make on behalf of the grante
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `spend_limit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account. This limit applies cumulatively across all deposit operations within the authorized scopes. Once this limit is reached, the authorization becomes invalid and no further deposits can be made. |
+ | `spend_limit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account. This limit applies cumulatively across all deposit operations within the authorized scopes. Once this limit is reached, the authorization becomes invalid and no further deposits can be made. Deprecated: use spend_limits instead |
  | `scopes` | [DepositAuthorization.Scope](#akash.escrow.v1.DepositAuthorization.Scope) | repeated | Scopes defines the specific types of deposit operations this authorization permits. This provides fine-grained control over what operations the grantee can perform using the granter's funds. |
+ | `spend_limits` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | SpendLimits specifies the maximum amount per denomination the grantee is authorized to spend. Each entry represents the limit for a specific denomination, enforced independently. Once an individual denomination's limit is exhausted, no further deposits can be made in that denomination. |
  
  
 
@@ -5731,38 +5733,6 @@ It also represents a single data point in TWAP history
  | `twap_window` | [int64](#int64) |  | TWAP window in blocks (default: 50 = ~ 5 minutes) |
  | `max_price_deviation_bps` | [uint64](#uint64) |  | Maximum price deviation in basis points (default: 150 = 1.5%) |
  | `feed_contracts_params` | [google.protobuf.Any](#google.protobuf.Any) | repeated | feed_contracts_params contains the configuration for the price feed contracts |
- 
- 
-
- 
-
- 
- <a name="akash.oracle.v1.PythContractParams"></a>
-
- ### PythContractParams
- PythContractParams contains configuration for Pyth price feeds
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `akt_price_feed_id` | [string](#string) |  | akt_price_feed_id is the Pyth price feed identifier for AKT/USD |
- 
- 
-
- 
-
- 
- <a name="akash.oracle.v1.WormholeContractParams"></a>
-
- ### WormholeContractParams
- WormholeContractParams contains configuration for Wormhole guardian set.
-This allows the Wormhole contract to pull guardian public keys from x/oracle
-module params, enabling guardian set updates via Akash governance.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `guardian_addresses` | [string](#string) | repeated | guardian_addresses is the list of Wormhole guardian addresses. Each address is a 20-byte Ethereum-style address, hex-encoded. The Wormhole contract uses these to verify VAA signatures. |
  
  
 

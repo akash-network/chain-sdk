@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -13,12 +14,14 @@ import (
 	eid "pkg.akt.dev/go/node/escrow/id/v1"
 	"pkg.akt.dev/go/node/escrow/module"
 	mvbeta "pkg.akt.dev/go/node/market/v1beta5"
+	"pkg.akt.dev/go/sdkutil"
 )
 
 type Authorization interface {
 	authz.Authorization
 	TryAccept(context.Context, sdk.Msg, bool) (authz.AcceptResponse, error)
 	GetSpendLimit() sdk.Coin
+	GetSpendLimits() sdk.Coins
 }
 
 type DepositAuthorizationScopes []DepositAuthorization_Scope
@@ -28,10 +31,11 @@ var (
 )
 
 // NewDepositAuthorization creates a new DepositAuthorization object with a single spend limit.
-func NewDepositAuthorization(scopes DepositAuthorizationScopes, spendLimit sdk.Coin) *DepositAuthorization {
+func NewDepositAuthorization(scopes DepositAuthorizationScopes, spendLimits sdk.Coins) *DepositAuthorization {
 	return &DepositAuthorization{
-		Scopes:     scopes,
-		SpendLimit: spendLimit,
+		Scopes:      scopes,
+		SpendLimit:  sdk.NewCoin(sdkutil.DenomUakt, sdkmath.ZeroInt()),
+		SpendLimits: spendLimits,
 	}
 }
 
@@ -79,29 +83,48 @@ func (m *DepositAuthorization) TryAccept(_ context.Context, msg sdk.Msg, partial
 		return authz.AcceptResponse{}, module.ErrUnauthorizedDepositScope
 	}
 
-	if m.SpendLimit.Denom != amount.Denom {
+	// migrate spend limit to spend_limits
+	if !m.SpendLimit.IsNil() && m.SpendLimit.Amount.GT(sdkmath.ZeroInt()) {
+		m.SpendLimits = m.SpendLimits.Add(m.SpendLimit)
+	}
+
+	var coin sdk.Coin
+
+	for i := range m.SpendLimits {
+		if m.SpendLimits[i].Denom == amount.Denom {
+			coin = m.SpendLimits[i]
+			break
+		}
+	}
+
+	if coin.IsNil() {
 		return authz.AcceptResponse{Accept: false}, nil
 	}
 
 	allowedSpend := amount
 
-	if m.SpendLimit.IsLT(allowedSpend) {
+	if coin.IsLT(allowedSpend) {
 		if partial {
-			allowedSpend = m.SpendLimit
+			allowedSpend = coin
 		} else {
 			return authz.AcceptResponse{}, sdkerrors.ErrInsufficientFunds
 		}
 	}
 
-	limitLeft, err := m.SpendLimit.SafeSub(allowedSpend)
-	if err != nil {
-		return authz.AcceptResponse{}, err
+	limitsLeft, isNegative := m.SpendLimits.SafeSub(allowedSpend)
+	if isNegative {
+		return authz.AcceptResponse{}, sdkerrors.ErrInsufficientFunds.Wrapf("requested amount is more than spend limit")
 	}
 
 	return authz.AcceptResponse{
-			Accept:  true,
-			Delete:  limitLeft.IsZero(),
-			Updated: &DepositAuthorization{Scopes: m.Scopes, SpendLimit: limitLeft}},
+			Accept: true,
+			Delete: limitsLeft.IsZero(),
+			Updated: &DepositAuthorization{
+				Scopes:      m.Scopes,
+				SpendLimit:  sdk.NewCoin(sdkutil.DenomUakt, sdkmath.ZeroInt()),
+				SpendLimits: limitsLeft,
+			},
+		},
 		nil
 }
 
@@ -124,8 +147,19 @@ func (m *DepositAuthorization) ValidateBasic() error {
 
 		scopes[scope] = 0
 	}
-	if !m.SpendLimit.IsPositive() {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "spend limit cannot be negative")
+
+	if !m.SpendLimit.IsNil() {
+		if !m.SpendLimit.IsValid() {
+			return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "spend limit is not valid")
+		}
+
+		if !m.SpendLimit.IsZero() {
+			return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "spend limit is deprecated and must be zero")
+		}
+	}
+
+	if !m.SpendLimits.IsValid() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "spend limits are not valid")
 	}
 
 	return nil

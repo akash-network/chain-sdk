@@ -48,6 +48,60 @@ message EventLedgerRecordExecuted {
     (gogoproto.nullable)  = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)   = "id",
-    (gogoproto.moretags)  = "yaml:\"burneidd_from\""
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+
+  // burned_from source address of the tokens burned
+  string burned_from = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "burned_from",
+    (gogoproto.moretags)  = "yaml:\"burned_from\""
+  ];
+
+  // minted_to destination address of the tokens minted
+  string minted_to = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "minted_to",
+    (gogoproto.moretags)  = "yaml:\"minted_to\""
+  ];
+
+  // module is module account performing burn
+  string burner = 4 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "burner",
+    (gogoproto.moretags)  = "yaml:\"burner\""
+  ];
+
+  // module is module account performing mint
+  string minter = 5 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "minter",
+    (gogoproto.moretags)  = "yaml:\"minter\""
+  ];
+
+  // burned is the coin burned at price
+  CoinPrice burned = 6 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "burned",
+    (gogoproto.moretags) = "yaml:\"burned\""
+  ];
+
+  // minted is coin minted at price
+  CoinPrice minted = 7 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "minted",
+    (gogoproto.moretags) = "yaml:\"minted\""
+  ];
+
+  CoinPrice remint_credit_issued = 8 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "remint_credit_issued",
+    (gogoproto.moretags) = "yaml:\"remint_credit_issued\""
+  ];
+
+  CoinPrice remint_credit_accrued = 9 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "remint_credit_accrued",
+    (gogoproto.moretags) = "yaml:\"remint_credit_accrued\""
   ];
 }

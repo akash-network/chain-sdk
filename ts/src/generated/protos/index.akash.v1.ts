@@ -11,7 +11,7 @@ export { EventMintStatusChange, EventVaultSeeded, EventLedgerRecordExecuted } fr
 export { LedgerRecordFilters } from "./akash/bme/v1/filters.ts";
 export { Params } from "./akash/bme/v1/params.ts";
 export { GenesisLedgerRecord, GenesisLedgerPendingRecord, GenesisLedgerState, GenesisVaultState, GenesisState as Bme_GenesisState } from "./akash/bme/v1/genesis.ts";
-export { MsgUpdateParams, MsgUpdateParamsResponse, MsgSeedVault, MsgSeedVaultResponse, MsgBurnMint, MsgMintACT, MsgBurnACT, MsgBurnMintResponse, MsgMintACTResponse, MsgBurnACTResponse } from "./akash/bme/v1/msgs.ts";
+export { MsgUpdateParams, MsgUpdateParamsResponse, MsgFundVault, MsgFundVaultResponse, MsgBurnMint, MsgMintACT, MsgBurnACT, MsgBurnMintResponse, MsgMintACTResponse, MsgBurnACTResponse } from "./akash/bme/v1/msgs.ts";
 export { QueryParamsRequest, QueryParamsResponse, QueryVaultStateRequest, QueryVaultStateResponse, QueryStatusRequest, QueryStatusResponse, QueryLedgerRecordEntry, QueryLedgerRecordsRequest, QueryLedgerRecordsResponse } from "./akash/bme/v1/query.ts";
 export { ID, Certificate, State as Cert_State } from "./akash/cert/v1/cert.ts";
 export { CertificateFilter } from "./akash/cert/v1/filters.ts";
@@ -41,7 +41,7 @@ export { EventOrderCreated, EventOrderClosed, EventBidCreated, EventBidClosed, E
 export { LeaseFilters } from "./akash/market/v1/filters.ts";
 export { DataID, PriceDataID, PriceDataRecordID, PriceDataState, PriceData, AggregatedPrice, PriceHealth, PricesFilter, QueryPricesRequest, QueryPricesResponse } from "./akash/oracle/v1/prices.ts";
 export { EventPriceData, EventPriceStaleWarning, EventPriceStaled, EventPriceRecovered } from "./akash/oracle/v1/events.ts";
-export { PythContractParams, WormholeContractParams, Params as Oracle_Params } from "./akash/oracle/v1/params.ts";
+export { Params as Oracle_Params } from "./akash/oracle/v1/params.ts";
 export { GenesisState as Oracle_GenesisState } from "./akash/oracle/v1/genesis.ts";
 export { MsgAddPriceEntry, MsgAddPriceEntryResponse, MsgUpdateParams as Oracle_MsgUpdateParams, MsgUpdateParamsResponse as Oracle_MsgUpdateParamsResponse } from "./akash/oracle/v1/msgs.ts";
 export { QueryParamsRequest as Oracle_QueryParamsRequest, QueryParamsResponse as Oracle_QueryParamsResponse, QueryPriceFeedConfigRequest, QueryPriceFeedConfigResponse, QueryAggregatedPriceRequest, QueryAggregatedPriceResponse } from "./akash/oracle/v1/query.ts";
