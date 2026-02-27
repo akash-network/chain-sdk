@@ -1,0 +1,130 @@
+[
+  {
+    "name": "datacenter",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+        ],
+        "any_of": [
+          "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63",
+          "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "region",
+          "value": "us-east"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "500"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "1073741824"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "2147483648"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": []
+        },
+        "count": 3,
+        "price": {
+          "denom": "uakt",
+          "amount": "300.000000000000000000"
+        }
+      },
+      {
+        "resource": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "1000"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "2147483648"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "10737418240"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": []
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "500.000000000000000000"
+        }
+      },
+      {
+        "resource": {
+          "id": 3,
+          "cpu": {
+            "units": {
+              "val": "100"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "268435456"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "536870912"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "100.000000000000000000"
+        }
+      }
+    ]
+  }
+]

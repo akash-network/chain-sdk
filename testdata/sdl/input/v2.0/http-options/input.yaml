@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.0"
+services:
+  web:
+    image: nginx:latest
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+        http_options:
+          max_body_size: 10485760
+          read_timeout: 30000
+          send_timeout: 30000
+          next_tries: 5
+          next_timeout: 1000
+          next_cases:
+            - error
+            - timeout
+            - "500"
+            - "502"
+            - "503"
+profiles:
+  compute:
+    web-compute:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 1Gi
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        web-compute:
+          denom: uakt
+          amount: 150
+deployment:
+  web:
+    akash:
+      profile: web-compute
+      count: 1
+

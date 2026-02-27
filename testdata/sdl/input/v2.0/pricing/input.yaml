@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.0"
+services:
+  app:
+    image: nginx:latest
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+profiles:
+  compute:
+    app-compute:
+      resources:
+        cpu:
+          units: 1000m
+        memory:
+          size: 1Gi
+        storage:
+          size: 1Gi
+  placement:
+    provider-a:
+      pricing:
+        app-compute:
+          denom: uakt
+          amount: 5000
+    provider-b:
+      pricing:
+        app-compute:
+          denom: uakt
+          amount: 3000
+deployment:
+  app:
+    provider-a:
+      profile: app-compute
+      count: 1
+    provider-b:
+      profile: app-compute
+      count: 1
+

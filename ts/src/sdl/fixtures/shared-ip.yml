@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../sdl-schema.yaml
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
 
 ---
 version: "2.0"

@@ -89,13 +89,20 @@ func ReadFile(path string) (SDL, error) {
 }
 
 // Read reads buffer data and returns SDL instance
-func Read(buf []byte) (SDL, error) {
+func Read(buf []byte) (sdlObj SDL, err error) {
+	schemaErr := validateInputAgainstSchema(buf)
+
+	// Soft check if schema validation passed but the SDL is rejected by the Go parser
+	defer func() {
+		checkSchemaValidationResult(schemaErr, err)
+	}()
+
 	obj := &sdl{}
-	if err := yaml.Unmarshal(buf, obj); err != nil {
+	if err = yaml.Unmarshal(buf, obj); err != nil {
 		return nil, err
 	}
 
-	if err := obj.validate(); err != nil {
+	if err = obj.validate(); err != nil {
 		return nil, err
 	}
 
@@ -109,7 +116,7 @@ func Read(buf []byte) (SDL, error) {
 		vgroups = append(vgroups, dgroup)
 	}
 
-	if err := dtypes.ValidateDeploymentGroups(vgroups); err != nil {
+	if err = dtypes.ValidateDeploymentGroups(vgroups); err != nil {
 		return nil, err
 	}
 
@@ -118,7 +125,7 @@ func Read(buf []byte) (SDL, error) {
 		return nil, err
 	}
 
-	if err := m.Validate(); err != nil {
+	if err = m.Validate(); err != nil {
 		return nil, err
 	}
 
