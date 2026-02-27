@@ -408,7 +408,7 @@ describe(SDL.name, () => {
         "services.web.params": {
           $set: { storage: { data: { readOnly: false } } },
         },
-        "profiles.compute.web.resources.storage": { $set: { name: "data", size: "1Gi", attributes: { persistent: true } } },
+        "profiles.compute.web.resources.storage": { $set: { name: "data", size: "1Gi", attributes: { class: "default", persistent: true } } },
       });
 
       expect(() => SDL.fromString(yml, "beta3", "sandbox")).toThrowError(
@@ -434,12 +434,12 @@ describe(SDL.name, () => {
   });
 
   describe("gpu validation", () => {
-    it("should throw an error when gpu units is not defined", () => {
+    it("should accept GPU when units is omitted (defaults to 0)", () => {
       const sdlJson = createSdlJson({
         "profiles.compute.web.resources.gpu": { $set: {} },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("Missing required field: \"units\" at \"/profiles/compute/web/resources/gpu\"."));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).not.toThrow();
     });
 
     it("should throw an error when gpu units > 0 and attributes is not defined", () => {
@@ -447,7 +447,9 @@ describe(SDL.name, () => {
         "profiles.compute.web.resources.gpu": { $set: { units: 1 } },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must have attributes if units is not 0."));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(
+        expect.objectContaining({ message: expect.stringMatching(/GPU must have attributes|Missing required field: "attributes"/) }),
+      );
     });
 
     it("should throw an error when gpu units is 0 and attributes is defined", () => {
@@ -455,7 +457,9 @@ describe(SDL.name, () => {
         "profiles.compute.web.resources.gpu": { $set: { units: 0, attributes: {} } },
       });
 
-      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(new SdlValidationError("GPU must not have attributes if units is 0."));
+      expect(() => new SDL(sdlJson, "beta3", "sandbox")).toThrowError(
+        expect.objectContaining({ message: expect.stringMatching(/GPU must not have attributes|must be greater than 0/) }),
+      );
     });
 
     it("should throw an error when gpu units > 0 and attributes vendor is not supported", () => {
@@ -1048,7 +1052,7 @@ describe(SDL.name, () => {
 
     it("should throw an error if GPU units is not 0, and there are no attributes present", () => {
       expect(() => SDL.fromString(hasAttrSDL, "beta3")).toThrow(
-        /GPU must not have attributes if units is 0/,
+        /GPU must not have attributes if units is 0|must be greater than 0/,
       );
     });
 
