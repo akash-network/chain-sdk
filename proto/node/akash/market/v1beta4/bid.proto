@@ -12,6 +12,7 @@ option go_package = "pkg.akt.dev/go/node/market/v1beta4";
 // ResourceOffer describes resources that provider is offering
 // for deployment
 message ResourceOffer {
+  option deprecated = true;
   option (gogoproto.equal) = true;
   akash.base.v1beta3.Resources resources = 1 [
     (gogoproto.nullable)   = false,
@@ -26,6 +27,7 @@ message ResourceOffer {
 
 // MsgCreateBid defines an SDK message for creating Bid
 message MsgCreateBid {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   OrderID order = 1 [
@@ -58,10 +60,13 @@ message MsgCreateBid {
 }
 
 // MsgCreateBidResponse defines the Msg/CreateBid response type.
-message MsgCreateBidResponse {}
+message MsgCreateBidResponse {
+  option deprecated = true;
+}
 
 // MsgCloseBid defines an SDK message for closing bid
 message MsgCloseBid {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   BidID bid_id = 1 [
@@ -73,7 +78,9 @@ message MsgCloseBid {
 }
 
 // MsgCloseBidResponse defines the Msg/CloseBid response type.
-message MsgCloseBidResponse {}
+message MsgCloseBidResponse {
+  option deprecated = true;
+}
 
 // BidID stores owner and all other seq numbers
 // A successful bid becomes a Lease(ID).

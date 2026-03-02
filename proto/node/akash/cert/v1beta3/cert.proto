@@ -7,6 +7,7 @@ option go_package = "pkg.akt.dev/go/node/cert/v1beta3";
 
 // CertificateID stores owner and sequence number
 message CertificateID {
+  option deprecated = true;
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_stringer) = false;
 
@@ -23,6 +24,7 @@ message CertificateID {
 
 // Certificate stores state, certificate and it's public key
 message Certificate {
+  option deprecated = true;
   // State is an enum which refers to state of deployment
   enum State {
     option (gogoproto.goproto_enum_prefix) = false;
@@ -53,6 +55,7 @@ message Certificate {
 
 // CertificateFilter defines filters used to filter certificates
 message CertificateFilter {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   string owner = 1 [
@@ -73,6 +76,7 @@ message CertificateFilter {
 
 // MsgCreateCertificate defines an SDK message for creating certificate
 message MsgCreateCertificate {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   string owner = 1 [
@@ -92,10 +96,13 @@ message MsgCreateCertificate {
 }
 
 // MsgCreateCertificateResponse defines the Msg/CreateCertificate response type.
-message MsgCreateCertificateResponse {}
+message MsgCreateCertificateResponse {
+  option deprecated = true;
+}
 
 // MsgRevokeCertificate defines an SDK message for revoking certificate
 message MsgRevokeCertificate {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   CertificateID id = 1 [
@@ -107,4 +114,6 @@ message MsgRevokeCertificate {
 }
 
 // MsgRevokeCertificateResponse defines the Msg/RevokeCertificate response type.
-message MsgRevokeCertificateResponse {}
+message MsgRevokeCertificateResponse {
+  option deprecated = true;
+}

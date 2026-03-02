@@ -8,6 +8,7 @@ option go_package = "pkg.akt.dev/go/node/provider/v1beta3";
 
 // ProviderInfo
 message ProviderInfo {
+  option deprecated = true;
   string email = 1 [
     (gogoproto.customname) = "EMail",
     (gogoproto.jsontag)    = "email",
@@ -21,6 +22,7 @@ message ProviderInfo {
 
 // MsgCreateProvider defines an SDK message for creating a provider
 message MsgCreateProvider {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   string owner    = 1 [(gogoproto.jsontag) = "owner", (gogoproto.moretags) = "yaml:\"owner\""];
@@ -44,10 +46,13 @@ message MsgCreateProvider {
 }
 
 // MsgCreateProviderResponse defines the Msg/CreateProvider response type.
-message MsgCreateProviderResponse {}
+message MsgCreateProviderResponse {
+  option deprecated = true;
+}
 
 // MsgUpdateProvider defines an SDK message for updating a provider
 message MsgUpdateProvider {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   string owner    = 1 [(gogoproto.jsontag) = "owner", (gogoproto.moretags) = "yaml:\"owner\""];
@@ -70,20 +75,26 @@ message MsgUpdateProvider {
 }
 
 // MsgUpdateProviderResponse defines the Msg/UpdateProvider response type.
-message MsgUpdateProviderResponse {}
+message MsgUpdateProviderResponse {
+  option deprecated = true;
+}
 
 // MsgDeleteProvider defines an SDK message for deleting a provider
 message MsgDeleteProvider {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   string owner = 1 [(gogoproto.jsontag) = "owner", (gogoproto.moretags) = "yaml:\"owner\""];
 }
 
 // MsgDeleteProviderResponse defines the Msg/DeleteProvider response type.
-message MsgDeleteProviderResponse {}
+message MsgDeleteProviderResponse {
+  option deprecated = true;
+}
 
 // Provider stores owner and host details
 message Provider {
+  option deprecated = true;
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_stringer) = false;
 
