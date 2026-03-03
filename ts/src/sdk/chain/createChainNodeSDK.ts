@@ -9,6 +9,7 @@ import { createRetryInterceptor, isRetryEnabled } from "../transport/interceptor
 import { createTxTransport } from "../transport/tx/createTxTransport.ts";
 import type { TxClient } from "../transport/tx/TxClient.ts";
 import type { Transport, TxCallOptions } from "../transport/types.ts";
+import { SIGNER_KEY } from "./helpers.ts";
 
 export type { PayloadOf, ResponseOf } from "../types.ts";
 
@@ -33,7 +34,7 @@ export function createChainNodeSDK(options: ChainNodeSDKOptions) {
   }
   const nodeSDK = createNodeSDK(queryTransport, txTransport);
   const cosmosSDK = createCosmosSDK(queryTransport, txTransport);
-  return { ...nodeSDK, ...cosmosSDK };
+  return { ...nodeSDK, ...cosmosSDK, [SIGNER_KEY]: options.tx?.signer };
 }
 
 export interface ChainNodeSDKOptions {
