@@ -1,4 +1,4 @@
-import { createChainNodeSDK, createStargateClient, SDL, type TxInput, type QueryInput } from "@akashnetwork/chain-sdk";
+import { createChainNodeSDK, createStargateClient, generateManifest, generateManifestVersion, type TxInput, type QueryInput, yaml } from "@akashnetwork/chain-sdk";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import type { MsgCreateDeployment } from "@akashnetwork/chain-sdk/private-types/akash.v1beta4";
 import type { MsgCreateLease } from "@akashnetwork/chain-sdk/private-types/akash.v1beta5";
@@ -33,7 +33,7 @@ const sdk = createChainNodeSDK({
 });
 
 console.log("Step 1: Creating deployment...");
-const sdl = SDL.fromString(`
+const manifest = generateManifest(yaml`
 # Welcome to the Akash Network! 🚀☁
 # This file is called a Stack Definition Laguage (SDL)
 # SDL is a human friendly data standard for declaring deployment attributes.
@@ -92,7 +92,10 @@ deployment:
     dcloud:
       profile: web
       count: 1
-`, "beta3");
+`, 'sandbox');
+if (!manifest.ok) {
+  throw new Error(`Failed to generate manifest: ${manifest.value}`);
+}
 
 const latestBlockResponse = await sdk.cosmos.base.tendermint.v1beta1.getLatestBlock();
 const deploymentMessage: TxInput<MsgCreateDeployment> = {
@@ -100,8 +103,8 @@ const deploymentMessage: TxInput<MsgCreateDeployment> = {
     owner: account.address,
     dseq: latestBlockResponse.block?.header?.height!,
   },
-  groups: sdl.groups(),
-  hash: await sdl.manifestVersion(),
+  groups: manifest.value.groupSpecs,
+  hash: await generateManifestVersion(manifest.value.groups),
   deposit: {
     amount: {
       denom: "uakt",
