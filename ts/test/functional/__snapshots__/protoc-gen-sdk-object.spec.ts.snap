@@ -25,11 +25,11 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           send: withMetadata(async function send(input: DeepSimplify<msg.SendRequest>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getMsgClient(service).send(input, options);
-          }, { path: [0, 0] }),
+          }, { path: [0, "send"], serviceLoader }),
           getBlock: withMetadata(async function getBlock(input: DeepPartial<query.GetBlockRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(1);
             return getClient(service).getBlock(input, options);
-          }, { path: [1, 0] }),
+          }, { path: [1, "getBlock"], serviceLoader }),
           /**
            * getBlockByHeight is deprecated. Use GetBlock instead.
            * @deprecated
@@ -37,7 +37,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getBlockByHeight: withMetadata(async function getBlockByHeight(input: DeepPartial<query.GetBlockByHeightRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(1);
             return getClient(service).getBlockByHeight(input, options);
-          }, { path: [1, 1] })
+          }, { path: [1, "getBlockByHeight"], serviceLoader })
         }
       }
     }

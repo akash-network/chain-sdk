@@ -109,6 +109,31 @@ const deployments = await sdk.akash.deployment.v1beta4.getDeployments({
 });
 ```
 
+#### Chain SDK transactions
+
+Each SDK method like `sdk.akash.market.v1beta5.createLease(...)` sends a single message in its own transaction. To send **multiple messages in a single transaction**, use the `transaction` and `msg` helpers:
+
+- `msg(method, data)` — wraps an SDK method and its input into a message without sending it
+- `transaction(sdk, messages, options?)` — signs and broadcasts all messages in one transaction
+
+```typescript
+import { transaction, msg, certificateManager } from "@akashnetwork/chain-sdk";
+
+// assuming `sdk` is created via createChainNodeSDK() or createChainNodeWebSDK as shown above
+
+const cert = await certificateManager.generatePEM(account.address);
+const txResult = await transaction(sdk, [
+  msg(sdk.akash.market.v1beta5.createLease, leaseMessage),
+  msg(sdk.akash.cert.v1.createCertificate, {
+    owner: account.address,
+    cert: Buffer.from(cert.cert, 'utf-8'),
+    pubkey: Buffer.from(cert.publicKey, 'utf-8'),
+  })
+], {
+  memo: "Test lease creation from bid - Akash Chain SDK",
+});
+```
+
 ### Provider SDK
 
 Currently provider SDK supports only `getStatus` and `streamStatus` methods over gRPC protocol.
