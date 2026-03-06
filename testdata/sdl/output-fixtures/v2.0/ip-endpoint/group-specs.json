@@ -1,0 +1,71 @@
+[
+  {
+    "name": "akash",
+    "requirements": {
+      "signed_by": {
+        "all_of": null,
+        "any_of": [
+          "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "host",
+          "value": "akash"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "250"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "536870912"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "1073741824"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 1
+            },
+            {
+              "kind": 1,
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 2
+            }
+          ]
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "200.000000000000000000"
+        }
+      }
+    ]
+  }
+]

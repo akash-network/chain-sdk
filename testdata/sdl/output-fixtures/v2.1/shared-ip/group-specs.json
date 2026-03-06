@@ -1,0 +1,64 @@
+[
+  {
+    "name": "global",
+    "requirements": {
+      "signed_by": {
+        "all_of": null,
+        "any_of": null
+      },
+      "attributes": null
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "10"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "134217728"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "536870912"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "kind": 1,
+              "sequence_number": 0
+            },
+            {
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 2
+            },
+            {
+              "kind": 2,
+              "sequence_number": 2
+            }
+          ]
+        },
+        "count": 4,
+        "price": {
+          "denom": "uakt",
+          "amount": "10.000000000000000000"
+        }
+      }
+    ]
+  }
+]
