@@ -24,3 +24,9 @@ coverage.txt
 dev.env
 
 .editorconfig
+
+# rust package 
+target
+
+# MacOS devices attributes
+.DS_Store
