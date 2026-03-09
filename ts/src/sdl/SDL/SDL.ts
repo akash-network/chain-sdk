@@ -597,7 +597,7 @@ export class SDL {
   computeEndpointSequenceNumbers(sdl: v2Sdl) {
     return Object.fromEntries(
       Object.values(sdl.services).flatMap((service) =>
-        service.expose.flatMap((expose) =>
+        service.expose?.flatMap((expose) =>
           expose.to
             ? expose.to
                 .filter((to) => to.global && to.ip?.length > 0)
@@ -605,7 +605,7 @@ export class SDL {
                 .sort()
                 .map((ip, index) => [ip, index + 1])
             : [],
-        ),
+        ) ?? [],
       ),
     );
   }
