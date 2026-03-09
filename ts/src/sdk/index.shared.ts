@@ -4,3 +4,5 @@ export { TxError } from "./transport/tx/TxError.ts";
 export { certificateManager, CertificateManager, type CertificateInfo, type CertificatePem, type ValidityRangeOptions } from "./provider/auth/mtls/index.ts";
 export * from "./provider/auth/jwt/index.ts";
 export type { DeepSimplify as TxInput, DeepPartial as QueryInput } from "../encoding/typeEncodingHelpers.ts";
+export { transaction, msg } from "./chain/helpers.ts";
+export type { TxMessage } from "./chain/helpers.ts";
