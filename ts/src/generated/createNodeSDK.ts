@@ -139,6 +139,13 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).ledgerRecords(input, options);
           }, { path: [2, "ledgerRecords"], serviceLoader }),
           /**
+           * getLedgerRecords queries ledger records with optional filters for status, source, denom, to_denom
+           */
+          getLedgerRecords: withMetadata(async function getLedgerRecords(input: DeepPartial<akash_bme_v1_query.QueryLedgerRecordsRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(2);
+            return getClient(service).ledgerRecords(input, options);
+          }, { path: [2, 3] }),
+          /**
            * updateParams updates the module parameters.
            * This operation can only be performed through governance proposals.
            */

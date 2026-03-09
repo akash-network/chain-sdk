@@ -12,6 +12,7 @@ option go_package = "pkg.akt.dev/go/node/deployment/v1beta3";
 
 // MsgCreateDeployment defines an SDK message for creating deployment
 message MsgCreateDeployment {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   DeploymentID id = 1 [
@@ -42,10 +43,13 @@ message MsgCreateDeployment {
 }
 
 // MsgCreateDeploymentResponse defines the Msg/CreateDeployment response type.
-message MsgCreateDeploymentResponse {}
+message MsgCreateDeploymentResponse {
+  option deprecated = true;
+}
 
 // MsgDepositDeployment deposits more funds into the deposit account
 message MsgDepositDeployment {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   DeploymentID id = 1 [
@@ -69,10 +73,13 @@ message MsgDepositDeployment {
 }
 
 // MsgCreateDeploymentResponse defines the Msg/CreateDeployment response type.
-message MsgDepositDeploymentResponse {}
+message MsgDepositDeploymentResponse {
+  option deprecated = true;
+}
 
 // MsgUpdateDeployment defines an SDK message for updating deployment
 message MsgUpdateDeployment {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   DeploymentID id = 1 [
@@ -88,10 +95,13 @@ message MsgUpdateDeployment {
 }
 
 // MsgUpdateDeploymentResponse defines the Msg/UpdateDeployment response type.
-message MsgUpdateDeploymentResponse {}
+message MsgUpdateDeploymentResponse {
+  option deprecated = true;
+}
 
 // MsgCloseDeployment defines an SDK message for closing deployment
 message MsgCloseDeployment {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   DeploymentID id = 1 [
@@ -103,4 +113,6 @@ message MsgCloseDeployment {
 }
 
 // MsgCloseDeploymentResponse defines the Msg/CloseDeployment response type.
-message MsgCloseDeploymentResponse {}
+message MsgCloseDeploymentResponse {
+  option deprecated = true;
+}

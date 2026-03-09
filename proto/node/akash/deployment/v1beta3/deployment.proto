@@ -7,6 +7,7 @@ option go_package = "pkg.akt.dev/go/node/deployment/v1beta3";
 
 // DeploymentID stores owner and sequence number
 message DeploymentID {
+  option deprecated = true;
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_stringer) = false;
 
@@ -23,6 +24,7 @@ message DeploymentID {
 
 // Deployment stores deploymentID, state and version details
 message Deployment {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   DeploymentID deployment_id = 1 [
@@ -57,6 +59,7 @@ message Deployment {
 
 // DeploymentFilters defines filters used to filter deployments
 message DeploymentFilters {
+  option deprecated = true;
   option (gogoproto.equal) = false;
 
   string owner = 1 [
