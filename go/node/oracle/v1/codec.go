@@ -25,8 +25,6 @@ var (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgAddPriceEntry{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgAddPriceEntry{}).Type(), nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgUpdateParams{}).Type(), nil)
-	cdc.RegisterConcrete(&PythContractParams{}, "akash-sdk/x/"+ModuleName+"/PythContractParams", nil)
-	cdc.RegisterConcrete(&WormholeContractParams{}, "akash-sdk/x/"+ModuleName+"/WormholeContractParams", nil)
 }
 
 // RegisterInterfaces registers the x/oracle interfaces types with the interface registry
@@ -34,8 +32,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgAddPriceEntry{},
 		&MsgUpdateParams{},
-		&PythContractParams{},
-		&WormholeContractParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -35,6 +35,7 @@ message DepositAuthorization {
   // SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account.
   // This limit applies cumulatively across all deposit operations within the authorized scopes.
   // Once this limit is reached, the authorization becomes invalid and no further deposits can be made.
+  // Deprecated: use spend_limits instead
   cosmos.base.v1beta1.Coin spend_limit = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "spend_limit"
@@ -47,5 +48,16 @@ message DepositAuthorization {
     (gogoproto.castrepeated) = "DepositAuthorizationScopes",
     (gogoproto.jsontag)      = "scopes",
     (gogoproto.moretags)     = "yaml:\"scopes\""
+  ];
+
+  // SpendLimits specifies the maximum amount per denomination the grantee is authorized to spend.
+  // Each entry represents the limit for a specific denomination, enforced independently.
+  // Once an individual denomination's limit is exhausted, no further deposits can be made in that denomination.
+  repeated cosmos.base.v1beta1.Coin spend_limits = 3 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (amino.encoding)         = "legacy_coins",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.jsontag)      = "spend_limits"
   ];
 }

@@ -29,7 +29,7 @@ func (m *MsgSignData) Type() string {
 
 // GetSignBytes encodes the message for signing
 func (m *MsgSignData) GetSignBytes() []byte {
-	return sdk.MustSortJSON(legacy.Cdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(legacy.Cdc.MustMarshalJSON(m)) //nolint: staticcheck
 }
 
 func (m *MsgSignData) Route() string {

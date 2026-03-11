@@ -243,35 +243,35 @@ func (msg *MsgCreateBid) GetSignBytes() []byte {
 //
 // Deprecated: GetSignBytes is deprecated
 func (msg *MsgWithdrawLease) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) // nolint: staticcheck
 }
 
 // GetSignBytes encodes the message for signing
 func (msg *MsgCreateLease) GetSignBytes() []byte {
 	//
 	// Deprecated: GetSignBytes is deprecated
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) // nolint: staticcheck
 }
 
 // GetSignBytes encodes the message for signing
 //
 // Deprecated: GetSignBytes is deprecated
 func (msg *MsgCloseBid) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) // nolint: staticcheck
 }
 
 // GetSignBytes encodes the message for signing
 //
 // Deprecated: GetSignBytes is deprecated
 func (msg *MsgCloseLease) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) // nolint: staticcheck
 }
 
 // GetSignBytes encodes the message for signing
 //
 // Deprecated: GetSignBytes is deprecated
 func (msg *MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) // nolint: staticcheck
 }
 
 // ============= Route =============

@@ -16,7 +16,7 @@ import (
 
 func TestDepositAuthorizationAccept(t *testing.T) {
 	limit := sdk.NewInt64Coin(sdkutil.DenomUact, 333)
-	dda := v1.NewDepositAuthorization(v1.DepositAuthorizationScopes{v1.DepositScopeDeployment}, limit)
+	dda := v1.NewDepositAuthorization(v1.DepositAuthorizationScopes{v1.DepositScopeDeployment}, sdk.Coins{limit})
 
 	sctx := sdk.Context{}
 

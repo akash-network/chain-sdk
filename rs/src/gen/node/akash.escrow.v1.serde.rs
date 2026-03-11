@@ -13,6 +13,9 @@ impl serde::Serialize for DepositAuthorization {
         if !self.scopes.is_empty() {
             len += 1;
         }
+        if !self.spend_limits.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.escrow.v1.DepositAuthorization", len)?;
         if let Some(v) = self.spend_limit.as_ref() {
             struct_ser.serialize_field("spendLimit", v)?;
@@ -23,6 +26,9 @@ impl serde::Serialize for DepositAuthorization {
                     .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", v)))
                 }).collect::<std::result::Result<Vec<_>, _>>()?;
             struct_ser.serialize_field("scopes", &v)?;
+        }
+        if !self.spend_limits.is_empty() {
+            struct_ser.serialize_field("spendLimits", &self.spend_limits)?;
         }
         struct_ser.end()
     }
@@ -37,12 +43,15 @@ impl<'de> serde::Deserialize<'de> for DepositAuthorization {
             "spend_limit",
             "spendLimit",
             "scopes",
+            "spend_limits",
+            "spendLimits",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             SpendLimit,
             Scopes,
+            SpendLimits,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -66,6 +75,7 @@ impl<'de> serde::Deserialize<'de> for DepositAuthorization {
                         match value {
                             "spendLimit" | "spend_limit" => Ok(GeneratedField::SpendLimit),
                             "scopes" => Ok(GeneratedField::Scopes),
+                            "spendLimits" | "spend_limits" => Ok(GeneratedField::SpendLimits),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -87,6 +97,7 @@ impl<'de> serde::Deserialize<'de> for DepositAuthorization {
             {
                 let mut spend_limit__ = None;
                 let mut scopes__ = None;
+                let mut spend_limits__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::SpendLimit => {
@@ -101,11 +112,18 @@ impl<'de> serde::Deserialize<'de> for DepositAuthorization {
                             }
                             scopes__ = Some(map_.next_value::<Vec<deposit_authorization::Scope>>()?.into_iter().map(|x| x as i32).collect());
                         }
+                        GeneratedField::SpendLimits => {
+                            if spend_limits__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("spendLimits"));
+                            }
+                            spend_limits__ = Some(map_.next_value()?);
+                        }
                     }
                 }
                 Ok(DepositAuthorization {
                     spend_limit: spend_limit__,
                     scopes: scopes__.unwrap_or_default(),
+                    spend_limits: spend_limits__.unwrap_or_default(),
                 })
             }
         }

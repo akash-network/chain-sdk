@@ -11,7 +11,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
-import { LedgerRecordID, MintStatus, mintStatusFromJSON, mintStatusToJSON } from "./types.ts";
+import { CoinPrice, LedgerRecordID, MintStatus, mintStatusFromJSON, mintStatusToJSON } from "./types.ts";
 
 /** EventCircuitBreakerStatusChange is emitted when circuit breaker status changes */
 export interface EventMintStatusChange {
@@ -38,7 +38,25 @@ export interface EventVaultSeeded {
 /** EventLedgerRecordExecuted emitted information of burn/mint event of token A burn to mint token B */
 export interface EventLedgerRecordExecuted {
   /** burned_from source address of the tokens burned */
-  id: LedgerRecordID | undefined;
+  id:
+    | LedgerRecordID
+    | undefined;
+  /** burned_from source address of the tokens burned */
+  burnedFrom: string;
+  /** minted_to destination address of the tokens minted */
+  mintedTo: string;
+  /** module is module account performing burn */
+  burner: string;
+  /** module is module account performing mint */
+  minter: string;
+  /** burned is the coin burned at price */
+  burned:
+    | CoinPrice
+    | undefined;
+  /** minted is coin minted at price */
+  minted: CoinPrice | undefined;
+  remintCreditIssued: CoinPrice | undefined;
+  remintCreditAccrued: CoinPrice | undefined;
 }
 
 function createBaseEventMintStatusChange(): EventMintStatusChange {
@@ -226,7 +244,17 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
 };
 
 function createBaseEventLedgerRecordExecuted(): EventLedgerRecordExecuted {
-  return { id: undefined };
+  return {
+    id: undefined,
+    burnedFrom: "",
+    mintedTo: "",
+    burner: "",
+    minter: "",
+    burned: undefined,
+    minted: undefined,
+    remintCreditIssued: undefined,
+    remintCreditAccrued: undefined,
+  };
 }
 
 export const EventLedgerRecordExecuted: MessageFns<
@@ -238,6 +266,30 @@ export const EventLedgerRecordExecuted: MessageFns<
   encode(message: EventLedgerRecordExecuted, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== undefined) {
       LedgerRecordID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.burnedFrom !== "") {
+      writer.uint32(18).string(message.burnedFrom);
+    }
+    if (message.mintedTo !== "") {
+      writer.uint32(26).string(message.mintedTo);
+    }
+    if (message.burner !== "") {
+      writer.uint32(34).string(message.burner);
+    }
+    if (message.minter !== "") {
+      writer.uint32(42).string(message.minter);
+    }
+    if (message.burned !== undefined) {
+      CoinPrice.encode(message.burned, writer.uint32(50).fork()).join();
+    }
+    if (message.minted !== undefined) {
+      CoinPrice.encode(message.minted, writer.uint32(58).fork()).join();
+    }
+    if (message.remintCreditIssued !== undefined) {
+      CoinPrice.encode(message.remintCreditIssued, writer.uint32(66).fork()).join();
+    }
+    if (message.remintCreditAccrued !== undefined) {
+      CoinPrice.encode(message.remintCreditAccrued, writer.uint32(74).fork()).join();
     }
     return writer;
   },
@@ -257,6 +309,70 @@ export const EventLedgerRecordExecuted: MessageFns<
           message.id = LedgerRecordID.decode(reader, reader.uint32());
           continue;
         }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.burnedFrom = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.mintedTo = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.burner = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.minter = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.burned = CoinPrice.decode(reader, reader.uint32());
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.minted = CoinPrice.decode(reader, reader.uint32());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.remintCreditIssued = CoinPrice.decode(reader, reader.uint32());
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.remintCreditAccrued = CoinPrice.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -267,7 +383,21 @@ export const EventLedgerRecordExecuted: MessageFns<
   },
 
   fromJSON(object: any): EventLedgerRecordExecuted {
-    return { id: isSet(object.id) ? LedgerRecordID.fromJSON(object.id) : undefined };
+    return {
+      id: isSet(object.id) ? LedgerRecordID.fromJSON(object.id) : undefined,
+      burnedFrom: isSet(object.burned_from) ? globalThis.String(object.burned_from) : "",
+      mintedTo: isSet(object.minted_to) ? globalThis.String(object.minted_to) : "",
+      burner: isSet(object.burner) ? globalThis.String(object.burner) : "",
+      minter: isSet(object.minter) ? globalThis.String(object.minter) : "",
+      burned: isSet(object.burned) ? CoinPrice.fromJSON(object.burned) : undefined,
+      minted: isSet(object.minted) ? CoinPrice.fromJSON(object.minted) : undefined,
+      remintCreditIssued: isSet(object.remint_credit_issued)
+        ? CoinPrice.fromJSON(object.remint_credit_issued)
+        : undefined,
+      remintCreditAccrued: isSet(object.remint_credit_accrued)
+        ? CoinPrice.fromJSON(object.remint_credit_accrued)
+        : undefined,
+    };
   },
 
   toJSON(message: EventLedgerRecordExecuted): unknown {
@@ -275,11 +405,51 @@ export const EventLedgerRecordExecuted: MessageFns<
     if (message.id !== undefined) {
       obj.id = LedgerRecordID.toJSON(message.id);
     }
+    if (message.burnedFrom !== "") {
+      obj.burned_from = message.burnedFrom;
+    }
+    if (message.mintedTo !== "") {
+      obj.minted_to = message.mintedTo;
+    }
+    if (message.burner !== "") {
+      obj.burner = message.burner;
+    }
+    if (message.minter !== "") {
+      obj.minter = message.minter;
+    }
+    if (message.burned !== undefined) {
+      obj.burned = CoinPrice.toJSON(message.burned);
+    }
+    if (message.minted !== undefined) {
+      obj.minted = CoinPrice.toJSON(message.minted);
+    }
+    if (message.remintCreditIssued !== undefined) {
+      obj.remint_credit_issued = CoinPrice.toJSON(message.remintCreditIssued);
+    }
+    if (message.remintCreditAccrued !== undefined) {
+      obj.remint_credit_accrued = CoinPrice.toJSON(message.remintCreditAccrued);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<EventLedgerRecordExecuted>): EventLedgerRecordExecuted {
     const message = createBaseEventLedgerRecordExecuted();
     message.id = (object.id !== undefined && object.id !== null) ? LedgerRecordID.fromPartial(object.id) : undefined;
+    message.burnedFrom = object.burnedFrom ?? "";
+    message.mintedTo = object.mintedTo ?? "";
+    message.burner = object.burner ?? "";
+    message.minter = object.minter ?? "";
+    message.burned = (object.burned !== undefined && object.burned !== null)
+      ? CoinPrice.fromPartial(object.burned)
+      : undefined;
+    message.minted = (object.minted !== undefined && object.minted !== null)
+      ? CoinPrice.fromPartial(object.minted)
+      : undefined;
+    message.remintCreditIssued = (object.remintCreditIssued !== undefined && object.remintCreditIssued !== null)
+      ? CoinPrice.fromPartial(object.remintCreditIssued)
+      : undefined;
+    message.remintCreditAccrued = (object.remintCreditAccrued !== undefined && object.remintCreditAccrued !== null)
+      ? CoinPrice.fromPartial(object.remintCreditAccrued)
+      : undefined;
     return message;
   },
 };
