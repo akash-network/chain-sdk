@@ -1,0 +1,171 @@
+[
+  {
+    "name": "akash",
+    "services": [
+      {
+        "name": "api",
+        "image": "node:18",
+        "command": null,
+        "args": null,
+        "env": null,
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "250"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "536870912"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "1073741824"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "kind": 1,
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 3
+            }
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 3000,
+            "externalPort": 3000,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "endpoint3",
+            "endpointSequenceNumber": 3
+          }
+        ],
+        "credentials": null
+      },
+      {
+        "name": "web",
+        "image": "nginx:latest",
+        "command": null,
+        "args": null,
+        "env": null,
+        "resources": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "100"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "268435456"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "536870912"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 1
+            },
+            {
+              "kind": 1,
+              "sequence_number": 0
+            },
+            {
+              "kind": 2,
+              "sequence_number": 2
+            }
+          ]
+        },
+        "count": 1,
+        "expose": [
+          {
+            "port": 80,
+            "externalPort": 80,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "endpoint1",
+            "endpointSequenceNumber": 1
+          },
+          {
+            "port": 443,
+            "externalPort": 443,
+            "proto": "TCP",
+            "service": "",
+            "global": true,
+            "hosts": null,
+            "httpOptions": {
+              "maxBodySize": 1048576,
+              "readTimeout": 60000,
+              "sendTimeout": 60000,
+              "nextTries": 3,
+              "nextTimeout": 0,
+              "nextCases": [
+                "error",
+                "timeout"
+              ]
+            },
+            "ip": "endpoint2",
+            "endpointSequenceNumber": 2
+          }
+        ],
+        "credentials": null
+      }
+    ]
+  }
+]

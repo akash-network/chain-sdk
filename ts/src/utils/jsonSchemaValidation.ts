@@ -74,7 +74,8 @@ function getDefaultErrorMessage(error: ValidationError, schema: Record<string, u
     return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must have at most ${getSchemaFieldByPath(error.schemaPath, schema)} items.`;
   }
   if (error.keyword === "minimum") {
-    return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be at least ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
+    const limit = (error.params as { limit?: number }).limit ?? getSchemaFieldByPath<number>(error.schemaPath, schema);
+    return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be at least ${limit}.`;
   }
   if (error.keyword === "exclusiveMinimum") {
     return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be greater than ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
@@ -83,7 +84,8 @@ function getDefaultErrorMessage(error: ValidationError, schema: Record<string, u
     return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be less than ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
   }
   if (error.keyword === "maximum") {
-    return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be at most ${getSchemaFieldByPath(error.schemaPath, schema)}.`;
+    const limit = (error.params as { limit?: number }).limit ?? getSchemaFieldByPath<number>(error.schemaPath, schema);
+    return `"${getFieldName(error.instancePath)}" at "${dirname(error.instancePath)}" must be at most ${limit}.`;
   }
   if (error.keyword === "minProperties") {
     const suffix = error.params.limit === 1 ? "property" : "properties";
@@ -115,7 +117,7 @@ export function dirname(path: string): string {
 function getSchemaFieldByPath<T = string>(keywordLocation: string, schema?: Record<string, unknown>): T {
   return keywordLocation.split("/").slice(1)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .reduce<T>((schema, key) => (schema as Record<string, any>)[key], schema as any);
+    .reduce<T>((schema, key) => (schema as Record<string, any>)?.[key], schema as any);
 }
 
 export type ValidationFunction = {

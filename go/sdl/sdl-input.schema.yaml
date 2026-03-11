@@ -2,7 +2,7 @@ $schema: http://json-schema.org/draft-07/schema#
 additionalProperties: false
 description: |
   Schema for Akash Stack Definition Language (SDL) YAML input files.
-
+  
   Note: This schema validates structure only. Semantic validations (cross-references,
   unused endpoints, profile references, etc.) are performed at runtime by the Go parser.
   See README.md for details.
@@ -15,13 +15,13 @@ definitions:
           type: string
         type: array
       - type: 'null'
-
+  
   portNumber:
     description: Valid TCP/UDP port number (1-65535)
     type: integer
     minimum: 1
     maximum: 65535
-
+  
   httpErrorCode:
     description: HTTP error codes for proxy retry logic
     enum:
@@ -36,7 +36,7 @@ definitions:
       - "429"
       - off
     type: string
-
+  
   priceCoin:
     description: Price definition with amount and denomination
     additionalProperties: false
@@ -56,7 +56,7 @@ definitions:
       - denom
       - amount
     type: object
-
+  
   storageAttributesValidation:
     description: |
       Storage attributes validation:
@@ -70,16 +70,29 @@ definitions:
         oneOf:
           - type: boolean
           - type: string
-    not:
-      properties:
-        class: { const: ram }
-        persistent:
-          oneOf:
-            - { const: true }
-            - { const: "true" }
-      required: [class, persistent]
+    allOf:
+      - not:
+          properties:
+            class: { const: ram }
+            persistent:
+              oneOf:
+                - { const: true }
+                - { const: "true" }
+          required: [class, persistent]
+      - if:
+          properties:
+            class: { enum: [beta1, beta2, beta3, default] }
+          required: [class]
+        then:
+          properties:
+            persistent:
+              oneOf:
+                - { const: true }
+                - { const: "true" }
+          required: [persistent]
+    required: [class, persistent]
     type: object
-
+  
   storageVolume:
     description: Storage volume definition with size and optional attributes
     additionalProperties: false
@@ -93,28 +106,134 @@ definitions:
     required:
       - size
     type: object
-
+  
   absolutePath:
     description: Absolute filesystem path starting with /
     type: string
     minLength: 1
     pattern: '^/'
-
-  exposeToWithIpEnforcesGlobal:
-    description: Expose to with IP enforces global
-    if:
-      properties:
-        ip:
+  
+  exposeToItem:
+    description: |
+      Expose target validation:
+      If 'ip' endpoint is specified, 'global' must be true
+    additionalProperties: false
+    properties:
+      global:
+        type: boolean
+      ip:
+        minLength: 1
+        type: string
+      service:
+        type: string
+    allOf:
+      - if:
+          properties:
+            ip:
+              type: string
+              minLength: 1
+          required:
+            - ip
+        then:
+          properties:
+            global:
+              const: true
+          required:
+            - global
+    type: object
+  
+  httpOptions:
+    description: HTTP proxy options for expose configuration
+    additionalProperties: false
+    properties:
+      max_body_size:
+        type: integer
+        minimum: 0
+        maximum: 104857600
+        description: Maximum body size in bytes (max 100 MB)
+      next_cases:
+        oneOf:
+          - type: array
+            items:
+              $ref: '#/definitions/httpErrorCode'
+            contains:
+              const: off
+            maxItems: 1
+            minItems: 1
+          - type: array
+            items:
+              $ref: '#/definitions/httpErrorCode'
+            not:
+              contains:
+                const: off
+      next_timeout:
+        type: integer
+        minimum: 0
+      next_tries:
+        type: integer
+        minimum: 0
+      read_timeout:
+        type: integer
+        minimum: 0
+        maximum: 60000
+        description: Read timeout in milliseconds (max 60 seconds)
+      send_timeout:
+        type: integer
+        minimum: 0
+        maximum: 60000
+        description: Send timeout in milliseconds (max 60 seconds)
+    type: object
+  
+  credentials:
+    description: Container registry credentials
+    additionalProperties: false
+    properties:
+      email:
+        type: string
+        minLength: 5
+      host:
+        type: string
+        minLength: 1
+      password:
+        type: string
+        minLength: 6
+      username:
+        type: string
+        minLength: 1
+    required:
+      - host
+      - username
+      - password
+    type: object
+  
+  exposeItem:
+    description: Service expose configuration (port, protocol, http options)
+    additionalProperties: false
+    properties:
+      accept:
+        items:
           type: string
-          minLength: 1
-      required:
-        - ip
-    then:
-      properties:
-        global:
-          const: true
-      required:
-        - global
+        type: array
+      as:
+        $ref: '#/definitions/portNumber'
+      http_options:
+        $ref: '#/definitions/httpOptions'
+      port:
+        $ref: '#/definitions/portNumber'
+      proto:
+        enum:
+          - TCP
+          - UDP
+          - tcp
+          - udp
+        type: string
+      to:
+        items:
+          $ref: '#/definitions/exposeToItem'
+        type: array
+    required:
+      - port
+    type: object
 
 properties:
   deployment:
@@ -133,7 +252,7 @@ properties:
         type: object
       type: object
     type: object
-
+  
   endpoints:
     additionalProperties: false
     patternProperties:
@@ -148,13 +267,13 @@ properties:
           - kind
         type: object
     type: object
-
+  
   include:
     description: Optional list of files to include
     items:
       type: string
     type: array
-
+  
   profiles:
     additionalProperties: false
     properties:
@@ -218,7 +337,35 @@ properties:
                       oneOf:
                         - type: string
                         - type: number
-                  required: [units]
+                  allOf:
+                    - if:
+                        properties:
+                          units:
+                            oneOf:
+                              - type: number
+                                exclusiveMinimum: 0
+                              - type: string
+                                not:
+                                  pattern: '^0+(\.0+)?$'
+                        required:
+                          - units
+                      then:
+                        required:
+                          - attributes
+                    - if:
+                        required:
+                          - attributes
+                      then:
+                        properties:
+                          units:
+                            oneOf:
+                              - type: number
+                                exclusiveMinimum: 0
+                              - type: string
+                                not:
+                                  pattern: '^0+(\.0+)?$'
+                        required:
+                          - units
                   type: object
                 memory:
                   additionalProperties: false
@@ -273,7 +420,7 @@ properties:
       - compute
       - placement
     type: object
-
+  
   services:
     additionalProperties:
       properties:
@@ -282,25 +429,7 @@ properties:
         command:
           $ref: '#/definitions/stringArrayOrNull'
         credentials:
-          additionalProperties: false
-          properties:
-            email:
-              type: string
-              minLength: 5
-            host:
-              type: string
-              minLength: 1
-            password:
-              type: string
-              minLength: 6
-            username:
-              type: string
-              minLength: 1
-          required:
-            - host
-            - username
-            - password
-          type: object
+          $ref: '#/definitions/credentials'
         dependencies:
           items:
             additionalProperties: false
@@ -312,83 +441,11 @@ properties:
         env:
           $ref: '#/definitions/stringArrayOrNull'
         expose:
-          items:
-            additionalProperties: false
-            properties:
-              accept:
-                items:
-                  type: string
-                type: array
-              as:
-                $ref: '#/definitions/portNumber'
-              http_options:
-                additionalProperties: false
-                properties:
-                  max_body_size:
-                    type: integer
-                    minimum: 0
-                    maximum: 104857600
-                    description: Maximum body size in bytes (max 100 MB)
-                  next_cases:
-                    oneOf:
-                      - type: array
-                        items:
-                          $ref: '#/definitions/httpErrorCode'
-                        contains:
-                          const: off
-                        maxItems: 1
-                        minItems: 1
-                      - type: array
-                        items:
-                          $ref: '#/definitions/httpErrorCode'
-                        not:
-                          contains:
-                            const: off
-                  next_timeout:
-                    type: integer
-                    minimum: 0
-                  next_tries:
-                    type: integer
-                    minimum: 0
-                  read_timeout:
-                    type: integer
-                    minimum: 0
-                    maximum: 60000
-                    description: Read timeout in milliseconds (max 60 seconds)
-                  send_timeout:
-                    type: integer
-                    minimum: 0
-                    maximum: 60000
-                    description: Send timeout in milliseconds (max 60 seconds)
-                type: object
-              port:
-                $ref: '#/definitions/portNumber'
-              proto:
-                enum:
-                  - TCP
-                  - UDP
-                  - tcp
-                  - udp
-                type: string
-              to:
-                items:
-                  additionalProperties: false
-                  properties:
-                    global:
-                      type: boolean
-                    ip:
-                      minLength: 1
-                      type: string
-                    service:
-                      type: string
-                  allOf:
-                    - $ref: '#/definitions/exposeToWithIpEnforcesGlobal'
-                  type: object
-                type: array
-            required:
-              - port
-            type: object
-          type: array
+          oneOf:
+            - type: array
+              items:
+                $ref: '#/definitions/exposeItem'
+            - type: 'null'
         image:
           type: string
           minLength: 1
@@ -417,12 +474,12 @@ properties:
                   type: array
               type: object
           type: object
+      additionalProperties: false
       required:
         - image
       type: object
-      additionalProperties: false
     type: object
-
+  
   version:
     description: SDL version
     enum:
