@@ -442,8 +442,6 @@
      - [QueryAggregatedPriceResponse](#akash.oracle.v1.QueryAggregatedPriceResponse)
      - [QueryParamsRequest](#akash.oracle.v1.QueryParamsRequest)
      - [QueryParamsResponse](#akash.oracle.v1.QueryParamsResponse)
-     - [QueryPriceFeedConfigRequest](#akash.oracle.v1.QueryPriceFeedConfigRequest)
-     - [QueryPriceFeedConfigResponse](#akash.oracle.v1.QueryPriceFeedConfigResponse)
    
      - [Query](#akash.oracle.v1.Query)
    
@@ -5921,38 +5919,6 @@ Since: akash v2.0.0
 
  
 
- 
- <a name="akash.oracle.v1.QueryPriceFeedConfigRequest"></a>
-
- ### QueryPriceFeedConfigRequest
- QueryPriceFeedConfigRequest is the request type for price feed config.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `denom` | [string](#string) |  | denom is the denomination to query the price feed configuration for |
- 
- 
-
- 
-
- 
- <a name="akash.oracle.v1.QueryPriceFeedConfigResponse"></a>
-
- ### QueryPriceFeedConfigResponse
- QueryPriceFeedConfigResponse is the response type for price feed config.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `price_feed_id` | [string](#string) |  | price_feed_id is the Pyth price feed identifier for this denomination |
- | `pyth_contract_address` | [string](#string) |  | pyth_contract_address is the address of the Pyth smart contract |
- | `enabled` | [bool](#bool) |  | enabled indicates if the price feed is enabled for this denomination |
- 
- 
-
- 
-
   <!-- end messages -->
 
   <!-- end enums -->
@@ -5969,7 +5935,6 @@ Since: akash v2.0.0
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `Prices` | [QueryPricesRequest](#akash.oracle.v1.QueryPricesRequest) | [QueryPricesResponse](#akash.oracle.v1.QueryPricesResponse) | Prices query prices for specific denom | GET|/akash/oracle/v1/prices|
  | `Params` | [QueryParamsRequest](#akash.oracle.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.oracle.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/oracle/v1/params|
- | `PriceFeedConfig` | [QueryPriceFeedConfigRequest](#akash.oracle.v1.QueryPriceFeedConfigRequest) | [QueryPriceFeedConfigResponse](#akash.oracle.v1.QueryPriceFeedConfigResponse) | PriceFeedConfig queries the price feed configuration for a given denom. | GET|/akash/oracle/v1/price_feed_config/{denom}|
  | `AggregatedPrice` | [QueryAggregatedPriceRequest](#akash.oracle.v1.QueryAggregatedPriceRequest) | [QueryAggregatedPriceResponse](#akash.oracle.v1.QueryAggregatedPriceResponse) | AggregatedPrice queries the aggregated price for a given denom. | GET|/akash/oracle/v1/aggregated_price/{denom}|
  
   <!-- end services -->

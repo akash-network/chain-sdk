@@ -463,13 +463,6 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).params(input, options);
           }, { path: [14, "params"], serviceLoader }),
           /**
-           * getPriceFeedConfig queries the price feed configuration for a given denom.
-           */
-          getPriceFeedConfig: withMetadata(async function getPriceFeedConfig(input: DeepPartial<akash_oracle_v1_query.QueryPriceFeedConfigRequest>, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(14);
-            return getClient(service).priceFeedConfig(input, options);
-          }, { path: [14, "priceFeedConfig"], serviceLoader }),
-          /**
            * getAggregatedPrice queries the aggregated price for a given denom.
            */
           getAggregatedPrice: withMetadata(async function getAggregatedPrice(input: DeepPartial<akash_oracle_v1_query.QueryAggregatedPriceRequest>, options?: CallOptions) {

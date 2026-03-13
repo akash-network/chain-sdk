@@ -578,43 +578,6 @@ func (s *OracleCLITestSuite) TestCLIQueryOracleParams() {
 	}
 }
 
-func (s *OracleCLITestSuite) TestCLIQueryOraclePriceFeedConfigValidation() {
-	testCases := []struct {
-		name      string
-		args      []string
-		expectErr bool
-	}{
-		{
-			"missing denom argument",
-			cli.TestFlags().
-				WithOutputJSON(),
-			true,
-		},
-		{
-			"valid denom",
-			cli.TestFlags().
-				With("akt").
-				WithOutputJSON(),
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			cmd := cli.GetOraclePriceFeedConfigCmd()
-			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
-
-			if tc.expectErr {
-				s.Require().Error(err)
-			} else {
-				s.Require().NoError(err)
-				var resp oracle.QueryPriceFeedConfigResponse
-				s.Require().NoError(s.cctx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
-			}
-		})
-	}
-}
-
 func (s *OracleCLITestSuite) TestCLIQueryOracleParamsExec() {
 	testCases := []struct {
 		name      string

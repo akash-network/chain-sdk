@@ -88,10 +88,6 @@ func validateMinDeposits(i interface{}) error {
 		}
 	}
 
-	if _, exists := check["uakt"]; !exists {
-		return fmt.Errorf("%w: Min Deposits - uakt not given: %#v", v1.ErrInvalidParam, vals)
-	}
-
 	if _, exists := check["uact"]; !exists {
 		return fmt.Errorf("%w: Min Deposits - uact not given: %#v", v1.ErrInvalidParam, vals)
 	}
