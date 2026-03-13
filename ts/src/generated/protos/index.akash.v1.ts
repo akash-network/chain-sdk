@@ -44,7 +44,7 @@ export { EventPriceData, EventPriceStaleWarning, EventPriceStaled, EventPriceRec
 export { Params as Oracle_Params } from "./akash/oracle/v1/params.ts";
 export { GenesisState as Oracle_GenesisState } from "./akash/oracle/v1/genesis.ts";
 export { MsgAddPriceEntry, MsgAddPriceEntryResponse, MsgUpdateParams as Oracle_MsgUpdateParams, MsgUpdateParamsResponse as Oracle_MsgUpdateParamsResponse } from "./akash/oracle/v1/msgs.ts";
-export { QueryParamsRequest as Oracle_QueryParamsRequest, QueryParamsResponse as Oracle_QueryParamsResponse, QueryPriceFeedConfigRequest, QueryPriceFeedConfigResponse, QueryAggregatedPriceRequest, QueryAggregatedPriceResponse } from "./akash/oracle/v1/query.ts";
+export { QueryParamsRequest as Oracle_QueryParamsRequest, QueryParamsResponse as Oracle_QueryParamsResponse, QueryAggregatedPriceRequest, QueryAggregatedPriceResponse } from "./akash/oracle/v1/query.ts";
 export { DenomTakeRate, Params as Take_Params } from "./akash/take/v1/params.ts";
 export { GenesisState as Take_GenesisState } from "./akash/take/v1/genesis.ts";
 export { MsgUpdateParams as Take_MsgUpdateParams, MsgUpdateParamsResponse as Take_MsgUpdateParamsResponse } from "./akash/take/v1/paramsmsg.ts";

@@ -20,7 +20,6 @@ func GetQueryOracleCmd() *cobra.Command {
 	cmd.AddCommand(
 		GetOraclePricesCmd(),
 		GetOracleAggregatedPriceCmd(),
-		GetOraclePriceFeedConfigCmd(),
 		GetOracleParamsCmd(),
 	)
 
@@ -90,34 +89,6 @@ func GetOracleAggregatedPriceCmd() *cobra.Command {
 			}
 
 			res, err := cl.Query().Oracle().AggregatedPrice(ctx, req)
-			if err != nil {
-				return err
-			}
-
-			return cl.ClientContext().PrintProto(res)
-		},
-	}
-
-	cflags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-func GetOraclePriceFeedConfigCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "price-feed-config [denom]",
-		Short:             "Query price feed configuration for a denom",
-		Args:              cobra.ExactArgs(1),
-		PersistentPreRunE: QueryPersistentPreRunE,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := cmd.Context()
-			cl := MustLightClientFromContext(ctx)
-
-			req := &types.QueryPriceFeedConfigRequest{
-				Denom: args[0],
-			}
-
-			res, err := cl.Query().Oracle().PriceFeedConfig(ctx, req)
 			if err != nil {
 				return err
 			}
