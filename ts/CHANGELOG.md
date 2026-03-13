@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.26](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.25...ts/v1.0.0-alpha.26) (2026-03-13)
+
+
+### Features
+
+* **bme:** add FundVault rpc ([#250](https://github.com/akash-network/chain-sdk/issues/250)) ([bf19b1a](https://github.com/akash-network/chain-sdk/commit/bf19b1a7fe2a1e2f14987267efed547a1843476b))
+
 ## [1.0.0-alpha.25](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.24...ts/v1.0.0-alpha.25) (2026-03-09)
 
 
