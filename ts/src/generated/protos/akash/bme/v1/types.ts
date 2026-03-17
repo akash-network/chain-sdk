@@ -121,6 +121,42 @@ export function ledgerRecordStatusToJSON(object: LedgerRecordStatus): string {
   }
 }
 
+/** BMFailReason is an enum indicating reasons of failure for burn/mint request */
+export enum BMFailReason {
+  /** unknown - Prefix should start with 0 in enum. So declaring dummy state. */
+  unknown = 0,
+  /** epsilon - BMFailReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) */
+  epsilon = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function bMFailReasonFromJSON(object: any): BMFailReason {
+  switch (object) {
+    case 0:
+    case "unknown":
+      return BMFailReason.unknown;
+    case 1:
+    case "epsilon":
+      return BMFailReason.epsilon;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return BMFailReason.UNRECOGNIZED;
+  }
+}
+
+export function bMFailReasonToJSON(object: BMFailReason): string {
+  switch (object) {
+    case BMFailReason.unknown:
+      return "unknown";
+    case BMFailReason.epsilon:
+      return "epsilon";
+    case BMFailReason.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** LedgerID uniquely identifies a ledger entry by block height and sequence number */
 export interface LedgerID {
   /** height is the block height when the ledger entry was created */
@@ -189,6 +225,25 @@ export interface LedgerRecordID {
 export interface LedgerPendingRecord {
   /** owner source of the coins to be burned */
   owner: string;
+  /**
+   * to destination of the minted coins.
+   * if minted coin is ACT, "to" must be same as signer
+   */
+  to: string;
+  /** coins_to_burn */
+  coinsToBurn:
+    | Coin
+    | undefined;
+  /** denom_to_mint */
+  denomToMint: string;
+}
+
+/** LedgerPendingRecord */
+export interface LedgerFailedRecord {
+  /** owner source of the coins to be burned */
+  owner: string;
+  /** fail_reason */
+  failReason: BMFailReason;
   /**
    * to destination of the minted coins.
    * if minted coin is ACT, "to" must be same as signer
@@ -891,6 +946,130 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
   fromPartial(object: DeepPartial<LedgerPendingRecord>): LedgerPendingRecord {
     const message = createBaseLedgerPendingRecord();
     message.owner = object.owner ?? "";
+    message.to = object.to ?? "";
+    message.coinsToBurn = (object.coinsToBurn !== undefined && object.coinsToBurn !== null)
+      ? Coin.fromPartial(object.coinsToBurn)
+      : undefined;
+    message.denomToMint = object.denomToMint ?? "";
+    return message;
+  },
+};
+
+function createBaseLedgerFailedRecord(): LedgerFailedRecord {
+  return { owner: "", failReason: 0, to: "", coinsToBurn: undefined, denomToMint: "" };
+}
+
+export const LedgerFailedRecord: MessageFns<LedgerFailedRecord, "akash.bme.v1.LedgerFailedRecord"> = {
+  $type: "akash.bme.v1.LedgerFailedRecord" as const,
+
+  encode(message: LedgerFailedRecord, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.owner !== "") {
+      writer.uint32(10).string(message.owner);
+    }
+    if (message.failReason !== 0) {
+      writer.uint32(16).int32(message.failReason);
+    }
+    if (message.to !== "") {
+      writer.uint32(26).string(message.to);
+    }
+    if (message.coinsToBurn !== undefined) {
+      Coin.encode(message.coinsToBurn, writer.uint32(34).fork()).join();
+    }
+    if (message.denomToMint !== "") {
+      writer.uint32(42).string(message.denomToMint);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): LedgerFailedRecord {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLedgerFailedRecord();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.owner = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.failReason = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.to = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.coinsToBurn = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.denomToMint = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): LedgerFailedRecord {
+    return {
+      owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
+      failReason: isSet(object.fail_reason) ? bMFailReasonFromJSON(object.fail_reason) : 0,
+      to: isSet(object.to) ? globalThis.String(object.to) : "",
+      coinsToBurn: isSet(object.coins_to_burn) ? Coin.fromJSON(object.coins_to_burn) : undefined,
+      denomToMint: isSet(object.denom_to_mint) ? globalThis.String(object.denom_to_mint) : "",
+    };
+  },
+
+  toJSON(message: LedgerFailedRecord): unknown {
+    const obj: any = {};
+    if (message.owner !== "") {
+      obj.owner = message.owner;
+    }
+    if (message.failReason !== 0) {
+      obj.fail_reason = bMFailReasonToJSON(message.failReason);
+    }
+    if (message.to !== "") {
+      obj.to = message.to;
+    }
+    if (message.coinsToBurn !== undefined) {
+      obj.coins_to_burn = Coin.toJSON(message.coinsToBurn);
+    }
+    if (message.denomToMint !== "") {
+      obj.denom_to_mint = message.denomToMint;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<LedgerFailedRecord>): LedgerFailedRecord {
+    const message = createBaseLedgerFailedRecord();
+    message.owner = object.owner ?? "";
+    message.failReason = object.failReason ?? 0;
     message.to = object.to ?? "";
     message.coinsToBurn = (object.coinsToBurn !== undefined && object.coinsToBurn !== null)
       ? Coin.fromPartial(object.coinsToBurn)
