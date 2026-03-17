@@ -75,6 +75,7 @@
      - [BurnMintPair](#akash.bme.v1.BurnMintPair)
      - [CoinPrice](#akash.bme.v1.CoinPrice)
      - [CollateralRatio](#akash.bme.v1.CollateralRatio)
+     - [LedgerFailedRecord](#akash.bme.v1.LedgerFailedRecord)
      - [LedgerID](#akash.bme.v1.LedgerID)
      - [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord)
      - [LedgerRecord](#akash.bme.v1.LedgerRecord)
@@ -83,11 +84,13 @@
      - [State](#akash.bme.v1.State)
      - [Status](#akash.bme.v1.Status)
    
+     - [BMFailReason](#akash.bme.v1.BMFailReason)
      - [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus)
      - [MintStatus](#akash.bme.v1.MintStatus)
    
  - [akash/bme/v1/events.proto](#akash/bme/v1/events.proto)
      - [EventLedgerRecordExecuted](#akash.bme.v1.EventLedgerRecordExecuted)
+     - [EventLedgerRecordFailed](#akash.bme.v1.EventLedgerRecordFailed)
      - [EventMintStatusChange](#akash.bme.v1.EventMintStatusChange)
      - [EventVaultSeeded](#akash.bme.v1.EventVaultSeeded)
    
@@ -1369,6 +1372,25 @@ if field is nil resource is not present in the given data-structure
  
 
  
+ <a name="akash.bme.v1.LedgerFailedRecord"></a>
+
+ ### LedgerFailedRecord
+ LedgerPendingRecord
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `owner` | [string](#string) |  | owner source of the coins to be burned |
+ | `fail_reason` | [BMFailReason](#akash.bme.v1.BMFailReason) |  | fail_reason |
+ | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
+ | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
+ | `denom_to_mint` | [string](#string) |  | denom_to_mint |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.LedgerID"></a>
 
  ### LedgerID
@@ -1496,6 +1518,18 @@ if field is nil resource is not present in the given data-structure
   <!-- end messages -->
 
  
+ <a name="akash.bme.v1.BMFailReason"></a>
+
+ ### BMFailReason
+ BMFailReason is an enum indicating reasons of failure for burn/mint request
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | unknown | 0 | Prefix should start with 0 in enum. So declaring dummy state. |
+ | epsilon | 1 | BMFailReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) |
+ 
+
+ 
  <a name="akash.bme.v1.LedgerRecordStatus"></a>
 
  ### LedgerRecordStatus
@@ -1555,6 +1589,26 @@ if field is nil resource is not present in the given data-structure
  | `minted` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | minted is coin minted at price |
  | `remint_credit_issued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  | `remint_credit_accrued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.EventLedgerRecordFailed"></a>
+
+ ### EventLedgerRecordFailed
+ EventLedgerRecordFailed emitted information of unsuccessful burn/mint event
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | burned_from source address of the tokens burned |
+ | `fail_reason` | [BMFailReason](#akash.bme.v1.BMFailReason) |  | fail_reason |
+ | `owner` | [string](#string) |  | owner source of the coins to be burned |
+ | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
+ | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
+ | `denom_to_mint` | [string](#string) |  | denom_to_mint |
  
  
 

@@ -1,4 +1,75 @@
 // @generated
+impl serde::Serialize for BmFailReason {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let variant = match self {
+            Self::Unknown => "unknown",
+            Self::Epsilon => "epsilon",
+        };
+        serializer.serialize_str(variant)
+    }
+}
+impl<'de> serde::Deserialize<'de> for BmFailReason {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "unknown",
+            "epsilon",
+        ];
+
+        struct GeneratedVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = BmFailReason;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(formatter, "expected one of: {:?}", &FIELDS)
+            }
+
+            fn visit_i64<E>(self, v: i64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Signed(v), &self)
+                    })
+            }
+
+            fn visit_u64<E>(self, v: u64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Unsigned(v), &self)
+                    })
+            }
+
+            fn visit_str<E>(self, value: &str) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                match value {
+                    "unknown" => Ok(BmFailReason::Unknown),
+                    "epsilon" => Ok(BmFailReason::Epsilon),
+                    _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
+                }
+            }
+        }
+        deserializer.deserialize_any(GeneratedVisitor)
+    }
+}
 impl serde::Serialize for BurnMintPair {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -572,6 +643,187 @@ impl<'de> serde::Deserialize<'de> for EventLedgerRecordExecuted {
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.EventLedgerRecordExecuted", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for EventLedgerRecordFailed {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.fail_reason != 0 {
+            len += 1;
+        }
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.to.is_empty() {
+            len += 1;
+        }
+        if self.coins_to_burn.is_some() {
+            len += 1;
+        }
+        if !self.denom_to_mint.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventLedgerRecordFailed", len)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if self.fail_reason != 0 {
+            let v = BmFailReason::try_from(self.fail_reason)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.fail_reason)))?;
+            struct_ser.serialize_field("failReason", &v)?;
+        }
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.to.is_empty() {
+            struct_ser.serialize_field("to", &self.to)?;
+        }
+        if let Some(v) = self.coins_to_burn.as_ref() {
+            struct_ser.serialize_field("coinsToBurn", v)?;
+        }
+        if !self.denom_to_mint.is_empty() {
+            struct_ser.serialize_field("denomToMint", &self.denom_to_mint)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for EventLedgerRecordFailed {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "fail_reason",
+            "failReason",
+            "owner",
+            "to",
+            "coins_to_burn",
+            "coinsToBurn",
+            "denom_to_mint",
+            "denomToMint",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            FailReason,
+            Owner,
+            To,
+            CoinsToBurn,
+            DenomToMint,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "failReason" | "fail_reason" => Ok(GeneratedField::FailReason),
+                            "owner" => Ok(GeneratedField::Owner),
+                            "to" => Ok(GeneratedField::To),
+                            "coinsToBurn" | "coins_to_burn" => Ok(GeneratedField::CoinsToBurn),
+                            "denomToMint" | "denom_to_mint" => Ok(GeneratedField::DenomToMint),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = EventLedgerRecordFailed;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.EventLedgerRecordFailed")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventLedgerRecordFailed, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut fail_reason__ = None;
+                let mut owner__ = None;
+                let mut to__ = None;
+                let mut coins_to_burn__ = None;
+                let mut denom_to_mint__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::FailReason => {
+                            if fail_reason__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("failReason"));
+                            }
+                            fail_reason__ = Some(map_.next_value::<BmFailReason>()? as i32);
+                        }
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::To => {
+                            if to__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("to"));
+                            }
+                            to__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CoinsToBurn => {
+                            if coins_to_burn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("coinsToBurn"));
+                            }
+                            coins_to_burn__ = map_.next_value()?;
+                        }
+                        GeneratedField::DenomToMint => {
+                            if denom_to_mint__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("denomToMint"));
+                            }
+                            denom_to_mint__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(EventLedgerRecordFailed {
+                    id: id__,
+                    fail_reason: fail_reason__.unwrap_or_default(),
+                    owner: owner__.unwrap_or_default(),
+                    to: to__.unwrap_or_default(),
+                    coins_to_burn: coins_to_burn__,
+                    denom_to_mint: denom_to_mint__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.EventLedgerRecordFailed", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for EventMintStatusChange {
@@ -1408,6 +1660,170 @@ impl<'de> serde::Deserialize<'de> for GenesisVaultState {
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.GenesisVaultState", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for LedgerFailedRecord {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if self.fail_reason != 0 {
+            len += 1;
+        }
+        if !self.to.is_empty() {
+            len += 1;
+        }
+        if self.coins_to_burn.is_some() {
+            len += 1;
+        }
+        if !self.denom_to_mint.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.LedgerFailedRecord", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if self.fail_reason != 0 {
+            let v = BmFailReason::try_from(self.fail_reason)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.fail_reason)))?;
+            struct_ser.serialize_field("failReason", &v)?;
+        }
+        if !self.to.is_empty() {
+            struct_ser.serialize_field("to", &self.to)?;
+        }
+        if let Some(v) = self.coins_to_burn.as_ref() {
+            struct_ser.serialize_field("coinsToBurn", v)?;
+        }
+        if !self.denom_to_mint.is_empty() {
+            struct_ser.serialize_field("denomToMint", &self.denom_to_mint)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for LedgerFailedRecord {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "fail_reason",
+            "failReason",
+            "to",
+            "coins_to_burn",
+            "coinsToBurn",
+            "denom_to_mint",
+            "denomToMint",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            FailReason,
+            To,
+            CoinsToBurn,
+            DenomToMint,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "failReason" | "fail_reason" => Ok(GeneratedField::FailReason),
+                            "to" => Ok(GeneratedField::To),
+                            "coinsToBurn" | "coins_to_burn" => Ok(GeneratedField::CoinsToBurn),
+                            "denomToMint" | "denom_to_mint" => Ok(GeneratedField::DenomToMint),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = LedgerFailedRecord;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.bme.v1.LedgerFailedRecord")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<LedgerFailedRecord, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut fail_reason__ = None;
+                let mut to__ = None;
+                let mut coins_to_burn__ = None;
+                let mut denom_to_mint__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::FailReason => {
+                            if fail_reason__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("failReason"));
+                            }
+                            fail_reason__ = Some(map_.next_value::<BmFailReason>()? as i32);
+                        }
+                        GeneratedField::To => {
+                            if to__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("to"));
+                            }
+                            to__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CoinsToBurn => {
+                            if coins_to_burn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("coinsToBurn"));
+                            }
+                            coins_to_burn__ = map_.next_value()?;
+                        }
+                        GeneratedField::DenomToMint => {
+                            if denom_to_mint__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("denomToMint"));
+                            }
+                            denom_to_mint__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(LedgerFailedRecord {
+                    owner: owner__.unwrap_or_default(),
+                    fail_reason: fail_reason__.unwrap_or_default(),
+                    to: to__.unwrap_or_default(),
+                    coins_to_burn: coins_to_burn__,
+                    denom_to_mint: denom_to_mint__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.bme.v1.LedgerFailedRecord", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for LedgerId {

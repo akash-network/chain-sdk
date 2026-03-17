@@ -105,3 +105,50 @@ message EventLedgerRecordExecuted {
     (gogoproto.moretags) = "yaml:\"remint_credit_accrued\""
   ];
 }
+
+// EventLedgerRecordFailed emitted information of unsuccessful burn/mint event
+message EventLedgerRecordFailed {
+  // burned_from source address of the tokens burned
+  LedgerRecordID id = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+
+  // fail_reason
+  BMFailReason fail_reason = 2 [
+    (gogoproto.jsontag)   = "fail_reason",
+    (gogoproto.moretags)  = "yaml:\"fail_reason\""
+  ];
+
+  // owner source of the coins to be burned
+  string owner = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+
+  // to destination of the minted coins.
+  // if minted coin is ACT, "to" must be same as signer
+  string to = 4 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "to",
+    (gogoproto.moretags)  = "yaml:\"to\""
+  ];
+
+  // coins_to_burn
+  cosmos.base.v1beta1.Coin coins_to_burn = 5 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "CoinsToBurn",
+    (gogoproto.jsontag)    = "coins_to_burn",
+    (gogoproto.moretags)   = "yaml:\"coins_to_burn\""
+  ];
+
+  // denom_to_mint
+  string denom_to_mint = 6 [
+    (gogoproto.customname) = "DenomToMint",
+    (gogoproto.jsontag)    = "denom_to_mint",
+    (gogoproto.moretags)   = "yaml:\"denom_to_mint\""
+  ];
+}

@@ -215,6 +215,55 @@ message LedgerPendingRecord {
   ];
 }
 
+// BMFailReason is an enum indicating reasons of failure for burn/mint request
+enum BMFailReason {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // Prefix should start with 0 in enum. So declaring dummy state.
+  unknown = 0 [(gogoproto.enumvalue_customname) = "BMFailReasonUnknown"];
+  // BMFailReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6)
+  epsilon = 1 [(gogoproto.enumvalue_customname) = "BMFailReasonEpsilon"];
+}
+
+// LedgerPendingRecord
+message LedgerFailedRecord {
+  // owner source of the coins to be burned
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+
+  // fail_reason
+  BMFailReason fail_reason = 2 [
+    (gogoproto.jsontag)   = "fail_reason",
+    (gogoproto.moretags)  = "yaml:\"fail_reason\""
+  ];
+
+  // to destination of the minted coins.
+  // if minted coin is ACT, "to" must be same as signer
+  string to = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "to",
+    (gogoproto.moretags)  = "yaml:\"to\""
+  ];
+
+  // coins_to_burn
+  cosmos.base.v1beta1.Coin coins_to_burn = 4 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "CoinsToBurn",
+    (gogoproto.jsontag)    = "coins_to_burn",
+    (gogoproto.moretags)   = "yaml:\"coins_to_burn\""
+  ];
+
+  // denom_to_mint
+  string denom_to_mint = 5 [
+    (gogoproto.customname) = "DenomToMint",
+    (gogoproto.jsontag)    = "denom_to_mint",
+    (gogoproto.moretags)   = "yaml:\"denom_to_mint\""
+  ];
+}
+
 // LedgerRecord stores information of burn/mint event of token A burn to mint token B
 message LedgerRecord {
   // burned_from source address of the tokens burned
