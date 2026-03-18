@@ -86,6 +86,11 @@ export enum LedgerRecordStatus {
    * successfully completed and tokens have been burned and minted
    */
   ledger_record_status_executed = 2,
+  /**
+   * ledger_record_status_failed - LEDGER_RECORD_STATUS_FAILED indicates the burn/mint operation has encountered error and funds have been returned to the owner
+   * successfully completed and tokens have been burned and minted
+   */
+  ledger_record_status_failed = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -100,6 +105,9 @@ export function ledgerRecordStatusFromJSON(object: any): LedgerRecordStatus {
     case 2:
     case "ledger_record_status_executed":
       return LedgerRecordStatus.ledger_record_status_executed;
+    case 3:
+    case "ledger_record_status_failed":
+      return LedgerRecordStatus.ledger_record_status_failed;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -115,43 +123,9 @@ export function ledgerRecordStatusToJSON(object: LedgerRecordStatus): string {
       return "ledger_record_status_pending";
     case LedgerRecordStatus.ledger_record_status_executed:
       return "ledger_record_status_executed";
+    case LedgerRecordStatus.ledger_record_status_failed:
+      return "ledger_record_status_failed";
     case LedgerRecordStatus.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
-/** BMFailReason is an enum indicating reasons of failure for burn/mint request */
-export enum BMFailReason {
-  /** unknown - Prefix should start with 0 in enum. So declaring dummy state. */
-  unknown = 0,
-  /** epsilon - BMFailReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) */
-  epsilon = 1,
-  UNRECOGNIZED = -1,
-}
-
-export function bMFailReasonFromJSON(object: any): BMFailReason {
-  switch (object) {
-    case 0:
-    case "unknown":
-      return BMFailReason.unknown;
-    case 1:
-    case "epsilon":
-      return BMFailReason.epsilon;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return BMFailReason.UNRECOGNIZED;
-  }
-}
-
-export function bMFailReasonToJSON(object: BMFailReason): string {
-  switch (object) {
-    case BMFailReason.unknown:
-      return "unknown";
-    case BMFailReason.epsilon:
-      return "epsilon";
-    case BMFailReason.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -243,7 +217,7 @@ export interface LedgerFailedRecord {
   /** owner source of the coins to be burned */
   owner: string;
   /** fail_reason */
-  failReason: BMFailReason;
+  failReason: LedgerFailedRecord_BMFailReason;
   /**
    * to destination of the minted coins.
    * if minted coin is ACT, "to" must be same as signer
@@ -255,6 +229,42 @@ export interface LedgerFailedRecord {
     | undefined;
   /** denom_to_mint */
   denomToMint: string;
+}
+
+/** BMFailReason is an enum indicating reasons of failure for burn/mint request */
+export enum LedgerFailedRecord_BMFailReason {
+  /** unknown - Prefix should start with 0 in enum. So declaring dummy state. */
+  unknown = 0,
+  /** epsilon - BMFailReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) */
+  epsilon = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function ledgerFailedRecord_BMFailReasonFromJSON(object: any): LedgerFailedRecord_BMFailReason {
+  switch (object) {
+    case 0:
+    case "unknown":
+      return LedgerFailedRecord_BMFailReason.unknown;
+    case 1:
+    case "epsilon":
+      return LedgerFailedRecord_BMFailReason.epsilon;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return LedgerFailedRecord_BMFailReason.UNRECOGNIZED;
+  }
+}
+
+export function ledgerFailedRecord_BMFailReasonToJSON(object: LedgerFailedRecord_BMFailReason): string {
+  switch (object) {
+    case LedgerFailedRecord_BMFailReason.unknown:
+      return "unknown";
+    case LedgerFailedRecord_BMFailReason.epsilon:
+      return "epsilon";
+    case LedgerFailedRecord_BMFailReason.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
 }
 
 /** LedgerRecord stores information of burn/mint event of token A burn to mint token B */
@@ -1040,7 +1050,7 @@ export const LedgerFailedRecord: MessageFns<LedgerFailedRecord, "akash.bme.v1.Le
   fromJSON(object: any): LedgerFailedRecord {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      failReason: isSet(object.fail_reason) ? bMFailReasonFromJSON(object.fail_reason) : 0,
+      failReason: isSet(object.fail_reason) ? ledgerFailedRecord_BMFailReasonFromJSON(object.fail_reason) : 0,
       to: isSet(object.to) ? globalThis.String(object.to) : "",
       coinsToBurn: isSet(object.coins_to_burn) ? Coin.fromJSON(object.coins_to_burn) : undefined,
       denomToMint: isSet(object.denom_to_mint) ? globalThis.String(object.denom_to_mint) : "",
@@ -1053,7 +1063,7 @@ export const LedgerFailedRecord: MessageFns<LedgerFailedRecord, "akash.bme.v1.Le
       obj.owner = message.owner;
     }
     if (message.failReason !== 0) {
-      obj.fail_reason = bMFailReasonToJSON(message.failReason);
+      obj.fail_reason = ledgerFailedRecord_BMFailReasonToJSON(message.failReason);
     }
     if (message.to !== "") {
       obj.to = message.to;

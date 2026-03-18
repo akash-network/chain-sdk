@@ -117,7 +117,7 @@ message EventLedgerRecordFailed {
   ];
 
   // fail_reason
-  BMFailReason fail_reason = 2 [
+  LedgerFailedRecord.BMFailReason fail_reason = 2 [
     (gogoproto.jsontag)   = "fail_reason",
     (gogoproto.moretags)  = "yaml:\"fail_reason\""
   ];
