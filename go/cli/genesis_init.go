@@ -25,10 +25,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/go-bip39"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 	"pkg.akt.dev/go/sdkutil"
@@ -161,6 +161,8 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 						},
 						Base:    sdkutil.DenomUakt,
 						Display: sdkutil.DenomAkt,
+						Name:    "Akash Native Token",
+						Symbol:  "AKT",
 					},
 					{
 						Description: "Akash Compute Token",
@@ -180,8 +182,8 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 						},
 						Base:    sdkutil.DenomUact,
 						Display: sdkutil.DenomUact,
-						Name:    sdkutil.DenomUact,
-						Symbol:  sdkutil.DenomUact,
+						Name:    "Akash Compute Token",
+						Symbol:  "ACT",
 					},
 				}
 				bankGenState.SendEnabled = []banktypes.SendEnabled{
