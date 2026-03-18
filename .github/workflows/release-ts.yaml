@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, akash]
     outputs:
       paths_released: ${{ steps.release-pl.outputs.paths_released }}
     permissions:
@@ -24,7 +24,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, akash]
     needs: release
     if: ${{ contains(fromJSON(needs.release.outputs.paths_released), 'ts') }}
     permissions:
