@@ -84,7 +84,7 @@
      - [State](#akash.bme.v1.State)
      - [Status](#akash.bme.v1.Status)
    
-     - [BMFailReason](#akash.bme.v1.BMFailReason)
+     - [LedgerFailedRecord.BMFailReason](#akash.bme.v1.LedgerFailedRecord.BMFailReason)
      - [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus)
      - [MintStatus](#akash.bme.v1.MintStatus)
    
@@ -1381,7 +1381,7 @@ if field is nil resource is not present in the given data-structure
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `owner` | [string](#string) |  | owner source of the coins to be burned |
- | `fail_reason` | [BMFailReason](#akash.bme.v1.BMFailReason) |  | fail_reason |
+ | `fail_reason` | [LedgerFailedRecord.BMFailReason](#akash.bme.v1.LedgerFailedRecord.BMFailReason) |  | fail_reason |
  | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
  | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
  | `denom_to_mint` | [string](#string) |  | denom_to_mint |
@@ -1518,9 +1518,9 @@ if field is nil resource is not present in the given data-structure
   <!-- end messages -->
 
  
- <a name="akash.bme.v1.BMFailReason"></a>
+ <a name="akash.bme.v1.LedgerFailedRecord.BMFailReason"></a>
 
- ### BMFailReason
+ ### LedgerFailedRecord.BMFailReason
  BMFailReason is an enum indicating reasons of failure for burn/mint request
 
  | Name | Number | Description |
@@ -1540,6 +1540,7 @@ if field is nil resource is not present in the given data-structure
  | ledger_record_status_invalid | 0 | LEDGER_RECORD_STATUS_INVALID is the default/uninitialized value This status should never appear in a valid ledger record |
  | ledger_record_status_pending | 1 | LEDGER_RECORD_STATUS_PENDING indicates a burn/mint operation has been initiated but not yet executed (e.g., waiting for oracle price or circuit breaker clearance) |
  | ledger_record_status_executed | 2 | LEDGER_RECORD_STATUS_EXECUTED indicates the burn/mint operation has been successfully completed and tokens have been burned and minted |
+ | ledger_record_status_failed | 3 | LEDGER_RECORD_STATUS_FAILED indicates the burn/mint operation has encountered error and funds have been returned to the owner successfully completed and tokens have been burned and minted |
  
 
  
@@ -1604,7 +1605,7 @@ if field is nil resource is not present in the given data-structure
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | burned_from source address of the tokens burned |
- | `fail_reason` | [BMFailReason](#akash.bme.v1.BMFailReason) |  | fail_reason |
+ | `fail_reason` | [LedgerFailedRecord.BMFailReason](#akash.bme.v1.LedgerFailedRecord.BMFailReason) |  | fail_reason |
  | `owner` | [string](#string) |  | owner source of the coins to be burned |
  | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
  | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
@@ -1676,7 +1677,7 @@ if field is nil resource is not present in the given data-structure
  | `source` | [string](#string) |  | source is the account address of the user who initiated the burn/mint |
  | `denom` | [string](#string) |  | denom filters by the burn denomination |
  | `to_denom` | [string](#string) |  | to_denom filters by the mint denomination |
- | `status` | [string](#string) |  | status filters by record status (pending or executed). Uses the string representation of LedgerRecordStatus enum values. If empty, returns both pending and executed records. |
+ | `status` | [string](#string) |  | status filters by record status (pending, executed or failed). Uses the string representation of LedgerRecordStatus enum values. If empty, returns both pending and executed records. |
  
  
 

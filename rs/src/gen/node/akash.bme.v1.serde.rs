@@ -1,75 +1,4 @@
 // @generated
-impl serde::Serialize for BmFailReason {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let variant = match self {
-            Self::Unknown => "unknown",
-            Self::Epsilon => "epsilon",
-        };
-        serializer.serialize_str(variant)
-    }
-}
-impl<'de> serde::Deserialize<'de> for BmFailReason {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "unknown",
-            "epsilon",
-        ];
-
-        struct GeneratedVisitor;
-
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = BmFailReason;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(formatter, "expected one of: {:?}", &FIELDS)
-            }
-
-            fn visit_i64<E>(self, v: i64) -> std::result::Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                i32::try_from(v)
-                    .ok()
-                    .and_then(|x| x.try_into().ok())
-                    .ok_or_else(|| {
-                        serde::de::Error::invalid_value(serde::de::Unexpected::Signed(v), &self)
-                    })
-            }
-
-            fn visit_u64<E>(self, v: u64) -> std::result::Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                i32::try_from(v)
-                    .ok()
-                    .and_then(|x| x.try_into().ok())
-                    .ok_or_else(|| {
-                        serde::de::Error::invalid_value(serde::de::Unexpected::Unsigned(v), &self)
-                    })
-            }
-
-            fn visit_str<E>(self, value: &str) -> std::result::Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                match value {
-                    "unknown" => Ok(BmFailReason::Unknown),
-                    "epsilon" => Ok(BmFailReason::Epsilon),
-                    _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
-                }
-            }
-        }
-        deserializer.deserialize_any(GeneratedVisitor)
-    }
-}
 impl serde::Serialize for BurnMintPair {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -676,7 +605,7 @@ impl serde::Serialize for EventLedgerRecordFailed {
             struct_ser.serialize_field("id", v)?;
         }
         if self.fail_reason != 0 {
-            let v = BmFailReason::try_from(self.fail_reason)
+            let v = ledger_failed_record::BmFailReason::try_from(self.fail_reason)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.fail_reason)))?;
             struct_ser.serialize_field("failReason", &v)?;
         }
@@ -785,7 +714,7 @@ impl<'de> serde::Deserialize<'de> for EventLedgerRecordFailed {
                             if fail_reason__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("failReason"));
                             }
-                            fail_reason__ = Some(map_.next_value::<BmFailReason>()? as i32);
+                            fail_reason__ = Some(map_.next_value::<ledger_failed_record::BmFailReason>()? as i32);
                         }
                         GeneratedField::Owner => {
                             if owner__.is_some() {
@@ -1690,7 +1619,7 @@ impl serde::Serialize for LedgerFailedRecord {
             struct_ser.serialize_field("owner", &self.owner)?;
         }
         if self.fail_reason != 0 {
-            let v = BmFailReason::try_from(self.fail_reason)
+            let v = ledger_failed_record::BmFailReason::try_from(self.fail_reason)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.fail_reason)))?;
             struct_ser.serialize_field("failReason", &v)?;
         }
@@ -1792,7 +1721,7 @@ impl<'de> serde::Deserialize<'de> for LedgerFailedRecord {
                             if fail_reason__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("failReason"));
                             }
-                            fail_reason__ = Some(map_.next_value::<BmFailReason>()? as i32);
+                            fail_reason__ = Some(map_.next_value::<ledger_failed_record::BmFailReason>()? as i32);
                         }
                         GeneratedField::To => {
                             if to__.is_some() {
@@ -1824,6 +1753,77 @@ impl<'de> serde::Deserialize<'de> for LedgerFailedRecord {
             }
         }
         deserializer.deserialize_struct("akash.bme.v1.LedgerFailedRecord", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ledger_failed_record::BmFailReason {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let variant = match self {
+            Self::Unknown => "unknown",
+            Self::Epsilon => "epsilon",
+        };
+        serializer.serialize_str(variant)
+    }
+}
+impl<'de> serde::Deserialize<'de> for ledger_failed_record::BmFailReason {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "unknown",
+            "epsilon",
+        ];
+
+        struct GeneratedVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ledger_failed_record::BmFailReason;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(formatter, "expected one of: {:?}", &FIELDS)
+            }
+
+            fn visit_i64<E>(self, v: i64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Signed(v), &self)
+                    })
+            }
+
+            fn visit_u64<E>(self, v: u64) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                i32::try_from(v)
+                    .ok()
+                    .and_then(|x| x.try_into().ok())
+                    .ok_or_else(|| {
+                        serde::de::Error::invalid_value(serde::de::Unexpected::Unsigned(v), &self)
+                    })
+            }
+
+            fn visit_str<E>(self, value: &str) -> std::result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                match value {
+                    "unknown" => Ok(ledger_failed_record::BmFailReason::Unknown),
+                    "epsilon" => Ok(ledger_failed_record::BmFailReason::Epsilon),
+                    _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
+                }
+            }
+        }
+        deserializer.deserialize_any(GeneratedVisitor)
     }
 }
 impl serde::Serialize for LedgerId {
@@ -2621,6 +2621,7 @@ impl serde::Serialize for LedgerRecordStatus {
             Self::Invalid => "ledger_record_status_invalid",
             Self::Pending => "ledger_record_status_pending",
             Self::Executed => "ledger_record_status_executed",
+            Self::Failed => "ledger_record_status_failed",
         };
         serializer.serialize_str(variant)
     }
@@ -2635,6 +2636,7 @@ impl<'de> serde::Deserialize<'de> for LedgerRecordStatus {
             "ledger_record_status_invalid",
             "ledger_record_status_pending",
             "ledger_record_status_executed",
+            "ledger_record_status_failed",
         ];
 
         struct GeneratedVisitor;
@@ -2678,6 +2680,7 @@ impl<'de> serde::Deserialize<'de> for LedgerRecordStatus {
                     "ledger_record_status_invalid" => Ok(LedgerRecordStatus::Invalid),
                     "ledger_record_status_pending" => Ok(LedgerRecordStatus::Pending),
                     "ledger_record_status_executed" => Ok(LedgerRecordStatus::Executed),
+                    "ledger_record_status_failed" => Ok(LedgerRecordStatus::Failed),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

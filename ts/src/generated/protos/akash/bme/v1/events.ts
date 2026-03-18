@@ -12,10 +12,10 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 import {
-  BMFailReason,
-  bMFailReasonFromJSON,
-  bMFailReasonToJSON,
   CoinPrice,
+  LedgerFailedRecord_BMFailReason,
+  ledgerFailedRecord_BMFailReasonFromJSON,
+  ledgerFailedRecord_BMFailReasonToJSON,
   LedgerRecordID,
   MintStatus,
   mintStatusFromJSON,
@@ -75,7 +75,7 @@ export interface EventLedgerRecordFailed {
     | LedgerRecordID
     | undefined;
   /** fail_reason */
-  failReason: BMFailReason;
+  failReason: LedgerFailedRecord_BMFailReason;
   /** owner source of the coins to be burned */
   owner: string;
   /**
@@ -582,7 +582,7 @@ export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash
   fromJSON(object: any): EventLedgerRecordFailed {
     return {
       id: isSet(object.id) ? LedgerRecordID.fromJSON(object.id) : undefined,
-      failReason: isSet(object.fail_reason) ? bMFailReasonFromJSON(object.fail_reason) : 0,
+      failReason: isSet(object.fail_reason) ? ledgerFailedRecord_BMFailReasonFromJSON(object.fail_reason) : 0,
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
       to: isSet(object.to) ? globalThis.String(object.to) : "",
       coinsToBurn: isSet(object.coins_to_burn) ? Coin.fromJSON(object.coins_to_burn) : undefined,
@@ -596,7 +596,7 @@ export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash
       obj.id = LedgerRecordID.toJSON(message.id);
     }
     if (message.failReason !== 0) {
-      obj.fail_reason = bMFailReasonToJSON(message.failReason);
+      obj.fail_reason = ledgerFailedRecord_BMFailReasonToJSON(message.failReason);
     }
     if (message.owner !== "") {
       obj.owner = message.owner;
