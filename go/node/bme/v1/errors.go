@@ -20,4 +20,5 @@ var (
 	ErrMintFailed             = errors.RegisterWithGRPCCode(ModuleName, 14, codes.Aborted, "failed to mint tokens")
 	ErrBurnFailed             = errors.RegisterWithGRPCCode(ModuleName, 15, codes.Aborted, "failed to burn tokens")
 	ErrEpsilon                = errors.RegisterWithGRPCCode(ModuleName, 16, codes.Aborted, "result value is less then precision of the denom")
+	ErrMinimumMint            = errors.RegisterWithGRPCCode(ModuleName, 17, codes.Aborted, "minimum mint amount is not met")
 )

@@ -6,8 +6,8 @@ export { MsgSignProviderAttributes, MsgSignProviderAttributesResponse, MsgDelete
 export { QueryProvidersResponse, QueryProviderRequest, QueryAllProvidersAttributesRequest, QueryProviderAttributesRequest, QueryProviderAuditorRequest, QueryAuditorAttributesRequest } from "./akash/audit/v1/query.ts";
 export { Deposit, Source } from "./akash/base/deposit/v1/deposit.ts";
 export { MsgSignData } from "./akash/base/offchain/sign/v1/sign.ts";
-export { LedgerID, CollateralRatio, State, CoinPrice, BurnMintPair, LedgerRecordID, LedgerPendingRecord, LedgerFailedRecord, LedgerFailedRecord_BMFailReason, LedgerRecord, Status, MintEpoch, MintStatus, LedgerRecordStatus } from "./akash/bme/v1/types.ts";
-export { EventMintStatusChange, EventVaultSeeded, EventLedgerRecordExecuted, EventLedgerRecordFailed } from "./akash/bme/v1/events.ts";
+export { LedgerID, CollateralRatio, State, CoinPrice, BurnMintPair, LedgerRecordID, LedgerPendingRecord, LedgerCanceledRecord, LedgerCanceledRecord_BMCancelReason, LedgerRecord, Status, MintEpoch, MintStatus, LedgerRecordStatus } from "./akash/bme/v1/types.ts";
+export { EventMintStatusChange, EventVaultSeeded, EventLedgerRecordExecuted, EventLedgerRecordCanceled } from "./akash/bme/v1/events.ts";
 export { LedgerRecordFilters } from "./akash/bme/v1/filters.ts";
 export { Params } from "./akash/bme/v1/params.ts";
 export { GenesisLedgerRecord, GenesisLedgerPendingRecord, GenesisLedgerState, GenesisVaultState, GenesisState as Bme_GenesisState } from "./akash/bme/v1/genesis.ts";

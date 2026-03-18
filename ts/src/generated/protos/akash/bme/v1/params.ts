@@ -9,6 +9,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
+import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 
 /** Params defines the parameters for the BME module */
 export interface Params {
@@ -52,6 +53,8 @@ export interface Params {
    * records processed in a single EndBlocker invocation.
    */
   maxEndblockerRecords: number;
+  /** min_mint minimum amount of ACT required to be minted in the new transaction */
+  minMint: Coin[];
 }
 
 function createBaseParams(): Params {
@@ -63,6 +66,7 @@ function createBaseParams(): Params {
     mintSpreadBps: 0,
     settleSpreadBps: 0,
     maxEndblockerRecords: 0,
+    minMint: [],
   };
 }
 
@@ -90,6 +94,9 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     }
     if (message.maxEndblockerRecords !== 0) {
       writer.uint32(64).uint32(message.maxEndblockerRecords);
+    }
+    for (const v of message.minMint) {
+      Coin.encode(v!, writer.uint32(74).fork()).join();
     }
     return writer;
   },
@@ -157,6 +164,14 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
           message.maxEndblockerRecords = reader.uint32();
           continue;
         }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.minMint.push(Coin.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -181,6 +196,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
       mintSpreadBps: isSet(object.mint_spread_bps) ? globalThis.Number(object.mint_spread_bps) : 0,
       settleSpreadBps: isSet(object.settle_spread_bps) ? globalThis.Number(object.settle_spread_bps) : 0,
       maxEndblockerRecords: isSet(object.max_endblocker_records) ? globalThis.Number(object.max_endblocker_records) : 0,
+      minMint: globalThis.Array.isArray(object?.min_mint) ? object.min_mint.map((e: any) => Coin.fromJSON(e)) : [],
     };
   },
 
@@ -207,6 +223,9 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     if (message.maxEndblockerRecords !== 0) {
       obj.max_endblocker_records = Math.round(message.maxEndblockerRecords);
     }
+    if (message.minMint?.length) {
+      obj.min_mint = message.minMint.map((e) => Coin.toJSON(e));
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Params>): Params {
@@ -220,6 +239,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     message.mintSpreadBps = object.mintSpreadBps ?? 0;
     message.settleSpreadBps = object.settleSpreadBps ?? 0;
     message.maxEndblockerRecords = object.maxEndblockerRecords ?? 0;
+    message.minMint = object.minMint?.map((e) => Coin.fromPartial(e)) || [];
     return message;
   },
 };

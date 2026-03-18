@@ -157,10 +157,10 @@ enum LedgerRecordStatus {
     (gogoproto.enumvalue_customname) = "LedgerRecordSatusExecuted"
   ];
 
-  // LEDGER_RECORD_STATUS_FAILED indicates the burn/mint operation has encountered error and funds have been returned to the owner
+  // LEDGER_RECORD_STATUS_CANCELED indicates the burn/mint operation has encountered error and funds have been returned to the owner
   // successfully completed and tokens have been burned and minted
-  ledger_record_status_failed = 3 [
-    (gogoproto.enumvalue_customname) = "LedgerRecordSatusFailed"
+  ledger_record_status_canceled = 3 [
+    (gogoproto.enumvalue_customname) = "LedgerRecordSatusCanceled"
   ];
 }
 
@@ -221,16 +221,16 @@ message LedgerPendingRecord {
   ];
 }
 
-// LedgerPendingRecord
-message LedgerFailedRecord {
-  // BMFailReason is an enum indicating reasons of failure for burn/mint request
-  enum BMFailReason {
+// LedgerCanceledRecord
+message LedgerCanceledRecord {
+  // BMCancelReason is an enum indicating reasons of failure for burn/mint request
+  enum BMCancelReason {
     option (gogoproto.goproto_enum_prefix) = false;
 
     // Prefix should start with 0 in enum. So declaring dummy state.
-    unknown = 0 [(gogoproto.enumvalue_customname) = "BMFailReasonUnknown"];
-    // BMFailReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6)
-    epsilon = 1 [(gogoproto.enumvalue_customname) = "BMFailReasonEpsilon"];
+    unknown = 0 [(gogoproto.enumvalue_customname) = "BMCancelReasonUnknown"];
+    // BMCanceledReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6)
+    epsilon = 1 [(gogoproto.enumvalue_customname) = "BMCancelReasonEpsilon"];
   }
 
   // owner source of the coins to be burned
@@ -240,10 +240,10 @@ message LedgerFailedRecord {
     (gogoproto.moretags)  = "yaml:\"owner\""
   ];
 
-  // fail_reason
-  BMFailReason fail_reason = 2 [
-    (gogoproto.jsontag)   = "fail_reason",
-    (gogoproto.moretags)  = "yaml:\"fail_reason\""
+  // cancel_reason
+  BMCancelReason cancel_reason = 2 [
+    (gogoproto.jsontag)   = "cancel_reason",
+    (gogoproto.moretags)  = "yaml:\"cancel_reason\""
   ];
 
   // to destination of the minted coins.
@@ -314,13 +314,19 @@ message LedgerRecord {
     (gogoproto.moretags) = "yaml:\"minted\""
   ];
 
-  CoinPrice remint_credit_issued = 7 [
+  cosmos.base.v1beta1.Coin spread = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "spread",
+    (gogoproto.moretags) = "yaml:\"spread\""
+  ];
+
+  CoinPrice remint_credit_issued = 8 [
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "remint_credit_issued",
     (gogoproto.moretags) = "yaml:\"remint_credit_issued\""
   ];
 
-  CoinPrice remint_credit_accrued = 8 [
+  CoinPrice remint_credit_accrued = 9 [
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "remint_credit_accrued",
     (gogoproto.moretags) = "yaml:\"remint_credit_accrued\""

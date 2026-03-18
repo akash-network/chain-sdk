@@ -93,21 +93,27 @@ message EventLedgerRecordExecuted {
     (gogoproto.moretags) = "yaml:\"minted\""
   ];
 
-  CoinPrice remint_credit_issued = 8 [
+  cosmos.base.v1beta1.Coin spread = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "spread",
+    (gogoproto.moretags) = "yaml:\"spread\""
+  ];
+
+  CoinPrice remint_credit_issued = 9 [
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "remint_credit_issued",
     (gogoproto.moretags) = "yaml:\"remint_credit_issued\""
   ];
 
-  CoinPrice remint_credit_accrued = 9 [
+  CoinPrice remint_credit_accrued = 10 [
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "remint_credit_accrued",
     (gogoproto.moretags) = "yaml:\"remint_credit_accrued\""
   ];
 }
 
-// EventLedgerRecordFailed emitted information of unsuccessful burn/mint event
-message EventLedgerRecordFailed {
+// EventLedgerRecordCanceled emitted information of unsuccessful burn/mint event
+message EventLedgerRecordCanceled {
   // burned_from source address of the tokens burned
   LedgerRecordID id = 1 [
     (gogoproto.nullable)  = false,
@@ -117,9 +123,9 @@ message EventLedgerRecordFailed {
   ];
 
   // fail_reason
-  LedgerFailedRecord.BMFailReason fail_reason = 2 [
-    (gogoproto.jsontag)   = "fail_reason",
-    (gogoproto.moretags)  = "yaml:\"fail_reason\""
+  LedgerCanceledRecord.BMCancelReason cancel_reason = 2 [
+    (gogoproto.jsontag)   = "cancel_reason",
+    (gogoproto.moretags)  = "yaml:\"cancel_reason\""
   ];
 
   // owner source of the coins to be burned

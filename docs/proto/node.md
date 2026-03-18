@@ -75,7 +75,7 @@
      - [BurnMintPair](#akash.bme.v1.BurnMintPair)
      - [CoinPrice](#akash.bme.v1.CoinPrice)
      - [CollateralRatio](#akash.bme.v1.CollateralRatio)
-     - [LedgerFailedRecord](#akash.bme.v1.LedgerFailedRecord)
+     - [LedgerCanceledRecord](#akash.bme.v1.LedgerCanceledRecord)
      - [LedgerID](#akash.bme.v1.LedgerID)
      - [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord)
      - [LedgerRecord](#akash.bme.v1.LedgerRecord)
@@ -84,13 +84,13 @@
      - [State](#akash.bme.v1.State)
      - [Status](#akash.bme.v1.Status)
    
-     - [LedgerFailedRecord.BMFailReason](#akash.bme.v1.LedgerFailedRecord.BMFailReason)
+     - [LedgerCanceledRecord.BMCancelReason](#akash.bme.v1.LedgerCanceledRecord.BMCancelReason)
      - [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus)
      - [MintStatus](#akash.bme.v1.MintStatus)
    
  - [akash/bme/v1/events.proto](#akash/bme/v1/events.proto)
+     - [EventLedgerRecordCanceled](#akash.bme.v1.EventLedgerRecordCanceled)
      - [EventLedgerRecordExecuted](#akash.bme.v1.EventLedgerRecordExecuted)
-     - [EventLedgerRecordFailed](#akash.bme.v1.EventLedgerRecordFailed)
      - [EventMintStatusChange](#akash.bme.v1.EventMintStatusChange)
      - [EventVaultSeeded](#akash.bme.v1.EventVaultSeeded)
    
@@ -1372,16 +1372,16 @@ if field is nil resource is not present in the given data-structure
  
 
  
- <a name="akash.bme.v1.LedgerFailedRecord"></a>
+ <a name="akash.bme.v1.LedgerCanceledRecord"></a>
 
- ### LedgerFailedRecord
- LedgerPendingRecord
+ ### LedgerCanceledRecord
+ LedgerCanceledRecord
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `owner` | [string](#string) |  | owner source of the coins to be burned |
- | `fail_reason` | [LedgerFailedRecord.BMFailReason](#akash.bme.v1.LedgerFailedRecord.BMFailReason) |  | fail_reason |
+ | `cancel_reason` | [LedgerCanceledRecord.BMCancelReason](#akash.bme.v1.LedgerCanceledRecord.BMCancelReason) |  | cancel_reason |
  | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
  | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
  | `denom_to_mint` | [string](#string) |  | denom_to_mint |
@@ -1439,6 +1439,7 @@ if field is nil resource is not present in the given data-structure
  | `minter` | [string](#string) |  | module is module account performing mint |
  | `burned` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | burned is the coin burned at price |
  | `minted` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | minted is coin minted at price |
+ | `spread` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `remint_credit_issued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  | `remint_credit_accrued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  
@@ -1518,15 +1519,15 @@ if field is nil resource is not present in the given data-structure
   <!-- end messages -->
 
  
- <a name="akash.bme.v1.LedgerFailedRecord.BMFailReason"></a>
+ <a name="akash.bme.v1.LedgerCanceledRecord.BMCancelReason"></a>
 
- ### LedgerFailedRecord.BMFailReason
- BMFailReason is an enum indicating reasons of failure for burn/mint request
+ ### LedgerCanceledRecord.BMCancelReason
+ BMCancelReason is an enum indicating reasons of failure for burn/mint request
 
  | Name | Number | Description |
  | ---- | ------ | ----------- |
  | unknown | 0 | Prefix should start with 0 in enum. So declaring dummy state. |
- | epsilon | 1 | BMFailReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) |
+ | epsilon | 1 | BMCanceledReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) |
  
 
  
@@ -1540,7 +1541,7 @@ if field is nil resource is not present in the given data-structure
  | ledger_record_status_invalid | 0 | LEDGER_RECORD_STATUS_INVALID is the default/uninitialized value This status should never appear in a valid ledger record |
  | ledger_record_status_pending | 1 | LEDGER_RECORD_STATUS_PENDING indicates a burn/mint operation has been initiated but not yet executed (e.g., waiting for oracle price or circuit breaker clearance) |
  | ledger_record_status_executed | 2 | LEDGER_RECORD_STATUS_EXECUTED indicates the burn/mint operation has been successfully completed and tokens have been burned and minted |
- | ledger_record_status_failed | 3 | LEDGER_RECORD_STATUS_FAILED indicates the burn/mint operation has encountered error and funds have been returned to the owner successfully completed and tokens have been burned and minted |
+ | ledger_record_status_canceled | 3 | LEDGER_RECORD_STATUS_CANCELED indicates the burn/mint operation has encountered error and funds have been returned to the owner successfully completed and tokens have been burned and minted |
  
 
  
@@ -1573,6 +1574,26 @@ if field is nil resource is not present in the given data-structure
  
 
  
+ <a name="akash.bme.v1.EventLedgerRecordCanceled"></a>
+
+ ### EventLedgerRecordCanceled
+ EventLedgerRecordCanceled emitted information of unsuccessful burn/mint event
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | burned_from source address of the tokens burned |
+ | `cancel_reason` | [LedgerCanceledRecord.BMCancelReason](#akash.bme.v1.LedgerCanceledRecord.BMCancelReason) |  | fail_reason |
+ | `owner` | [string](#string) |  | owner source of the coins to be burned |
+ | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
+ | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
+ | `denom_to_mint` | [string](#string) |  | denom_to_mint |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.EventLedgerRecordExecuted"></a>
 
  ### EventLedgerRecordExecuted
@@ -1588,28 +1609,9 @@ if field is nil resource is not present in the given data-structure
  | `minter` | [string](#string) |  | module is module account performing mint |
  | `burned` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | burned is the coin burned at price |
  | `minted` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | minted is coin minted at price |
+ | `spread` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `remint_credit_issued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  | `remint_credit_accrued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.EventLedgerRecordFailed"></a>
-
- ### EventLedgerRecordFailed
- EventLedgerRecordFailed emitted information of unsuccessful burn/mint event
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | burned_from source address of the tokens burned |
- | `fail_reason` | [LedgerFailedRecord.BMFailReason](#akash.bme.v1.LedgerFailedRecord.BMFailReason) |  | fail_reason |
- | `owner` | [string](#string) |  | owner source of the coins to be burned |
- | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
- | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
- | `denom_to_mint` | [string](#string) |  | denom_to_mint |
  
  
 
@@ -1717,6 +1719,7 @@ if field is nil resource is not present in the given data-structure
  | `mint_spread_bps` | [uint32](#uint32) |  | mint_spread_bps is the spread in basis points applied during ACT mint (default: 25 bps = 0.25%) |
  | `settle_spread_bps` | [uint32](#uint32) |  | settle_spread_bps is the spread in basis points applied during settlement (default: 0 for no provider tax) |
  | `max_endblocker_records` | [uint32](#uint32) |  | max_endblocker_records is the deterministic upper bound on pending ledger records processed in a single EndBlocker invocation. |
+ | `min_mint` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | min_mint minimum amount of ACT required to be minted in the new transaction |
  
  
 
@@ -2022,6 +2025,7 @@ Allows burning AKT to mint ACT, or burning unused ACT back to AKT
  | `status` | [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus) |  | status indicates whether this record is pending or executed |
  | `pending_record` | [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord) |  | pending_record is set when the record status is pending |
  | `executed_record` | [LedgerRecord](#akash.bme.v1.LedgerRecord) |  | executed_record is set when the record status is executed |
+ | `canceled_record` | [LedgerCanceledRecord](#akash.bme.v1.LedgerCanceledRecord) |  | canceled_record is set when the record status is failed |
  
  
 
