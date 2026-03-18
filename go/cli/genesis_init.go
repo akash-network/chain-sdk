@@ -168,16 +168,16 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 						Description: "Akash Compute Token",
 						DenomUnits: []*banktypes.DenomUnit{
 							{
-								Denom:    sdkutil.DenomAct,
-								Exponent: 6,
+								Denom:    sdkutil.DenomUact,
+								Exponent: 0,
 							},
 							{
 								Denom:    sdkutil.DenomMact,
 								Exponent: 3,
 							},
 							{
-								Denom:    sdkutil.DenomUact,
-								Exponent: 0,
+								Denom:    sdkutil.DenomAct,
+								Exponent: 6,
 							},
 						},
 						Base:    sdkutil.DenomUact,
