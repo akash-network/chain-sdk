@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.0-alpha.27](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.26...ts/v1.0.0-alpha.27) (2026-03-18)
+
+
+### Features
+
+* implement ledger failed record for bme ([#255](https://github.com/akash-network/chain-sdk/issues/255)) ([4dc78aa](https://github.com/akash-network/chain-sdk/commit/4dc78aa46dd0538a2d7ce099e274ca47115581c4))
+* **ts:** adds yaml.raw helper ([#260](https://github.com/akash-network/chain-sdk/issues/260)) ([28ead7b](https://github.com/akash-network/chain-sdk/commit/28ead7b910320702d38443d73a4dd00236032ce6))
+
+
+### Bug Fixes
+
+* add ledger failed event ([#257](https://github.com/akash-network/chain-sdk/issues/257)) ([40c2596](https://github.com/akash-network/chain-sdk/commit/40c2596fe4e03bbbd30254b5b40063075f5b5a0b))
+
 ## [1.0.0-alpha.26](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.25...ts/v1.0.0-alpha.26) (2026-03-13)
 
 
