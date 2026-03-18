@@ -108,6 +108,9 @@ message QueryLedgerRecordEntry {
 
     // executed_record is set when the record status is executed
     LedgerRecord executed_record = 4;
+
+    // canceled_record is set when the record status is failed
+    LedgerCanceledRecord canceled_record = 5;
   }
 }
 

@@ -14,6 +14,7 @@ import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pa
 import { LedgerRecordFilters } from "./filters.ts";
 import { Params } from "./params.ts";
 import {
+  LedgerCanceledRecord,
   LedgerPendingRecord,
   LedgerRecord,
   LedgerRecordID,
@@ -77,7 +78,11 @@ export interface QueryLedgerRecordEntry {
     | LedgerPendingRecord
     | undefined;
   /** executed_record is set when the record status is executed */
-  executedRecord?: LedgerRecord | undefined;
+  executedRecord?:
+    | LedgerRecord
+    | undefined;
+  /** canceled_record is set when the record status is failed */
+  canceledRecord?: LedgerCanceledRecord | undefined;
 }
 
 /** QueryLedgerRecordsRequest is the request type for the Query/LedgerRecords RPC method */
@@ -483,7 +488,7 @@ const _QueryStatusResponse: MessageFns<QueryStatusResponse, "akash.bme.v1.QueryS
 };
 
 function createBaseQueryLedgerRecordEntry(): QueryLedgerRecordEntry {
-  return { id: undefined, status: 0, pendingRecord: undefined, executedRecord: undefined };
+  return { id: undefined, status: 0, pendingRecord: undefined, executedRecord: undefined, canceledRecord: undefined };
 }
 
 export const QueryLedgerRecordEntry: MessageFns<QueryLedgerRecordEntry, "akash.bme.v1.QueryLedgerRecordEntry"> = {
@@ -501,6 +506,9 @@ export const QueryLedgerRecordEntry: MessageFns<QueryLedgerRecordEntry, "akash.b
     }
     if (message.executedRecord !== undefined) {
       LedgerRecord.encode(message.executedRecord, writer.uint32(34).fork()).join();
+    }
+    if (message.canceledRecord !== undefined) {
+      LedgerCanceledRecord.encode(message.canceledRecord, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -544,6 +552,14 @@ export const QueryLedgerRecordEntry: MessageFns<QueryLedgerRecordEntry, "akash.b
           message.executedRecord = LedgerRecord.decode(reader, reader.uint32());
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.canceledRecord = LedgerCanceledRecord.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -559,6 +575,7 @@ export const QueryLedgerRecordEntry: MessageFns<QueryLedgerRecordEntry, "akash.b
       status: isSet(object.status) ? ledgerRecordStatusFromJSON(object.status) : 0,
       pendingRecord: isSet(object.pending_record) ? LedgerPendingRecord.fromJSON(object.pending_record) : undefined,
       executedRecord: isSet(object.executed_record) ? LedgerRecord.fromJSON(object.executed_record) : undefined,
+      canceledRecord: isSet(object.canceled_record) ? LedgerCanceledRecord.fromJSON(object.canceled_record) : undefined,
     };
   },
 
@@ -576,6 +593,9 @@ export const QueryLedgerRecordEntry: MessageFns<QueryLedgerRecordEntry, "akash.b
     if (message.executedRecord !== undefined) {
       obj.executed_record = LedgerRecord.toJSON(message.executedRecord);
     }
+    if (message.canceledRecord !== undefined) {
+      obj.canceled_record = LedgerCanceledRecord.toJSON(message.canceledRecord);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryLedgerRecordEntry>): QueryLedgerRecordEntry {
@@ -587,6 +607,9 @@ export const QueryLedgerRecordEntry: MessageFns<QueryLedgerRecordEntry, "akash.b
       : undefined;
     message.executedRecord = (object.executedRecord !== undefined && object.executedRecord !== null)
       ? LedgerRecord.fromPartial(object.executedRecord)
+      : undefined;
+    message.canceledRecord = (object.canceledRecord !== undefined && object.canceledRecord !== null)
+      ? LedgerCanceledRecord.fromPartial(object.canceledRecord)
       : undefined;
     return message;
   },

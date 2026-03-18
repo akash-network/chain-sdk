@@ -13,9 +13,9 @@ import Long from "long";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 import {
   CoinPrice,
-  LedgerFailedRecord_BMFailReason,
-  ledgerFailedRecord_BMFailReasonFromJSON,
-  ledgerFailedRecord_BMFailReasonToJSON,
+  LedgerCanceledRecord_BMCancelReason,
+  ledgerCanceledRecord_BMCancelReasonFromJSON,
+  ledgerCanceledRecord_BMCancelReasonToJSON,
   LedgerRecordID,
   MintStatus,
   mintStatusFromJSON,
@@ -64,18 +64,19 @@ export interface EventLedgerRecordExecuted {
     | undefined;
   /** minted is coin minted at price */
   minted: CoinPrice | undefined;
+  spread: Coin | undefined;
   remintCreditIssued: CoinPrice | undefined;
   remintCreditAccrued: CoinPrice | undefined;
 }
 
-/** EventLedgerRecordFailed emitted information of unsuccessful burn/mint event */
-export interface EventLedgerRecordFailed {
+/** EventLedgerRecordCanceled emitted information of unsuccessful burn/mint event */
+export interface EventLedgerRecordCanceled {
   /** burned_from source address of the tokens burned */
   id:
     | LedgerRecordID
     | undefined;
   /** fail_reason */
-  failReason: LedgerFailedRecord_BMFailReason;
+  cancelReason: LedgerCanceledRecord_BMCancelReason;
   /** owner source of the coins to be burned */
   owner: string;
   /**
@@ -284,6 +285,7 @@ function createBaseEventLedgerRecordExecuted(): EventLedgerRecordExecuted {
     minter: "",
     burned: undefined,
     minted: undefined,
+    spread: undefined,
     remintCreditIssued: undefined,
     remintCreditAccrued: undefined,
   };
@@ -317,11 +319,14 @@ export const EventLedgerRecordExecuted: MessageFns<
     if (message.minted !== undefined) {
       CoinPrice.encode(message.minted, writer.uint32(58).fork()).join();
     }
+    if (message.spread !== undefined) {
+      Coin.encode(message.spread, writer.uint32(66).fork()).join();
+    }
     if (message.remintCreditIssued !== undefined) {
-      CoinPrice.encode(message.remintCreditIssued, writer.uint32(66).fork()).join();
+      CoinPrice.encode(message.remintCreditIssued, writer.uint32(74).fork()).join();
     }
     if (message.remintCreditAccrued !== undefined) {
-      CoinPrice.encode(message.remintCreditAccrued, writer.uint32(74).fork()).join();
+      CoinPrice.encode(message.remintCreditAccrued, writer.uint32(82).fork()).join();
     }
     return writer;
   },
@@ -394,11 +399,19 @@ export const EventLedgerRecordExecuted: MessageFns<
             break;
           }
 
-          message.remintCreditIssued = CoinPrice.decode(reader, reader.uint32());
+          message.spread = Coin.decode(reader, reader.uint32());
           continue;
         }
         case 9: {
           if (tag !== 74) {
+            break;
+          }
+
+          message.remintCreditIssued = CoinPrice.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
             break;
           }
 
@@ -423,6 +436,7 @@ export const EventLedgerRecordExecuted: MessageFns<
       minter: isSet(object.minter) ? globalThis.String(object.minter) : "",
       burned: isSet(object.burned) ? CoinPrice.fromJSON(object.burned) : undefined,
       minted: isSet(object.minted) ? CoinPrice.fromJSON(object.minted) : undefined,
+      spread: isSet(object.spread) ? Coin.fromJSON(object.spread) : undefined,
       remintCreditIssued: isSet(object.remint_credit_issued)
         ? CoinPrice.fromJSON(object.remint_credit_issued)
         : undefined,
@@ -455,6 +469,9 @@ export const EventLedgerRecordExecuted: MessageFns<
     if (message.minted !== undefined) {
       obj.minted = CoinPrice.toJSON(message.minted);
     }
+    if (message.spread !== undefined) {
+      obj.spread = Coin.toJSON(message.spread);
+    }
     if (message.remintCreditIssued !== undefined) {
       obj.remint_credit_issued = CoinPrice.toJSON(message.remintCreditIssued);
     }
@@ -476,6 +493,9 @@ export const EventLedgerRecordExecuted: MessageFns<
     message.minted = (object.minted !== undefined && object.minted !== null)
       ? CoinPrice.fromPartial(object.minted)
       : undefined;
+    message.spread = (object.spread !== undefined && object.spread !== null)
+      ? Coin.fromPartial(object.spread)
+      : undefined;
     message.remintCreditIssued = (object.remintCreditIssued !== undefined && object.remintCreditIssued !== null)
       ? CoinPrice.fromPartial(object.remintCreditIssued)
       : undefined;
@@ -486,19 +506,22 @@ export const EventLedgerRecordExecuted: MessageFns<
   },
 };
 
-function createBaseEventLedgerRecordFailed(): EventLedgerRecordFailed {
-  return { id: undefined, failReason: 0, owner: "", to: "", coinsToBurn: undefined, denomToMint: "" };
+function createBaseEventLedgerRecordCanceled(): EventLedgerRecordCanceled {
+  return { id: undefined, cancelReason: 0, owner: "", to: "", coinsToBurn: undefined, denomToMint: "" };
 }
 
-export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash.bme.v1.EventLedgerRecordFailed"> = {
-  $type: "akash.bme.v1.EventLedgerRecordFailed" as const,
+export const EventLedgerRecordCanceled: MessageFns<
+  EventLedgerRecordCanceled,
+  "akash.bme.v1.EventLedgerRecordCanceled"
+> = {
+  $type: "akash.bme.v1.EventLedgerRecordCanceled" as const,
 
-  encode(message: EventLedgerRecordFailed, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: EventLedgerRecordCanceled, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== undefined) {
       LedgerRecordID.encode(message.id, writer.uint32(10).fork()).join();
     }
-    if (message.failReason !== 0) {
-      writer.uint32(16).int32(message.failReason);
+    if (message.cancelReason !== 0) {
+      writer.uint32(16).int32(message.cancelReason);
     }
     if (message.owner !== "") {
       writer.uint32(26).string(message.owner);
@@ -515,10 +538,10 @@ export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EventLedgerRecordFailed {
+  decode(input: BinaryReader | Uint8Array, length?: number): EventLedgerRecordCanceled {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEventLedgerRecordFailed();
+    const message = createBaseEventLedgerRecordCanceled();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -535,7 +558,7 @@ export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash
             break;
           }
 
-          message.failReason = reader.int32() as any;
+          message.cancelReason = reader.int32() as any;
           continue;
         }
         case 3: {
@@ -579,10 +602,10 @@ export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash
     return message;
   },
 
-  fromJSON(object: any): EventLedgerRecordFailed {
+  fromJSON(object: any): EventLedgerRecordCanceled {
     return {
       id: isSet(object.id) ? LedgerRecordID.fromJSON(object.id) : undefined,
-      failReason: isSet(object.fail_reason) ? ledgerFailedRecord_BMFailReasonFromJSON(object.fail_reason) : 0,
+      cancelReason: isSet(object.cancel_reason) ? ledgerCanceledRecord_BMCancelReasonFromJSON(object.cancel_reason) : 0,
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
       to: isSet(object.to) ? globalThis.String(object.to) : "",
       coinsToBurn: isSet(object.coins_to_burn) ? Coin.fromJSON(object.coins_to_burn) : undefined,
@@ -590,13 +613,13 @@ export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash
     };
   },
 
-  toJSON(message: EventLedgerRecordFailed): unknown {
+  toJSON(message: EventLedgerRecordCanceled): unknown {
     const obj: any = {};
     if (message.id !== undefined) {
       obj.id = LedgerRecordID.toJSON(message.id);
     }
-    if (message.failReason !== 0) {
-      obj.fail_reason = ledgerFailedRecord_BMFailReasonToJSON(message.failReason);
+    if (message.cancelReason !== 0) {
+      obj.cancel_reason = ledgerCanceledRecord_BMCancelReasonToJSON(message.cancelReason);
     }
     if (message.owner !== "") {
       obj.owner = message.owner;
@@ -612,10 +635,10 @@ export const EventLedgerRecordFailed: MessageFns<EventLedgerRecordFailed, "akash
     }
     return obj;
   },
-  fromPartial(object: DeepPartial<EventLedgerRecordFailed>): EventLedgerRecordFailed {
-    const message = createBaseEventLedgerRecordFailed();
+  fromPartial(object: DeepPartial<EventLedgerRecordCanceled>): EventLedgerRecordCanceled {
+    const message = createBaseEventLedgerRecordCanceled();
     message.id = (object.id !== undefined && object.id !== null) ? LedgerRecordID.fromPartial(object.id) : undefined;
-    message.failReason = object.failReason ?? 0;
+    message.cancelReason = object.cancelReason ?? 0;
     message.owner = object.owner ?? "";
     message.to = object.to ?? "";
     message.coinsToBurn = (object.coinsToBurn !== undefined && object.coinsToBurn !== null)
