@@ -538,7 +538,9 @@ func (c *serialBroadcaster) syncSequence(f clienttx.Factory, resp interface{}, r
 	// due to cosmos-sdk not returning ABCI errors for /simulate call
 	// exact error match does not work, and we have to improvise
 	// use sdkerrors.ErrWrongSequence.Is(rErr) when /simulate call is fixed
-	if (rErr != nil && (sdkerrors.ErrWrongSequence.Is(rErr) || sdkerrors.ErrInvalidSequence.Is(rErr))) || (valid && (txResp.Code == sdkerrors.ErrWrongSequence.ABCICode())) {
+	// Note: `resp` can be a typed nil (*sdk.TxResponse)(nil) stored inside an `interface{}`.
+	// In that case `valid == true` but `txResp == nil`, so guard before dereferencing.
+	if (rErr != nil && (sdkerrors.ErrWrongSequence.Is(rErr) || sdkerrors.ErrInvalidSequence.Is(rErr))) || (valid && txResp != nil && (txResp.Code == sdkerrors.ErrWrongSequence.ABCICode())) {
 		// attempt to sync account sequence
 		if rSeq, err := c.syncAccountSequence(f.Sequence()); err == nil {
 			return rSeq, true
