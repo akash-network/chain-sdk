@@ -378,7 +378,7 @@ func (c *serialBroadcaster) BroadcastMsgs(ctx context.Context, msgs []sdk.Msg, o
 		// as clients supposed to check Tx code, unless resp is nil, which is error during Tx preparation
 		if !errors.As(resp.err, &cerrors.Error{}) || resp.resp == nil || bOpts.resultAsError {
 			if bOpts.resultAsError {
-				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp.Code != 0 && resp.err == nil {
+				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp != nil && txResp.Code != 0 && resp.err == nil {
 					resp.err = cerrors.ABCIError(txResp.Codespace, txResp.Code, txResp.RawLog)
 				}
 			}
@@ -428,7 +428,7 @@ func (c *serialBroadcaster) BroadcastTx(ctx context.Context, tx sdk.Tx, opts ...
 		// as clients supposed to check Tx code, unless resp is nil, which is error during Tx preparation
 		if !errors.As(resp.err, &cerrors.Error{}) || resp.resp == nil || bOpts.resultAsError {
 			if bOpts.resultAsError {
-				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp.Code != 0 && resp.err == nil {
+				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp != nil && txResp.Code != 0 && resp.err == nil {
 					resp.err = cerrors.ABCIError(txResp.Codespace, txResp.Code, txResp.RawLog)
 				}
 			}
