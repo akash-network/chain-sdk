@@ -80,7 +80,6 @@
      - [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord)
      - [LedgerRecord](#akash.bme.v1.LedgerRecord)
      - [LedgerRecordID](#akash.bme.v1.LedgerRecordID)
-     - [MintEpoch](#akash.bme.v1.MintEpoch)
      - [State](#akash.bme.v1.State)
      - [Status](#akash.bme.v1.Status)
    
@@ -92,7 +91,7 @@
      - [EventLedgerRecordCanceled](#akash.bme.v1.EventLedgerRecordCanceled)
      - [EventLedgerRecordExecuted](#akash.bme.v1.EventLedgerRecordExecuted)
      - [EventMintStatusChange](#akash.bme.v1.EventMintStatusChange)
-     - [EventVaultSeeded](#akash.bme.v1.EventVaultSeeded)
+     - [EventVaultFunded](#akash.bme.v1.EventVaultFunded)
    
  - [akash/bme/v1/filters.proto](#akash/bme/v1/filters.proto)
      - [LedgerRecordFilters](#akash.bme.v1.LedgerRecordFilters)
@@ -1467,21 +1466,6 @@ if field is nil resource is not present in the given data-structure
  
 
  
- <a name="akash.bme.v1.MintEpoch"></a>
-
- ### MintEpoch
- MintEpoch stores information about mint epoch
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `next_epoch` | [int64](#int64) |  |  |
- 
- 
-
- 
-
- 
  <a name="akash.bme.v1.State"></a>
 
  ### State
@@ -1635,10 +1619,10 @@ if field is nil resource is not present in the given data-structure
  
 
  
- <a name="akash.bme.v1.EventVaultSeeded"></a>
+ <a name="akash.bme.v1.EventVaultFunded"></a>
 
- ### EventVaultSeeded
- EventVaultSeeded is emitted when the vault is seeded with AKT
+ ### EventVaultFunded
+ EventVaultFunded is emitted when the vault is seeded with AKT
 
  
  | Field | Type | Label | Description |

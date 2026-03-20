@@ -3,7 +3,6 @@ package akash.bme.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
-import "akash/bme/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/bme/v1";
 

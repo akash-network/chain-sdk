@@ -904,7 +904,7 @@ impl<'de> serde::Deserialize<'de> for EventMintStatusChange {
         deserializer.deserialize_struct("akash.bme.v1.EventMintStatusChange", FIELDS, GeneratedVisitor)
     }
 }
-impl serde::Serialize for EventVaultSeeded {
+impl serde::Serialize for EventVaultFunded {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -921,7 +921,7 @@ impl serde::Serialize for EventVaultSeeded {
         if self.new_vault_balance.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventVaultSeeded", len)?;
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventVaultFunded", len)?;
         if let Some(v) = self.amount.as_ref() {
             struct_ser.serialize_field("amount", v)?;
         }
@@ -934,7 +934,7 @@ impl serde::Serialize for EventVaultSeeded {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for EventVaultSeeded {
+impl<'de> serde::Deserialize<'de> for EventVaultFunded {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -985,13 +985,13 @@ impl<'de> serde::Deserialize<'de> for EventVaultSeeded {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = EventVaultSeeded;
+            type Value = EventVaultFunded;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.EventVaultSeeded")
+                formatter.write_str("struct akash.bme.v1.EventVaultFunded")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventVaultSeeded, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventVaultFunded, V::Error>
                 where
                     V: serde::de::MapAccess<'de>,
             {
@@ -1020,14 +1020,14 @@ impl<'de> serde::Deserialize<'de> for EventVaultSeeded {
                         }
                     }
                 }
-                Ok(EventVaultSeeded {
+                Ok(EventVaultFunded {
                     amount: amount__,
                     source: source__.unwrap_or_default(),
                     new_vault_balance: new_vault_balance__,
                 })
             }
         }
-        deserializer.deserialize_struct("akash.bme.v1.EventVaultSeeded", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("akash.bme.v1.EventVaultFunded", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GenesisLedgerPendingRecord {
@@ -2720,102 +2720,6 @@ impl<'de> serde::Deserialize<'de> for LedgerRecordStatus {
             }
         }
         deserializer.deserialize_any(GeneratedVisitor)
-    }
-}
-impl serde::Serialize for MintEpoch {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if self.next_epoch != 0 {
-            len += 1;
-        }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.MintEpoch", len)?;
-        if self.next_epoch != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("nextEpoch", ToString::to_string(&self.next_epoch).as_str())?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for MintEpoch {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "next_epoch",
-            "nextEpoch",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            NextEpoch,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "nextEpoch" | "next_epoch" => Ok(GeneratedField::NextEpoch),
-                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = MintEpoch;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.MintEpoch")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<MintEpoch, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
-            {
-                let mut next_epoch__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::NextEpoch => {
-                            if next_epoch__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("nextEpoch"));
-                            }
-                            next_epoch__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
-                        }
-                    }
-                }
-                Ok(MintEpoch {
-                    next_epoch: next_epoch__.unwrap_or_default(),
-                })
-            }
-        }
-        deserializer.deserialize_struct("akash.bme.v1.MintEpoch", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for MintStatus {

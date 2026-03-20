@@ -340,8 +340,3 @@ message Status {
 
   int64 epoch_height_diff = 3;
 }
-
-// MintEpoch stores information about mint epoch
-message MintEpoch {
-  int64 next_epoch = 1;
-}
