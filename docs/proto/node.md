@@ -80,7 +80,6 @@
      - [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord)
      - [LedgerRecord](#akash.bme.v1.LedgerRecord)
      - [LedgerRecordID](#akash.bme.v1.LedgerRecordID)
-     - [MintEpoch](#akash.bme.v1.MintEpoch)
      - [State](#akash.bme.v1.State)
      - [Status](#akash.bme.v1.Status)
    
@@ -1461,21 +1460,6 @@ if field is nil resource is not present in the given data-structure
  | `source` | [string](#string) |  |  |
  | `height` | [int64](#int64) |  |  |
  | `sequence` | [int64](#int64) |  |  |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MintEpoch"></a>
-
- ### MintEpoch
- MintEpoch stores information about mint epoch
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `next_epoch` | [int64](#int64) |  |  |
  
  
 

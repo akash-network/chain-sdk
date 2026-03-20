@@ -295,11 +295,6 @@ export interface Status {
   epochHeightDiff: Long;
 }
 
-/** MintEpoch stores information about mint epoch */
-export interface MintEpoch {
-  nextEpoch: Long;
-}
-
 function createBaseLedgerID(): LedgerID {
   return { height: Long.ZERO, sequence: Long.ZERO };
 }
@@ -1387,64 +1382,6 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
     message.previousStatus = object.previousStatus ?? 0;
     message.epochHeightDiff = (object.epochHeightDiff !== undefined && object.epochHeightDiff !== null)
       ? Long.fromValue(object.epochHeightDiff)
-      : Long.ZERO;
-    return message;
-  },
-};
-
-function createBaseMintEpoch(): MintEpoch {
-  return { nextEpoch: Long.ZERO };
-}
-
-export const MintEpoch: MessageFns<MintEpoch, "akash.bme.v1.MintEpoch"> = {
-  $type: "akash.bme.v1.MintEpoch" as const,
-
-  encode(message: MintEpoch, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.nextEpoch.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.nextEpoch.toString());
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): MintEpoch {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMintEpoch();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.nextEpoch = Long.fromString(reader.int64().toString());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MintEpoch {
-    return { nextEpoch: isSet(object.next_epoch) ? Long.fromValue(object.next_epoch) : Long.ZERO };
-  },
-
-  toJSON(message: MintEpoch): unknown {
-    const obj: any = {};
-    if (!message.nextEpoch.equals(Long.ZERO)) {
-      obj.next_epoch = (message.nextEpoch || Long.ZERO).toString();
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<MintEpoch>): MintEpoch {
-    const message = createBaseMintEpoch();
-    message.nextEpoch = (object.nextEpoch !== undefined && object.nextEpoch !== null)
-      ? Long.fromValue(object.nextEpoch)
       : Long.ZERO;
     return message;
   },
