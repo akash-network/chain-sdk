@@ -25,8 +25,8 @@ message EventMintStatusChange {
   ];
 }
 
-// EventVaultSeeded is emitted when the vault is seeded with AKT
-message EventVaultSeeded {
+// EventVaultFunded is emitted when the vault is seeded with AKT
+message EventVaultFunded {
   // amount is the AKT amount added to vault
   cosmos.base.v1beta1.Coin amount = 1 [
     (gogoproto.nullable) = false

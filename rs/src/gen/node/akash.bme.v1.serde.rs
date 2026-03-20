@@ -904,7 +904,7 @@ impl<'de> serde::Deserialize<'de> for EventMintStatusChange {
         deserializer.deserialize_struct("akash.bme.v1.EventMintStatusChange", FIELDS, GeneratedVisitor)
     }
 }
-impl serde::Serialize for EventVaultSeeded {
+impl serde::Serialize for EventVaultFunded {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -921,7 +921,7 @@ impl serde::Serialize for EventVaultSeeded {
         if self.new_vault_balance.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventVaultSeeded", len)?;
+        let mut struct_ser = serializer.serialize_struct("akash.bme.v1.EventVaultFunded", len)?;
         if let Some(v) = self.amount.as_ref() {
             struct_ser.serialize_field("amount", v)?;
         }
@@ -934,7 +934,7 @@ impl serde::Serialize for EventVaultSeeded {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for EventVaultSeeded {
+impl<'de> serde::Deserialize<'de> for EventVaultFunded {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -985,13 +985,13 @@ impl<'de> serde::Deserialize<'de> for EventVaultSeeded {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = EventVaultSeeded;
+            type Value = EventVaultFunded;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.bme.v1.EventVaultSeeded")
+                formatter.write_str("struct akash.bme.v1.EventVaultFunded")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventVaultSeeded, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventVaultFunded, V::Error>
                 where
                     V: serde::de::MapAccess<'de>,
             {
@@ -1020,14 +1020,14 @@ impl<'de> serde::Deserialize<'de> for EventVaultSeeded {
                         }
                     }
                 }
-                Ok(EventVaultSeeded {
+                Ok(EventVaultFunded {
                     amount: amount__,
                     source: source__.unwrap_or_default(),
                     new_vault_balance: new_vault_balance__,
                 })
             }
         }
-        deserializer.deserialize_struct("akash.bme.v1.EventVaultSeeded", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("akash.bme.v1.EventVaultFunded", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GenesisLedgerPendingRecord {

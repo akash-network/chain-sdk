@@ -32,8 +32,8 @@ export interface EventMintStatusChange {
   collateralRatio: string;
 }
 
-/** EventVaultSeeded is emitted when the vault is seeded with AKT */
-export interface EventVaultSeeded {
+/** EventVaultFunded is emitted when the vault is seeded with AKT */
+export interface EventVaultFunded {
   /** amount is the AKT amount added to vault */
   amount:
     | Coin
@@ -182,14 +182,14 @@ const _EventMintStatusChange: MessageFns<EventMintStatusChange, "akash.bme.v1.Ev
   },
 };
 
-function createBaseEventVaultSeeded(): EventVaultSeeded {
+function createBaseEventVaultFunded(): EventVaultFunded {
   return { amount: undefined, source: "", newVaultBalance: undefined };
 }
 
-export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventVaultSeeded"> = {
-  $type: "akash.bme.v1.EventVaultSeeded" as const,
+export const EventVaultFunded: MessageFns<EventVaultFunded, "akash.bme.v1.EventVaultFunded"> = {
+  $type: "akash.bme.v1.EventVaultFunded" as const,
 
-  encode(message: EventVaultSeeded, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: EventVaultFunded, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.amount !== undefined) {
       Coin.encode(message.amount, writer.uint32(10).fork()).join();
     }
@@ -202,10 +202,10 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EventVaultSeeded {
+  decode(input: BinaryReader | Uint8Array, length?: number): EventVaultFunded {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEventVaultSeeded();
+    const message = createBaseEventVaultFunded();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -242,7 +242,7 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     return message;
   },
 
-  fromJSON(object: any): EventVaultSeeded {
+  fromJSON(object: any): EventVaultFunded {
     return {
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
       source: isSet(object.source) ? globalThis.String(object.source) : "",
@@ -250,7 +250,7 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     };
   },
 
-  toJSON(message: EventVaultSeeded): unknown {
+  toJSON(message: EventVaultFunded): unknown {
     const obj: any = {};
     if (message.amount !== undefined) {
       obj.amount = Coin.toJSON(message.amount);
@@ -263,8 +263,8 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     }
     return obj;
   },
-  fromPartial(object: DeepPartial<EventVaultSeeded>): EventVaultSeeded {
-    const message = createBaseEventVaultSeeded();
+  fromPartial(object: DeepPartial<EventVaultFunded>): EventVaultFunded {
+    const message = createBaseEventVaultFunded();
     message.amount = (object.amount !== undefined && object.amount !== null)
       ? Coin.fromPartial(object.amount)
       : undefined;
