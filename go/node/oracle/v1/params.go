@@ -36,7 +36,7 @@ func DefaultParams() Params {
 
 	return Params{
 		MinPriceSources:         1,
-		MaxPriceStalenessBlocks: 2,
+		MaxPriceStalenessBlocks: 4,
 		MaxPriceDeviationBps:    150,
 		TwapWindow:              5,
 		FeedContractsParams:     msgs,

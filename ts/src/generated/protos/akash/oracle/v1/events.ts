@@ -9,7 +9,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
-import { DataID, PriceDataState } from "./prices.ts";
+import { AggregatedPrice, DataID, PriceDataState } from "./prices.ts";
 
 /** EventPriceData is emitted when new price data is added to the oracle */
 export interface EventPriceData {
@@ -39,8 +39,6 @@ export interface EventPriceStaleWarning {
 
 /** EventPriceStaled is emitted when a price has become stale */
 export interface EventPriceStaled {
-  /** source is the address of the price source */
-  source: string;
   /** id identifies the price pair */
   id:
     | DataID
@@ -51,14 +49,17 @@ export interface EventPriceStaled {
 
 /** EventPriceRecovered is emitted when a stale price has started receiving updates again */
 export interface EventPriceRecovered {
-  /** source is the address of the price source */
-  source: string;
   /** id identifies the price pair */
   id:
     | DataID
     | undefined;
   /** height is the block height when the price recovery was detected */
   height: Long;
+}
+
+/** EventAggregatedPrice is emitted when aggregated price has an update */
+export interface EventAggregatedPrice {
+  price: AggregatedPrice | undefined;
 }
 
 function createBaseEventPriceData(): EventPriceData {
@@ -264,21 +265,18 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
 };
 
 function createBaseEventPriceStaled(): EventPriceStaled {
-  return { source: "", id: undefined, lastHeight: Long.ZERO };
+  return { id: undefined, lastHeight: Long.ZERO };
 }
 
 export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.EventPriceStaled"> = {
   $type: "akash.oracle.v1.EventPriceStaled" as const,
 
   encode(message: EventPriceStaled, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.source !== "") {
-      writer.uint32(10).string(message.source);
-    }
     if (message.id !== undefined) {
-      DataID.encode(message.id, writer.uint32(18).fork()).join();
+      DataID.encode(message.id, writer.uint32(10).fork()).join();
     }
     if (!message.lastHeight.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.lastHeight.toString());
+      writer.uint32(16).int64(message.lastHeight.toString());
     }
     return writer;
   },
@@ -295,19 +293,11 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
             break;
           }
 
-          message.source = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
           message.id = DataID.decode(reader, reader.uint32());
           continue;
         }
-        case 3: {
-          if (tag !== 24) {
+        case 2: {
+          if (tag !== 16) {
             break;
           }
 
@@ -325,7 +315,6 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
 
   fromJSON(object: any): EventPriceStaled {
     return {
-      source: isSet(object.source) ? globalThis.String(object.source) : "",
       id: isSet(object.id) ? DataID.fromJSON(object.id) : undefined,
       lastHeight: isSet(object.last_height) ? Long.fromValue(object.last_height) : Long.ZERO,
     };
@@ -333,9 +322,6 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
 
   toJSON(message: EventPriceStaled): unknown {
     const obj: any = {};
-    if (message.source !== "") {
-      obj.source = message.source;
-    }
     if (message.id !== undefined) {
       obj.id = DataID.toJSON(message.id);
     }
@@ -346,7 +332,6 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
   },
   fromPartial(object: DeepPartial<EventPriceStaled>): EventPriceStaled {
     const message = createBaseEventPriceStaled();
-    message.source = object.source ?? "";
     message.id = (object.id !== undefined && object.id !== null) ? DataID.fromPartial(object.id) : undefined;
     message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null)
       ? Long.fromValue(object.lastHeight)
@@ -356,21 +341,18 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
 };
 
 function createBaseEventPriceRecovered(): EventPriceRecovered {
-  return { source: "", id: undefined, height: Long.ZERO };
+  return { id: undefined, height: Long.ZERO };
 }
 
 export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.v1.EventPriceRecovered"> = {
   $type: "akash.oracle.v1.EventPriceRecovered" as const,
 
   encode(message: EventPriceRecovered, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.source !== "") {
-      writer.uint32(10).string(message.source);
-    }
     if (message.id !== undefined) {
-      DataID.encode(message.id, writer.uint32(18).fork()).join();
+      DataID.encode(message.id, writer.uint32(10).fork()).join();
     }
     if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.height.toString());
+      writer.uint32(16).int64(message.height.toString());
     }
     return writer;
   },
@@ -387,19 +369,11 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
             break;
           }
 
-          message.source = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
           message.id = DataID.decode(reader, reader.uint32());
           continue;
         }
-        case 3: {
-          if (tag !== 24) {
+        case 2: {
+          if (tag !== 16) {
             break;
           }
 
@@ -417,7 +391,6 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
 
   fromJSON(object: any): EventPriceRecovered {
     return {
-      source: isSet(object.source) ? globalThis.String(object.source) : "",
       id: isSet(object.id) ? DataID.fromJSON(object.id) : undefined,
       height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
     };
@@ -425,9 +398,6 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
 
   toJSON(message: EventPriceRecovered): unknown {
     const obj: any = {};
-    if (message.source !== "") {
-      obj.source = message.source;
-    }
     if (message.id !== undefined) {
       obj.id = DataID.toJSON(message.id);
     }
@@ -438,11 +408,68 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
   },
   fromPartial(object: DeepPartial<EventPriceRecovered>): EventPriceRecovered {
     const message = createBaseEventPriceRecovered();
-    message.source = object.source ?? "";
     message.id = (object.id !== undefined && object.id !== null) ? DataID.fromPartial(object.id) : undefined;
     message.height = (object.height !== undefined && object.height !== null)
       ? Long.fromValue(object.height)
       : Long.ZERO;
+    return message;
+  },
+};
+
+function createBaseEventAggregatedPrice(): EventAggregatedPrice {
+  return { price: undefined };
+}
+
+export const EventAggregatedPrice: MessageFns<EventAggregatedPrice, "akash.oracle.v1.EventAggregatedPrice"> = {
+  $type: "akash.oracle.v1.EventAggregatedPrice" as const,
+
+  encode(message: EventAggregatedPrice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.price !== undefined) {
+      AggregatedPrice.encode(message.price, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EventAggregatedPrice {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEventAggregatedPrice();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.price = AggregatedPrice.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EventAggregatedPrice {
+    return { price: isSet(object.price) ? AggregatedPrice.fromJSON(object.price) : undefined };
+  },
+
+  toJSON(message: EventAggregatedPrice): unknown {
+    const obj: any = {};
+    if (message.price !== undefined) {
+      obj.price = AggregatedPrice.toJSON(message.price);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<EventAggregatedPrice>): EventAggregatedPrice {
+    const message = createBaseEventAggregatedPrice();
+    message.price = (object.price !== undefined && object.price !== null)
+      ? AggregatedPrice.fromPartial(object.price)
+      : undefined;
     return message;
   },
 };
