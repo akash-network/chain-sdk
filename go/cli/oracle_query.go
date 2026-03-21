@@ -20,7 +20,7 @@ func GetQueryOracleCmd() *cobra.Command {
 	cmd.AddCommand(
 		GetOraclePricesCmd(),
 		GetOracleAggregatedPriceCmd(),
-		GetOracleParamsCmd(),
+		GetQueryOracleParamsCmd(),
 	)
 
 	return cmd
@@ -102,7 +102,7 @@ func GetOracleAggregatedPriceCmd() *cobra.Command {
 	return cmd
 }
 
-func GetOracleParamsCmd() *cobra.Command {
+func GetQueryOracleParamsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "params",
 		Short:             "Query the current oracle parameters",

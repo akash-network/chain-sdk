@@ -571,7 +571,7 @@ func (s *OracleCLITestSuite) TestCLIQueryOracleParams() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetOracleParamsCmd()
+			cmd := cli.GetQueryOracleParamsCmd()
 			cmd.SetArgs(tc.args)
 			s.Require().Contains(fmt.Sprint(cmd), strings.TrimSpace(tc.expCmdOutput))
 		})
@@ -600,7 +600,7 @@ func (s *OracleCLITestSuite) TestCLIQueryOracleParamsExec() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			cmd := cli.GetOracleParamsCmd()
+			cmd := cli.GetQueryOracleParamsCmd()
 			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cmd, tc.args...)
 
 			if tc.expectErr {

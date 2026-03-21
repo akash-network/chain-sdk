@@ -32,5 +32,4 @@ message Params {
     (gogoproto.jsontag)      = "bid_min_deposits",
     (gogoproto.moretags)     = "yaml:\"bid_min_deposits\""
   ];
-
 }
