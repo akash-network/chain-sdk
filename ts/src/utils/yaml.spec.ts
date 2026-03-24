@@ -188,3 +188,46 @@ describe(yaml.template.name, () => {
     });
   });
 });
+
+describe(yaml.raw.name, () => {
+  it("parses a plain YAML string into an object", () => {
+    const result = yaml.raw(`
+      version: "2.0"
+      services:
+        web:
+          image: nginx
+          expose:
+            - port: 80
+    `);
+
+    expect(result).toEqual({
+      version: "2.0",
+      services: {
+        web: {
+          image: "nginx",
+          expose: [{ port: 80 }],
+        },
+      },
+    });
+  });
+
+  it("parses scalar values", () => {
+    const result = yaml.raw<string>("hello");
+    expect(result).toBe("hello");
+  });
+
+  it("parses a YAML array", () => {
+    const result = yaml.raw(`
+      - one
+      - two
+      - three
+    `);
+
+    expect(result).toEqual(["one", "two", "three"]);
+  });
+
+  it("returns undefined for empty string", () => {
+    const result = yaml.raw("");
+    expect(result).toBeUndefined();
+  });
+});

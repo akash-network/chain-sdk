@@ -6,6 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	ibctransfer "github.com/cosmos/ibc-go/v10/modules/apps/transfer"
+	ibccore "github.com/cosmos/ibc-go/v10/modules/core"
+
 	cflags "pkg.akt.dev/go/cli/flags"
 	aclient "pkg.akt.dev/go/node/client/discovery"
 )
@@ -73,6 +76,9 @@ func TxCmd() *cobra.Command {
 		GetEncodeCommand(),
 		GetDecodeCommand(),
 		GetTxVestingCmd(),
+		cflags.LineBreak,
+		ibccore.AppModuleBasic{}.GetTxCmd(),
+		ibctransfer.AppModuleBasic{}.GetTxCmd(),
 		cflags.LineBreak,
 		GetTxAuditCmd(),
 		GetTxCertCmd(),

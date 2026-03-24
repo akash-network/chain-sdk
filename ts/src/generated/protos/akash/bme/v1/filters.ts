@@ -19,7 +19,7 @@ export interface LedgerRecordFilters {
   /** to_denom filters by the mint denomination */
   toDenom: string;
   /**
-   * status filters by record status (pending or executed).
+   * status filters by record status (pending, executed or failed).
    * Uses the string representation of LedgerRecordStatus enum values.
    * If empty, returns both pending and executed records.
    */

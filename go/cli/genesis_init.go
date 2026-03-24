@@ -25,11 +25,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/go-bip39"
 
 	cflags "pkg.akt.dev/go/cli/flags"
+	"pkg.akt.dev/go/sdkutil"
 )
 
 type printInfo struct {
@@ -141,10 +143,65 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 
 				appGenState := mbm.DefaultGenesis(cdc)
 
-				appState, err := json.MarshalIndent(appGenState, "", " ")
-				if err != nil {
-					return errorsmod.Wrap(err, "Failed to marshal default genesis state")
+				bankGenState := banktypes.GetGenesisStateFromAppState(cdc, appGenState)
+				bankGenState.DenomMetadata = []banktypes.Metadata{
+					{
+						Description: "The native token of Akash",
+						DenomUnits: []*banktypes.DenomUnit{
+							{
+								Denom:    sdkutil.DenomUakt,
+								Exponent: 0,
+								Aliases:  nil,
+							},
+							{
+								Denom:    sdkutil.DenomAkt,
+								Exponent: sdkutil.DenomUExponent,
+								Aliases:  nil,
+							},
+						},
+						Base:    sdkutil.DenomUakt,
+						Display: sdkutil.DenomAkt,
+						Name:    "Akash Native Token",
+						Symbol:  "AKT",
+					},
+					{
+						Description: "Akash Compute Token",
+						DenomUnits: []*banktypes.DenomUnit{
+							{
+								Denom:    sdkutil.DenomUact,
+								Exponent: 0,
+							},
+							{
+								Denom:    sdkutil.DenomMact,
+								Exponent: 3,
+							},
+							{
+								Denom:    sdkutil.DenomAct,
+								Exponent: 6,
+							},
+						},
+						Base:    sdkutil.DenomUact,
+						Display: sdkutil.DenomUact,
+						Name:    "Akash Compute Token",
+						Symbol:  "ACT",
+					},
 				}
+				bankGenState.SendEnabled = []banktypes.SendEnabled{
+					{
+						sdkutil.DenomUakt,
+						true,
+					},
+					{
+						sdkutil.DenomUact,
+						false,
+					},
+				}
+				bankGenStateBz, err := cdc.MarshalJSON(bankGenState)
+				if err != nil {
+					return fmt.Errorf("failed to marshal bank genesis state: %w", err)
+				}
+
+				appGenState[banktypes.ModuleName] = bankGenStateBz
 
 				appGenesis := &types.AppGenesis{}
 				if _, err := os.Stat(genFile); err != nil {
@@ -156,6 +213,11 @@ func GetGenesisInitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.C
 					if err != nil {
 						return errorsmod.Wrap(err, "Failed to read genesis doc from file")
 					}
+				}
+
+				appState, err := json.MarshalIndent(appGenState, "", " ")
+				if err != nil {
+					return errorsmod.Wrap(err, "Failed to marshal default genesis state")
 				}
 
 				appGenesis.AppName = version.AppName

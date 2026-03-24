@@ -3,6 +3,11 @@ package v1
 import (
 	"fmt"
 	"time"
+
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.akt.dev/go/sdkutil"
 )
 
 const (
@@ -14,8 +19,12 @@ const (
 	DefaultSettleSpreadBps             = uint32(0)
 	DefaultMinEpochBlocks              = 10
 	DefaultEpochBlocksBackoffPercent   = 10
-	DefaultMaxEndblockerRecords        = 50
+	DefaultMaxEndBlockerRecords        = 50
 )
+
+var DefaultMinMint = sdk.Coins{
+	sdk.NewCoin(sdkutil.DenomUact, sdkmath.NewInt(10_000_000)),
+}
 
 var DefaultOracleTWAPWindow = time.Hour
 
@@ -27,7 +36,8 @@ func DefaultParams() Params {
 		SettleSpreadBps:             DefaultSettleSpreadBps,
 		MinEpochBlocks:              DefaultMinEpochBlocks,
 		EpochBlocksBackoffPercent:   DefaultEpochBlocksBackoffPercent,
-		MaxEndblockerRecords:        DefaultMaxEndblockerRecords,
+		MaxEndblockerRecords:        DefaultMaxEndBlockerRecords,
+		MinMint:                     DefaultMinMint,
 	}
 }
 
@@ -52,6 +62,9 @@ func (p Params) Validate() error {
 	}
 	if p.EpochBlocksBackoffPercent > 100 {
 		return fmt.Errorf("epoch_blocks_backoff cannot exceed 100%%")
+	}
+	if !p.MinMint.IsValid() {
+		return fmt.Errorf("min_mint coins are invalid")
 	}
 
 	return nil

@@ -63,22 +63,15 @@ message EventPriceStaleWarning {
 
 // EventPriceStaled is emitted when a price has become stale
 message EventPriceStaled {
-  // source is the address of the price source
-  string source = 1 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "source",
-    (gogoproto.moretags)  = "yaml:\"source\""
-  ];
-
   // id identifies the price pair
-  DataID id = 2 [
+  DataID id = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "id",
     (gogoproto.moretags) = "yaml:\"id\""
   ];
 
   // last_height is the block height when the price was last updated before becoming stale
-  int64 last_height = 3 [
+  int64 last_height = 2 [
     (gogoproto.jsontag)  = "last_height",
     (gogoproto.moretags) = "yaml:\"last_height\""
   ];
@@ -86,23 +79,25 @@ message EventPriceStaled {
 
 // EventPriceRecovered is emitted when a stale price has started receiving updates again
 message EventPriceRecovered {
-  // source is the address of the price source
-  string source = 1 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "source",
-    (gogoproto.moretags)  = "yaml:\"source\""
-  ];
-
   // id identifies the price pair
-  DataID id = 2 [
+  DataID id = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "id",
     (gogoproto.moretags) = "yaml:\"id\""
   ];
 
   // height is the block height when the price recovery was detected
-  int64 height = 3 [
+  int64 height = 2 [
     (gogoproto.jsontag)  = "height",
     (gogoproto.moretags) = "yaml:\"height\""
+  ];
+}
+
+// EventAggregatedPrice is emitted when aggregated price has an update
+message EventAggregatedPrice {
+  AggregatedPrice price = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "price",
+    (gogoproto.moretags) = "yaml:\"price\""
   ];
 }

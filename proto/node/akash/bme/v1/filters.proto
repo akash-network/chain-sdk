@@ -29,7 +29,7 @@ message LedgerRecordFilters {
     (gogoproto.moretags) = "yaml:\"to_denom\""
   ];
 
-  // status filters by record status (pending or executed).
+  // status filters by record status (pending, executed or failed).
   // Uses the string representation of LedgerRecordStatus enum values.
   // If empty, returns both pending and executed records.
   string status = 4 [

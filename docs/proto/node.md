@@ -75,21 +75,23 @@
      - [BurnMintPair](#akash.bme.v1.BurnMintPair)
      - [CoinPrice](#akash.bme.v1.CoinPrice)
      - [CollateralRatio](#akash.bme.v1.CollateralRatio)
+     - [LedgerCanceledRecord](#akash.bme.v1.LedgerCanceledRecord)
      - [LedgerID](#akash.bme.v1.LedgerID)
      - [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord)
      - [LedgerRecord](#akash.bme.v1.LedgerRecord)
      - [LedgerRecordID](#akash.bme.v1.LedgerRecordID)
-     - [MintEpoch](#akash.bme.v1.MintEpoch)
      - [State](#akash.bme.v1.State)
      - [Status](#akash.bme.v1.Status)
    
+     - [LedgerCanceledRecord.BMCancelReason](#akash.bme.v1.LedgerCanceledRecord.BMCancelReason)
      - [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus)
      - [MintStatus](#akash.bme.v1.MintStatus)
    
  - [akash/bme/v1/events.proto](#akash/bme/v1/events.proto)
+     - [EventLedgerRecordCanceled](#akash.bme.v1.EventLedgerRecordCanceled)
      - [EventLedgerRecordExecuted](#akash.bme.v1.EventLedgerRecordExecuted)
      - [EventMintStatusChange](#akash.bme.v1.EventMintStatusChange)
-     - [EventVaultSeeded](#akash.bme.v1.EventVaultSeeded)
+     - [EventVaultFunded](#akash.bme.v1.EventVaultFunded)
    
  - [akash/bme/v1/filters.proto](#akash/bme/v1/filters.proto)
      - [LedgerRecordFilters](#akash.bme.v1.LedgerRecordFilters)
@@ -109,10 +111,10 @@
      - [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse)
      - [MsgBurnMint](#akash.bme.v1.MsgBurnMint)
      - [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse)
+     - [MsgFundVault](#akash.bme.v1.MsgFundVault)
+     - [MsgFundVaultResponse](#akash.bme.v1.MsgFundVaultResponse)
      - [MsgMintACT](#akash.bme.v1.MsgMintACT)
      - [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse)
-     - [MsgSeedVault](#akash.bme.v1.MsgSeedVault)
-     - [MsgSeedVaultResponse](#akash.bme.v1.MsgSeedVaultResponse)
      - [MsgUpdateParams](#akash.bme.v1.MsgUpdateParams)
      - [MsgUpdateParamsResponse](#akash.bme.v1.MsgUpdateParamsResponse)
    
@@ -420,6 +422,7 @@
      - [QueryPricesResponse](#akash.oracle.v1.QueryPricesResponse)
    
  - [akash/oracle/v1/events.proto](#akash/oracle/v1/events.proto)
+     - [EventAggregatedPrice](#akash.oracle.v1.EventAggregatedPrice)
      - [EventPriceData](#akash.oracle.v1.EventPriceData)
      - [EventPriceRecovered](#akash.oracle.v1.EventPriceRecovered)
      - [EventPriceStaleWarning](#akash.oracle.v1.EventPriceStaleWarning)
@@ -427,8 +430,6 @@
    
  - [akash/oracle/v1/params.proto](#akash/oracle/v1/params.proto)
      - [Params](#akash.oracle.v1.Params)
-     - [PythContractParams](#akash.oracle.v1.PythContractParams)
-     - [WormholeContractParams](#akash.oracle.v1.WormholeContractParams)
    
  - [akash/oracle/v1/genesis.proto](#akash/oracle/v1/genesis.proto)
      - [GenesisState](#akash.oracle.v1.GenesisState)
@@ -444,8 +445,6 @@
      - [QueryAggregatedPriceResponse](#akash.oracle.v1.QueryAggregatedPriceResponse)
      - [QueryParamsRequest](#akash.oracle.v1.QueryParamsRequest)
      - [QueryParamsResponse](#akash.oracle.v1.QueryParamsResponse)
-     - [QueryPriceFeedConfigRequest](#akash.oracle.v1.QueryPriceFeedConfigRequest)
-     - [QueryPriceFeedConfigResponse](#akash.oracle.v1.QueryPriceFeedConfigResponse)
    
      - [Query](#akash.oracle.v1.Query)
    
@@ -1373,6 +1372,25 @@ if field is nil resource is not present in the given data-structure
  
 
  
+ <a name="akash.bme.v1.LedgerCanceledRecord"></a>
+
+ ### LedgerCanceledRecord
+ LedgerCanceledRecord
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `owner` | [string](#string) |  | owner source of the coins to be burned |
+ | `cancel_reason` | [LedgerCanceledRecord.BMCancelReason](#akash.bme.v1.LedgerCanceledRecord.BMCancelReason) |  | cancel_reason |
+ | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
+ | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
+ | `denom_to_mint` | [string](#string) |  | denom_to_mint |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.LedgerID"></a>
 
  ### LedgerID
@@ -1421,6 +1439,7 @@ if field is nil resource is not present in the given data-structure
  | `minter` | [string](#string) |  | module is module account performing mint |
  | `burned` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | burned is the coin burned at price |
  | `minted` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | minted is coin minted at price |
+ | `spread` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `remint_credit_issued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  | `remint_credit_accrued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  
@@ -1442,21 +1461,6 @@ if field is nil resource is not present in the given data-structure
  | `source` | [string](#string) |  |  |
  | `height` | [int64](#int64) |  |  |
  | `sequence` | [int64](#int64) |  |  |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MintEpoch"></a>
-
- ### MintEpoch
- MintEpoch stores information about mint epoch
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `next_epoch` | [int64](#int64) |  |  |
  
  
 
@@ -1500,6 +1504,18 @@ if field is nil resource is not present in the given data-structure
   <!-- end messages -->
 
  
+ <a name="akash.bme.v1.LedgerCanceledRecord.BMCancelReason"></a>
+
+ ### LedgerCanceledRecord.BMCancelReason
+ BMCancelReason is an enum indicating reasons of failure for burn/mint request
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | unknown | 0 | Prefix should start with 0 in enum. So declaring dummy state. |
+ | epsilon | 1 | BMCanceledReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) |
+ 
+
+ 
  <a name="akash.bme.v1.LedgerRecordStatus"></a>
 
  ### LedgerRecordStatus
@@ -1510,6 +1526,7 @@ if field is nil resource is not present in the given data-structure
  | ledger_record_status_invalid | 0 | LEDGER_RECORD_STATUS_INVALID is the default/uninitialized value This status should never appear in a valid ledger record |
  | ledger_record_status_pending | 1 | LEDGER_RECORD_STATUS_PENDING indicates a burn/mint operation has been initiated but not yet executed (e.g., waiting for oracle price or circuit breaker clearance) |
  | ledger_record_status_executed | 2 | LEDGER_RECORD_STATUS_EXECUTED indicates the burn/mint operation has been successfully completed and tokens have been burned and minted |
+ | ledger_record_status_canceled | 3 | LEDGER_RECORD_STATUS_CANCELED indicates the burn/mint operation has encountered error and funds have been returned to the owner successfully completed and tokens have been burned and minted |
  
 
  
@@ -1542,6 +1559,26 @@ if field is nil resource is not present in the given data-structure
  
 
  
+ <a name="akash.bme.v1.EventLedgerRecordCanceled"></a>
+
+ ### EventLedgerRecordCanceled
+ EventLedgerRecordCanceled emitted information of unsuccessful burn/mint event
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | burned_from source address of the tokens burned |
+ | `cancel_reason` | [LedgerCanceledRecord.BMCancelReason](#akash.bme.v1.LedgerCanceledRecord.BMCancelReason) |  | fail_reason |
+ | `owner` | [string](#string) |  | owner source of the coins to be burned |
+ | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
+ | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
+ | `denom_to_mint` | [string](#string) |  | denom_to_mint |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.EventLedgerRecordExecuted"></a>
 
  ### EventLedgerRecordExecuted
@@ -1551,6 +1588,15 @@ if field is nil resource is not present in the given data-structure
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  | burned_from source address of the tokens burned |
+ | `burned_from` | [string](#string) |  | burned_from source address of the tokens burned |
+ | `minted_to` | [string](#string) |  | minted_to destination address of the tokens minted |
+ | `burner` | [string](#string) |  | module is module account performing burn |
+ | `minter` | [string](#string) |  | module is module account performing mint |
+ | `burned` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | burned is the coin burned at price |
+ | `minted` | [CoinPrice](#akash.bme.v1.CoinPrice) |  | minted is coin minted at price |
+ | `spread` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `remint_credit_issued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
+ | `remint_credit_accrued` | [CoinPrice](#akash.bme.v1.CoinPrice) |  |  |
  
  
 
@@ -1574,10 +1620,10 @@ if field is nil resource is not present in the given data-structure
  
 
  
- <a name="akash.bme.v1.EventVaultSeeded"></a>
+ <a name="akash.bme.v1.EventVaultFunded"></a>
 
- ### EventVaultSeeded
- EventVaultSeeded is emitted when the vault is seeded with AKT
+ ### EventVaultFunded
+ EventVaultFunded is emitted when the vault is seeded with AKT
 
  
  | Field | Type | Label | Description |
@@ -1618,7 +1664,7 @@ if field is nil resource is not present in the given data-structure
  | `source` | [string](#string) |  | source is the account address of the user who initiated the burn/mint |
  | `denom` | [string](#string) |  | denom filters by the burn denomination |
  | `to_denom` | [string](#string) |  | to_denom filters by the mint denomination |
- | `status` | [string](#string) |  | status filters by record status (pending or executed). Uses the string representation of LedgerRecordStatus enum values. If empty, returns both pending and executed records. |
+ | `status` | [string](#string) |  | status filters by record status (pending, executed or failed). Uses the string representation of LedgerRecordStatus enum values. If empty, returns both pending and executed records. |
  
  
 
@@ -1658,6 +1704,7 @@ if field is nil resource is not present in the given data-structure
  | `mint_spread_bps` | [uint32](#uint32) |  | mint_spread_bps is the spread in basis points applied during ACT mint (default: 25 bps = 0.25%) |
  | `settle_spread_bps` | [uint32](#uint32) |  | settle_spread_bps is the spread in basis points applied during settlement (default: 0 for no provider tax) |
  | `max_endblocker_records` | [uint32](#uint32) |  | max_endblocker_records is the deterministic upper bound on pending ledger records processed in a single EndBlocker invocation. |
+ | `min_mint` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | min_mint minimum amount of ACT required to be minted in the new transaction |
  
  
 
@@ -1847,6 +1894,34 @@ Allows burning AKT to mint ACT, or burning unused ACT back to AKT
  
 
  
+ <a name="akash.bme.v1.MsgFundVault"></a>
+
+ ### MsgFundVault
+ MsgFundVault defines the message for funding the BME vault with AKT
+This is used to provide an initial volatility buffer
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | authority is the address that controls the module (governance) |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the AKT amount to seed the vault with |
+ | `source` | [string](#string) |  | source is the source of funds (e.g., community pool) |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.bme.v1.MsgFundVaultResponse"></a>
+
+ ### MsgFundVaultResponse
+ MsgFundVaultResponse is the response type for MsgFundVault
+
+ 
+
+ 
+
+ 
  <a name="akash.bme.v1.MsgMintACT"></a>
 
  ### MsgMintACT
@@ -1875,39 +1950,6 @@ Allows burning AKT to mint ACT, or burning unused ACT back to AKT
  | ----- | ---- | ----- | ----------- |
  | `id` | [LedgerRecordID](#akash.bme.v1.LedgerRecordID) |  |  |
  | `status` | [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus) |  |  |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MsgSeedVault"></a>
-
- ### MsgSeedVault
- MsgSeedVault defines the message for seeding the BME vault with AKT
-This is used to provide an initial volatility buffer
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `authority` | [string](#string) |  | authority is the address that controls the module (governance) |
- | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the AKT amount to seed the vault with |
- | `source` | [string](#string) |  | source is the source of funds (e.g., community pool) |
- 
- 
-
- 
-
- 
- <a name="akash.bme.v1.MsgSeedVaultResponse"></a>
-
- ### MsgSeedVaultResponse
- MsgSeedVaultResponse is the response type for MsgSeedVault
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `vault_akt` | [string](#string) |  | vault_akt is the new vault AKT balance |
  
  
 
@@ -1968,6 +2010,7 @@ This is used to provide an initial volatility buffer
  | `status` | [LedgerRecordStatus](#akash.bme.v1.LedgerRecordStatus) |  | status indicates whether this record is pending or executed |
  | `pending_record` | [LedgerPendingRecord](#akash.bme.v1.LedgerPendingRecord) |  | pending_record is set when the record status is pending |
  | `executed_record` | [LedgerRecord](#akash.bme.v1.LedgerRecord) |  | executed_record is set when the record status is executed |
+ | `canceled_record` | [LedgerCanceledRecord](#akash.bme.v1.LedgerCanceledRecord) |  | canceled_record is set when the record status is failed |
  
  
 
@@ -2134,6 +2177,7 @@ maintaining collateral ratios and enforcing circuit breaker rules.
  | `BurnMint` | [MsgBurnMint](#akash.bme.v1.MsgBurnMint) | [MsgBurnMintResponse](#akash.bme.v1.MsgBurnMintResponse) | BurnMint allows users to burn one token and mint another at current oracle prices. Typically used to burn unused ACT tokens back to AKT. The operation may be delayed or rejected based on circuit breaker status. | |
  | `MintACT` | [MsgMintACT](#akash.bme.v1.MsgMintACT) | [MsgMintACTResponse](#akash.bme.v1.MsgMintACTResponse) | MintACT mints ACT tokens by burning the specified source token. The mint amount is calculated based on current oracle prices and the collateral ratio. May be halted if circuit breaker is triggered. | |
  | `BurnACT` | [MsgBurnACT](#akash.bme.v1.MsgBurnACT) | [MsgBurnACTResponse](#akash.bme.v1.MsgBurnACTResponse) | BurnACT burns ACT tokens and mints the specified destination token. The burn operation uses remint credits when available, otherwise requires adequate collateral backing based on oracle prices. | |
+ | `FundVault` | [MsgFundVault](#akash.bme.v1.MsgFundVault) | [MsgFundVaultResponse](#akash.bme.v1.MsgFundVaultResponse) | FundVault seeds the BME vault with AKT from a designated source (e.g., community pool). This provides the initial volatility buffer required for burn/mint operations. Can only be executed through governance proposals. | |
  
   <!-- end services -->
 
@@ -3278,7 +3322,6 @@ Example: "akash1..." If depositor is same as the owner, then any incoming coins 
  | `height` | [int64](#int64) |  | Height blockchain height at which deposit was created |
  | `source` | [akash.base.deposit.v1.Source](#akash.base.deposit.v1.Source) |  | Source indicated origination of the funds |
  | `balance` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Balance amount of funds available to spend in this deposit. |
- | `direct` | [bool](#bool) |  | direct indicates if deposited currency should be swapped to ACT (false) at time of the deposit |
  
  
 
@@ -4042,8 +4085,9 @@ what types of deposits the grantee is authorized to make on behalf of the grante
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `spend_limit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account. This limit applies cumulatively across all deposit operations within the authorized scopes. Once this limit is reached, the authorization becomes invalid and no further deposits can be made. |
+ | `spend_limit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account. This limit applies cumulatively across all deposit operations within the authorized scopes. Once this limit is reached, the authorization becomes invalid and no further deposits can be made. Deprecated: use spend_limits instead |
  | `scopes` | [DepositAuthorization.Scope](#akash.escrow.v1.DepositAuthorization.Scope) | repeated | Scopes defines the specific types of deposit operations this authorization permits. This provides fine-grained control over what operations the grantee can perform using the granter's funds. |
+ | `spend_limits` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | SpendLimits specifies the maximum amount per denomination the grantee is authorized to spend. Each entry represents the limit for a specific denomination, enforced independently. Once an individual denomination's limit is exhausted, no further deposits can be made in that denomination. |
  
  
 
@@ -5632,6 +5676,21 @@ It also represents a single data point in TWAP history
  
 
  
+ <a name="akash.oracle.v1.EventAggregatedPrice"></a>
+
+ ### EventAggregatedPrice
+ EventAggregatedPrice is emitted when aggregated price has an update
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `price` | [AggregatedPrice](#akash.oracle.v1.AggregatedPrice) |  |  |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.oracle.v1.EventPriceData"></a>
 
  ### EventPriceData
@@ -5657,7 +5716,6 @@ It also represents a single data point in TWAP history
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `source` | [string](#string) |  | source is the address of the price source |
  | `id` | [DataID](#akash.oracle.v1.DataID) |  | id identifies the price pair |
  | `height` | [int64](#int64) |  | height is the block height when the price recovery was detected |
  
@@ -5692,7 +5750,6 @@ It also represents a single data point in TWAP history
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `source` | [string](#string) |  | source is the address of the price source |
  | `id` | [DataID](#akash.oracle.v1.DataID) |  | id identifies the price pair |
  | `last_height` | [int64](#int64) |  | last_height is the block height when the price was last updated before becoming stale |
  
@@ -5731,38 +5788,6 @@ It also represents a single data point in TWAP history
  | `twap_window` | [int64](#int64) |  | TWAP window in blocks (default: 50 = ~ 5 minutes) |
  | `max_price_deviation_bps` | [uint64](#uint64) |  | Maximum price deviation in basis points (default: 150 = 1.5%) |
  | `feed_contracts_params` | [google.protobuf.Any](#google.protobuf.Any) | repeated | feed_contracts_params contains the configuration for the price feed contracts |
- 
- 
-
- 
-
- 
- <a name="akash.oracle.v1.PythContractParams"></a>
-
- ### PythContractParams
- PythContractParams contains configuration for Pyth price feeds
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `akt_price_feed_id` | [string](#string) |  | akt_price_feed_id is the Pyth price feed identifier for AKT/USD |
- 
- 
-
- 
-
- 
- <a name="akash.oracle.v1.WormholeContractParams"></a>
-
- ### WormholeContractParams
- WormholeContractParams contains configuration for Wormhole guardian set.
-This allows the Wormhole contract to pull guardian public keys from x/oracle
-module params, enabling guardian set updates via Akash governance.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `guardian_addresses` | [string](#string) | repeated | guardian_addresses is the list of Wormhole guardian addresses. Each address is a 20-byte Ethereum-style address, hex-encoded. The Wormhole contract uses these to verify VAA signatures. |
  
  
 
@@ -5951,38 +5976,6 @@ Since: akash v2.0.0
 
  
 
- 
- <a name="akash.oracle.v1.QueryPriceFeedConfigRequest"></a>
-
- ### QueryPriceFeedConfigRequest
- QueryPriceFeedConfigRequest is the request type for price feed config.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `denom` | [string](#string) |  | denom is the denomination to query the price feed configuration for |
- 
- 
-
- 
-
- 
- <a name="akash.oracle.v1.QueryPriceFeedConfigResponse"></a>
-
- ### QueryPriceFeedConfigResponse
- QueryPriceFeedConfigResponse is the response type for price feed config.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `price_feed_id` | [string](#string) |  | price_feed_id is the Pyth price feed identifier for this denomination |
- | `pyth_contract_address` | [string](#string) |  | pyth_contract_address is the address of the Pyth smart contract |
- | `enabled` | [bool](#bool) |  | enabled indicates if the price feed is enabled for this denomination |
- 
- 
-
- 
-
   <!-- end messages -->
 
   <!-- end enums -->
@@ -5999,7 +5992,6 @@ Since: akash v2.0.0
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `Prices` | [QueryPricesRequest](#akash.oracle.v1.QueryPricesRequest) | [QueryPricesResponse](#akash.oracle.v1.QueryPricesResponse) | Prices query prices for specific denom | GET|/akash/oracle/v1/prices|
  | `Params` | [QueryParamsRequest](#akash.oracle.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.oracle.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/oracle/v1/params|
- | `PriceFeedConfig` | [QueryPriceFeedConfigRequest](#akash.oracle.v1.QueryPriceFeedConfigRequest) | [QueryPriceFeedConfigResponse](#akash.oracle.v1.QueryPriceFeedConfigResponse) | PriceFeedConfig queries the price feed configuration for a given denom. | GET|/akash/oracle/v1/price_feed_config/{denom}|
  | `AggregatedPrice` | [QueryAggregatedPriceRequest](#akash.oracle.v1.QueryAggregatedPriceRequest) | [QueryAggregatedPriceResponse](#akash.oracle.v1.QueryAggregatedPriceResponse) | AggregatedPrice queries the aggregated price for a given denom. | GET|/akash/oracle/v1/aggregated_price/{denom}|
  
   <!-- end services -->

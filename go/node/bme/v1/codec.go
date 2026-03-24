@@ -24,13 +24,20 @@ var (
 // Deprecated: RegisterLegacyAminoCodec is deprecated
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgUpdateParams{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgBurnMint{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgBurnMint{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgMintACT{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgMintACT{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgBurnACT{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgBurnACT{}).Type(), nil)
+	cdc.RegisterConcrete(&MsgFundVault{}, "akash-sdk/x/"+ModuleName+"/"+(&MsgFundVault{}).Type(), nil)
 }
 
 // RegisterInterfaces registers the bme module interfaces types with the interface registry
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgBurnMint{},
+		&MsgMintACT{},
+		&MsgBurnACT{},
 		&MsgUpdateParams{},
-		&MsgSeedVault{},
+		&MsgFundVault{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

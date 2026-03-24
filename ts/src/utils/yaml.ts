@@ -72,3 +72,11 @@ yaml.template = function yamlTemplate<T>(template: string, vars?: Record<string,
   });
   return load(finalYaml) as T;
 };
+
+/**
+ * Parses YAML string into object and casts output to type T without validation and template processing.
+ * Use this function when you have a plain YAML string that you want to parse directly.
+ */
+yaml.raw = function yamlRaw<T>(yamlString: string): T {
+  return load(yamlString) as T;
+};

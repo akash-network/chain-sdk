@@ -5,5 +5,5 @@ import (
 )
 
 const (
-	AverageBlockTime = 6500 * time.Millisecond
+	AverageBlockTime = 6000 * time.Millisecond
 )

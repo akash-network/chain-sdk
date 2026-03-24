@@ -70,42 +70,42 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getAllProvidersAttributes: withMetadata(async function getAllProvidersAttributes(input: DeepPartial<akash_audit_v1_query.QueryAllProvidersAttributesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).allProvidersAttributes(input, options);
-          }, { path: [0, 0] }),
+          }, { path: [0, "allProvidersAttributes"], serviceLoader }),
           /**
            * getProviderAttributes queries all provider signed attributes.
            */
           getProviderAttributes: withMetadata(async function getProviderAttributes(input: DeepPartial<akash_audit_v1_query.QueryProviderAttributesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).providerAttributes(input, options);
-          }, { path: [0, 1] }),
+          }, { path: [0, "providerAttributes"], serviceLoader }),
           /**
            * getProviderAuditorAttributes queries provider signed attributes by specific auditor.
            */
           getProviderAuditorAttributes: withMetadata(async function getProviderAuditorAttributes(input: DeepPartial<akash_audit_v1_query.QueryProviderAuditorRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).providerAuditorAttributes(input, options);
-          }, { path: [0, 2] }),
+          }, { path: [0, "providerAuditorAttributes"], serviceLoader }),
           /**
            * getAuditorAttributes queries all providers signed by this auditor.
            */
           getAuditorAttributes: withMetadata(async function getAuditorAttributes(input: DeepPartial<akash_audit_v1_query.QueryAuditorAttributesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(0);
             return getClient(service).auditorAttributes(input, options);
-          }, { path: [0, 3] }),
+          }, { path: [0, "auditorAttributes"], serviceLoader }),
           /**
            * signProviderAttributes defines a method that signs provider attributes.
            */
           signProviderAttributes: withMetadata(async function signProviderAttributes(input: DeepSimplify<akash_audit_v1_msg.MsgSignProviderAttributes>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(1);
             return getMsgClient(service).signProviderAttributes(input, options);
-          }, { path: [1, 0] }),
+          }, { path: [1, "signProviderAttributes"], serviceLoader }),
           /**
            * deleteProviderAttributes defines a method that deletes provider attributes.
            */
           deleteProviderAttributes: withMetadata(async function deleteProviderAttributes(input: DeepSimplify<akash_audit_v1_msg.MsgDeleteProviderAttributes>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(1);
             return getMsgClient(service).deleteProviderAttributes(input, options);
-          }, { path: [1, 1] })
+          }, { path: [1, "deleteProviderAttributes"], serviceLoader })
         }
       },
       bme: {
@@ -116,28 +116,28 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_bme_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(2);
             return getClient(service).params(input, options);
-          }, { path: [2, 0] }),
+          }, { path: [2, "params"], serviceLoader }),
           /**
            * getVaultState returns the current vault state
            */
           getVaultState: withMetadata(async function getVaultState(input: DeepPartial<akash_bme_v1_query.QueryVaultStateRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(2);
             return getClient(service).vaultState(input, options);
-          }, { path: [2, 1] }),
+          }, { path: [2, "vaultState"], serviceLoader }),
           /**
            * getStatus returns the current circuit breaker status
            */
           getStatus: withMetadata(async function getStatus(input: DeepPartial<akash_bme_v1_query.QueryStatusRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(2);
             return getClient(service).status(input, options);
-          }, { path: [2, 2] }),
+          }, { path: [2, "status"], serviceLoader }),
           /**
            * getLedgerRecords queries ledger records with optional filters for status, source, denom, to_denom
            */
           getLedgerRecords: withMetadata(async function getLedgerRecords(input: DeepPartial<akash_bme_v1_query.QueryLedgerRecordsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(2);
             return getClient(service).ledgerRecords(input, options);
-          }, { path: [2, 3] }),
+          }, { path: [2, "ledgerRecords"], serviceLoader }),
           /**
            * updateParams updates the module parameters.
            * This operation can only be performed through governance proposals.
@@ -145,7 +145,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_bme_v1_msgs.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [3, 0] }),
+          }, { path: [3, "updateParams"], serviceLoader }),
           /**
            * burnMint allows users to burn one token and mint another at current oracle prices.
            * Typically used to burn unused ACT tokens back to AKT.
@@ -154,7 +154,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           burnMint: withMetadata(async function burnMint(input: DeepSimplify<akash_bme_v1_msgs.MsgBurnMint>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).burnMint(input, options);
-          }, { path: [3, 1] }),
+          }, { path: [3, "burnMint"], serviceLoader }),
           /**
            * mintACT mints ACT tokens by burning the specified source token.
            * The mint amount is calculated based on current oracle prices and
@@ -163,7 +163,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           mintACT: withMetadata(async function mintACT(input: DeepSimplify<akash_bme_v1_msgs.MsgMintACT>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).mintACT(input, options);
-          }, { path: [3, 2] }),
+          }, { path: [3, "mintACT"], serviceLoader }),
           /**
            * burnACT burns ACT tokens and mints the specified destination token.
            * The burn operation uses remint credits when available, otherwise
@@ -172,7 +172,16 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           burnACT: withMetadata(async function burnACT(input: DeepSimplify<akash_bme_v1_msgs.MsgBurnACT>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(3);
             return getMsgClient(service).burnACT(input, options);
-          }, { path: [3, 3] })
+          }, { path: [3, "burnACT"], serviceLoader }),
+          /**
+           * fundVault seeds the BME vault with AKT from a designated source (e.g., community pool).
+           * This provides the initial volatility buffer required for burn/mint operations.
+           * Can only be executed through governance proposals.
+           */
+          fundVault: withMetadata(async function fundVault(input: DeepSimplify<akash_bme_v1_msgs.MsgFundVault>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(3);
+            return getMsgClient(service).fundVault(input, options);
+          }, { path: [3, "fundVault"], serviceLoader })
         }
       },
       cert: {
@@ -183,21 +192,21 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getCertificates: withMetadata(async function getCertificates(input: DeepPartial<akash_cert_v1_query.QueryCertificatesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(4);
             return getClient(service).certificates(input, options);
-          }, { path: [4, 0] }),
+          }, { path: [4, "certificates"], serviceLoader }),
           /**
            * createCertificate defines a method to create new certificate given proper inputs.
            */
           createCertificate: withMetadata(async function createCertificate(input: DeepSimplify<akash_cert_v1_msg.MsgCreateCertificate>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).createCertificate(input, options);
-          }, { path: [5, 0] }),
+          }, { path: [5, "createCertificate"], serviceLoader }),
           /**
            * revokeCertificate defines a method to revoke the certificate.
            */
           revokeCertificate: withMetadata(async function revokeCertificate(input: DeepSimplify<akash_cert_v1_msg.MsgRevokeCertificate>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(5);
             return getMsgClient(service).revokeCertificate(input, options);
-          }, { path: [5, 1] })
+          }, { path: [5, "revokeCertificate"], serviceLoader })
         }
       },
       deployment: {
@@ -208,70 +217,70 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getDeployments: withMetadata(async function getDeployments(input: DeepPartial<akash_deployment_v1beta4_query.QueryDeploymentsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(6);
             return getClient(service).deployments(input, options);
-          }, { path: [6, 0] }),
+          }, { path: [6, "deployments"], serviceLoader }),
           /**
            * getDeployment queries deployment details.
            */
           getDeployment: withMetadata(async function getDeployment(input: DeepPartial<akash_deployment_v1beta4_query.QueryDeploymentRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(6);
             return getClient(service).deployment(input, options);
-          }, { path: [6, 1] }),
+          }, { path: [6, "deployment"], serviceLoader }),
           /**
            * getGroup queries group details.
            */
           getGroup: withMetadata(async function getGroup(input: DeepPartial<akash_deployment_v1beta4_query.QueryGroupRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(6);
             return getClient(service).group(input, options);
-          }, { path: [6, 2] }),
+          }, { path: [6, "group"], serviceLoader }),
           /**
            * getParams returns the total set of minting parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_deployment_v1beta4_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(6);
             return getClient(service).params(input, options);
-          }, { path: [6, 3] }),
+          }, { path: [6, "params"], serviceLoader }),
           /**
            * createDeployment defines a method to create new deployment given proper inputs.
            */
           createDeployment: withMetadata(async function createDeployment(input: DeepSimplify<akash_deployment_v1beta4_deploymentmsg.MsgCreateDeployment>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).createDeployment(input, options);
-          }, { path: [7, 0] }),
+          }, { path: [7, "createDeployment"], serviceLoader }),
           /**
            * updateDeployment defines a method to update a deployment given proper inputs.
            */
           updateDeployment: withMetadata(async function updateDeployment(input: DeepSimplify<akash_deployment_v1beta4_deploymentmsg.MsgUpdateDeployment>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).updateDeployment(input, options);
-          }, { path: [7, 1] }),
+          }, { path: [7, "updateDeployment"], serviceLoader }),
           /**
            * closeDeployment defines a method to close a deployment given proper inputs.
            */
           closeDeployment: withMetadata(async function closeDeployment(input: DeepSimplify<akash_deployment_v1beta4_deploymentmsg.MsgCloseDeployment>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).closeDeployment(input, options);
-          }, { path: [7, 2] }),
+          }, { path: [7, "closeDeployment"], serviceLoader }),
           /**
            * closeGroup defines a method to close a group of a deployment given proper inputs.
            */
           closeGroup: withMetadata(async function closeGroup(input: DeepSimplify<akash_deployment_v1beta4_groupmsg.MsgCloseGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).closeGroup(input, options);
-          }, { path: [7, 3] }),
+          }, { path: [7, "closeGroup"], serviceLoader }),
           /**
            * pauseGroup defines a method to pause a group of a deployment given proper inputs.
            */
           pauseGroup: withMetadata(async function pauseGroup(input: DeepSimplify<akash_deployment_v1beta4_groupmsg.MsgPauseGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).pauseGroup(input, options);
-          }, { path: [7, 4] }),
+          }, { path: [7, "pauseGroup"], serviceLoader }),
           /**
            * startGroup defines a method to start a group of a deployment given proper inputs.
            */
           startGroup: withMetadata(async function startGroup(input: DeepSimplify<akash_deployment_v1beta4_groupmsg.MsgStartGroup>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).startGroup(input, options);
-          }, { path: [7, 5] }),
+          }, { path: [7, "startGroup"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/deployment module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -281,7 +290,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_deployment_v1beta4_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(7);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [7, 6] })
+          }, { path: [7, "updateParams"], serviceLoader })
         }
       },
       downtimedetector: {
@@ -293,7 +302,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getRecoveredSinceDowntimeOfLength: withMetadata(async function getRecoveredSinceDowntimeOfLength(input: DeepPartial<akash_downtimedetector_v1beta1_query.RecoveredSinceDowntimeOfLengthRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(8);
             return getClient(service).recoveredSinceDowntimeOfLength(input, options);
-          }, { path: [8, 0] })
+          }, { path: [8, "recoveredSinceDowntimeOfLength"], serviceLoader })
         }
       },
       epochs: {
@@ -304,14 +313,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getEpochInfos: withMetadata(async function getEpochInfos(input: DeepPartial<akash_epochs_v1beta1_query.QueryEpochInfosRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getClient(service).epochInfos(input, options);
-          }, { path: [9, 0] }),
+          }, { path: [9, "epochInfos"], serviceLoader }),
           /**
            * getCurrentEpoch provide current epoch of specified identifier
            */
           getCurrentEpoch: withMetadata(async function getCurrentEpoch(input: DeepPartial<akash_epochs_v1beta1_query.QueryCurrentEpochRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(9);
             return getClient(service).currentEpoch(input, options);
-          }, { path: [9, 1] })
+          }, { path: [9, "currentEpoch"], serviceLoader })
         }
       },
       escrow: {
@@ -322,21 +331,21 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getAccounts: withMetadata(async function getAccounts(input: DeepPartial<akash_escrow_v1_query.QueryAccountsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(10);
             return getClient(service).accounts(input, options);
-          }, { path: [10, 0] }),
+          }, { path: [10, "accounts"], serviceLoader }),
           /**
            * getPayments queries all payments.
            */
           getPayments: withMetadata(async function getPayments(input: DeepPartial<akash_escrow_v1_query.QueryPaymentsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(10);
             return getClient(service).payments(input, options);
-          }, { path: [10, 1] }),
+          }, { path: [10, "payments"], serviceLoader }),
           /**
            * accountDeposit deposits more funds into the escrow account.
            */
           accountDeposit: withMetadata(async function accountDeposit(input: DeepSimplify<akash_escrow_v1_msg.MsgAccountDeposit>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(11);
             return getMsgClient(service).accountDeposit(input, options);
-          }, { path: [11, 0] })
+          }, { path: [11, "accountDeposit"], serviceLoader })
         }
       },
       market: {
@@ -347,84 +356,84 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getOrders: withMetadata(async function getOrders(input: DeepPartial<akash_market_v1beta5_query.QueryOrdersRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).orders(input, options);
-          }, { path: [12, 0] }),
+          }, { path: [12, "orders"], serviceLoader }),
           /**
            * getOrder queries order details.
            */
           getOrder: withMetadata(async function getOrder(input: DeepPartial<akash_market_v1beta5_query.QueryOrderRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).order(input, options);
-          }, { path: [12, 1] }),
+          }, { path: [12, "order"], serviceLoader }),
           /**
            * getBids queries bids with filters.
            */
           getBids: withMetadata(async function getBids(input: DeepPartial<akash_market_v1beta5_query.QueryBidsRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).bids(input, options);
-          }, { path: [12, 2] }),
+          }, { path: [12, "bids"], serviceLoader }),
           /**
            * getBid queries bid details.
            */
           getBid: withMetadata(async function getBid(input: DeepPartial<akash_market_v1beta5_query.QueryBidRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).bid(input, options);
-          }, { path: [12, 3] }),
+          }, { path: [12, "bid"], serviceLoader }),
           /**
            * getLeases queries leases with filters.
            */
           getLeases: withMetadata(async function getLeases(input: DeepPartial<akash_market_v1beta5_query.QueryLeasesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).leases(input, options);
-          }, { path: [12, 4] }),
+          }, { path: [12, "leases"], serviceLoader }),
           /**
            * getLease queries lease details.
            */
           getLease: withMetadata(async function getLease(input: DeepPartial<akash_market_v1beta5_query.QueryLeaseRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).lease(input, options);
-          }, { path: [12, 5] }),
+          }, { path: [12, "lease"], serviceLoader }),
           /**
            * getParams returns the total set of minting parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_market_v1beta5_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
             return getClient(service).params(input, options);
-          }, { path: [12, 6] }),
+          }, { path: [12, "params"], serviceLoader }),
           /**
            * createBid defines a method to create a bid given proper inputs.
            */
           createBid: withMetadata(async function createBid(input: DeepSimplify<akash_market_v1beta5_bidmsg.MsgCreateBid>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).createBid(input, options);
-          }, { path: [13, 0] }),
+          }, { path: [13, "createBid"], serviceLoader }),
           /**
            * closeBid defines a method to close a bid given proper inputs.
            */
           closeBid: withMetadata(async function closeBid(input: DeepSimplify<akash_market_v1beta5_bidmsg.MsgCloseBid>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).closeBid(input, options);
-          }, { path: [13, 1] }),
+          }, { path: [13, "closeBid"], serviceLoader }),
           /**
            * withdrawLease withdraws accrued funds from the lease payment
            */
           withdrawLease: withMetadata(async function withdrawLease(input: DeepSimplify<akash_market_v1beta5_leasemsg.MsgWithdrawLease>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).withdrawLease(input, options);
-          }, { path: [13, 2] }),
+          }, { path: [13, "withdrawLease"], serviceLoader }),
           /**
            * createLease creates a new lease
            */
           createLease: withMetadata(async function createLease(input: DeepSimplify<akash_market_v1beta5_leasemsg.MsgCreateLease>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).createLease(input, options);
-          }, { path: [13, 3] }),
+          }, { path: [13, "createLease"], serviceLoader }),
           /**
            * closeLease defines a method to close an order given proper inputs.
            */
           closeLease: withMetadata(async function closeLease(input: DeepSimplify<akash_market_v1beta5_leasemsg.MsgCloseLease>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).closeLease(input, options);
-          }, { path: [13, 4] }),
+          }, { path: [13, "closeLease"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/market module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -434,7 +443,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_market_v1beta5_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(13);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [13, 5] })
+          }, { path: [13, "updateParams"], serviceLoader })
         }
       },
       oracle: {
@@ -445,35 +454,28 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getPrices: withMetadata(async function getPrices(input: DeepPartial<akash_oracle_v1_prices.QueryPricesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(14);
             return getClient(service).prices(input, options);
-          }, { path: [14, 0] }),
+          }, { path: [14, "prices"], serviceLoader }),
           /**
            * getParams returns the total set of minting parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_oracle_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(14);
             return getClient(service).params(input, options);
-          }, { path: [14, 1] }),
-          /**
-           * getPriceFeedConfig queries the price feed configuration for a given denom.
-           */
-          getPriceFeedConfig: withMetadata(async function getPriceFeedConfig(input: DeepPartial<akash_oracle_v1_query.QueryPriceFeedConfigRequest>, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(14);
-            return getClient(service).priceFeedConfig(input, options);
-          }, { path: [14, 2] }),
+          }, { path: [14, "params"], serviceLoader }),
           /**
            * getAggregatedPrice queries the aggregated price for a given denom.
            */
           getAggregatedPrice: withMetadata(async function getAggregatedPrice(input: DeepPartial<akash_oracle_v1_query.QueryAggregatedPriceRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(14);
             return getClient(service).aggregatedPrice(input, options);
-          }, { path: [14, 3] }),
+          }, { path: [14, "aggregatedPrice"], serviceLoader }),
           /**
            * addPriceEntry adds a new price entry for a denomination from an authorized source
            */
           addPriceEntry: withMetadata(async function addPriceEntry(input: DeepSimplify<akash_oracle_v1_msgs.MsgAddPriceEntry>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(15);
             return getMsgClient(service).addPriceEntry(input, options);
-          }, { path: [15, 0] }),
+          }, { path: [15, "addPriceEntry"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/wasm module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -483,7 +485,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_oracle_v1_msgs.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(15);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [15, 1] })
+          }, { path: [15, "updateParams"], serviceLoader })
         }
       },
       provider: {
@@ -494,35 +496,35 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getProviders: withMetadata(async function getProviders(input: DeepPartial<akash_provider_v1beta4_query.QueryProvidersRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(16);
             return getClient(service).providers(input, options);
-          }, { path: [16, 0] }),
+          }, { path: [16, "providers"], serviceLoader }),
           /**
            * getProvider queries provider details
            */
           getProvider: withMetadata(async function getProvider(input: DeepPartial<akash_provider_v1beta4_query.QueryProviderRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(16);
             return getClient(service).provider(input, options);
-          }, { path: [16, 1] }),
+          }, { path: [16, "provider"], serviceLoader }),
           /**
            * createProvider defines a method that creates a provider given the proper inputs.
            */
           createProvider: withMetadata(async function createProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgCreateProvider>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(17);
             return getMsgClient(service).createProvider(input, options);
-          }, { path: [17, 0] }),
+          }, { path: [17, "createProvider"], serviceLoader }),
           /**
            * updateProvider defines a method that updates a provider given the proper inputs.
            */
           updateProvider: withMetadata(async function updateProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgUpdateProvider>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(17);
             return getMsgClient(service).updateProvider(input, options);
-          }, { path: [17, 1] }),
+          }, { path: [17, "updateProvider"], serviceLoader }),
           /**
            * deleteProvider defines a method that deletes a provider given the proper inputs.
            */
           deleteProvider: withMetadata(async function deleteProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgDeleteProvider>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(17);
             return getMsgClient(service).deleteProvider(input, options);
-          }, { path: [17, 2] })
+          }, { path: [17, "deleteProvider"], serviceLoader })
         }
       },
       take: {
@@ -533,7 +535,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_take_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(18);
             return getClient(service).params(input, options);
-          }, { path: [18, 0] }),
+          }, { path: [18, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/market module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -543,7 +545,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_take_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(19);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [19, 0] })
+          }, { path: [19, "updateParams"], serviceLoader })
         }
       },
       wasm: {
@@ -554,7 +556,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_wasm_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(20);
             return getClient(service).params(input, options);
-          }, { path: [20, 0] }),
+          }, { path: [20, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/wasm module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -564,7 +566,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_wasm_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(21);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [21, 0] })
+          }, { path: [21, "updateParams"], serviceLoader })
         }
       }
     }

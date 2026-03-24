@@ -39,7 +39,7 @@ function generateTs(schema: Schema): void {
     const serviceImportPath = normalizePath(serviceImport.from.replace(/\.js$/, importExtension));
     servicesLoaderDefs.push(`() => import("./${PROTO_PATH}/${serviceImportPath}").then(m => m.${serviceImport.name})`);
     const serviceIndex = servicesLoaderDefs.length - 1;
-    const serviceMethods = service.methods.map((method, methodIndex) => {
+    const serviceMethods = service.methods.map((method) => {
       const inputType = f.import(method.input.name, `./${method.input.file.name}`);
       const importPath = inputType.from.replace(/\.js$/, "");
       const isInputEmpty = method.input.fields.length === 0;
@@ -58,7 +58,7 @@ function generateTs(schema: Schema): void {
         + `${methodName}: withMetadata(async function ${methodName}(${methodArgs.join(", ")}) {\n`
         + `  const service = await serviceLoader.loadAt(${serviceIndex});\n`
         + `  return ${isMsgService ? "getMsgClient" : "getClient"}(service).${decapitalize(method.name)}(input, options);\n`
-        + `}, { path: [${serviceIndex}, ${methodIndex}] })`
+        + `}, { path: [${serviceIndex}, ${JSON.stringify(method.localName)}], serviceLoader })`
       ;
     });
 

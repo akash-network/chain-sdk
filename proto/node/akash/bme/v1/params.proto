@@ -1,6 +1,10 @@
 syntax = "proto3";
 package akash.bme.v1;
 
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
 option go_package = "pkg.akt.dev/go/node/bme/v1";
 
 // Params defines the parameters for the BME module
@@ -39,4 +43,12 @@ message Params {
   // max_endblocker_records is the deterministic upper bound on pending ledger
   // records processed in a single EndBlocker invocation.
   uint32 max_endblocker_records = 8;
+
+  // min_mint minimum amount of ACT required to be minted in the new transaction
+  repeated cosmos.base.v1beta1.Coin min_mint = 9 [
+    (gogoproto.customname)   = "MinMint",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
 }

@@ -23,6 +23,7 @@ func GetQueryMarketCmds() *cobra.Command {
 		GetQueryMarketOrderCmds(),
 		GetQueryMarketBidCmds(),
 		GetQueryMarketLeaseCmds(),
+		GetQueryMarketParamsCmd(),
 	)
 
 	return cmd
@@ -286,6 +287,31 @@ func GetQueryMarketLeaseCmd() *cobra.Command {
 	cflags.AddQueryFlagsToCmd(cmd)
 	cflags.AddQueryBidIDFlags(cmd.Flags())
 	cflags.MarkReqBidIDFlags(cmd)
+
+	return cmd
+}
+
+func GetQueryMarketParamsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "params",
+		Short:             "Query the current market parameters",
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+
+			req := &mvbeta.QueryParamsRequest{}
+
+			res, err := cl.Query().Market().Params(ctx, req)
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }

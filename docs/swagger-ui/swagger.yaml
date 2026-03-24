@@ -1442,11 +1442,6 @@ paths:
                                 implements the custom method
 
                                 signatures required by gogoproto.
-                            direct:
-                              type: boolean
-                              title: >-
-                                direct indicates if deposited currency should be
-                                swapped to ACT (false) at time of the deposit
                           description: Depositor stores state of a deposit.
                     description: Account stores state for an escrow account.
                 title: Account
@@ -2105,12 +2100,6 @@ paths:
                                       implements the custom method
 
                                       signatures required by gogoproto.
-                                  direct:
-                                    type: boolean
-                                    title: >-
-                                      direct indicates if deposited currency
-                                      should be swapped to ACT (false) at time
-                                      of the deposit
                                 description: Depositor stores state of a deposit.
                           description: Account stores state for an escrow account.
                       title: Account
@@ -3387,11 +3376,6 @@ paths:
                                 implements the custom method
 
                                 signatures required by gogoproto.
-                            direct:
-                              type: boolean
-                              title: >-
-                                direct indicates if deposited currency should be
-                                swapped to ACT (false) at time of the deposit
                           description: Depositor stores state of a deposit.
                     description: Account stores state for an escrow account.
                 title: Account
@@ -4155,12 +4139,6 @@ paths:
                                       implements the custom method
 
                                       signatures required by gogoproto.
-                                  direct:
-                                    type: boolean
-                                    title: >-
-                                      direct indicates if deposited currency
-                                      should be swapped to ACT (false) at time
-                                      of the deposit
                                 description: Depositor stores state of a deposit.
                           description: Account stores state for an escrow account.
                       title: Account
@@ -47784,11 +47762,6 @@ definitions:
                         custom method
 
                         signatures required by gogoproto.
-                    direct:
-                      type: boolean
-                      title: >-
-                        direct indicates if deposited currency should be swapped
-                        to ACT (false) at time of the deposit
                   description: Depositor stores state of a deposit.
             description: Account stores state for an escrow account.
         title: Account
@@ -48375,11 +48348,6 @@ definitions:
                               the custom method
 
                               signatures required by gogoproto.
-                          direct:
-                            type: boolean
-                            title: >-
-                              direct indicates if deposited currency should be
-                              swapped to ACT (false) at time of the deposit
                         description: Depositor stores state of a deposit.
                   description: Account stores state for an escrow account.
               title: Account
@@ -49191,11 +49159,6 @@ definitions:
                     method
 
                     signatures required by gogoproto.
-                direct:
-                  type: boolean
-                  title: >-
-                    direct indicates if deposited currency should be swapped to
-                    ACT (false) at time of the deposit
               description: Depositor stores state of a deposit.
         description: Account stores state for an escrow account.
     title: Account
@@ -49316,11 +49279,6 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            direct:
-              type: boolean
-              title: >-
-                direct indicates if deposited currency should be swapped to ACT
-                (false) at time of the deposit
           description: Depositor stores state of a deposit.
     description: Account stores state for an escrow account.
   akash.escrow.types.v1.Balance:
@@ -49382,11 +49340,6 @@ definitions:
 
           NOTE: The amount field is an Dec which implements the custom method
           signatures required by gogoproto.
-      direct:
-        type: boolean
-        title: >-
-          direct indicates if deposited currency should be swapped to ACT
-          (false) at time of the deposit
     description: Depositor stores state of a deposit.
   akash.escrow.types.v1.State:
     type: string
@@ -51922,11 +51875,6 @@ definitions:
                         custom method
 
                         signatures required by gogoproto.
-                    direct:
-                      type: boolean
-                      title: >-
-                        direct indicates if deposited currency should be swapped
-                        to ACT (false) at time of the deposit
                   description: Depositor stores state of a deposit.
             description: Account stores state for an escrow account.
         title: Account
@@ -52566,11 +52514,6 @@ definitions:
                               the custom method
 
                               signatures required by gogoproto.
-                          direct:
-                            type: boolean
-                            title: >-
-                              direct indicates if deposited currency should be
-                              swapped to ACT (false) at time of the deposit
                         description: Depositor stores state of a deposit.
                   description: Account stores state for an escrow account.
               title: Account

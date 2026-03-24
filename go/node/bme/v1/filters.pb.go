@@ -32,7 +32,7 @@ type LedgerRecordFilters struct {
 	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom" yaml:"denom"`
 	// to_denom filters by the mint denomination
 	ToDenom string `protobuf:"bytes,3,opt,name=to_denom,json=toDenom,proto3" json:"to_denom" yaml:"to_denom"`
-	// status filters by record status (pending or executed).
+	// status filters by record status (pending, executed or failed).
 	// Uses the string representation of LedgerRecordStatus enum values.
 	// If empty, returns both pending and executed records.
 	Status string `protobuf:"bytes,4,opt,name=status,proto3" json:"status" yaml:"status"`

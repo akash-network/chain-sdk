@@ -169,7 +169,8 @@ func (cl *lightClient) PrintMessage(msg interface{}) error {
 	case []byte:
 		err = cl.qclient.cctx.PrintString(fmt.Sprintf("%s\n", string(m)))
 	default:
-		err = cl.qclient.cctx.PrintObjectLegacy(m)
+		// todo find replacement for deprecated
+		err = cl.qclient.cctx.PrintObjectLegacy(m) // nolint: staticcheck
 	}
 
 	return err

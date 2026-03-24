@@ -15,7 +15,7 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
     ): Promise<UnaryResponse<I, O>> {
       const messages = [{
         typeUrl: `/${method.input.$type}`,
-        value: input,
+        value: method.input.fromPartial(input as Record<string, unknown>),
       }];
       const txResponse = await transportOptions.client.signAndBroadcast(messages, {
         afterSign: options?.afterSign,
