@@ -422,6 +422,7 @@
      - [QueryPricesResponse](#akash.oracle.v1.QueryPricesResponse)
    
  - [akash/oracle/v1/events.proto](#akash/oracle/v1/events.proto)
+     - [EventAggregatedPrice](#akash.oracle.v1.EventAggregatedPrice)
      - [EventPriceData](#akash.oracle.v1.EventPriceData)
      - [EventPriceRecovered](#akash.oracle.v1.EventPriceRecovered)
      - [EventPriceStaleWarning](#akash.oracle.v1.EventPriceStaleWarning)
@@ -5675,6 +5676,21 @@ It also represents a single data point in TWAP history
  
 
  
+ <a name="akash.oracle.v1.EventAggregatedPrice"></a>
+
+ ### EventAggregatedPrice
+ EventAggregatedPrice is emitted when aggregated price has an update
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `price` | [AggregatedPrice](#akash.oracle.v1.AggregatedPrice) |  |  |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.oracle.v1.EventPriceData"></a>
 
  ### EventPriceData
@@ -5700,7 +5716,6 @@ It also represents a single data point in TWAP history
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `source` | [string](#string) |  | source is the address of the price source |
  | `id` | [DataID](#akash.oracle.v1.DataID) |  | id identifies the price pair |
  | `height` | [int64](#int64) |  | height is the block height when the price recovery was detected |
  
@@ -5735,7 +5750,6 @@ It also represents a single data point in TWAP history
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `source` | [string](#string) |  | source is the address of the price source |
  | `id` | [DataID](#akash.oracle.v1.DataID) |  | id identifies the price pair |
  | `last_height` | [int64](#int64) |  | last_height is the block height when the price was last updated before becoming stale |
  
