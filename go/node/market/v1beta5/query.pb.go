@@ -845,7 +845,7 @@ type QueryClient interface {
 	Leases(ctx context.Context, in *QueryLeasesRequest, opts ...grpc.CallOption) (*QueryLeasesResponse, error)
 	// Lease queries lease details.
 	Lease(ctx context.Context, in *QueryLeaseRequest, opts ...grpc.CallOption) (*QueryLeaseResponse, error)
-	// Params returns the total set of minting parameters.
+	// Params returns the total set of market parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
@@ -934,7 +934,7 @@ type QueryServer interface {
 	Leases(context.Context, *QueryLeasesRequest) (*QueryLeasesResponse, error)
 	// Lease queries lease details.
 	Lease(context.Context, *QueryLeaseRequest) (*QueryLeaseResponse, error)
-	// Params returns the total set of minting parameters.
+	// Params returns the total set of market parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
 

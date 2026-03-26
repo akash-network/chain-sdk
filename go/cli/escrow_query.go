@@ -22,7 +22,7 @@ import (
 	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mv1 "pkg.akt.dev/go/node/market/v1"
 	mvbeta "pkg.akt.dev/go/node/market/v1beta5"
-	oracle "pkg.akt.dev/go/node/oracle/v1"
+	oracle "pkg.akt.dev/go/node/oracle/v2"
 	"pkg.akt.dev/go/node/utils"
 	"pkg.akt.dev/go/sdkutil"
 	netutil "pkg.akt.dev/go/util/network"

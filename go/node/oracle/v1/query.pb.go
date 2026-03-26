@@ -270,7 +270,7 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Prices query prices for specific denom
 	Prices(ctx context.Context, in *QueryPricesRequest, opts ...grpc.CallOption) (*QueryPricesResponse, error)
-	// Params returns the total set of minting parameters.
+	// Params returns the total set of oracle parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// AggregatedPrice queries the aggregated price for a given denom.
 	AggregatedPrice(ctx context.Context, in *QueryAggregatedPriceRequest, opts ...grpc.CallOption) (*QueryAggregatedPriceResponse, error)
@@ -315,7 +315,7 @@ func (c *queryClient) AggregatedPrice(ctx context.Context, in *QueryAggregatedPr
 type QueryServer interface {
 	// Prices query prices for specific denom
 	Prices(context.Context, *QueryPricesRequest) (*QueryPricesResponse, error)
-	// Params returns the total set of minting parameters.
+	// Params returns the total set of oracle parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// AggregatedPrice queries the aggregated price for a given denom.
 	AggregatedPrice(context.Context, *QueryAggregatedPriceRequest) (*QueryAggregatedPriceResponse, error)

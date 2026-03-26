@@ -1,0 +1,82 @@
+syntax = "proto3";
+package akash.oracle.v2;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
+import "akash/oracle/v2/params.proto";
+import "akash/oracle/v2/prices.proto";
+
+option go_package = "pkg.akt.dev/go/node/oracle/v2";
+
+// GenesisSourceID maps an oracle source address to its numeric identifier
+message GenesisSourceID {
+  // address is the bech32 address of the oracle source
+  string address = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "address",
+    (gogoproto.moretags)  = "yaml:\"address\""
+  ];
+
+  // id is the numeric identifier assigned to the source
+  uint32 id = 2 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+}
+
+// GenesisLatestPricesIDs stores the latest price state for a given price pair
+message GenesisLatestPricesIDs {
+  // id identifies the price pair (source, denom, base_denom)
+  PriceDataID id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // state holds the timestamp of the latest price record
+  PriceLatestDataState state = 2 [
+    (gogoproto.customname) = "State",
+    (gogoproto.jsontag)    = "state",
+    (gogoproto.moretags)   = "yaml:\"state\""
+  ];
+}
+
+// GenesisState defines the oracle module's genesis state
+message GenesisState {
+  // params holds the oracle module parameters
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
+
+  // prices is the list of all historical price data entries
+  repeated PriceData prices = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "prices",
+    (gogoproto.moretags) = "yaml:\"prices\""
+  ];
+
+  // latest_height tracks the most recent block height for each price feed source
+  repeated GenesisLatestPricesIDs latest_prices_ids = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "IDs",
+    (gogoproto.jsontag)  = "latest_prices_ids",
+    (gogoproto.moretags) = "yaml:\"latest_prices_ids\""
+  ];
+
+  // source_ids is the list of oracle source address-to-ID mappings
+  repeated GenesisSourceID source_ids = 4 [
+    (gogoproto.customname) = "SourceIDs",
+    (gogoproto.jsontag)  = "source_ids",
+    (gogoproto.moretags) = "yaml:\"source_ids\""
+  ];
+
+  // source_seq is the next available source identifier sequence number
+  uint64 source_seq = 5 [
+    (gogoproto.jsontag)  = "source_seq",
+    (gogoproto.moretags) = "yaml:\"source_seq\""
+  ];
+}

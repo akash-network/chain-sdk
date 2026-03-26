@@ -21,6 +21,8 @@ import type * as akash_market_v1beta5_paramsmsg from "./protos/akash/market/v1be
 import type * as akash_oracle_v1_prices from "./protos/akash/oracle/v1/prices.ts";
 import type * as akash_oracle_v1_query from "./protos/akash/oracle/v1/query.ts";
 import type * as akash_oracle_v1_msgs from "./protos/akash/oracle/v1/msgs.ts";
+import type * as akash_oracle_v2_query from "./protos/akash/oracle/v2/query.ts";
+import type * as akash_oracle_v2_msgs from "./protos/akash/oracle/v2/msgs.ts";
 import type * as akash_provider_v1beta4_query from "./protos/akash/provider/v1beta4/query.ts";
 import type * as akash_provider_v1beta4_msg from "./protos/akash/provider/v1beta4/msg.ts";
 import type * as akash_take_v1_query from "./protos/akash/take/v1/query.ts";
@@ -50,6 +52,8 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/akash/market/v1beta5/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/oracle/v1/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/oracle/v1/service_akash.ts").then(m => m.Msg),
+  () => import("./protos/akash/oracle/v2/query_akash.ts").then(m => m.Query),
+  () => import("./protos/akash/oracle/v2/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/provider/v1beta4/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/provider/v1beta4/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/take/v1/query_akash.ts").then(m => m.Query),
@@ -233,7 +237,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).group(input, options);
           }, { path: [6, "group"], serviceLoader }),
           /**
-           * getParams returns the total set of minting parameters.
+           * getParams returns the total set of deployment parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_deployment_v1beta4_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(6);
@@ -393,7 +397,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).lease(input, options);
           }, { path: [12, "lease"], serviceLoader }),
           /**
-           * getParams returns the total set of minting parameters.
+           * getParams returns the total set of market parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_market_v1beta5_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(12);
@@ -456,7 +460,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).prices(input, options);
           }, { path: [14, "prices"], serviceLoader }),
           /**
-           * getParams returns the total set of minting parameters.
+           * getParams returns the total set of oracle parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_oracle_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(14);
@@ -486,6 +490,46 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             const service = await serviceLoader.loadAt(15);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [15, "updateParams"], serviceLoader })
+        },
+        v2: {
+          /**
+           * getPrices query prices for specific denom
+           */
+          getPrices: withMetadata(async function getPrices(input: DeepPartial<akash_oracle_v2_query.QueryPricesRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(16);
+            return getClient(service).prices(input, options);
+          }, { path: [16, "prices"], serviceLoader }),
+          /**
+           * getParams returns the total set of oracle parameters.
+           */
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_oracle_v2_query.QueryParamsRequest> = {}, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(16);
+            return getClient(service).params(input, options);
+          }, { path: [16, "params"], serviceLoader }),
+          /**
+           * getAggregatedPrice queries the aggregated price for a given denom.
+           */
+          getAggregatedPrice: withMetadata(async function getAggregatedPrice(input: DeepPartial<akash_oracle_v2_query.QueryAggregatedPriceRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(16);
+            return getClient(service).aggregatedPrice(input, options);
+          }, { path: [16, "aggregatedPrice"], serviceLoader }),
+          /**
+           * addPriceEntry adds a new price entry for a denomination from an authorized source
+           */
+          addPriceEntry: withMetadata(async function addPriceEntry(input: DeepSimplify<akash_oracle_v2_msgs.MsgAddPriceEntry>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(17);
+            return getMsgClient(service).addPriceEntry(input, options);
+          }, { path: [17, "addPriceEntry"], serviceLoader }),
+          /**
+           * updateParams defines a governance operation for updating the x/oracle module
+           * parameters. The authority is hard-coded to the x/gov module account.
+           *
+           * Since: akash v2.0.0
+           */
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_oracle_v2_msgs.MsgUpdateParams>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(17);
+            return getMsgClient(service).updateParams(input, options);
+          }, { path: [17, "updateParams"], serviceLoader })
         }
       },
       provider: {
@@ -494,48 +538,48 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * getProviders queries providers
            */
           getProviders: withMetadata(async function getProviders(input: DeepPartial<akash_provider_v1beta4_query.QueryProvidersRequest>, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(16);
+            const service = await serviceLoader.loadAt(18);
             return getClient(service).providers(input, options);
-          }, { path: [16, "providers"], serviceLoader }),
+          }, { path: [18, "providers"], serviceLoader }),
           /**
            * getProvider queries provider details
            */
           getProvider: withMetadata(async function getProvider(input: DeepPartial<akash_provider_v1beta4_query.QueryProviderRequest>, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(16);
+            const service = await serviceLoader.loadAt(18);
             return getClient(service).provider(input, options);
-          }, { path: [16, "provider"], serviceLoader }),
+          }, { path: [18, "provider"], serviceLoader }),
           /**
            * createProvider defines a method that creates a provider given the proper inputs.
            */
           createProvider: withMetadata(async function createProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgCreateProvider>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(17);
+            const service = await serviceLoader.loadAt(19);
             return getMsgClient(service).createProvider(input, options);
-          }, { path: [17, "createProvider"], serviceLoader }),
+          }, { path: [19, "createProvider"], serviceLoader }),
           /**
            * updateProvider defines a method that updates a provider given the proper inputs.
            */
           updateProvider: withMetadata(async function updateProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgUpdateProvider>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(17);
+            const service = await serviceLoader.loadAt(19);
             return getMsgClient(service).updateProvider(input, options);
-          }, { path: [17, "updateProvider"], serviceLoader }),
+          }, { path: [19, "updateProvider"], serviceLoader }),
           /**
            * deleteProvider defines a method that deletes a provider given the proper inputs.
            */
           deleteProvider: withMetadata(async function deleteProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgDeleteProvider>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(17);
+            const service = await serviceLoader.loadAt(19);
             return getMsgClient(service).deleteProvider(input, options);
-          }, { path: [17, "deleteProvider"], serviceLoader })
+          }, { path: [19, "deleteProvider"], serviceLoader })
         }
       },
       take: {
         v1: {
           /**
-           * getParams returns the total set of minting parameters.
+           * getParams returns the total set of take parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_take_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(18);
+            const service = await serviceLoader.loadAt(20);
             return getClient(service).params(input, options);
-          }, { path: [18, "params"], serviceLoader }),
+          }, { path: [20, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/market module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -543,20 +587,20 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * Since: akash v1.0.0
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_take_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(19);
+            const service = await serviceLoader.loadAt(21);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [19, "updateParams"], serviceLoader })
+          }, { path: [21, "updateParams"], serviceLoader })
         }
       },
       wasm: {
         v1: {
           /**
-           * getParams returns the total set of minting parameters.
+           * getParams returns the total set of wasm parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_wasm_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(20);
+            const service = await serviceLoader.loadAt(22);
             return getClient(service).params(input, options);
-          }, { path: [20, "params"], serviceLoader }),
+          }, { path: [22, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/wasm module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -564,9 +608,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * Since: akash v2.0.0
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_wasm_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(21);
+            const service = await serviceLoader.loadAt(23);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [21, "updateParams"], serviceLoader })
+          }, { path: [23, "updateParams"], serviceLoader })
         }
       }
     }

@@ -451,6 +451,51 @@
  - [akash/oracle/v1/service.proto](#akash/oracle/v1/service.proto)
      - [Msg](#akash.oracle.v1.Msg)
    
+ - [akash/oracle/v2/prices.proto](#akash/oracle/v2/prices.proto)
+     - [AggregatedPrice](#akash.oracle.v2.AggregatedPrice)
+     - [DataID](#akash.oracle.v2.DataID)
+     - [PriceData](#akash.oracle.v2.PriceData)
+     - [PriceDataID](#akash.oracle.v2.PriceDataID)
+     - [PriceDataRecordID](#akash.oracle.v2.PriceDataRecordID)
+     - [PriceDataState](#akash.oracle.v2.PriceDataState)
+     - [PriceHealth](#akash.oracle.v2.PriceHealth)
+     - [PriceLatestDataState](#akash.oracle.v2.PriceLatestDataState)
+   
+ - [akash/oracle/v2/events.proto](#akash/oracle/v2/events.proto)
+     - [EventAggregatedPrice](#akash.oracle.v2.EventAggregatedPrice)
+     - [EventPriceData](#akash.oracle.v2.EventPriceData)
+     - [EventPriceRecovered](#akash.oracle.v2.EventPriceRecovered)
+     - [EventPriceStaleWarning](#akash.oracle.v2.EventPriceStaleWarning)
+     - [EventPriceStaled](#akash.oracle.v2.EventPriceStaled)
+   
+ - [akash/oracle/v2/params.proto](#akash/oracle/v2/params.proto)
+     - [Params](#akash.oracle.v2.Params)
+   
+ - [akash/oracle/v2/genesis.proto](#akash/oracle/v2/genesis.proto)
+     - [GenesisLatestPricesIDs](#akash.oracle.v2.GenesisLatestPricesIDs)
+     - [GenesisSourceID](#akash.oracle.v2.GenesisSourceID)
+     - [GenesisState](#akash.oracle.v2.GenesisState)
+   
+ - [akash/oracle/v2/msgs.proto](#akash/oracle/v2/msgs.proto)
+     - [MsgAddPriceEntry](#akash.oracle.v2.MsgAddPriceEntry)
+     - [MsgAddPriceEntryResponse](#akash.oracle.v2.MsgAddPriceEntryResponse)
+     - [MsgUpdateParams](#akash.oracle.v2.MsgUpdateParams)
+     - [MsgUpdateParamsResponse](#akash.oracle.v2.MsgUpdateParamsResponse)
+   
+ - [akash/oracle/v2/query.proto](#akash/oracle/v2/query.proto)
+     - [PricesFilter](#akash.oracle.v2.PricesFilter)
+     - [QueryAggregatedPriceRequest](#akash.oracle.v2.QueryAggregatedPriceRequest)
+     - [QueryAggregatedPriceResponse](#akash.oracle.v2.QueryAggregatedPriceResponse)
+     - [QueryParamsRequest](#akash.oracle.v2.QueryParamsRequest)
+     - [QueryParamsResponse](#akash.oracle.v2.QueryParamsResponse)
+     - [QueryPricesRequest](#akash.oracle.v2.QueryPricesRequest)
+     - [QueryPricesResponse](#akash.oracle.v2.QueryPricesResponse)
+   
+     - [Query](#akash.oracle.v2.Query)
+   
+ - [akash/oracle/v2/service.proto](#akash/oracle/v2/service.proto)
+     - [Msg](#akash.oracle.v2.Msg)
+   
  - [akash/provider/v1beta4/event.proto](#akash/provider/v1beta4/event.proto)
      - [EventProviderCreated](#akash.provider.v1beta4.EventProviderCreated)
      - [EventProviderDeleted](#akash.provider.v1beta4.EventProviderDeleted)
@@ -3563,7 +3608,7 @@ Example: "akash1..." |
  | `Deployments` | [QueryDeploymentsRequest](#akash.deployment.v1beta4.QueryDeploymentsRequest) | [QueryDeploymentsResponse](#akash.deployment.v1beta4.QueryDeploymentsResponse) | Deployments queries deployments. | GET|/akash/deployment/v1beta4/deployments/list|
  | `Deployment` | [QueryDeploymentRequest](#akash.deployment.v1beta4.QueryDeploymentRequest) | [QueryDeploymentResponse](#akash.deployment.v1beta4.QueryDeploymentResponse) | Deployment queries deployment details. | GET|/akash/deployment/v1beta4/deployments/info|
  | `Group` | [QueryGroupRequest](#akash.deployment.v1beta4.QueryGroupRequest) | [QueryGroupResponse](#akash.deployment.v1beta4.QueryGroupResponse) | Group queries group details. | GET|/akash/deployment/v1beta4/groups/info|
- | `Params` | [QueryParamsRequest](#akash.deployment.v1beta4.QueryParamsRequest) | [QueryParamsResponse](#akash.deployment.v1beta4.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/deployment/v1beta4/params|
+ | `Params` | [QueryParamsRequest](#akash.deployment.v1beta4.QueryParamsRequest) | [QueryParamsResponse](#akash.deployment.v1beta4.QueryParamsResponse) | Params returns the total set of deployment parameters. | GET|/akash/deployment/v1beta4/params|
  
   <!-- end services -->
 
@@ -5438,7 +5483,7 @@ Since: akash v1.0.0
  | `Bid` | [QueryBidRequest](#akash.market.v1beta5.QueryBidRequest) | [QueryBidResponse](#akash.market.v1beta5.QueryBidResponse) | Bid queries bid details. | GET|/akash/market/v1beta5/bids/info|
  | `Leases` | [QueryLeasesRequest](#akash.market.v1beta5.QueryLeasesRequest) | [QueryLeasesResponse](#akash.market.v1beta5.QueryLeasesResponse) | Leases queries leases with filters. | GET|/akash/market/v1beta5/leases/list|
  | `Lease` | [QueryLeaseRequest](#akash.market.v1beta5.QueryLeaseRequest) | [QueryLeaseResponse](#akash.market.v1beta5.QueryLeaseResponse) | Lease queries lease details. | GET|/akash/market/v1beta5/leases/info|
- | `Params` | [QueryParamsRequest](#akash.market.v1beta5.QueryParamsRequest) | [QueryParamsResponse](#akash.market.v1beta5.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/market/v1beta5/params|
+ | `Params` | [QueryParamsRequest](#akash.market.v1beta5.QueryParamsRequest) | [QueryParamsResponse](#akash.market.v1beta5.QueryParamsResponse) | Params returns the total set of market parameters. | GET|/akash/market/v1beta5/params|
  
   <!-- end services -->
 
@@ -5991,7 +6036,7 @@ Since: akash v2.0.0
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `Prices` | [QueryPricesRequest](#akash.oracle.v1.QueryPricesRequest) | [QueryPricesResponse](#akash.oracle.v1.QueryPricesResponse) | Prices query prices for specific denom | GET|/akash/oracle/v1/prices|
- | `Params` | [QueryParamsRequest](#akash.oracle.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.oracle.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/oracle/v1/params|
+ | `Params` | [QueryParamsRequest](#akash.oracle.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.oracle.v1.QueryParamsResponse) | Params returns the total set of oracle parameters. | GET|/akash/oracle/v1/params|
  | `AggregatedPrice` | [QueryAggregatedPriceRequest](#akash.oracle.v1.QueryAggregatedPriceRequest) | [QueryAggregatedPriceResponse](#akash.oracle.v1.QueryAggregatedPriceResponse) | AggregatedPrice queries the aggregated price for a given denom. | GET|/akash/oracle/v1/aggregated_price/{denom}|
  
   <!-- end services -->
@@ -6020,6 +6065,611 @@ Since: akash v2.0.0
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `AddPriceEntry` | [MsgAddPriceEntry](#akash.oracle.v1.MsgAddPriceEntry) | [MsgAddPriceEntryResponse](#akash.oracle.v1.MsgAddPriceEntryResponse) | AddPriceEntry adds a new price entry for a denomination from an authorized source | |
  | `UpdateParams` | [MsgUpdateParams](#akash.oracle.v1.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.oracle.v1.MsgUpdateParamsResponse) | UpdateParams defines a governance operation for updating the x/wasm module parameters. The authority is hard-coded to the x/gov module account.
+
+Since: akash v2.0.0 | |
+ 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/oracle/v2/prices.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/oracle/v2/prices.proto
+ 
+
+ 
+ <a name="akash.oracle.v2.AggregatedPrice"></a>
+
+ ### AggregatedPrice
+ AggregatedPrice represents the final aggregated price from all sources
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `denom` | [string](#string) |  | denom is the asset denomination |
+ | `twap` | [string](#string) |  | twap is the time-weighted average price over the configured window |
+ | `median_price` | [string](#string) |  | median_price is the median of all source prices |
+ | `min_price` | [string](#string) |  | min_price is the minimum price from all sources |
+ | `max_price` | [string](#string) |  | max_price is the maximum price from all sources |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp is when the aggregated price was computed |
+ | `num_sources` | [uint32](#uint32) |  | num_sources is the number of price sources contributing to this aggregation |
+ | `deviation_bps` | [uint64](#uint64) |  | deviation_bps is the price deviation in basis points between min and max prices |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.DataID"></a>
+
+ ### DataID
+ DataID uniquely identifies a price pair by asset and base denomination
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `denom` | [string](#string) |  | denom is the asset denomination (e.g., "uakt") |
+ | `base_denom` | [string](#string) |  | base_denom is the base denomination for the price pair (e.g., "usd") |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.PriceData"></a>
+
+ ### PriceData
+ PriceData combines a price record identifier with its state
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [PriceDataRecordID](#akash.oracle.v2.PriceDataRecordID) |  | id uniquely identifies this price record |
+ | `state` | [PriceDataState](#akash.oracle.v2.PriceDataState) |  | state contains the price value and timestamp |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.PriceDataID"></a>
+
+ ### PriceDataID
+ PriceDataID identifies price data from a specific source for a specific pair
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `source` | [uint32](#uint32) |  | source is the index of the price source (oracle provider) |
+ | `denom` | [string](#string) |  | denom is the asset denomination |
+ | `base_denom` | [string](#string) |  | base_denom is the base denomination for the price pair |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.PriceDataRecordID"></a>
+
+ ### PriceDataRecordID
+ PriceDataRecordID represents a price from a specific source at a specific time.
+It also represents a single data point in TWAP history
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `source` | [uint32](#uint32) |  | source is the index of the price source (oracle provider) |
+ | `denom` | [string](#string) |  | denom is the asset denomination |
+ | `base_denom` | [string](#string) |  | base_denom is the base denomination for the price pair |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp is when this price was recorded |
+ | `sequence` | [uint64](#uint64) |  | sequence disambiguates multiple price entries at the same timestamp |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.PriceDataState"></a>
+
+ ### PriceDataState
+ PriceDataState represents the price value
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `price` | [string](#string) |  | price is the decimal price value |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.PriceHealth"></a>
+
+ ### PriceHealth
+ PriceHealth represents the health status of a price feed
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `denom` | [string](#string) |  | denom is the asset denomination |
+ | `is_healthy` | [bool](#bool) |  | is_healthy indicates if the price feed meets all health requirements |
+ | `has_min_sources` | [bool](#bool) |  | has_min_sources indicates if minimum number of sources are reporting |
+ | `deviation_ok` | [bool](#bool) |  | deviation_ok indicates if price deviation is within acceptable limits |
+ | `total_sources` | [uint32](#uint32) |  | total_sources indicates total amount of sources registered for price calculations |
+ | `total_healthy_sources` | [uint32](#uint32) |  | total_healthy_sources indicates total usable sources for price calculations |
+ | `failure_reason` | [string](#string) | repeated | failure_reason lists reasons for unhealthy status, if any |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.PriceLatestDataState"></a>
+
+ ### PriceLatestDataState
+ PriceLatestDataState holds the timestamp of the most recent price record for a source/pair
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp is when the price was recorded |
+ | `sequence` | [uint64](#uint64) |  | sequence disambiguates multiple price entries at the same timestamp |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/oracle/v2/events.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/oracle/v2/events.proto
+ 
+
+ 
+ <a name="akash.oracle.v2.EventAggregatedPrice"></a>
+
+ ### EventAggregatedPrice
+ EventAggregatedPrice is emitted when aggregated price has an update
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `price` | [AggregatedPrice](#akash.oracle.v2.AggregatedPrice) |  | price is the aggregated price data |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.EventPriceData"></a>
+
+ ### EventPriceData
+ EventPriceData is emitted when new price data is added to the oracle
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `source` | [string](#string) |  | source is the address of the price source (oracle provider) |
+ | `id` | [DataID](#akash.oracle.v2.DataID) |  | id identifies the price pair (denom and base_denom) |
+ | `price` | [string](#string) |  | price is the decimal price value |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp is when this price was recorded |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.EventPriceRecovered"></a>
+
+ ### EventPriceRecovered
+ EventPriceRecovered is emitted when a stale price has started receiving updates again
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [DataID](#akash.oracle.v2.DataID) |  | id identifies the price pair |
+ | `height` | [int64](#int64) |  | height is the block height when the price recovery was detected |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.EventPriceStaleWarning"></a>
+
+ ### EventPriceStaleWarning
+ EventPriceStaleWarning is emitted when price has not been updated and is about to become stale
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [DataID](#akash.oracle.v2.DataID) |  | id identifies the price pair |
+ | `last_height` | [int64](#int64) |  | last_height is the block height when the price was last updated |
+ | `blocks_to_stall` | [int64](#int64) |  | blocks_to_stall is the number of blocks until the price becomes stale |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.EventPriceStaled"></a>
+
+ ### EventPriceStaled
+ EventPriceStaled is emitted when a price has become stale
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [DataID](#akash.oracle.v2.DataID) |  | id identifies the price pair |
+ | `last_height` | [int64](#int64) |  | last_height is the block height when the price was last updated before becoming stale |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/oracle/v2/params.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/oracle/v2/params.proto
+ 
+
+ 
+ <a name="akash.oracle.v2.Params"></a>
+
+ ### Params
+ Params defines the parameters for the oracle module
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `sources` | [string](#string) | repeated | sources addresses allowed to write prices into oracle module those are to be smartcontract addresses |
+ | `min_price_sources` | [uint32](#uint32) |  | Minimum number of price sources required (default: 1) |
+ | `max_price_staleness_period` | [int64](#int64) |  | Maximum price staleness in seconds (default: 60) |
+ | `twap_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | TWAP window as a duration (default: 5s) |
+ | `max_price_deviation_bps` | [uint64](#uint64) |  | Maximum price deviation in basis points (default: 150 = 1.5%) |
+ | `feed_contracts_params` | [google.protobuf.Any](#google.protobuf.Any) | repeated | feed_contracts_params contains the configuration for the price feed contracts |
+ | `price_retention` | [google.protobuf.Duration](#google.protobuf.Duration) |  | price_retention is how long to keep price records (default: 24h) |
+ | `prune_epoch` | [string](#string) |  | prune_epoch is the epoch identifier that triggers pruning (default: "hour") |
+ | `max_prune_per_epoch` | [int64](#int64) |  | max_prune_per_epoch is the max records to delete per epoch pruning pass (default: 1000) |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/oracle/v2/genesis.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/oracle/v2/genesis.proto
+ 
+
+ 
+ <a name="akash.oracle.v2.GenesisLatestPricesIDs"></a>
+
+ ### GenesisLatestPricesIDs
+ GenesisLatestPricesIDs stores the latest price state for a given price pair
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [PriceDataID](#akash.oracle.v2.PriceDataID) |  | id identifies the price pair (source, denom, base_denom) |
+ | `state` | [PriceLatestDataState](#akash.oracle.v2.PriceLatestDataState) |  | state holds the timestamp of the latest price record |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.GenesisSourceID"></a>
+
+ ### GenesisSourceID
+ GenesisSourceID maps an oracle source address to its numeric identifier
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `address` | [string](#string) |  | address is the bech32 address of the oracle source |
+ | `id` | [uint32](#uint32) |  | id is the numeric identifier assigned to the source |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.GenesisState"></a>
+
+ ### GenesisState
+ GenesisState defines the oracle module's genesis state
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [Params](#akash.oracle.v2.Params) |  | params holds the oracle module parameters |
+ | `prices` | [PriceData](#akash.oracle.v2.PriceData) | repeated | prices is the list of all historical price data entries |
+ | `latest_prices_ids` | [GenesisLatestPricesIDs](#akash.oracle.v2.GenesisLatestPricesIDs) | repeated | latest_height tracks the most recent block height for each price feed source |
+ | `source_ids` | [GenesisSourceID](#akash.oracle.v2.GenesisSourceID) | repeated | source_ids is the list of oracle source address-to-ID mappings |
+ | `source_seq` | [uint64](#uint64) |  | source_seq is the next available source identifier sequence number |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/oracle/v2/msgs.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/oracle/v2/msgs.proto
+ 
+
+ 
+ <a name="akash.oracle.v2.MsgAddPriceEntry"></a>
+
+ ### MsgAddPriceEntry
+ MsgAddPriceEntry defines an SDK message to add oracle price entry.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `signer` | [string](#string) |  | Signer is the bech32 address of the account of the provider. It is a string representing a valid account address.
+
+Example: "akash1..." |
+ | `id` | [DataID](#akash.oracle.v2.DataID) |  | id uniquely identifies the price data by denomination and base denomination |
+ | `price` | [string](#string) |  | price is the decimal price value |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp is when this price was observed |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.MsgAddPriceEntryResponse"></a>
+
+ ### MsgAddPriceEntryResponse
+ MsgAddPriceEntryResponse defines the Msg/MsgAddPriceEntry response type.
+
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.MsgUpdateParams"></a>
+
+ ### MsgUpdateParams
+ MsgUpdateParams is the Msg/UpdateParams request type.
+
+Since: akash v2.0.0
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | authority is the address of the governance account. |
+ | `params` | [Params](#akash.oracle.v2.Params) |  | params defines the x/oracle parameters to update.
+
+NOTE: All parameters must be supplied. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.MsgUpdateParamsResponse"></a>
+
+ ### MsgUpdateParamsResponse
+ MsgUpdateParamsResponse defines the response structure for executing a
+MsgUpdateParams message.
+
+Since: akash v2.0.0
+
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/oracle/v2/query.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/oracle/v2/query.proto
+ 
+
+ 
+ <a name="akash.oracle.v2.PricesFilter"></a>
+
+ ### PricesFilter
+ PricesFilter defines filters used to query price data
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `asset_denom` | [string](#string) |  | asset_denom is the asset denomination to filter by |
+ | `base_denom` | [string](#string) |  | base_denom is the base denomination to filter by |
+ | `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | start_time is the inclusive start of the time range to filter by |
+ | `end_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | end_time is the inclusive end of the time range to filter by |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.QueryAggregatedPriceRequest"></a>
+
+ ### QueryAggregatedPriceRequest
+ QueryAggregatedPriceRequest is the request type for aggregated price.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `denom` | [string](#string) |  | denom is the asset denomination |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.QueryAggregatedPriceResponse"></a>
+
+ ### QueryAggregatedPriceResponse
+ QueryAggregatedPriceResponse is the response type for aggregated price.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `aggregated_price` | [AggregatedPrice](#akash.oracle.v2.AggregatedPrice) |  | aggregated_price is the aggregated price data |
+ | `price_health` | [PriceHealth](#akash.oracle.v2.PriceHealth) |  | price_health is the health status for the price feed |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.QueryParamsRequest"></a>
+
+ ### QueryParamsRequest
+ QueryParamsRequest is the request type for the Query/Params RPC method.
+
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.QueryParamsResponse"></a>
+
+ ### QueryParamsResponse
+ QueryParamsResponse is the response type for the Query/Params RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [Params](#akash.oracle.v2.Params) |  | params defines the parameters of the module. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.QueryPricesRequest"></a>
+
+ ### QueryPricesRequest
+ QueryPricesRequest is the request type for querying price history
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `filters` | [PricesFilter](#akash.oracle.v2.PricesFilter) |  | filters holds the price fields to filter the request |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination is used to paginate the request |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.oracle.v2.QueryPricesResponse"></a>
+
+ ### QueryPricesResponse
+ QueryPricesResponse is the response type for querying price history
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `prices` | [PriceData](#akash.oracle.v2.PriceData) | repeated | prices is the list of historical price data matching the filters |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination contains the information about response pagination |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.oracle.v2.Query"></a>
+
+ ### Query
+ Query defines the gRPC querier service of the oracle package.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `Prices` | [QueryPricesRequest](#akash.oracle.v2.QueryPricesRequest) | [QueryPricesResponse](#akash.oracle.v2.QueryPricesResponse) | Prices query prices for specific denom | GET|/akash/oracle/v2/prices|
+ | `Params` | [QueryParamsRequest](#akash.oracle.v2.QueryParamsRequest) | [QueryParamsResponse](#akash.oracle.v2.QueryParamsResponse) | Params returns the total set of oracle parameters. | GET|/akash/oracle/v2/params|
+ | `AggregatedPrice` | [QueryAggregatedPriceRequest](#akash.oracle.v2.QueryAggregatedPriceRequest) | [QueryAggregatedPriceResponse](#akash.oracle.v2.QueryAggregatedPriceResponse) | AggregatedPrice queries the aggregated price for a given denom. | GET|/akash/oracle/v2/aggregated_price/{denom=**}|
+ 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/oracle/v2/service.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/oracle/v2/service.proto
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.oracle.v2.Msg"></a>
+
+ ### Msg
+ Msg defines the oracle Msg service for managing price feeds
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `AddPriceEntry` | [MsgAddPriceEntry](#akash.oracle.v2.MsgAddPriceEntry) | [MsgAddPriceEntryResponse](#akash.oracle.v2.MsgAddPriceEntryResponse) | AddPriceEntry adds a new price entry for a denomination from an authorized source | |
+ | `UpdateParams` | [MsgUpdateParams](#akash.oracle.v2.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.oracle.v2.MsgUpdateParamsResponse) | UpdateParams defines a governance operation for updating the x/oracle module parameters. The authority is hard-coded to the x/gov module account.
 
 Since: akash v2.0.0 | |
  
@@ -6573,7 +7223,7 @@ Since: akash v1.0.0
 
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
- | `Params` | [QueryParamsRequest](#akash.take.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.take.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/take/v1/params|
+ | `Params` | [QueryParamsRequest](#akash.take.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.take.v1.QueryParamsResponse) | Params returns the total set of take parameters. | GET|/akash/take/v1/params|
  
   <!-- end services -->
 
@@ -6797,7 +7447,7 @@ Since: akash v1.0.0
 
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
- | `Params` | [QueryParamsRequest](#akash.wasm.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.wasm.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/akash/wasm/v1/params|
+ | `Params` | [QueryParamsRequest](#akash.wasm.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.wasm.v1.QueryParamsResponse) | Params returns the total set of wasm parameters. | GET|/akash/wasm/v1/params|
  
   <!-- end services -->
 

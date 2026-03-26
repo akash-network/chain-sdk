@@ -54,7 +54,7 @@ service Query {
     option (google.api.http).get = "/akash/market/v1beta5/leases/info";
   }
 
-  // Params returns the total set of minting parameters.
+  // Params returns the total set of market parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
       option (google.api.http).get = "/akash/market/v1beta5/params";
   }
