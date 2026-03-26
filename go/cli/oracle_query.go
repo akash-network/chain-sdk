@@ -1,12 +1,15 @@
 package cli
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/spf13/cobra"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	types "pkg.akt.dev/go/node/oracle/v1"
+	types "pkg.akt.dev/go/node/oracle/v2"
 )
 
 func GetQueryOracleCmd() *cobra.Command {
@@ -44,15 +47,36 @@ func GetOraclePricesCmd() *cobra.Command {
 			// Get filter flags
 			assetDenom, _ := cmd.Flags().GetString(cflags.FlagAssetDenom)
 			baseDenom, _ := cmd.Flags().GetString(cflags.FlagBaseDenom)
-			height, _ := cmd.Flags().GetInt64(cflags.FlagHeight)
+			startTimeStr, _ := cmd.Flags().GetString("start-time")
+			endTimeStr, _ := cmd.Flags().GetString("end-time")
 
-			// Build request with filters
+			filters := types.PricesFilter{
+				AssetDenom: assetDenom,
+				BaseDenom:  baseDenom,
+			}
+
+			if startTimeStr != "" {
+				ts, err := time.Parse(time.RFC3339, startTimeStr)
+				if err != nil {
+					return err
+				}
+				filters.StartTime = ts
+			}
+
+			if endTimeStr != "" {
+				ts, err := time.Parse(time.RFC3339, endTimeStr)
+				if err != nil {
+					return err
+				}
+				filters.EndTime = ts
+			}
+
+			if !filters.StartTime.IsZero() && !filters.EndTime.IsZero() && filters.StartTime.After(filters.EndTime) {
+				return fmt.Errorf("start-time %q must be before end-time %q", startTimeStr, endTimeStr)
+			}
+
 			req := &types.QueryPricesRequest{
-				Filters: types.PricesFilter{
-					AssetDenom: assetDenom,
-					BaseDenom:  baseDenom,
-					Height:     height,
-				},
+				Filters:    filters,
 				Pagination: pageReq,
 			}
 
@@ -69,6 +93,8 @@ func GetOraclePricesCmd() *cobra.Command {
 	cflags.AddPaginationFlagsToCmd(cmd, "prices")
 	cmd.Flags().String(cflags.FlagAssetDenom, "", "Filter by asset denomination (e.g., uakt)")
 	cmd.Flags().String(cflags.FlagBaseDenom, "", "Filter by base denomination (e.g., usd)")
+	cmd.Flags().String("start-time", "", "Filter by start time (RFC3339 format, e.g., 2024-01-01T00:00:00Z)")
+	cmd.Flags().String("end-time", "", "Filter by end time (RFC3339 format, e.g., 2024-01-01T00:00:00Z)")
 
 	return cmd
 }

@@ -9,4 +9,6 @@ const (
 
 	// RouterKey is the message route for bme
 	RouterKey = ModuleName
+
+	TStoreKey = "bme_transient"
 )

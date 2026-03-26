@@ -2672,7 +2672,7 @@ paths:
         - Query
   /akash/deployment/v1beta4/params:
     get:
-      summary: Params returns the total set of minting parameters.
+      summary: Params returns the total set of deployment parameters.
       operationId: DeploymentParams
       responses:
         '200':
@@ -6140,7 +6140,7 @@ paths:
         - Query
   /akash/market/v1beta5/params:
     get:
-      summary: Params returns the total set of minting parameters.
+      summary: Params returns the total set of market parameters.
       operationId: MarketParams
       responses:
         '200':
@@ -6527,7 +6527,7 @@ paths:
         - Query
   /akash/take/v1/params:
     get:
-      summary: Params returns the total set of minting parameters.
+      summary: Params returns the total set of take parameters.
       operationId: TakeParams
       responses:
         '200':

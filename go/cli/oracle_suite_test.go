@@ -21,7 +21,7 @@ import (
 	"pkg.akt.dev/go/cli"
 	cflags "pkg.akt.dev/go/cli/flags"
 	clitestutil "pkg.akt.dev/go/cli/testutil"
-	oracle "pkg.akt.dev/go/node/oracle/v1"
+	oracle "pkg.akt.dev/go/node/oracle/v2"
 	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
 )

@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package akash.oracle.v2;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "pkg.akt.dev/go/node/oracle/v2";
+
+// Params defines the parameters for the oracle module
+message Params {
+  option (gogoproto.equal) = true;
+  //  option (gogoproto.goproto_stringer) = false;
+
+  // sources addresses allowed to write prices into oracle module
+  // those are to be smartcontract addresses
+  repeated string sources = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "sources",
+    (gogoproto.moretags)  = "yaml:\"sources\""
+  ];
+
+  // Minimum number of price sources required (default: 1)
+  uint32 min_price_sources = 2;
+
+  // Maximum price staleness in seconds (default: 60)
+  int64 max_price_staleness_period = 3;
+
+  // TWAP window as a duration (default: 5s)
+  google.protobuf.Duration twap_window = 4 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "twap_window",
+    (gogoproto.moretags)    = "yaml:\"twap_window\""
+  ];
+
+  // Maximum price deviation in basis points (default: 150 = 1.5%)
+  uint64 max_price_deviation_bps = 5;
+
+  // feed_contracts_params contains the configuration for the price feed contracts
+  repeated google.protobuf.Any feed_contracts_params = 6;
+
+  // price_retention is how long to keep price records (default: 24h)
+  google.protobuf.Duration price_retention = 7 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "price_retention",
+    (gogoproto.moretags)    = "yaml:\"price_retention\""
+  ];
+
+  // prune_epoch is the epoch identifier that triggers pruning (default: "hour")
+  string prune_epoch = 8 [
+    (gogoproto.jsontag)  = "prune_epoch",
+    (gogoproto.moretags) = "yaml:\"prune_epoch\""
+  ];
+
+  // max_prune_per_epoch is the max records to delete per epoch pruning pass (default: 1000)
+  int64 max_prune_per_epoch = 9;
+}
