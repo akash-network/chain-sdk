@@ -39,6 +39,11 @@ export interface Params {
   pruneEpoch: string;
   /** max_prune_per_epoch is the max records to delete per epoch pruning pass (default: 1000) */
   maxPrunePerEpoch: Long;
+  /**
+   * max_future_time_drift is the maximum amount of time a price timestamp
+   * may exceed the current block time (default: 1m)
+   */
+  maxFutureTimeDrift: Duration | undefined;
 }
 
 function createBaseParams(): Params {
@@ -52,6 +57,7 @@ function createBaseParams(): Params {
     priceRetention: undefined,
     pruneEpoch: "",
     maxPrunePerEpoch: Long.ZERO,
+    maxFutureTimeDrift: undefined,
   };
 }
 
@@ -85,6 +91,9 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     }
     if (!message.maxPrunePerEpoch.equals(Long.ZERO)) {
       writer.uint32(72).int64(message.maxPrunePerEpoch.toString());
+    }
+    if (message.maxFutureTimeDrift !== undefined) {
+      Duration.encode(message.maxFutureTimeDrift, writer.uint32(82).fork()).join();
     }
     return writer;
   },
@@ -168,6 +177,14 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
           message.maxPrunePerEpoch = Long.fromString(reader.int64().toString());
           continue;
         }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.maxFutureTimeDrift = Duration.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -194,6 +211,9 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
       priceRetention: isSet(object.price_retention) ? Duration.fromJSON(object.price_retention) : undefined,
       pruneEpoch: isSet(object.prune_epoch) ? globalThis.String(object.prune_epoch) : "",
       maxPrunePerEpoch: isSet(object.max_prune_per_epoch) ? Long.fromValue(object.max_prune_per_epoch) : Long.ZERO,
+      maxFutureTimeDrift: isSet(object.max_future_time_drift)
+        ? Duration.fromJSON(object.max_future_time_drift)
+        : undefined,
     };
   },
 
@@ -226,6 +246,9 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     if (!message.maxPrunePerEpoch.equals(Long.ZERO)) {
       obj.max_prune_per_epoch = (message.maxPrunePerEpoch || Long.ZERO).toString();
     }
+    if (message.maxFutureTimeDrift !== undefined) {
+      obj.max_future_time_drift = Duration.toJSON(message.maxFutureTimeDrift);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Params>): Params {
@@ -250,6 +273,9 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     message.maxPrunePerEpoch = (object.maxPrunePerEpoch !== undefined && object.maxPrunePerEpoch !== null)
       ? Long.fromValue(object.maxPrunePerEpoch)
       : Long.ZERO;
+    message.maxFutureTimeDrift = (object.maxFutureTimeDrift !== undefined && object.maxFutureTimeDrift !== null)
+      ? Duration.fromPartial(object.maxFutureTimeDrift)
+      : undefined;
     return message;
   },
 };

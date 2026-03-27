@@ -6353,6 +6353,7 @@ It also represents a single data point in TWAP history
  | `price_retention` | [google.protobuf.Duration](#google.protobuf.Duration) |  | price_retention is how long to keep price records (default: 24h) |
  | `prune_epoch` | [string](#string) |  | prune_epoch is the epoch identifier that triggers pruning (default: "hour") |
  | `max_prune_per_epoch` | [int64](#int64) |  | max_prune_per_epoch is the max records to delete per epoch pruning pass (default: 1000) |
+ | `max_future_time_drift` | [google.protobuf.Duration](#google.protobuf.Duration) |  | max_future_time_drift is the maximum amount of time a price timestamp may exceed the current block time (default: 1m) |
  
  
 
