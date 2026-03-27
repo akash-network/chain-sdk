@@ -58,4 +58,13 @@ message Params {
 
   // max_prune_per_epoch is the max records to delete per epoch pruning pass (default: 1000)
   int64 max_prune_per_epoch = 9;
+
+  // max_future_time_drift is the maximum amount of time a price timestamp
+  // may exceed the current block time (default: 1m)
+  google.protobuf.Duration max_future_time_drift = 10 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "max_future_time_drift",
+    (gogoproto.moretags)    = "yaml:\"max_future_time_drift\""
+  ];
 }

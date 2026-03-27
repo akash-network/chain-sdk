@@ -44,6 +44,7 @@ func DefaultParams() Params {
 		PriceRetention:          24 * time.Hour,
 		PruneEpoch:              "hour",
 		MaxPrunePerEpoch:        1000,
+		MaxFutureTimeDrift:      1 * time.Minute,
 	}
 }
 
@@ -77,6 +78,9 @@ func (p *Params) ValidateBasic() error {
 	}
 	if p.MaxPrunePerEpoch <= 0 {
 		return fmt.Errorf("max_prune_per_epoch must be positive")
+	}
+	if p.MaxFutureTimeDrift <= 0 {
+		return fmt.Errorf("max_future_time_drift must be positive")
 	}
 
 	for _, src := range p.Sources {

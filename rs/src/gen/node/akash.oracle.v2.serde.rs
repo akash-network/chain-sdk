@@ -1733,6 +1733,9 @@ impl serde::Serialize for Params {
         if self.max_prune_per_epoch != 0 {
             len += 1;
         }
+        if self.max_future_time_drift.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.oracle.v2.Params", len)?;
         if !self.sources.is_empty() {
             struct_ser.serialize_field("sources", &self.sources)?;
@@ -1767,6 +1770,9 @@ impl serde::Serialize for Params {
             #[allow(clippy::needless_borrows_for_generic_args)]
             struct_ser.serialize_field("maxPrunePerEpoch", ToString::to_string(&self.max_prune_per_epoch).as_str())?;
         }
+        if let Some(v) = self.max_future_time_drift.as_ref() {
+            struct_ser.serialize_field("maxFutureTimeDrift", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -1794,6 +1800,8 @@ impl<'de> serde::Deserialize<'de> for Params {
             "pruneEpoch",
             "max_prune_per_epoch",
             "maxPrunePerEpoch",
+            "max_future_time_drift",
+            "maxFutureTimeDrift",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1807,6 +1815,7 @@ impl<'de> serde::Deserialize<'de> for Params {
             PriceRetention,
             PruneEpoch,
             MaxPrunePerEpoch,
+            MaxFutureTimeDrift,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1837,6 +1846,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             "priceRetention" | "price_retention" => Ok(GeneratedField::PriceRetention),
                             "pruneEpoch" | "prune_epoch" => Ok(GeneratedField::PruneEpoch),
                             "maxPrunePerEpoch" | "max_prune_per_epoch" => Ok(GeneratedField::MaxPrunePerEpoch),
+                            "maxFutureTimeDrift" | "max_future_time_drift" => Ok(GeneratedField::MaxFutureTimeDrift),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1865,6 +1875,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                 let mut price_retention__ = None;
                 let mut prune_epoch__ = None;
                 let mut max_prune_per_epoch__ = None;
+                let mut max_future_time_drift__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Sources => {
@@ -1929,6 +1940,12 @@ impl<'de> serde::Deserialize<'de> for Params {
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
+                        GeneratedField::MaxFutureTimeDrift => {
+                            if max_future_time_drift__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("maxFutureTimeDrift"));
+                            }
+                            max_future_time_drift__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(Params {
@@ -1941,6 +1958,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                     price_retention: price_retention__,
                     prune_epoch: prune_epoch__.unwrap_or_default(),
                     max_prune_per_epoch: max_prune_per_epoch__.unwrap_or_default(),
+                    max_future_time_drift: max_future_time_drift__,
                 })
             }
         }
