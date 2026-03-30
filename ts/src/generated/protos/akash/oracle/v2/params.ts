@@ -21,8 +21,10 @@ export interface Params {
   sources: string[];
   /** Minimum number of price sources required (default: 1) */
   minPriceSources: number;
-  /** Maximum price staleness in seconds (default: 60) */
-  maxPriceStalenessPeriod: Long;
+  /** Maximum price staleness in seconds (default: 60s) */
+  maxPriceStalenessPeriod:
+    | Duration
+    | undefined;
   /** TWAP window as a duration (default: 5s) */
   twapWindow:
     | Duration
@@ -50,7 +52,7 @@ function createBaseParams(): Params {
   return {
     sources: [],
     minPriceSources: 0,
-    maxPriceStalenessPeriod: Long.ZERO,
+    maxPriceStalenessPeriod: undefined,
     twapWindow: undefined,
     maxPriceDeviationBps: Long.UZERO,
     feedContractsParams: [],
@@ -71,8 +73,8 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     if (message.minPriceSources !== 0) {
       writer.uint32(16).uint32(message.minPriceSources);
     }
-    if (!message.maxPriceStalenessPeriod.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.maxPriceStalenessPeriod.toString());
+    if (message.maxPriceStalenessPeriod !== undefined) {
+      Duration.encode(message.maxPriceStalenessPeriod, writer.uint32(26).fork()).join();
     }
     if (message.twapWindow !== undefined) {
       Duration.encode(message.twapWindow, writer.uint32(34).fork()).join();
@@ -122,11 +124,11 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
           continue;
         }
         case 3: {
-          if (tag !== 24) {
+          if (tag !== 26) {
             break;
           }
 
-          message.maxPriceStalenessPeriod = Long.fromString(reader.int64().toString());
+          message.maxPriceStalenessPeriod = Duration.decode(reader, reader.uint32());
           continue;
         }
         case 4: {
@@ -199,8 +201,8 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
       sources: globalThis.Array.isArray(object?.sources) ? object.sources.map((e: any) => globalThis.String(e)) : [],
       minPriceSources: isSet(object.min_price_sources) ? globalThis.Number(object.min_price_sources) : 0,
       maxPriceStalenessPeriod: isSet(object.max_price_staleness_period)
-        ? Long.fromValue(object.max_price_staleness_period)
-        : Long.ZERO,
+        ? Duration.fromJSON(object.max_price_staleness_period)
+        : undefined,
       twapWindow: isSet(object.twap_window) ? Duration.fromJSON(object.twap_window) : undefined,
       maxPriceDeviationBps: isSet(object.max_price_deviation_bps)
         ? Long.fromValue(object.max_price_deviation_bps)
@@ -225,8 +227,8 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     if (message.minPriceSources !== 0) {
       obj.min_price_sources = Math.round(message.minPriceSources);
     }
-    if (!message.maxPriceStalenessPeriod.equals(Long.ZERO)) {
-      obj.max_price_staleness_period = (message.maxPriceStalenessPeriod || Long.ZERO).toString();
+    if (message.maxPriceStalenessPeriod !== undefined) {
+      obj.max_price_staleness_period = Duration.toJSON(message.maxPriceStalenessPeriod);
     }
     if (message.twapWindow !== undefined) {
       obj.twap_window = Duration.toJSON(message.twapWindow);
@@ -257,8 +259,8 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     message.minPriceSources = object.minPriceSources ?? 0;
     message.maxPriceStalenessPeriod =
       (object.maxPriceStalenessPeriod !== undefined && object.maxPriceStalenessPeriod !== null)
-        ? Long.fromValue(object.maxPriceStalenessPeriod)
-        : Long.ZERO;
+        ? Duration.fromPartial(object.maxPriceStalenessPeriod)
+        : undefined;
     message.twapWindow = (object.twapWindow !== undefined && object.twapWindow !== null)
       ? Duration.fromPartial(object.twapWindow)
       : undefined;

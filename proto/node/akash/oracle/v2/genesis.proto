@@ -62,7 +62,7 @@ message GenesisState {
   // latest_height tracks the most recent block height for each price feed source
   repeated GenesisLatestPricesIDs latest_prices_ids = 3 [
     (gogoproto.nullable) = false,
-    (gogoproto.customname) = "IDs",
+    (gogoproto.customname) = "LatestPricesIDs",
     (gogoproto.jsontag)  = "latest_prices_ids",
     (gogoproto.moretags) = "yaml:\"latest_prices_ids\""
   ];
