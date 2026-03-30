@@ -109,13 +109,13 @@ Examples:
 					return err
 				}
 
-				spendLimit, err := sdk.ParseCoinNormalized(limit)
+				spendLimit, err := sdk.ParseCoinsNormalized(limit)
 				if err != nil {
 					return err
 				}
 
-				if spendLimit.IsZero() || spendLimit.IsNegative() {
-					return fmt.Errorf("spend-limit should be greater than zero, got: %s", spendLimit)
+				if !spendLimit.IsAllPositive() {
+					return fmt.Errorf("spend-limit should be greater than zero")
 				}
 
 				authorization = ev1.NewDepositAuthorization(scopes, spendLimit)

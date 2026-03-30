@@ -25,8 +25,8 @@ message EventMintStatusChange {
   ];
 }
 
-// EventVaultSeeded is emitted when the vault is seeded with AKT
-message EventVaultSeeded {
+// EventVaultFunded is emitted when the vault is seeded with AKT
+message EventVaultFunded {
   // amount is the AKT amount added to vault
   cosmos.base.v1beta1.Coin amount = 1 [
     (gogoproto.nullable) = false
@@ -48,6 +48,113 @@ message EventLedgerRecordExecuted {
     (gogoproto.nullable)  = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)   = "id",
-    (gogoproto.moretags)  = "yaml:\"burneidd_from\""
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+
+  // burned_from source address of the tokens burned
+  string burned_from = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "burned_from",
+    (gogoproto.moretags)  = "yaml:\"burned_from\""
+  ];
+
+  // minted_to destination address of the tokens minted
+  string minted_to = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "minted_to",
+    (gogoproto.moretags)  = "yaml:\"minted_to\""
+  ];
+
+  // module is module account performing burn
+  string burner = 4 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "burner",
+    (gogoproto.moretags)  = "yaml:\"burner\""
+  ];
+
+  // module is module account performing mint
+  string minter = 5 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "minter",
+    (gogoproto.moretags)  = "yaml:\"minter\""
+  ];
+
+  // burned is the coin burned at price
+  CoinPrice burned = 6 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "burned",
+    (gogoproto.moretags) = "yaml:\"burned\""
+  ];
+
+  // minted is coin minted at price
+  CoinPrice minted = 7 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "minted",
+    (gogoproto.moretags) = "yaml:\"minted\""
+  ];
+
+  cosmos.base.v1beta1.Coin spread = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "spread",
+    (gogoproto.moretags) = "yaml:\"spread\""
+  ];
+
+  CoinPrice remint_credit_issued = 9 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "remint_credit_issued",
+    (gogoproto.moretags) = "yaml:\"remint_credit_issued\""
+  ];
+
+  CoinPrice remint_credit_accrued = 10 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "remint_credit_accrued",
+    (gogoproto.moretags) = "yaml:\"remint_credit_accrued\""
+  ];
+}
+
+// EventLedgerRecordCanceled emitted information of unsuccessful burn/mint event
+message EventLedgerRecordCanceled {
+  // burned_from source address of the tokens burned
+  LedgerRecordID id = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+
+  // fail_reason
+  LedgerCanceledRecord.BMCancelReason cancel_reason = 2 [
+    (gogoproto.jsontag)   = "cancel_reason",
+    (gogoproto.moretags)  = "yaml:\"cancel_reason\""
+  ];
+
+  // owner source of the coins to be burned
+  string owner = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+
+  // to destination of the minted coins.
+  // if minted coin is ACT, "to" must be same as signer
+  string to = 4 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "to",
+    (gogoproto.moretags)  = "yaml:\"to\""
+  ];
+
+  // coins_to_burn
+  cosmos.base.v1beta1.Coin coins_to_burn = 5 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "CoinsToBurn",
+    (gogoproto.jsontag)    = "coins_to_burn",
+    (gogoproto.moretags)   = "yaml:\"coins_to_burn\""
+  ];
+
+  // denom_to_mint
+  string denom_to_mint = 6 [
+    (gogoproto.customname) = "DenomToMint",
+    (gogoproto.jsontag)    = "denom_to_mint",
+    (gogoproto.moretags)   = "yaml:\"denom_to_mint\""
   ];
 }

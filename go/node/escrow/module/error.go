@@ -23,6 +23,7 @@ const (
 	errUnauthorizedDepositScope
 	errInvalidDeposit
 	errInvalidAuthzScope
+	errMalformedKey
 )
 
 var (
@@ -43,4 +44,5 @@ var (
 	ErrUnauthorizedDepositScope = sdkerrors.RegisterWithGRPCCode(ModuleName, errUnauthorizedDepositScope, codes.PermissionDenied, "unauthorized deposit scope")
 	ErrInvalidDeposit           = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidDeposit, codes.InvalidArgument, "invalid deposit")
 	ErrInvalidAuthzScope        = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidAuthzScope, codes.InvalidArgument, "invalid authz scope")
+	ErrMalformedKey             = sdkerrors.RegisterWithGRPCCode(ModuleName, errMalformedKey, codes.InvalidArgument, "malformed key")
 )

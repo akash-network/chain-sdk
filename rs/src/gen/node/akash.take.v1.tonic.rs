@@ -86,7 +86,7 @@ pub mod query_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        /** Params returns the total set of minting parameters.
+        /** Params returns the total set of take parameters.
 */
         pub async fn params(
             &mut self,
@@ -122,7 +122,7 @@ pub mod query_server {
     /// Generated trait containing gRPC methods that should be implemented for use with QueryServer.
     #[async_trait]
     pub trait Query: Send + Sync + 'static {
-        /** Params returns the total set of minting parameters.
+        /** Params returns the total set of take parameters.
 */
         async fn params(
             &self,

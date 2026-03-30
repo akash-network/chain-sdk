@@ -8,7 +8,7 @@ export type { SDLInput };
 export { validationSDLSchema };
 
 const ERROR_MESSAGES: ErrorMessages = {
-  "#/definitions/storageAttributesValidation"(error) {
+  "#/definitions/storageRamClassMustNotBePersistent"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
   },
   "#/definitions/exposeToItem"() {

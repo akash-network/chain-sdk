@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.0.0-alpha.27](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.26...ts/v1.0.0-alpha.27) (2026-03-18)
+
+
+### Features
+
+* implement ledger failed record for bme ([#255](https://github.com/akash-network/chain-sdk/issues/255)) ([4dc78aa](https://github.com/akash-network/chain-sdk/commit/4dc78aa46dd0538a2d7ce099e274ca47115581c4))
+* **ts:** adds yaml.raw helper ([#260](https://github.com/akash-network/chain-sdk/issues/260)) ([28ead7b](https://github.com/akash-network/chain-sdk/commit/28ead7b910320702d38443d73a4dd00236032ce6))
+
+
+### Bug Fixes
+
+* add ledger failed event ([#257](https://github.com/akash-network/chain-sdk/issues/257)) ([40c2596](https://github.com/akash-network/chain-sdk/commit/40c2596fe4e03bbbd30254b5b40063075f5b5a0b))
+
+## [1.0.0-alpha.26](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.25...ts/v1.0.0-alpha.26) (2026-03-13)
+
+
+### Features
+
+* **bme:** add FundVault rpc ([#250](https://github.com/akash-network/chain-sdk/issues/250)) ([bf19b1a](https://github.com/akash-network/chain-sdk/commit/bf19b1a7fe2a1e2f14987267efed547a1843476b))
+
+## [1.0.0-alpha.25](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.24...ts/v1.0.0-alpha.25) (2026-03-09)
+
+
+### Features
+
+* **bme:** add endblocker params ([#245](https://github.com/akash-network/chain-sdk/issues/245)) ([4f6a1d2](https://github.com/akash-network/chain-sdk/commit/4f6a1d2e2e1bf3f25af59bf89f24e18f24b999a7))
+* **go/sdl:** add permissions params ([#200](https://github.com/akash-network/chain-sdk/issues/200)) ([38be010](https://github.com/akash-network/chain-sdk/commit/38be010ce056239b063ab9a66d70ad17b571ab24))
+* **market:** add OfferPrices and BidMinDeposits to market proto ([#242](https://github.com/akash-network/chain-sdk/issues/242)) ([0433094](https://github.com/akash-network/chain-sdk/commit/0433094ddd9ca07e905a7d7c8b5b272fb267ea50))
+* **provider:** add BidScreening RPC and validation proto ([#243](https://github.com/akash-network/chain-sdk/issues/243)) ([1fadf95](https://github.com/akash-network/chain-sdk/commit/1fadf955bae5d60e4a79701ad1e7591d64f0b0a8))
+* **ts:** adds support for chain transactions ([#246](https://github.com/akash-network/chain-sdk/issues/246)) ([0d175db](https://github.com/akash-network/chain-sdk/commit/0d175db778634eeb65815972f3c6263ab590d619))
+
+
+### Bug Fixes
+
+* **ts:** sort storage keys during manifest generation ([#233](https://github.com/akash-network/chain-sdk/issues/233)) ([1d5e0e4](https://github.com/akash-network/chain-sdk/commit/1d5e0e4c8bd9d417f7829ab9d65467054d695341))
+
 ## [1.0.0-alpha.24](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.23...ts/v1.0.0-alpha.24) (2026-02-12)
 
 

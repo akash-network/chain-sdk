@@ -4,6 +4,9 @@ import { QueryStatusResponse } from "../protos/akash/bme/v1/query.ts";
 import { DecCoin } from "../protos/cosmos/base/v1beta1/coin.ts";
 import { Balance } from "../protos/akash/escrow/types/v1/balance.ts";
 import { AggregatedPrice, PriceDataState } from "../protos/akash/oracle/v1/prices.ts";
+import { AggregatedPrice as AggregatedPrice$1, PriceDataState as PriceDataState$1 } from "../protos/akash/oracle/v2/prices.ts";
+import { EventPriceData } from "../protos/akash/oracle/v2/events.ts";
+import { MsgAddPriceEntry } from "../protos/akash/oracle/v2/msgs.ts";
 
 import { expect, describe, it } from "@jest/globals";
 import { patches } from "./nodeCustomTypePatches.ts";
@@ -42,6 +45,22 @@ const messageTypes: Record<string, MessageSchema> = {
   "akash.oracle.v1.AggregatedPrice": {
     type: AggregatedPrice,
     fields: [{name: "twap",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "medianPrice",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "minPrice",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxPrice",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "akash.oracle.v2.PriceDataState": {
+    type: PriceDataState$1,
+    fields: [{name: "price",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "akash.oracle.v2.AggregatedPrice": {
+    type: AggregatedPrice$1,
+    fields: [{name: "twap",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "medianPrice",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "minPrice",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "maxPrice",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "akash.oracle.v2.EventPriceData": {
+    type: EventPriceData,
+    fields: [{name: "price",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "akash.oracle.v2.MsgAddPriceEntry": {
+    type: MsgAddPriceEntry,
+    fields: [{name: "price",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
 };
 describe("nodeCustomTypePatches.ts", () => {

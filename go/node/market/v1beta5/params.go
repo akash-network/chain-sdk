@@ -56,6 +56,11 @@ func (p Params) Validate() error {
 	if err := validateOrderMaxBids(p.OrderMaxBids); err != nil {
 		return err
 	}
+
+	if err := validateCoins(p.BidMinDeposits); err != nil {
+		return err
+	}
+
 	return nil
 }
 

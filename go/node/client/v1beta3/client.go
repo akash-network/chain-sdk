@@ -34,7 +34,7 @@ import (
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
-	otypes "pkg.akt.dev/go/node/oracle/v1"
+	otypes "pkg.akt.dev/go/node/oracle/v2"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
 )
 
@@ -169,7 +169,8 @@ func (cl *lightClient) PrintMessage(msg interface{}) error {
 	case []byte:
 		err = cl.qclient.cctx.PrintString(fmt.Sprintf("%s\n", string(m)))
 	default:
-		err = cl.qclient.cctx.PrintObjectLegacy(m)
+		// todo find replacement for deprecated
+		err = cl.qclient.cctx.PrintObjectLegacy(m) // nolint: staticcheck
 	}
 
 	return err

@@ -31,4 +31,9 @@ service Msg {
   // The burn operation uses remint credits when available, otherwise
   // requires adequate collateral backing based on oracle prices.
   rpc BurnACT(MsgBurnACT) returns (MsgBurnACTResponse);
+
+  // FundVault seeds the BME vault with AKT from a designated source (e.g., community pool).
+  // This provides the initial volatility buffer required for burn/mint operations.
+  // Can only be executed through governance proposals.
+  rpc FundVault(MsgFundVault) returns (MsgFundVaultResponse);
 }

@@ -329,7 +329,7 @@ func (msg *MsgStartGroup) GetSignBytes() []byte {
 // GetSignBytes implements the LegacyMsg interface.//
 // // Deprecated: GetSignBytes is deprecated
 func (m *MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m)) // nolint: staticcheck
 }
 
 // ============= Route =============

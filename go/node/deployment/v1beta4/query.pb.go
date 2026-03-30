@@ -516,7 +516,7 @@ type QueryClient interface {
 	Deployment(ctx context.Context, in *QueryDeploymentRequest, opts ...grpc.CallOption) (*QueryDeploymentResponse, error)
 	// Group queries group details.
 	Group(ctx context.Context, in *QueryGroupRequest, opts ...grpc.CallOption) (*QueryGroupResponse, error)
-	// Params returns the total set of minting parameters.
+	// Params returns the total set of deployment parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
@@ -572,7 +572,7 @@ type QueryServer interface {
 	Deployment(context.Context, *QueryDeploymentRequest) (*QueryDeploymentResponse, error)
 	// Group queries group details.
 	Group(context.Context, *QueryGroupRequest) (*QueryGroupResponse, error)
-	// Params returns the total set of minting parameters.
+	// Params returns the total set of deployment parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
 

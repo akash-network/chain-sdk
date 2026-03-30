@@ -56,7 +56,8 @@ func (m Manifest) Version() ([]byte, error) {
 		return nil, err
 	}
 
-	sortedBytes, err := sdk.SortJSON(data)
+	// todo copy SortJSON to chain-sdk
+	sortedBytes, err := sdk.SortJSON(data) // nolint: staticcheck
 	if err != nil {
 		return nil, err
 	}

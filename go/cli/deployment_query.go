@@ -5,10 +5,9 @@ import (
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 
+	cflags "pkg.akt.dev/go/cli/flags"
 	"pkg.akt.dev/go/node/deployment/v1"
 	dvbeta "pkg.akt.dev/go/node/deployment/v1beta4"
-
-	cflags "pkg.akt.dev/go/cli/flags"
 )
 
 // GetQueryDeploymentCmds returns the query commands for the deployment module
@@ -24,6 +23,7 @@ func GetQueryDeploymentCmds() *cobra.Command {
 		GetQueryDeploymentsCmd(),
 		GetQueryDeploymentCmd(),
 		GetQueryDeploymentGroupCmds(),
+		GetQueryDeploymentParamsCmd(),
 	)
 
 	return cmd
@@ -143,6 +143,31 @@ func GetQueryDeploymentGroupCmd() *cobra.Command {
 	cflags.AddQueryFlagsToCmd(cmd)
 	cflags.AddGroupIDFlags(cmd.Flags())
 	cflags.MarkReqGroupIDFlags(cmd)
+
+	return cmd
+}
+
+func GetQueryDeploymentParamsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "params",
+		Short:             "Query the current deployment parameters",
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+
+			req := &dvbeta.QueryParamsRequest{}
+
+			res, err := cl.Query().Deployment().Params(ctx, req)
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
