@@ -25,8 +25,13 @@ message Params {
   // Minimum number of price sources required (default: 1)
   uint32 min_price_sources = 2;
 
-  // Maximum price staleness in seconds (default: 60)
-  int64 max_price_staleness_period = 3;
+  // Maximum price staleness in seconds (default: 60s)
+  google.protobuf.Duration max_price_staleness_period = 3 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "max_price_staleness_period",
+    (gogoproto.moretags)    = "yaml:\"max_price_staleness_period\""
+  ];
 
   // TWAP window as a duration (default: 5s)
   google.protobuf.Duration twap_window = 4 [
