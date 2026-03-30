@@ -37,14 +37,14 @@ func DefaultParams() Params {
 
 	return Params{
 		MinPriceSources:         1,
-		MaxPriceStalenessPeriod: 30,
+		MaxPriceStalenessPeriod: 30 * time.Second,
 		MaxPriceDeviationBps:    150,
 		TwapWindow:              5 * time.Second,
 		FeedContractsParams:     msgs,
 		PriceRetention:          24 * time.Hour,
 		PruneEpoch:              "hour",
 		MaxPrunePerEpoch:        1000,
-		MaxFutureTimeDrift:      1 * time.Minute,
+		MaxFutureTimeDrift:      10 * time.Second,
 	}
 }
 
@@ -76,11 +76,11 @@ func (p *Params) ValidateBasic() error {
 	if p.PruneEpoch == "" {
 		return fmt.Errorf("prune_epoch must not be empty")
 	}
-	if p.MaxPrunePerEpoch <= 0 {
-		return fmt.Errorf("max_prune_per_epoch must be positive")
+	if p.MaxPrunePerEpoch < 0 {
+		return fmt.Errorf("max_prune_per_epoch must be non-negative")
 	}
-	if p.MaxFutureTimeDrift <= 0 {
-		return fmt.Errorf("max_future_time_drift must be positive")
+	if p.MaxFutureTimeDrift < 0 {
+		return fmt.Errorf("max_future_time_drift must be non-negative")
 	}
 
 	for _, src := range p.Sources {

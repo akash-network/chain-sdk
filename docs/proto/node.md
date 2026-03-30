@@ -6346,7 +6346,7 @@ It also represents a single data point in TWAP history
  | ----- | ---- | ----- | ----------- |
  | `sources` | [string](#string) | repeated | sources addresses allowed to write prices into oracle module those are to be smartcontract addresses |
  | `min_price_sources` | [uint32](#uint32) |  | Minimum number of price sources required (default: 1) |
- | `max_price_staleness_period` | [int64](#int64) |  | Maximum price staleness in seconds (default: 60) |
+ | `max_price_staleness_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | Maximum price staleness in seconds (default: 60s) |
  | `twap_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | TWAP window as a duration (default: 5s) |
  | `max_price_deviation_bps` | [uint64](#uint64) |  | Maximum price deviation in basis points (default: 150 = 1.5%) |
  | `feed_contracts_params` | [google.protobuf.Any](#google.protobuf.Any) | repeated | feed_contracts_params contains the configuration for the price feed contracts |

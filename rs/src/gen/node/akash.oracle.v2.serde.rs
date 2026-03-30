@@ -1712,7 +1712,7 @@ impl serde::Serialize for Params {
         if self.min_price_sources != 0 {
             len += 1;
         }
-        if self.max_price_staleness_period != 0 {
+        if self.max_price_staleness_period.is_some() {
             len += 1;
         }
         if self.twap_window.is_some() {
@@ -1743,10 +1743,8 @@ impl serde::Serialize for Params {
         if self.min_price_sources != 0 {
             struct_ser.serialize_field("minPriceSources", &self.min_price_sources)?;
         }
-        if self.max_price_staleness_period != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("maxPriceStalenessPeriod", ToString::to_string(&self.max_price_staleness_period).as_str())?;
+        if let Some(v) = self.max_price_staleness_period.as_ref() {
+            struct_ser.serialize_field("maxPriceStalenessPeriod", v)?;
         }
         if let Some(v) = self.twap_window.as_ref() {
             struct_ser.serialize_field("twapWindow", v)?;
@@ -1896,9 +1894,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if max_price_staleness_period__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxPriceStalenessPeriod"));
                             }
-                            max_price_staleness_period__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            max_price_staleness_period__ = map_.next_value()?;
                         }
                         GeneratedField::TwapWindow => {
                             if twap_window__.is_some() {
@@ -1951,7 +1947,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                 Ok(Params {
                     sources: sources__.unwrap_or_default(),
                     min_price_sources: min_price_sources__.unwrap_or_default(),
-                    max_price_staleness_period: max_price_staleness_period__.unwrap_or_default(),
+                    max_price_staleness_period: max_price_staleness_period__,
                     twap_window: twap_window__,
                     max_price_deviation_bps: max_price_deviation_bps__.unwrap_or_default(),
                     feed_contracts_params: feed_contracts_params__.unwrap_or_default(),
