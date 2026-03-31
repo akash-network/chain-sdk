@@ -113,7 +113,7 @@ pub mod query_client {
                 .insert(GrpcMethod::new("akash.oracle.v1.Query", "Prices"));
             self.inner.unary(req, path, codec).await
         }
-        /** Params returns the total set of minting parameters.
+        /** Params returns the total set of oracle parameters.
 */
         pub async fn params(
             &mut self,
@@ -185,7 +185,7 @@ pub mod query_server {
             tonic::Response<super::QueryPricesResponse>,
             tonic::Status,
         >;
-        /** Params returns the total set of minting parameters.
+        /** Params returns the total set of oracle parameters.
 */
         async fn params(
             &self,

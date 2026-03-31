@@ -50,7 +50,7 @@ service Query {
       option (google.api.http).get = "/akash/oracle/v1/prices";
     }
 
-    // Params returns the total set of minting parameters.
+    // Params returns the total set of oracle parameters.
     rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
         option (google.api.http).get = "/akash/oracle/v1/params";
     }

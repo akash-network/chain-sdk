@@ -11,7 +11,16 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
-import { CoinPrice, LedgerRecordID, MintStatus, mintStatusFromJSON, mintStatusToJSON } from "./types.ts";
+import {
+  CoinPrice,
+  LedgerCanceledRecord_BMCancelReason,
+  ledgerCanceledRecord_BMCancelReasonFromJSON,
+  ledgerCanceledRecord_BMCancelReasonToJSON,
+  LedgerRecordID,
+  MintStatus,
+  mintStatusFromJSON,
+  mintStatusToJSON,
+} from "./types.ts";
 
 /** EventCircuitBreakerStatusChange is emitted when circuit breaker status changes */
 export interface EventMintStatusChange {
@@ -23,8 +32,8 @@ export interface EventMintStatusChange {
   collateralRatio: string;
 }
 
-/** EventVaultSeeded is emitted when the vault is seeded with AKT */
-export interface EventVaultSeeded {
+/** EventVaultFunded is emitted when the vault is seeded with AKT */
+export interface EventVaultFunded {
   /** amount is the AKT amount added to vault */
   amount:
     | Coin
@@ -55,8 +64,32 @@ export interface EventLedgerRecordExecuted {
     | undefined;
   /** minted is coin minted at price */
   minted: CoinPrice | undefined;
+  spread: Coin | undefined;
   remintCreditIssued: CoinPrice | undefined;
   remintCreditAccrued: CoinPrice | undefined;
+}
+
+/** EventLedgerRecordCanceled emitted information of unsuccessful burn/mint event */
+export interface EventLedgerRecordCanceled {
+  /** burned_from source address of the tokens burned */
+  id:
+    | LedgerRecordID
+    | undefined;
+  /** fail_reason */
+  cancelReason: LedgerCanceledRecord_BMCancelReason;
+  /** owner source of the coins to be burned */
+  owner: string;
+  /**
+   * to destination of the minted coins.
+   * if minted coin is ACT, "to" must be same as signer
+   */
+  to: string;
+  /** coins_to_burn */
+  coinsToBurn:
+    | Coin
+    | undefined;
+  /** denom_to_mint */
+  denomToMint: string;
 }
 
 function createBaseEventMintStatusChange(): EventMintStatusChange {
@@ -149,14 +182,14 @@ const _EventMintStatusChange: MessageFns<EventMintStatusChange, "akash.bme.v1.Ev
   },
 };
 
-function createBaseEventVaultSeeded(): EventVaultSeeded {
+function createBaseEventVaultFunded(): EventVaultFunded {
   return { amount: undefined, source: "", newVaultBalance: undefined };
 }
 
-export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventVaultSeeded"> = {
-  $type: "akash.bme.v1.EventVaultSeeded" as const,
+export const EventVaultFunded: MessageFns<EventVaultFunded, "akash.bme.v1.EventVaultFunded"> = {
+  $type: "akash.bme.v1.EventVaultFunded" as const,
 
-  encode(message: EventVaultSeeded, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: EventVaultFunded, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.amount !== undefined) {
       Coin.encode(message.amount, writer.uint32(10).fork()).join();
     }
@@ -169,10 +202,10 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EventVaultSeeded {
+  decode(input: BinaryReader | Uint8Array, length?: number): EventVaultFunded {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEventVaultSeeded();
+    const message = createBaseEventVaultFunded();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -209,7 +242,7 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     return message;
   },
 
-  fromJSON(object: any): EventVaultSeeded {
+  fromJSON(object: any): EventVaultFunded {
     return {
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
       source: isSet(object.source) ? globalThis.String(object.source) : "",
@@ -217,7 +250,7 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     };
   },
 
-  toJSON(message: EventVaultSeeded): unknown {
+  toJSON(message: EventVaultFunded): unknown {
     const obj: any = {};
     if (message.amount !== undefined) {
       obj.amount = Coin.toJSON(message.amount);
@@ -230,8 +263,8 @@ export const EventVaultSeeded: MessageFns<EventVaultSeeded, "akash.bme.v1.EventV
     }
     return obj;
   },
-  fromPartial(object: DeepPartial<EventVaultSeeded>): EventVaultSeeded {
-    const message = createBaseEventVaultSeeded();
+  fromPartial(object: DeepPartial<EventVaultFunded>): EventVaultFunded {
+    const message = createBaseEventVaultFunded();
     message.amount = (object.amount !== undefined && object.amount !== null)
       ? Coin.fromPartial(object.amount)
       : undefined;
@@ -252,6 +285,7 @@ function createBaseEventLedgerRecordExecuted(): EventLedgerRecordExecuted {
     minter: "",
     burned: undefined,
     minted: undefined,
+    spread: undefined,
     remintCreditIssued: undefined,
     remintCreditAccrued: undefined,
   };
@@ -285,11 +319,14 @@ export const EventLedgerRecordExecuted: MessageFns<
     if (message.minted !== undefined) {
       CoinPrice.encode(message.minted, writer.uint32(58).fork()).join();
     }
+    if (message.spread !== undefined) {
+      Coin.encode(message.spread, writer.uint32(66).fork()).join();
+    }
     if (message.remintCreditIssued !== undefined) {
-      CoinPrice.encode(message.remintCreditIssued, writer.uint32(66).fork()).join();
+      CoinPrice.encode(message.remintCreditIssued, writer.uint32(74).fork()).join();
     }
     if (message.remintCreditAccrued !== undefined) {
-      CoinPrice.encode(message.remintCreditAccrued, writer.uint32(74).fork()).join();
+      CoinPrice.encode(message.remintCreditAccrued, writer.uint32(82).fork()).join();
     }
     return writer;
   },
@@ -362,11 +399,19 @@ export const EventLedgerRecordExecuted: MessageFns<
             break;
           }
 
-          message.remintCreditIssued = CoinPrice.decode(reader, reader.uint32());
+          message.spread = Coin.decode(reader, reader.uint32());
           continue;
         }
         case 9: {
           if (tag !== 74) {
+            break;
+          }
+
+          message.remintCreditIssued = CoinPrice.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
             break;
           }
 
@@ -391,6 +436,7 @@ export const EventLedgerRecordExecuted: MessageFns<
       minter: isSet(object.minter) ? globalThis.String(object.minter) : "",
       burned: isSet(object.burned) ? CoinPrice.fromJSON(object.burned) : undefined,
       minted: isSet(object.minted) ? CoinPrice.fromJSON(object.minted) : undefined,
+      spread: isSet(object.spread) ? Coin.fromJSON(object.spread) : undefined,
       remintCreditIssued: isSet(object.remint_credit_issued)
         ? CoinPrice.fromJSON(object.remint_credit_issued)
         : undefined,
@@ -423,6 +469,9 @@ export const EventLedgerRecordExecuted: MessageFns<
     if (message.minted !== undefined) {
       obj.minted = CoinPrice.toJSON(message.minted);
     }
+    if (message.spread !== undefined) {
+      obj.spread = Coin.toJSON(message.spread);
+    }
     if (message.remintCreditIssued !== undefined) {
       obj.remint_credit_issued = CoinPrice.toJSON(message.remintCreditIssued);
     }
@@ -444,12 +493,158 @@ export const EventLedgerRecordExecuted: MessageFns<
     message.minted = (object.minted !== undefined && object.minted !== null)
       ? CoinPrice.fromPartial(object.minted)
       : undefined;
+    message.spread = (object.spread !== undefined && object.spread !== null)
+      ? Coin.fromPartial(object.spread)
+      : undefined;
     message.remintCreditIssued = (object.remintCreditIssued !== undefined && object.remintCreditIssued !== null)
       ? CoinPrice.fromPartial(object.remintCreditIssued)
       : undefined;
     message.remintCreditAccrued = (object.remintCreditAccrued !== undefined && object.remintCreditAccrued !== null)
       ? CoinPrice.fromPartial(object.remintCreditAccrued)
       : undefined;
+    return message;
+  },
+};
+
+function createBaseEventLedgerRecordCanceled(): EventLedgerRecordCanceled {
+  return { id: undefined, cancelReason: 0, owner: "", to: "", coinsToBurn: undefined, denomToMint: "" };
+}
+
+export const EventLedgerRecordCanceled: MessageFns<
+  EventLedgerRecordCanceled,
+  "akash.bme.v1.EventLedgerRecordCanceled"
+> = {
+  $type: "akash.bme.v1.EventLedgerRecordCanceled" as const,
+
+  encode(message: EventLedgerRecordCanceled, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      LedgerRecordID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.cancelReason !== 0) {
+      writer.uint32(16).int32(message.cancelReason);
+    }
+    if (message.owner !== "") {
+      writer.uint32(26).string(message.owner);
+    }
+    if (message.to !== "") {
+      writer.uint32(34).string(message.to);
+    }
+    if (message.coinsToBurn !== undefined) {
+      Coin.encode(message.coinsToBurn, writer.uint32(42).fork()).join();
+    }
+    if (message.denomToMint !== "") {
+      writer.uint32(50).string(message.denomToMint);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EventLedgerRecordCanceled {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEventLedgerRecordCanceled();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = LedgerRecordID.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.cancelReason = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.owner = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.to = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.coinsToBurn = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.denomToMint = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EventLedgerRecordCanceled {
+    return {
+      id: isSet(object.id) ? LedgerRecordID.fromJSON(object.id) : undefined,
+      cancelReason: isSet(object.cancel_reason) ? ledgerCanceledRecord_BMCancelReasonFromJSON(object.cancel_reason) : 0,
+      owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
+      to: isSet(object.to) ? globalThis.String(object.to) : "",
+      coinsToBurn: isSet(object.coins_to_burn) ? Coin.fromJSON(object.coins_to_burn) : undefined,
+      denomToMint: isSet(object.denom_to_mint) ? globalThis.String(object.denom_to_mint) : "",
+    };
+  },
+
+  toJSON(message: EventLedgerRecordCanceled): unknown {
+    const obj: any = {};
+    if (message.id !== undefined) {
+      obj.id = LedgerRecordID.toJSON(message.id);
+    }
+    if (message.cancelReason !== 0) {
+      obj.cancel_reason = ledgerCanceledRecord_BMCancelReasonToJSON(message.cancelReason);
+    }
+    if (message.owner !== "") {
+      obj.owner = message.owner;
+    }
+    if (message.to !== "") {
+      obj.to = message.to;
+    }
+    if (message.coinsToBurn !== undefined) {
+      obj.coins_to_burn = Coin.toJSON(message.coinsToBurn);
+    }
+    if (message.denomToMint !== "") {
+      obj.denom_to_mint = message.denomToMint;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<EventLedgerRecordCanceled>): EventLedgerRecordCanceled {
+    const message = createBaseEventLedgerRecordCanceled();
+    message.id = (object.id !== undefined && object.id !== null) ? LedgerRecordID.fromPartial(object.id) : undefined;
+    message.cancelReason = object.cancelReason ?? 0;
+    message.owner = object.owner ?? "";
+    message.to = object.to ?? "";
+    message.coinsToBurn = (object.coinsToBurn !== undefined && object.coinsToBurn !== null)
+      ? Coin.fromPartial(object.coinsToBurn)
+      : undefined;
+    message.denomToMint = object.denomToMint ?? "";
     return message;
   },
 };

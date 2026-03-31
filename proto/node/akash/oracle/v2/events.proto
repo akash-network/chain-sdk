@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package akash.oracle.v2;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "google/protobuf/timestamp.proto";
+import "amino/amino.proto";
+
+import "akash/oracle/v2/prices.proto";
+
+option go_package = "pkg.akt.dev/go/node/oracle/v2";
+
+// EventPriceData is emitted when new price data is added to the oracle
+message EventPriceData {
+  // source is the address of the price source (oracle provider)
+  string source = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "source",
+    (gogoproto.moretags)  = "yaml:\"source\""
+  ];
+
+  // id identifies the price pair (denom and base_denom)
+  DataID id = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "id",
+    (gogoproto.moretags) = "yaml:\"id\""
+  ];
+
+  // price is the decimal price value
+  string price = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"price\"",
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (amino.dont_omitempty) = true
+  ];
+
+  // timestamp is when this price was recorded
+  google.protobuf.Timestamp timestamp = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true,
+    (gogoproto.customname) = "Timestamp",
+    (gogoproto.jsontag) = "timestamp",
+    (gogoproto.moretags) = "yaml:\"timestamp\""
+  ];
+}
+
+// EventPriceStaleWarning is emitted when price has not been updated and is about to become stale
+message EventPriceStaleWarning {
+  reserved 1;
+
+  // id identifies the price pair
+  DataID id = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "id",
+    (gogoproto.moretags) = "yaml:\"id\""
+  ];
+
+  // last_height is the block height when the price was last updated
+  int64 last_height = 3 [
+    (gogoproto.jsontag)  = "last_height",
+    (gogoproto.moretags) = "yaml:\"last_height\""
+  ];
+
+  // blocks_to_stall is the number of blocks until the price becomes stale
+  int64 blocks_to_stall = 4 [
+    (gogoproto.jsontag)  = "blocks_to_stall",
+    (gogoproto.moretags) = "yaml:\"blocks_to_stall\""
+  ];
+}
+
+// EventPriceStaled is emitted when a price has become stale
+message EventPriceStaled {
+  // id identifies the price pair
+  DataID id = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "id",
+    (gogoproto.moretags) = "yaml:\"id\""
+  ];
+
+  // last_height is the block height when the price was last updated before becoming stale
+  int64 last_height = 2 [
+    (gogoproto.jsontag)  = "last_height",
+    (gogoproto.moretags) = "yaml:\"last_height\""
+  ];
+}
+
+// EventPriceRecovered is emitted when a stale price has started receiving updates again
+message EventPriceRecovered {
+  // id identifies the price pair
+  DataID id = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "id",
+    (gogoproto.moretags) = "yaml:\"id\""
+  ];
+
+  // height is the block height when the price recovery was detected
+  int64 height = 2 [
+    (gogoproto.jsontag)  = "height",
+    (gogoproto.moretags) = "yaml:\"height\""
+  ];
+}
+
+// EventAggregatedPrice is emitted when aggregated price has an update
+message EventAggregatedPrice {
+  // price is the aggregated price data
+  AggregatedPrice price = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "price",
+    (gogoproto.moretags) = "yaml:\"price\""
+  ];
+}

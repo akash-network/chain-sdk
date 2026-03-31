@@ -1,6 +1,7 @@
 package sdl
 
 import (
+	"fmt"
 	"testing"
 
 	"gopkg.in/yaml.v3"
@@ -11,166 +12,175 @@ import (
 	"pkg.akt.dev/go/node/types/unit"
 )
 
-func TestStorage_LegacyValid(t *testing.T) {
-	var stream = `
-size: 1Gi
-`
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.NoError(t, err)
-
-	require.Len(t, p, 1)
-	require.Equal(t, byteQuantity(1*unit.Gi), p[0].Quantity)
-	require.Len(t, p[0].Attributes, 0)
-}
-
-func TestStorage_ArraySingleElemValid(t *testing.T) {
-	var stream = `
-- size: 1Gi
-`
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.NoError(t, err)
-
-	require.Len(t, p, 1)
-	require.Equal(t, byteQuantity(1*unit.Gi), p[0].Quantity)
-	require.Len(t, p[0].Attributes, 0)
-}
-
-func TestStorage_AttributesPersistentValidClass(t *testing.T) {
-	var stream = `
-- size: 1Gi
+func TestStorage_Parse(t *testing.T) {
+	tests := []struct {
+		name      string
+		yaml      string
+		shouldErr bool
+		checkFunc func(*testing.T, v2ResourceStorageArray)
+	}{
+		{
+			name: "legacy format",
+			yaml: `size: 1Gi`,
+			checkFunc: func(t *testing.T, p v2ResourceStorageArray) {
+				require.Len(t, p, 1)
+				require.Equal(t, byteQuantity(1*unit.Gi), p[0].Quantity)
+				require.Len(t, p[0].Attributes, 0)
+			},
+		},
+		{
+			name: "array single element",
+			yaml: `- size: 1Gi`,
+			checkFunc: func(t *testing.T, p v2ResourceStorageArray) {
+				require.Len(t, p, 1)
+				require.Equal(t, byteQuantity(1*unit.Gi), p[0].Quantity)
+				require.Len(t, p[0].Attributes, 0)
+			},
+		},
+		{
+			name: "persistent with class",
+			yaml: `- size: 1Gi
   attributes:
     persistent: true
-    class: default
-`
-	var p v2ResourceStorageArray
+    class: default`,
+			checkFunc: func(t *testing.T, p v2ResourceStorageArray) {
+				require.Len(t, p, 1)
+				require.Equal(t, byteQuantity(1*unit.Gi), p[0].Quantity)
+				require.Len(t, p[0].Attributes, 2)
+				attr := types.Attributes(p[0].Attributes)
+				require.Equal(t, "class", attr[0].Key)
+				require.Equal(t, "default", attr[0].Value)
+			},
+		},
+	}
 
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.NoError(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var p v2ResourceStorageArray
+			err := yaml.Unmarshal([]byte(tt.yaml), &p)
 
-	require.Len(t, p, 1)
-	require.Equal(t, byteQuantity(1*unit.Gi), p[0].Quantity)
-	require.Len(t, p[0].Attributes, 2)
+			if tt.shouldErr {
+				require.Error(t, err)
+				return
+			}
 
-	attr := types.Attributes(p[0].Attributes)
-	require.Equal(t, attr[0].Key, "class")
-	require.Equal(t, attr[0].Value, "default")
+			require.NoError(t, err)
+			if tt.checkFunc != nil {
+				tt.checkFunc(t, p)
+			}
+		})
+	}
 }
 
-func TestStorage_AttributesUnknown(t *testing.T) {
-	var stream = `
-- size: 1Gi
+func TestStorage_Attributes(t *testing.T) {
+	tests := []struct {
+		name      string
+		yaml      string
+		shouldErr bool
+		errType   error
+		checkFunc func(*testing.T, v2ResourceStorageArray)
+	}{
+		{
+			name: "unknown attribute",
+			yaml: `- size: 1Gi
   attributes:
-    somefield: foo
-`
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.ErrorIs(t, err, errUnsupportedStorageAttribute)
-}
-
-func TestStorage_MultipleUnnamedEphemeral(t *testing.T) {
-	var stream = `
-- size: 1Gi
-- size: 2Gi
-`
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.EqualError(t, err, errStorageDuplicatedVolumeName.Error())
-}
-
-func TestStorage_EphemeralNoClass(t *testing.T) {
-	var stream = `
-- size: 1Gi
-`
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.NoError(t, err)
-}
-
-func TestStorage_EphemeralClass(t *testing.T) {
-	var stream = `
-- size: 1Gi
+    somefield: foo`,
+			shouldErr: true,
+			errType:   errUnsupportedStorageAttribute,
+		},
+		{
+			name: "multiple unnamed ephemeral",
+			yaml: `- size: 1Gi
+- size: 2Gi`,
+			shouldErr: true,
+			errType:   errStorageDuplicatedVolumeName,
+		},
+		{
+			name: "ephemeral no class",
+			yaml: `- size: 1Gi`,
+		},
+		{
+			name: "ephemeral with class",
+			yaml: `- size: 1Gi
   attributes:
-    class: foo
-`
-
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.EqualError(t, err, errStorageEphemeralClass.Error())
-}
-
-func TestStorage_PersistentDefaultClass(t *testing.T) {
-	var stream = `
-- size: 1Gi
+    class: foo`,
+			shouldErr: true,
+			errType:   errStorageEphemeralClass,
+		},
+		{
+			name: "beta1 class with ephemeral",
+			yaml: `- size: 1Gi
   attributes:
-    persistent: true
-`
-
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.NoError(t, err)
-	require.Len(t, p[0].Attributes, 2)
-
-	require.Equal(t, p[0].Attributes[0].Key, "class")
-	require.Equal(t, p[0].Attributes[0].Value, "default")
-}
-
-func TestStorage_PersistentClass(t *testing.T) {
-	var stream = `
-- size: 1Gi
-  attributes:
-    persistent: true
     class: beta1
-`
-
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.NoError(t, err)
-	require.Len(t, p[0].Attributes, 2)
-
-	require.Equal(t, p[0].Attributes[0].Key, "class")
-	require.Equal(t, p[0].Attributes[0].Value, "beta1")
-}
-
-func TestStorage_RAMClass_Valid(t *testing.T) {
-	var stream = `
-- size: 1Gi
+    persistent: false`,
+			shouldErr: true,
+			errType:   errStorageEphemeralClass,
+		},
+		{
+			name: "persistent default class",
+			yaml: `- size: 1Gi
+  attributes:
+    persistent: true`,
+			checkFunc: func(t *testing.T, p v2ResourceStorageArray) {
+				require.Len(t, p[0].Attributes, 2)
+				require.Equal(t, "class", p[0].Attributes[0].Key)
+				require.Equal(t, "default", p[0].Attributes[0].Value)
+			},
+		},
+		{
+			name: "persistent custom class",
+			yaml: `- size: 1Gi
+  attributes:
+    persistent: true
+    class: beta1`,
+			checkFunc: func(t *testing.T, p v2ResourceStorageArray) {
+				require.Len(t, p[0].Attributes, 2)
+				require.Equal(t, "class", p[0].Attributes[0].Key)
+				require.Equal(t, "beta1", p[0].Attributes[0].Value)
+			},
+		},
+		{
+			name: "RAM class valid",
+			yaml: `- size: 1Gi
   attributes:
     persistent: false
-    class: ram
-`
-
-	var p v2ResourceStorageArray
-
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.NoError(t, err)
-	require.Len(t, p[0].Attributes, 2)
-
-	require.Equal(t, p[0].Attributes[0].Key, "class")
-	require.Equal(t, p[0].Attributes[0].Value, "ram")
-}
-
-func TestStorage_RamClass_Invalid(t *testing.T) {
-	var stream = `
-- size: 1Gi
+    class: ram`,
+			checkFunc: func(t *testing.T, p v2ResourceStorageArray) {
+				require.Len(t, p[0].Attributes, 2)
+				require.Equal(t, "class", p[0].Attributes[0].Key)
+				require.Equal(t, "ram", p[0].Attributes[0].Value)
+			},
+		},
+		{
+			name: "RAM class with persistent true",
+			yaml: `- size: 1Gi
   attributes:
     persistent: true
-    class: ram
-`
+    class: ram`,
+			shouldErr: true,
+			errType:   errStorageRAMClass,
+		},
+	}
 
-	var p v2ResourceStorageArray
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var p v2ResourceStorageArray
+			err := yaml.Unmarshal([]byte(tt.yaml), &p)
 
-	err := yaml.Unmarshal([]byte(stream), &p)
-	require.Error(t, err)
+			if tt.shouldErr {
+				require.Error(t, err)
+				if tt.errType != nil {
+					require.ErrorIs(t, err, tt.errType)
+				}
+				return
+			}
+
+			require.NoError(t, err)
+			if tt.checkFunc != nil {
+				tt.checkFunc(t, p)
+			}
+		})
+	}
 }
 
 func TestStorage_StableSort(t *testing.T) {
@@ -227,4 +237,150 @@ func TestStorage_Invalid_NoMount(t *testing.T) {
 	_, err := ReadFile("./_testdata/storageClass5.yaml")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "to have mount")
+}
+
+func TestStorage_SchemaValidation_Mount(t *testing.T) {
+	const sdlTemplate = `version: "2.0"
+services:
+  web:
+    image: nginx
+    params:
+      storage:
+        data:
+          mount: %s
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+            name: data
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+`
+
+	tests := []struct {
+		name      string
+		mount     string
+		shouldErr bool
+	}{
+		{"absolute path valid", "/data", false},
+		{"absolute path with subdirs", "/var/lib/data", false},
+		{"relative path invalid", "data", true},
+		{"relative path with slash", "data/path", true},
+		{"empty string invalid", `""`, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sdl := fmt.Sprintf(sdlTemplate, tt.mount)
+			err := validateInputAgainstSchema([]byte(sdl))
+
+			if tt.shouldErr {
+				require.Error(t, err, "Schema should reject: %s", tt.mount)
+			} else {
+				require.NoError(t, err, "Schema should accept: %s", tt.mount)
+			}
+		})
+	}
+}
+
+func TestStorage_SchemaValidation_Classes(t *testing.T) {
+	tests := []struct {
+		name        string
+		attributes  string
+		shouldErr   bool
+		description string
+	}{
+		{
+			name: "RAM with persistent false",
+			attributes: `class: ram
+              persistent: false`,
+			shouldErr:   false,
+			description: "RAM class with persistent=false should be valid",
+		},
+		{
+			name: "RAM with persistent true",
+			attributes: `class: ram
+              persistent: true`,
+			shouldErr:   true,
+			description: "RAM class with persistent=true should be invalid",
+		},
+		{
+			name: "beta1 with persistent true",
+			attributes: `class: beta1
+              persistent: true`,
+			shouldErr:   false,
+			description: "Non-RAM class with persistent=true should be valid",
+		},
+		{
+			name: "beta1 with persistent false",
+			attributes: `class: beta1
+              persistent: false`,
+			shouldErr:   true,
+			description: "Non-RAM class with persistent=false should be invalid",
+		},
+		{
+			name: "default with persistent true",
+			attributes: `class: default
+              persistent: true`,
+			shouldErr:   false,
+			description: "Default class with persistent=true should be valid",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sdl := fmt.Sprintf(`version: "2.0"
+services:
+  web:
+    image: nginx
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 1Gi
+            name: data
+            attributes:
+              %s
+  placement:
+    dc:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+deployment:
+  web:
+    dc:
+      profile: web
+      count: 1
+`, tt.attributes)
+
+			err := validateInputAgainstSchema([]byte(sdl))
+
+			if tt.shouldErr {
+				require.Error(t, err, tt.description)
+			} else {
+				require.NoError(t, err, tt.description)
+			}
+		})
+	}
 }

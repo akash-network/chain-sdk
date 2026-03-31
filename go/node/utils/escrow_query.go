@@ -3,12 +3,12 @@ package utils
 import (
 	sdkmath "cosmossdk.io/math"
 
-	sdk "pkg.akt.dev/go/node/types/sdk"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func LeaseCalcBalanceRemain(balance sdkmath.LegacyDec, currBlock, settledAt int64, leasePrice sdk.DecCoin) sdk.DecCoin {
-	res, _ := sdk.NewDecFromStr(balance.String())
-	diff := sdk.ZeroDec()
+	res, _ := sdkmath.LegacyNewDecFromStr(balance.String())
+	diff := sdkmath.LegacyZeroDec()
 
 	diff = diff.Add(leasePrice.Amount)
 	diff = diff.MulInt64(currBlock - settledAt)
@@ -18,6 +18,6 @@ func LeaseCalcBalanceRemain(balance sdkmath.LegacyDec, currBlock, settledAt int6
 	return sdk.NewDecCoinFromDec(leasePrice.Denom, res)
 }
 
-func LeaseCalcBlocksRemain(balance float64, leasePrice sdkmath.LegacyDec) int64 {
-	return int64(balance / leasePrice.MustFloat64())
+func LeaseCalcBlocksRemain(balance sdkmath.LegacyDec, leasePrice sdkmath.LegacyDec) int64 {
+	return balance.Quo(leasePrice).TruncateInt64()
 }

@@ -86,6 +86,11 @@ export enum LedgerRecordStatus {
    * successfully completed and tokens have been burned and minted
    */
   ledger_record_status_executed = 2,
+  /**
+   * ledger_record_status_canceled - LEDGER_RECORD_STATUS_CANCELED indicates the burn/mint operation has encountered error and funds have been returned to the owner
+   * successfully completed and tokens have been burned and minted
+   */
+  ledger_record_status_canceled = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -100,6 +105,9 @@ export function ledgerRecordStatusFromJSON(object: any): LedgerRecordStatus {
     case 2:
     case "ledger_record_status_executed":
       return LedgerRecordStatus.ledger_record_status_executed;
+    case 3:
+    case "ledger_record_status_canceled":
+      return LedgerRecordStatus.ledger_record_status_canceled;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -115,6 +123,8 @@ export function ledgerRecordStatusToJSON(object: LedgerRecordStatus): string {
       return "ledger_record_status_pending";
     case LedgerRecordStatus.ledger_record_status_executed:
       return "ledger_record_status_executed";
+    case LedgerRecordStatus.ledger_record_status_canceled:
+      return "ledger_record_status_canceled";
     case LedgerRecordStatus.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -202,6 +212,61 @@ export interface LedgerPendingRecord {
   denomToMint: string;
 }
 
+/** LedgerCanceledRecord */
+export interface LedgerCanceledRecord {
+  /** owner source of the coins to be burned */
+  owner: string;
+  /** cancel_reason */
+  cancelReason: LedgerCanceledRecord_BMCancelReason;
+  /**
+   * to destination of the minted coins.
+   * if minted coin is ACT, "to" must be same as signer
+   */
+  to: string;
+  /** coins_to_burn */
+  coinsToBurn:
+    | Coin
+    | undefined;
+  /** denom_to_mint */
+  denomToMint: string;
+}
+
+/** BMCancelReason is an enum indicating reasons of failure for burn/mint request */
+export enum LedgerCanceledRecord_BMCancelReason {
+  /** unknown - Prefix should start with 0 in enum. So declaring dummy state. */
+  unknown = 0,
+  /** epsilon - BMCanceledReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) */
+  epsilon = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function ledgerCanceledRecord_BMCancelReasonFromJSON(object: any): LedgerCanceledRecord_BMCancelReason {
+  switch (object) {
+    case 0:
+    case "unknown":
+      return LedgerCanceledRecord_BMCancelReason.unknown;
+    case 1:
+    case "epsilon":
+      return LedgerCanceledRecord_BMCancelReason.epsilon;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return LedgerCanceledRecord_BMCancelReason.UNRECOGNIZED;
+  }
+}
+
+export function ledgerCanceledRecord_BMCancelReasonToJSON(object: LedgerCanceledRecord_BMCancelReason): string {
+  switch (object) {
+    case LedgerCanceledRecord_BMCancelReason.unknown:
+      return "unknown";
+    case LedgerCanceledRecord_BMCancelReason.epsilon:
+      return "epsilon";
+    case LedgerCanceledRecord_BMCancelReason.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** LedgerRecord stores information of burn/mint event of token A burn to mint token B */
 export interface LedgerRecord {
   /** burned_from source address of the tokens burned */
@@ -218,6 +283,7 @@ export interface LedgerRecord {
     | undefined;
   /** minted is coin minted at price */
   minted: CoinPrice | undefined;
+  spread: Coin | undefined;
   remintCreditIssued: CoinPrice | undefined;
   remintCreditAccrued: CoinPrice | undefined;
 }
@@ -227,11 +293,6 @@ export interface Status {
   status: MintStatus;
   previousStatus: MintStatus;
   epochHeightDiff: Long;
-}
-
-/** MintEpoch stores information about mint epoch */
-export interface MintEpoch {
-  nextEpoch: Long;
 }
 
 function createBaseLedgerID(): LedgerID {
@@ -900,6 +961,130 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
   },
 };
 
+function createBaseLedgerCanceledRecord(): LedgerCanceledRecord {
+  return { owner: "", cancelReason: 0, to: "", coinsToBurn: undefined, denomToMint: "" };
+}
+
+export const LedgerCanceledRecord: MessageFns<LedgerCanceledRecord, "akash.bme.v1.LedgerCanceledRecord"> = {
+  $type: "akash.bme.v1.LedgerCanceledRecord" as const,
+
+  encode(message: LedgerCanceledRecord, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.owner !== "") {
+      writer.uint32(10).string(message.owner);
+    }
+    if (message.cancelReason !== 0) {
+      writer.uint32(16).int32(message.cancelReason);
+    }
+    if (message.to !== "") {
+      writer.uint32(26).string(message.to);
+    }
+    if (message.coinsToBurn !== undefined) {
+      Coin.encode(message.coinsToBurn, writer.uint32(34).fork()).join();
+    }
+    if (message.denomToMint !== "") {
+      writer.uint32(42).string(message.denomToMint);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): LedgerCanceledRecord {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLedgerCanceledRecord();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.owner = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.cancelReason = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.to = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.coinsToBurn = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.denomToMint = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): LedgerCanceledRecord {
+    return {
+      owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
+      cancelReason: isSet(object.cancel_reason) ? ledgerCanceledRecord_BMCancelReasonFromJSON(object.cancel_reason) : 0,
+      to: isSet(object.to) ? globalThis.String(object.to) : "",
+      coinsToBurn: isSet(object.coins_to_burn) ? Coin.fromJSON(object.coins_to_burn) : undefined,
+      denomToMint: isSet(object.denom_to_mint) ? globalThis.String(object.denom_to_mint) : "",
+    };
+  },
+
+  toJSON(message: LedgerCanceledRecord): unknown {
+    const obj: any = {};
+    if (message.owner !== "") {
+      obj.owner = message.owner;
+    }
+    if (message.cancelReason !== 0) {
+      obj.cancel_reason = ledgerCanceledRecord_BMCancelReasonToJSON(message.cancelReason);
+    }
+    if (message.to !== "") {
+      obj.to = message.to;
+    }
+    if (message.coinsToBurn !== undefined) {
+      obj.coins_to_burn = Coin.toJSON(message.coinsToBurn);
+    }
+    if (message.denomToMint !== "") {
+      obj.denom_to_mint = message.denomToMint;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<LedgerCanceledRecord>): LedgerCanceledRecord {
+    const message = createBaseLedgerCanceledRecord();
+    message.owner = object.owner ?? "";
+    message.cancelReason = object.cancelReason ?? 0;
+    message.to = object.to ?? "";
+    message.coinsToBurn = (object.coinsToBurn !== undefined && object.coinsToBurn !== null)
+      ? Coin.fromPartial(object.coinsToBurn)
+      : undefined;
+    message.denomToMint = object.denomToMint ?? "";
+    return message;
+  },
+};
+
 function createBaseLedgerRecord(): LedgerRecord {
   return {
     burnedFrom: "",
@@ -908,6 +1093,7 @@ function createBaseLedgerRecord(): LedgerRecord {
     minter: "",
     burned: undefined,
     minted: undefined,
+    spread: undefined,
     remintCreditIssued: undefined,
     remintCreditAccrued: undefined,
   };
@@ -935,11 +1121,14 @@ export const LedgerRecord: MessageFns<LedgerRecord, "akash.bme.v1.LedgerRecord">
     if (message.minted !== undefined) {
       CoinPrice.encode(message.minted, writer.uint32(50).fork()).join();
     }
+    if (message.spread !== undefined) {
+      Coin.encode(message.spread, writer.uint32(58).fork()).join();
+    }
     if (message.remintCreditIssued !== undefined) {
-      CoinPrice.encode(message.remintCreditIssued, writer.uint32(58).fork()).join();
+      CoinPrice.encode(message.remintCreditIssued, writer.uint32(66).fork()).join();
     }
     if (message.remintCreditAccrued !== undefined) {
-      CoinPrice.encode(message.remintCreditAccrued, writer.uint32(66).fork()).join();
+      CoinPrice.encode(message.remintCreditAccrued, writer.uint32(74).fork()).join();
     }
     return writer;
   },
@@ -1004,11 +1193,19 @@ export const LedgerRecord: MessageFns<LedgerRecord, "akash.bme.v1.LedgerRecord">
             break;
           }
 
-          message.remintCreditIssued = CoinPrice.decode(reader, reader.uint32());
+          message.spread = Coin.decode(reader, reader.uint32());
           continue;
         }
         case 8: {
           if (tag !== 66) {
+            break;
+          }
+
+          message.remintCreditIssued = CoinPrice.decode(reader, reader.uint32());
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
             break;
           }
 
@@ -1032,6 +1229,7 @@ export const LedgerRecord: MessageFns<LedgerRecord, "akash.bme.v1.LedgerRecord">
       minter: isSet(object.minter) ? globalThis.String(object.minter) : "",
       burned: isSet(object.burned) ? CoinPrice.fromJSON(object.burned) : undefined,
       minted: isSet(object.minted) ? CoinPrice.fromJSON(object.minted) : undefined,
+      spread: isSet(object.spread) ? Coin.fromJSON(object.spread) : undefined,
       remintCreditIssued: isSet(object.remint_credit_issued)
         ? CoinPrice.fromJSON(object.remint_credit_issued)
         : undefined,
@@ -1061,6 +1259,9 @@ export const LedgerRecord: MessageFns<LedgerRecord, "akash.bme.v1.LedgerRecord">
     if (message.minted !== undefined) {
       obj.minted = CoinPrice.toJSON(message.minted);
     }
+    if (message.spread !== undefined) {
+      obj.spread = Coin.toJSON(message.spread);
+    }
     if (message.remintCreditIssued !== undefined) {
       obj.remint_credit_issued = CoinPrice.toJSON(message.remintCreditIssued);
     }
@@ -1080,6 +1281,9 @@ export const LedgerRecord: MessageFns<LedgerRecord, "akash.bme.v1.LedgerRecord">
       : undefined;
     message.minted = (object.minted !== undefined && object.minted !== null)
       ? CoinPrice.fromPartial(object.minted)
+      : undefined;
+    message.spread = (object.spread !== undefined && object.spread !== null)
+      ? Coin.fromPartial(object.spread)
       : undefined;
     message.remintCreditIssued = (object.remintCreditIssued !== undefined && object.remintCreditIssued !== null)
       ? CoinPrice.fromPartial(object.remintCreditIssued)
@@ -1178,64 +1382,6 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
     message.previousStatus = object.previousStatus ?? 0;
     message.epochHeightDiff = (object.epochHeightDiff !== undefined && object.epochHeightDiff !== null)
       ? Long.fromValue(object.epochHeightDiff)
-      : Long.ZERO;
-    return message;
-  },
-};
-
-function createBaseMintEpoch(): MintEpoch {
-  return { nextEpoch: Long.ZERO };
-}
-
-export const MintEpoch: MessageFns<MintEpoch, "akash.bme.v1.MintEpoch"> = {
-  $type: "akash.bme.v1.MintEpoch" as const,
-
-  encode(message: MintEpoch, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.nextEpoch.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.nextEpoch.toString());
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): MintEpoch {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMintEpoch();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.nextEpoch = Long.fromString(reader.int64().toString());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MintEpoch {
-    return { nextEpoch: isSet(object.next_epoch) ? Long.fromValue(object.next_epoch) : Long.ZERO };
-  },
-
-  toJSON(message: MintEpoch): unknown {
-    const obj: any = {};
-    if (!message.nextEpoch.equals(Long.ZERO)) {
-      obj.next_epoch = (message.nextEpoch || Long.ZERO).toString();
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<MintEpoch>): MintEpoch {
-    const message = createBaseMintEpoch();
-    message.nextEpoch = (object.nextEpoch !== undefined && object.nextEpoch !== null)
-      ? Long.fromValue(object.nextEpoch)
       : Long.ZERO;
     return message;
   },

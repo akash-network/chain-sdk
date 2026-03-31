@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cflags "pkg.akt.dev/go/cli/flags"
-	types "pkg.akt.dev/go/node/oracle/v1"
+	types "pkg.akt.dev/go/node/oracle/v2"
 )
 
 // GetTxOracleCmd returns the transaction commands for oracle module
@@ -69,10 +69,8 @@ func GetTxOracleFeedPriceCmd() *cobra.Command {
 					Denom:     args[0],
 					BaseDenom: args[1],
 				},
-				Price: types.PriceDataState{
-					Price:     price,
-					Timestamp: timestamp,
-				},
+				Price:     price,
+				Timestamp: timestamp,
 			}
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})

@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.0.0-alpha.28](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.27...ts/v1.0.0-alpha.28) (2026-03-30)
+
+
+### Features
+
+* add EventAggregatedPrice ([#269](https://github.com/akash-network/chain-sdk/issues/269)) ([5c5cdea](https://github.com/akash-network/chain-sdk/commit/5c5cdea57bb1be7b8c1796e2f10d16064c2b013c))
+* include spread in the ledger records ([#262](https://github.com/akash-network/chain-sdk/issues/262)) ([48edd00](https://github.com/akash-network/chain-sdk/commit/48edd000a0186be1cf3791080817690538244c75))
+* oracle api v2 ([#271](https://github.com/akash-network/chain-sdk/issues/271)) ([9bf1e08](https://github.com/akash-network/chain-sdk/commit/9bf1e0855620fd5b9a87a74268bbbbe4a3249131))
+* **oracle:** add future time drift param ([#272](https://github.com/akash-network/chain-sdk/issues/272)) ([05f70f8](https://github.com/akash-network/chain-sdk/commit/05f70f8a40ee7d650f35c5aee4c0eefdf3908d79))
+
+
+### Bug Fixes
+
+* **oracle:** params tag IDs ([#273](https://github.com/akash-network/chain-sdk/issues/273)) ([602a567](https://github.com/akash-network/chain-sdk/commit/602a56793ee1726699f9c66be6c80f62416cf667))
+
+## [1.0.0-alpha.27](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.26...ts/v1.0.0-alpha.27) (2026-03-18)
+
+
+### Features
+
+* implement ledger failed record for bme ([#255](https://github.com/akash-network/chain-sdk/issues/255)) ([4dc78aa](https://github.com/akash-network/chain-sdk/commit/4dc78aa46dd0538a2d7ce099e274ca47115581c4))
+* **ts:** adds yaml.raw helper ([#260](https://github.com/akash-network/chain-sdk/issues/260)) ([28ead7b](https://github.com/akash-network/chain-sdk/commit/28ead7b910320702d38443d73a4dd00236032ce6))
+
+
+### Bug Fixes
+
+* add ledger failed event ([#257](https://github.com/akash-network/chain-sdk/issues/257)) ([40c2596](https://github.com/akash-network/chain-sdk/commit/40c2596fe4e03bbbd30254b5b40063075f5b5a0b))
+
 ## [1.0.0-alpha.26](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.25...ts/v1.0.0-alpha.26) (2026-03-13)
 
 

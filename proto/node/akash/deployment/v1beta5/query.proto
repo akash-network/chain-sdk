@@ -34,7 +34,7 @@ service Query {
     option (google.api.http).get = "/akash/deployment/v1beta5/groups/info";
   }
 
-  // Params returns the total set of minting parameters.
+  // Params returns the total set of deployment parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
       option (google.api.http).get = "/akash/deployment/v1beta5/params";
   }

@@ -96,6 +96,10 @@ func (msg MsgBurnMint) ValidateBasic() error {
 		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid to address: %s", err)
 	}
 
+	if msg.Owner != msg.To {
+		return errors.Wrapf(ErrUnauthorized, "owner and to addresses must match")
+	}
+
 	err = msg.CoinsToBurn.Validate()
 	if err != nil {
 		return errors.Wrapf(sdkerrors.ErrInvalidCoins, "invalid coins: %s", err)
@@ -128,6 +132,10 @@ func (msg MsgMintACT) ValidateBasic() error {
 		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid to address: %s", err)
 	}
 
+	if msg.Owner != msg.To {
+		return errors.Wrapf(ErrUnauthorized, "owner and to addresses must match")
+	}
+
 	err = msg.CoinsToBurn.Validate()
 	if err != nil {
 		return errors.Wrapf(sdkerrors.ErrInvalidCoins, "invalid coins: %s", err)
@@ -154,6 +162,10 @@ func (msg MsgBurnACT) ValidateBasic() error {
 	_, err = sdk.AccAddressFromBech32(msg.To)
 	if err != nil {
 		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid to address: %s", err)
+	}
+
+	if msg.Owner != msg.To {
+		return errors.Wrapf(ErrUnauthorized, "owner and to addresses must match")
 	}
 
 	err = msg.CoinsToBurn.Validate()

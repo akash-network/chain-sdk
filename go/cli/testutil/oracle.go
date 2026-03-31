@@ -21,5 +21,5 @@ func ExecQueryOraclePrices(ctx context.Context, cctx client.Context, args ...str
 
 // ExecQueryOracleParams is used for testing oracle params query
 func ExecQueryOracleParams(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
-	return ExecTestCLICmd(ctx, cctx, cli.GetOracleParamsCmd(), args...)
+	return ExecTestCLICmd(ctx, cctx, cli.GetQueryOracleParamsCmd(), args...)
 }

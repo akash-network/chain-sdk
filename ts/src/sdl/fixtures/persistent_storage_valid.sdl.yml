@@ -79,6 +79,7 @@ profiles:
             size: 1Gi
             attributes:
               class: ram
+              persistent: false
           - name: shm2
             size: 1Gi
             attributes:
