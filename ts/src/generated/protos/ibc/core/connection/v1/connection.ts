@@ -281,10 +281,6 @@ export const ConnectionEnd: MessageFns<ConnectionEnd, "ibc.core.connection.v1.Co
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ConnectionEnd>): ConnectionEnd {
-    return ConnectionEnd.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ConnectionEnd>): ConnectionEnd {
     const message = createBaseConnectionEnd();
     message.clientId = object.clientId ?? "";
@@ -426,10 +422,6 @@ export const IdentifiedConnection: MessageFns<IdentifiedConnection, "ibc.core.co
     }
     return obj;
   },
-
-  create(base?: DeepPartial<IdentifiedConnection>): IdentifiedConnection {
-    return IdentifiedConnection.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<IdentifiedConnection>): IdentifiedConnection {
     const message = createBaseIdentifiedConnection();
     message.id = object.id ?? "";
@@ -527,10 +519,6 @@ export const Counterparty: MessageFns<Counterparty, "ibc.core.connection.v1.Coun
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Counterparty>): Counterparty {
-    return Counterparty.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Counterparty>): Counterparty {
     const message = createBaseCounterparty();
     message.clientId = object.clientId ?? "";
@@ -590,10 +578,6 @@ export const ClientPaths: MessageFns<ClientPaths, "ibc.core.connection.v1.Client
       obj.paths = message.paths;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ClientPaths>): ClientPaths {
-    return ClientPaths.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ClientPaths>): ClientPaths {
     const message = createBaseClientPaths();
@@ -667,10 +651,6 @@ export const ConnectionPaths: MessageFns<ConnectionPaths, "ibc.core.connection.v
       obj.paths = message.paths;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ConnectionPaths>): ConnectionPaths {
-    return ConnectionPaths.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ConnectionPaths>): ConnectionPaths {
     const message = createBaseConnectionPaths();
@@ -746,10 +726,6 @@ export const Version: MessageFns<Version, "ibc.core.connection.v1.Version"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Version>): Version {
-    return Version.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Version>): Version {
     const message = createBaseVersion();
     message.identifier = object.identifier ?? "";
@@ -810,10 +786,6 @@ export const Params: MessageFns<Params, "ibc.core.connection.v1.Params"> = {
       obj.max_expected_time_per_block = (message.maxExpectedTimePerBlock || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();

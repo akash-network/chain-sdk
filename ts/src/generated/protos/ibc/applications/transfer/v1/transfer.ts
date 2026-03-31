@@ -95,10 +95,6 @@ export const Params: MessageFns<Params, "ibc.applications.transfer.v1.Params"> =
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.sendEnabled = object.sendEnabled ?? false;

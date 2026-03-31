@@ -120,10 +120,6 @@ export const MsgAccountDeposit: MessageFns<MsgAccountDeposit, "akash.escrow.v1.M
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgAccountDeposit>): MsgAccountDeposit {
-    return MsgAccountDeposit.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgAccountDeposit>): MsgAccountDeposit {
     const message = createBaseMsgAccountDeposit();
     message.signer = object.signer ?? "";
@@ -172,10 +168,6 @@ export const MsgAccountDepositResponse: MessageFns<
   toJSON(_: MsgAccountDepositResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgAccountDepositResponse>): MsgAccountDepositResponse {
-    return MsgAccountDepositResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgAccountDepositResponse>): MsgAccountDepositResponse {
     const message = createBaseMsgAccountDepositResponse();

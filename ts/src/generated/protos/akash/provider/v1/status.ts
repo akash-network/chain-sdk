@@ -201,10 +201,6 @@ export const ResourcesMetric: MessageFns<ResourcesMetric, "akash.provider.v1.Res
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResourcesMetric>): ResourcesMetric {
-    return ResourcesMetric.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResourcesMetric>): ResourcesMetric {
     const message = createBaseResourcesMetric();
     message.cpu = (object.cpu !== undefined && object.cpu !== null) ? Quantity.fromPartial(object.cpu) : undefined;
@@ -294,10 +290,6 @@ export const ResourcesMetric_StorageEntry: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ResourcesMetric_StorageEntry>): ResourcesMetric_StorageEntry {
-    return ResourcesMetric_StorageEntry.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ResourcesMetric_StorageEntry>): ResourcesMetric_StorageEntry {
     const message = createBaseResourcesMetric_StorageEntry();
     message.key = object.key ?? "";
@@ -356,10 +348,6 @@ export const Leases: MessageFns<Leases, "akash.provider.v1.Leases"> = {
       obj.active = Math.round(message.active);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Leases>): Leases {
-    return Leases.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Leases>): Leases {
     const message = createBaseLeases();
@@ -433,10 +421,6 @@ export const ReservationsMetric: MessageFns<ReservationsMetric, "akash.provider.
       obj.resources = ResourcesMetric.toJSON(message.resources);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ReservationsMetric>): ReservationsMetric {
-    return ReservationsMetric.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ReservationsMetric>): ReservationsMetric {
     const message = createBaseReservationsMetric();
@@ -513,10 +497,6 @@ export const Reservations: MessageFns<Reservations, "akash.provider.v1.Reservati
       obj.active = ReservationsMetric.toJSON(message.active);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Reservations>): Reservations {
-    return Reservations.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Reservations>): Reservations {
     const message = createBaseReservations();
@@ -596,10 +576,6 @@ export const Inventory: MessageFns<Inventory, "akash.provider.v1.Inventory"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Inventory>): Inventory {
-    return Inventory.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Inventory>): Inventory {
     const message = createBaseInventory();
     message.cluster = (object.cluster !== undefined && object.cluster !== null)
@@ -678,10 +654,6 @@ export const ClusterStatus: MessageFns<ClusterStatus, "akash.provider.v1.Cluster
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ClusterStatus>): ClusterStatus {
-    return ClusterStatus.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ClusterStatus>): ClusterStatus {
     const message = createBaseClusterStatus();
     message.leases = (object.leases !== undefined && object.leases !== null)
@@ -743,10 +715,6 @@ export const BidEngineStatus: MessageFns<BidEngineStatus, "akash.provider.v1.Bid
     }
     return obj;
   },
-
-  create(base?: DeepPartial<BidEngineStatus>): BidEngineStatus {
-    return BidEngineStatus.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<BidEngineStatus>): BidEngineStatus {
     const message = createBaseBidEngineStatus();
     message.orders = object.orders ?? 0;
@@ -802,10 +770,6 @@ export const ManifestStatus: MessageFns<ManifestStatus, "akash.provider.v1.Manif
       obj.deployments = Math.round(message.deployments);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ManifestStatus>): ManifestStatus {
-    return ManifestStatus.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ManifestStatus>): ManifestStatus {
     const message = createBaseManifestStatus();
@@ -948,10 +912,6 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
       obj.timestamp = message.timestamp.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Status>): Status {
-    return Status.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Status>): Status {
     const message = createBaseStatus();

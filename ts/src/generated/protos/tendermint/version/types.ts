@@ -96,10 +96,6 @@ export const App: MessageFns<App, "tendermint.version.App"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<App>): App {
-    return App.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<App>): App {
     const message = createBaseApp();
     message.protocol = (object.protocol !== undefined && object.protocol !== null)
@@ -175,10 +171,6 @@ export const Consensus: MessageFns<Consensus, "tendermint.version.Consensus"> = 
       obj.app = (message.app || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Consensus>): Consensus {
-    return Consensus.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Consensus>): Consensus {
     const message = createBaseConsensus();

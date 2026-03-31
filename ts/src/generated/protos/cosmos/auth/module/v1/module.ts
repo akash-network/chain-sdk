@@ -137,10 +137,6 @@ export const Module: MessageFns<Module, "cosmos.auth.module.v1.Module"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Module>): Module {
-    return Module.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Module>): Module {
     const message = createBaseModule();
     message.bech32Prefix = object.bech32Prefix ?? "";
@@ -222,10 +218,6 @@ export const ModuleAccountPermission: MessageFns<
       obj.permissions = message.permissions;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ModuleAccountPermission>): ModuleAccountPermission {
-    return ModuleAccountPermission.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ModuleAccountPermission>): ModuleAccountPermission {
     const message = createBaseModuleAccountPermission();

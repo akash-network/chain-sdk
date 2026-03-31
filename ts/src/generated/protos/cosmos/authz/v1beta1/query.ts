@@ -156,10 +156,6 @@ export const QueryGrantsRequest: MessageFns<QueryGrantsRequest, "cosmos.authz.v1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryGrantsRequest>): QueryGrantsRequest {
-    return QueryGrantsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryGrantsRequest>): QueryGrantsRequest {
     const message = createBaseQueryGrantsRequest();
     message.granter = object.granter ?? "";
@@ -237,10 +233,6 @@ export const QueryGrantsResponse: MessageFns<QueryGrantsResponse, "cosmos.authz.
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryGrantsResponse>): QueryGrantsResponse {
-    return QueryGrantsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryGrantsResponse>): QueryGrantsResponse {
     const message = createBaseQueryGrantsResponse();
@@ -320,10 +312,6 @@ export const QueryGranterGrantsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryGranterGrantsRequest>): QueryGranterGrantsRequest {
-    return QueryGranterGrantsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryGranterGrantsRequest>): QueryGranterGrantsRequest {
     const message = createBaseQueryGranterGrantsRequest();
@@ -406,10 +394,6 @@ export const QueryGranterGrantsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryGranterGrantsResponse>): QueryGranterGrantsResponse {
-    return QueryGranterGrantsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryGranterGrantsResponse>): QueryGranterGrantsResponse {
     const message = createBaseQueryGranterGrantsResponse();
     message.grants = object.grants?.map((e) => GrantAuthorization.fromPartial(e)) || [];
@@ -488,10 +472,6 @@ export const QueryGranteeGrantsRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryGranteeGrantsRequest>): QueryGranteeGrantsRequest {
-    return QueryGranteeGrantsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryGranteeGrantsRequest>): QueryGranteeGrantsRequest {
     const message = createBaseQueryGranteeGrantsRequest();
@@ -573,10 +553,6 @@ export const QueryGranteeGrantsResponse: MessageFns<
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryGranteeGrantsResponse>): QueryGranteeGrantsResponse {
-    return QueryGranteeGrantsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryGranteeGrantsResponse>): QueryGranteeGrantsResponse {
     const message = createBaseQueryGranteeGrantsResponse();

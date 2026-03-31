@@ -122,10 +122,6 @@ export const GenesisState: MessageFns<GenesisState, "ibc.applications.interchain
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.controllerGenesisState =
@@ -241,10 +237,6 @@ export const ControllerGenesisState: MessageFns<
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ControllerGenesisState>): ControllerGenesisState {
-    return ControllerGenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ControllerGenesisState>): ControllerGenesisState {
     const message = createBaseControllerGenesisState();
@@ -362,10 +354,6 @@ export const HostGenesisState: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<HostGenesisState>): HostGenesisState {
-    return HostGenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<HostGenesisState>): HostGenesisState {
     const message = createBaseHostGenesisState();
     message.activeChannels = object.activeChannels?.map((e) => ActiveChannel.fromPartial(e)) || [];
@@ -478,10 +466,6 @@ export const ActiveChannel: MessageFns<ActiveChannel, "ibc.applications.intercha
       }
       return obj;
     },
-
-    create(base?: DeepPartial<ActiveChannel>): ActiveChannel {
-      return ActiveChannel.fromPartial(base ?? {});
-    },
     fromPartial(object: DeepPartial<ActiveChannel>): ActiveChannel {
       const message = createBaseActiveChannel();
       message.connectionId = object.connectionId ?? "";
@@ -575,10 +559,6 @@ export const RegisteredInterchainAccount: MessageFns<
       obj.account_address = message.accountAddress;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RegisteredInterchainAccount>): RegisteredInterchainAccount {
-    return RegisteredInterchainAccount.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RegisteredInterchainAccount>): RegisteredInterchainAccount {
     const message = createBaseRegisteredInterchainAccount();

@@ -121,10 +121,6 @@ export const MemoryInfo: MessageFns<MemoryInfo, "akash.inventory.v1.MemoryInfo">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MemoryInfo>): MemoryInfo {
-    return MemoryInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MemoryInfo>): MemoryInfo {
     const message = createBaseMemoryInfo();
     message.vendor = object.vendor ?? "";
@@ -200,10 +196,6 @@ export const Memory: MessageFns<Memory, "akash.inventory.v1.Memory"> = {
       obj.info = message.info.map((e) => MemoryInfo.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Memory>): Memory {
-    return Memory.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Memory>): Memory {
     const message = createBaseMemory();

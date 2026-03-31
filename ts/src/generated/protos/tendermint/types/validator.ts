@@ -162,10 +162,6 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ValidatorSet>): ValidatorSet {
-    return ValidatorSet.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ValidatorSet>): ValidatorSet {
     const message = createBaseValidatorSet();
     message.validators = object.validators?.map((e) => Validator.fromPartial(e)) || [];
@@ -275,10 +271,6 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Validator>): Validator {
-    return Validator.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Validator>): Validator {
     const message = createBaseValidator();
     message.address = object.address ?? new Uint8Array(0);
@@ -360,10 +352,6 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
       obj.voting_power = (message.votingPower || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SimpleValidator>): SimpleValidator {
-    return SimpleValidator.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SimpleValidator>): SimpleValidator {
     const message = createBaseSimpleValidator();

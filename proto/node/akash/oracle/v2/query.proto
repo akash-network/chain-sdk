@@ -1,0 +1,122 @@
+syntax = "proto3";
+package akash.oracle.v2;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+
+import "akash/oracle/v2/params.proto";
+import "akash/oracle/v2/prices.proto";
+
+option go_package = "pkg.akt.dev/go/node/oracle/v2";
+
+// PricesFilter defines filters used to query price data
+message PricesFilter {
+  option (gogoproto.equal) = false;
+
+  // asset_denom is the asset denomination to filter by
+  string asset_denom = 1 [
+    (gogoproto.jsontag) = "asset_denom",
+    (gogoproto.moretags) = "yaml:\"asset_denom\""
+  ];
+
+  // base_denom is the base denomination to filter by
+  string base_denom = 2 [
+    (gogoproto.jsontag) = "base_denom",
+    (gogoproto.moretags) = "yaml:\"base_denom\""
+  ];
+
+  // start_time is the inclusive start of the time range to filter by
+  google.protobuf.Timestamp start_time = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true,
+    (gogoproto.customname) = "StartTime",
+    (gogoproto.jsontag) = "start_time",
+    (gogoproto.moretags) = "yaml:\"start_time\""
+  ];
+
+  // end_time is the inclusive end of the time range to filter by
+  google.protobuf.Timestamp end_time = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true,
+    (gogoproto.customname) = "EndTime",
+    (gogoproto.jsontag) = "end_time",
+    (gogoproto.moretags) = "yaml:\"end_time\""
+  ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+    // params defines the parameters of the module.
+    Params params = 1 [
+        (gogoproto.nullable)   = false,
+        (amino.dont_omitempty) = true
+    ];
+}
+
+// QueryAggregatedPriceRequest is the request type for aggregated price.
+message QueryAggregatedPriceRequest {
+  // denom is the asset denomination
+  string denom = 1;
+}
+
+// QueryAggregatedPriceResponse is the response type for aggregated price.
+message QueryAggregatedPriceResponse {
+  // aggregated_price is the aggregated price data
+  AggregatedPrice aggregated_price = 1 [
+    (gogoproto.nullable)   = false,
+    (amino.dont_omitempty) = true
+  ];
+
+  // price_health is the health status for the price feed
+  PriceHealth price_health = 2 [
+    (gogoproto.nullable)   = false,
+    (amino.dont_omitempty) = true
+  ];
+}
+
+// QueryPricesRequest is the request type for querying price history
+message QueryPricesRequest {
+  // filters holds the price fields to filter the request
+  PricesFilter filters = 1 [(gogoproto.nullable) = false];
+
+  // pagination is used to paginate the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryPricesResponse is the response type for querying price history
+message QueryPricesResponse {
+  // prices is the list of historical price data matching the filters
+  repeated PriceData prices = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "prices",
+    (gogoproto.moretags) = "yaml:\"prices\""
+  ];
+
+  // pagination contains the information about response pagination
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// Query defines the gRPC querier service of the oracle package.
+service Query {
+    // Prices query prices for specific denom
+    rpc Prices(QueryPricesRequest) returns (QueryPricesResponse) {
+      option (google.api.http).get = "/akash/oracle/v2/prices";
+    }
+
+    // Params returns the total set of oracle parameters.
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+        option (google.api.http).get = "/akash/oracle/v2/params";
+    }
+
+    // AggregatedPrice queries the aggregated price for a given denom.
+    rpc AggregatedPrice(QueryAggregatedPriceRequest)
+      returns (QueryAggregatedPriceResponse) {
+      option (google.api.http).get = "/akash/oracle/v2/aggregated_price/{denom=**}";
+    }
+}

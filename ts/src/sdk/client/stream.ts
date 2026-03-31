@@ -7,7 +7,7 @@ export function handleStreamResponse<I extends MessageDesc, O extends MessageDes
   method: MethodDesc<"server_streaming" | "client_streaming" | "bidi_streaming", I, O>,
   stream: Promise<StreamResponse<I, O>>,
   options?: CallOptions,
-  transform: (schema: MessageDesc, value: MessageShape<O>) => MessageShape<O> = (_, value) => value as MessageShape<O>,
+  transform?: (schema: MessageDesc, value: MessageShape<O>) => MessageShape<O>,
 ): AsyncIterable<MessageShape<O>> {
   const it = (async function* () {
     const response = await stream;
@@ -15,7 +15,8 @@ export function handleStreamResponse<I extends MessageDesc, O extends MessageDes
     yield * response.message;
     options?.onTrailer?.(response.trailer);
   })();
-  return mapStream(it, (value) => transform(method.output, value) as MessageShape<O>);
+
+  return transform ? mapStream(it, (value) => transform(method.output, value) as MessageShape<O>) : it;
 }
 
 export function mapStream<T, U>(stream: AsyncIterable<T>, transform: (value: T) => U): AsyncIterable<U> {

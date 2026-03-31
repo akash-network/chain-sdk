@@ -170,10 +170,6 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Op>): Op {
-    return Op.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Op>): Op {
     const message = createBaseOp();
     message.seed = (object.seed !== undefined && object.seed !== null) ? Long.fromValue(object.seed) : Long.UZERO;

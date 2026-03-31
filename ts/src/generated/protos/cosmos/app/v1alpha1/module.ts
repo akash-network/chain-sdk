@@ -178,10 +178,6 @@ export const ModuleDescriptor: MessageFns<ModuleDescriptor, "cosmos.app.v1alpha1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ModuleDescriptor>): ModuleDescriptor {
-    return ModuleDescriptor.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ModuleDescriptor>): ModuleDescriptor {
     const message = createBaseModuleDescriptor();
     message.goImport = object.goImport ?? "";
@@ -257,10 +253,6 @@ export const PackageReference: MessageFns<PackageReference, "cosmos.app.v1alpha1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PackageReference>): PackageReference {
-    return PackageReference.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PackageReference>): PackageReference {
     const message = createBasePackageReference();
     message.name = object.name ?? "";
@@ -317,10 +309,6 @@ export const MigrateFromInfo: MessageFns<MigrateFromInfo, "cosmos.app.v1alpha1.M
       obj.module = message.module;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MigrateFromInfo>): MigrateFromInfo {
-    return MigrateFromInfo.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MigrateFromInfo>): MigrateFromInfo {
     const message = createBaseMigrateFromInfo();

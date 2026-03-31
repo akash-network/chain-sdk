@@ -89,10 +89,6 @@ export const LegacyAminoPubKey: MessageFns<LegacyAminoPubKey, "cosmos.crypto.mul
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LegacyAminoPubKey>): LegacyAminoPubKey {
-    return LegacyAminoPubKey.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LegacyAminoPubKey>): LegacyAminoPubKey {
     const message = createBaseLegacyAminoPubKey();
     message.threshold = object.threshold ?? 0;

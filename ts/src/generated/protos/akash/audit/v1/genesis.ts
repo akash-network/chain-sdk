@@ -69,10 +69,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.audit.v1.GenesisState
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.providers = object.providers?.map((e) => AuditedProvider.fromPartial(e)) || [];

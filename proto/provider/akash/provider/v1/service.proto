@@ -5,6 +5,7 @@ import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 
 import "akash/provider/v1/status.proto";
+import "akash/provider/v1/validation.proto";
 
 option go_package = "pkg.akt.dev/go/provider/v1";
 
@@ -24,4 +25,7 @@ service ProviderRPC {
   // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
   // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   rpc StreamStatus(google.protobuf.Empty) returns (stream Status);
+
+  // BidScreening screens a deployment group spec for bid eligibility and returns pricing
+  rpc BidScreening(BidScreeningRequest) returns (BidScreeningResponse);
 }

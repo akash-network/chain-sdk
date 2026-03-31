@@ -127,10 +127,6 @@ export const EventOrderCreated: MessageFns<EventOrderCreated, "akash.market.v1.E
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventOrderCreated>): EventOrderCreated {
-    return EventOrderCreated.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventOrderCreated>): EventOrderCreated {
     const message = createBaseEventOrderCreated();
     message.id = (object.id !== undefined && object.id !== null) ? OrderID.fromPartial(object.id) : undefined;
@@ -186,10 +182,6 @@ export const EventOrderClosed: MessageFns<EventOrderClosed, "akash.market.v1.Eve
       obj.id = OrderID.toJSON(message.id);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventOrderClosed>): EventOrderClosed {
-    return EventOrderClosed.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventOrderClosed>): EventOrderClosed {
     const message = createBaseEventOrderClosed();
@@ -264,10 +256,6 @@ export const EventBidCreated: MessageFns<EventBidCreated, "akash.market.v1.Event
     }
     return obj;
   },
-
-  create(base?: DeepPartial<EventBidCreated>): EventBidCreated {
-    return EventBidCreated.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<EventBidCreated>): EventBidCreated {
     const message = createBaseEventBidCreated();
     message.id = (object.id !== undefined && object.id !== null) ? BidID.fromPartial(object.id) : undefined;
@@ -326,10 +314,6 @@ export const EventBidClosed: MessageFns<EventBidClosed, "akash.market.v1.EventBi
       obj.id = BidID.toJSON(message.id);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventBidClosed>): EventBidClosed {
-    return EventBidClosed.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventBidClosed>): EventBidClosed {
     const message = createBaseEventBidClosed();
@@ -403,10 +387,6 @@ export const EventLeaseCreated: MessageFns<EventLeaseCreated, "akash.market.v1.E
       obj.price = DecCoin.toJSON(message.price);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventLeaseCreated>): EventLeaseCreated {
-    return EventLeaseCreated.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventLeaseCreated>): EventLeaseCreated {
     const message = createBaseEventLeaseCreated();
@@ -483,10 +463,6 @@ export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.Eve
       obj.reason = leaseClosedReasonToJSON(message.reason);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EventLeaseClosed>): EventLeaseClosed {
-    return EventLeaseClosed.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EventLeaseClosed>): EventLeaseClosed {
     const message = createBaseEventLeaseClosed();

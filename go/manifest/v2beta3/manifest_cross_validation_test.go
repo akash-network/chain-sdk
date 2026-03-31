@@ -11,6 +11,7 @@ import (
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	attr "pkg.akt.dev/go/node/types/attributes/v1"
 	akashtypes "pkg.akt.dev/go/node/types/resources/v1beta4"
+	"pkg.akt.dev/go/sdkutil"
 	"pkg.akt.dev/go/testutil"
 )
 
@@ -40,7 +41,7 @@ func simpleDeployment(t *testing.T, expose ServiceExposes, count uint32) []dtype
 	resources[0] = dtypes.ResourceUnit{
 		Resources: simpleResources(expose),
 		Count:     count,
-		Price:     sdk.NewInt64DecCoin(testutil.CoinDenom, 1),
+		Price:     sdk.NewInt64DecCoin(sdkutil.DenomUact, 1),
 	}
 	deployment[0] = dtypes.Group{
 		ID:    gid,

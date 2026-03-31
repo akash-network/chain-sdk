@@ -257,10 +257,6 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LeaseServiceStatus>): LeaseServiceStatus {
-    return LeaseServiceStatus.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LeaseServiceStatus>): LeaseServiceStatus {
     const message = createBaseLeaseServiceStatus();
     message.available = object.available ?? 0;
@@ -372,10 +368,6 @@ export const LeaseIPStatus: MessageFns<LeaseIPStatus, "akash.provider.lease.v1.L
       obj.ip = message.ip;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<LeaseIPStatus>): LeaseIPStatus {
-    return LeaseIPStatus.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<LeaseIPStatus>): LeaseIPStatus {
     const message = createBaseLeaseIPStatus();
@@ -498,10 +490,6 @@ export const ForwarderPortStatus: MessageFns<ForwarderPortStatus, "akash.provide
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ForwarderPortStatus>): ForwarderPortStatus {
-    return ForwarderPortStatus.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ForwarderPortStatus>): ForwarderPortStatus {
     const message = createBaseForwarderPortStatus();
     message.host = object.host ?? "";
@@ -611,10 +599,6 @@ export const ServiceStatus: MessageFns<ServiceStatus, "akash.provider.lease.v1.S
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ServiceStatus>): ServiceStatus {
-    return ServiceStatus.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ServiceStatus>): ServiceStatus {
     const message = createBaseServiceStatus();
     message.name = object.name ?? "";
@@ -693,10 +677,6 @@ export const SendManifestRequest: MessageFns<SendManifestRequest, "akash.provide
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SendManifestRequest>): SendManifestRequest {
-    return SendManifestRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SendManifestRequest>): SendManifestRequest {
     const message = createBaseSendManifestRequest();
     message.leaseId = (object.leaseId !== undefined && object.leaseId !== null)
@@ -741,10 +721,6 @@ export const SendManifestResponse: MessageFns<SendManifestResponse, "akash.provi
   toJSON(_: SendManifestResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<SendManifestResponse>): SendManifestResponse {
-    return SendManifestResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<SendManifestResponse>): SendManifestResponse {
     const message = createBaseSendManifestResponse();
@@ -817,10 +793,6 @@ export const ServiceLogsRequest: MessageFns<ServiceLogsRequest, "akash.provider.
       obj.services = message.services;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ServiceLogsRequest>): ServiceLogsRequest {
-    return ServiceLogsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ServiceLogsRequest>): ServiceLogsRequest {
     const message = createBaseServiceLogsRequest();
@@ -898,10 +870,6 @@ export const ServiceLogs: MessageFns<ServiceLogs, "akash.provider.lease.v1.Servi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ServiceLogs>): ServiceLogs {
-    return ServiceLogs.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ServiceLogs>): ServiceLogs {
     const message = createBaseServiceLogs();
     message.name = object.name ?? "";
@@ -963,10 +931,6 @@ export const ServiceLogsResponse: MessageFns<ServiceLogsResponse, "akash.provide
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ServiceLogsResponse>): ServiceLogsResponse {
-    return ServiceLogsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ServiceLogsResponse>): ServiceLogsResponse {
     const message = createBaseServiceLogsResponse();
     message.services = object.services?.map((e) => ServiceLogs.fromPartial(e)) || [];
@@ -1022,10 +986,6 @@ export const ShellRequest: MessageFns<ShellRequest, "akash.provider.lease.v1.She
       obj.lease_id = LeaseID.toJSON(message.leaseId);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ShellRequest>): ShellRequest {
-    return ShellRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ShellRequest>): ShellRequest {
     const message = createBaseShellRequest();
@@ -1102,10 +1062,6 @@ export const ServiceStatusRequest: MessageFns<ServiceStatusRequest, "akash.provi
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ServiceStatusRequest>): ServiceStatusRequest {
-    return ServiceStatusRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ServiceStatusRequest>): ServiceStatusRequest {
     const message = createBaseServiceStatusRequest();
     message.leaseId = (object.leaseId !== undefined && object.leaseId !== null)
@@ -1169,10 +1125,6 @@ export const ServiceStatusResponse: MessageFns<ServiceStatusResponse, "akash.pro
         obj.services = message.services.map((e) => ServiceStatus.toJSON(e));
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<ServiceStatusResponse>): ServiceStatusResponse {
-      return ServiceStatusResponse.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<ServiceStatusResponse>): ServiceStatusResponse {
       const message = createBaseServiceStatusResponse();

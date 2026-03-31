@@ -67,10 +67,6 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.evidence.v1beta1.Gen
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.evidence = object.evidence?.map((e) => Any.fromPartial(e)) || [];

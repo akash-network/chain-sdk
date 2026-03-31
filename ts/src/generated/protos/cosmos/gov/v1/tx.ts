@@ -289,10 +289,6 @@ export const MsgSubmitProposal: MessageFns<MsgSubmitProposal, "cosmos.gov.v1.Msg
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgSubmitProposal>): MsgSubmitProposal {
-    return MsgSubmitProposal.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgSubmitProposal>): MsgSubmitProposal {
     const message = createBaseMsgSubmitProposal();
     message.messages = object.messages?.map((e) => Any.fromPartial(e)) || [];
@@ -357,10 +353,6 @@ export const MsgSubmitProposalResponse: MessageFns<
       obj.proposal_id = (message.proposalId || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgSubmitProposalResponse>): MsgSubmitProposalResponse {
-    return MsgSubmitProposalResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgSubmitProposalResponse>): MsgSubmitProposalResponse {
     const message = createBaseMsgSubmitProposalResponse();
@@ -437,10 +429,6 @@ export const MsgExecLegacyContent: MessageFns<MsgExecLegacyContent, "cosmos.gov.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgExecLegacyContent>): MsgExecLegacyContent {
-    return MsgExecLegacyContent.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgExecLegacyContent>): MsgExecLegacyContent {
     const message = createBaseMsgExecLegacyContent();
     message.content = (object.content !== undefined && object.content !== null)
@@ -488,10 +476,6 @@ export const MsgExecLegacyContentResponse: MessageFns<
   toJSON(_: MsgExecLegacyContentResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgExecLegacyContentResponse>): MsgExecLegacyContentResponse {
-    return MsgExecLegacyContentResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgExecLegacyContentResponse>): MsgExecLegacyContentResponse {
     const message = createBaseMsgExecLegacyContentResponse();
@@ -595,10 +579,6 @@ export const MsgVote: MessageFns<MsgVote, "cosmos.gov.v1.MsgVote"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgVote>): MsgVote {
-    return MsgVote.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgVote>): MsgVote {
     const message = createBaseMsgVote();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -645,10 +625,6 @@ export const MsgVoteResponse: MessageFns<MsgVoteResponse, "cosmos.gov.v1.MsgVote
   toJSON(_: MsgVoteResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgVoteResponse>): MsgVoteResponse {
-    return MsgVoteResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgVoteResponse>): MsgVoteResponse {
     const message = createBaseMsgVoteResponse();
@@ -754,10 +730,6 @@ export const MsgVoteWeighted: MessageFns<MsgVoteWeighted, "cosmos.gov.v1.MsgVote
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgVoteWeighted>): MsgVoteWeighted {
-    return MsgVoteWeighted.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgVoteWeighted>): MsgVoteWeighted {
     const message = createBaseMsgVoteWeighted();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -804,10 +776,6 @@ export const MsgVoteWeightedResponse: MessageFns<MsgVoteWeightedResponse, "cosmo
   toJSON(_: MsgVoteWeightedResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgVoteWeightedResponse>): MsgVoteWeightedResponse {
-    return MsgVoteWeightedResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgVoteWeightedResponse>): MsgVoteWeightedResponse {
     const message = createBaseMsgVoteWeightedResponse();
@@ -896,10 +864,6 @@ export const MsgDeposit: MessageFns<MsgDeposit, "cosmos.gov.v1.MsgDeposit"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgDeposit>): MsgDeposit {
-    return MsgDeposit.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgDeposit>): MsgDeposit {
     const message = createBaseMsgDeposit();
     message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
@@ -945,10 +909,6 @@ export const MsgDepositResponse: MessageFns<MsgDepositResponse, "cosmos.gov.v1.M
   toJSON(_: MsgDepositResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgDepositResponse>): MsgDepositResponse {
-    return MsgDepositResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgDepositResponse>): MsgDepositResponse {
     const message = createBaseMsgDepositResponse();
@@ -1022,10 +982,6 @@ export const MsgUpdateParams: MessageFns<MsgUpdateParams, "cosmos.gov.v1.MsgUpda
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -1070,10 +1026,6 @@ export const MsgUpdateParamsResponse: MessageFns<MsgUpdateParamsResponse, "cosmo
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
@@ -1146,10 +1098,6 @@ export const MsgCancelProposal: MessageFns<MsgCancelProposal, "cosmos.gov.v1.Msg
       obj.proposer = message.proposer;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCancelProposal>): MsgCancelProposal {
-    return MsgCancelProposal.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgCancelProposal>): MsgCancelProposal {
     const message = createBaseMsgCancelProposal();
@@ -1244,10 +1192,6 @@ export const MsgCancelProposalResponse: MessageFns<
       obj.canceled_height = (message.canceledHeight || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgCancelProposalResponse>): MsgCancelProposalResponse {
-    return MsgCancelProposalResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgCancelProposalResponse>): MsgCancelProposalResponse {
     const message = createBaseMsgCancelProposalResponse();

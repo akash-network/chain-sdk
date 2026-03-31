@@ -1,0 +1,63 @@
+syntax = "proto3";
+package akash.oracle.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+
+import "akash/oracle/v1/params.proto";
+import "akash/oracle/v1/prices.proto";
+
+option go_package = "pkg.akt.dev/go/node/oracle/v1";
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+    // params defines the parameters of the module.
+    Params params = 1 [
+        (gogoproto.nullable)   = false,
+        (amino.dont_omitempty) = true
+    ];
+}
+
+// QueryAggregatedPriceRequest is the request type for aggregated price.
+message QueryAggregatedPriceRequest {
+  // denom is the asset denomination
+  string denom = 1;
+}
+
+// QueryAggregatedPriceResponse is the response type for aggregated price.
+message QueryAggregatedPriceResponse {
+  // aggregated_price is the aggregated price data
+  AggregatedPrice aggregated_price = 1 [
+    (gogoproto.nullable)   = false,
+    (amino.dont_omitempty) = true
+  ];
+
+  // price_health is the health status for the price feed
+  PriceHealth price_health = 2 [
+    (gogoproto.nullable)   = false,
+    (amino.dont_omitempty) = true
+  ];
+}
+
+// Query defines the gRPC querier service of the oracle package.
+service Query {
+    // Prices query prices for specific denom
+    rpc Prices(QueryPricesRequest) returns (QueryPricesResponse) {
+      option (google.api.http).get = "/akash/oracle/v1/prices";
+    }
+
+    // Params returns the total set of oracle parameters.
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+        option (google.api.http).get = "/akash/oracle/v1/params";
+    }
+
+    // AggregatedPrice queries the aggregated price for a given denom.
+    rpc AggregatedPrice(QueryAggregatedPriceRequest)
+      returns (QueryAggregatedPriceResponse) {
+      option (google.api.http).get = "/akash/oracle/v1/aggregated_price/{denom}";
+    }
+}

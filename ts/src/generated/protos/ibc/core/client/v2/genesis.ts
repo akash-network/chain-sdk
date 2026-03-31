@@ -96,10 +96,6 @@ export const GenesisCounterpartyInfo: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisCounterpartyInfo>): GenesisCounterpartyInfo {
-    return GenesisCounterpartyInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisCounterpartyInfo>): GenesisCounterpartyInfo {
     const message = createBaseGenesisCounterpartyInfo();
     message.clientId = object.clientId ?? "";
@@ -162,10 +158,6 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.client.v2.GenesisS
       obj.counterparty_infos = message.counterpartyInfos.map((e) => GenesisCounterpartyInfo.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();

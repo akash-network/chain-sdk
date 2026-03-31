@@ -7,7 +7,7 @@ import "akash/take/v1/paramsmsg.proto";
 
 option go_package = "pkg.akt.dev/go/node/take/v1";
 
-// Msg defines the market Msg service
+// Msg defines the take Msg service
 service Msg {
   option (cosmos.msg.v1.service) = true;
   // UpdateParams defines a governance operation for updating the x/market module

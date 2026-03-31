@@ -225,7 +225,7 @@ describe("Deployment Queries", () => {
     const encoded = writer.finish();
     const base64Encoded = Buffer.from(encoded).toString("base64");
 
-    const expectedBase64 = "CjIKLWFrYXNoMXRlc3QxMjM0NTY3ODlhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ehDSCRJcCgp0ZXN0LWdyb3VwEgIKABpKCjcIARIHCgUKAzEwMBoNCgsKCTEzNDIxNzcyOCIUCgRtYWluEgwKCjIxNDc0ODM2NDgqBQoDCgEwEAEaDQoEdWFrdBIFMTAwMDAaBAECAwQiEQoPCgR1YWt0Egc1MDAwMDAw";
+    const expectedBase64 = "CjIKLWFrYXNoMXRlc3QxMjM0NTY3ODlhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ehDSCRJuCgp0ZXN0LWdyb3VwEgIKABpcCjcIARIHCgUKAzEwMBoNCgsKCTEzNDIxNzcyOCIUCgRtYWluEgwKCjIxNDc0ODM2NDgqBQoDCgEwEAEaHwoEdWFrdBIXMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAaBAECAwQiEQoPCgR1YWt0Egc1MDAwMDAw";
     expect(base64Encoded).toBe(expectedBase64);
 
     const decoded = MsgCreateDeployment.decode(encoded);
@@ -400,6 +400,7 @@ describe("Deployment Queries", () => {
         resourcesOffer: [{
           resources: resources,
           count: 1,
+          prices: undefined,
         }],
       };
 
@@ -455,6 +456,7 @@ describe("Deployment Queries", () => {
         resourcesOffer: [{
           resources: resources,
           count: 1,
+          prices: undefined,
         }],
       };
 
@@ -504,6 +506,7 @@ describe("Deployment Queries", () => {
         resourcesOffer: [{
           resources: resources,
           count: 1,
+          prices: undefined,
         }],
       };
 
@@ -547,6 +550,7 @@ describe("Deployment Queries", () => {
         resourcesOffer: [{
           resources: resources,
           count: 1,
+          prices: undefined,
         }],
       };
 
@@ -728,7 +732,7 @@ describe("Deployment Queries", () => {
           amount: { denom: "uakt", amount: "5000000" },
           sources: [Source.balance],
         },
-        resourcesOffer: [{ resources, count: 1 }],
+        resourcesOffer: [{ resources, count: 1, prices: undefined }],
       };
 
       // Send as separate transactions to avoid DecCoin encoding issues in multi-msg tx

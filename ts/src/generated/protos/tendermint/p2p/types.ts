@@ -119,10 +119,6 @@ export const NetAddress: MessageFns<NetAddress, "tendermint.p2p.NetAddress"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<NetAddress>): NetAddress {
-    return NetAddress.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<NetAddress>): NetAddress {
     const message = createBaseNetAddress();
     message.id = object.id ?? "";
@@ -212,10 +208,6 @@ export const ProtocolVersion: MessageFns<ProtocolVersion, "tendermint.p2p.Protoc
       obj.app = (message.app || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ProtocolVersion>): ProtocolVersion {
-    return ProtocolVersion.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ProtocolVersion>): ProtocolVersion {
     const message = createBaseProtocolVersion();
@@ -391,10 +383,6 @@ export const DefaultNodeInfo: MessageFns<DefaultNodeInfo, "tendermint.p2p.Defaul
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DefaultNodeInfo>): DefaultNodeInfo {
-    return DefaultNodeInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DefaultNodeInfo>): DefaultNodeInfo {
     const message = createBaseDefaultNodeInfo();
     message.protocolVersion = (object.protocolVersion !== undefined && object.protocolVersion !== null)
@@ -478,10 +466,6 @@ export const DefaultNodeInfoOther: MessageFns<DefaultNodeInfoOther, "tendermint.
       obj.rpc_address = message.rpcAddress;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DefaultNodeInfoOther>): DefaultNodeInfoOther {
-    return DefaultNodeInfoOther.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DefaultNodeInfoOther>): DefaultNodeInfoOther {
     const message = createBaseDefaultNodeInfoOther();

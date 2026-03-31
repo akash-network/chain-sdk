@@ -88,10 +88,6 @@ export const MerkleRoot: MessageFns<MerkleRoot, "ibc.core.commitment.v1.MerkleRo
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MerkleRoot>): MerkleRoot {
-    return MerkleRoot.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MerkleRoot>): MerkleRoot {
     const message = createBaseMerkleRoot();
     message.hash = object.hash ?? new Uint8Array(0);
@@ -147,10 +143,6 @@ export const MerklePrefix: MessageFns<MerklePrefix, "ibc.core.commitment.v1.Merk
       obj.key_prefix = base64FromBytes(message.keyPrefix);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MerklePrefix>): MerklePrefix {
-    return MerklePrefix.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MerklePrefix>): MerklePrefix {
     const message = createBaseMerklePrefix();
@@ -211,10 +203,6 @@ export const MerkleProof: MessageFns<MerkleProof, "ibc.core.commitment.v1.Merkle
       obj.proofs = message.proofs.map((e) => CommitmentProof.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MerkleProof>): MerkleProof {
-    return MerkleProof.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MerkleProof>): MerkleProof {
     const message = createBaseMerkleProof();

@@ -112,10 +112,6 @@ export const MsgUpdateParams: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
-    return MsgUpdateParams.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateParams>): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.signer = object.signer ?? "";
@@ -163,10 +159,6 @@ export const MsgUpdateParamsResponse: MessageFns<
   toJSON(_: MsgUpdateParamsResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
-    return MsgUpdateParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateParamsResponse>): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
@@ -244,10 +236,6 @@ export const MsgModuleQuerySafe: MessageFns<
       obj.requests = message.requests.map((e) => QueryRequest.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgModuleQuerySafe>): MsgModuleQuerySafe {
-    return MsgModuleQuerySafe.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgModuleQuerySafe>): MsgModuleQuerySafe {
     const message = createBaseMsgModuleQuerySafe();
@@ -327,10 +315,6 @@ export const MsgModuleQuerySafeResponse: MessageFns<
       obj.responses = message.responses.map((e) => base64FromBytes(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgModuleQuerySafeResponse>): MsgModuleQuerySafeResponse {
-    return MsgModuleQuerySafeResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<MsgModuleQuerySafeResponse>): MsgModuleQuerySafeResponse {
     const message = createBaseMsgModuleQuerySafeResponse();

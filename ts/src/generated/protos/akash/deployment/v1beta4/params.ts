@@ -69,10 +69,6 @@ export const Params: MessageFns<Params, "akash.deployment.v1beta4.Params"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.minDeposits = object.minDeposits?.map((e) => Coin.fromPartial(e)) || [];

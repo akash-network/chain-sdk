@@ -29,8 +29,9 @@ test: $(patsubst %, test-%,$(SUB_TESTS))
 test-coverage: $(patsubst %, test-coverage-%,$(SUB_TESTS))
 
 .PHONY: test-ts
-test-ts: $(AKASH_TS_NODE_MODULES)
-	cd $(TS_ROOT) && npm run build && npm run test
+
+test-ts: $(AKASH_TS_NODE_MODULES) $(BUF)
+	cd $(TS_ROOT) && (npm run build && npm run test)
 
 .PHONY: test-coverage-ts
 test-coverage-ts: $(AKASH_TS_NODE_MODULES) proto-gen-ts

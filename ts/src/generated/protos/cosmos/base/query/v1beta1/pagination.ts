@@ -182,10 +182,6 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PageRequest>): PageRequest {
-    return PageRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PageRequest>): PageRequest {
     const message = createBasePageRequest();
     message.key = object.key ?? new Uint8Array(0);
@@ -264,10 +260,6 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
       obj.total = (message.total || Long.UZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<PageResponse>): PageResponse {
-    return PageResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<PageResponse>): PageResponse {
     const message = createBasePageResponse();

@@ -173,10 +173,6 @@ export const PaymentState: MessageFns<PaymentState, "akash.escrow.types.v1.Payme
     }
     return obj;
   },
-
-  create(base?: DeepPartial<PaymentState>): PaymentState {
-    return PaymentState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<PaymentState>): PaymentState {
     const message = createBasePaymentState();
     message.owner = object.owner ?? "";
@@ -260,10 +256,6 @@ export const Payment: MessageFns<Payment, "akash.escrow.types.v1.Payment"> = {
       obj.state = PaymentState.toJSON(message.state);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Payment>): Payment {
-    return Payment.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Payment>): Payment {
     const message = createBasePayment();

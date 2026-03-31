@@ -378,7 +378,7 @@ func (c *serialBroadcaster) BroadcastMsgs(ctx context.Context, msgs []sdk.Msg, o
 		// as clients supposed to check Tx code, unless resp is nil, which is error during Tx preparation
 		if !errors.As(resp.err, &cerrors.Error{}) || resp.resp == nil || bOpts.resultAsError {
 			if bOpts.resultAsError {
-				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp.Code != 0 && resp.err == nil {
+				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp != nil && txResp.Code != 0 && resp.err == nil {
 					resp.err = cerrors.ABCIError(txResp.Codespace, txResp.Code, txResp.RawLog)
 				}
 			}
@@ -428,7 +428,7 @@ func (c *serialBroadcaster) BroadcastTx(ctx context.Context, tx sdk.Tx, opts ...
 		// as clients supposed to check Tx code, unless resp is nil, which is error during Tx preparation
 		if !errors.As(resp.err, &cerrors.Error{}) || resp.resp == nil || bOpts.resultAsError {
 			if bOpts.resultAsError {
-				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp.Code != 0 && resp.err == nil {
+				if txResp, valid := resp.resp.(*sdk.TxResponse); valid && txResp != nil && txResp.Code != 0 && resp.err == nil {
 					resp.err = cerrors.ABCIError(txResp.Codespace, txResp.Code, txResp.RawLog)
 				}
 			}
@@ -538,7 +538,9 @@ func (c *serialBroadcaster) syncSequence(f clienttx.Factory, resp interface{}, r
 	// due to cosmos-sdk not returning ABCI errors for /simulate call
 	// exact error match does not work, and we have to improvise
 	// use sdkerrors.ErrWrongSequence.Is(rErr) when /simulate call is fixed
-	if (rErr != nil && (sdkerrors.ErrWrongSequence.Is(rErr) || sdkerrors.ErrInvalidSequence.Is(rErr))) || (valid && (txResp.Code == sdkerrors.ErrWrongSequence.ABCICode())) {
+	// Note: `resp` can be a typed nil (*sdk.TxResponse)(nil) stored inside an `interface{}`.
+	// In that case `valid == true` but `txResp == nil`, so guard before dereferencing.
+	if (rErr != nil && (sdkerrors.ErrWrongSequence.Is(rErr) || sdkerrors.ErrInvalidSequence.Is(rErr))) || (valid && txResp != nil && (txResp.Code == sdkerrors.ErrWrongSequence.ABCICode())) {
 		// attempt to sync account sequence
 		if rSeq, err := c.syncAccountSequence(f.Sequence()); err == nil {
 			return rSeq, true

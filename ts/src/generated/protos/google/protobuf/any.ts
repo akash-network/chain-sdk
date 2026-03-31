@@ -199,10 +199,6 @@ export const Any: MessageFns<Any, "google.protobuf.Any"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Any>): Any {
-    return Any.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Any>): Any {
     const message = createBaseAny();
     message.typeUrl = object.typeUrl ?? "";

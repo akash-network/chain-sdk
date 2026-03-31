@@ -124,10 +124,6 @@ export const Equivocation: MessageFns<Equivocation, "cosmos.evidence.v1beta1.Equ
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Equivocation>): Equivocation {
-    return Equivocation.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Equivocation>): Equivocation {
     const message = createBaseEquivocation();
     message.height = (object.height !== undefined && object.height !== null)

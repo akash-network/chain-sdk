@@ -23,6 +23,7 @@ export interface DepositAuthorization {
    * SpendLimit is the maximum amount the grantee is authorized to spend from the granter's account.
    * This limit applies cumulatively across all deposit operations within the authorized scopes.
    * Once this limit is reached, the authorization becomes invalid and no further deposits can be made.
+   * Deprecated: use spend_limits instead
    */
   spendLimit:
     | Coin
@@ -33,6 +34,12 @@ export interface DepositAuthorization {
    * the grantee can perform using the granter's funds.
    */
   scopes: DepositAuthorization_Scope[];
+  /**
+   * SpendLimits specifies the maximum amount per denomination the grantee is authorized to spend.
+   * Each entry represents the limit for a specific denomination, enforced independently.
+   * Once an individual denomination's limit is exhausted, no further deposits can be made in that denomination.
+   */
+  spendLimits: Coin[];
 }
 
 /**
@@ -83,7 +90,7 @@ export function depositAuthorization_ScopeToJSON(object: DepositAuthorization_Sc
 }
 
 function createBaseDepositAuthorization(): DepositAuthorization {
-  return { spendLimit: undefined, scopes: [] };
+  return { spendLimit: undefined, scopes: [], spendLimits: [] };
 }
 
 export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escrow.v1.DepositAuthorization"> = {
@@ -95,6 +102,9 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
     }
     for (const v of message.scopes) {
       writer.uint32(16).int32(v!);
+    }
+    for (const v of message.spendLimits) {
+      Coin.encode(v!, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -132,6 +142,14 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
 
           break;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.spendLimits.push(Coin.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -147,6 +165,9 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
       scopes: globalThis.Array.isArray(object?.scopes)
         ? object.scopes.map((e: any) => depositAuthorization_ScopeFromJSON(e))
         : [],
+      spendLimits: globalThis.Array.isArray(object?.spend_limits)
+        ? object.spend_limits.map((e: any) => Coin.fromJSON(e))
+        : [],
     };
   },
 
@@ -158,11 +179,10 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
     if (message.scopes?.length) {
       obj.scopes = message.scopes.map((e) => depositAuthorization_ScopeToJSON(e));
     }
+    if (message.spendLimits?.length) {
+      obj.spend_limits = message.spendLimits.map((e) => Coin.toJSON(e));
+    }
     return obj;
-  },
-
-  create(base?: DeepPartial<DepositAuthorization>): DepositAuthorization {
-    return DepositAuthorization.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DepositAuthorization>): DepositAuthorization {
     const message = createBaseDepositAuthorization();
@@ -170,6 +190,7 @@ export const DepositAuthorization: MessageFns<DepositAuthorization, "akash.escro
       ? Coin.fromPartial(object.spendLimit)
       : undefined;
     message.scopes = object.scopes?.map((e) => e) || [];
+    message.spendLimits = object.spendLimits?.map((e) => Coin.fromPartial(e)) || [];
     return message;
   },
 };

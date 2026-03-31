@@ -11,7 +11,7 @@ import { calculateFee, GasPrice } from "@cosmjs/stargate";
 import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 
-import type { TxClient, TxRaw } from "../../src/sdk/transport/tx/TxClient.ts";
+import type { TxClient, TxRaw, TxSignAndBroadcastOptions } from "../../src/sdk/transport/tx/TxClient.ts";
 import { TxRaw as TxRawType, TxBody, AuthInfo, SignerInfo, Fee } from "../../src/generated/protos/cosmos/tx/v1beta1/tx.ts";
 import { SignMode } from "../../src/generated/protos/cosmos/tx/signing/v1beta1/signing.ts";
 import { Any } from "../../src/generated/protos/google/protobuf/any.ts";
@@ -30,7 +30,13 @@ export interface GatewayTxClientOptions {
   getMessageType: (typeUrl: string) => any;
 }
 
-export function createGatewayTxClient(options: GatewayTxClientOptions): TxClient {
+export interface GatewayTxClient extends TxClient {
+  estimateFee(messages: EncodeObject[], memo?: string): Promise<StdFee>;
+  sign(messages: EncodeObject[], fee: StdFee, memo: string): Promise<TxRaw>;
+  broadcast(signedMessages: TxRaw): Promise<DeliverTxResponse>;
+}
+
+export function createGatewayTxClient(options: GatewayTxClientOptions): GatewayTxClient {
   const gasMultiplier = options.gasMultiplier ?? DEFAULT_GAS_MULTIPLIER;
   const gasPrice = GasPrice.fromString(options.defaultGasPrice ?? DEFAULT_AVERAGE_GAS_PRICE);
 
@@ -203,6 +209,12 @@ export function createGatewayTxClient(options: GatewayTxClientOptions): TxClient
         authInfoBytes: signed.authInfoBytes,
         signatures: [signatureBytes],
       };
+    },
+
+    async signAndBroadcast(messages: EncodeObject[], options?: TxSignAndBroadcastOptions): Promise<DeliverTxResponse> {
+      const fee = await this.estimateFee(messages, options?.memo);
+      const signed = await this.sign(messages, fee, options?.memo ?? "");
+      return this.broadcast(signed);
     },
 
     async broadcast(signedMessages: TxRaw): Promise<DeliverTxResponse> {

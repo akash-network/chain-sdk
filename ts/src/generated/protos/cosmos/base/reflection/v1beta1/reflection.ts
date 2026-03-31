@@ -75,10 +75,6 @@ export const ListAllInterfacesRequest: MessageFns<
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<ListAllInterfacesRequest>): ListAllInterfacesRequest {
-    return ListAllInterfacesRequest.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<ListAllInterfacesRequest>): ListAllInterfacesRequest {
     const message = createBaseListAllInterfacesRequest();
     return message;
@@ -141,10 +137,6 @@ export const ListAllInterfacesResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ListAllInterfacesResponse>): ListAllInterfacesResponse {
-    return ListAllInterfacesResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ListAllInterfacesResponse>): ListAllInterfacesResponse {
     const message = createBaseListAllInterfacesResponse();
     message.interfaceNames = object.interfaceNames?.map((e) => e) || [];
@@ -203,10 +195,6 @@ export const ListImplementationsRequest: MessageFns<
       obj.interface_name = message.interfaceName;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ListImplementationsRequest>): ListImplementationsRequest {
-    return ListImplementationsRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ListImplementationsRequest>): ListImplementationsRequest {
     const message = createBaseListImplementationsRequest();
@@ -270,10 +258,6 @@ export const ListImplementationsResponse: MessageFns<
       obj.implementation_message_names = message.implementationMessageNames;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ListImplementationsResponse>): ListImplementationsResponse {
-    return ListImplementationsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ListImplementationsResponse>): ListImplementationsResponse {
     const message = createBaseListImplementationsResponse();

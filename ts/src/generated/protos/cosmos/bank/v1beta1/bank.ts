@@ -176,10 +176,6 @@ export const Params: MessageFns<Params, "cosmos.bank.v1beta1.Params"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Params>): Params {
-    return Params.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
     message.sendEnabled = object.sendEnabled?.map((e) => SendEnabled.fromPartial(e)) || [];
@@ -253,10 +249,6 @@ export const SendEnabled: MessageFns<SendEnabled, "cosmos.bank.v1beta1.SendEnabl
       obj.enabled = message.enabled;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<SendEnabled>): SendEnabled {
-    return SendEnabled.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<SendEnabled>): SendEnabled {
     const message = createBaseSendEnabled();
@@ -332,10 +324,6 @@ export const Input: MessageFns<Input, "cosmos.bank.v1beta1.Input"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Input>): Input {
-    return Input.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Input>): Input {
     const message = createBaseInput();
     message.address = object.address ?? "";
@@ -410,10 +398,6 @@ export const Output: MessageFns<Output, "cosmos.bank.v1beta1.Output"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Output>): Output {
-    return Output.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Output>): Output {
     const message = createBaseOutput();
     message.address = object.address ?? "";
@@ -470,10 +454,6 @@ export const Supply: MessageFns<Supply, "cosmos.bank.v1beta1.Supply"> = {
       obj.total = message.total.map((e) => Coin.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Supply>): Supply {
-    return Supply.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Supply>): Supply {
     const message = createBaseSupply();
@@ -562,10 +542,6 @@ export const DenomUnit: MessageFns<DenomUnit, "cosmos.bank.v1beta1.DenomUnit"> =
       obj.aliases = message.aliases;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DenomUnit>): DenomUnit {
-    return DenomUnit.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DenomUnit>): DenomUnit {
     const message = createBaseDenomUnit();
@@ -733,10 +709,6 @@ export const Metadata: MessageFns<Metadata, "cosmos.bank.v1beta1.Metadata"> = {
       obj.uri_hash = message.uriHash;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Metadata>): Metadata {
-    return Metadata.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Metadata>): Metadata {
     const message = createBaseMetadata();

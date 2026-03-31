@@ -128,10 +128,6 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Depositor>): Depositor {
-    return Depositor.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Depositor>): Depositor {
     const message = createBaseDepositor();
     message.owner = object.owner ?? "";

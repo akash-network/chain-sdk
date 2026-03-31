@@ -172,10 +172,6 @@ export const AccountState: MessageFns<AccountState, "akash.escrow.types.v1.Accou
     }
     return obj;
   },
-
-  create(base?: DeepPartial<AccountState>): AccountState {
-    return AccountState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<AccountState>): AccountState {
     const message = createBaseAccountState();
     message.owner = object.owner ?? "";
@@ -255,10 +251,6 @@ export const Account: MessageFns<Account, "akash.escrow.types.v1.Account"> = {
       obj.state = AccountState.toJSON(message.state);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Account>): Account {
-    return Account.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Account>): Account {
     const message = createBaseAccount();

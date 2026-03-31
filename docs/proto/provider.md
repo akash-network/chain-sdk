@@ -47,6 +47,7 @@
      - [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials)
      - [Service](#akash.manifest.v2beta3.Service)
      - [ServiceParams](#akash.manifest.v2beta3.ServiceParams)
+     - [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions)
      - [StorageParams](#akash.manifest.v2beta3.StorageParams)
    
  - [akash/manifest/v2beta3/group.proto](#akash/manifest/v2beta3/group.proto)
@@ -79,6 +80,10 @@
      - [ResourcesMetric](#akash.provider.v1.ResourcesMetric)
      - [ResourcesMetric.StorageEntry](#akash.provider.v1.ResourcesMetric.StorageEntry)
      - [Status](#akash.provider.v1.Status)
+   
+ - [akash/provider/v1/validation.proto](#akash/provider/v1/validation.proto)
+     - [BidScreeningRequest](#akash.provider.v1.BidScreeningRequest)
+     - [BidScreeningResponse](#akash.provider.v1.BidScreeningResponse)
    
  - [akash/provider/v1/service.proto](#akash/provider/v1/service.proto)
      - [ProviderRPC](#akash.provider.v1.ProviderRPC)
@@ -609,6 +614,24 @@
  | ----- | ---- | ----- | ----------- |
  | `storage` | [StorageParams](#akash.manifest.v2beta3.StorageParams) | repeated |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
+ | `permissions` | [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.manifest.v2beta3.ServicePermissions"></a>
+
+ ### ServicePermissions
+ ServicePermissions defines resource access permissions for the service.
+Resources map to Kubernetes RBAC permissions:
+  - logs
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `read` | [string](#string) | repeated |  |
  
  
 
@@ -1079,6 +1102,58 @@
 
  
  
+ <a name="akash/provider/v1/validation.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/provider/v1/validation.proto
+ 
+
+ 
+ <a name="akash.provider.v1.BidScreeningRequest"></a>
+
+ ### BidScreeningRequest
+ BidScreeningRequest represents a request to screen a deployment group
+specification for bid eligibility against the provider's capabilities.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `group_spec` | [akash.deployment.v1beta4.GroupSpec](#akash.deployment.v1beta4.GroupSpec) |  | GroupSpec is the deployment group specification to screen for bid eligibility. |
+ | `hostnames` | [string](#string) | repeated | Hostnames is the list of hostnames requested by the deployment. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1.BidScreeningResponse"></a>
+
+ ### BidScreeningResponse
+ BidScreeningResponse represents the result of screening a deployment group
+specification for bid eligibility against the provider's capabilities.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `passed` | [bool](#bool) |  | Passed indicates whether the deployment group passed bid screening. |
+ | `reasons` | [string](#string) | repeated | Reasons contains explanations when screening fails. |
+ | `resource_offer` | [akash.market.v1beta5.ResourceOffer](#akash.market.v1beta5.ResourceOffer) |  | ResourceOffer is the provider's resource offer for the screened group, if passed. |
+ | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price is the minimum bid price for the screened group. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/provider/v1/service.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -1101,6 +1176,7 @@
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `GetStatus` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Status](#akash.provider.v1.Status) | GetStatus defines a method to query provider state buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/v1/status|
  | `StreamStatus` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Status](#akash.provider.v1.Status) stream | Status defines a method to stream provider state buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
+ | `BidScreening` | [BidScreeningRequest](#akash.provider.v1.BidScreeningRequest) | [BidScreeningResponse](#akash.provider.v1.BidScreeningResponse) | BidScreening screens a deployment group spec for bid eligibility and returns pricing | |
  
   <!-- end services -->
 

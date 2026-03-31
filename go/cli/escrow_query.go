@@ -7,21 +7,25 @@ import (
 	"strings"
 	"time"
 
+	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
-	sdkclient "github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-
 	cflags "pkg.akt.dev/go/cli/flags"
+	bme "pkg.akt.dev/go/node/bme/v1"
 	dv1 "pkg.akt.dev/go/node/deployment/v1"
-	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
+	dv1beta "pkg.akt.dev/go/node/deployment/v1beta4"
 	"pkg.akt.dev/go/node/escrow/module"
 	etypes "pkg.akt.dev/go/node/escrow/v1"
 	mv1 "pkg.akt.dev/go/node/market/v1"
-	mv1beta5 "pkg.akt.dev/go/node/market/v1beta5"
+	mvbeta "pkg.akt.dev/go/node/market/v1beta5"
+	oracle "pkg.akt.dev/go/node/oracle/v2"
 	"pkg.akt.dev/go/node/utils"
+	"pkg.akt.dev/go/sdkutil"
+	netutil "pkg.akt.dev/go/util/network"
 )
 
 var errNoLeaseMatches = errors.New("leases for deployment do not exist")
@@ -241,7 +245,7 @@ func GetQueryEscrowBlocksRemainingCmd() *cobra.Command {
 			}
 
 			// Fetch leases matching owner & dseq
-			leaseRequest := mv1beta5.QueryLeasesRequest{
+			leaseRequest := mvbeta.QueryLeasesRequest{
 				Filters: mv1.LeaseFilters{
 					Owner:    id.Owner,
 					DSeq:     id.DSeq,
@@ -251,6 +255,16 @@ func GetQueryEscrowBlocksRemainingCmd() *cobra.Command {
 					State:    mv1.LeaseActive.String(),
 				},
 				Pagination: nil,
+			}
+
+			bmeStatus, err := cl.Query().BME().Status(ctx, &bme.QueryStatusRequest{})
+			if err != nil {
+				return err
+			}
+
+			aktPrice, err := cl.Query().Oracle().AggregatedPrice(ctx, &oracle.QueryAggregatedPriceRequest{Denom: sdkutil.DenomAkt})
+			if err != nil {
+				return err
 			}
 
 			leasesResponse, err := cl.Query().Market().Leases(ctx, &leaseRequest)
@@ -263,34 +277,46 @@ func GetQueryEscrowBlocksRemainingCmd() *cobra.Command {
 			}
 
 			// Fetch the balance of the escrow account
-			totalLeaseAmount := leasesResponse.TotalPriceAmount()
+			totalLeaseRate := leasesResponse.TotalPriceAmount()
 			blockchainHeight, err := cl.Node().CurrentBlockHeight(ctx)
 			if err != nil {
 				return err
 			}
 
-			res, err := cl.Query().Deployment().Deployment(cmd.Context(), &dv1beta4.QueryDeploymentRequest{
+			res, err := cl.Query().Deployment().Deployment(cmd.Context(), &dv1beta.QueryDeploymentRequest{
 				ID: dv1.DeploymentID{Owner: id.Owner, DSeq: id.DSeq},
 			})
 			if err != nil {
 				return err
 			}
 
-			balanceRemain := utils.LeaseCalcBalanceRemain(res.EscrowAccount.State.Funds[0].Amount,
-				int64(blockchainHeight),
-				res.EscrowAccount.State.SettledAt,
-				totalLeaseAmount)
+			balanceRemaining := sdk.NewInt64DecCoin(sdkutil.DenomUact, 0)
 
-			blocksRemain := utils.LeaseCalcBlocksRemain(balanceRemain, totalLeaseAmount)
+			for _, funds := range res.EscrowAccount.State.Funds {
+				if funds.Amount.IsNegative() {
+					continue
+				}
+
+				if funds.Denom == sdkutil.DenomUact {
+					balanceRemaining.Amount.AddMut(funds.Amount)
+				} else if (bmeStatus.Status >= bme.MintStatusHaltCR) && aktPrice.PriceHealth.IsHealthy {
+					// account for any AKT only if BME CB is active
+					swappedRate := funds.Amount.Mul(aktPrice.AggregatedPrice.TWAP)
+					balanceRemaining.Amount.AddMut(swappedRate)
+				}
+			}
+
+			balanceRemaining = utils.LeaseCalcBalanceRemain(balanceRemaining.Amount, blockchainHeight, res.EscrowAccount.State.SettledAt, sdk.NewDecCoinFromDec(sdkutil.DenomUact, totalLeaseRate))
+			blocksRemaining := utils.LeaseCalcBlocksRemain(balanceRemaining.Amount, totalLeaseRate)
 
 			output := struct {
-				BalanceRemain       float64       `json:"balance_remaining" yaml:"balance_remaining"`
-				BlocksRemain        int64         `json:"blocks_remaining" yaml:"blocks_remaining"`
-				EstimatedTimeRemain time.Duration `json:"estimated_time_remaining" yaml:"estimated_time_remaining"`
+				BalanceRemain          sdk.DecCoin   `json:"balance_remaining" yaml:"balance_remaining"`
+				BlocksRemain           int64         `json:"blocks_remaining" yaml:"blocks_remaining"`
+				EstimatedTimeRemaining time.Duration `json:"estimated_time_remaining" yaml:"estimated_time_remaining"`
 			}{
-				BalanceRemain: balanceRemain,
-				BlocksRemain:  blocksRemain,
-				// EstimatedTimeRemain: netutil.AverageBlockTime * time.Duration(blocksRemain),
+				BalanceRemain:          balanceRemaining,
+				BlocksRemain:           blocksRemaining,
+				EstimatedTimeRemaining: netutil.AverageBlockTime * time.Duration(blocksRemaining),
 			}
 
 			outputType, err := cmd.Flags().GetString("output")
@@ -310,7 +336,6 @@ func GetQueryEscrowBlocksRemainingCmd() *cobra.Command {
 			}
 
 			return cl.ClientContext().PrintBytes(data)
-
 		},
 	}
 

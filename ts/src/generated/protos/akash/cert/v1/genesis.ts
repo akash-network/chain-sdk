@@ -97,10 +97,6 @@ export const GenesisCertificate: MessageFns<GenesisCertificate, "akash.cert.v1.G
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisCertificate>): GenesisCertificate {
-    return GenesisCertificate.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisCertificate>): GenesisCertificate {
     const message = createBaseGenesisCertificate();
     message.owner = object.owner ?? "";
@@ -163,10 +159,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.cert.v1.GenesisState"
       obj.certificates = message.certificates.map((e) => GenesisCertificate.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();

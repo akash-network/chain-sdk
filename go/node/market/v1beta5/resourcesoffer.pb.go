@@ -5,6 +5,7 @@ package v1beta5
 
 import (
 	fmt "fmt"
+	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
@@ -24,6 +25,231 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// StorageOfferPrice represents the price a provider is offering for a specific
+// class of persistent storage. Providers may offer multiple storage classes
+// (e.g., SSD, HDD, NVMe), each identified by name and priced independently.
+// This type is used as a repeated field within OfferPrices to express
+// per-class storage pricing in a bid.
+type StorageOfferPrice struct {
+	// Name holds an arbitrary name for the storage class (e.g., "default", "ssd", "hdd").
+	// This must match a storage class name from the corresponding resource specification.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name" yaml:"name"`
+	// Price is the offered price per unit of this storage class, expressed as a
+	// DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit
+	// price is set for this storage class.
+	Price *types.DecCoin `protobuf:"bytes,2,opt,name=price,proto3" json:"price" yaml:"price"`
+}
+
+func (m *StorageOfferPrice) Reset()         { *m = StorageOfferPrice{} }
+func (m *StorageOfferPrice) String() string { return proto.CompactTextString(m) }
+func (*StorageOfferPrice) ProtoMessage()    {}
+func (*StorageOfferPrice) Descriptor() ([]byte, []int) {
+	return fileDescriptor_90a800b77898768f, []int{0}
+}
+func (m *StorageOfferPrice) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *StorageOfferPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_StorageOfferPrice.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *StorageOfferPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StorageOfferPrice.Merge(m, src)
+}
+func (m *StorageOfferPrice) XXX_Size() int {
+	return m.Size()
+}
+func (m *StorageOfferPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_StorageOfferPrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StorageOfferPrice proto.InternalMessageInfo
+
+func (m *StorageOfferPrice) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *StorageOfferPrice) GetPrice() *types.DecCoin {
+	if m != nil {
+		return m.Price
+	}
+	return nil
+}
+
+// EndpointOfferPrice represents the price a provider is offering for a specific
+// kind of network endpoint. Providers may price each endpoint kind differently
+// (e.g., a leased IP may cost more than a shared HTTP ingress). This type is
+// used as a repeated field within OfferPrices to express per-kind endpoint
+// pricing in a bid.
+type EndpointOfferPrice struct {
+	// Kind specifies the type of network endpoint being priced. Possible values:
+	//   - SHARED_HTTP (0): A Kubernetes Ingress endpoint.
+	//   - RANDOM_PORT (1): A Kubernetes NodePort endpoint.
+	//   - LEASED_IP   (2): A dedicated leased IP endpoint.
+	Kind v1beta4.Endpoint_Kind `protobuf:"varint,1,opt,name=kind,proto3,enum=akash.base.resources.v1beta4.Endpoint_Kind" json:"kind" yaml:"kind"`
+	// Price is the offered price per unit of this endpoint kind, expressed as a
+	// DecCoin (decimal coin) to allow fractional pricing. When nil, no explicit
+	// price is set for this endpoint kind.
+	Price *types.DecCoin `protobuf:"bytes,2,opt,name=price,proto3" json:"price" yaml:"price"`
+}
+
+func (m *EndpointOfferPrice) Reset()         { *m = EndpointOfferPrice{} }
+func (m *EndpointOfferPrice) String() string { return proto.CompactTextString(m) }
+func (*EndpointOfferPrice) ProtoMessage()    {}
+func (*EndpointOfferPrice) Descriptor() ([]byte, []int) {
+	return fileDescriptor_90a800b77898768f, []int{1}
+}
+func (m *EndpointOfferPrice) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EndpointOfferPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EndpointOfferPrice.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EndpointOfferPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EndpointOfferPrice.Merge(m, src)
+}
+func (m *EndpointOfferPrice) XXX_Size() int {
+	return m.Size()
+}
+func (m *EndpointOfferPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_EndpointOfferPrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EndpointOfferPrice proto.InternalMessageInfo
+
+func (m *EndpointOfferPrice) GetKind() v1beta4.Endpoint_Kind {
+	if m != nil {
+		return m.Kind
+	}
+	return v1beta4.Endpoint_SHARED_HTTP
+}
+
+func (m *EndpointOfferPrice) GetPrice() *types.DecCoin {
+	if m != nil {
+		return m.Price
+	}
+	return nil
+}
+
+// OfferPrices contains the complete pricing breakdown that a provider includes
+// in a bid for a deployment resource group. Each field represents the price for
+// a specific compute resource type. All price fields use DecCoin (decimal coin)
+// to support fractional pricing denominated in any supported token.
+//
+// This message is embedded as a nullable field on ResourceOffer, which in turn
+// is carried by Bid and MsgCreateBid messages. A nil OfferPrices on a
+// ResourceOffer indicates that no per-resource pricing was specified.
+//
+// Field 1 is reserved for backward compatibility with a previously removed field.
+type OfferPrices struct {
+	// Cpu is the offered price for CPU resources. When nil, no explicit
+	// CPU price is set.
+	Cpu *types.DecCoin `protobuf:"bytes,2,opt,name=cpu,proto3" json:"cpu" yaml:"cpu"`
+	// Memory is the offered price for memory resources. When nil, no explicit
+	// memory price is set.
+	Memory *types.DecCoin `protobuf:"bytes,3,opt,name=memory,proto3" json:"memory" yaml:"memory"`
+	// Storage is a list of per-class storage prices. Each entry corresponds to a
+	// named storage class (e.g., "default", "ssd") and its associated price.
+	// Multiple entries allow providers to price different storage tiers independently.
+	Storage []*StorageOfferPrice `protobuf:"bytes,4,rep,name=storage,proto3" json:"storage" yaml:"storage"`
+	// Gpu is the offered price for GPU resources. When nil, no explicit
+	// GPU price is set.
+	Gpu *types.DecCoin `protobuf:"bytes,5,opt,name=gpu,proto3" json:"gpu" yaml:"gpu"`
+	// Endpoints is a list of per-kind endpoint prices. Each entry corresponds to
+	// a network endpoint kind (SHARED_HTTP, RANDOM_PORT, or LEASED_IP) and its
+	// associated price. Multiple entries allow providers to price different
+	// endpoint types independently.
+	Endpoints []*EndpointOfferPrice `protobuf:"bytes,6,rep,name=endpoints,proto3" json:"endpoints" yaml:"endpoints"`
+}
+
+func (m *OfferPrices) Reset()         { *m = OfferPrices{} }
+func (m *OfferPrices) String() string { return proto.CompactTextString(m) }
+func (*OfferPrices) ProtoMessage()    {}
+func (*OfferPrices) Descriptor() ([]byte, []int) {
+	return fileDescriptor_90a800b77898768f, []int{2}
+}
+func (m *OfferPrices) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *OfferPrices) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_OfferPrices.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *OfferPrices) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OfferPrices.Merge(m, src)
+}
+func (m *OfferPrices) XXX_Size() int {
+	return m.Size()
+}
+func (m *OfferPrices) XXX_DiscardUnknown() {
+	xxx_messageInfo_OfferPrices.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OfferPrices proto.InternalMessageInfo
+
+func (m *OfferPrices) GetCpu() *types.DecCoin {
+	if m != nil {
+		return m.Cpu
+	}
+	return nil
+}
+
+func (m *OfferPrices) GetMemory() *types.DecCoin {
+	if m != nil {
+		return m.Memory
+	}
+	return nil
+}
+
+func (m *OfferPrices) GetStorage() []*StorageOfferPrice {
+	if m != nil {
+		return m.Storage
+	}
+	return nil
+}
+
+func (m *OfferPrices) GetGpu() *types.DecCoin {
+	if m != nil {
+		return m.Gpu
+	}
+	return nil
+}
+
+func (m *OfferPrices) GetEndpoints() []*EndpointOfferPrice {
+	if m != nil {
+		return m.Endpoints
+	}
+	return nil
+}
+
 // ResourceOffer describes resources that provider is offering
 // for deployment.
 type ResourceOffer struct {
@@ -31,13 +257,15 @@ type ResourceOffer struct {
 	Resources v1beta4.Resources `protobuf:"bytes,1,opt,name=resources,proto3" json:"resources" yaml:"resources"`
 	// Count is the number of resources.
 	Count uint32 `protobuf:"varint,2,opt,name=count,proto3" json:"count" yaml:"count"`
+	// Prices contains per-resource pricing details (CPU, memory, storage, GPU, endpoints) for this offer.
+	Prices *OfferPrices `protobuf:"bytes,3,opt,name=prices,proto3" json:"prices" yaml:"prices"`
 }
 
 func (m *ResourceOffer) Reset()         { *m = ResourceOffer{} }
 func (m *ResourceOffer) String() string { return proto.CompactTextString(m) }
 func (*ResourceOffer) ProtoMessage()    {}
 func (*ResourceOffer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_90a800b77898768f, []int{0}
+	return fileDescriptor_90a800b77898768f, []int{3}
 }
 func (m *ResourceOffer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -80,7 +308,17 @@ func (m *ResourceOffer) GetCount() uint32 {
 	return 0
 }
 
+func (m *ResourceOffer) GetPrices() *OfferPrices {
+	if m != nil {
+		return m.Prices
+	}
+	return nil
+}
+
 func init() {
+	proto.RegisterType((*StorageOfferPrice)(nil), "akash.market.v1beta5.StorageOfferPrice")
+	proto.RegisterType((*EndpointOfferPrice)(nil), "akash.market.v1beta5.EndpointOfferPrice")
+	proto.RegisterType((*OfferPrices)(nil), "akash.market.v1beta5.OfferPrices")
 	proto.RegisterType((*ResourceOffer)(nil), "akash.market.v1beta5.ResourceOffer")
 }
 
@@ -89,26 +327,148 @@ func init() {
 }
 
 var fileDescriptor_90a800b77898768f = []byte{
-	// 271 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xd2, 0x4c, 0xcc, 0x4e, 0x2c,
-	0xce, 0xd0, 0xcf, 0x4d, 0x2c, 0xca, 0x4e, 0x2d, 0xd1, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49, 0x34,
-	0xd5, 0x2f, 0x4a, 0x2d, 0xce, 0x2f, 0x2d, 0x4a, 0x4e, 0x2d, 0xce, 0x4f, 0x4b, 0x4b, 0x2d, 0xd2,
-	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x01, 0x2b, 0xd5, 0x83, 0x28, 0xd5, 0x83, 0x2a, 0x95,
-	0x12, 0x49, 0xcf, 0x4f, 0xcf, 0x07, 0x2b, 0xd0, 0x07, 0xb1, 0x20, 0x6a, 0xa5, 0x74, 0x20, 0xc6,
-	0x26, 0x25, 0x16, 0xa7, 0x22, 0x0c, 0x83, 0x1a, 0x6f, 0x82, 0x10, 0x81, 0xa8, 0x56, 0xda, 0xc2,
-	0xc8, 0xc5, 0x1b, 0x04, 0x15, 0xf3, 0x07, 0xd9, 0x28, 0x94, 0xc3, 0xc5, 0x09, 0x57, 0x24, 0xc1,
-	0xa8, 0xc0, 0xa8, 0xc1, 0x6d, 0xa4, 0xae, 0x07, 0xb1, 0x1f, 0x64, 0xa6, 0x1e, 0xc2, 0x04, 0xa8,
-	0x99, 0x7a, 0x30, 0xfd, 0xc5, 0x4e, 0xaa, 0x27, 0xee, 0xc9, 0x33, 0xbc, 0xba, 0x27, 0x8f, 0x30,
-	0xe1, 0xd3, 0x3d, 0x79, 0x81, 0xca, 0xc4, 0xdc, 0x1c, 0x2b, 0x25, 0xb8, 0x90, 0x52, 0x10, 0x42,
-	0x5a, 0x48, 0x9f, 0x8b, 0x35, 0x39, 0xbf, 0x34, 0xaf, 0x44, 0x82, 0x49, 0x81, 0x51, 0x83, 0xd7,
-	0x49, 0xf2, 0xd5, 0x3d, 0x79, 0x88, 0xc0, 0xa7, 0x7b, 0xf2, 0x3c, 0x10, 0x8d, 0x60, 0xae, 0x52,
-	0x10, 0x44, 0xd8, 0x8a, 0xe5, 0xc5, 0x02, 0x79, 0x46, 0x27, 0x9b, 0x13, 0x8f, 0xe4, 0x18, 0x2f,
-	0x3c, 0x92, 0x63, 0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc2, 0x63, 0x39, 0x86, 0x0b, 0x8f, 0xe5, 0x18,
-	0x6e, 0x3c, 0x96, 0x63, 0x88, 0x52, 0x2a, 0xc8, 0x4e, 0xd7, 0x4b, 0xcc, 0x2e, 0xd1, 0x4b, 0x49,
-	0x2d, 0xd3, 0x4f, 0xcf, 0xd7, 0xcf, 0xcb, 0x4f, 0x49, 0x45, 0x0b, 0xe3, 0x24, 0x36, 0xb0, 0xdf,
-	0x8d, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0xfe, 0x52, 0xb2, 0x5f, 0x82, 0x01, 0x00, 0x00,
+	// 612 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xcb, 0x6e, 0xd3, 0x4c,
+	0x18, 0x8d, 0x9b, 0x34, 0xff, 0xdf, 0x09, 0xa9, 0x8a, 0x55, 0x09, 0xb7, 0xa2, 0x9e, 0x74, 0x24,
+	0x44, 0x50, 0xd0, 0x58, 0x09, 0xb0, 0xa9, 0x58, 0x19, 0x58, 0x00, 0x0b, 0xc0, 0x08, 0x09, 0x75,
+	0x85, 0xe3, 0x4c, 0x8d, 0x95, 0xda, 0x63, 0xf9, 0x52, 0xa9, 0x6f, 0xd1, 0x2d, 0x3b, 0xde, 0x86,
+	0x2c, 0x2b, 0xb1, 0x61, 0x35, 0x42, 0xc9, 0x06, 0x65, 0xe9, 0x27, 0x40, 0x73, 0x49, 0x26, 0xa2,
+	0x01, 0x95, 0x05, 0x3b, 0x7f, 0xe7, 0x3b, 0xe7, 0xbb, 0xf9, 0x68, 0xc0, 0x3d, 0x7f, 0xec, 0xe7,
+	0x1f, 0x9d, 0xd8, 0xcf, 0xc6, 0xa4, 0x70, 0xce, 0xfa, 0x43, 0x52, 0xf8, 0x8f, 0x9c, 0x8c, 0xe4,
+	0xb4, 0xcc, 0x02, 0x92, 0xd3, 0x93, 0x13, 0x92, 0xe1, 0x34, 0xa3, 0x05, 0x35, 0x77, 0x05, 0x15,
+	0x4b, 0x2a, 0x56, 0xd4, 0xfd, 0xdd, 0x90, 0x86, 0x54, 0x10, 0x1c, 0xfe, 0x25, 0xb9, 0xfb, 0x76,
+	0x40, 0xf3, 0x98, 0xe6, 0xce, 0xd0, 0xcf, 0x89, 0xaa, 0xda, 0x77, 0x02, 0x1a, 0x25, 0x2a, 0x7f,
+	0x5f, 0xb6, 0x15, 0xe9, 0x65, 0x33, 0x45, 0x7c, 0xa8, 0x11, 0xc5, 0xee, 0xfd, 0x91, 0x4d, 0x92,
+	0x51, 0x4a, 0xa3, 0xa4, 0x90, 0x64, 0xf4, 0xc9, 0x00, 0x37, 0xdf, 0x16, 0x34, 0xf3, 0x43, 0xf2,
+	0x8a, 0x4f, 0xff, 0x3a, 0x8b, 0x02, 0x62, 0xf6, 0x40, 0x23, 0xf1, 0x63, 0x62, 0x19, 0x1d, 0xa3,
+	0xbb, 0xe5, 0xde, 0x9a, 0x33, 0x28, 0xe2, 0x8a, 0xc1, 0xd6, 0xb9, 0x1f, 0x9f, 0x1e, 0x21, 0x1e,
+	0x21, 0x4f, 0x80, 0xe6, 0x1b, 0xb0, 0x99, 0x72, 0x95, 0xb5, 0xd1, 0x31, 0xba, 0xad, 0xc1, 0x6d,
+	0x2c, 0xb7, 0xc1, 0x7c, 0x00, 0xb5, 0x78, 0x1f, 0x3f, 0x25, 0xc1, 0x13, 0x1a, 0x25, 0xee, 0xc1,
+	0x84, 0x41, 0x63, 0xce, 0xa0, 0x94, 0x54, 0x0c, 0xde, 0x90, 0x05, 0x45, 0x88, 0x3c, 0x09, 0x1f,
+	0x35, 0x7e, 0x7c, 0x86, 0x06, 0xfa, 0x62, 0x00, 0xf3, 0x99, 0x1a, 0x77, 0x65, 0xb8, 0xf7, 0xa0,
+	0x31, 0x8e, 0x92, 0x91, 0x18, 0x6e, 0x7b, 0xd0, 0xc3, 0xf2, 0xd0, 0xa2, 0x9b, 0x3e, 0x85, 0x5a,
+	0x17, 0x2f, 0xf4, 0xf8, 0x65, 0x94, 0x8c, 0xe4, 0x26, 0x5c, 0xac, 0x37, 0xe1, 0x11, 0xf2, 0x04,
+	0xf8, 0xef, 0x36, 0xf9, 0x5a, 0x07, 0x2d, 0xbd, 0x41, 0x6e, 0x3e, 0x07, 0xf5, 0x20, 0x2d, 0xaf,
+	0xd5, 0x66, 0x4f, 0xb5, 0xe1, 0x82, 0x8a, 0x41, 0x20, 0x9b, 0x04, 0x69, 0x89, 0x3c, 0x0e, 0x99,
+	0xef, 0x40, 0x33, 0x26, 0x31, 0xcd, 0xce, 0xad, 0xfa, 0x35, 0xaa, 0x41, 0x55, 0x4d, 0x69, 0x2a,
+	0x06, 0xdb, 0xb2, 0xa0, 0x8c, 0x91, 0xa7, 0x12, 0xe6, 0x07, 0xf0, 0x5f, 0x2e, 0x6d, 0x61, 0x35,
+	0x3a, 0xf5, 0x6e, 0x6b, 0x70, 0x17, 0xaf, 0x33, 0x34, 0xbe, 0xe2, 0x1d, 0xf7, 0x60, 0xce, 0xe0,
+	0x42, 0x5b, 0x31, 0xb8, 0x2d, 0xeb, 0x2b, 0x00, 0x79, 0x8b, 0x14, 0xbf, 0x41, 0x98, 0x96, 0xd6,
+	0xe6, 0xdf, 0xdc, 0x20, 0x5c, 0xbd, 0x41, 0x28, 0x6e, 0x10, 0xa6, 0xa5, 0x19, 0x81, 0xad, 0x85,
+	0xad, 0x73, 0xab, 0x29, 0xc6, 0xed, 0xae, 0x1f, 0xf7, 0xaa, 0x9d, 0xdc, 0xc3, 0x39, 0x83, 0x5a,
+	0x5e, 0x31, 0xb8, 0x23, 0xcb, 0x2f, 0x21, 0xe4, 0xe9, 0xb4, 0xfc, 0x9f, 0x2f, 0x1a, 0xff, 0x1b,
+	0x3b, 0x1b, 0xe8, 0x62, 0x03, 0xb4, 0x3d, 0xe5, 0x38, 0x51, 0xd0, 0x3c, 0x05, 0x5b, 0x4b, 0x0b,
+	0x0a, 0x7f, 0xea, 0xbb, 0xfd, 0xc6, 0x9f, 0x0b, 0x7d, 0xee, 0xde, 0x99, 0x30, 0x58, 0xe3, 0xb3,
+	0x2c, 0x49, 0x7a, 0x96, 0x25, 0x84, 0x3c, 0x9d, 0x36, 0x1d, 0xb0, 0x19, 0xd0, 0x32, 0x29, 0x84,
+	0x8f, 0xda, 0xee, 0x1e, 0x37, 0xa3, 0x00, 0xb4, 0x19, 0x45, 0x88, 0x3c, 0x09, 0x9b, 0xc7, 0xa0,
+	0x29, 0x5c, 0x99, 0x2b, 0xaf, 0x1c, 0xae, 0x3f, 0xd2, 0x8a, 0x53, 0xb5, 0x61, 0xa4, 0x50, 0x1b,
+	0x46, 0xc6, 0xc8, 0x53, 0x09, 0x79, 0x18, 0xf7, 0xf1, 0x64, 0x6a, 0x1b, 0x97, 0x53, 0xdb, 0xf8,
+	0x3e, 0xb5, 0x8d, 0x8b, 0x99, 0x5d, 0xbb, 0x9c, 0xd9, 0xb5, 0x6f, 0x33, 0xbb, 0x76, 0x8c, 0xd2,
+	0x71, 0x88, 0xfd, 0x71, 0x81, 0x47, 0xe4, 0xcc, 0x09, 0xa9, 0x93, 0xd0, 0x11, 0xf9, 0xe5, 0x21,
+	0x1d, 0x36, 0xc5, 0x9b, 0xf4, 0xe0, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0x40, 0x53, 0x12, 0xd2,
+	0x67, 0x05, 0x00, 0x00,
 }
 
+func (this *StorageOfferPrice) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*StorageOfferPrice)
+	if !ok {
+		that2, ok := that.(StorageOfferPrice)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Name != that1.Name {
+		return false
+	}
+	if !this.Price.Equal(that1.Price) {
+		return false
+	}
+	return true
+}
+func (this *EndpointOfferPrice) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EndpointOfferPrice)
+	if !ok {
+		that2, ok := that.(EndpointOfferPrice)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Kind != that1.Kind {
+		return false
+	}
+	if !this.Price.Equal(that1.Price) {
+		return false
+	}
+	return true
+}
+func (this *OfferPrices) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*OfferPrices)
+	if !ok {
+		that2, ok := that.(OfferPrices)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Cpu.Equal(that1.Cpu) {
+		return false
+	}
+	if !this.Memory.Equal(that1.Memory) {
+		return false
+	}
+	if len(this.Storage) != len(that1.Storage) {
+		return false
+	}
+	for i := range this.Storage {
+		if !this.Storage[i].Equal(that1.Storage[i]) {
+			return false
+		}
+	}
+	if !this.Gpu.Equal(that1.Gpu) {
+		return false
+	}
+	if len(this.Endpoints) != len(that1.Endpoints) {
+		return false
+	}
+	for i := range this.Endpoints {
+		if !this.Endpoints[i].Equal(that1.Endpoints[i]) {
+			return false
+		}
+	}
+	return true
+}
 func (this *ResourceOffer) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -134,8 +494,180 @@ func (this *ResourceOffer) Equal(that interface{}) bool {
 	if this.Count != that1.Count {
 		return false
 	}
+	if !this.Prices.Equal(that1.Prices) {
+		return false
+	}
 	return true
 }
+func (m *StorageOfferPrice) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *StorageOfferPrice) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StorageOfferPrice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Price != nil {
+		{
+			size, err := m.Price.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintResourcesoffer(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EndpointOfferPrice) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EndpointOfferPrice) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EndpointOfferPrice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Price != nil {
+		{
+			size, err := m.Price.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Kind != 0 {
+		i = encodeVarintResourcesoffer(dAtA, i, uint64(m.Kind))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *OfferPrices) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *OfferPrices) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *OfferPrices) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Endpoints) > 0 {
+		for iNdEx := len(m.Endpoints) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Endpoints[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x32
+		}
+	}
+	if m.Gpu != nil {
+		{
+			size, err := m.Gpu.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.Storage) > 0 {
+		for iNdEx := len(m.Storage) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Storage[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if m.Memory != nil {
+		{
+			size, err := m.Memory.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.Cpu != nil {
+		{
+			size, err := m.Cpu.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *ResourceOffer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -156,6 +688,18 @@ func (m *ResourceOffer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.Prices != nil {
+		{
+			size, err := m.Prices.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintResourcesoffer(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
 	if m.Count != 0 {
 		i = encodeVarintResourcesoffer(dAtA, i, uint64(m.Count))
 		i--
@@ -185,6 +729,72 @@ func encodeVarintResourcesoffer(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *StorageOfferPrice) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovResourcesoffer(uint64(l))
+	}
+	if m.Price != nil {
+		l = m.Price.Size()
+		n += 1 + l + sovResourcesoffer(uint64(l))
+	}
+	return n
+}
+
+func (m *EndpointOfferPrice) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Kind != 0 {
+		n += 1 + sovResourcesoffer(uint64(m.Kind))
+	}
+	if m.Price != nil {
+		l = m.Price.Size()
+		n += 1 + l + sovResourcesoffer(uint64(l))
+	}
+	return n
+}
+
+func (m *OfferPrices) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Cpu != nil {
+		l = m.Cpu.Size()
+		n += 1 + l + sovResourcesoffer(uint64(l))
+	}
+	if m.Memory != nil {
+		l = m.Memory.Size()
+		n += 1 + l + sovResourcesoffer(uint64(l))
+	}
+	if len(m.Storage) > 0 {
+		for _, e := range m.Storage {
+			l = e.Size()
+			n += 1 + l + sovResourcesoffer(uint64(l))
+		}
+	}
+	if m.Gpu != nil {
+		l = m.Gpu.Size()
+		n += 1 + l + sovResourcesoffer(uint64(l))
+	}
+	if len(m.Endpoints) > 0 {
+		for _, e := range m.Endpoints {
+			l = e.Size()
+			n += 1 + l + sovResourcesoffer(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *ResourceOffer) Size() (n int) {
 	if m == nil {
 		return 0
@@ -196,6 +806,10 @@ func (m *ResourceOffer) Size() (n int) {
 	if m.Count != 0 {
 		n += 1 + sovResourcesoffer(uint64(m.Count))
 	}
+	if m.Prices != nil {
+		l = m.Prices.Size()
+		n += 1 + l + sovResourcesoffer(uint64(l))
+	}
 	return n
 }
 
@@ -204,6 +818,455 @@ func sovResourcesoffer(x uint64) (n int) {
 }
 func sozResourcesoffer(x uint64) (n int) {
 	return sovResourcesoffer(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *StorageOfferPrice) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowResourcesoffer
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: StorageOfferPrice: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: StorageOfferPrice: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Price", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Price == nil {
+				m.Price = &types.DecCoin{}
+			}
+			if err := m.Price.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipResourcesoffer(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EndpointOfferPrice) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowResourcesoffer
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EndpointOfferPrice: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EndpointOfferPrice: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Kind", wireType)
+			}
+			m.Kind = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Kind |= v1beta4.Endpoint_Kind(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Price", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Price == nil {
+				m.Price = &types.DecCoin{}
+			}
+			if err := m.Price.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipResourcesoffer(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *OfferPrices) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowResourcesoffer
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: OfferPrices: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: OfferPrices: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Cpu", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Cpu == nil {
+				m.Cpu = &types.DecCoin{}
+			}
+			if err := m.Cpu.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Memory", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Memory == nil {
+				m.Memory = &types.DecCoin{}
+			}
+			if err := m.Memory.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Storage", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Storage = append(m.Storage, &StorageOfferPrice{})
+			if err := m.Storage[len(m.Storage)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Gpu", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Gpu == nil {
+				m.Gpu = &types.DecCoin{}
+			}
+			if err := m.Gpu.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Endpoints", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Endpoints = append(m.Endpoints, &EndpointOfferPrice{})
+			if err := m.Endpoints[len(m.Endpoints)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipResourcesoffer(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *ResourceOffer) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -286,6 +1349,42 @@ func (m *ResourceOffer) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Prices", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowResourcesoffer
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthResourcesoffer
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Prices == nil {
+				m.Prices = &OfferPrices{}
+			}
+			if err := m.Prices.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipResourcesoffer(dAtA[iNdEx:])

@@ -150,10 +150,6 @@ export const MsgRegisterCounterparty: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgRegisterCounterparty>): MsgRegisterCounterparty {
-    return MsgRegisterCounterparty.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgRegisterCounterparty>): MsgRegisterCounterparty {
     const message = createBaseMsgRegisterCounterparty();
     message.clientId = object.clientId ?? "";
@@ -201,10 +197,6 @@ export const MsgRegisterCounterpartyResponse: MessageFns<
   toJSON(_: MsgRegisterCounterpartyResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgRegisterCounterpartyResponse>): MsgRegisterCounterpartyResponse {
-    return MsgRegisterCounterpartyResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgRegisterCounterpartyResponse>): MsgRegisterCounterpartyResponse {
     const message = createBaseMsgRegisterCounterpartyResponse();
@@ -293,10 +285,6 @@ export const MsgUpdateClientConfig: MessageFns<MsgUpdateClientConfig, "ibc.core.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgUpdateClientConfig>): MsgUpdateClientConfig {
-    return MsgUpdateClientConfig.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgUpdateClientConfig>): MsgUpdateClientConfig {
     const message = createBaseMsgUpdateClientConfig();
     message.clientId = object.clientId ?? "";
@@ -345,10 +333,6 @@ export const MsgUpdateClientConfigResponse: MessageFns<
   toJSON(_: MsgUpdateClientConfigResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgUpdateClientConfigResponse>): MsgUpdateClientConfigResponse {
-    return MsgUpdateClientConfigResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgUpdateClientConfigResponse>): MsgUpdateClientConfigResponse {
     const message = createBaseMsgUpdateClientConfigResponse();

@@ -1,0 +1,25 @@
+package testutil
+
+import (
+	"context"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	sdktest "github.com/cosmos/cosmos-sdk/testutil"
+
+	"pkg.akt.dev/go/cli"
+)
+
+// ExecOracleFeedPrice is used for testing oracle feed price tx
+func ExecOracleFeedPrice(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetTxOracleFeedPriceCmd(), args...)
+}
+
+// ExecQueryOraclePrices is used for testing oracle prices query
+func ExecQueryOraclePrices(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetOraclePricesCmd(), args...)
+}
+
+// ExecQueryOracleParams is used for testing oracle params query
+func ExecQueryOracleParams(ctx context.Context, cctx client.Context, args ...string) (sdktest.BufferWriter, error) {
+	return ExecTestCLICmd(ctx, cctx, cli.GetQueryOracleParamsCmd(), args...)
+}

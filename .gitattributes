@@ -1,3 +1,4 @@
 # All generated TS code (incl. sub-dirs and declaration files)
 ts/src/generated/** linguist-vendored
 ts/src/generated/**/*.d.ts linguist-vendored
+rs/gen/*.rs linguist-vendored

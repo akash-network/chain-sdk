@@ -6,6 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	ibctransfer "github.com/cosmos/ibc-go/v10/modules/apps/transfer"
+	ibccore "github.com/cosmos/ibc-go/v10/modules/core"
+
 	cflags "pkg.akt.dev/go/cli/flags"
 	aclient "pkg.akt.dev/go/node/client/discovery"
 )
@@ -74,6 +77,9 @@ func TxCmd() *cobra.Command {
 		GetDecodeCommand(),
 		GetTxVestingCmd(),
 		cflags.LineBreak,
+		ibccore.AppModuleBasic{}.GetTxCmd(),
+		ibctransfer.AppModuleBasic{}.GetTxCmd(),
+		cflags.LineBreak,
 		GetTxAuditCmd(),
 		GetTxCertCmd(),
 		GetTxDeploymentCmds(),
@@ -87,6 +93,9 @@ func TxCmd() *cobra.Command {
 		GetTxSlashingCmd(),
 		GetTxStakingCmd(),
 		GetTxUpgradeCmd(),
+		GetTxWasmCmd(),
+		GetTxOracleCmd(),
+		GetTxBMECmd(),
 	)
 
 	cmd.PersistentFlags().String(cflags.FlagChainID, "", "The network chain ID")

@@ -1,5 +1,3 @@
-import { patched } from "./cosmosPatchMessage.ts";
-
 export { Module, ModuleAccountPermission } from "./cosmos/auth/module/v1/module.ts";
 export { Module as Module_Module } from "./cosmos/authz/module/v1/module.ts";
 export { ModuleOptions, ServiceCommandDescriptor, RpcCommandOptions, FlagOptions, PositionalArgDescriptor } from "./cosmos/autocli/v1/options.ts";
@@ -41,27 +39,10 @@ export { Module as Mint_Module_Module } from "./cosmos/mint/module/v1/module.ts"
 export { Module as Nft_Module_Module } from "./cosmos/nft/module/v1/module.ts";
 export { Module as Params_Module_Module } from "./cosmos/params/module/v1/module.ts";
 export { Module as Protocolpool_Module_Module } from "./cosmos/protocolpool/module/v1/module.ts";
-export { Params as Protocolpool_Params } from "./cosmos/protocolpool/v1/types.ts";
-
-import { ContinuousFund as _ContinuousFund } from "./cosmos/protocolpool/v1/types.ts";
-export const ContinuousFund = patched(_ContinuousFund);
-export type ContinuousFund = _ContinuousFund
-
-import { GenesisState as _Protocolpool_GenesisState } from "./cosmos/protocolpool/v1/genesis.ts";
-export const Protocolpool_GenesisState = patched(_Protocolpool_GenesisState);
-export type Protocolpool_GenesisState = _Protocolpool_GenesisState
-export { QueryCommunityPoolRequest, QueryCommunityPoolResponse, QueryContinuousFundRequest, QueryContinuousFundsRequest, QueryParamsRequest as Protocolpool_QueryParamsRequest, QueryParamsResponse as Protocolpool_QueryParamsResponse } from "./cosmos/protocolpool/v1/query.ts";
-
-import { QueryContinuousFundResponse as _QueryContinuousFundResponse, QueryContinuousFundsResponse as _QueryContinuousFundsResponse } from "./cosmos/protocolpool/v1/query.ts";
-export const QueryContinuousFundResponse = patched(_QueryContinuousFundResponse);
-export type QueryContinuousFundResponse = _QueryContinuousFundResponse
-export const QueryContinuousFundsResponse = patched(_QueryContinuousFundsResponse);
-export type QueryContinuousFundsResponse = _QueryContinuousFundsResponse
-export { MsgFundCommunityPool, MsgFundCommunityPoolResponse, MsgCommunityPoolSpend, MsgCommunityPoolSpendResponse, MsgCreateContinuousFundResponse, MsgCancelContinuousFund, MsgCancelContinuousFundResponse, MsgUpdateParams as Protocolpool_MsgUpdateParams, MsgUpdateParamsResponse as Protocolpool_MsgUpdateParamsResponse } from "./cosmos/protocolpool/v1/tx.ts";
-
-import { MsgCreateContinuousFund as _MsgCreateContinuousFund } from "./cosmos/protocolpool/v1/tx.ts";
-export const MsgCreateContinuousFund = patched(_MsgCreateContinuousFund);
-export type MsgCreateContinuousFund = _MsgCreateContinuousFund
+export { ContinuousFund, Params as Protocolpool_Params } from "./cosmos/protocolpool/v1/types.ts";
+export { GenesisState as Protocolpool_GenesisState } from "./cosmos/protocolpool/v1/genesis.ts";
+export { QueryCommunityPoolRequest, QueryCommunityPoolResponse, QueryContinuousFundRequest, QueryContinuousFundResponse, QueryContinuousFundsRequest, QueryContinuousFundsResponse, QueryParamsRequest as Protocolpool_QueryParamsRequest, QueryParamsResponse as Protocolpool_QueryParamsResponse } from "./cosmos/protocolpool/v1/query.ts";
+export { MsgFundCommunityPool, MsgFundCommunityPoolResponse, MsgCommunityPoolSpend, MsgCommunityPoolSpendResponse, MsgCreateContinuousFund, MsgCreateContinuousFundResponse, MsgCancelContinuousFund, MsgCancelContinuousFundResponse, MsgUpdateParams as Protocolpool_MsgUpdateParams, MsgUpdateParamsResponse as Protocolpool_MsgUpdateParamsResponse } from "./cosmos/protocolpool/v1/tx.ts";
 export { FileDescriptorsRequest, FileDescriptorsResponse } from "./cosmos/reflection/v1/reflection.ts";
 export { Module as Slashing_Module_Module } from "./cosmos/slashing/module/v1/module.ts";
 export { Module as Staking_Module_Module } from "./cosmos/staking/module/v1/module.ts";

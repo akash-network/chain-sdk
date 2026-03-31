@@ -1,5 +1,4 @@
-import type { PrivateKeyOutputFormatType } from "jsrsasign";
-import rs from "jsrsasign";
+import type * as rs from "jsrsasign";
 
 /**
  * Represents the PEM encoded certificate, public key, and private key.
@@ -27,6 +26,7 @@ export interface CertificateInfo {
  * Options for specifying the validity range of a certificate.
  */
 export interface ValidityRangeOptions {
+  serial?: number;
   validFrom?: Date;
   validTo?: Date;
 }
@@ -46,6 +46,7 @@ export class CertificateManager {
    * console.log(certInfo);
    */
   async parsePem(certPEM: string): Promise<CertificateInfo> {
+    const rs = await getRSASignLib();
     const certificate = new rs.X509();
     certificate.readCertPEM(certPEM);
 
@@ -73,11 +74,12 @@ export class CertificateManager {
    * console.log('Private Key:', pem.privateKey);
    */
   async generatePEM(address: string, options?: ValidityRangeOptions): Promise<CertificatePem> {
+    const rs = await getRSASignLib();
     const { notBeforeStr, notAfterStr } = this.createValidityRange(options);
     const { prvKeyObj, pubKeyObj } = rs.KEYUTIL.generateKeypair("EC", "secp256r1");
     const cert = new rs.KJUR.asn1.x509.Certificate({
       version: 3,
-      serial: { int: Math.floor(Date.now() * 1000) },
+      serial: { int: options?.serial ?? Math.floor(Date.now() * 1000) },
       issuer: { str: "/CN=" + address },
       notbefore: notBeforeStr,
       notafter: notAfterStr,
@@ -94,7 +96,7 @@ export class CertificateManager {
       sigalg: "SHA256withECDSA",
       cakey: prvKeyObj,
     });
-    const publicKey = rs.KEYUTIL.getPEM(pubKeyObj, "PKCS8PUB" as PrivateKeyOutputFormatType).replaceAll("PUBLIC KEY", "EC PUBLIC KEY");
+    const publicKey = rs.KEYUTIL.getPEM(pubKeyObj, "PKCS8PUB" as rs.PrivateKeyOutputFormatType).replaceAll("PUBLIC KEY", "EC PUBLIC KEY");
     const certPEM = cert.getPEM();
 
     return {
@@ -164,4 +166,10 @@ export function strToDate(str: string): Date {
   const secs = parseInt(str.substring(10, 12));
 
   return new Date(Date.UTC(year, month, day, hours, minutes, secs));
+}
+
+let rsasignLib: Promise<typeof rs>;
+function getRSASignLib() {
+  rsasignLib ??= import("jsrsasign");
+  return rsasignLib;
 }

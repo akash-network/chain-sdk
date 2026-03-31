@@ -63,7 +63,7 @@ function generateTs(schema: Schema): void {
     const serviceImportPath = normalizePath(serviceImport.from.replace(/\.js$/, importExtension));
     servicesLoaderDefs.push(`() => import("./${PROTO_PATH}/${serviceImportPath}").then(m => m.${serviceImport.name})`);
     const serviceIndex = servicesLoaderDefs.length - 1;
-    const serviceMethods = service.methods.map((method, methodIndex) => {
+    const serviceMethods = service.methods.map((method) => {
       const inputType = f.import(method.input.name, `./${method.input.file.name}`);
       const importPath = inputType.from.replace(/\.js$/, "");
       const isInputEmpty = method.input.fields.length === 0;
@@ -82,7 +82,7 @@ function generateTs(schema: Schema): void {
         + `${methodName}: withMetadata(async function ${methodName}(${methodArgs.join(", ")}) {\n`
         + `  const service = await serviceLoader.loadAt(${serviceIndex});\n`
         + `  return ${isMsgService ? "getMsgClient" : "getClient"}(service).${decapitalize(method.name)}(input, options);\n`
-        + `}, { path: [${serviceIndex}, ${methodIndex}] })`
+        + `}, { path: [${serviceIndex}, ${JSON.stringify(method.localName)}], serviceLoader })`
       ;
     });
 
@@ -114,7 +114,7 @@ function generateTs(schema: Schema): void {
     f.export("const", "serviceLoader"),
     `= `,
     f.import("createServiceLoader", `../sdk/client/createServiceLoader${importExtension}`),
-    `([\n${indent(servicesLoaderDefs.join(",\n"))}\n] as const);`
+    `([\n${indent(servicesLoaderDefs.join(",\n"))}\n] as const);`,
   );
 
   const factoryArgs = hasMsgService
@@ -122,9 +122,9 @@ function generateTs(schema: Schema): void {
     : `transport: Transport`;
   f.print(
     f.export("function", "createSDK"),
-    `(${factoryArgs}, options?: `, f.import("SDKOptions", `../sdk/types${importExtension}`), `) {\n`,
-    `  const getClient = createClientFactory<CallOptions>(${hasMsgService ? "queryTransport" : "transport"}, options?.clientOptions);\n`,
-    (hasMsgService ? `  const getMsgClient = createClientFactory<TxCallOptions>(txTransport, options?.clientOptions);\n` : ""),
+    `(${factoryArgs}) {\n`,
+    `  const getClient = createClientFactory<CallOptions>(${hasMsgService ? "queryTransport" : "transport"});\n`,
+    (hasMsgService ? `  const getMsgClient = createClientFactory<TxCallOptions>(txTransport);\n` : ""),
     `  return ${indent(stringifyObject(sdkDefs)).trim()};\n`,
     `}`,
   );
@@ -251,7 +251,7 @@ function findExtension(schema: Schema, typeName: string) {
   return extensionsCache[typeName];
 }
 
-const serviceFiles: Record<string, GeneratedFile>  = {};
+const serviceFiles: Record<string, GeneratedFile> = {};
 function generateServiceDefs(service: DescService, schema: Schema) {
   const importExtension = schema.options.importExtension ? `.${schema.options.importExtension}` : "";
   const serviceFilePath = `${service.file.name}_akash.ts`;
@@ -267,10 +267,10 @@ function generateServiceDefs(service: DescService, schema: Schema) {
   service.methods.forEach((method) => {
     file.print(`    ${method.localName}: {`);
     file.print(`      name: "${method.name}",`);
-    if (method.methodKind !== "unary")  file.print(`      kind: "${method.methodKind}",`);
+    if (method.methodKind !== "unary") file.print(`      kind: "${method.methodKind}",`);
     if (httpExtension && hasOption(method, httpExtension)) {
       const httpOption = getOption(method, httpExtension) as {
-        pattern: { case: string, value: string };
+        pattern: { case: string; value: string };
       };
       if (httpOption.pattern.case !== "get") file.print(`      httpMethod: "${httpOption.pattern.case}",`);
 

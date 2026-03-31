@@ -166,10 +166,6 @@ export const InterfaceDescriptor: MessageFns<InterfaceDescriptor, "cosmos_proto.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<InterfaceDescriptor>): InterfaceDescriptor {
-    return InterfaceDescriptor.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<InterfaceDescriptor>): InterfaceDescriptor {
     const message = createBaseInterfaceDescriptor();
     message.name = object.name ?? "";
@@ -272,10 +268,6 @@ export const ScalarDescriptor: MessageFns<ScalarDescriptor, "cosmos_proto.Scalar
       obj.field_type = message.fieldType.map((e) => scalarTypeToJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ScalarDescriptor>): ScalarDescriptor {
-    return ScalarDescriptor.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ScalarDescriptor>): ScalarDescriptor {
     const message = createBaseScalarDescriptor();

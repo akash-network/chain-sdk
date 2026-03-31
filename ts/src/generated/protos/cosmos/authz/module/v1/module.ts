@@ -48,10 +48,6 @@ export const Module: MessageFns<Module, "cosmos.authz.module.v1.Module"> = {
     const obj: any = {};
     return obj;
   },
-
-  create(base?: DeepPartial<Module>): Module {
-    return Module.fromPartial(base ?? {});
-  },
   fromPartial(_: DeepPartial<Module>): Module {
     const message = createBaseModule();
     return message;

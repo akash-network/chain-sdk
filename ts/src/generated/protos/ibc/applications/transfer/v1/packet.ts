@@ -142,10 +142,6 @@ export const FungibleTokenPacketData: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FungibleTokenPacketData>): FungibleTokenPacketData {
-    return FungibleTokenPacketData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FungibleTokenPacketData>): FungibleTokenPacketData {
     const message = createBaseFungibleTokenPacketData();
     message.denom = object.denom ?? "";

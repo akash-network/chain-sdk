@@ -69,10 +69,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.provider.v1beta4.Gene
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GenesisState>): GenesisState {
-    return GenesisState.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
     message.providers = object.providers?.map((e) => Provider.fromPartial(e)) || [];

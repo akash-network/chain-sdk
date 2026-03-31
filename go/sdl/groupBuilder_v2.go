@@ -29,7 +29,7 @@ func (sdl *v2) buildGroups() error {
 			compute := sdl.Profiles.Compute[svcdepl.Profile]
 			svc := sdl.Services[svcName]
 			infra := sdl.Profiles.Placement[placementName]
-			price := infra.Pricing[svcdepl.Profile]
+			prices := infra.Pricing[svcdepl.Profile]
 
 			group := groups[placementName]
 
@@ -80,7 +80,7 @@ func (sdl *v2) buildGroups() error {
 
 			group.dgroup.Resources = append(group.dgroup.Resources, dtypes.ResourceUnit{
 				Resources: res,
-				Price:     price.Value,
+				Price:     prices.Value,
 				Count:     svcdepl.Count,
 			})
 
@@ -108,6 +108,12 @@ func (sdl *v2) buildGroups() error {
 							Mount:    volParams.Mount,
 							ReadOnly: volParams.ReadOnly,
 						})
+					}
+				}
+
+				if svc.Params.Permissions != nil {
+					params.Permissions = &manifest.ServicePermissions{
+						Read: svc.Params.Permissions.Read,
 					}
 				}
 

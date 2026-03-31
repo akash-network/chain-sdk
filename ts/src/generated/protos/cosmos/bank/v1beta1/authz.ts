@@ -93,10 +93,6 @@ export const SendAuthorization: MessageFns<SendAuthorization, "cosmos.bank.v1bet
     }
     return obj;
   },
-
-  create(base?: DeepPartial<SendAuthorization>): SendAuthorization {
-    return SendAuthorization.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<SendAuthorization>): SendAuthorization {
     const message = createBaseSendAuthorization();
     message.spendLimit = object.spendLimit?.map((e) => Coin.fromPartial(e)) || [];

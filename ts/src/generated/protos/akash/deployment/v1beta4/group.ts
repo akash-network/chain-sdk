@@ -181,10 +181,6 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Group>): Group {
-    return Group.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Group>): Group {
     const message = createBaseGroup();
     message.id = (object.id !== undefined && object.id !== null) ? GroupID.fromPartial(object.id) : undefined;

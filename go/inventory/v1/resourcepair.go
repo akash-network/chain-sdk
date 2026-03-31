@@ -121,5 +121,10 @@ func (m *ResourcePair) Available() *resource.Quantity {
 	// Modifies the value in place
 	(&result).Sub(*m.Allocated)
 
+	// Clamp to zero to prevent underflow when Allocated > Allocatable
+	if result.Value() < 0 {
+		result = *resource.NewQuantity(0, resource.DecimalSI)
+	}
+
 	return &result
 }

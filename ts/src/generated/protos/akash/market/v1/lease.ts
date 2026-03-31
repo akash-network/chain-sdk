@@ -249,10 +249,6 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LeaseID>): LeaseID {
-    return LeaseID.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LeaseID>): LeaseID {
     const message = createBaseLeaseID();
     message.owner = object.owner ?? "";
@@ -390,10 +386,6 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       obj.reason = leaseClosedReasonToJSON(message.reason);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Lease>): Lease {
-    return Lease.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Lease>): Lease {
     const message = createBaseLease();

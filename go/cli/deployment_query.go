@@ -5,10 +5,9 @@ import (
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 
-	"pkg.akt.dev/go/node/deployment/v1"
-	"pkg.akt.dev/go/node/deployment/v1beta4"
-
 	cflags "pkg.akt.dev/go/cli/flags"
+	"pkg.akt.dev/go/node/deployment/v1"
+	dvbeta "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
 // GetQueryDeploymentCmds returns the query commands for the deployment module
@@ -24,6 +23,7 @@ func GetQueryDeploymentCmds() *cobra.Command {
 		GetQueryDeploymentsCmd(),
 		GetQueryDeploymentCmd(),
 		GetQueryDeploymentGroupCmds(),
+		GetQueryDeploymentParamsCmd(),
 	)
 
 	return cmd
@@ -49,7 +49,7 @@ func GetQueryDeploymentsCmd() *cobra.Command {
 				return err
 			}
 
-			params := &v1beta4.QueryDeploymentsRequest{
+			params := &dvbeta.QueryDeploymentsRequest{
 				Filters:    dfilters,
 				Pagination: pageReq,
 			}
@@ -85,7 +85,7 @@ func GetQueryDeploymentCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Deployment().Deployment(ctx, &v1beta4.QueryDeploymentRequest{ID: id})
+			res, err := cl.Query().Deployment().Deployment(ctx, &dvbeta.QueryDeploymentRequest{ID: id})
 			if err != nil {
 				return err
 			}
@@ -131,7 +131,7 @@ func GetQueryDeploymentGroupCmd() *cobra.Command {
 				return err
 			}
 
-			res, err := cl.Query().Deployment().Group(ctx, &v1beta4.QueryGroupRequest{ID: id})
+			res, err := cl.Query().Deployment().Group(ctx, &dvbeta.QueryGroupRequest{ID: id})
 			if err != nil {
 				return err
 			}
@@ -143,6 +143,31 @@ func GetQueryDeploymentGroupCmd() *cobra.Command {
 	cflags.AddQueryFlagsToCmd(cmd)
 	cflags.AddGroupIDFlags(cmd.Flags())
 	cflags.MarkReqGroupIDFlags(cmd)
+
+	return cmd
+}
+
+func GetQueryDeploymentParamsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "params",
+		Short:             "Query the current deployment parameters",
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+
+			req := &dvbeta.QueryParamsRequest{}
+
+			res, err := cl.Query().Deployment().Params(ctx, req)
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }

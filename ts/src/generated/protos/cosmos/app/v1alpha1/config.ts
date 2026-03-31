@@ -139,10 +139,6 @@ export const Config: MessageFns<Config, "cosmos.app.v1alpha1.Config"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Config>): Config {
-    return Config.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Config>): Config {
     const message = createBaseConfig();
     message.modules = object.modules?.map((e) => ModuleConfig.fromPartial(e)) || [];
@@ -234,10 +230,6 @@ export const ModuleConfig: MessageFns<ModuleConfig, "cosmos.app.v1alpha1.ModuleC
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ModuleConfig>): ModuleConfig {
-    return ModuleConfig.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ModuleConfig>): ModuleConfig {
     const message = createBaseModuleConfig();
     message.name = object.name ?? "";
@@ -314,10 +306,6 @@ export const GolangBinding: MessageFns<GolangBinding, "cosmos.app.v1alpha1.Golan
       obj.implementation = message.implementation;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GolangBinding>): GolangBinding {
-    return GolangBinding.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GolangBinding>): GolangBinding {
     const message = createBaseGolangBinding();

@@ -1,0 +1,82 @@
+import { load } from "js-yaml";
+
+/**
+ * Generate YAML string from template literal and parse it into object of type T.
+ * If some interpolated value is undefined, the whole line containing it will be removed from the resulting YAML string.
+ *
+ * @example
+ * ```ts
+ * const version = "2.1";
+ * const expose = [{ port: 80, as: 80, to: [{ global: true }] }];
+ * const pricing = { web: { denom: "uakt", amount: 1000 } };
+ *
+ * const sdl: SDLInput = yaml`
+ * version: ${version}
+ * services:
+ *   web:
+ *     image: nginx
+ *     expose: ${expose}
+ * profiles:
+ *   compute:
+ *     web:
+ *       resources:
+ *         cpu:
+ *           units: 0.5
+ *         memory:
+ *           size: 512Mi
+ *         storage:
+ *           size: 1Gi
+ *   placement:
+ *     dcloud:
+ *       pricing: ${pricing}
+ * deployment:
+ *   web:
+ *     dcloud:
+ *       profile: web
+ *       count: 1
+ * `;
+ * ```
+ */
+export function yaml<T>(chunks: TemplateStringsArray, ...args: unknown[]): T {
+  const str = chunks.reduce((acc, chunk, i) => {
+    const intermediateResult = acc + chunk;
+    if (i >= args.length) return intermediateResult;
+
+    const value = args[i];
+    if (value !== undefined) {
+      return intermediateResult + JSON.stringify(value);
+    }
+
+    const lastNewlineIndex = intermediateResult.lastIndexOf("\n");
+    if (lastNewlineIndex !== -1) {
+      return intermediateResult.slice(0, lastNewlineIndex);
+    }
+
+    return intermediateResult;
+  }, "");
+
+  return load(str) as T;
+}
+
+/**
+ * Use this function to parse YAML template defined in external resource (e.g., file, http response, etc.).
+ * Prefer `yaml` function for inline YAML templates defined in code, as it provides better ergonomics.
+ */
+yaml.template = function yamlTemplate<T>(template: string, vars?: Record<string, unknown>): T {
+  const finalYaml = template.replace(/\$\{(\w+)\}/g, (_, varName) => {
+    const value = vars?.[varName];
+    if (value === undefined) {
+      throw new ReferenceError(`Variable "${varName}" is not provided to yaml template`);
+    }
+    return JSON.stringify(value);
+  });
+  return load(finalYaml) as T;
+};
+
+/**
+ * Parses YAML string into object and casts output to type T without validation and template processing.
+ * Use this function when you have a plain YAML string that you want to parse directly.
+ */
+yaml.raw = function yamlRaw<T>(yamlString: string): T {
+  return load(yamlString) as T;
+};

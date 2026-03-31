@@ -5,6 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	ibctransfer "github.com/cosmos/ibc-go/v10/modules/apps/transfer"
+	ibccore "github.com/cosmos/ibc-go/v10/modules/core"
+
 	cflags "pkg.akt.dev/go/cli/flags"
 	aclient "pkg.akt.dev/go/node/client/discovery"
 )
@@ -54,6 +57,9 @@ func QueryCmd() *cobra.Command {
 		GetQueryMintCmd(),
 		GetQueryParamsCmd(),
 		cflags.LineBreak,
+		ibccore.AppModuleBasic{}.GetQueryCmd(),
+		ibctransfer.AppModuleBasic{}.GetQueryCmd(),
+		cflags.LineBreak,
 		QueryBlockCmd(),
 		QueryBlocksCmd(),
 		QueryBlockResultsCmd(),
@@ -69,6 +75,10 @@ func QueryCmd() *cobra.Command {
 		GetQueryMarketCmds(),
 		GetQueryEscrowCmd(),
 		GetQueryProviderCmds(),
+		GetQueryWasmCmd(),
+		GetQueryOracleCmd(),
+		GetQueryBMECmd(),
+		GetQueryModuleNameToAddressCmd(),
 	)
 
 	cmd.PersistentFlags().String(cflags.FlagChainID, "", "The network chain ID")

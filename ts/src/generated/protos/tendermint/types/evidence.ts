@@ -110,10 +110,6 @@ export const Evidence: MessageFns<Evidence, "tendermint.types.Evidence"> = {
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Evidence>): Evidence {
-    return Evidence.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Evidence>): Evidence {
     const message = createBaseEvidence();
     message.duplicateVoteEvidence =
@@ -244,10 +240,6 @@ export const DuplicateVoteEvidence: MessageFns<DuplicateVoteEvidence, "tendermin
       obj.timestamp = message.timestamp.toISOString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<DuplicateVoteEvidence>): DuplicateVoteEvidence {
-    return DuplicateVoteEvidence.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<DuplicateVoteEvidence>): DuplicateVoteEvidence {
     const message = createBaseDuplicateVoteEvidence();
@@ -386,10 +378,6 @@ export const LightClientAttackEvidence: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<LightClientAttackEvidence>): LightClientAttackEvidence {
-    return LightClientAttackEvidence.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<LightClientAttackEvidence>): LightClientAttackEvidence {
     const message = createBaseLightClientAttackEvidence();
     message.conflictingBlock = (object.conflictingBlock !== undefined && object.conflictingBlock !== null)
@@ -457,10 +445,6 @@ export const EvidenceList: MessageFns<EvidenceList, "tendermint.types.EvidenceLi
       obj.evidence = message.evidence.map((e) => Evidence.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<EvidenceList>): EvidenceList {
-    return EvidenceList.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<EvidenceList>): EvidenceList {
     const message = createBaseEvidenceList();

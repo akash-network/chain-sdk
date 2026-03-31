@@ -37,6 +37,7 @@ await Promise.all([
     }
   })),
 ]);
+await fs.copyFile('src/sdl/sdl-schema.yaml', 'dist/sdl-schema.yaml');
 console.log('Building JS SDK finished');
 
 // TODO: get rid of it when this https://github.com/evanw/esbuild/issues/2435#issuecomment-3303686541 will be done

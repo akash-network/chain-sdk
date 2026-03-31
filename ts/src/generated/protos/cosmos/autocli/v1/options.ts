@@ -228,10 +228,6 @@ export const ModuleOptions: MessageFns<ModuleOptions, "cosmos.autocli.v1.ModuleO
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ModuleOptions>): ModuleOptions {
-    return ModuleOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ModuleOptions>): ModuleOptions {
     const message = createBaseModuleOptions();
     message.tx = (object.tx !== undefined && object.tx !== null)
@@ -379,10 +375,6 @@ export const ServiceCommandDescriptor: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ServiceCommandDescriptor>): ServiceCommandDescriptor {
-    return ServiceCommandDescriptor.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ServiceCommandDescriptor>): ServiceCommandDescriptor {
     const message = createBaseServiceCommandDescriptor();
     message.service = object.service ?? "";
@@ -470,10 +462,6 @@ export const ServiceCommandDescriptor_SubCommandsEntry: MessageFns<
       obj.value = ServiceCommandDescriptor.toJSON(message.value);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ServiceCommandDescriptor_SubCommandsEntry>): ServiceCommandDescriptor_SubCommandsEntry {
-    return ServiceCommandDescriptor_SubCommandsEntry.fromPartial(base ?? {});
   },
   fromPartial(
     object: DeepPartial<ServiceCommandDescriptor_SubCommandsEntry>,
@@ -750,10 +738,6 @@ export const RpcCommandOptions: MessageFns<RpcCommandOptions, "cosmos.autocli.v1
     }
     return obj;
   },
-
-  create(base?: DeepPartial<RpcCommandOptions>): RpcCommandOptions {
-    return RpcCommandOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<RpcCommandOptions>): RpcCommandOptions {
     const message = createBaseRpcCommandOptions();
     message.rpcMethod = object.rpcMethod ?? "";
@@ -849,10 +833,6 @@ export const RpcCommandOptions_FlagOptionsEntry: MessageFns<
       obj.value = FlagOptions.toJSON(message.value);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<RpcCommandOptions_FlagOptionsEntry>): RpcCommandOptions_FlagOptionsEntry {
-    return RpcCommandOptions_FlagOptionsEntry.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<RpcCommandOptions_FlagOptionsEntry>): RpcCommandOptions_FlagOptionsEntry {
     const message = createBaseRpcCommandOptions_FlagOptionsEntry();
@@ -1013,10 +993,6 @@ export const FlagOptions: MessageFns<FlagOptions, "cosmos.autocli.v1.FlagOptions
     }
     return obj;
   },
-
-  create(base?: DeepPartial<FlagOptions>): FlagOptions {
-    return FlagOptions.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<FlagOptions>): FlagOptions {
     const message = createBaseFlagOptions();
     message.name = object.name ?? "";
@@ -1111,10 +1087,6 @@ export const PositionalArgDescriptor: MessageFns<PositionalArgDescriptor, "cosmo
         obj.optional = message.optional;
       }
       return obj;
-    },
-
-    create(base?: DeepPartial<PositionalArgDescriptor>): PositionalArgDescriptor {
-      return PositionalArgDescriptor.fromPartial(base ?? {});
     },
     fromPartial(object: DeepPartial<PositionalArgDescriptor>): PositionalArgDescriptor {
       const message = createBasePositionalArgDescriptor();

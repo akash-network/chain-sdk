@@ -242,10 +242,6 @@ export const GetValidatorSetByHeightRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GetValidatorSetByHeightRequest>): GetValidatorSetByHeightRequest {
-    return GetValidatorSetByHeightRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GetValidatorSetByHeightRequest>): GetValidatorSetByHeightRequest {
     const message = createBaseGetValidatorSetByHeightRequest();
     message.height = (object.height !== undefined && object.height !== null)
@@ -344,10 +340,6 @@ export const GetValidatorSetByHeightResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GetValidatorSetByHeightResponse>): GetValidatorSetByHeightResponse {
-    return GetValidatorSetByHeightResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GetValidatorSetByHeightResponse>): GetValidatorSetByHeightResponse {
     const message = createBaseGetValidatorSetByHeightResponse();
     message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null)
@@ -412,10 +404,6 @@ export const GetLatestValidatorSetRequest: MessageFns<
       obj.pagination = PageRequest.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GetLatestValidatorSetRequest>): GetLatestValidatorSetRequest {
-    return GetLatestValidatorSetRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GetLatestValidatorSetRequest>): GetLatestValidatorSetRequest {
     const message = createBaseGetLatestValidatorSetRequest();
@@ -511,10 +499,6 @@ export const GetLatestValidatorSetResponse: MessageFns<
       obj.pagination = PageResponse.toJSON(message.pagination);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GetLatestValidatorSetResponse>): GetLatestValidatorSetResponse {
-    return GetLatestValidatorSetResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GetLatestValidatorSetResponse>): GetLatestValidatorSetResponse {
     const message = createBaseGetLatestValidatorSetResponse();
@@ -625,10 +609,6 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
     }
     return obj;
   },
-
-  create(base?: DeepPartial<Validator>): Validator {
-    return Validator.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<Validator>): Validator {
     const message = createBaseValidator();
     message.address = object.address ?? "";
@@ -696,10 +676,6 @@ export const GetBlockByHeightRequest: MessageFns<
       obj.height = (message.height || Long.ZERO).toString();
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GetBlockByHeightRequest>): GetBlockByHeightRequest {
-    return GetBlockByHeightRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GetBlockByHeightRequest>): GetBlockByHeightRequest {
     const message = createBaseGetBlockByHeightRequest();
@@ -794,10 +770,6 @@ export const GetBlockByHeightResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GetBlockByHeightResponse>): GetBlockByHeightResponse {
-    return GetBlockByHeightResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GetBlockByHeightResponse>): GetBlockByHeightResponse {
     const message = createBaseGetBlockByHeightResponse();
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
@@ -848,10 +820,6 @@ export const GetLatestBlockRequest: MessageFns<
   toJSON(_: GetLatestBlockRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<GetLatestBlockRequest>): GetLatestBlockRequest {
-    return GetLatestBlockRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<GetLatestBlockRequest>): GetLatestBlockRequest {
     const message = createBaseGetLatestBlockRequest();
@@ -943,10 +911,6 @@ export const GetLatestBlockResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GetLatestBlockResponse>): GetLatestBlockResponse {
-    return GetLatestBlockResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GetLatestBlockResponse>): GetLatestBlockResponse {
     const message = createBaseGetLatestBlockResponse();
     message.blockId = (object.blockId !== undefined && object.blockId !== null)
@@ -994,10 +958,6 @@ export const GetSyncingRequest: MessageFns<GetSyncingRequest, "cosmos.base.tende
   toJSON(_: GetSyncingRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<GetSyncingRequest>): GetSyncingRequest {
-    return GetSyncingRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<GetSyncingRequest>): GetSyncingRequest {
     const message = createBaseGetSyncingRequest();
@@ -1054,10 +1014,6 @@ export const GetSyncingResponse: MessageFns<GetSyncingResponse, "cosmos.base.ten
     }
     return obj;
   },
-
-  create(base?: DeepPartial<GetSyncingResponse>): GetSyncingResponse {
-    return GetSyncingResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<GetSyncingResponse>): GetSyncingResponse {
     const message = createBaseGetSyncingResponse();
     message.syncing = object.syncing ?? false;
@@ -1099,10 +1055,6 @@ export const GetNodeInfoRequest: MessageFns<GetNodeInfoRequest, "cosmos.base.ten
   toJSON(_: GetNodeInfoRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<GetNodeInfoRequest>): GetNodeInfoRequest {
-    return GetNodeInfoRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<GetNodeInfoRequest>): GetNodeInfoRequest {
     const message = createBaseGetNodeInfoRequest();
@@ -1180,10 +1132,6 @@ export const GetNodeInfoResponse: MessageFns<
       obj.application_version = VersionInfo.toJSON(message.applicationVersion);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<GetNodeInfoResponse>): GetNodeInfoResponse {
-    return GetNodeInfoResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<GetNodeInfoResponse>): GetNodeInfoResponse {
     const message = createBaseGetNodeInfoResponse();
@@ -1364,10 +1312,6 @@ export const VersionInfo: MessageFns<VersionInfo, "cosmos.base.tendermint.v1beta
     }
     return obj;
   },
-
-  create(base?: DeepPartial<VersionInfo>): VersionInfo {
-    return VersionInfo.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<VersionInfo>): VersionInfo {
     const message = createBaseVersionInfo();
     message.name = object.name ?? "";
@@ -1462,10 +1406,6 @@ export const Module: MessageFns<Module, "cosmos.base.tendermint.v1beta1.Module">
       obj.sum = message.sum;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<Module>): Module {
-    return Module.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<Module>): Module {
     const message = createBaseModule();
@@ -1571,10 +1511,6 @@ export const ABCIQueryRequest: MessageFns<ABCIQueryRequest, "cosmos.base.tenderm
       obj.prove = message.prove;
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ABCIQueryRequest>): ABCIQueryRequest {
-    return ABCIQueryRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ABCIQueryRequest>): ABCIQueryRequest {
     const message = createBaseABCIQueryRequest();
@@ -1769,10 +1705,6 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ABCIQueryResponse>): ABCIQueryResponse {
-    return ABCIQueryResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ABCIQueryResponse>): ABCIQueryResponse {
     const message = createBaseABCIQueryResponse();
     message.code = object.code ?? 0;
@@ -1873,10 +1805,6 @@ export const ProofOp: MessageFns<ProofOp, "cosmos.base.tendermint.v1beta1.ProofO
     }
     return obj;
   },
-
-  create(base?: DeepPartial<ProofOp>): ProofOp {
-    return ProofOp.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<ProofOp>): ProofOp {
     const message = createBaseProofOp();
     message.type = object.type ?? "";
@@ -1934,10 +1862,6 @@ export const ProofOps: MessageFns<ProofOps, "cosmos.base.tendermint.v1beta1.Proo
       obj.ops = message.ops.map((e) => ProofOp.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<ProofOps>): ProofOps {
-    return ProofOps.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<ProofOps>): ProofOps {
     const message = createBaseProofOps();

@@ -92,10 +92,6 @@ export const DenomTrace: MessageFns<DenomTrace, "ibc.applications.transfer.v1.De
     }
     return obj;
   },
-
-  create(base?: DeepPartial<DenomTrace>): DenomTrace {
-    return DenomTrace.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<DenomTrace>): DenomTrace {
     const message = createBaseDenomTrace();
     message.path = object.path ?? "";

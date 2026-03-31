@@ -84,10 +84,6 @@ export const MsgSignData: MessageFns<MsgSignData, "akash.base.offchain.sign.v1.M
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgSignData>): MsgSignData {
-    return MsgSignData.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgSignData>): MsgSignData {
     const message = createBaseMsgSignData();
     message.signer = object.signer ?? "";

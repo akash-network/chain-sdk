@@ -148,10 +148,6 @@ export const QueryDeploymentsRequest: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryDeploymentsRequest>): QueryDeploymentsRequest {
-    return QueryDeploymentsRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryDeploymentsRequest>): QueryDeploymentsRequest {
     const message = createBaseQueryDeploymentsRequest();
     message.filters = (object.filters !== undefined && object.filters !== null)
@@ -235,10 +231,6 @@ export const QueryDeploymentsResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryDeploymentsResponse>): QueryDeploymentsResponse {
-    return QueryDeploymentsResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryDeploymentsResponse>): QueryDeploymentsResponse {
     const message = createBaseQueryDeploymentsResponse();
     message.deployments = object.deployments?.map((e) => QueryDeploymentResponse.fromPartial(e)) || [];
@@ -300,10 +292,6 @@ export const QueryDeploymentRequest: MessageFns<
       obj.id = DeploymentID.toJSON(message.id);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryDeploymentRequest>): QueryDeploymentRequest {
-    return QueryDeploymentRequest.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryDeploymentRequest>): QueryDeploymentRequest {
     const message = createBaseQueryDeploymentRequest();
@@ -396,10 +384,6 @@ export const QueryDeploymentResponse: MessageFns<
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryDeploymentResponse>): QueryDeploymentResponse {
-    return QueryDeploymentResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryDeploymentResponse>): QueryDeploymentResponse {
     const message = createBaseQueryDeploymentResponse();
     message.deployment = (object.deployment !== undefined && object.deployment !== null)
@@ -462,10 +446,6 @@ export const QueryGroupRequest: MessageFns<QueryGroupRequest, "akash.deployment.
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryGroupRequest>): QueryGroupRequest {
-    return QueryGroupRequest.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryGroupRequest>): QueryGroupRequest {
     const message = createBaseQueryGroupRequest();
     message.id = (object.id !== undefined && object.id !== null) ? GroupID.fromPartial(object.id) : undefined;
@@ -522,10 +502,6 @@ export const QueryGroupResponse: MessageFns<QueryGroupResponse, "akash.deploymen
     }
     return obj;
   },
-
-  create(base?: DeepPartial<QueryGroupResponse>): QueryGroupResponse {
-    return QueryGroupResponse.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<QueryGroupResponse>): QueryGroupResponse {
     const message = createBaseQueryGroupResponse();
     message.group = (object.group !== undefined && object.group !== null) ? Group.fromPartial(object.group) : undefined;
@@ -567,10 +543,6 @@ export const QueryParamsRequest: MessageFns<QueryParamsRequest, "akash.deploymen
   toJSON(_: QueryParamsRequest): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
-    return QueryParamsRequest.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
@@ -626,10 +598,6 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "akash.deploym
       obj.params = Params.toJSON(message.params);
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
-    return QueryParamsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
     const message = createBaseQueryParamsResponse();

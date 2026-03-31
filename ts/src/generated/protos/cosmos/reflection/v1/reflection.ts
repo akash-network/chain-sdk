@@ -56,10 +56,6 @@ export const FileDescriptorsRequest: MessageFns<FileDescriptorsRequest, "cosmos.
       const obj: any = {};
       return obj;
     },
-
-    create(base?: DeepPartial<FileDescriptorsRequest>): FileDescriptorsRequest {
-      return FileDescriptorsRequest.fromPartial(base ?? {});
-    },
     fromPartial(_: DeepPartial<FileDescriptorsRequest>): FileDescriptorsRequest {
       const message = createBaseFileDescriptorsRequest();
       return message;
@@ -121,10 +117,6 @@ export const FileDescriptorsResponse: MessageFns<
       obj.files = message.files.map((e) => FileDescriptorProto.toJSON(e));
     }
     return obj;
-  },
-
-  create(base?: DeepPartial<FileDescriptorsResponse>): FileDescriptorsResponse {
-    return FileDescriptorsResponse.fromPartial(base ?? {});
   },
   fromPartial(object: DeepPartial<FileDescriptorsResponse>): FileDescriptorsResponse {
     const message = createBaseFileDescriptorsResponse();

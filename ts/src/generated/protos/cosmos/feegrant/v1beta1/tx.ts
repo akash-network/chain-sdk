@@ -131,10 +131,6 @@ export const MsgGrantAllowance: MessageFns<MsgGrantAllowance, "cosmos.feegrant.v
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgGrantAllowance>): MsgGrantAllowance {
-    return MsgGrantAllowance.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgGrantAllowance>): MsgGrantAllowance {
     const message = createBaseMsgGrantAllowance();
     message.granter = object.granter ?? "";
@@ -183,10 +179,6 @@ export const MsgGrantAllowanceResponse: MessageFns<
   toJSON(_: MsgGrantAllowanceResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgGrantAllowanceResponse>): MsgGrantAllowanceResponse {
-    return MsgGrantAllowanceResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgGrantAllowanceResponse>): MsgGrantAllowanceResponse {
     const message = createBaseMsgGrantAllowanceResponse();
@@ -260,10 +252,6 @@ export const MsgRevokeAllowance: MessageFns<MsgRevokeAllowance, "cosmos.feegrant
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgRevokeAllowance>): MsgRevokeAllowance {
-    return MsgRevokeAllowance.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgRevokeAllowance>): MsgRevokeAllowance {
     const message = createBaseMsgRevokeAllowance();
     message.granter = object.granter ?? "";
@@ -309,10 +297,6 @@ export const MsgRevokeAllowanceResponse: MessageFns<
   toJSON(_: MsgRevokeAllowanceResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgRevokeAllowanceResponse>): MsgRevokeAllowanceResponse {
-    return MsgRevokeAllowanceResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgRevokeAllowanceResponse>): MsgRevokeAllowanceResponse {
     const message = createBaseMsgRevokeAllowanceResponse();
@@ -369,10 +353,6 @@ export const MsgPruneAllowances: MessageFns<MsgPruneAllowances, "cosmos.feegrant
     }
     return obj;
   },
-
-  create(base?: DeepPartial<MsgPruneAllowances>): MsgPruneAllowances {
-    return MsgPruneAllowances.fromPartial(base ?? {});
-  },
   fromPartial(object: DeepPartial<MsgPruneAllowances>): MsgPruneAllowances {
     const message = createBaseMsgPruneAllowances();
     message.pruner = object.pruner ?? "";
@@ -417,10 +397,6 @@ export const MsgPruneAllowancesResponse: MessageFns<
   toJSON(_: MsgPruneAllowancesResponse): unknown {
     const obj: any = {};
     return obj;
-  },
-
-  create(base?: DeepPartial<MsgPruneAllowancesResponse>): MsgPruneAllowancesResponse {
-    return MsgPruneAllowancesResponse.fromPartial(base ?? {});
   },
   fromPartial(_: DeepPartial<MsgPruneAllowancesResponse>): MsgPruneAllowancesResponse {
     const message = createBaseMsgPruneAllowancesResponse();

@@ -1,6 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`protoc-gen-customtype-patches plugin generates \`Set\` instance with all the types that have reference to fields with custom type option 1`] = `
+exports[`protoc-gen-customtype-patches plugin when patch_whole_tree is false generates \`Set\` instance with all the leaf types that have reference to fields with custom type option 1`] = `
+"import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
+import type * as _protos_customtype from "../protos/customtype.ts";
+
+const p = {
+  "akash.test.functional.Dog"(value: _protos_customtype.Dog | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.name != null) newValue.name = LegacyDec[transformType](value.name);
+    return newValue;
+  },
+  "akash.test.functional.Money"(value: _protos_customtype.Money | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.amount != null) newValue.amount = LegacyDec[transformType](value.amount);
+    return newValue;
+  }
+};
+
+export const patches = p;
+"
+`;
+
+exports[`protoc-gen-customtype-patches plugin when patch_whole_tree is true generates \`Set\` instance with all the types that have reference to fields with custom type option 1`] = `
 "import type * as _protos_customtype from "../protos/customtype.ts";
 import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 
