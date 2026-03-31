@@ -15,7 +15,6 @@ import (
 	"pkg.akt.dev/go/node/escrow/module"
 	mvbeta "pkg.akt.dev/go/node/market/v1beta5"
 	"pkg.akt.dev/go/sdkutil"
-	"pkg.akt.dev/go/util/ctxlog"
 )
 
 type Authorization interface {
@@ -150,8 +149,6 @@ func (m *DepositAuthorization) ValidateBasic() error {
 	}
 
 	if !m.SpendLimit.IsNil() {
-		ctxlog.Logger(context.Background()).Warn("deposit authorization uses deprecated spend_limit, use spend_limits")
-
 		if !m.SpendLimit.IsValid() {
 			return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "spend limit is not valid")
 		}
