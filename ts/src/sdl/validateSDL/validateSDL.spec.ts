@@ -762,8 +762,11 @@ describe(validateSDL.name, () => {
       const errors = validate();
 
       expect(errors).toContainEqual(expect.objectContaining({
-        instancePath: expect.stringMatching(/\/services\/web\/expose\/0\/to\/0/),
-        message: expect.stringMatching(/IP is declared|must be true/),
+        instancePath: "/services/web/expose/0/to/0",
+        schemaPath: "#/definitions/exposeToWithIpEnforcesGlobal/if",
+        keyword: "if",
+        params: { failingKeyword: "then" },
+        message: "If an IP is declared, the directive must be declared as global.",
       }));
     });
 
