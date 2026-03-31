@@ -3,7 +3,6 @@ package query
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -11,14 +10,10 @@ import (
 	mv1beta5 "pkg.akt.dev/go/node/market/v1beta5"
 )
 
-type MarketQuery struct {
-	codec codec.Codec
-}
+type MarketQuery struct{}
 
-func NewMarketQuery(codec codec.Codec) *MarketQuery {
-	return &MarketQuery{
-		codec: codec,
-	}
+func NewMarketQuery() *MarketQuery {
+	return &MarketQuery{}
 }
 
 func (q *MarketQuery) Leases(ctx context.Context, req *mv1beta5.QueryLeasesRequest) (*mv1beta5.QueryLeasesResponse, error) {

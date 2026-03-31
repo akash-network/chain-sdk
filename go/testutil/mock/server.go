@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -68,7 +67,7 @@ func NewServer(cfg Config) (*Server, error) {
 
 	encCfg := setupCodec()
 	grpcSrv := grpc.NewServer()
-	deploymentQuery, marketQuery := registerGRPCServices(grpcSrv, encCfg.Codec)
+	deploymentQuery, marketQuery := registerGRPCServices(grpcSrv)
 
 	mux, err := registerGatewayHandlers(ctx, deploymentQuery, marketQuery)
 	if err != nil {
@@ -108,11 +107,11 @@ func setupCodec() sdkutil.EncodingConfig {
 	return encCfg
 }
 
-func registerGRPCServices(grpcSrv *grpc.Server, codec codec.Codec) (*query.DeploymentQuery, *query.MarketQuery) {
-	deploymentQuery := query.NewDeploymentQuery(codec)
+func registerGRPCServices(grpcSrv *grpc.Server) (*query.DeploymentQuery, *query.MarketQuery) {
+	deploymentQuery := query.NewDeploymentQuery()
 	dv1beta4.RegisterQueryServer(grpcSrv, deploymentQuery)
 
-	marketQuery := query.NewMarketQuery(codec)
+	marketQuery := query.NewMarketQuery()
 	mv1beta5.RegisterQueryServer(grpcSrv, marketQuery)
 
 	txService := tx.NewService()
@@ -260,7 +259,7 @@ func (s *Server) registerSimulateHandler(txClient txv1beta1.ServiceClient) {
 			}
 			req.TxBytes = txBytes
 
-			if err := s.validateTxBytes(txBytes); err != nil {
+			if _, err := s.decodeTxBytes(txBytes); err != nil {
 				_, outboundMarshaler := runtime.MarshalerForRequest(s.gatewayMux, r)
 				runtime.HTTPError(r.Context(), s.gatewayMux, outboundMarshaler, w, r, fmt.Errorf("transaction validation failed: %w", err))
 				return
@@ -308,11 +307,13 @@ func (s *Server) registerBroadcastHandler(txClient txv1beta1.ServiceClient) {
 			}
 			req.TxBytes = txBytes
 
-			if err := s.validateTxBytes(txBytes); err != nil {
+			msgs, err := s.decodeTxBytes(txBytes)
+			if err != nil {
 				_, outboundMarshaler := runtime.MarshalerForRequest(s.gatewayMux, r)
 				runtime.HTTPError(ctx, s.gatewayMux, outboundMarshaler, w, r, fmt.Errorf("transaction validation failed: %w", err))
 				return
 			}
+			s.recordMessages(msgs)
 		}
 
 		req.Mode = parseBroadcastMode(jsonReq)
@@ -491,43 +492,42 @@ func parseBroadcastMode(jsonReq map[string]interface{}) txv1beta1.BroadcastMode 
 	}
 }
 
-func (s *Server) validateTxBytes(txBytes []byte) error {
+func (s *Server) decodeTxBytes(txBytes []byte) ([]sdk.Msg, error) {
 	if len(txBytes) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	txDecoder := s.txConfig.TxDecoder()
 	decodedTx, err := txDecoder(txBytes)
 	if err != nil {
-		return fmt.Errorf("failed to decode transaction: %w", err)
+		return nil, fmt.Errorf("failed to decode transaction: %w", err)
 	}
 
 	msgs := decodedTx.GetMsgs()
 	for i, msg := range msgs {
 		if validator, ok := msg.(sdk.HasValidateBasic); ok {
 			if err := validator.ValidateBasic(); err != nil {
-				return fmt.Errorf("message %d validation failed: %w", i, err)
+				return nil, fmt.Errorf("message %d validation failed: %w", i, err)
 			}
-		}
-
-		if deploymentMsg, ok := msg.(*dv1beta4.MsgCreateDeployment); ok {
-			s.setLastDeployment(deploymentMsg)
-		}
-
-		if bidMsg, ok := msg.(*mv1beta5.MsgCreateBid); ok {
-			s.setLastBid(bidMsg)
-		}
-
-		if leaseMsg, ok := msg.(*mv1beta5.MsgCreateLease); ok {
-			s.setLastLease(leaseMsg)
-		}
-
-		if closeBidMsg, ok := msg.(*mv1beta5.MsgCloseBid); ok {
-			s.setLastCloseBid(closeBidMsg)
 		}
 	}
 
-	return nil
+	return msgs, nil
+}
+
+func (s *Server) recordMessages(msgs []sdk.Msg) {
+	for _, msg := range msgs {
+		switch m := msg.(type) {
+		case *dv1beta4.MsgCreateDeployment:
+			s.setLastDeployment(m)
+		case *mv1beta5.MsgCreateBid:
+			s.setLastBid(m)
+		case *mv1beta5.MsgCreateLease:
+			s.setLastLease(m)
+		case *mv1beta5.MsgCloseBid:
+			s.setLastCloseBid(m)
+		}
+	}
 }
 
 func (s *Server) GatewayURL() string {

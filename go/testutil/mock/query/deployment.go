@@ -3,7 +3,6 @@ package query
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdkquery "github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -11,14 +10,10 @@ import (
 	dv1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
-type DeploymentQuery struct {
-	codec codec.Codec
-}
+type DeploymentQuery struct{}
 
-func NewDeploymentQuery(codec codec.Codec) *DeploymentQuery {
-	return &DeploymentQuery{
-		codec: codec,
-	}
+func NewDeploymentQuery() *DeploymentQuery {
+	return &DeploymentQuery{}
 }
 
 func (q *DeploymentQuery) Deployments(ctx context.Context, req *dv1beta4.QueryDeploymentsRequest) (*dv1beta4.QueryDeploymentsResponse, error) {

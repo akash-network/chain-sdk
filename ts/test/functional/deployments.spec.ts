@@ -39,32 +39,6 @@ const normalizeDec = (value: string) => {
   return trimmedFrac ? `${intPart}.${trimmedFrac}` : intPart;
 };
 
-const toSnake = (input: string) => input.replace(/([A-Z])/g, "_$1").toLowerCase();
-
-const normalizeValue = (value: any, key?: string): any => {
-  if (value instanceof Uint8Array) {
-    return Buffer.from(value).toString("base64");
-  }
-
-  if (value && typeof value === "object" && typeof (value as any).toString === "function" && ("low" in (value as any) || "high" in (value as any))) {
-    return (value as any).toString();
-  }
-
-  if (Array.isArray(value)) {
-    return value.map(item => normalizeValue(item, key));
-  }
-
-  if (value && typeof value === "object") {
-    const normalized: Record<string, any> = {};
-    for (const [k, v] of Object.entries(value)) {
-      normalized[toSnake(k)] = normalizeValue(v, k);
-    }
-    return normalized;
-  }
-
-  return value;
-};
-
 const createBaseResourceGroup = () => ({
   name: "test-group",
   requirements: {
@@ -85,7 +59,7 @@ const createBaseResourceGroup = () => ({
   }],
 });
 
-const createInvalidDeployment = (
+const createTestDeployment = (
   owner: string,
   dseq: number,
   overrides: Partial<MsgCreateDeployment> = {}
@@ -100,7 +74,7 @@ const createInvalidDeployment = (
   ...overrides,
 });
 
-describe("Deployment Queries", () => {
+describe("Deployment and Market Operations", () => {
   jest.setTimeout(180000);
 
   let mockServer: Awaited<ReturnType<typeof startMockServer>>;
@@ -242,7 +216,7 @@ describe("Deployment Queries", () => {
       const [account] = await wallet.getAccounts();
       const sdk = createTestSDK(wallet);
 
-      const invalidDeployment = createInvalidDeployment(account.address, 999999, {
+      const invalidDeployment = createTestDeployment(account.address, 999999, {
         groups: [],
       });
 
@@ -258,7 +232,7 @@ describe("Deployment Queries", () => {
       const [account] = await wallet.getAccounts();
       const sdk = createTestSDK(wallet);
 
-      const invalidDeployment = createInvalidDeployment(account.address, 999998, {
+      const invalidDeployment = createTestDeployment(account.address, 999998, {
         hash: new Uint8Array(0),
       });
 
@@ -274,7 +248,7 @@ describe("Deployment Queries", () => {
       const [account] = await wallet.getAccounts();
       const sdk = createTestSDK(wallet);
 
-      const invalidDeployment = createInvalidDeployment(account.address, 999997, {
+      const invalidDeployment = createTestDeployment(account.address, 999997, {
         hash: new Uint8Array(16),
       });
 
@@ -307,7 +281,7 @@ describe("Deployment Queries", () => {
         }],
       };
 
-      const invalidDeployment = createInvalidDeployment(account.address, 999996, {
+      const invalidDeployment = createTestDeployment(account.address, 999996, {
         groups: [groupWithNegativePrice],
       });
 
@@ -343,7 +317,7 @@ describe("Deployment Queries", () => {
         };
       })();
 
-      const deployment = createInvalidDeployment(account.address, 999995, {
+      const deployment = createTestDeployment(account.address, 999995, {
         groups: [fractionalGroup],
         hash: new Uint8Array(Array.from({ length: 32 }, (_, i) => i + 1)),
       });
@@ -471,7 +445,7 @@ describe("Deployment Queries", () => {
       expect(normalizeDec(price?.amount as string)).toBe(highPrecisionPrice);
     });
 
-    it("handles zero price losslessly", async () => {
+    it("rejects zero price bid", async () => {
       const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
         prefix: "akash",
         hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
@@ -576,7 +550,7 @@ describe("Deployment Queries", () => {
         getMessageType,
       });
 
-      const deployment = createInvalidDeployment(account.address, 888888, {
+      const deployment = createTestDeployment(account.address, 888888, {
         hash: new Uint8Array(Array.from({ length: 32 }, (_, i) => i + 100)),
         groups: [{
           name: "broadcast-test",
@@ -684,7 +658,7 @@ describe("Deployment Queries", () => {
       expect(decoded?.id?.oseq).toBe(1);
     });
 
-    it("handles multi-message tx with deployment and bid", async () => {
+    it("handles sequential deployment and bid transactions", async () => {
       const wallet = await DirectSecp256k1HdWallet.fromMnemonic(TEST_MNEMONIC, {
         prefix: "akash",
         hdPaths: [makeCosmoshubPath(0), makeCosmoshubPath(1)],
@@ -694,7 +668,7 @@ describe("Deployment Queries", () => {
       const provider = accounts[1] ?? accounts[0];
       const sdk = createTestSDK(wallet);
 
-      const deployment = createInvalidDeployment(owner.address, 111111, {
+      const deployment = createTestDeployment(owner.address, 111111, {
         hash: new Uint8Array(Array.from({ length: 32 }, (_, i) => i + 50)),
         groups: [{
           name: "multi-msg-test",
