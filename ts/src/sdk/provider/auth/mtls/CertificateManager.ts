@@ -26,6 +26,7 @@ export interface CertificateInfo {
  * Options for specifying the validity range of a certificate.
  */
 export interface ValidityRangeOptions {
+  serial?: number;
   validFrom?: Date;
   validTo?: Date;
 }
@@ -78,7 +79,7 @@ export class CertificateManager {
     const { prvKeyObj, pubKeyObj } = rs.KEYUTIL.generateKeypair("EC", "secp256r1");
     const cert = new rs.KJUR.asn1.x509.Certificate({
       version: 3,
-      serial: { int: Math.floor(Date.now() * 1000) },
+      serial: { int: options?.serial ?? Math.floor(Date.now() * 1000) },
       issuer: { str: "/CN=" + address },
       notbefore: notBeforeStr,
       notafter: notAfterStr,
