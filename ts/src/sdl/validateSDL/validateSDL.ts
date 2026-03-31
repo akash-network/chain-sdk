@@ -11,7 +11,7 @@ const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/storageRamClassMustNotBePersistent"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
   },
-  "#/definitions/exposeToItem"() {
+  "#/definitions/exposeToWithIpEnforcesGlobal"() {
     return `If an IP is declared, the directive must be declared as global.`;
   },
 };
