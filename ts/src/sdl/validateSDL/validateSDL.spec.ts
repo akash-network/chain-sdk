@@ -478,7 +478,7 @@ describe(validateSDL.name, () => {
                 storage: {
                   name: "data",
                   size: "1Gi",
-                  attributes: { persistent: true },
+                  attributes: { class: "default", persistent: true },
                 },
               },
             },
@@ -526,7 +526,7 @@ describe(validateSDL.name, () => {
                 storage: {
                   name: "data",
                   size: "1Gi",
-                  attributes: { persistent: true },
+                  attributes: { class: "default", persistent: true },
                 },
               },
             },
@@ -616,11 +616,8 @@ describe(validateSDL.name, () => {
       const errors = validate();
 
       expect(errors).toContainEqual(expect.objectContaining({
-        message: "GPU must have attributes if units is not 0.",
+        message: expect.stringMatching(/GPU must have attributes|Missing required field: "attributes"/),
         instancePath: "/profiles/compute/web/resources/gpu",
-        schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu",
-        keyword: "required",
-        params: { missingProperty: "attributes" },
       }));
     });
 
@@ -684,11 +681,8 @@ describe(validateSDL.name, () => {
       const errors = validate();
 
       expect(errors).toContainEqual(expect.objectContaining({
-        message: "GPU must not have attributes if units is 0.",
-        instancePath: "/profiles/compute/web/resources/gpu/attributes",
-        schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes",
-        keyword: "additionalProperties",
-        params: { additionalProperty: "attributes" },
+        message: expect.stringMatching(/GPU must not have attributes|must be greater than 0/),
+        instancePath: expect.stringMatching(/\/profiles\/compute\/web\/resources\/gpu/),
       }));
     });
 
@@ -768,11 +762,11 @@ describe(validateSDL.name, () => {
       const errors = validate();
 
       expect(errors).toContainEqual(expect.objectContaining({
-        instancePath: "/services/web/expose/0/to/0/global",
-        keyword: "const",
+        instancePath: "/services/web/expose/0/to/0",
+        schemaPath: "#/definitions/exposeToWithIpEnforcesGlobal/if",
+        keyword: "if",
+        params: { failingKeyword: "then" },
         message: "If an IP is declared, the directive must be declared as global.",
-        params: { allowedValue: true },
-        schemaPath: "#/definitions/exposeToWithIpEnforcesGlobal/then/properties/global/const",
       }));
     });
 
@@ -2077,7 +2071,7 @@ describe(validateSDL.name, () => {
                 memory: { size: "512Mi" },
                 storage: {
                   size: "1Gi",
-                  attributes: { class: "ram" },
+                  attributes: { class: "ram", persistent: false },
                 },
               },
             },

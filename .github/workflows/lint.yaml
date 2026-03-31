@@ -43,6 +43,15 @@ jobs:
         run: make modvendor
       - name: lint-proto
         run: make lint-proto
+  sdl-schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup env
+        uses: HatsuneMiku3939/direnv-action@v1
+      - name: lint SDL schema
+        run: make lint-sdl-schema
   ts:
     runs-on: ubuntu-latest
     timeout-minutes: 5

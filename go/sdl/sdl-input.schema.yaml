@@ -57,6 +57,31 @@ definitions:
       - amount
     type: object
 
+  storageRamClassMustNotBePersistent:
+    description: RAM storage class must not have persistent=true
+    not:
+      properties:
+        class: { const: ram }
+        persistent:
+          oneOf:
+            - { const: true }
+            - { const: "true" }
+      required: [class, persistent]
+
+  storageNonRamClassRequiresPersistent:
+    description: Non-RAM storage classes (beta1, beta2, beta3, default) require persistent=true
+    if:
+      properties:
+        class: { enum: [beta1, beta2, beta3, default] }
+      required: [class]
+    then:
+      properties:
+        persistent:
+          oneOf:
+            - { const: true }
+            - { const: "true" }
+      required: [persistent]
+
   storageAttributesValidation:
     description: |
       Storage attributes validation:
@@ -70,14 +95,10 @@ definitions:
         oneOf:
           - type: boolean
           - type: string
-    not:
-      properties:
-        class: { const: ram }
-        persistent:
-          oneOf:
-            - { const: true }
-            - { const: "true" }
-      required: [class, persistent]
+    allOf:
+      - $ref: '#/definitions/storageRamClassMustNotBePersistent'
+      - $ref: '#/definitions/storageNonRamClassRequiresPersistent'
+    required: [class, persistent]
     type: object
 
   storageVolume:
@@ -99,6 +120,40 @@ definitions:
     type: string
     minLength: 1
     pattern: '^/'
+
+  gpuUnitsGt0RequiresAttributes:
+    description: GPU units > 0 requires attributes to be present
+    if:
+      properties:
+        units:
+          oneOf:
+            - type: number
+              exclusiveMinimum: 0
+            - type: string
+              not:
+                pattern: '^0+(\.0+)?$'
+      required:
+        - units
+    then:
+      required:
+        - attributes
+
+  gpuAttributesRequireUnitsGt0:
+    description: GPU attributes present requires units > 0
+    if:
+      required:
+        - attributes
+    then:
+      properties:
+        units:
+          oneOf:
+            - type: number
+              exclusiveMinimum: 0
+            - type: string
+              not:
+                pattern: '^0+(\.0+)?$'
+      required:
+        - units
 
   exposeToWithIpEnforcesGlobal:
     description: Expose to with IP enforces global
@@ -218,7 +273,9 @@ properties:
                       oneOf:
                         - type: string
                         - type: number
-                  required: [units]
+                  allOf:
+                    - $ref: '#/definitions/gpuUnitsGt0RequiresAttributes'
+                    - $ref: '#/definitions/gpuAttributesRequireUnitsGt0'
                   type: object
                 memory:
                   additionalProperties: false
@@ -312,83 +369,85 @@ properties:
         env:
           $ref: '#/definitions/stringArrayOrNull'
         expose:
-          items:
-            additionalProperties: false
-            properties:
-              accept:
-                items:
-                  type: string
-                type: array
-              as:
-                $ref: '#/definitions/portNumber'
-              http_options:
+          oneOf:
+            - type: array
+              items:
                 additionalProperties: false
                 properties:
-                  max_body_size:
-                    type: integer
-                    minimum: 0
-                    maximum: 104857600
-                    description: Maximum body size in bytes (max 100 MB)
-                  next_cases:
-                    oneOf:
-                      - type: array
-                        items:
-                          $ref: '#/definitions/httpErrorCode'
-                        contains:
-                          const: off
-                        maxItems: 1
-                        minItems: 1
-                      - type: array
-                        items:
-                          $ref: '#/definitions/httpErrorCode'
-                        not:
-                          contains:
-                            const: off
-                  next_timeout:
-                    type: integer
-                    minimum: 0
-                  next_tries:
-                    type: integer
-                    minimum: 0
-                  read_timeout:
-                    type: integer
-                    minimum: 0
-                    maximum: 60000
-                    description: Read timeout in milliseconds (max 60 seconds)
-                  send_timeout:
-                    type: integer
-                    minimum: 0
-                    maximum: 60000
-                    description: Send timeout in milliseconds (max 60 seconds)
+                  accept:
+                    items:
+                      type: string
+                    type: array
+                  as:
+                    $ref: '#/definitions/portNumber'
+                  http_options:
+                    additionalProperties: false
+                    properties:
+                      max_body_size:
+                        type: integer
+                        minimum: 0
+                        maximum: 104857600
+                        description: Maximum body size in bytes (max 100 MB)
+                      next_cases:
+                        oneOf:
+                          - type: array
+                            items:
+                              $ref: '#/definitions/httpErrorCode'
+                            contains:
+                              const: off
+                            maxItems: 1
+                            minItems: 1
+                          - type: array
+                            items:
+                              $ref: '#/definitions/httpErrorCode'
+                            not:
+                              contains:
+                                const: off
+                      next_timeout:
+                        type: integer
+                        minimum: 0
+                      next_tries:
+                        type: integer
+                        minimum: 0
+                      read_timeout:
+                        type: integer
+                        minimum: 0
+                        maximum: 60000
+                        description: Read timeout in milliseconds (max 60 seconds)
+                      send_timeout:
+                        type: integer
+                        minimum: 0
+                        maximum: 60000
+                        description: Send timeout in milliseconds (max 60 seconds)
+                    type: object
+                  port:
+                    $ref: '#/definitions/portNumber'
+                  proto:
+                    enum:
+                      - TCP
+                      - UDP
+                      - tcp
+                      - udp
+                    type: string
+                  to:
+                    items:
+                      additionalProperties: false
+                      properties:
+                        global:
+                          type: boolean
+                        ip:
+                          minLength: 1
+                          type: string
+                        service:
+                          type: string
+                      allOf:
+                        - $ref: '#/definitions/exposeToWithIpEnforcesGlobal'
+                      type: object
+                    type: array
+                required:
+                  - port
                 type: object
-              port:
-                $ref: '#/definitions/portNumber'
-              proto:
-                enum:
-                  - TCP
-                  - UDP
-                  - tcp
-                  - udp
-                type: string
-              to:
-                items:
-                  additionalProperties: false
-                  properties:
-                    global:
-                      type: boolean
-                    ip:
-                      minLength: 1
-                      type: string
-                    service:
-                      type: string
-                  allOf:
-                    - $ref: '#/definitions/exposeToWithIpEnforcesGlobal'
-                  type: object
-                type: array
-            required:
-              - port
-            type: object
-          type: array
+            - type: 'null'
         image:
           type: string
           minLength: 1
