@@ -8,10 +8,10 @@ export type { SDLInput };
 export { validationSDLSchema };
 
 const ERROR_MESSAGES: ErrorMessages = {
-  "#/definitions/storageAttributesValidation"(error) {
+  "#/definitions/storageRamClassMustNotBePersistent"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
   },
-  "#/definitions/exposeToWithIpEnforcesGlobal/then/properties/global/const"() {
+  "#/definitions/exposeToWithIpEnforcesGlobal"() {
     return `If an IP is declared, the directive must be declared as global.`;
   },
 };

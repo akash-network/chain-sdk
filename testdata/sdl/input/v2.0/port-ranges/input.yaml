@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.0"
+services:
+  streaming:
+    image: nginx:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      - port: 10000
+        as: 10000
+        to:
+          - global: true
+        proto: udp
+      - port: 20000
+        as: 20000
+        to:
+          - global: true
+        proto: udp
+profiles:
+  compute:
+    streaming-compute:
+      resources:
+        cpu:
+          units: 1000m
+        memory:
+          size: 2Gi
+        storage:
+          size: 1Gi
+  placement:
+    akash:
+      pricing:
+        streaming-compute:
+          denom: uakt
+          amount: 2000
+deployment:
+  streaming:
+    akash:
+      profile: streaming-compute
+      count: 1
+

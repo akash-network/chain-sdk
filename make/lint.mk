@@ -1,6 +1,7 @@
 SUB_LINT ?= go \
 proto \
 shell \
+sdl-schema \
 ts
 
 BUF_LINT_PACKAGES ?= provider \
@@ -35,6 +36,10 @@ proto-check-breaking: $(BUF)
 .PHONY: proto-format
 proto-format:
 	$(DOCKER_CLANG) find ./ ! -path "./go/vendor/*" -name *.proto -exec clang-format -i {} \;
+
+.PHONY: lint-sdl-schema
+lint-sdl-schema:
+	bash $(GO_ROOT)/sdl/lint-schema.sh
 
 .PHONY: lint-ts
 lint-ts: $(AKASH_TS_NODE_MODULES)

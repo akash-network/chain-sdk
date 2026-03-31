@@ -39,6 +39,7 @@
     "test:cov": "jest --selectProjects unit --coverage",
     "test:functional": "node -e \"if (!process.env.AKASH_DEVCACHE_BIN) { console.error('\\n\\x1b[31mError: Functional tests must be run via make from repo root:\\x1b[0m\\n  make test-functional-ts\\n'); process.exit(1); }\" && jest --selectProjects functional --runInBand",
     "test:unit": "jest --selectProjects unit",
+    "test:sdk-compatibility": "jest --selectProjects functional --testPathPattern=sdl-parity.spec.ts",
     "compile:validators": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts",
     "release": "npm run build && npm test && npm publish --tag alpha"
   },
