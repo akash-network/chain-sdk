@@ -14,7 +14,7 @@ const RETRIABLE_ERROR_CODES = new Set([
   TransportError.Code.Unknown,
 ]);
 export function createRetryInterceptor(options: RetryOptions): Interceptor {
-  const retryPolicy = retry(handleWhen((error) => error instanceof TransportError && RETRIABLE_ERROR_CODES.has(error.code)), {
+  const retryPolicy = retry(handleWhen((error) => (error instanceof TransportError && RETRIABLE_ERROR_CODES.has(error.code)) || isConnectionError(error)), {
     maxAttempts: Math.min(3, options.maxAttempts),
     backoff: new ExponentialBackoff({
       initialDelay: 250,
@@ -40,4 +40,19 @@ export interface RetryOptions {
    * Default value is 5000ms.
    */
   maxDelayMs?: number;
+}
+
+const RETRIABLE_NETWORK_ERROR_CODES = new Set([
+  "ECONNREFUSED",
+  "ECONNRESET",
+  "ETIMEDOUT",
+  "ESOCKETTIMEDOUT",
+  "UND_ERR_SOCKET",
+]);
+
+function isConnectionError(error: Error): boolean {
+  return ("code" in error && RETRIABLE_NETWORK_ERROR_CODES.has(error.code as string))
+    || (!!error.cause && isConnectionError(error.cause as Error))
+    || !!(error as Error & { errors?: Error[] }).errors?.some(isConnectionError)
+  ;
 }
