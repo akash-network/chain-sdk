@@ -46,6 +46,7 @@ type parityTestSuite struct {
 	groupsSchema   *gojsonschema.Schema
 }
 
+// newParityTestSuite initializes a test suite with compiled output schemas.
 func newParityTestSuite(t *testing.T) *parityTestSuite {
 	t.Helper()
 
@@ -65,12 +66,14 @@ func newParityTestSuite(t *testing.T) *parityTestSuite {
 	return s
 }
 
+// validateInputSchema validates raw YAML bytes against the embedded SDL input schema.
 func (s *parityTestSuite) validateInputSchema(t *testing.T, inputBytes []byte) {
 	t.Helper()
 	err := validateInputAgainstSchema(inputBytes)
 	require.NoError(t, err, "Input schema validation failed")
 }
 
+// validateOutputAgainstSchema validates manifest and group-specs JSON against output schemas.
 func (s *parityTestSuite) validateOutputAgainstSchema(t *testing.T, manifestBytes []byte, groupSpecsBytes []byte) {
 	t.Helper()
 
@@ -81,6 +84,7 @@ func (s *parityTestSuite) validateOutputAgainstSchema(t *testing.T, manifestByte
 	require.NoError(t, err, "Groups schema validation failed")
 }
 
+// validateFixtureBytes compares generated JSON output against a committed fixture file.
 func (s *parityTestSuite) validateFixtureBytes(t *testing.T, expectedPath string, actualBytes []byte, name string) {
 	t.Helper()
 	expectedBytes, err := os.ReadFile(expectedPath)
@@ -89,16 +93,19 @@ func (s *parityTestSuite) validateFixtureBytes(t *testing.T, expectedPath string
 	require.JSONEq(t, string(expectedBytes), string(actualBytes), "%s does not match expected output", name)
 }
 
+// TestParityV2_0 runs parity tests for SDL v2.0 fixtures.
 func TestParityV2_0(t *testing.T) {
 	s := newParityTestSuite(t)
 	s.testParity(t, "v2.0")
 }
 
+// TestParityV2_1 runs parity tests for SDL v2.1 fixtures.
 func TestParityV2_1(t *testing.T) {
 	s := newParityTestSuite(t)
 	s.testParity(t, "v2.1")
 }
 
+// testParity validates all fixtures for a given SDL version against Go parser output.
 func (s *parityTestSuite) testParity(t *testing.T, version string) {
 	inputDir := filepath.Join(s.fixturesInputRoot, version)
 
@@ -152,6 +159,7 @@ func (s *parityTestSuite) testParity(t *testing.T, version string) {
 	}
 }
 
+// TestInvalidSDLsRejected verifies that all invalid fixtures are rejected by the Go parser.
 func TestInvalidSDLsRejected(t *testing.T) {
 	s := newParityTestSuite(t)
 	invalidDir := filepath.Join(s.fixturesInputRoot, "invalid")
@@ -245,6 +253,7 @@ func TestSchemaOnlyValidations(t *testing.T) {
 	}
 }
 
+// compileSchemaFromPath loads a YAML JSON Schema file and compiles it for validation.
 func compileSchemaFromPath(schemaPath string) (*gojsonschema.Schema, error) {
 	schemaBytes, err := os.ReadFile(schemaPath)
 	if err != nil {
@@ -270,6 +279,7 @@ func compileSchemaFromPath(schemaPath string) (*gojsonschema.Schema, error) {
 	return schema, nil
 }
 
+// validateDataAgainstCompiledSchema validates JSON bytes against a pre-compiled schema.
 func validateDataAgainstCompiledSchema(data []byte, schema *gojsonschema.Schema) error {
 	result, err := schema.Validate(gojsonschema.NewBytesLoader(data))
 	if err != nil {
