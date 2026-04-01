@@ -1,0 +1,218 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Akash Group Specs Output Schema
+description: |
+  Schema for validating Akash group-specs JSON output produced by the SDL parser.
+  The group specs is an array of placement groups, each containing resource
+  requirements, placement constraints, and pricing information.
+
+definitions:
+  resourceValue:
+    description: Wrapped numeric value as string
+    additionalProperties: false
+    properties:
+      val:
+        type: string
+        pattern: '^[0-9]+$'
+    required:
+      - val
+    type: object
+
+  keyValuePair:
+    description: Key-value attribute pair
+    additionalProperties: false
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    required:
+      - key
+      - value
+    type: object
+
+  cpu:
+    description: CPU resource specification
+    additionalProperties: false
+    properties:
+      units:
+        $ref: '#/definitions/resourceValue'
+    required:
+      - units
+    type: object
+
+  memory:
+    description: Memory resource specification
+    additionalProperties: false
+    properties:
+      size:
+        $ref: '#/definitions/resourceValue'
+    required:
+      - size
+    type: object
+
+  storageVolume:
+    description: Storage volume with optional attributes
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      size:
+        $ref: '#/definitions/resourceValue'
+      attributes:
+        items:
+          $ref: '#/definitions/keyValuePair'
+        type: array
+    required:
+      - name
+      - size
+    type: object
+
+  gpu:
+    description: GPU resource specification with optional vendor attributes
+    additionalProperties: false
+    properties:
+      units:
+        $ref: '#/definitions/resourceValue'
+      attributes:
+        items:
+          $ref: '#/definitions/keyValuePair'
+        type: array
+    required:
+      - units
+    type: object
+
+  endpoint:
+    description: Resource endpoint reference
+    additionalProperties: false
+    properties:
+      kind:
+        type: integer
+      sequence_number:
+        type: integer
+        minimum: 0
+    required:
+      - sequence_number
+    type: object
+
+  resource:
+    description: Compute resource specification
+    additionalProperties: false
+    properties:
+      id:
+        type: integer
+        minimum: 1
+      cpu:
+        $ref: '#/definitions/cpu'
+      memory:
+        $ref: '#/definitions/memory'
+      storage:
+        items:
+          $ref: '#/definitions/storageVolume'
+        type: array
+      gpu:
+        $ref: '#/definitions/gpu'
+      endpoints:
+        items:
+          $ref: '#/definitions/endpoint'
+        type: array
+    required:
+      - id
+      - cpu
+      - memory
+      - storage
+      - gpu
+      - endpoints
+    type: object
+
+  price:
+    description: Price with denomination and amount
+    additionalProperties: false
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+        pattern: '^[0-9]+(\.[0-9]+)?$'
+    required:
+      - denom
+      - amount
+    type: object
+
+  resourceEntry:
+    description: A resource entry with count and pricing
+    additionalProperties: false
+    properties:
+      resource:
+        $ref: '#/definitions/resource'
+      count:
+        type: integer
+        minimum: 1
+      price:
+        $ref: '#/definitions/price'
+    required:
+      - resource
+      - count
+      - price
+    type: object
+
+  signedBy:
+    description: Provider signing requirements
+    additionalProperties: false
+    properties:
+      all_of:
+        oneOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+      any_of:
+        oneOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+    required:
+      - all_of
+      - any_of
+    type: object
+
+  requirements:
+    description: Placement requirements and constraints
+    additionalProperties: false
+    properties:
+      signed_by:
+        $ref: '#/definitions/signedBy'
+      attributes:
+        oneOf:
+          - items:
+              $ref: '#/definitions/keyValuePair'
+            type: array
+          - type: 'null'
+    required:
+      - signed_by
+      - attributes
+    type: object
+
+  groupSpec:
+    description: A placement group specification
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      requirements:
+        $ref: '#/definitions/requirements'
+      resources:
+        items:
+          $ref: '#/definitions/resourceEntry'
+        type: array
+        minItems: 1
+    required:
+      - name
+      - requirements
+      - resources
+    type: object
+
+items:
+  $ref: '#/definitions/groupSpec'
+minItems: 1
+type: array

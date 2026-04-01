@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+# Edge case: multiple storage volumes with different classes and persistence
+---
+version: "2.0"
+services:
+  app:
+    image: myapp:latest
+    expose:
+      - port: 8080
+        to:
+          - global: true
+    params:
+      storage:
+        cache:
+          mount: /cache
+        logs:
+          mount: /logs
+profiles:
+  compute:
+    app:
+      resources:
+        cpu:
+          units: 500m
+        memory:
+          size: 1Gi
+        storage:
+          - size: 2Gi
+          - name: cache
+            size: 5Gi
+            attributes:
+              persistent: true
+              class: beta2
+          - name: logs
+            size: 10Gi
+            attributes:
+              persistent: true
+              class: beta2
+  placement:
+    akash:
+      pricing:
+        app:
+          denom: uakt
+          amount: 200
+deployment:
+  app:
+    akash:
+      profile: app
+      count: 1

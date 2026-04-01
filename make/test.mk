@@ -55,9 +55,14 @@ generate-sdl-fixtures: ## Regenerate manifest.json and group-specs.json. Run onl
 
 .PHONY: test-sdl-parity
 test-sdl-parity: $(AKASH_TS_NODE_MODULES) ## Run SDL parity tests for Go and TypeScript (uses committed fixtures)
+	@echo "Running TS schema drift check..."
+	@cd ts && npm run compile:validators
+	@git diff --exit-code ts/src/sdl/validateSDL/validateSDLInput.ts || \
+		(echo "ERROR: TS generated validator is out of sync with Go schema. Run 'cd ts && npm run compile:validators' and commit." && exit 1)
+	@echo ""
 	@echo "Running Go SDL parity and validation tests..."
-	@cd go/sdl && go test -v -run "TestParity|TestInvalidSDLsRejected|TestSchemaValidation"
+	@cd go/sdl && go test -v -run "TestParity|TestInvalidSDLsRejected|TestSchemaValidation|TestReadStrict|TestSemanticOnlyInvalid"
 	@echo ""
 	@echo "Running TypeScript SDL parity tests..."
-	@echo "  (includes: v2.0 fixtures, v2.1 fixtures, and invalid SDL rejection)"
+	@echo "  (includes: v2.0 fixtures, v2.1 fixtures, invalid SDL rejection, schema-only-invalid)"
 	@cd ts && npm run test:sdk-compatibility
