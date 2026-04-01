@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.0-alpha.29](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.28...ts/v1.0.0-alpha.29) (2026-03-31)
+
+
+### Features
+
+* adds possibility to specify cert serial number ([#274](https://github.com/akash-network/chain-sdk/issues/274)) ([5322905](https://github.com/akash-network/chain-sdk/commit/532290565a8a8112276372411480400431e7a409))
+
+
+### Bug Fixes
+
+* **ts:** adds retry to chain sdk queries on connection errors ([#277](https://github.com/akash-network/chain-sdk/issues/277)) ([49c5d6b](https://github.com/akash-network/chain-sdk/commit/49c5d6bddeab5de7194c53cf0b625edacede908b))
+* **ts:** handles service.expose as an optional value ([#247](https://github.com/akash-network/chain-sdk/issues/247)) ([c56179e](https://github.com/akash-network/chain-sdk/commit/c56179ef4b0d624ccbe853fb93dd42de244e3728))
+
 ## [1.0.0-alpha.28](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.27...ts/v1.0.0-alpha.28) (2026-03-30)
 
 
