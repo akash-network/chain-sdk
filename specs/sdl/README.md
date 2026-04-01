@@ -26,7 +26,7 @@
 Schema validates structure only. **Go/TS parsers handle:**
 - Cross-references (deployment → profiles, params.storage → compute.storage)
 - Semantic constraints (unused endpoints, port collisions, mount uniqueness)
-- Parser-level checks (count ≥ 1, unknown fields — TS validates, Go rejects during unmarshal)
+- Parser-level checks (count ≥ 1, unknown fields — TS raises validation errors, Go rejects during unmarshal)
 
 ## Test Fixtures
 

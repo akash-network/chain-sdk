@@ -48,7 +48,7 @@ Any SDL-related PR **must**:
 1. Pass `make test-sdl-parity` (runs both Go and TS parity tests)
 2. Update fixtures if parser output changes (`make generate-sdl-fixtures`)
 3. Add new fixtures for new SDL features or edge cases
-4. Keep the TS generated validator in sync with the schema (CI drift check)
+4. Keep the TS-generated validator in sync with the schema (CI drift check)
 
 ### 4. Strict vs Lenient Parsing
 

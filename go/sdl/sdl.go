@@ -102,13 +102,23 @@ func Read(buf []byte) (sdlObj SDL, err error) {
 		return nil, err
 	}
 
-	if err = obj.validate(); err != nil {
+	if err = runPostUnmarshalValidation(obj); err != nil {
 		return nil, err
+	}
+
+	return obj, nil
+}
+
+// runPostUnmarshalValidation runs semantic validation, deployment group validation,
+// and manifest validation on an unmarshalled SDL object.
+func runPostUnmarshalValidation(obj *sdl) error {
+	if err := obj.validate(); err != nil {
+		return err
 	}
 
 	dgroups, err := obj.DeploymentGroups()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	vgroups := make([]dtypes.GroupSpec, 0, len(dgroups))
@@ -117,19 +127,19 @@ func Read(buf []byte) (sdlObj SDL, err error) {
 	}
 
 	if err = dtypes.ValidateDeploymentGroups(vgroups); err != nil {
-		return nil, err
+		return err
 	}
 
 	m, err := obj.Manifest()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = m.Validate(); err != nil {
-		return nil, err
+		return err
 	}
 
-	return obj, nil
+	return nil
 }
 
 // Version creates the deterministic Deployment Version hash from the SDL.
@@ -190,30 +200,7 @@ func ReadStrict(buf []byte) (SDL, error) {
 		return nil, err
 	}
 
-	if err := obj.validate(); err != nil {
-		return nil, err
-	}
-
-	dgroups, err := obj.DeploymentGroups()
-	if err != nil {
-		return nil, err
-	}
-
-	vgroups := make([]dtypes.GroupSpec, 0, len(dgroups))
-	for _, dgroup := range dgroups {
-		vgroups = append(vgroups, dgroup)
-	}
-
-	if err = dtypes.ValidateDeploymentGroups(vgroups); err != nil {
-		return nil, err
-	}
-
-	m, err := obj.Manifest()
-	if err != nil {
-		return nil, err
-	}
-
-	if err = m.Validate(); err != nil {
+	if err := runPostUnmarshalValidation(obj); err != nil {
 		return nil, err
 	}
 
