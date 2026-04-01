@@ -34,9 +34,9 @@ func orderParts(id OrderID) string {
 	return fmt.Sprintf("%s/%v/%v/%v", id.Owner, id.DSeq, id.GSeq, id.OSeq)
 }
 
-// parseOrderPath returns orderID details with provided queries, and return
+// ParseOrderPath returns orderID details with provided queries, and return
 // error if occurred due to wrong query
-func parseOrderPath(parts []string) (OrderID, error) {
+func ParseOrderPath(parts []string) (OrderID, error) {
 	if len(parts) < 4 {
 		return OrderID{}, ErrInvalidPath
 	}
@@ -54,14 +54,14 @@ func parseOrderPath(parts []string) (OrderID, error) {
 	return MakeOrderID(did, uint32(oseq)), nil
 }
 
-// parseBidPath returns bidID details with provided queries, and return
+// ParseBidPath returns bidID details with provided queries, and return
 // error if occurred due to wrong query
-func parseBidPath(parts []string) (BidID, error) {
+func ParseBidPath(parts []string) (BidID, error) {
 	if len(parts) < 5 {
 		return BidID{}, ErrInvalidPath
 	}
 
-	oid, err := parseOrderPath(parts[0:4])
+	oid, err := ParseOrderPath(parts[0:4])
 	if err != nil {
 		return BidID{}, err
 	}
@@ -77,7 +77,7 @@ func parseBidPath(parts []string) (BidID, error) {
 // ParseLeasePath returns leaseID details with provided queries, and return
 // error if occurred due to wrong query
 func ParseLeasePath(parts []string) (LeaseID, error) {
-	bid, err := parseBidPath(parts)
+	bid, err := ParseBidPath(parts)
 	if err != nil {
 		return LeaseID{}, err
 	}
