@@ -24,8 +24,6 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
-	oraclev1 "pkg.akt.dev/go/node/oracle/v1"
-
 	proposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 
 	providerv1beta4 "pkg.akt.dev/go/node/provider/v1beta4"
@@ -47,6 +45,8 @@ import (
 	v1beta4 "pkg.akt.dev/go/node/deployment/v1beta4"
 
 	v1beta5 "pkg.akt.dev/go/node/market/v1beta5"
+
+	v2 "pkg.akt.dev/go/node/oracle/v2"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
@@ -815,19 +815,19 @@ func (_c *QueryClient_Mint_Call) RunAndReturn(run func() minttypes.QueryClient) 
 }
 
 // Oracle provides a mock function with no fields
-func (_m *QueryClient) Oracle() oraclev1.QueryClient {
+func (_m *QueryClient) Oracle() v2.QueryClient {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Oracle")
 	}
 
-	var r0 oraclev1.QueryClient
-	if rf, ok := ret.Get(0).(func() oraclev1.QueryClient); ok {
+	var r0 v2.QueryClient
+	if rf, ok := ret.Get(0).(func() v2.QueryClient); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oraclev1.QueryClient)
+			r0 = ret.Get(0).(v2.QueryClient)
 		}
 	}
 
@@ -851,12 +851,12 @@ func (_c *QueryClient_Oracle_Call) Run(run func()) *QueryClient_Oracle_Call {
 	return _c
 }
 
-func (_c *QueryClient_Oracle_Call) Return(_a0 oraclev1.QueryClient) *QueryClient_Oracle_Call {
+func (_c *QueryClient_Oracle_Call) Return(_a0 v2.QueryClient) *QueryClient_Oracle_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *QueryClient_Oracle_Call) RunAndReturn(run func() oraclev1.QueryClient) *QueryClient_Oracle_Call {
+func (_c *QueryClient_Oracle_Call) RunAndReturn(run func() v2.QueryClient) *QueryClient_Oracle_Call {
 	_c.Call.Return(run)
 	return _c
 }
