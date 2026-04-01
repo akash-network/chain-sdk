@@ -14,13 +14,16 @@ const PROJECT_ROOT = path.join(__dirname, "../../..");
 const FIXTURES_INPUT_ROOT = path.join(PROJECT_ROOT, "testdata/sdl/input");
 const FIXTURES_OUTPUT_ROOT = path.join(PROJECT_ROOT, "testdata/sdl/output-fixtures");
 const INPUT_SCHEMA_PATH = path.join(PROJECT_ROOT, "go/sdl/sdl-input.schema.yaml");
+const MANIFEST_OUTPUT_SCHEMA_PATH = path.join(PROJECT_ROOT, "specs/sdl/manifest-output.schema.yaml");
+const GROUPS_OUTPUT_SCHEMA_PATH = path.join(PROJECT_ROOT, "specs/sdl/groups-output.schema.yaml");
 
 describe("SDL Parity Tests", () => {
   describe("v2.0", () => {
     loadFixtures("v2.0").forEach((fixture) => {
       it(fixture.name, () => {
-        const { manifest, expectedManifest } = setup(fixture);
+        const { manifest, expectedManifest, groupSpecs, expectedGroupSpecs } = setup(fixture);
         expect(manifest).toEqual(expectedManifest);
+        expect(groupSpecs).toEqual(expectedGroupSpecs);
       });
     });
   });
@@ -28,8 +31,9 @@ describe("SDL Parity Tests", () => {
   describe("v2.1", () => {
     loadFixtures("v2.1").forEach((fixture) => {
       it(fixture.name, () => {
-        const { manifest, expectedManifest } = setup(fixture);
+        const { manifest, expectedManifest, groupSpecs, expectedGroupSpecs } = setup(fixture);
         expect(manifest).toEqual(expectedManifest);
+        expect(groupSpecs).toEqual(expectedGroupSpecs);
       });
     });
   });
@@ -45,12 +49,102 @@ describe("SDL Parity Tests", () => {
     }
 
     fs.globSync("*.yaml", { cwd: invalidDir }).forEach((filename) => {
-        it(filename, () => {
+      it(filename, () => {
         const fixturePath = path.join(invalidDir, filename);
         const input = fs.readFileSync(fixturePath, "utf8");
         const sdl: SDLInput = yaml.raw(input);
         const result = generateManifest(sdl);
         expect(result.ok).toBe(false);
+      });
+    });
+  });
+
+  describe("semantic-only-invalid SDLs", () => {
+    const semanticInvalidDir = path.join(FIXTURES_INPUT_ROOT, "semantic-only-invalid");
+
+    if (!fs.existsSync(semanticInvalidDir)) {
+      it("semantic-only-invalid fixtures directory must exist", () => {
+        throw new Error(`Semantic-only-invalid fixtures directory not found: ${semanticInvalidDir}`);
+      });
+      return;
+    }
+
+    fs.globSync("*.yaml", { cwd: semanticInvalidDir }).forEach((filename) => {
+      it(`schema accepts: ${filename}`, () => {
+        const fixturePath = path.join(semanticInvalidDir, filename);
+        const input = fs.readFileSync(fixturePath, "utf8");
+        const inputYAML: SDLInput = yaml.raw(input);
+
+        const schemaValidator = compileSchema(INPUT_SCHEMA_PATH);
+        const schemaValid = schemaValidator(inputYAML);
+        expect(schemaValid).toBe(true);
+      });
+
+      it(`parser rejects: ${filename}`, () => {
+        const fixturePath = path.join(semanticInvalidDir, filename);
+        const input = fs.readFileSync(fixturePath, "utf8");
+        const inputYAML: SDLInput = yaml.raw(input);
+
+        const result = generateManifest(inputYAML);
+        expect(result.ok).toBe(false);
+      });
+    });
+  });
+
+  describe("schema-only-invalid SDLs", () => {
+    const schemaOnlyInvalidDir = path.join(FIXTURES_INPUT_ROOT, "schema-only-invalid");
+
+    if (!fs.existsSync(schemaOnlyInvalidDir)) {
+      it("schema-only-invalid fixtures directory must exist", () => {
+        throw new Error(`Schema-only-invalid fixtures directory not found: ${schemaOnlyInvalidDir}`);
+      });
+      return;
+    }
+
+    fs.globSync("*.yaml", { cwd: schemaOnlyInvalidDir }).forEach((filename) => {
+      it(`schema rejects: ${filename}`, () => {
+        const fixturePath = path.join(schemaOnlyInvalidDir, filename);
+        const input = fs.readFileSync(fixturePath, "utf8");
+        const inputYAML: SDLInput = yaml.raw(input);
+
+        const schemaValidator = compileSchema(INPUT_SCHEMA_PATH);
+        const schemaValid = schemaValidator(inputYAML);
+        expect(schemaValid).toBe(false);
+      });
+
+      it(`generateManifest also rejects: ${filename}`, () => {
+        const fixturePath = path.join(schemaOnlyInvalidDir, filename);
+        const input = fs.readFileSync(fixturePath, "utf8");
+        const inputYAML: SDLInput = yaml.raw(input);
+
+        const result = generateManifest(inputYAML);
+        expect(result.ok).toBe(false);
+      });
+    });
+  });
+
+  describe("canonical byte-level equality", () => {
+    const canonicalFixtures = [
+      { version: "v2.0", name: "simple" },
+      { version: "v2.0", name: "ip-endpoint" },
+      { version: "v2.1", name: "credentials" },
+    ];
+
+    canonicalFixtures.forEach(({ version, name }) => {
+      it(`${version}/${name} manifest canonical JSON matches`, () => {
+        const inputPath = path.join(FIXTURES_INPUT_ROOT, version, name, "input.yaml");
+        const manifestPath = path.join(FIXTURES_OUTPUT_ROOT, version, name, "manifest.json");
+
+        const rawSDL = fs.readFileSync(inputPath, "utf8");
+        const untrustedSDL: SDLInput = yaml.raw(rawSDL);
+        const result = generateManifest(untrustedSDL);
+        if (!result.ok) throw new Error(`generateManifest failed`);
+
+        const canonicalTS = manifestToSortedJSON(result.value.groups);
+        const goFixture = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+        const canonicalGo = manifestToSortedJSON(goFixture);
+
+        expect(canonicalTS).toBe(canonicalGo);
       });
     });
   });
@@ -67,10 +161,18 @@ describe("SDL Parity Tests", () => {
     const manifest = JSON.parse(manifestToSortedJSON(result.value.groups), normalizeManifestJSON);
     const expectedManifest = JSON.parse(fs.readFileSync(fixture.manifestPath, "utf8"));
 
+    const groupSpecs = JSON.parse(manifestToSortedJSON(result.value.groupSpecs));
+    const expectedGroupSpecs = JSON.parse(fs.readFileSync(fixture.groupSpecsPath, "utf8"));
+
+    validateAgainstSchema("manifest output", manifest, MANIFEST_OUTPUT_SCHEMA_PATH);
+    validateAgainstSchema("groups output", groupSpecs, GROUPS_OUTPUT_SCHEMA_PATH);
+
     return {
       manifest,
-      expectedManifest
-    }
+      expectedManifest,
+      groupSpecs,
+      expectedGroupSpecs,
+    };
   }
 });
 
@@ -89,15 +191,21 @@ function loadFixtures(version: string): Fixture[] {
       const fixtureName = entry.name;
       const inputPath = path.join(inputVersionDir, fixtureName, "input.yaml");
       const manifestPath = path.join(FIXTURES_OUTPUT_ROOT, version, fixtureName, "manifest.json");
+      const groupSpecsPath = path.join(FIXTURES_OUTPUT_ROOT, version, fixtureName, "group-specs.json");
 
       if (!fs.existsSync(manifestPath)) {
         throw new Error(`manifest.json not generated for ${fixtureName} (run: make generate-sdl-fixtures)`);
+      }
+
+      if (!fs.existsSync(groupSpecsPath)) {
+        throw new Error(`group-specs.json not generated for ${fixtureName} (run: make generate-sdl-fixtures)`);
       }
 
       return {
         name: fixtureName,
         inputPath,
         manifestPath,
+        groupSpecsPath,
       };
     });
 }
@@ -149,4 +257,5 @@ interface Fixture {
   name: string;
   inputPath: string;
   manifestPath: string;
+  groupSpecsPath: string;
 }

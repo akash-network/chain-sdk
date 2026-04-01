@@ -72,4 +72,5 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "${{ env.GOVERSION }}"
+          cache-dependency-path: go/sdl/go.sum
       - run: make test-sdl-parity

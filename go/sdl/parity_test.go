@@ -27,15 +27,30 @@ package sdl
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/xeipuuv/gojsonschema"
+	"gopkg.in/yaml.v3"
 )
 
 const fixturesInputRoot = "../../testdata/sdl/input"
 const fixturesOutputRoot = "../../testdata/sdl/output-fixtures"
+const schemasRoot = "../../specs/sdl" // Output schemas for tests
+
+var (
+	manifestSchema     *gojsonschema.Schema
+	manifestSchemaOnce sync.Once
+	manifestSchemaErr  error
+
+	groupsSchema     *gojsonschema.Schema
+	groupsSchemaOnce sync.Once
+	groupsSchemaErr  error
+)
 
 func TestParityV2_0(t *testing.T) {
 	testParity(t, "v2.0")
@@ -90,6 +105,8 @@ func testParity(t *testing.T, version string) {
 			groupSpecsBytes, err := json.Marshal(groupSpecs)
 			require.NoError(t, err)
 
+			validateOutputAgainstSchema(t, manifestBytes, groupSpecsBytes)
+
 			validateFixtureBytes(t, manifestPath, manifestBytes, "Manifest")
 			validateFixtureBytes(t, groupSpecsPath, groupSpecsBytes, "GroupSpecs")
 		})
@@ -99,6 +116,24 @@ func testParity(t *testing.T, version string) {
 func validateInputSchema(t *testing.T, inputBytes []byte) {
 	err := validateInputAgainstSchema(inputBytes)
 	require.NoError(t, err, "Input schema validation failed")
+}
+
+func validateOutputAgainstSchema(t *testing.T, manifestBytes []byte, groupSpecsBytes []byte) {
+	manifestSchemaOnce.Do(func() {
+		manifestSchema, manifestSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "manifest-output.schema.yaml"))
+	})
+	require.NoError(t, manifestSchemaErr, "Failed to compile manifest schema")
+
+	err := validateDataAgainstCompiledSchema(manifestBytes, manifestSchema)
+	require.NoError(t, err, "Manifest schema validation failed")
+
+	groupsSchemaOnce.Do(func() {
+		groupsSchema, groupsSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "groups-output.schema.yaml"))
+	})
+	require.NoError(t, groupsSchemaErr, "Failed to compile groups schema")
+
+	err = validateDataAgainstCompiledSchema(groupSpecsBytes, groupsSchema)
+	require.NoError(t, err, "Groups schema validation failed")
 }
 
 func validateFixtureBytes(t *testing.T, expectedPath string, actualBytes []byte, name string) {
@@ -127,6 +162,40 @@ func TestInvalidSDLsRejected(t *testing.T) {
 		t.Run(entry.Name(), func(t *testing.T) {
 			_, err := ReadFile(fixturePath)
 			require.Error(t, err)
+		})
+	}
+}
+
+// TestSemanticOnlyInvalid tests SDL files that pass schema validation but are
+// rejected by both Go and TS parsers due to semantic constraints not expressible
+// in JSON Schema (e.g., unused endpoints, cross-reference errors, duplicate mounts).
+func TestSemanticOnlyInvalid(t *testing.T) {
+	semanticDir := filepath.Join(fixturesInputRoot, "semantic-only-invalid")
+
+	entries, err := os.ReadDir(semanticDir)
+	if os.IsNotExist(err) {
+		t.Skip("Semantic-only invalid fixtures directory does not exist yet")
+		return
+	}
+	require.NoError(t, err)
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		fixturePath := filepath.Join(semanticDir, entry.Name())
+		t.Run(entry.Name(), func(t *testing.T) {
+			inputBytes, err := os.ReadFile(fixturePath)
+			require.NoError(t, err)
+
+			// Schema should accept (structurally valid)
+			schemaErr := validateInputAgainstSchema(inputBytes)
+			require.NoError(t, schemaErr, "Schema should accept this input (semantic-only invalid)")
+
+			// Go parser should reject (semantically invalid)
+			_, goErr := ReadFile(fixturePath)
+			require.Error(t, goErr, "Go parser should reject this input (semantic validation)")
 		})
 	}
 }
@@ -162,4 +231,46 @@ func TestSchemaOnlyValidations(t *testing.T) {
 			require.NoError(t, goErr, "Go should accept this input (schema-only validation)")
 		})
 	}
+}
+
+func compileSchemaFromPath(schemaPath string) (*gojsonschema.Schema, error) {
+	schemaBytes, err := os.ReadFile(schemaPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read schema file: %w", err)
+	}
+
+	var schemaData any
+	if err := yaml.Unmarshal(schemaBytes, &schemaData); err != nil {
+		return nil, fmt.Errorf("failed to parse YAML schema: %w", err)
+	}
+
+	jsonBytes, err := json.Marshal(schemaData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
+	}
+
+	schemaLoader := gojsonschema.NewSchemaLoader()
+	schema, err := schemaLoader.Compile(gojsonschema.NewBytesLoader(jsonBytes))
+	if err != nil {
+		return nil, fmt.Errorf("failed to compile schema: %w", err)
+	}
+
+	return schema, nil
+}
+
+func validateDataAgainstCompiledSchema(data []byte, schema *gojsonschema.Schema) error {
+	result, err := schema.Validate(gojsonschema.NewBytesLoader(data))
+	if err != nil {
+		return fmt.Errorf("failed to validate against schema: %w", err)
+	}
+
+	if !result.Valid() {
+		var errors []string
+		for _, desc := range result.Errors() {
+			errors = append(errors, desc.String())
+		}
+		return fmt.Errorf("schema validation failed: %v", errors)
+	}
+
+	return nil
 }
