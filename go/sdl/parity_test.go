@@ -30,7 +30,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -38,30 +37,70 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const fixturesInputRoot = "../../testdata/sdl/input"
-const fixturesOutputRoot = "../../testdata/sdl/output-fixtures"
-const schemasRoot = "../../specs/sdl" // Output schemas for tests
+type parityTestSuite struct {
+	fixturesInputRoot  string
+	fixturesOutputRoot string
+	schemasRoot        string
 
-var (
-	manifestSchema     *gojsonschema.Schema
-	manifestSchemaOnce sync.Once
-	manifestSchemaErr  error
+	manifestSchema *gojsonschema.Schema
+	groupsSchema   *gojsonschema.Schema
+}
 
-	groupsSchema     *gojsonschema.Schema
-	groupsSchemaOnce sync.Once
-	groupsSchemaErr  error
-)
+func newParityTestSuite(t *testing.T) *parityTestSuite {
+	t.Helper()
+
+	s := &parityTestSuite{
+		fixturesInputRoot:  "../../testdata/sdl/input",
+		fixturesOutputRoot: "../../testdata/sdl/output-fixtures",
+		schemasRoot:        "../../specs/sdl",
+	}
+
+	var err error
+	s.manifestSchema, err = compileSchemaFromPath(filepath.Join(s.schemasRoot, "manifest-output.schema.yaml"))
+	require.NoError(t, err, "Failed to compile manifest output schema")
+
+	s.groupsSchema, err = compileSchemaFromPath(filepath.Join(s.schemasRoot, "groups-output.schema.yaml"))
+	require.NoError(t, err, "Failed to compile groups output schema")
+
+	return s
+}
+
+func (s *parityTestSuite) validateInputSchema(t *testing.T, inputBytes []byte) {
+	t.Helper()
+	err := validateInputAgainstSchema(inputBytes)
+	require.NoError(t, err, "Input schema validation failed")
+}
+
+func (s *parityTestSuite) validateOutputAgainstSchema(t *testing.T, manifestBytes []byte, groupSpecsBytes []byte) {
+	t.Helper()
+
+	err := validateDataAgainstCompiledSchema(manifestBytes, s.manifestSchema)
+	require.NoError(t, err, "Manifest schema validation failed")
+
+	err = validateDataAgainstCompiledSchema(groupSpecsBytes, s.groupsSchema)
+	require.NoError(t, err, "Groups schema validation failed")
+}
+
+func (s *parityTestSuite) validateFixtureBytes(t *testing.T, expectedPath string, actualBytes []byte, name string) {
+	t.Helper()
+	expectedBytes, err := os.ReadFile(expectedPath)
+	require.NoError(t, err, "Failed to read expected %s", name)
+
+	require.JSONEq(t, string(expectedBytes), string(actualBytes), "%s does not match expected output", name)
+}
 
 func TestParityV2_0(t *testing.T) {
-	testParity(t, "v2.0")
+	s := newParityTestSuite(t)
+	s.testParity(t, "v2.0")
 }
 
 func TestParityV2_1(t *testing.T) {
-	testParity(t, "v2.1")
+	s := newParityTestSuite(t)
+	s.testParity(t, "v2.1")
 }
 
-func testParity(t *testing.T, version string) {
-	inputDir := filepath.Join(fixturesInputRoot, version)
+func (s *parityTestSuite) testParity(t *testing.T, version string) {
+	inputDir := filepath.Join(s.fixturesInputRoot, version)
 
 	entries, err := os.ReadDir(inputDir)
 	require.NoError(t, err)
@@ -73,8 +112,8 @@ func testParity(t *testing.T, version string) {
 
 		fixtureName := entry.Name()
 		inputPath := filepath.Join(inputDir, fixtureName, "input.yaml")
-		manifestPath := filepath.Join(fixturesOutputRoot, version, fixtureName, "manifest.json")
-		groupSpecsPath := filepath.Join(fixturesOutputRoot, version, fixtureName, "group-specs.json")
+		manifestPath := filepath.Join(s.fixturesOutputRoot, version, fixtureName, "manifest.json")
+		groupSpecsPath := filepath.Join(s.fixturesOutputRoot, version, fixtureName, "group-specs.json")
 
 		if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
 			t.Fatalf("manifest.json not generated for %s (run: make generate-sdl-fixtures)", fixtureName)
@@ -88,7 +127,7 @@ func testParity(t *testing.T, version string) {
 			inputBytes, err := os.ReadFile(inputPath)
 			require.NoError(t, err)
 
-			validateInputSchema(t, inputBytes)
+			s.validateInputSchema(t, inputBytes)
 
 			sdl, err := ReadFile(inputPath)
 			require.NoError(t, err)
@@ -105,46 +144,17 @@ func testParity(t *testing.T, version string) {
 			groupSpecsBytes, err := json.Marshal(groupSpecs)
 			require.NoError(t, err)
 
-			validateOutputAgainstSchema(t, manifestBytes, groupSpecsBytes)
+			s.validateOutputAgainstSchema(t, manifestBytes, groupSpecsBytes)
 
-			validateFixtureBytes(t, manifestPath, manifestBytes, "Manifest")
-			validateFixtureBytes(t, groupSpecsPath, groupSpecsBytes, "GroupSpecs")
+			s.validateFixtureBytes(t, manifestPath, manifestBytes, "Manifest")
+			s.validateFixtureBytes(t, groupSpecsPath, groupSpecsBytes, "GroupSpecs")
 		})
 	}
 }
 
-func validateInputSchema(t *testing.T, inputBytes []byte) {
-	err := validateInputAgainstSchema(inputBytes)
-	require.NoError(t, err, "Input schema validation failed")
-}
-
-func validateOutputAgainstSchema(t *testing.T, manifestBytes []byte, groupSpecsBytes []byte) {
-	manifestSchemaOnce.Do(func() {
-		manifestSchema, manifestSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "manifest-output.schema.yaml"))
-	})
-	require.NoError(t, manifestSchemaErr, "Failed to compile manifest schema")
-
-	err := validateDataAgainstCompiledSchema(manifestBytes, manifestSchema)
-	require.NoError(t, err, "Manifest schema validation failed")
-
-	groupsSchemaOnce.Do(func() {
-		groupsSchema, groupsSchemaErr = compileSchemaFromPath(filepath.Join(schemasRoot, "groups-output.schema.yaml"))
-	})
-	require.NoError(t, groupsSchemaErr, "Failed to compile groups schema")
-
-	err = validateDataAgainstCompiledSchema(groupSpecsBytes, groupsSchema)
-	require.NoError(t, err, "Groups schema validation failed")
-}
-
-func validateFixtureBytes(t *testing.T, expectedPath string, actualBytes []byte, name string) {
-	expectedBytes, err := os.ReadFile(expectedPath)
-	require.NoError(t, err, "Failed to read expected %s", name)
-
-	require.JSONEq(t, string(expectedBytes), string(actualBytes), "%s does not match expected output", name)
-}
-
 func TestInvalidSDLsRejected(t *testing.T) {
-	invalidDir := filepath.Join(fixturesInputRoot, "invalid")
+	s := newParityTestSuite(t)
+	invalidDir := filepath.Join(s.fixturesInputRoot, "invalid")
 
 	entries, err := os.ReadDir(invalidDir)
 	if os.IsNotExist(err) {
@@ -170,7 +180,8 @@ func TestInvalidSDLsRejected(t *testing.T) {
 // rejected by both Go and TS parsers due to semantic constraints not expressible
 // in JSON Schema (e.g., unused endpoints, cross-reference errors, duplicate mounts).
 func TestSemanticOnlyInvalid(t *testing.T) {
-	semanticDir := filepath.Join(fixturesInputRoot, "semantic-only-invalid")
+	s := newParityTestSuite(t)
+	semanticDir := filepath.Join(s.fixturesInputRoot, "semantic-only-invalid")
 
 	entries, err := os.ReadDir(semanticDir)
 	if os.IsNotExist(err) {
@@ -205,7 +216,8 @@ func TestSemanticOnlyInvalid(t *testing.T) {
 // the schema layer (e.g., string length limits, enum value constraints) but are
 // not enforced in the Go validation logic.
 func TestSchemaOnlyValidations(t *testing.T) {
-	schemaOnlyDir := filepath.Join(fixturesInputRoot, "schema-only-invalid")
+	s := newParityTestSuite(t)
+	schemaOnlyDir := filepath.Join(s.fixturesInputRoot, "schema-only-invalid")
 
 	entries, err := os.ReadDir(schemaOnlyDir)
 	if os.IsNotExist(err) {

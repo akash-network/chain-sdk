@@ -10,8 +10,10 @@ import (
 
 // TestReadStrictValidInputs verifies that ReadFileStrict accepts all valid fixtures.
 func TestReadStrictValidInputs(t *testing.T) {
+	s := newParityTestSuite(t)
+
 	for _, version := range []string{"v2.0", "v2.1"} {
-		inputDir := filepath.Join(fixturesInputRoot, version)
+		inputDir := filepath.Join(s.fixturesInputRoot, version)
 
 		entries, err := os.ReadDir(inputDir)
 		require.NoError(t, err)
@@ -35,7 +37,8 @@ func TestReadStrictValidInputs(t *testing.T) {
 
 // TestReadStrictRejectsInvalid verifies that ReadStrict rejects all invalid fixtures.
 func TestReadStrictRejectsInvalid(t *testing.T) {
-	invalidDir := filepath.Join(fixturesInputRoot, "invalid")
+	s := newParityTestSuite(t)
+	invalidDir := filepath.Join(s.fixturesInputRoot, "invalid")
 
 	entries, err := os.ReadDir(invalidDir)
 	if os.IsNotExist(err) {
@@ -61,7 +64,8 @@ func TestReadStrictRejectsInvalid(t *testing.T) {
 // inputs that the schema rejects but the lenient Go parser accepts.
 // This is the key difference from ReadFile.
 func TestReadStrictRejectsSchemaOnlyInvalid(t *testing.T) {
-	schemaOnlyDir := filepath.Join(fixturesInputRoot, "schema-only-invalid")
+	s := newParityTestSuite(t)
+	schemaOnlyDir := filepath.Join(s.fixturesInputRoot, "schema-only-invalid")
 
 	entries, err := os.ReadDir(schemaOnlyDir)
 	if os.IsNotExist(err) {
