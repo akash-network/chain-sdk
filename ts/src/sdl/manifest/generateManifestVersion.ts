@@ -38,8 +38,8 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
   }
 
   // Format price amount as LegacyDec (18 decimal places) to match Go output
-  if (key === "amount" && typeof this === "object" && this && Object.hasOwn(this, "denom") && typeof value === "string") {
-    return formatLegacyDec(value);
+  if (key === "amount" && typeof this === "object" && this && Object.hasOwn(this, "denom") && (typeof value === "string" || typeof value === "number")) {
+    return formatLegacyDec(String(value));
   }
 
   if (OMITTED_MANIFEST_KEYS.has(key) && ((Array.isArray(value) && value.length === 0) || value === 0)) {
