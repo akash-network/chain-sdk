@@ -55,10 +55,17 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
 
 function formatLegacyDec(s: string): string {
   if (!s) return "0.000000000000000000";
+
+  // Normalize scientific notation (e.g. "1e-7") to plain decimal
+  if (s.includes("e") || s.includes("E")) {
+    s = Number(s).toFixed(18);
+  }
+
   if (s.includes(".")) {
-    const [, frac] = s.split(".");
-    const pad = 18 - (frac?.length ?? 0);
-    return pad > 0 ? s + "0".repeat(pad) : s;
+    const [int, frac = ""] = s.split(".");
+    const truncated = frac.slice(0, 18);
+    const pad = 18 - truncated.length;
+    return pad > 0 ? `${int}.${truncated}${"0".repeat(pad)}` : `${int}.${truncated}`;
   }
   return `${s}.${"0".repeat(18)}`;
 }
