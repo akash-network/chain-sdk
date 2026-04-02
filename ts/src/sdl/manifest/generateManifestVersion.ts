@@ -39,14 +39,7 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
 
   // Format price amount as LegacyDec (18 decimal places) to match Go output
   if (key === "amount" && typeof this === "object" && this && Object.hasOwn(this, "denom") && typeof value === "string") {
-    const s = value;
-    if (!s) return "0.000000000000000000";
-    if (s.includes(".")) {
-      const [, frac] = s.split(".");
-      const pad = 18 - (frac?.length ?? 0);
-      return pad > 0 ? s + "0".repeat(pad) : s;
-    }
-    return `${s}.${"0".repeat(18)}`;
+    return formatLegacyDec(value);
   }
 
   if (OMITTED_MANIFEST_KEYS.has(key) && ((Array.isArray(value) && value.length === 0) || value === 0)) {
@@ -58,6 +51,16 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
   }
 
   return value;
+}
+
+function formatLegacyDec(s: string): string {
+  if (!s) return "0.000000000000000000";
+  if (s.includes(".")) {
+    const [, frac] = s.split(".");
+    const pad = 18 - (frac?.length ?? 0);
+    return pad > 0 ? s + "0".repeat(pad) : s;
+  }
+  return `${s}.${"0".repeat(18)}`;
 }
 
 const MANIFEST_VERSION_FIELD_MAPPING: Record<string, string> = {

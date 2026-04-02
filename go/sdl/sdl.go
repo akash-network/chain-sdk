@@ -102,23 +102,23 @@ func Read(buf []byte) (sdlObj SDL, err error) {
 		return nil, err
 	}
 
-	if err = runPostUnmarshalValidation(obj); err != nil {
+	if err = validateSDL(obj); err != nil {
 		return nil, err
 	}
 
 	return obj, nil
 }
 
-// runPostUnmarshalValidation runs semantic validation, deployment group validation,
-// and manifest validation on an unmarshalled SDL object.
-func runPostUnmarshalValidation(obj *sdl) error {
+// validateSDL runs semantic validation, deployment group validation,
+// and manifest validation on an SDL instance.
+func validateSDL(obj *sdl) error {
 	if err := obj.validate(); err != nil {
-		return err
+		return fmt.Errorf("sdl validation: %w", err)
 	}
 
 	dgroups, err := obj.DeploymentGroups()
 	if err != nil {
-		return err
+		return fmt.Errorf("deployment groups: %w", err)
 	}
 
 	vgroups := make([]dtypes.GroupSpec, 0, len(dgroups))
@@ -127,16 +127,16 @@ func runPostUnmarshalValidation(obj *sdl) error {
 	}
 
 	if err = dtypes.ValidateDeploymentGroups(vgroups); err != nil {
-		return err
+		return fmt.Errorf("validate deployment groups: %w", err)
 	}
 
 	m, err := obj.Manifest()
 	if err != nil {
-		return err
+		return fmt.Errorf("manifest: %w", err)
 	}
 
 	if err = m.Validate(); err != nil {
-		return err
+		return fmt.Errorf("validate manifest: %w", err)
 	}
 
 	return nil
@@ -200,7 +200,7 @@ func ReadStrict(buf []byte) (SDL, error) {
 		return nil, err
 	}
 
-	if err := runPostUnmarshalValidation(obj); err != nil {
+	if err := validateSDL(obj); err != nil {
 		return nil, err
 	}
 
