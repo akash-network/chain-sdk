@@ -42,12 +42,12 @@ message BidScreeningResponse {
     (gogoproto.moretags)   = "yaml:\"reasons,omitempty\""
   ];
 
-  // ResourceOffer is the provider's resource offer for the screened group, if passed.
-  akash.market.v1beta5.ResourceOffer resource_offer = 3 [
+  // ResourceOffers contains the provider's resource offers for the screened group, one per service in the GroupSpec.
+  repeated akash.market.v1beta5.ResourceOffer resource_offers = 3 [
     (gogoproto.nullable)   = true,
-    (gogoproto.customname) = "ResourceOffer",
-    (gogoproto.jsontag)    = "resource_offer,omitempty",
-    (gogoproto.moretags)   = "yaml:\"resource_offer,omitempty\""
+    (gogoproto.customname) = "ResourceOffers",
+    (gogoproto.jsontag)    = "resource_offers,omitempty",
+    (gogoproto.moretags)   = "yaml:\"resource_offers,omitempty\""
   ];
 
   // Price is the minimum bid price for the screened group.

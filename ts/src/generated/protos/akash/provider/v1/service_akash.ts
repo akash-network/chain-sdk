@@ -21,6 +21,8 @@ export const ProviderRPC = {
     },
     bidScreening: {
       name: "BidScreening",
+      httpMethod: "post",
+      httpPath: "/v1/bid-screening",
       input: BidScreeningRequest,
       output: BidScreeningResponse,
       get parent() { return ProviderRPC; },
