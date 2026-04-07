@@ -473,6 +473,7 @@ properties:
                     enum:
                       - deployment
                       - logs
+                      - events
                   type: array
               type: object
           type: object
