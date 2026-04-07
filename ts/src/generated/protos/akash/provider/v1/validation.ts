@@ -35,10 +35,8 @@ export interface BidScreeningResponse {
   passed: boolean;
   /** Reasons contains explanations when screening fails. */
   reasons: string[];
-  /** ResourceOffer is the provider's resource offer for the screened group, if passed. */
-  resourceOffer:
-    | ResourceOffer
-    | undefined;
+  /** ResourceOffers contains the provider's resource offers for the screened group, one per service in the GroupSpec. */
+  resourceOffers: ResourceOffer[];
   /** Price is the minimum bid price for the screened group. */
   price: DecCoin | undefined;
 }
@@ -122,7 +120,7 @@ export const BidScreeningRequest: MessageFns<BidScreeningRequest, "akash.provide
 };
 
 function createBaseBidScreeningResponse(): BidScreeningResponse {
-  return { passed: false, reasons: [], resourceOffer: undefined, price: undefined };
+  return { passed: false, reasons: [], resourceOffers: [], price: undefined };
 }
 
 export const BidScreeningResponse: MessageFns<BidScreeningResponse, "akash.provider.v1.BidScreeningResponse"> = {
@@ -135,8 +133,8 @@ export const BidScreeningResponse: MessageFns<BidScreeningResponse, "akash.provi
     for (const v of message.reasons) {
       writer.uint32(18).string(v!);
     }
-    if (message.resourceOffer !== undefined) {
-      ResourceOffer.encode(message.resourceOffer, writer.uint32(26).fork()).join();
+    for (const v of message.resourceOffers) {
+      ResourceOffer.encode(v!, writer.uint32(26).fork()).join();
     }
     if (message.price !== undefined) {
       DecCoin.encode(message.price, writer.uint32(34).fork()).join();
@@ -172,7 +170,7 @@ export const BidScreeningResponse: MessageFns<BidScreeningResponse, "akash.provi
             break;
           }
 
-          message.resourceOffer = ResourceOffer.decode(reader, reader.uint32());
+          message.resourceOffers.push(ResourceOffer.decode(reader, reader.uint32()));
           continue;
         }
         case 4: {
@@ -196,7 +194,9 @@ export const BidScreeningResponse: MessageFns<BidScreeningResponse, "akash.provi
     return {
       passed: isSet(object.passed) ? globalThis.Boolean(object.passed) : false,
       reasons: globalThis.Array.isArray(object?.reasons) ? object.reasons.map((e: any) => globalThis.String(e)) : [],
-      resourceOffer: isSet(object.resource_offer) ? ResourceOffer.fromJSON(object.resource_offer) : undefined,
+      resourceOffers: globalThis.Array.isArray(object?.resource_offers)
+        ? object.resource_offers.map((e: any) => ResourceOffer.fromJSON(e))
+        : [],
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
     };
   },
@@ -209,8 +209,8 @@ export const BidScreeningResponse: MessageFns<BidScreeningResponse, "akash.provi
     if (message.reasons?.length) {
       obj.reasons = message.reasons;
     }
-    if (message.resourceOffer !== undefined) {
-      obj.resource_offer = ResourceOffer.toJSON(message.resourceOffer);
+    if (message.resourceOffers?.length) {
+      obj.resource_offers = message.resourceOffers.map((e) => ResourceOffer.toJSON(e));
     }
     if (message.price !== undefined) {
       obj.price = DecCoin.toJSON(message.price);
@@ -221,9 +221,7 @@ export const BidScreeningResponse: MessageFns<BidScreeningResponse, "akash.provi
     const message = createBaseBidScreeningResponse();
     message.passed = object.passed ?? false;
     message.reasons = object.reasons?.map((e) => e) || [];
-    message.resourceOffer = (object.resourceOffer !== undefined && object.resourceOffer !== null)
-      ? ResourceOffer.fromPartial(object.resourceOffer)
-      : undefined;
+    message.resourceOffers = object.resourceOffers?.map((e) => ResourceOffer.fromPartial(e)) || [];
     message.price = (object.price !== undefined && object.price !== null)
       ? DecCoin.fromPartial(object.price)
       : undefined;

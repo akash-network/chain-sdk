@@ -66,6 +66,11 @@ modules:
         - ENUM_ZERO_VALUE_SUFFIX
         - RPC_REQUEST_STANDARD_NAME
   - path: proto/provider
+    breaking:
+      use:
+        - FILE
+      ignore:
+        - proto/provider/akash/provider/v1/validation.proto
     lint:
       use:
         - STANDARD
