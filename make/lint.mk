@@ -29,9 +29,16 @@ lint-shell:
 .PHONY: lint
 lint: $(patsubst %, lint-%,$(SUB_LINT))
 
+PROTO_AGAINST_DIR := $(AKASH_DEVCACHE_TMP)/proto-against
+
 .PHONY: proto-check-breaking
 proto-check-breaking: $(BUF)
-	$(BUF) breaking --against '.git#branch=main'
+	@git worktree remove --force $(PROTO_AGAINST_DIR) 2>/dev/null || true
+	@git worktree prune
+	@git worktree add $(PROTO_AGAINST_DIR) main
+	@cp -r go/vendor $(PROTO_AGAINST_DIR)/go/
+	$(BUF) breaking --against '$(PROTO_AGAINST_DIR)'
+	@git worktree remove --force $(PROTO_AGAINST_DIR)
 
 .PHONY: proto-format
 proto-format:

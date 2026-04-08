@@ -27,5 +27,11 @@ service ProviderRPC {
   rpc StreamStatus(google.protobuf.Empty) returns (stream Status);
 
   // BidScreening screens a deployment group spec for bid eligibility and returns pricing
-  rpc BidScreening(BidScreeningRequest) returns (BidScreeningResponse);
+  rpc BidScreening(BidScreeningRequest) returns (BidScreeningResponse) {
+    option (google.api.http) = {
+      post: "/v1/bid-screening",
+      body: "*",
+      response_body: "*"
+    };
+  }
 }
