@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.30](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.29...ts/v1.0.0-alpha.30) (2026-04-09)
+
+
+### Features
+
+* **ts:** adds support for events service permissions in SDL manifest ([a4208fd](https://github.com/akash-network/chain-sdk/commit/a4208fd448d6ab7ff92529cc0ed6370a94ab6c05))
+
 ## [1.0.0-alpha.29](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.28...ts/v1.0.0-alpha.29) (2026-03-31)
 
 
