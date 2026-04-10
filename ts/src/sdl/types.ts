@@ -96,7 +96,7 @@ export type v3ServiceExpose = {
   endpointSequenceNumber: number;
 };
 
-type v2ServicePermissionsScope = "deployment" | "logs";
+type v2ServicePermissionsScope = "deployment" | "logs" | "events";
 
 /** @deprecated will be removed in favor of `Manifest` type. */
 export type v2ServicePermissions = {
