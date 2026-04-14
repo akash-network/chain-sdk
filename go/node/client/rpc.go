@@ -28,6 +28,10 @@ var _ client.CometRPC = (*rpcClient)(nil)
 // NewClient allows for setting a custom http client (See New).
 // An error is returned on invalid remote. The function panics when remote is nil.
 func NewClient(ctx context.Context, remote string) (RPCClient, error) {
+	// Ensure the remote URL contains an explicit port so that CometBFT
+	// clients and the custom dialer can connect successfully.
+	remote = NormalizeEndpoint(remote)
+
 	httpClient, err := NewHTTPClient(ctx, remote)
 	if err != nil {
 		return nil, err

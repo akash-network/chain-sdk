@@ -1,6 +1,7 @@
 package client
 
 import (
+	"net"
 	"net/url"
 	"strings"
 )
@@ -23,6 +24,42 @@ type parsedURL struct {
 	isUnixSocket bool
 }
 
+func normalizeURL(u *url.URL) *url.URL {
+	if u.Port() == "" && u.Hostname() != "" {
+		switch u.Scheme {
+		case protoHTTPS, protoWSS:
+			u.Host = net.JoinHostPort(u.Hostname(), "443")
+		case protoHTTP, protoWS, protoTCP:
+			u.Host = net.JoinHostPort(u.Hostname(), "80")
+		}
+	}
+
+	return u
+}
+
+// NormalizeEndpoint ensures that a URL string contains an explicit port.
+// When the port is absent it is inferred from the scheme:
+//
+//	https, wss → 443
+//	http, ws, tcp → 80
+//
+// Unix-socket URLs and URLs that already carry a port are returned unchanged.
+// An empty or unparseable string is returned as-is.
+func NormalizeEndpoint(rawURL string) string {
+	if rawURL == "" {
+		return rawURL
+	}
+
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return rawURL
+	}
+
+	u = normalizeURL(u)
+
+	return u.String()
+}
+
 // Parse URL and set defaults
 func newParsedURL(remoteAddr string) (*parsedURL, error) {
 	u, err := url.Parse(remoteAddr)
@@ -34,6 +71,10 @@ func newParsedURL(remoteAddr string) (*parsedURL, error) {
 	if u.Scheme == "" {
 		u.Scheme = protoTCP
 	}
+
+	// Ensure port is present based on scheme so that GetDialAddress()
+	// always returns host:port for non-unix sockets.
+	u = normalizeURL(u)
 
 	pu := &parsedURL{
 		URL:          *u,
