@@ -219,6 +219,9 @@ message LedgerPendingRecord {
     (gogoproto.jsontag)    = "denom_to_mint",
     (gogoproto.moretags)   = "yaml:\"denom_to_mint\""
   ];
+
+  // attempts is the number of times this record has been processed and failed with a retriable error
+  uint32 attempts = 5;
 }
 
 // LedgerCanceledRecord
@@ -229,8 +232,24 @@ message LedgerCanceledRecord {
 
     // Prefix should start with 0 in enum. So declaring dummy state.
     unknown = 0 [(gogoproto.enumvalue_customname) = "BMCancelReasonUnknown"];
-    // BMCanceledReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6)
+    // BMCancelReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6)
     epsilon = 1 [(gogoproto.enumvalue_customname) = "BMCancelReasonEpsilon"];
+    // BMCancelReasonZeroPrice oracle price is zero
+    zero_price = 2 [(gogoproto.enumvalue_customname) = "BMCancelReasonZeroPrice"];
+    // BMCancelReasonInsufficientFunds insufficient vault/supply funds
+    insufficient_funds = 3 [(gogoproto.enumvalue_customname) = "BMCancelReasonInsufficientFunds"];
+    // BMCancelReasonInvalidDenom denomination is not registered
+    invalid_denom = 4 [(gogoproto.enumvalue_customname) = "BMCancelReasonInvalidDenom"];
+    // BMCancelReasonInvalidAmount zero or invalid burn amount
+    invalid_amount = 5 [(gogoproto.enumvalue_customname) = "BMCancelReasonInvalidAmount"];
+    // BMCancelReasonMinimumMint mint output below minimum threshold
+    minimum_mint = 6 [(gogoproto.enumvalue_customname) = "BMCancelReasonMinimumMint"];
+    // BMCancelReasonMintFailed bank MintCoins operation failed
+    mint_failed = 7 [(gogoproto.enumvalue_customname) = "BMCancelReasonMintFailed"];
+    // BMCancelReasonBurnFailed bank BurnCoins operation failed
+    burn_failed = 8 [(gogoproto.enumvalue_customname) = "BMCancelReasonBurnFailed"];
+    // BMCancelReasonMaxAttempts exceeded maximum pending processing attempts
+    max_attempts = 9 [(gogoproto.enumvalue_customname) = "BMCancelReasonMaxAttempts"];
   }
 
   // owner source of the coins to be burned

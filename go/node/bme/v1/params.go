@@ -20,6 +20,7 @@ const (
 	DefaultMinEpochBlocks              = 10
 	DefaultEpochBlocksBackoffPercent   = 10
 	DefaultMaxEndBlockerRecords        = 50
+	DefaultMaxPendingAttempts          = uint32(3)
 )
 
 var DefaultMinMint = sdk.Coins{
@@ -38,6 +39,7 @@ func DefaultParams() Params {
 		EpochBlocksBackoffPercent:   DefaultEpochBlocksBackoffPercent,
 		MaxEndblockerRecords:        DefaultMaxEndBlockerRecords,
 		MinMint:                     DefaultMinMint,
+		MaxPendingAttempts:          DefaultMaxPendingAttempts,
 	}
 }
 

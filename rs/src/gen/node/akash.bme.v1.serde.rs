@@ -1781,6 +1781,14 @@ impl serde::Serialize for ledger_canceled_record::BmCancelReason {
         let variant = match self {
             Self::Unknown => "unknown",
             Self::Epsilon => "epsilon",
+            Self::ZeroPrice => "zero_price",
+            Self::InsufficientFunds => "insufficient_funds",
+            Self::InvalidDenom => "invalid_denom",
+            Self::InvalidAmount => "invalid_amount",
+            Self::MinimumMint => "minimum_mint",
+            Self::MintFailed => "mint_failed",
+            Self::BurnFailed => "burn_failed",
+            Self::MaxAttempts => "max_attempts",
         };
         serializer.serialize_str(variant)
     }
@@ -1794,6 +1802,14 @@ impl<'de> serde::Deserialize<'de> for ledger_canceled_record::BmCancelReason {
         const FIELDS: &[&str] = &[
             "unknown",
             "epsilon",
+            "zero_price",
+            "insufficient_funds",
+            "invalid_denom",
+            "invalid_amount",
+            "minimum_mint",
+            "mint_failed",
+            "burn_failed",
+            "max_attempts",
         ];
 
         struct GeneratedVisitor;
@@ -1836,6 +1852,14 @@ impl<'de> serde::Deserialize<'de> for ledger_canceled_record::BmCancelReason {
                 match value {
                     "unknown" => Ok(ledger_canceled_record::BmCancelReason::Unknown),
                     "epsilon" => Ok(ledger_canceled_record::BmCancelReason::Epsilon),
+                    "zero_price" => Ok(ledger_canceled_record::BmCancelReason::ZeroPrice),
+                    "insufficient_funds" => Ok(ledger_canceled_record::BmCancelReason::InsufficientFunds),
+                    "invalid_denom" => Ok(ledger_canceled_record::BmCancelReason::InvalidDenom),
+                    "invalid_amount" => Ok(ledger_canceled_record::BmCancelReason::InvalidAmount),
+                    "minimum_mint" => Ok(ledger_canceled_record::BmCancelReason::MinimumMint),
+                    "mint_failed" => Ok(ledger_canceled_record::BmCancelReason::MintFailed),
+                    "burn_failed" => Ok(ledger_canceled_record::BmCancelReason::BurnFailed),
+                    "max_attempts" => Ok(ledger_canceled_record::BmCancelReason::MaxAttempts),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }
@@ -1979,6 +2003,9 @@ impl serde::Serialize for LedgerPendingRecord {
         if !self.denom_to_mint.is_empty() {
             len += 1;
         }
+        if self.attempts != 0 {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.bme.v1.LedgerPendingRecord", len)?;
         if !self.owner.is_empty() {
             struct_ser.serialize_field("owner", &self.owner)?;
@@ -1991,6 +2018,9 @@ impl serde::Serialize for LedgerPendingRecord {
         }
         if !self.denom_to_mint.is_empty() {
             struct_ser.serialize_field("denomToMint", &self.denom_to_mint)?;
+        }
+        if self.attempts != 0 {
+            struct_ser.serialize_field("attempts", &self.attempts)?;
         }
         struct_ser.end()
     }
@@ -2008,6 +2038,7 @@ impl<'de> serde::Deserialize<'de> for LedgerPendingRecord {
             "coinsToBurn",
             "denom_to_mint",
             "denomToMint",
+            "attempts",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -2016,6 +2047,7 @@ impl<'de> serde::Deserialize<'de> for LedgerPendingRecord {
             To,
             CoinsToBurn,
             DenomToMint,
+            Attempts,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -2041,6 +2073,7 @@ impl<'de> serde::Deserialize<'de> for LedgerPendingRecord {
                             "to" => Ok(GeneratedField::To),
                             "coinsToBurn" | "coins_to_burn" => Ok(GeneratedField::CoinsToBurn),
                             "denomToMint" | "denom_to_mint" => Ok(GeneratedField::DenomToMint),
+                            "attempts" => Ok(GeneratedField::Attempts),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -2064,6 +2097,7 @@ impl<'de> serde::Deserialize<'de> for LedgerPendingRecord {
                 let mut to__ = None;
                 let mut coins_to_burn__ = None;
                 let mut denom_to_mint__ = None;
+                let mut attempts__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Owner => {
@@ -2090,6 +2124,14 @@ impl<'de> serde::Deserialize<'de> for LedgerPendingRecord {
                             }
                             denom_to_mint__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Attempts => {
+                            if attempts__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("attempts"));
+                            }
+                            attempts__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
                     }
                 }
                 Ok(LedgerPendingRecord {
@@ -2097,6 +2139,7 @@ impl<'de> serde::Deserialize<'de> for LedgerPendingRecord {
                     to: to__.unwrap_or_default(),
                     coins_to_burn: coins_to_burn__,
                     denom_to_mint: denom_to_mint__.unwrap_or_default(),
+                    attempts: attempts__.unwrap_or_default(),
                 })
             }
         }
@@ -3935,6 +3978,9 @@ impl serde::Serialize for Params {
         if !self.min_mint.is_empty() {
             len += 1;
         }
+        if self.max_pending_attempts != 0 {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.bme.v1.Params", len)?;
         if self.circuit_breaker_warn_threshold != 0 {
             struct_ser.serialize_field("circuitBreakerWarnThreshold", &self.circuit_breaker_warn_threshold)?;
@@ -3962,6 +4008,9 @@ impl serde::Serialize for Params {
         if !self.min_mint.is_empty() {
             struct_ser.serialize_field("minMint", &self.min_mint)?;
         }
+        if self.max_pending_attempts != 0 {
+            struct_ser.serialize_field("maxPendingAttempts", &self.max_pending_attempts)?;
+        }
         struct_ser.end()
     }
 }
@@ -3988,6 +4037,8 @@ impl<'de> serde::Deserialize<'de> for Params {
             "maxEndblockerRecords",
             "min_mint",
             "minMint",
+            "max_pending_attempts",
+            "maxPendingAttempts",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -4000,6 +4051,7 @@ impl<'de> serde::Deserialize<'de> for Params {
             SettleSpreadBps,
             MaxEndblockerRecords,
             MinMint,
+            MaxPendingAttempts,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -4029,6 +4081,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             "settleSpreadBps" | "settle_spread_bps" => Ok(GeneratedField::SettleSpreadBps),
                             "maxEndblockerRecords" | "max_endblocker_records" => Ok(GeneratedField::MaxEndblockerRecords),
                             "minMint" | "min_mint" => Ok(GeneratedField::MinMint),
+                            "maxPendingAttempts" | "max_pending_attempts" => Ok(GeneratedField::MaxPendingAttempts),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -4056,6 +4109,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                 let mut settle_spread_bps__ = None;
                 let mut max_endblocker_records__ = None;
                 let mut min_mint__ = None;
+                let mut max_pending_attempts__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::CircuitBreakerWarnThreshold => {
@@ -4120,6 +4174,14 @@ impl<'de> serde::Deserialize<'de> for Params {
                             }
                             min_mint__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::MaxPendingAttempts => {
+                            if max_pending_attempts__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("maxPendingAttempts"));
+                            }
+                            max_pending_attempts__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
                     }
                 }
                 Ok(Params {
@@ -4131,6 +4193,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                     settle_spread_bps: settle_spread_bps__.unwrap_or_default(),
                     max_endblocker_records: max_endblocker_records__.unwrap_or_default(),
                     min_mint: min_mint__.unwrap_or_default(),
+                    max_pending_attempts: max_pending_attempts__.unwrap_or_default(),
                 })
             }
         }

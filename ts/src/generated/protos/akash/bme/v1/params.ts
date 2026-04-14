@@ -55,6 +55,11 @@ export interface Params {
   maxEndblockerRecords: number;
   /** min_mint minimum amount of ACT required to be minted in the new transaction */
   minMint: Coin[];
+  /**
+   * max_pending_attempts is the maximum number of EndBlocker processing attempts
+   * for a pending record before it is canceled. Applies to retriable errors only.
+   */
+  maxPendingAttempts: number;
 }
 
 function createBaseParams(): Params {
@@ -67,6 +72,7 @@ function createBaseParams(): Params {
     settleSpreadBps: 0,
     maxEndblockerRecords: 0,
     minMint: [],
+    maxPendingAttempts: 0,
   };
 }
 
@@ -97,6 +103,9 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     }
     for (const v of message.minMint) {
       Coin.encode(v!, writer.uint32(74).fork()).join();
+    }
+    if (message.maxPendingAttempts !== 0) {
+      writer.uint32(80).uint32(message.maxPendingAttempts);
     }
     return writer;
   },
@@ -172,6 +181,14 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
           message.minMint.push(Coin.decode(reader, reader.uint32()));
           continue;
         }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.maxPendingAttempts = reader.uint32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -197,6 +214,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
       settleSpreadBps: isSet(object.settle_spread_bps) ? globalThis.Number(object.settle_spread_bps) : 0,
       maxEndblockerRecords: isSet(object.max_endblocker_records) ? globalThis.Number(object.max_endblocker_records) : 0,
       minMint: globalThis.Array.isArray(object?.min_mint) ? object.min_mint.map((e: any) => Coin.fromJSON(e)) : [],
+      maxPendingAttempts: isSet(object.max_pending_attempts) ? globalThis.Number(object.max_pending_attempts) : 0,
     };
   },
 
@@ -226,6 +244,9 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     if (message.minMint?.length) {
       obj.min_mint = message.minMint.map((e) => Coin.toJSON(e));
     }
+    if (message.maxPendingAttempts !== 0) {
+      obj.max_pending_attempts = Math.round(message.maxPendingAttempts);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Params>): Params {
@@ -240,6 +261,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     message.settleSpreadBps = object.settleSpreadBps ?? 0;
     message.maxEndblockerRecords = object.maxEndblockerRecords ?? 0;
     message.minMint = object.minMint?.map((e) => Coin.fromPartial(e)) || [];
+    message.maxPendingAttempts = object.maxPendingAttempts ?? 0;
     return message;
   },
 };
