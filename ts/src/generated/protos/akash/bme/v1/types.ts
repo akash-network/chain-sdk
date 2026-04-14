@@ -210,6 +210,8 @@ export interface LedgerPendingRecord {
     | undefined;
   /** denom_to_mint */
   denomToMint: string;
+  /** attempts is the number of times this record has been processed and failed with a retriable error */
+  attempts: number;
 }
 
 /** LedgerCanceledRecord */
@@ -235,8 +237,24 @@ export interface LedgerCanceledRecord {
 export enum LedgerCanceledRecord_BMCancelReason {
   /** unknown - Prefix should start with 0 in enum. So declaring dummy state. */
   unknown = 0,
-  /** epsilon - BMCanceledReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) */
+  /** epsilon - BMCancelReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) */
   epsilon = 1,
+  /** zero_price - BMCancelReasonZeroPrice oracle price is zero */
+  zero_price = 2,
+  /** insufficient_funds - BMCancelReasonInsufficientFunds insufficient vault/supply funds */
+  insufficient_funds = 3,
+  /** invalid_denom - BMCancelReasonInvalidDenom denomination is not registered */
+  invalid_denom = 4,
+  /** invalid_amount - BMCancelReasonInvalidAmount zero or invalid burn amount */
+  invalid_amount = 5,
+  /** minimum_mint - BMCancelReasonMinimumMint mint output below minimum threshold */
+  minimum_mint = 6,
+  /** mint_failed - BMCancelReasonMintFailed bank MintCoins operation failed */
+  mint_failed = 7,
+  /** burn_failed - BMCancelReasonBurnFailed bank BurnCoins operation failed */
+  burn_failed = 8,
+  /** max_attempts - BMCancelReasonMaxAttempts exceeded maximum pending processing attempts */
+  max_attempts = 9,
   UNRECOGNIZED = -1,
 }
 
@@ -248,6 +266,30 @@ export function ledgerCanceledRecord_BMCancelReasonFromJSON(object: any): Ledger
     case 1:
     case "epsilon":
       return LedgerCanceledRecord_BMCancelReason.epsilon;
+    case 2:
+    case "zero_price":
+      return LedgerCanceledRecord_BMCancelReason.zero_price;
+    case 3:
+    case "insufficient_funds":
+      return LedgerCanceledRecord_BMCancelReason.insufficient_funds;
+    case 4:
+    case "invalid_denom":
+      return LedgerCanceledRecord_BMCancelReason.invalid_denom;
+    case 5:
+    case "invalid_amount":
+      return LedgerCanceledRecord_BMCancelReason.invalid_amount;
+    case 6:
+    case "minimum_mint":
+      return LedgerCanceledRecord_BMCancelReason.minimum_mint;
+    case 7:
+    case "mint_failed":
+      return LedgerCanceledRecord_BMCancelReason.mint_failed;
+    case 8:
+    case "burn_failed":
+      return LedgerCanceledRecord_BMCancelReason.burn_failed;
+    case 9:
+    case "max_attempts":
+      return LedgerCanceledRecord_BMCancelReason.max_attempts;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -261,6 +303,22 @@ export function ledgerCanceledRecord_BMCancelReasonToJSON(object: LedgerCanceled
       return "unknown";
     case LedgerCanceledRecord_BMCancelReason.epsilon:
       return "epsilon";
+    case LedgerCanceledRecord_BMCancelReason.zero_price:
+      return "zero_price";
+    case LedgerCanceledRecord_BMCancelReason.insufficient_funds:
+      return "insufficient_funds";
+    case LedgerCanceledRecord_BMCancelReason.invalid_denom:
+      return "invalid_denom";
+    case LedgerCanceledRecord_BMCancelReason.invalid_amount:
+      return "invalid_amount";
+    case LedgerCanceledRecord_BMCancelReason.minimum_mint:
+      return "minimum_mint";
+    case LedgerCanceledRecord_BMCancelReason.mint_failed:
+      return "mint_failed";
+    case LedgerCanceledRecord_BMCancelReason.burn_failed:
+      return "burn_failed";
+    case LedgerCanceledRecord_BMCancelReason.max_attempts:
+      return "max_attempts";
     case LedgerCanceledRecord_BMCancelReason.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -854,7 +912,7 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
 };
 
 function createBaseLedgerPendingRecord(): LedgerPendingRecord {
-  return { owner: "", to: "", coinsToBurn: undefined, denomToMint: "" };
+  return { owner: "", to: "", coinsToBurn: undefined, denomToMint: "", attempts: 0 };
 }
 
 export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.LedgerPendingRecord"> = {
@@ -872,6 +930,9 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
     }
     if (message.denomToMint !== "") {
       writer.uint32(34).string(message.denomToMint);
+    }
+    if (message.attempts !== 0) {
+      writer.uint32(40).uint32(message.attempts);
     }
     return writer;
   },
@@ -915,6 +976,14 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
           message.denomToMint = reader.string();
           continue;
         }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.attempts = reader.uint32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -930,6 +999,7 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
       to: isSet(object.to) ? globalThis.String(object.to) : "",
       coinsToBurn: isSet(object.coins_to_burn) ? Coin.fromJSON(object.coins_to_burn) : undefined,
       denomToMint: isSet(object.denom_to_mint) ? globalThis.String(object.denom_to_mint) : "",
+      attempts: isSet(object.attempts) ? globalThis.Number(object.attempts) : 0,
     };
   },
 
@@ -947,6 +1017,9 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
     if (message.denomToMint !== "") {
       obj.denom_to_mint = message.denomToMint;
     }
+    if (message.attempts !== 0) {
+      obj.attempts = Math.round(message.attempts);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<LedgerPendingRecord>): LedgerPendingRecord {
@@ -957,6 +1030,7 @@ export const LedgerPendingRecord: MessageFns<LedgerPendingRecord, "akash.bme.v1.
       ? Coin.fromPartial(object.coinsToBurn)
       : undefined;
     message.denomToMint = object.denomToMint ?? "";
+    message.attempts = object.attempts ?? 0;
     return message;
   },
 };

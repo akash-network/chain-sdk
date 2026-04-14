@@ -51,4 +51,8 @@ message Params {
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
   ];
+
+  // max_pending_attempts is the maximum number of EndBlocker processing attempts
+  // for a pending record before it is canceled. Applies to retriable errors only.
+  uint32 max_pending_attempts = 10;
 }
