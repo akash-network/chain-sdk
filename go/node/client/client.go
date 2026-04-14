@@ -49,7 +49,7 @@ func queryClientInfo(ctx context.Context, cctx sdkclient.Context) (*Akash, error
 				return nil, fmt.Errorf("unsupported RPC client [%T]", rpc)
 			}
 		} else {
-			rpc, err := cmjclient.New(cctx.NodeURI)
+			rpc, err := cmjclient.New(NormalizeEndpoint(cctx.NodeURI))
 			if err != nil {
 				return nil, err
 			}

@@ -1464,6 +1464,7 @@ if field is nil resource is not present in the given data-structure
  | `to` | [string](#string) |  | to destination of the minted coins. if minted coin is ACT, "to" must be same as signer |
  | `coins_to_burn` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coins_to_burn |
  | `denom_to_mint` | [string](#string) |  | denom_to_mint |
+ | `attempts` | [uint32](#uint32) |  | attempts is the number of times this record has been processed and failed with a retriable error |
  
  
 
@@ -1557,7 +1558,15 @@ if field is nil resource is not present in the given data-structure
  | Name | Number | Description |
  | ---- | ------ | ----------- |
  | unknown | 0 | Prefix should start with 0 in enum. So declaring dummy state. |
- | epsilon | 1 | BMCanceledReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) |
+ | epsilon | 1 | BMCancelReasonEpsilon the result of conversion is below the smallest meaningful difference (10^-6) |
+ | zero_price | 2 | BMCancelReasonZeroPrice oracle price is zero |
+ | insufficient_funds | 3 | BMCancelReasonInsufficientFunds insufficient vault/supply funds |
+ | invalid_denom | 4 | BMCancelReasonInvalidDenom denomination is not registered |
+ | invalid_amount | 5 | BMCancelReasonInvalidAmount zero or invalid burn amount |
+ | minimum_mint | 6 | BMCancelReasonMinimumMint mint output below minimum threshold |
+ | mint_failed | 7 | BMCancelReasonMintFailed bank MintCoins operation failed |
+ | burn_failed | 8 | BMCancelReasonBurnFailed bank BurnCoins operation failed |
+ | max_attempts | 9 | BMCancelReasonMaxAttempts exceeded maximum pending processing attempts |
  
 
  
@@ -1750,6 +1759,7 @@ if field is nil resource is not present in the given data-structure
  | `settle_spread_bps` | [uint32](#uint32) |  | settle_spread_bps is the spread in basis points applied during settlement (default: 0 for no provider tax) |
  | `max_endblocker_records` | [uint32](#uint32) |  | max_endblocker_records is the deterministic upper bound on pending ledger records processed in a single EndBlocker invocation. |
  | `min_mint` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | min_mint minimum amount of ACT required to be minted in the new transaction |
+ | `max_pending_attempts` | [uint32](#uint32) |  | max_pending_attempts is the maximum number of EndBlocker processing attempts for a pending record before it is canceled. Applies to retriable errors only. |
  
  
 

@@ -1137,7 +1137,7 @@ specification for bid eligibility against the provider's capabilities.
  | ----- | ---- | ----- | ----------- |
  | `passed` | [bool](#bool) |  | Passed indicates whether the deployment group passed bid screening. |
  | `reasons` | [string](#string) | repeated | Reasons contains explanations when screening fails. |
- | `resource_offer` | [akash.market.v1beta5.ResourceOffer](#akash.market.v1beta5.ResourceOffer) |  | ResourceOffer is the provider's resource offer for the screened group, if passed. |
+ | `resource_offers` | [akash.market.v1beta5.ResourceOffer](#akash.market.v1beta5.ResourceOffer) | repeated | ResourceOffers contains the provider's resource offers for the screened group, one per service in the GroupSpec. |
  | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price is the minimum bid price for the screened group. |
  
  
@@ -1176,7 +1176,7 @@ specification for bid eligibility against the provider's capabilities.
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `GetStatus` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Status](#akash.provider.v1.Status) | GetStatus defines a method to query provider state buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/v1/status|
  | `StreamStatus` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Status](#akash.provider.v1.Status) stream | Status defines a method to stream provider state buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
- | `BidScreening` | [BidScreeningRequest](#akash.provider.v1.BidScreeningRequest) | [BidScreeningResponse](#akash.provider.v1.BidScreeningResponse) | BidScreening screens a deployment group spec for bid eligibility and returns pricing | |
+ | `BidScreening` | [BidScreeningRequest](#akash.provider.v1.BidScreeningRequest) | [BidScreeningResponse](#akash.provider.v1.BidScreeningResponse) | BidScreening screens a deployment group spec for bid eligibility and returns pricing | POST|/v1/bid-screening|
  
   <!-- end services -->
 

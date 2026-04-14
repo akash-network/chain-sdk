@@ -215,7 +215,7 @@ impl serde::Serialize for BidScreeningResponse {
         if !self.reasons.is_empty() {
             len += 1;
         }
-        if self.resource_offer.is_some() {
+        if !self.resource_offers.is_empty() {
             len += 1;
         }
         if self.price.is_some() {
@@ -228,8 +228,8 @@ impl serde::Serialize for BidScreeningResponse {
         if !self.reasons.is_empty() {
             struct_ser.serialize_field("reasons", &self.reasons)?;
         }
-        if let Some(v) = self.resource_offer.as_ref() {
-            struct_ser.serialize_field("resourceOffer", v)?;
+        if !self.resource_offers.is_empty() {
+            struct_ser.serialize_field("resourceOffers", &self.resource_offers)?;
         }
         if let Some(v) = self.price.as_ref() {
             struct_ser.serialize_field("price", v)?;
@@ -246,8 +246,8 @@ impl<'de> serde::Deserialize<'de> for BidScreeningResponse {
         const FIELDS: &[&str] = &[
             "passed",
             "reasons",
-            "resource_offer",
-            "resourceOffer",
+            "resource_offers",
+            "resourceOffers",
             "price",
         ];
 
@@ -255,7 +255,7 @@ impl<'de> serde::Deserialize<'de> for BidScreeningResponse {
         enum GeneratedField {
             Passed,
             Reasons,
-            ResourceOffer,
+            ResourceOffers,
             Price,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -280,7 +280,7 @@ impl<'de> serde::Deserialize<'de> for BidScreeningResponse {
                         match value {
                             "passed" => Ok(GeneratedField::Passed),
                             "reasons" => Ok(GeneratedField::Reasons),
-                            "resourceOffer" | "resource_offer" => Ok(GeneratedField::ResourceOffer),
+                            "resourceOffers" | "resource_offers" => Ok(GeneratedField::ResourceOffers),
                             "price" => Ok(GeneratedField::Price),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
@@ -303,7 +303,7 @@ impl<'de> serde::Deserialize<'de> for BidScreeningResponse {
             {
                 let mut passed__ = None;
                 let mut reasons__ = None;
-                let mut resource_offer__ = None;
+                let mut resource_offers__ = None;
                 let mut price__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
@@ -319,11 +319,11 @@ impl<'de> serde::Deserialize<'de> for BidScreeningResponse {
                             }
                             reasons__ = Some(map_.next_value()?);
                         }
-                        GeneratedField::ResourceOffer => {
-                            if resource_offer__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("resourceOffer"));
+                        GeneratedField::ResourceOffers => {
+                            if resource_offers__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("resourceOffers"));
                             }
-                            resource_offer__ = map_.next_value()?;
+                            resource_offers__ = Some(map_.next_value()?);
                         }
                         GeneratedField::Price => {
                             if price__.is_some() {
@@ -336,7 +336,7 @@ impl<'de> serde::Deserialize<'de> for BidScreeningResponse {
                 Ok(BidScreeningResponse {
                     passed: passed__.unwrap_or_default(),
                     reasons: reasons__.unwrap_or_default(),
-                    resource_offer: resource_offer__,
+                    resource_offers: resource_offers__.unwrap_or_default(),
                     price: price__,
                 })
             }
