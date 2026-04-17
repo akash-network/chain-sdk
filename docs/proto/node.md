@@ -258,9 +258,17 @@
    
  - [akash/discovery/v1/client_info.proto](#akash/discovery/v1/client_info.proto)
      - [ClientInfo](#akash.discovery.v1.ClientInfo)
+     - [ModuleVersion](#akash.discovery.v1.ModuleVersion)
+     - [VersionInfo](#akash.discovery.v1.VersionInfo)
    
  - [akash/discovery/v1/akash.proto](#akash/discovery/v1/akash.proto)
      - [Akash](#akash.discovery.v1.Akash)
+   
+ - [akash/discovery/v1/service.proto](#akash/discovery/v1/service.proto)
+     - [GetInfoRequest](#akash.discovery.v1.GetInfoRequest)
+     - [GetInfoResponse](#akash.discovery.v1.GetInfoResponse)
+   
+     - [Discovery](#akash.discovery.v1.Discovery)
    
  - [akash/downtimedetector/v1beta1/downtime_duration.proto](#akash/downtimedetector/v1beta1/downtime_duration.proto)
      - [Downtime](#akash.downtimedetector.v1beta1.Downtime)
@@ -3679,6 +3687,39 @@ Since: akash v1.0.0 | |
 
  
 
+ 
+ <a name="akash.discovery.v1.ModuleVersion"></a>
+
+ ### ModuleVersion
+ ModuleVersion describes a single module and its API version.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `module` | [string](#string) |  | Module is the name of the module (e.g., "deployment", "market", "oracle"). |
+ | `version` | [string](#string) |  | Version is the API version of the module (e.g., "v1beta4", "v1beta5", "v2"). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.discovery.v1.VersionInfo"></a>
+
+ ### VersionInfo
+ VersionInfo describes a complete API version and its metadata.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `api_version` | [string](#string) |  | ApiVersion is the composite API version identifier (e.g., "v1beta4"). |
+ | `modules` | [ModuleVersion](#akash.discovery.v1.ModuleVersion) | repeated | Modules lists the per-module versions included in this API version. |
+ | `features` | [string](#string) | repeated | Features lists optional feature flags supported by this API version. |
+ 
+ 
+
+ 
+
   <!-- end messages -->
 
   <!-- end enums -->
@@ -3704,7 +3745,11 @@ Since: akash v1.0.0 | |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `client_info` | [ClientInfo](#akash.discovery.v1.ClientInfo) |  | ClientInfo holds information about the client. |
+ | `client_info` | [ClientInfo](#akash.discovery.v1.ClientInfo) |  | ClientInfo holds information about the client. Kept for backward compatibility. New clients should use supported_versions. |
+ | `supported_versions` | [VersionInfo](#akash.discovery.v1.VersionInfo) | repeated | SupportedVersions lists all API versions the node supports. Clients should pick the best match from this list. |
+ | `chain_id` | [string](#string) |  | ChainID is the identifier of the blockchain network. |
+ | `node_version` | [string](#string) |  | NodeVersion is the software version of the node. |
+ | `min_client_version` | [string](#string) |  | MinClientVersion is the minimum client version the node accepts. |
  
  
 
@@ -3716,6 +3761,57 @@ Since: akash v1.0.0 | |
 
   <!-- end HasExtensions -->
 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/discovery/v1/service.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/discovery/v1/service.proto
+ 
+
+ 
+ <a name="akash.discovery.v1.GetInfoRequest"></a>
+
+ ### GetInfoRequest
+ GetInfoRequest is the request type for the Discovery/GetInfo RPC method.
+
+ 
+
+ 
+
+ 
+ <a name="akash.discovery.v1.GetInfoResponse"></a>
+
+ ### GetInfoResponse
+ GetInfoResponse is the response type for the Discovery/GetInfo RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `info` | [Akash](#akash.discovery.v1.Akash) |  | Info contains the node's version and capability information. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.discovery.v1.Discovery"></a>
+
+ ### Discovery
+ Discovery provides version and capability information about the node.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `GetInfo` | [GetInfoRequest](#akash.discovery.v1.GetInfoRequest) | [GetInfoResponse](#akash.discovery.v1.GetInfoResponse) | GetInfo returns the node's supported API versions and metadata. | GET|/akash/discovery/v1/info|
+ 
   <!-- end services -->
 
  

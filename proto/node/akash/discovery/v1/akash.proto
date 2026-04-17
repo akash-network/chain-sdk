@@ -10,10 +10,35 @@ option go_package = "pkg.akt.dev/go/node/client";
 // Akash akash specific RPC parameters.
 message Akash {
   // ClientInfo holds information about the client.
+  // Kept for backward compatibility. New clients should use supported_versions.
   ClientInfo client_info = 1 [
     (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ClientInfo",
     (gogoproto.jsontag)    = "client_info",
     (gogoproto.moretags)   = "yaml:\"client_info\""
+  ];
+  // SupportedVersions lists all API versions the node supports.
+  // Clients should pick the best match from this list.
+  repeated VersionInfo supported_versions = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "SupportedVersions",
+    (gogoproto.jsontag)    = "supported_versions",
+    (gogoproto.moretags)   = "yaml:\"supported_versions\""
+  ];
+  // ChainID is the identifier of the blockchain network.
+  string chain_id = 3 [
+    (gogoproto.customname) = "ChainID",
+    (gogoproto.jsontag)    = "chain_id",
+    (gogoproto.moretags)   = "yaml:\"chain_id\""
+  ];
+  // NodeVersion is the software version of the node.
+  string node_version = 4 [
+    (gogoproto.jsontag)  = "node_version",
+    (gogoproto.moretags) = "yaml:\"node_version\""
+  ];
+  // MinClientVersion is the minimum client version the node accepts.
+  string min_client_version = 5 [
+    (gogoproto.jsontag)  = "min_client_version",
+    (gogoproto.moretags) = "yaml:\"min_client_version\""
   ];
 }
