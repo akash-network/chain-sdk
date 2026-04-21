@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.30...ts/v1.0.0) (2026-04-21)
+
+
+### Features
+
+* **bme:** add max attempts param ([#286](https://github.com/akash-network/chain-sdk/issues/286)) ([dae3bbc](https://github.com/akash-network/chain-sdk/commit/dae3bbc49808b45e3bfc1c6e0e87eb8a63db85f7))
+
 ## [1.0.0-alpha.30](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.29...ts/v1.0.0-alpha.30) (2026-04-09)
 
 
