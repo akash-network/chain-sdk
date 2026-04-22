@@ -3,8 +3,7 @@ import { merge } from "lodash";
 
 import type { DeepPartial } from "../../encoding/typeEncodingHelpers.ts";
 import type { NetworkId } from "../../network/index.ts";
-import { AKT_DENOM, USDC_IBC_DENOMS } from "../../network/index.ts";
-import type { v2ServicePermissions } from "../types.ts";
+import { AKT_DENOM } from "../../network/index.ts";
 import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
 describe(validateSDL.name, () => {
@@ -13,130 +12,9 @@ describe(validateSDL.name, () => {
       const { validate } = setup();
       expect(validate()).toBeUndefined();
     });
-
-    it("returns undefined for valid SDL with USDC denom on sandbox", () => {
-      const { validate } = setup({
-        profiles: {
-          compute: {
-            web: {
-              resources: {
-                cpu: { units: 1 },
-                memory: { size: "512Mi" },
-                storage: { size: "1Gi" },
-              },
-            },
-          },
-          placement: {
-            dcloud: {
-              pricing: {
-                web: {
-                  amount: "1000",
-                  denom: USDC_IBC_DENOMS.sandbox,
-                },
-              },
-            },
-          },
-        },
-      }, "sandbox");
-      expect(validate()).toBeUndefined();
-    });
-
-    it("returns undefined for valid SDL with USDC denom on mainnet", () => {
-      const { validate } = setup({
-        profiles: {
-          compute: {
-            web: {
-              resources: {
-                cpu: { units: 1 },
-                memory: { size: "512Mi" },
-                storage: { size: "1Gi" },
-              },
-            },
-          },
-          placement: {
-            dcloud: {
-              pricing: {
-                web: {
-                  amount: "1000",
-                  denom: USDC_IBC_DENOMS.mainnet,
-                },
-              },
-            },
-          },
-        },
-      }, "mainnet");
-      expect(validate()).toBeUndefined();
-    });
   });
 
   describe("denom validation", () => {
-    it("returns an error for invalid denom", () => {
-      const { validate } = setup({
-        profiles: {
-          compute: {
-            web: {
-              resources: {
-                cpu: { units: 1 },
-                memory: { size: "512Mi" },
-                storage: { size: "1Gi" },
-              },
-            },
-          },
-          placement: {
-            dcloud: {
-              pricing: {
-                web: {
-                  amount: "1000",
-                  denom: "ibc/invalid",
-                },
-              },
-            },
-          },
-        },
-      }, "sandbox");
-
-      const errors = validate();
-
-      expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining(`Invalid format: "denom" at "/profiles/placement/dcloud/pricing/web/denom" does not match pattern "^(uakt|uact|ibc/12C6A0C374171B595A0A9E18B83FA09D295FB1F2D8C6DAA3AC28683471752D84)$"`),
-        instancePath: "/profiles/placement/dcloud/pricing/web/denom",
-        schemaPath: "#/definitions/priceCoin/properties/denom",
-        keyword: "pattern",
-      }));
-    });
-
-    it("returns an error when using sandbox USDC on mainnet", () => {
-      const { validate } = setup({
-        profiles: {
-          compute: {
-            web: {
-              resources: {
-                cpu: { units: 1 },
-                memory: { size: "512Mi" },
-                storage: { size: "1Gi" },
-              },
-            },
-          },
-          placement: {
-            dcloud: {
-              pricing: {
-                web: {
-                  amount: "1000",
-                  denom: USDC_IBC_DENOMS.sandbox,
-                },
-              },
-            },
-          },
-        },
-      }, "mainnet");
-
-      const errors = validate();
-      expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining(`Invalid format: "denom" at "/profiles/placement/dcloud/pricing/web/denom" does not match pattern "^(uakt|uact|ibc/170C677610AC31DF0904FFE09CD3B5C657492170E7E52372E48756B71E56F2F1)$"`),
-        keyword: "pattern",
-      }));
-    });
-
     it("accets uakt denom", () => {
       const { validate } = setup({
         profiles: {
@@ -232,7 +110,7 @@ describe(validateSDL.name, () => {
         },
       };
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: "Service \"web\" is not defined at \"/deployment\" section.",
@@ -323,7 +201,7 @@ describe(validateSDL.name, () => {
         },
       };
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: "The pricing for the \"web\" profile is not defined in the \"dcloud\" placement.",
@@ -574,11 +452,11 @@ describe(validateSDL.name, () => {
               permissions: {
                 read: ["deployment"],
                 write: ["logs"],
-              } as v2ServicePermissions,
+              },
             },
           },
         },
-      });
+      } as DeepPartial<SDLInput>);
 
       const errors = validate();
 
@@ -1035,7 +913,7 @@ describe(validateSDL.name, () => {
         },
       };
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: "Service \"web\" is not defined at \"/deployment\" section.",
@@ -1629,7 +1507,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"cpu\""),
@@ -1667,7 +1545,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"memory\""),
@@ -1705,7 +1583,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"storage\""),
@@ -1744,7 +1622,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"units\""),
@@ -1783,7 +1661,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"size\""),
@@ -1822,7 +1700,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"size\""),
@@ -1977,7 +1855,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"amd\""),
@@ -2091,7 +1969,7 @@ describe(validateSDL.name, () => {
   });
 
   describe("schema validation: pricing", () => {
-    it("returns an error for invalid denom pattern", () => {
+    it("returns an error for invalid denom", () => {
       const { validate } = setup({
         profiles: {
           compute: {
@@ -2106,7 +1984,7 @@ describe(validateSDL.name, () => {
           placement: {
             dcloud: {
               pricing: {
-                web: { amount: "1000", denom: "usdt" },
+                web: { amount: "1000", denom: "usdt" as "uact" },
               },
             },
           },
@@ -2119,7 +1997,7 @@ describe(validateSDL.name, () => {
         message: expect.stringContaining("\"denom\""),
       }));
       expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("pattern \"^(uakt|uact|ibc/.*)$\""),
+        message: expect.stringContaining("should be one of: uakt, uact."),
       }));
     });
 
@@ -2155,7 +2033,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"denom\""),
@@ -2194,7 +2072,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"amount\""),
@@ -2261,7 +2139,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"profile\""),
@@ -2304,7 +2182,7 @@ describe(validateSDL.name, () => {
         },
       } as unknown as SDLInput;
 
-      const errors = validateSDL(sdl, "sandbox");
+      const errors = validateSDL(sdl);
 
       expect(errors).toContainEqual(expect.objectContaining({
         message: expect.stringContaining("\"count\""),
@@ -2363,7 +2241,7 @@ describe(validateSDL.name, () => {
     return {
       sdl,
       networkId,
-      validate: () => validateSDL(sdl, networkId),
+      validate: () => validateSDL(sdl),
     };
   }
 });
