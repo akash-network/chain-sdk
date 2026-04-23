@@ -16,6 +16,24 @@ export interface ClientInfo {
   apiVersion: string;
 }
 
+/** ModuleVersion describes a single module and its API version. */
+export interface ModuleVersion {
+  /** Module is the name of the module (e.g., "deployment", "market", "oracle"). */
+  module: string;
+  /** Version is the API version of the module (e.g., "v1beta4", "v1beta5", "v2"). */
+  version: string;
+}
+
+/** VersionInfo describes a complete API version and its metadata. */
+export interface VersionInfo {
+  /** ApiVersion is the composite API version identifier (e.g., "v1beta4"). */
+  apiVersion: string;
+  /** Modules lists the per-module versions included in this API version. */
+  modules: ModuleVersion[];
+  /** Features lists optional feature flags supported by this API version. */
+  features: string[];
+}
+
 function createBaseClientInfo(): ClientInfo {
   return { apiVersion: "" };
 }
@@ -68,6 +86,172 @@ export const ClientInfo: MessageFns<ClientInfo, "akash.discovery.v1.ClientInfo">
   fromPartial(object: DeepPartial<ClientInfo>): ClientInfo {
     const message = createBaseClientInfo();
     message.apiVersion = object.apiVersion ?? "";
+    return message;
+  },
+};
+
+function createBaseModuleVersion(): ModuleVersion {
+  return { module: "", version: "" };
+}
+
+export const ModuleVersion: MessageFns<ModuleVersion, "akash.discovery.v1.ModuleVersion"> = {
+  $type: "akash.discovery.v1.ModuleVersion" as const,
+
+  encode(message: ModuleVersion, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.module !== "") {
+      writer.uint32(10).string(message.module);
+    }
+    if (message.version !== "") {
+      writer.uint32(18).string(message.version);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ModuleVersion {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseModuleVersion();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.module = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.version = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ModuleVersion {
+    return {
+      module: isSet(object.module) ? globalThis.String(object.module) : "",
+      version: isSet(object.version) ? globalThis.String(object.version) : "",
+    };
+  },
+
+  toJSON(message: ModuleVersion): unknown {
+    const obj: any = {};
+    if (message.module !== "") {
+      obj.module = message.module;
+    }
+    if (message.version !== "") {
+      obj.version = message.version;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<ModuleVersion>): ModuleVersion {
+    const message = createBaseModuleVersion();
+    message.module = object.module ?? "";
+    message.version = object.version ?? "";
+    return message;
+  },
+};
+
+function createBaseVersionInfo(): VersionInfo {
+  return { apiVersion: "", modules: [], features: [] };
+}
+
+export const VersionInfo: MessageFns<VersionInfo, "akash.discovery.v1.VersionInfo"> = {
+  $type: "akash.discovery.v1.VersionInfo" as const,
+
+  encode(message: VersionInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.apiVersion !== "") {
+      writer.uint32(10).string(message.apiVersion);
+    }
+    for (const v of message.modules) {
+      ModuleVersion.encode(v!, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.features) {
+      writer.uint32(26).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): VersionInfo {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseVersionInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.apiVersion = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.modules.push(ModuleVersion.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.features.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): VersionInfo {
+    return {
+      apiVersion: isSet(object.api_version) ? globalThis.String(object.api_version) : "",
+      modules: globalThis.Array.isArray(object?.modules)
+        ? object.modules.map((e: any) => ModuleVersion.fromJSON(e))
+        : [],
+      features: globalThis.Array.isArray(object?.features) ? object.features.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: VersionInfo): unknown {
+    const obj: any = {};
+    if (message.apiVersion !== "") {
+      obj.api_version = message.apiVersion;
+    }
+    if (message.modules?.length) {
+      obj.modules = message.modules.map((e) => ModuleVersion.toJSON(e));
+    }
+    if (message.features?.length) {
+      obj.features = message.features;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<VersionInfo>): VersionInfo {
+    const message = createBaseVersionInfo();
+    message.apiVersion = object.apiVersion ?? "";
+    message.modules = object.modules?.map((e) => ModuleVersion.fromPartial(e)) || [];
+    message.features = object.features?.map((e) => e) || [];
     return message;
   },
 };

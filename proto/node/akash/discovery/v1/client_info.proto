@@ -15,3 +15,38 @@ message ClientInfo {
     (gogoproto.moretags)   = "yaml:\"api_version\""
   ];
 }
+
+// ModuleVersion describes a single module and its API version.
+message ModuleVersion {
+  // Module is the name of the module (e.g., "deployment", "market", "oracle").
+  string module = 1 [
+    (gogoproto.jsontag)  = "module",
+    (gogoproto.moretags) = "yaml:\"module\""
+  ];
+  // Version is the API version of the module (e.g., "v1beta4", "v1beta5", "v2").
+  string version = 2 [
+    (gogoproto.jsontag)  = "version",
+    (gogoproto.moretags) = "yaml:\"version\""
+  ];
+}
+
+// VersionInfo describes a complete API version and its metadata.
+message VersionInfo {
+  // ApiVersion is the composite API version identifier (e.g., "v1beta4").
+  string api_version = 1 [
+    (gogoproto.customname) = "ApiVersion",
+    (gogoproto.jsontag)    = "api_version",
+    (gogoproto.moretags)   = "yaml:\"api_version\""
+  ];
+  // Modules lists the per-module versions included in this API version.
+  repeated ModuleVersion modules = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "modules",
+    (gogoproto.moretags) = "yaml:\"modules\""
+  ];
+  // Features lists optional feature flags supported by this API version.
+  repeated string features = 3 [
+    (gogoproto.jsontag)  = "features",
+    (gogoproto.moretags) = "yaml:\"features\""
+  ];
+}
