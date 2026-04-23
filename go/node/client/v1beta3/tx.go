@@ -468,11 +468,14 @@ func (c *serialBroadcaster) run() {
 
 	tryBroadcast := func() {
 		var q *deque.Deque[broadcastReq]
+		var qName string
 		switch {
-		case priority.Len() > 0: // here lives the logic of the priority broadcast
+		case priority.Len() > 0:
 			q = priority
+			qName = "priority"
 		case pending.Len() > 0:
 			q = pending
+			qName = "pending"
 		default:
 			return
 		}
@@ -489,6 +492,7 @@ func (c *serialBroadcaster) run() {
 		}:
 			broadcastCh = nil
 			_ = q.PopFront()
+			c.log.Debug("broadcaster: dispatch", "queue", qName, "priority", priority.Len(), "pending", pending.Len())
 		default:
 		}
 	}
@@ -502,13 +506,16 @@ loop:
 		case req := <-c.reqch:
 			if req.opts != nil && req.opts.priority {
 				priority.PushBack(req)
+				c.log.Debug("broadcaster: enqueue", "queue", "priority", "priority", priority.Len(), "pending", pending.Len(), "busy", broadcastCh == nil)
 			} else {
 				pending.PushBack(req)
+				c.log.Debug("broadcaster: enqueue", "queue", "pending", "priority", priority.Len(), "pending", pending.Len(), "busy", broadcastCh == nil)
 			}
 
 			tryBroadcast()
 		case err := <-broadcastDoneCh:
 			broadcastCh = c.broadcastch
+			c.log.Debug("broadcaster: done", "err", err, "priority", priority.Len(), "pending", pending.Len())
 
 			if err != nil {
 				c.log.Error("unable to broadcast messages", "error", err)
