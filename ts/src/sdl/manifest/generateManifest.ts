@@ -130,13 +130,10 @@ export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_I
         group.dgroup.resources[location].resource!.endpoints.push(
           ...buildServiceEndpoints(service, endpointSequenceNumbers),
         );
+        group.dgroup.resources[location].resource!.endpoints.sort(
+          (a, b) => a.sequenceNumber - b.sequenceNumber,
+        );
       }
-    }
-  }
-
-  for (const { dgroup } of groupsMap.values()) {
-    for (const resourceUnit of dgroup.resources) {
-      resourceUnit.resource!.endpoints.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
     }
   }
 

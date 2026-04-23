@@ -621,6 +621,57 @@ describe(generateManifestVersion.name, () => {
     });
   });
 
+  describe("LegacyDec amount formatting", () => {
+    it("formats integer amount with 18 decimal places", () => {
+      const obj = [{ price: { denom: "uakt", amount: "1000" } }];
+      const json = manifestToSortedJSON(obj as never);
+
+      expect(json).toContain('"1000.000000000000000000"');
+    });
+
+    it("formats decimal string amount to 18 places", () => {
+      const obj = [{ price: { denom: "uakt", amount: "1.5" } }];
+      const json = manifestToSortedJSON(obj as never);
+
+      expect(json).toContain('"1.500000000000000000"');
+    });
+
+    it("formats zero amount", () => {
+      const obj = [{ price: { denom: "uakt", amount: "0" } }];
+      const json = manifestToSortedJSON(obj as never);
+
+      expect(json).toContain('"0.000000000000000000"');
+    });
+
+    it("formats small decimal amount", () => {
+      const obj = [{ price: { denom: "uakt", amount: "0.001" } }];
+      const json = manifestToSortedJSON(obj as never);
+
+      expect(json).toContain('"0.001000000000000000"');
+    });
+
+    it("formats numeric amount passed directly to replacer", () => {
+      const obj = [{ price: { denom: "uakt", amount: 100 } }];
+      const json = manifestToSortedJSON(obj as never);
+
+      expect(json).toContain('"100.000000000000000000"');
+    });
+
+    it("formats numeric decimal amount passed directly to replacer", () => {
+      const obj = [{ price: { denom: "uakt", amount: 2.5 } }];
+      const json = manifestToSortedJSON(obj as never);
+
+      expect(json).toContain('"2.500000000000000000"');
+    });
+
+    it("formats amount in groupSpecs through full pipeline", () => {
+      const { groupSpecs } = setupWithGroupSpecs({ amount: 5000 });
+      const json = manifestToSortedJSON(groupSpecs);
+
+      expect(json).toContain('"5000.000000000000000000"');
+    });
+  });
+
   function setup(options: {
     sdl?: SDLInput;
     image?: string;
@@ -658,6 +709,13 @@ describe(generateManifestVersion.name, () => {
     }
   }
 
+  function setupWithGroupSpecs(options: { amount?: number | string } = {}) {
+    const sdl = createBasicSdl({ amount: options.amount });
+    const result = generateManifest(sdl);
+    assertBuildResult(result);
+    return { groupSpecs: result.value.groupSpecs };
+  }
+
   function createBasicSdl(options: {
     image?: string;
     command?: string[];
@@ -670,8 +728,9 @@ describe(generateManifestVersion.name, () => {
       to?: Array<{ global?: boolean }>;
       accept?: string[];
     }>;
+    amount?: number | string;
   } = {}): SDLInput {
-    const { image = "nginx", command, args, env, credentials, expose } = options;
+    const { image = "nginx", command, args, env, credentials, expose, amount = 1000 } = options;
 
     return {
       version: "2.0",
@@ -704,7 +763,7 @@ describe(generateManifestVersion.name, () => {
         placement: {
           dcloud: {
             pricing: {
-              web: { denom: "uakt", amount: 1000 },
+              web: { denom: "uakt", amount },
             },
           },
         },
