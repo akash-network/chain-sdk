@@ -9,6 +9,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
+import { Duration } from "../../../google/protobuf/duration.ts";
 
 /**
  * DeploymentID represents a unique identifier for a specific deployment on the network.
@@ -45,6 +46,11 @@ export interface Deployment {
   hash: Uint8Array;
   /** CreatedAt indicates when the deployment was created as a block height value. */
   createdAt: Long;
+  /**
+   * reclamation stores the deployment's reclamation requirements for persistence.
+   * Needed so that StartGroup can propagate reclamation to newly created orders.
+   */
+  reclamation: DeploymentReclamation | undefined;
 }
 
 /** State is an enum which refers to state of deployment. */
@@ -88,6 +94,15 @@ export function deployment_StateToJSON(object: Deployment_State): string {
     default:
       return "UNRECOGNIZED";
   }
+}
+
+/**
+ * DeploymentReclamation defines the tenant's reclamation requirements.
+ * Stored on the Deployment and propagated to Orders.
+ */
+export interface DeploymentReclamation {
+  /** min_window is the minimum reclamation window the tenant requires. */
+  minWindow: Duration | undefined;
 }
 
 function createBaseDeploymentID(): DeploymentID {
@@ -165,7 +180,7 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
 };
 
 function createBaseDeployment(): Deployment {
-  return { id: undefined, state: 0, hash: new Uint8Array(0), createdAt: Long.ZERO };
+  return { id: undefined, state: 0, hash: new Uint8Array(0), createdAt: Long.ZERO, reclamation: undefined };
 }
 
 export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"> = {
@@ -183,6 +198,9 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     }
     if (!message.createdAt.equals(Long.ZERO)) {
       writer.uint32(32).int64(message.createdAt.toString());
+    }
+    if (message.reclamation !== undefined) {
+      DeploymentReclamation.encode(message.reclamation, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -226,6 +244,14 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
           message.createdAt = Long.fromString(reader.int64().toString());
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.reclamation = DeploymentReclamation.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -241,6 +267,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
       state: isSet(object.state) ? deployment_StateFromJSON(object.state) : 0,
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
       createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
+      reclamation: isSet(object.reclamation) ? DeploymentReclamation.fromJSON(object.reclamation) : undefined,
     };
   },
 
@@ -258,6 +285,9 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     if (!message.createdAt.equals(Long.ZERO)) {
       obj.created_at = (message.createdAt || Long.ZERO).toString();
     }
+    if (message.reclamation !== undefined) {
+      obj.reclamation = DeploymentReclamation.toJSON(message.reclamation);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Deployment>): Deployment {
@@ -268,6 +298,67 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
       ? Long.fromValue(object.createdAt)
       : Long.ZERO;
+    message.reclamation = (object.reclamation !== undefined && object.reclamation !== null)
+      ? DeploymentReclamation.fromPartial(object.reclamation)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseDeploymentReclamation(): DeploymentReclamation {
+  return { minWindow: undefined };
+}
+
+export const DeploymentReclamation: MessageFns<DeploymentReclamation, "akash.deployment.v1.DeploymentReclamation"> = {
+  $type: "akash.deployment.v1.DeploymentReclamation" as const,
+
+  encode(message: DeploymentReclamation, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.minWindow !== undefined) {
+      Duration.encode(message.minWindow, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeploymentReclamation {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeploymentReclamation();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.minWindow = Duration.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeploymentReclamation {
+    return { minWindow: isSet(object.min_window) ? Duration.fromJSON(object.min_window) : undefined };
+  },
+
+  toJSON(message: DeploymentReclamation): unknown {
+    const obj: any = {};
+    if (message.minWindow !== undefined) {
+      obj.min_window = Duration.toJSON(message.minWindow);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<DeploymentReclamation>): DeploymentReclamation {
+    const message = createBaseDeploymentReclamation();
+    message.minWindow = (object.minWindow !== undefined && object.minWindow !== null)
+      ? Duration.fromPartial(object.minWindow)
+      : undefined;
     return message;
   },
 };

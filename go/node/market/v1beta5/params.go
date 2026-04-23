@@ -2,6 +2,7 @@ package v1beta5
 
 import (
 	"fmt"
+	"time"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,6 +18,9 @@ var (
 	DefaultBidMinDepositACT        = sdk.NewCoin("uact", sdkmath.NewInt(500000))
 	defaultOrderMaxBids     uint32 = 20
 	maxOrderMaxBids         uint32 = 500
+
+	DefaultMinReclamationWindow = 1 * time.Hour
+	DefaultMaxReclamationWindow = 720 * time.Hour // 30 days
 )
 
 const (
@@ -45,6 +49,8 @@ func DefaultParams() Params {
 			DefaultBidMinDeposit,
 			DefaultBidMinDepositACT,
 		),
+		MinReclamationWindow: DefaultMinReclamationWindow,
+		MaxReclamationWindow: DefaultMaxReclamationWindow,
 	}
 }
 
@@ -58,6 +64,10 @@ func (p Params) Validate() error {
 	}
 
 	if err := validateCoins(p.BidMinDeposits); err != nil {
+		return err
+	}
+
+	if err := validateReclamationWindows(p.MinReclamationWindow, p.MaxReclamationWindow); err != nil {
 		return err
 	}
 
@@ -81,6 +91,22 @@ func validateCoins(i interface{}) error {
 
 	if err := v.Validate(); err != nil {
 		return fmt.Errorf("%w: %s", v1.ErrInvalidParam, err)
+	}
+
+	return nil
+}
+
+func validateReclamationWindows(min, max time.Duration) error {
+	if min < 0 {
+		return fmt.Errorf("%w: min reclamation window must be >= 0", v1.ErrInvalidParam)
+	}
+
+	if max <= 0 {
+		return fmt.Errorf("%w: max reclamation window must be > 0", v1.ErrInvalidParam)
+	}
+
+	if max <= min {
+		return fmt.Errorf("%w: max reclamation window must be > min reclamation window", v1.ErrInvalidParam)
 	}
 
 	return nil

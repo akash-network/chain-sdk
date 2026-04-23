@@ -1193,6 +1193,9 @@ impl serde::Serialize for MsgCreateDeployment {
         if self.deposit.is_some() {
             len += 1;
         }
+        if self.reclamation.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.deployment.v1beta4.MsgCreateDeployment", len)?;
         if let Some(v) = self.id.as_ref() {
             struct_ser.serialize_field("id", v)?;
@@ -1208,6 +1211,9 @@ impl serde::Serialize for MsgCreateDeployment {
         if let Some(v) = self.deposit.as_ref() {
             struct_ser.serialize_field("deposit", v)?;
         }
+        if let Some(v) = self.reclamation.as_ref() {
+            struct_ser.serialize_field("reclamation", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -1222,6 +1228,7 @@ impl<'de> serde::Deserialize<'de> for MsgCreateDeployment {
             "groups",
             "hash",
             "deposit",
+            "reclamation",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1230,6 +1237,7 @@ impl<'de> serde::Deserialize<'de> for MsgCreateDeployment {
             Groups,
             Hash,
             Deposit,
+            Reclamation,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1255,6 +1263,7 @@ impl<'de> serde::Deserialize<'de> for MsgCreateDeployment {
                             "groups" => Ok(GeneratedField::Groups),
                             "hash" => Ok(GeneratedField::Hash),
                             "deposit" => Ok(GeneratedField::Deposit),
+                            "reclamation" => Ok(GeneratedField::Reclamation),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1278,6 +1287,7 @@ impl<'de> serde::Deserialize<'de> for MsgCreateDeployment {
                 let mut groups__ = None;
                 let mut hash__ = None;
                 let mut deposit__ = None;
+                let mut reclamation__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -1306,6 +1316,12 @@ impl<'de> serde::Deserialize<'de> for MsgCreateDeployment {
                             }
                             deposit__ = map_.next_value()?;
                         }
+                        GeneratedField::Reclamation => {
+                            if reclamation__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("reclamation"));
+                            }
+                            reclamation__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(MsgCreateDeployment {
@@ -1313,6 +1329,7 @@ impl<'de> serde::Deserialize<'de> for MsgCreateDeployment {
                     groups: groups__.unwrap_or_default(),
                     hash: hash__.unwrap_or_default(),
                     deposit: deposit__,
+                    reclamation: reclamation__,
                 })
             }
         }

@@ -10,6 +10,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
+import { Duration } from "../../../google/protobuf/duration.ts";
 
 /** Params is the params for the x/market module. */
 export interface Params {
@@ -24,10 +25,22 @@ export interface Params {
   orderMaxBids: number;
   /** BidMinDeposits is a parameter for the minimum deposits per denom on a Bid. */
   bidMinDeposits: Coin[];
+  /** min_reclamation_window is the minimum reclamation window duration allowed. */
+  minReclamationWindow:
+    | Duration
+    | undefined;
+  /** max_reclamation_window is the maximum reclamation window duration allowed. */
+  maxReclamationWindow: Duration | undefined;
 }
 
 function createBaseParams(): Params {
-  return { bidMinDeposit: undefined, orderMaxBids: 0, bidMinDeposits: [] };
+  return {
+    bidMinDeposit: undefined,
+    orderMaxBids: 0,
+    bidMinDeposits: [],
+    minReclamationWindow: undefined,
+    maxReclamationWindow: undefined,
+  };
 }
 
 export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
@@ -42,6 +55,12 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
     }
     for (const v of message.bidMinDeposits) {
       Coin.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.minReclamationWindow !== undefined) {
+      Duration.encode(message.minReclamationWindow, writer.uint32(34).fork()).join();
+    }
+    if (message.maxReclamationWindow !== undefined) {
+      Duration.encode(message.maxReclamationWindow, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -77,6 +96,22 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
           message.bidMinDeposits.push(Coin.decode(reader, reader.uint32()));
           continue;
         }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.minReclamationWindow = Duration.decode(reader, reader.uint32());
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.maxReclamationWindow = Duration.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -93,6 +128,12 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
       bidMinDeposits: globalThis.Array.isArray(object?.bid_min_deposits)
         ? object.bid_min_deposits.map((e: any) => Coin.fromJSON(e))
         : [],
+      minReclamationWindow: isSet(object.min_reclamation_window)
+        ? Duration.fromJSON(object.min_reclamation_window)
+        : undefined,
+      maxReclamationWindow: isSet(object.max_reclamation_window)
+        ? Duration.fromJSON(object.max_reclamation_window)
+        : undefined,
     };
   },
 
@@ -107,6 +148,12 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
     if (message.bidMinDeposits?.length) {
       obj.bid_min_deposits = message.bidMinDeposits.map((e) => Coin.toJSON(e));
     }
+    if (message.minReclamationWindow !== undefined) {
+      obj.min_reclamation_window = Duration.toJSON(message.minReclamationWindow);
+    }
+    if (message.maxReclamationWindow !== undefined) {
+      obj.max_reclamation_window = Duration.toJSON(message.maxReclamationWindow);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Params>): Params {
@@ -116,6 +163,12 @@ export const Params: MessageFns<Params, "akash.market.v1beta5.Params"> = {
       : undefined;
     message.orderMaxBids = object.orderMaxBids ?? 0;
     message.bidMinDeposits = object.bidMinDeposits?.map((e) => Coin.fromPartial(e)) || [];
+    message.minReclamationWindow = (object.minReclamationWindow !== undefined && object.minReclamationWindow !== null)
+      ? Duration.fromPartial(object.minReclamationWindow)
+      : undefined;
+    message.maxReclamationWindow = (object.maxReclamationWindow !== undefined && object.maxReclamationWindow !== null)
+      ? Duration.fromPartial(object.maxReclamationWindow)
+      : undefined;
     return message;
   },
 };

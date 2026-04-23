@@ -10,6 +10,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
+import { Reclamation } from "./reclamation.ts";
 import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "./types.ts";
 
 /** LeaseID stores bid details of lease. */
@@ -71,6 +72,11 @@ export interface Lease {
   /** ClosedOn is the block height at which the Lease was closed. */
   closedOn: Long;
   reason: LeaseClosedReason;
+  /**
+   * Reclamation holds reclamation configuration and state, if applicable.
+   * Nil if reclamation is not configured for this lease.
+   */
+  reclamation: Reclamation | undefined;
 }
 
 /** State is an enum which refers to state of lease. */
@@ -83,6 +89,8 @@ export enum Lease_State {
   insufficient_funds = 2,
   /** closed - LeaseClosed denotes state for lease closed. */
   closed = 3,
+  /** reclaiming - LeaseReclaiming denotes a lease in reclamation (grace period before closure). */
+  reclaiming = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -100,6 +108,9 @@ export function lease_StateFromJSON(object: any): Lease_State {
     case 3:
     case "closed":
       return Lease_State.closed;
+    case 4:
+    case "reclaiming":
+      return Lease_State.reclaiming;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -117,6 +128,8 @@ export function lease_StateToJSON(object: Lease_State): string {
       return "insufficient_funds";
     case Lease_State.closed:
       return "closed";
+    case Lease_State.reclaiming:
+      return "reclaiming";
     case Lease_State.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -262,7 +275,15 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
 };
 
 function createBaseLease(): Lease {
-  return { id: undefined, state: 0, price: undefined, createdAt: Long.ZERO, closedOn: Long.ZERO, reason: 0 };
+  return {
+    id: undefined,
+    state: 0,
+    price: undefined,
+    createdAt: Long.ZERO,
+    closedOn: Long.ZERO,
+    reason: 0,
+    reclamation: undefined,
+  };
 }
 
 export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
@@ -286,6 +307,9 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     }
     if (message.reason !== 0) {
       writer.uint32(48).int32(message.reason);
+    }
+    if (message.reclamation !== undefined) {
+      Reclamation.encode(message.reclamation, writer.uint32(58).fork()).join();
     }
     return writer;
   },
@@ -345,6 +369,14 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
           message.reason = reader.int32() as any;
           continue;
         }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.reclamation = Reclamation.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -362,6 +394,7 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
       closedOn: isSet(object.closed_on) ? Long.fromValue(object.closed_on) : Long.ZERO,
       reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
+      reclamation: isSet(object.reclamation) ? Reclamation.fromJSON(object.reclamation) : undefined,
     };
   },
 
@@ -385,6 +418,9 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     if (message.reason !== 0) {
       obj.reason = leaseClosedReasonToJSON(message.reason);
     }
+    if (message.reclamation !== undefined) {
+      obj.reclamation = Reclamation.toJSON(message.reclamation);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Lease>): Lease {
@@ -401,6 +437,9 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       ? Long.fromValue(object.closedOn)
       : Long.ZERO;
     message.reason = object.reason ?? 0;
+    message.reclamation = (object.reclamation !== undefined && object.reclamation !== null)
+      ? Reclamation.fromPartial(object.reclamation)
+      : undefined;
     return message;
   },
 };

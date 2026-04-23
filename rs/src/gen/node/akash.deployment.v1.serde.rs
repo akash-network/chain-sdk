@@ -19,6 +19,9 @@ impl serde::Serialize for Deployment {
         if self.created_at != 0 {
             len += 1;
         }
+        if self.reclamation.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.deployment.v1.Deployment", len)?;
         if let Some(v) = self.id.as_ref() {
             struct_ser.serialize_field("id", v)?;
@@ -38,6 +41,9 @@ impl serde::Serialize for Deployment {
             #[allow(clippy::needless_borrows_for_generic_args)]
             struct_ser.serialize_field("createdAt", ToString::to_string(&self.created_at).as_str())?;
         }
+        if let Some(v) = self.reclamation.as_ref() {
+            struct_ser.serialize_field("reclamation", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -53,6 +59,7 @@ impl<'de> serde::Deserialize<'de> for Deployment {
             "hash",
             "created_at",
             "createdAt",
+            "reclamation",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -61,6 +68,7 @@ impl<'de> serde::Deserialize<'de> for Deployment {
             State,
             Hash,
             CreatedAt,
+            Reclamation,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -86,6 +94,7 @@ impl<'de> serde::Deserialize<'de> for Deployment {
                             "state" => Ok(GeneratedField::State),
                             "hash" => Ok(GeneratedField::Hash),
                             "createdAt" | "created_at" => Ok(GeneratedField::CreatedAt),
+                            "reclamation" => Ok(GeneratedField::Reclamation),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -109,6 +118,7 @@ impl<'de> serde::Deserialize<'de> for Deployment {
                 let mut state__ = None;
                 let mut hash__ = None;
                 let mut created_at__ = None;
+                let mut reclamation__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -139,6 +149,12 @@ impl<'de> serde::Deserialize<'de> for Deployment {
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
+                        GeneratedField::Reclamation => {
+                            if reclamation__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("reclamation"));
+                            }
+                            reclamation__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(Deployment {
@@ -146,6 +162,7 @@ impl<'de> serde::Deserialize<'de> for Deployment {
                     state: state__.unwrap_or_default(),
                     hash: hash__.unwrap_or_default(),
                     created_at: created_at__.unwrap_or_default(),
+                    reclamation: reclamation__,
                 })
             }
         }
@@ -336,6 +353,98 @@ impl<'de> serde::Deserialize<'de> for DeploymentId {
             }
         }
         deserializer.deserialize_struct("akash.deployment.v1.DeploymentID", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for DeploymentReclamation {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.min_window.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.deployment.v1.DeploymentReclamation", len)?;
+        if let Some(v) = self.min_window.as_ref() {
+            struct_ser.serialize_field("minWindow", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for DeploymentReclamation {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "min_window",
+            "minWindow",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            MinWindow,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "minWindow" | "min_window" => Ok(GeneratedField::MinWindow),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = DeploymentReclamation;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.deployment.v1.DeploymentReclamation")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeploymentReclamation, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut min_window__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::MinWindow => {
+                            if min_window__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("minWindow"));
+                            }
+                            min_window__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(DeploymentReclamation {
+                    min_window: min_window__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.deployment.v1.DeploymentReclamation", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for EventDeploymentClosed {
