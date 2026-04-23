@@ -94,7 +94,7 @@ func validateCPU(u *types.CPU) error {
 
 	if (u.Units.Value() > uint64(validationConfig.Unit.Max.CPU)) || (u.Units.Value() < uint64(validationConfig.Unit.Min.CPU)) {
 		return fmt.Errorf("error: invalid unit CPU (%v > %v > %v fails)",
-			validationConfig.Unit.Max.CPU, u.Units.Value(), validationConfig.Unit.Max.CPU)
+			validationConfig.Unit.Max.CPU, u.Units.Value(), validationConfig.Unit.Min.CPU)
 	}
 
 	if err := u.Attributes.Validate(); err != nil {
@@ -111,7 +111,7 @@ func validateGPU(u *types.GPU) error {
 
 	if (u.Units.Value() > uint64(validationConfig.Unit.Max.GPU)) || (u.Units.Value() < uint64(validationConfig.Unit.Min.GPU)) {
 		return fmt.Errorf("error: invalid unit GPU (%v > %v > %v fails)",
-			validationConfig.Unit.Max.GPU, u.Units.Value(), validationConfig.Unit.Max.GPU)
+			validationConfig.Unit.Max.GPU, u.Units.Value(), validationConfig.Unit.Min.GPU)
 	}
 
 	if u.Units.Value() == 0 && len(u.Attributes) > 0 {
@@ -131,7 +131,7 @@ func validateMemory(u *types.Memory) error {
 	}
 	if (u.Quantity.Value() > validationConfig.Unit.Max.Memory) || (u.Quantity.Value() < validationConfig.Unit.Min.Memory) {
 		return fmt.Errorf("error: invalid unit memory (%v > %v > %v fails)",
-			validationConfig.Unit.Max.Memory, u.Quantity.Value(), validationConfig.Unit.Max.Memory)
+			validationConfig.Unit.Max.Memory, u.Quantity.Value(), validationConfig.Unit.Min.Memory)
 	}
 
 	if err := u.Attributes.Validate(); err != nil {
