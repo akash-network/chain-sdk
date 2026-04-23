@@ -1,5 +1,6 @@
 import { default as stableStringify } from "json-stable-stringify";
 
+import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 import type { GenerateManifestOkResult, Manifest } from "./generateManifest.ts";
 
 const decoder = new TextDecoder();
@@ -53,21 +54,17 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
   return value;
 }
 
+const LEGACY_DEC_PRECISION = 18;
+
 function formatLegacyDec(s: string): string {
   if (!s) return "0.000000000000000000";
-
-  // Normalize scientific notation (e.g. "1e-7") to plain decimal
-  if (s.includes("e") || s.includes("E")) {
-    s = Number(s).toFixed(18);
-  }
-
-  if (s.includes(".")) {
-    const [int, frac = ""] = s.split(".");
-    const truncated = frac.slice(0, 18);
-    const pad = 18 - truncated.length;
-    return pad > 0 ? `${int}.${truncated}${"0".repeat(pad)}` : `${int}.${truncated}`;
-  }
-  return `${s}.${"0".repeat(18)}`;
+  const atomics = LegacyDec.encode(s);
+  const sign = atomics.startsWith("-") ? "-" : "";
+  const abs = sign ? atomics.slice(1) : atomics;
+  const padded = abs.padStart(LEGACY_DEC_PRECISION + 1, "0");
+  const intPart = padded.slice(0, -LEGACY_DEC_PRECISION);
+  const fracPart = padded.slice(-LEGACY_DEC_PRECISION);
+  return `${sign}${intPart}.${fracPart}`;
 }
 
 const MANIFEST_VERSION_FIELD_MAPPING: Record<string, string> = {

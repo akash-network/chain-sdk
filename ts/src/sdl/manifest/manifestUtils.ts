@@ -133,8 +133,7 @@ export function buildServiceEndpoints(
           sequenceNumber: endpointSequenceNumbers[to.ip] ?? 0,
         });
 
-        // Match Go's GetEndpoints(): LEASED_IP first, then sort by sequenceNumber
-        return [leasedEp, defaultEp].sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+        return [defaultEp, leasedEp];
       }),
   );
 }
