@@ -37,204 +37,355 @@ var require_ucs2length = __commonJS({
 // <stdin>
 var validate = validate10;
 var stdin_default = validate10;
-var schema11 = { "$schema": "http://json-schema.org/draft-07/schema#", "$id": "https://raw.githubusercontent.com/akash-network/chain-sdk/refs/heads/main/specs/jwt-schema.json", "title": "Akash JWT Schema", "description": "JSON Schema for JWT used in the Akash Provider API.", "type": "object", "additionalProperties": false, "required": ["iss", "iat", "exp", "nbf", "version", "leases"], "properties": { "iss": { "type": "string", "pattern": "^akash1[a-z0-9]{38}$", "description": "Akash address of the lease(s) owner, e.g., akash1abcd... (44 characters)" }, "iat": { "type": "integer", "minimum": 0, "description": "Token issuance timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be <= exp and >= nbf." }, "nbf": { "type": "integer", "minimum": 0, "description": "Not valid before timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be <= iat." }, "exp": { "type": "integer", "minimum": 0, "description": "Expiration timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be >= iat." }, "jti": { "type": "string", "minLength": 1, "description": "Unique identifier for the JWT, used to prevent token reuse." }, "version": { "type": "string", "enum": ["v1"], "description": "Version of the JWT specification (currently fixed at v1)." }, "leases": { "type": "object", "additionalProperties": false, "required": ["access"], "properties": { "access": { "type": "string", "enum": ["full", "granular", "scoped"], "description": "Access level for the lease: 'full' for unrestricted access to all actions, 'scoped' for specific actions across all provider leases,'granular' for provider-specific permissions." }, "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "enum": ["send-manifest", "get-manifest", "logs", "shell", "events", "status", "restart", "hostname-migrate", "ip-migrate"] }, "description": "Global list of permitted actions across all owned leases (no duplicates). Required when access is 'scoped'." }, "permissions": { "type": "array", "description": "Required if leases.access is 'granular'; defines provider-specific permissions. The provider address must be unique across all permissions entries.", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["provider", "access"], "properties": { "provider": { "type": "string", "pattern": "^akash1[a-z0-9]{38}$", "description": "Provider address, e.g., akash1xyz... (44 characters)." }, "access": { "type": "string", "enum": ["full", "scoped", "granular"], "description": "Provider-level access: 'full' for all actions, 'scoped' for specific actions across all provider leases, 'granular' for deployment-specific actions." }, "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "enum": ["send-manifest", "get-manifest", "logs", "shell", "events", "status", "restart", "hostname-migrate", "ip-migrate"] }, "description": "Provider-level list of permitted actions for 'scoped' access (no duplicates)." }, "deployments": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["dseq", "scope", "services"], "properties": { "dseq": { "type": "integer", "minimum": 1, "description": "Deployment sequence number." }, "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "enum": ["send-manifest", "get-manifest", "logs", "shell", "events", "status", "restart", "hostname-migrate", "ip-migrate"] }, "description": "Deployment-level list of permitted actions (no duplicates)." }, "gseq": { "type": "integer", "minimum": 0, "description": "Group sequence number (requires dseq)." }, "oseq": { "type": "integer", "minimum": 0, "description": "Order sequence number (requires dseq and gseq)." }, "services": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 }, "description": "List of service names (requires dseq)." } }, "dependencies": { "gseq": ["dseq"], "oseq": ["dseq", "gseq"], "services": ["dseq"] } } } }, "allOf": [{ "if": { "properties": { "access": { "const": "scoped" } } }, "then": { "required": ["scope"], "properties": { "scope": { "minItems": 1 }, "deployments": false } } }, { "if": { "properties": { "access": { "const": "granular" } } }, "then": { "required": ["deployments"], "properties": { "scope": false } } }, { "if": { "properties": { "access": { "const": "full" } } }, "then": { "properties": { "scope": false, "deployments": false } } }] } } }, "allOf": [{ "if": { "properties": { "access": { "const": "full" } } }, "then": { "properties": { "permissions": false, "scope": false } } }, { "if": { "properties": { "access": { "const": "scoped" } } }, "then": { "required": ["scope"], "properties": { "scope": { "minItems": 1 }, "permissions": false } } }, { "if": { "properties": { "access": { "const": "granular" } }, "required": ["access"] }, "then": { "required": ["permissions"], "properties": { "scope": false } } }] } }, "allOf": [{ "if": { "properties": { "leases": { "properties": { "access": { "const": "granular" } }, "required": ["access"] } }, "required": ["leases"] }, "then": { "properties": { "leases": { "required": ["permissions"], "properties": { "scope": false } } } } }, { "if": { "properties": { "leases": { "properties": { "permissions": { "type": "array", "minItems": 1 } }, "required": ["permissions"] } }, "required": ["leases"] }, "then": { "properties": { "leases": { "properties": { "access": { "const": "granular" } }, "required": ["access"] } } } }] };
+var schema11 = { "$schema": "http://json-schema.org/draft-07/schema#", "$id": "https://raw.githubusercontent.com/akash-network/chain-sdk/refs/heads/main/specs/jwt-schema.json", "title": "Akash JWT Schema", "description": "JSON Schema for JWT used in the Akash Provider API.", "type": "object", "additionalProperties": false, "required": ["iss", "iat", "exp", "nbf", "version", "leases"], "properties": { "iss": { "$ref": "#/definitions/akash-address", "description": "Akash address of the lease(s) owner, e.g., akash1abcd... (44 characters)" }, "iat": { "type": "integer", "minimum": 0, "description": "Token issuance timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be <= exp and >= nbf." }, "nbf": { "type": "integer", "minimum": 0, "description": "Not valid before timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be <= iat." }, "exp": { "type": "integer", "minimum": 0, "description": "Expiration timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be >= iat." }, "jti": { "type": "string", "minLength": 1, "description": "Unique identifier for the JWT, used to prevent token reuse." }, "version": { "type": "string", "enum": ["v1"], "description": "Version of the JWT specification (currently fixed at v1)." }, "leases": { "$ref": "#/definitions/leases" } }, "definitions": { "akash-address": { "type": "string", "pattern": "^akash1[a-z0-9]{38}$" }, "action-scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "enum": ["send-manifest", "get-manifest", "logs", "shell", "events", "status", "restart", "hostname-migrate", "ip-migrate"] } }, "leases": { "type": "object", "description": "Access level for the lease: 'full' for unrestricted access to all actions, 'scoped' for specific actions across all provider leases, 'granular' for provider-specific permissions.", "oneOf": [{ "$ref": "#/definitions/leases-full" }, { "$ref": "#/definitions/leases-scoped" }, { "$ref": "#/definitions/leases-granular" }] }, "leases-full": { "type": "object", "additionalProperties": false, "required": ["access"], "properties": { "access": { "const": "full", "description": "Unrestricted access to all actions on all leases." } } }, "leases-scoped": { "type": "object", "additionalProperties": false, "required": ["access", "scope"], "properties": { "access": { "const": "scoped", "description": "Specific actions across all provider leases." }, "scope": { "$ref": "#/definitions/action-scope", "description": "Global list of permitted actions across all owned leases (no duplicates)." } } }, "leases-granular": { "type": "object", "additionalProperties": false, "required": ["access", "permissions"], "properties": { "access": { "const": "granular", "description": "Provider-specific permissions." }, "permissions": { "type": "array", "description": "Defines provider-specific permissions. The provider address must be unique across all permissions entries.", "minItems": 1, "items": { "$ref": "#/definitions/lease-permission" } } } }, "lease-permission": { "type": "object", "description": "Provider-level access: 'full' for all actions, 'scoped' for specific actions across all provider leases, 'granular' for deployment-specific actions.", "oneOf": [{ "$ref": "#/definitions/lease-permission-full" }, { "$ref": "#/definitions/lease-permission-scoped" }, { "$ref": "#/definitions/lease-permission-granular" }] }, "lease-permission-full": { "type": "object", "additionalProperties": false, "required": ["provider", "access"], "properties": { "provider": { "$ref": "#/definitions/akash-address", "description": "Provider address, e.g., akash1xyz... (44 characters)." }, "access": { "const": "full", "description": "Full access to all actions on this provider's leases." } } }, "lease-permission-scoped": { "type": "object", "additionalProperties": false, "required": ["provider", "access", "scope"], "properties": { "provider": { "$ref": "#/definitions/akash-address", "description": "Provider address, e.g., akash1xyz... (44 characters)." }, "access": { "const": "scoped", "description": "Specific actions across all this provider's leases." }, "scope": { "$ref": "#/definitions/action-scope", "description": "Provider-level list of permitted actions (no duplicates)." } } }, "lease-permission-granular": { "type": "object", "additionalProperties": false, "required": ["provider", "access", "deployments"], "properties": { "provider": { "$ref": "#/definitions/akash-address", "description": "Provider address, e.g., akash1xyz... (44 characters)." }, "access": { "const": "granular", "description": "Deployment-specific actions." }, "deployments": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/lease-permission-deployment" } } } }, "lease-permission-deployment": { "type": "object", "additionalProperties": false, "required": ["dseq", "scope", "services"], "properties": { "dseq": { "type": "integer", "minimum": 1, "description": "Deployment sequence number." }, "scope": { "$ref": "#/definitions/action-scope", "description": "Deployment-level list of permitted actions (no duplicates)." }, "gseq": { "type": "integer", "minimum": 0, "description": "Group sequence number (requires dseq)." }, "oseq": { "type": "integer", "minimum": 0, "description": "Order sequence number (requires dseq and gseq)." }, "services": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 }, "description": "List of service names (requires dseq)." } }, "dependencies": { "oseq": ["gseq"] } } } };
 var pattern0 = new RegExp("^akash1[a-z0-9]{38}$", "u");
 var func2 = require_ucs2length().default;
-function validate10(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-  ;
+var schema16 = { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "enum": ["send-manifest", "get-manifest", "logs", "shell", "events", "status", "restart", "hostname-migrate", "ip-migrate"] } };
+function validate12(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
   let vErrors = null;
   let errors = 0;
-  const _errs2 = errors;
-  let valid1 = true;
-  const _errs3 = errors;
   if (data && typeof data == "object" && !Array.isArray(data)) {
-    let missing0;
-    if (data.leases === void 0 && (missing0 = "leases")) {
-      const err0 = {};
+    if (data.access === void 0) {
+      const err0 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
       if (vErrors === null) {
         vErrors = [err0];
       } else {
         vErrors.push(err0);
       }
       errors++;
-    } else {
-      if (data.leases !== void 0) {
-        let data0 = data.leases;
-        if (data0 && typeof data0 == "object" && !Array.isArray(data0)) {
-          let missing1;
-          if (data0.access === void 0 && (missing1 = "access")) {
-            const err1 = {};
-            if (vErrors === null) {
-              vErrors = [err1];
-            } else {
-              vErrors.push(err1);
-            }
-            errors++;
+    }
+    if (data.scope === void 0) {
+      const err1 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "scope" }, message: "must have required property 'scope'" };
+      if (vErrors === null) {
+        vErrors = [err1];
+      } else {
+        vErrors.push(err1);
+      }
+      errors++;
+    }
+    for (const key0 in data) {
+      if (!(key0 === "access" || key0 === "scope")) {
+        const err2 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        if (vErrors === null) {
+          vErrors = [err2];
+        } else {
+          vErrors.push(err2);
+        }
+        errors++;
+      }
+    }
+    if (data.access !== void 0) {
+      if ("scoped" !== data.access) {
+        const err3 = { instancePath: instancePath + "/access", schemaPath: "#/properties/access/const", keyword: "const", params: { allowedValue: "scoped" }, message: "must be equal to constant" };
+        if (vErrors === null) {
+          vErrors = [err3];
+        } else {
+          vErrors.push(err3);
+        }
+        errors++;
+      }
+    }
+    if (data.scope !== void 0) {
+      let data1 = data.scope;
+      if (Array.isArray(data1)) {
+        if (data1.length < 1) {
+          const err4 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
+          if (vErrors === null) {
+            vErrors = [err4];
           } else {
-            if (data0.access !== void 0) {
-              if ("granular" !== data0.access) {
-                const err2 = {};
-                if (vErrors === null) {
-                  vErrors = [err2];
-                } else {
-                  vErrors.push(err2);
-                }
-                errors++;
+            vErrors.push(err4);
+          }
+          errors++;
+        }
+        const len0 = data1.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+          let data2 = data1[i0];
+          if (typeof data2 !== "string") {
+            const err5 = { instancePath: instancePath + "/scope/" + i0, schemaPath: "#/definitions/action-scope/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+            if (vErrors === null) {
+              vErrors = [err5];
+            } else {
+              vErrors.push(err5);
+            }
+            errors++;
+          }
+          if (!(data2 === "send-manifest" || data2 === "get-manifest" || data2 === "logs" || data2 === "shell" || data2 === "events" || data2 === "status" || data2 === "restart" || data2 === "hostname-migrate" || data2 === "ip-migrate")) {
+            const err6 = { instancePath: instancePath + "/scope/" + i0, schemaPath: "#/definitions/action-scope/items/enum", keyword: "enum", params: { allowedValues: schema16.items.enum }, message: "must be equal to one of the allowed values" };
+            if (vErrors === null) {
+              vErrors = [err6];
+            } else {
+              vErrors.push(err6);
+            }
+            errors++;
+          }
+        }
+        let i1 = data1.length;
+        let j0;
+        if (i1 > 1) {
+          const indices0 = {};
+          for (; i1--; ) {
+            let item0 = data1[i1];
+            if (typeof item0 !== "string") {
+              continue;
+            }
+            if (typeof indices0[item0] == "number") {
+              j0 = indices0[item0];
+              const err7 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/uniqueItems", keyword: "uniqueItems", params: { i: i1, j: j0 }, message: "must NOT have duplicate items (items ## " + j0 + " and " + i1 + " are identical)" };
+              if (vErrors === null) {
+                vErrors = [err7];
+              } else {
+                vErrors.push(err7);
               }
+              errors++;
+              break;
             }
+            indices0[item0] = i1;
           }
         }
-      }
-    }
-  }
-  var _valid0 = _errs3 === errors;
-  errors = _errs2;
-  if (vErrors !== null) {
-    if (_errs2) {
-      vErrors.length = _errs2;
-    } else {
-      vErrors = null;
-    }
-  }
-  if (_valid0) {
-    const _errs6 = errors;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-      if (data.leases !== void 0) {
-        let data2 = data.leases;
-        if (data2 && typeof data2 == "object" && !Array.isArray(data2)) {
-          if (data2.permissions === void 0) {
-            const err3 = { instancePath: instancePath + "/leases", schemaPath: "#/allOf/0/then/properties/leases/required", keyword: "required", params: { missingProperty: "permissions" }, message: "must have required property 'permissions'" };
-            if (vErrors === null) {
-              vErrors = [err3];
-            } else {
-              vErrors.push(err3);
-            }
-            errors++;
-          }
-          if (data2.scope !== void 0) {
-            const err4 = { instancePath: instancePath + "/leases/scope", schemaPath: "#/allOf/0/then/properties/leases/properties/scope/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-            if (vErrors === null) {
-              vErrors = [err4];
-            } else {
-              vErrors.push(err4);
-            }
-            errors++;
-          }
+      } else {
+        const err8 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/type", keyword: "type", params: { type: "array" }, message: "must be array" };
+        if (vErrors === null) {
+          vErrors = [err8];
+        } else {
+          vErrors.push(err8);
         }
+        errors++;
       }
     }
-    var _valid0 = _errs6 === errors;
-    valid1 = _valid0;
-  }
-  if (!valid1) {
-    const err5 = { instancePath, schemaPath: "#/allOf/0/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
+  } else {
+    const err9 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
     if (vErrors === null) {
-      vErrors = [err5];
+      vErrors = [err9];
     } else {
-      vErrors.push(err5);
+      vErrors.push(err9);
     }
     errors++;
   }
-  const _errs9 = errors;
-  let valid6 = true;
-  const _errs10 = errors;
+  validate12.errors = vErrors;
+  return errors === 0;
+}
+function validate16(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  let vErrors = null;
+  let errors = 0;
   if (data && typeof data == "object" && !Array.isArray(data)) {
-    let missing2;
-    if (data.leases === void 0 && (missing2 = "leases")) {
-      const err6 = {};
+    if (data.provider === void 0) {
+      const err0 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "provider" }, message: "must have required property 'provider'" };
       if (vErrors === null) {
-        vErrors = [err6];
+        vErrors = [err0];
       } else {
-        vErrors.push(err6);
+        vErrors.push(err0);
       }
       errors++;
-    } else {
-      if (data.leases !== void 0) {
-        let data4 = data.leases;
-        if (data4 && typeof data4 == "object" && !Array.isArray(data4)) {
-          let missing3;
-          if (data4.permissions === void 0 && (missing3 = "permissions")) {
-            const err7 = {};
-            if (vErrors === null) {
-              vErrors = [err7];
-            } else {
-              vErrors.push(err7);
-            }
-            errors++;
-          } else {
-            if (data4.permissions !== void 0) {
-              let data5 = data4.permissions;
-              const _errs12 = errors;
-              if (errors === _errs12) {
-                if (Array.isArray(data5)) {
-                  if (data5.length < 1) {
-                    const err8 = {};
-                    if (vErrors === null) {
-                      vErrors = [err8];
-                    } else {
-                      vErrors.push(err8);
-                    }
-                    errors++;
-                  }
-                } else {
-                  const err9 = {};
-                  if (vErrors === null) {
-                    vErrors = [err9];
-                  } else {
-                    vErrors.push(err9);
-                  }
-                  errors++;
-                }
-              }
-            }
-          }
+    }
+    if (data.access === void 0) {
+      const err1 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
+      if (vErrors === null) {
+        vErrors = [err1];
+      } else {
+        vErrors.push(err1);
+      }
+      errors++;
+    }
+    for (const key0 in data) {
+      if (!(key0 === "provider" || key0 === "access")) {
+        const err2 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        if (vErrors === null) {
+          vErrors = [err2];
+        } else {
+          vErrors.push(err2);
         }
+        errors++;
       }
     }
-  }
-  var _valid1 = _errs10 === errors;
-  errors = _errs9;
-  if (vErrors !== null) {
-    if (_errs9) {
-      vErrors.length = _errs9;
-    } else {
-      vErrors = null;
+    if (data.provider !== void 0) {
+      let data0 = data.provider;
+      if (typeof data0 === "string") {
+        if (!pattern0.test(data0)) {
+          const err3 = { instancePath: instancePath + "/provider", schemaPath: "#/definitions/akash-address/pattern", keyword: "pattern", params: { pattern: "^akash1[a-z0-9]{38}$" }, message: 'must match pattern "^akash1[a-z0-9]{38}$"' };
+          if (vErrors === null) {
+            vErrors = [err3];
+          } else {
+            vErrors.push(err3);
+          }
+          errors++;
+        }
+      } else {
+        const err4 = { instancePath: instancePath + "/provider", schemaPath: "#/definitions/akash-address/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+        if (vErrors === null) {
+          vErrors = [err4];
+        } else {
+          vErrors.push(err4);
+        }
+        errors++;
+      }
     }
+    if (data.access !== void 0) {
+      if ("full" !== data.access) {
+        const err5 = { instancePath: instancePath + "/access", schemaPath: "#/properties/access/const", keyword: "const", params: { allowedValue: "full" }, message: "must be equal to constant" };
+        if (vErrors === null) {
+          vErrors = [err5];
+        } else {
+          vErrors.push(err5);
+        }
+        errors++;
+      }
+    }
+  } else {
+    const err6 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    if (vErrors === null) {
+      vErrors = [err6];
+    } else {
+      vErrors.push(err6);
+    }
+    errors++;
   }
-  if (_valid1) {
-    const _errs14 = errors;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-      if (data.leases !== void 0) {
-        let data6 = data.leases;
-        if (data6 && typeof data6 == "object" && !Array.isArray(data6)) {
-          if (data6.access === void 0) {
-            const err10 = { instancePath: instancePath + "/leases", schemaPath: "#/allOf/1/then/properties/leases/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
+  validate16.errors = vErrors;
+  return errors === 0;
+}
+function validate18(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  let vErrors = null;
+  let errors = 0;
+  if (data && typeof data == "object" && !Array.isArray(data)) {
+    if (data.provider === void 0) {
+      const err0 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "provider" }, message: "must have required property 'provider'" };
+      if (vErrors === null) {
+        vErrors = [err0];
+      } else {
+        vErrors.push(err0);
+      }
+      errors++;
+    }
+    if (data.access === void 0) {
+      const err1 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
+      if (vErrors === null) {
+        vErrors = [err1];
+      } else {
+        vErrors.push(err1);
+      }
+      errors++;
+    }
+    if (data.scope === void 0) {
+      const err2 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "scope" }, message: "must have required property 'scope'" };
+      if (vErrors === null) {
+        vErrors = [err2];
+      } else {
+        vErrors.push(err2);
+      }
+      errors++;
+    }
+    for (const key0 in data) {
+      if (!(key0 === "provider" || key0 === "access" || key0 === "scope")) {
+        const err3 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        if (vErrors === null) {
+          vErrors = [err3];
+        } else {
+          vErrors.push(err3);
+        }
+        errors++;
+      }
+    }
+    if (data.provider !== void 0) {
+      let data0 = data.provider;
+      if (typeof data0 === "string") {
+        if (!pattern0.test(data0)) {
+          const err4 = { instancePath: instancePath + "/provider", schemaPath: "#/definitions/akash-address/pattern", keyword: "pattern", params: { pattern: "^akash1[a-z0-9]{38}$" }, message: 'must match pattern "^akash1[a-z0-9]{38}$"' };
+          if (vErrors === null) {
+            vErrors = [err4];
+          } else {
+            vErrors.push(err4);
+          }
+          errors++;
+        }
+      } else {
+        const err5 = { instancePath: instancePath + "/provider", schemaPath: "#/definitions/akash-address/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+        if (vErrors === null) {
+          vErrors = [err5];
+        } else {
+          vErrors.push(err5);
+        }
+        errors++;
+      }
+    }
+    if (data.access !== void 0) {
+      if ("scoped" !== data.access) {
+        const err6 = { instancePath: instancePath + "/access", schemaPath: "#/properties/access/const", keyword: "const", params: { allowedValue: "scoped" }, message: "must be equal to constant" };
+        if (vErrors === null) {
+          vErrors = [err6];
+        } else {
+          vErrors.push(err6);
+        }
+        errors++;
+      }
+    }
+    if (data.scope !== void 0) {
+      let data2 = data.scope;
+      if (Array.isArray(data2)) {
+        if (data2.length < 1) {
+          const err7 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
+          if (vErrors === null) {
+            vErrors = [err7];
+          } else {
+            vErrors.push(err7);
+          }
+          errors++;
+        }
+        const len0 = data2.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+          let data3 = data2[i0];
+          if (typeof data3 !== "string") {
+            const err8 = { instancePath: instancePath + "/scope/" + i0, schemaPath: "#/definitions/action-scope/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
             if (vErrors === null) {
-              vErrors = [err10];
+              vErrors = [err8];
             } else {
-              vErrors.push(err10);
+              vErrors.push(err8);
             }
             errors++;
           }
-          if (data6.access !== void 0) {
-            if ("granular" !== data6.access) {
-              const err11 = { instancePath: instancePath + "/leases/access", schemaPath: "#/allOf/1/then/properties/leases/properties/access/const", keyword: "const", params: { allowedValue: "granular" }, message: "must be equal to constant" };
+          if (!(data3 === "send-manifest" || data3 === "get-manifest" || data3 === "logs" || data3 === "shell" || data3 === "events" || data3 === "status" || data3 === "restart" || data3 === "hostname-migrate" || data3 === "ip-migrate")) {
+            const err9 = { instancePath: instancePath + "/scope/" + i0, schemaPath: "#/definitions/action-scope/items/enum", keyword: "enum", params: { allowedValues: schema16.items.enum }, message: "must be equal to one of the allowed values" };
+            if (vErrors === null) {
+              vErrors = [err9];
+            } else {
+              vErrors.push(err9);
+            }
+            errors++;
+          }
+        }
+        let i1 = data2.length;
+        let j0;
+        if (i1 > 1) {
+          const indices0 = {};
+          for (; i1--; ) {
+            let item0 = data2[i1];
+            if (typeof item0 !== "string") {
+              continue;
+            }
+            if (typeof indices0[item0] == "number") {
+              j0 = indices0[item0];
+              const err10 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/uniqueItems", keyword: "uniqueItems", params: { i: i1, j: j0 }, message: "must NOT have duplicate items (items ## " + j0 + " and " + i1 + " are identical)" };
               if (vErrors === null) {
-                vErrors = [err11];
+                vErrors = [err10];
               } else {
-                vErrors.push(err11);
+                vErrors.push(err10);
               }
               errors++;
+              break;
             }
+            indices0[item0] = i1;
           }
         }
+      } else {
+        const err11 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/type", keyword: "type", params: { type: "array" }, message: "must be array" };
+        if (vErrors === null) {
+          vErrors = [err11];
+        } else {
+          vErrors.push(err11);
+        }
+        errors++;
       }
     }
-    var _valid1 = _errs14 === errors;
-    valid6 = _valid1;
-  }
-  if (!valid6) {
-    const err12 = { instancePath, schemaPath: "#/allOf/1/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
+  } else {
+    const err12 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
     if (vErrors === null) {
       vErrors = [err12];
     } else {
@@ -242,1241 +393,889 @@ function validate10(data, { instancePath = "", parentData, parentDataProperty, r
     }
     errors++;
   }
+  validate18.errors = vErrors;
+  return errors === 0;
+}
+function validate21(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  let vErrors = null;
+  let errors = 0;
+  if (data && typeof data == "object" && !Array.isArray(data)) {
+    if (data.dseq === void 0) {
+      const err0 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "dseq" }, message: "must have required property 'dseq'" };
+      if (vErrors === null) {
+        vErrors = [err0];
+      } else {
+        vErrors.push(err0);
+      }
+      errors++;
+    }
+    if (data.scope === void 0) {
+      const err1 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "scope" }, message: "must have required property 'scope'" };
+      if (vErrors === null) {
+        vErrors = [err1];
+      } else {
+        vErrors.push(err1);
+      }
+      errors++;
+    }
+    if (data.services === void 0) {
+      const err2 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "services" }, message: "must have required property 'services'" };
+      if (vErrors === null) {
+        vErrors = [err2];
+      } else {
+        vErrors.push(err2);
+      }
+      errors++;
+    }
+    for (const key0 in data) {
+      if (!(key0 === "dseq" || key0 === "scope" || key0 === "gseq" || key0 === "oseq" || key0 === "services")) {
+        const err3 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        if (vErrors === null) {
+          vErrors = [err3];
+        } else {
+          vErrors.push(err3);
+        }
+        errors++;
+      }
+    }
+    if (data.oseq !== void 0) {
+      if (data.gseq === void 0) {
+        const err4 = { instancePath, schemaPath: "#/dependencies", keyword: "dependencies", params: {
+          property: "oseq",
+          missingProperty: "gseq",
+          depsCount: 1,
+          deps: "gseq"
+        }, message: "must have property gseq when property oseq is present" };
+        if (vErrors === null) {
+          vErrors = [err4];
+        } else {
+          vErrors.push(err4);
+        }
+        errors++;
+      }
+    }
+    if (data.dseq !== void 0) {
+      let data0 = data.dseq;
+      if (!(typeof data0 == "number" && (!(data0 % 1) && !isNaN(data0)))) {
+        const err5 = { instancePath: instancePath + "/dseq", schemaPath: "#/properties/dseq/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
+        if (vErrors === null) {
+          vErrors = [err5];
+        } else {
+          vErrors.push(err5);
+        }
+        errors++;
+      }
+      if (typeof data0 == "number") {
+        if (data0 < 1 || isNaN(data0)) {
+          const err6 = { instancePath: instancePath + "/dseq", schemaPath: "#/properties/dseq/minimum", keyword: "minimum", params: { comparison: ">=", limit: 1 }, message: "must be >= 1" };
+          if (vErrors === null) {
+            vErrors = [err6];
+          } else {
+            vErrors.push(err6);
+          }
+          errors++;
+        }
+      }
+    }
+    if (data.scope !== void 0) {
+      let data1 = data.scope;
+      if (Array.isArray(data1)) {
+        if (data1.length < 1) {
+          const err7 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
+          if (vErrors === null) {
+            vErrors = [err7];
+          } else {
+            vErrors.push(err7);
+          }
+          errors++;
+        }
+        const len0 = data1.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+          let data2 = data1[i0];
+          if (typeof data2 !== "string") {
+            const err8 = { instancePath: instancePath + "/scope/" + i0, schemaPath: "#/definitions/action-scope/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+            if (vErrors === null) {
+              vErrors = [err8];
+            } else {
+              vErrors.push(err8);
+            }
+            errors++;
+          }
+          if (!(data2 === "send-manifest" || data2 === "get-manifest" || data2 === "logs" || data2 === "shell" || data2 === "events" || data2 === "status" || data2 === "restart" || data2 === "hostname-migrate" || data2 === "ip-migrate")) {
+            const err9 = { instancePath: instancePath + "/scope/" + i0, schemaPath: "#/definitions/action-scope/items/enum", keyword: "enum", params: { allowedValues: schema16.items.enum }, message: "must be equal to one of the allowed values" };
+            if (vErrors === null) {
+              vErrors = [err9];
+            } else {
+              vErrors.push(err9);
+            }
+            errors++;
+          }
+        }
+        let i1 = data1.length;
+        let j0;
+        if (i1 > 1) {
+          const indices0 = {};
+          for (; i1--; ) {
+            let item0 = data1[i1];
+            if (typeof item0 !== "string") {
+              continue;
+            }
+            if (typeof indices0[item0] == "number") {
+              j0 = indices0[item0];
+              const err10 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/uniqueItems", keyword: "uniqueItems", params: { i: i1, j: j0 }, message: "must NOT have duplicate items (items ## " + j0 + " and " + i1 + " are identical)" };
+              if (vErrors === null) {
+                vErrors = [err10];
+              } else {
+                vErrors.push(err10);
+              }
+              errors++;
+              break;
+            }
+            indices0[item0] = i1;
+          }
+        }
+      } else {
+        const err11 = { instancePath: instancePath + "/scope", schemaPath: "#/definitions/action-scope/type", keyword: "type", params: { type: "array" }, message: "must be array" };
+        if (vErrors === null) {
+          vErrors = [err11];
+        } else {
+          vErrors.push(err11);
+        }
+        errors++;
+      }
+    }
+    if (data.gseq !== void 0) {
+      let data3 = data.gseq;
+      if (!(typeof data3 == "number" && (!(data3 % 1) && !isNaN(data3)))) {
+        const err12 = { instancePath: instancePath + "/gseq", schemaPath: "#/properties/gseq/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
+        if (vErrors === null) {
+          vErrors = [err12];
+        } else {
+          vErrors.push(err12);
+        }
+        errors++;
+      }
+      if (typeof data3 == "number") {
+        if (data3 < 0 || isNaN(data3)) {
+          const err13 = { instancePath: instancePath + "/gseq", schemaPath: "#/properties/gseq/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
+          if (vErrors === null) {
+            vErrors = [err13];
+          } else {
+            vErrors.push(err13);
+          }
+          errors++;
+        }
+      }
+    }
+    if (data.oseq !== void 0) {
+      let data4 = data.oseq;
+      if (!(typeof data4 == "number" && (!(data4 % 1) && !isNaN(data4)))) {
+        const err14 = { instancePath: instancePath + "/oseq", schemaPath: "#/properties/oseq/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
+        if (vErrors === null) {
+          vErrors = [err14];
+        } else {
+          vErrors.push(err14);
+        }
+        errors++;
+      }
+      if (typeof data4 == "number") {
+        if (data4 < 0 || isNaN(data4)) {
+          const err15 = { instancePath: instancePath + "/oseq", schemaPath: "#/properties/oseq/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
+          if (vErrors === null) {
+            vErrors = [err15];
+          } else {
+            vErrors.push(err15);
+          }
+          errors++;
+        }
+      }
+    }
+    if (data.services !== void 0) {
+      let data5 = data.services;
+      if (Array.isArray(data5)) {
+        if (data5.length < 1) {
+          const err16 = { instancePath: instancePath + "/services", schemaPath: "#/properties/services/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
+          if (vErrors === null) {
+            vErrors = [err16];
+          } else {
+            vErrors.push(err16);
+          }
+          errors++;
+        }
+        const len1 = data5.length;
+        for (let i2 = 0; i2 < len1; i2++) {
+          let data6 = data5[i2];
+          if (typeof data6 === "string") {
+            if (func2(data6) < 1) {
+              const err17 = { instancePath: instancePath + "/services/" + i2, schemaPath: "#/properties/services/items/minLength", keyword: "minLength", params: { limit: 1 }, message: "must NOT have fewer than 1 characters" };
+              if (vErrors === null) {
+                vErrors = [err17];
+              } else {
+                vErrors.push(err17);
+              }
+              errors++;
+            }
+          } else {
+            const err18 = { instancePath: instancePath + "/services/" + i2, schemaPath: "#/properties/services/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+            if (vErrors === null) {
+              vErrors = [err18];
+            } else {
+              vErrors.push(err18);
+            }
+            errors++;
+          }
+        }
+        let i3 = data5.length;
+        let j1;
+        if (i3 > 1) {
+          const indices1 = {};
+          for (; i3--; ) {
+            let item1 = data5[i3];
+            if (typeof item1 !== "string") {
+              continue;
+            }
+            if (typeof indices1[item1] == "number") {
+              j1 = indices1[item1];
+              const err19 = { instancePath: instancePath + "/services", schemaPath: "#/properties/services/uniqueItems", keyword: "uniqueItems", params: { i: i3, j: j1 }, message: "must NOT have duplicate items (items ## " + j1 + " and " + i3 + " are identical)" };
+              if (vErrors === null) {
+                vErrors = [err19];
+              } else {
+                vErrors.push(err19);
+              }
+              errors++;
+              break;
+            }
+            indices1[item1] = i3;
+          }
+        }
+      } else {
+        const err20 = { instancePath: instancePath + "/services", schemaPath: "#/properties/services/type", keyword: "type", params: { type: "array" }, message: "must be array" };
+        if (vErrors === null) {
+          vErrors = [err20];
+        } else {
+          vErrors.push(err20);
+        }
+        errors++;
+      }
+    }
+  } else {
+    const err21 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    if (vErrors === null) {
+      vErrors = [err21];
+    } else {
+      vErrors.push(err21);
+    }
+    errors++;
+  }
+  validate21.errors = vErrors;
+  return errors === 0;
+}
+function validate20(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  let vErrors = null;
+  let errors = 0;
+  if (data && typeof data == "object" && !Array.isArray(data)) {
+    if (data.provider === void 0) {
+      const err0 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "provider" }, message: "must have required property 'provider'" };
+      if (vErrors === null) {
+        vErrors = [err0];
+      } else {
+        vErrors.push(err0);
+      }
+      errors++;
+    }
+    if (data.access === void 0) {
+      const err1 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
+      if (vErrors === null) {
+        vErrors = [err1];
+      } else {
+        vErrors.push(err1);
+      }
+      errors++;
+    }
+    if (data.deployments === void 0) {
+      const err2 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "deployments" }, message: "must have required property 'deployments'" };
+      if (vErrors === null) {
+        vErrors = [err2];
+      } else {
+        vErrors.push(err2);
+      }
+      errors++;
+    }
+    for (const key0 in data) {
+      if (!(key0 === "provider" || key0 === "access" || key0 === "deployments")) {
+        const err3 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        if (vErrors === null) {
+          vErrors = [err3];
+        } else {
+          vErrors.push(err3);
+        }
+        errors++;
+      }
+    }
+    if (data.provider !== void 0) {
+      let data0 = data.provider;
+      if (typeof data0 === "string") {
+        if (!pattern0.test(data0)) {
+          const err4 = { instancePath: instancePath + "/provider", schemaPath: "#/definitions/akash-address/pattern", keyword: "pattern", params: { pattern: "^akash1[a-z0-9]{38}$" }, message: 'must match pattern "^akash1[a-z0-9]{38}$"' };
+          if (vErrors === null) {
+            vErrors = [err4];
+          } else {
+            vErrors.push(err4);
+          }
+          errors++;
+        }
+      } else {
+        const err5 = { instancePath: instancePath + "/provider", schemaPath: "#/definitions/akash-address/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+        if (vErrors === null) {
+          vErrors = [err5];
+        } else {
+          vErrors.push(err5);
+        }
+        errors++;
+      }
+    }
+    if (data.access !== void 0) {
+      if ("granular" !== data.access) {
+        const err6 = { instancePath: instancePath + "/access", schemaPath: "#/properties/access/const", keyword: "const", params: { allowedValue: "granular" }, message: "must be equal to constant" };
+        if (vErrors === null) {
+          vErrors = [err6];
+        } else {
+          vErrors.push(err6);
+        }
+        errors++;
+      }
+    }
+    if (data.deployments !== void 0) {
+      let data2 = data.deployments;
+      if (Array.isArray(data2)) {
+        if (data2.length < 1) {
+          const err7 = { instancePath: instancePath + "/deployments", schemaPath: "#/properties/deployments/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
+          if (vErrors === null) {
+            vErrors = [err7];
+          } else {
+            vErrors.push(err7);
+          }
+          errors++;
+        }
+        const len0 = data2.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+          if (!validate21(data2[i0], { instancePath: instancePath + "/deployments/" + i0, parentData: data2, parentDataProperty: i0, rootData })) {
+            vErrors = vErrors === null ? validate21.errors : vErrors.concat(validate21.errors);
+            errors = vErrors.length;
+          }
+        }
+      } else {
+        const err8 = { instancePath: instancePath + "/deployments", schemaPath: "#/properties/deployments/type", keyword: "type", params: { type: "array" }, message: "must be array" };
+        if (vErrors === null) {
+          vErrors = [err8];
+        } else {
+          vErrors.push(err8);
+        }
+        errors++;
+      }
+    }
+  } else {
+    const err9 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    if (vErrors === null) {
+      vErrors = [err9];
+    } else {
+      vErrors.push(err9);
+    }
+    errors++;
+  }
+  validate20.errors = vErrors;
+  return errors === 0;
+}
+function validate15(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  let vErrors = null;
+  let errors = 0;
+  if (!(data && typeof data == "object" && !Array.isArray(data))) {
+    const err0 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    if (vErrors === null) {
+      vErrors = [err0];
+    } else {
+      vErrors.push(err0);
+    }
+    errors++;
+  }
+  const _errs1 = errors;
+  let valid0 = false;
+  let passing0 = null;
+  const _errs2 = errors;
+  if (!validate16(data, { instancePath, parentData, parentDataProperty, rootData })) {
+    vErrors = vErrors === null ? validate16.errors : vErrors.concat(validate16.errors);
+    errors = vErrors.length;
+  }
+  var _valid0 = _errs2 === errors;
+  if (_valid0) {
+    valid0 = true;
+    passing0 = 0;
+  }
+  const _errs3 = errors;
+  if (!validate18(data, { instancePath, parentData, parentDataProperty, rootData })) {
+    vErrors = vErrors === null ? validate18.errors : vErrors.concat(validate18.errors);
+    errors = vErrors.length;
+  }
+  var _valid0 = _errs3 === errors;
+  if (_valid0 && valid0) {
+    valid0 = false;
+    passing0 = [passing0, 1];
+  } else {
+    if (_valid0) {
+      valid0 = true;
+      passing0 = 1;
+    }
+    const _errs4 = errors;
+    if (!validate20(data, { instancePath, parentData, parentDataProperty, rootData })) {
+      vErrors = vErrors === null ? validate20.errors : vErrors.concat(validate20.errors);
+      errors = vErrors.length;
+    }
+    var _valid0 = _errs4 === errors;
+    if (_valid0 && valid0) {
+      valid0 = false;
+      passing0 = [passing0, 2];
+    } else {
+      if (_valid0) {
+        valid0 = true;
+        passing0 = 2;
+      }
+    }
+  }
+  if (!valid0) {
+    const err1 = { instancePath, schemaPath: "#/oneOf", keyword: "oneOf", params: { passingSchemas: passing0 }, message: "must match exactly one schema in oneOf" };
+    if (vErrors === null) {
+      vErrors = [err1];
+    } else {
+      vErrors.push(err1);
+    }
+    errors++;
+  } else {
+    errors = _errs1;
+    if (vErrors !== null) {
+      if (_errs1) {
+        vErrors.length = _errs1;
+      } else {
+        vErrors = null;
+      }
+    }
+  }
+  validate15.errors = vErrors;
+  return errors === 0;
+}
+function validate14(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  let vErrors = null;
+  let errors = 0;
+  if (data && typeof data == "object" && !Array.isArray(data)) {
+    if (data.access === void 0) {
+      const err0 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
+      if (vErrors === null) {
+        vErrors = [err0];
+      } else {
+        vErrors.push(err0);
+      }
+      errors++;
+    }
+    if (data.permissions === void 0) {
+      const err1 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "permissions" }, message: "must have required property 'permissions'" };
+      if (vErrors === null) {
+        vErrors = [err1];
+      } else {
+        vErrors.push(err1);
+      }
+      errors++;
+    }
+    for (const key0 in data) {
+      if (!(key0 === "access" || key0 === "permissions")) {
+        const err2 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        if (vErrors === null) {
+          vErrors = [err2];
+        } else {
+          vErrors.push(err2);
+        }
+        errors++;
+      }
+    }
+    if (data.access !== void 0) {
+      if ("granular" !== data.access) {
+        const err3 = { instancePath: instancePath + "/access", schemaPath: "#/properties/access/const", keyword: "const", params: { allowedValue: "granular" }, message: "must be equal to constant" };
+        if (vErrors === null) {
+          vErrors = [err3];
+        } else {
+          vErrors.push(err3);
+        }
+        errors++;
+      }
+    }
+    if (data.permissions !== void 0) {
+      let data1 = data.permissions;
+      if (Array.isArray(data1)) {
+        if (data1.length < 1) {
+          const err4 = { instancePath: instancePath + "/permissions", schemaPath: "#/properties/permissions/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
+          if (vErrors === null) {
+            vErrors = [err4];
+          } else {
+            vErrors.push(err4);
+          }
+          errors++;
+        }
+        const len0 = data1.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+          if (!validate15(data1[i0], { instancePath: instancePath + "/permissions/" + i0, parentData: data1, parentDataProperty: i0, rootData })) {
+            vErrors = vErrors === null ? validate15.errors : vErrors.concat(validate15.errors);
+            errors = vErrors.length;
+          }
+        }
+      } else {
+        const err5 = { instancePath: instancePath + "/permissions", schemaPath: "#/properties/permissions/type", keyword: "type", params: { type: "array" }, message: "must be array" };
+        if (vErrors === null) {
+          vErrors = [err5];
+        } else {
+          vErrors.push(err5);
+        }
+        errors++;
+      }
+    }
+  } else {
+    const err6 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    if (vErrors === null) {
+      vErrors = [err6];
+    } else {
+      vErrors.push(err6);
+    }
+    errors++;
+  }
+  validate14.errors = vErrors;
+  return errors === 0;
+}
+function validate11(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  let vErrors = null;
+  let errors = 0;
+  if (!(data && typeof data == "object" && !Array.isArray(data))) {
+    const err0 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    if (vErrors === null) {
+      vErrors = [err0];
+    } else {
+      vErrors.push(err0);
+    }
+    errors++;
+  }
+  const _errs1 = errors;
+  let valid0 = false;
+  let passing0 = null;
+  const _errs2 = errors;
+  if (data && typeof data == "object" && !Array.isArray(data)) {
+    if (data.access === void 0) {
+      const err1 = { instancePath, schemaPath: "#/definitions/leases-full/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
+      if (vErrors === null) {
+        vErrors = [err1];
+      } else {
+        vErrors.push(err1);
+      }
+      errors++;
+    }
+    for (const key0 in data) {
+      if (!(key0 === "access")) {
+        const err2 = { instancePath, schemaPath: "#/definitions/leases-full/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        if (vErrors === null) {
+          vErrors = [err2];
+        } else {
+          vErrors.push(err2);
+        }
+        errors++;
+      }
+    }
+    if (data.access !== void 0) {
+      if ("full" !== data.access) {
+        const err3 = { instancePath: instancePath + "/access", schemaPath: "#/definitions/leases-full/properties/access/const", keyword: "const", params: { allowedValue: "full" }, message: "must be equal to constant" };
+        if (vErrors === null) {
+          vErrors = [err3];
+        } else {
+          vErrors.push(err3);
+        }
+        errors++;
+      }
+    }
+  } else {
+    const err4 = { instancePath, schemaPath: "#/definitions/leases-full/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    if (vErrors === null) {
+      vErrors = [err4];
+    } else {
+      vErrors.push(err4);
+    }
+    errors++;
+  }
+  var _valid0 = _errs2 === errors;
+  if (_valid0) {
+    valid0 = true;
+    passing0 = 0;
+  }
+  const _errs7 = errors;
+  if (!validate12(data, { instancePath, parentData, parentDataProperty, rootData })) {
+    vErrors = vErrors === null ? validate12.errors : vErrors.concat(validate12.errors);
+    errors = vErrors.length;
+  }
+  var _valid0 = _errs7 === errors;
+  if (_valid0 && valid0) {
+    valid0 = false;
+    passing0 = [passing0, 1];
+  } else {
+    if (_valid0) {
+      valid0 = true;
+      passing0 = 1;
+    }
+    const _errs8 = errors;
+    if (!validate14(data, { instancePath, parentData, parentDataProperty, rootData })) {
+      vErrors = vErrors === null ? validate14.errors : vErrors.concat(validate14.errors);
+      errors = vErrors.length;
+    }
+    var _valid0 = _errs8 === errors;
+    if (_valid0 && valid0) {
+      valid0 = false;
+      passing0 = [passing0, 2];
+    } else {
+      if (_valid0) {
+        valid0 = true;
+        passing0 = 2;
+      }
+    }
+  }
+  if (!valid0) {
+    const err5 = { instancePath, schemaPath: "#/oneOf", keyword: "oneOf", params: { passingSchemas: passing0 }, message: "must match exactly one schema in oneOf" };
+    if (vErrors === null) {
+      vErrors = [err5];
+    } else {
+      vErrors.push(err5);
+    }
+    errors++;
+  } else {
+    errors = _errs1;
+    if (vErrors !== null) {
+      if (_errs1) {
+        vErrors.length = _errs1;
+      } else {
+        vErrors = null;
+      }
+    }
+  }
+  validate11.errors = vErrors;
+  return errors === 0;
+}
+function validate10(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+  ;
+  let vErrors = null;
+  let errors = 0;
   if (data && typeof data == "object" && !Array.isArray(data)) {
     if (data.iss === void 0) {
-      const err13 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "iss" }, message: "must have required property 'iss'" };
+      const err0 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "iss" }, message: "must have required property 'iss'" };
       if (vErrors === null) {
-        vErrors = [err13];
+        vErrors = [err0];
       } else {
-        vErrors.push(err13);
+        vErrors.push(err0);
       }
       errors++;
     }
     if (data.iat === void 0) {
-      const err14 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "iat" }, message: "must have required property 'iat'" };
+      const err1 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "iat" }, message: "must have required property 'iat'" };
       if (vErrors === null) {
-        vErrors = [err14];
+        vErrors = [err1];
       } else {
-        vErrors.push(err14);
+        vErrors.push(err1);
       }
       errors++;
     }
     if (data.exp === void 0) {
-      const err15 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "exp" }, message: "must have required property 'exp'" };
+      const err2 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "exp" }, message: "must have required property 'exp'" };
       if (vErrors === null) {
-        vErrors = [err15];
+        vErrors = [err2];
       } else {
-        vErrors.push(err15);
+        vErrors.push(err2);
       }
       errors++;
     }
     if (data.nbf === void 0) {
-      const err16 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "nbf" }, message: "must have required property 'nbf'" };
+      const err3 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "nbf" }, message: "must have required property 'nbf'" };
       if (vErrors === null) {
-        vErrors = [err16];
+        vErrors = [err3];
       } else {
-        vErrors.push(err16);
+        vErrors.push(err3);
       }
       errors++;
     }
     if (data.version === void 0) {
-      const err17 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "version" }, message: "must have required property 'version'" };
+      const err4 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "version" }, message: "must have required property 'version'" };
       if (vErrors === null) {
-        vErrors = [err17];
+        vErrors = [err4];
       } else {
-        vErrors.push(err17);
+        vErrors.push(err4);
       }
       errors++;
     }
     if (data.leases === void 0) {
-      const err18 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "leases" }, message: "must have required property 'leases'" };
+      const err5 = { instancePath, schemaPath: "#/required", keyword: "required", params: { missingProperty: "leases" }, message: "must have required property 'leases'" };
       if (vErrors === null) {
-        vErrors = [err18];
+        vErrors = [err5];
       } else {
-        vErrors.push(err18);
+        vErrors.push(err5);
       }
       errors++;
     }
     for (const key0 in data) {
       if (!(key0 === "iss" || key0 === "iat" || key0 === "nbf" || key0 === "exp" || key0 === "jti" || key0 === "version" || key0 === "leases")) {
-        const err19 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
+        const err6 = { instancePath, schemaPath: "#/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key0 }, message: "must NOT have additional properties" };
         if (vErrors === null) {
-          vErrors = [err19];
+          vErrors = [err6];
         } else {
-          vErrors.push(err19);
+          vErrors.push(err6);
         }
         errors++;
       }
     }
     if (data.iss !== void 0) {
-      let data8 = data.iss;
-      if (typeof data8 === "string") {
-        if (!pattern0.test(data8)) {
-          const err20 = { instancePath: instancePath + "/iss", schemaPath: "#/properties/iss/pattern", keyword: "pattern", params: { pattern: "^akash1[a-z0-9]{38}$" }, message: 'must match pattern "^akash1[a-z0-9]{38}$"' };
+      let data0 = data.iss;
+      if (typeof data0 === "string") {
+        if (!pattern0.test(data0)) {
+          const err7 = { instancePath: instancePath + "/iss", schemaPath: "#/definitions/akash-address/pattern", keyword: "pattern", params: { pattern: "^akash1[a-z0-9]{38}$" }, message: 'must match pattern "^akash1[a-z0-9]{38}$"' };
           if (vErrors === null) {
-            vErrors = [err20];
+            vErrors = [err7];
           } else {
-            vErrors.push(err20);
+            vErrors.push(err7);
           }
           errors++;
         }
       } else {
-        const err21 = { instancePath: instancePath + "/iss", schemaPath: "#/properties/iss/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+        const err8 = { instancePath: instancePath + "/iss", schemaPath: "#/definitions/akash-address/type", keyword: "type", params: { type: "string" }, message: "must be string" };
         if (vErrors === null) {
-          vErrors = [err21];
+          vErrors = [err8];
         } else {
-          vErrors.push(err21);
+          vErrors.push(err8);
         }
         errors++;
       }
     }
     if (data.iat !== void 0) {
-      let data9 = data.iat;
-      if (!(typeof data9 == "number" && (!(data9 % 1) && !isNaN(data9)))) {
-        const err22 = { instancePath: instancePath + "/iat", schemaPath: "#/properties/iat/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
+      let data1 = data.iat;
+      if (!(typeof data1 == "number" && (!(data1 % 1) && !isNaN(data1)))) {
+        const err9 = { instancePath: instancePath + "/iat", schemaPath: "#/properties/iat/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
         if (vErrors === null) {
-          vErrors = [err22];
+          vErrors = [err9];
         } else {
-          vErrors.push(err22);
+          vErrors.push(err9);
         }
         errors++;
       }
-      if (typeof data9 == "number") {
-        if (data9 < 0 || isNaN(data9)) {
-          const err23 = { instancePath: instancePath + "/iat", schemaPath: "#/properties/iat/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
+      if (typeof data1 == "number") {
+        if (data1 < 0 || isNaN(data1)) {
+          const err10 = { instancePath: instancePath + "/iat", schemaPath: "#/properties/iat/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
           if (vErrors === null) {
-            vErrors = [err23];
+            vErrors = [err10];
           } else {
-            vErrors.push(err23);
+            vErrors.push(err10);
           }
           errors++;
         }
       }
     }
     if (data.nbf !== void 0) {
-      let data10 = data.nbf;
-      if (!(typeof data10 == "number" && (!(data10 % 1) && !isNaN(data10)))) {
-        const err24 = { instancePath: instancePath + "/nbf", schemaPath: "#/properties/nbf/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
+      let data2 = data.nbf;
+      if (!(typeof data2 == "number" && (!(data2 % 1) && !isNaN(data2)))) {
+        const err11 = { instancePath: instancePath + "/nbf", schemaPath: "#/properties/nbf/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
         if (vErrors === null) {
-          vErrors = [err24];
+          vErrors = [err11];
         } else {
-          vErrors.push(err24);
+          vErrors.push(err11);
         }
         errors++;
       }
-      if (typeof data10 == "number") {
-        if (data10 < 0 || isNaN(data10)) {
-          const err25 = { instancePath: instancePath + "/nbf", schemaPath: "#/properties/nbf/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
+      if (typeof data2 == "number") {
+        if (data2 < 0 || isNaN(data2)) {
+          const err12 = { instancePath: instancePath + "/nbf", schemaPath: "#/properties/nbf/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
           if (vErrors === null) {
-            vErrors = [err25];
+            vErrors = [err12];
           } else {
-            vErrors.push(err25);
+            vErrors.push(err12);
           }
           errors++;
         }
       }
     }
     if (data.exp !== void 0) {
-      let data11 = data.exp;
-      if (!(typeof data11 == "number" && (!(data11 % 1) && !isNaN(data11)))) {
-        const err26 = { instancePath: instancePath + "/exp", schemaPath: "#/properties/exp/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
+      let data3 = data.exp;
+      if (!(typeof data3 == "number" && (!(data3 % 1) && !isNaN(data3)))) {
+        const err13 = { instancePath: instancePath + "/exp", schemaPath: "#/properties/exp/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
         if (vErrors === null) {
-          vErrors = [err26];
+          vErrors = [err13];
         } else {
-          vErrors.push(err26);
+          vErrors.push(err13);
         }
         errors++;
       }
-      if (typeof data11 == "number") {
-        if (data11 < 0 || isNaN(data11)) {
-          const err27 = { instancePath: instancePath + "/exp", schemaPath: "#/properties/exp/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
+      if (typeof data3 == "number") {
+        if (data3 < 0 || isNaN(data3)) {
+          const err14 = { instancePath: instancePath + "/exp", schemaPath: "#/properties/exp/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
           if (vErrors === null) {
-            vErrors = [err27];
+            vErrors = [err14];
           } else {
-            vErrors.push(err27);
+            vErrors.push(err14);
           }
           errors++;
         }
       }
     }
     if (data.jti !== void 0) {
-      let data12 = data.jti;
-      if (typeof data12 === "string") {
-        if (func2(data12) < 1) {
-          const err28 = { instancePath: instancePath + "/jti", schemaPath: "#/properties/jti/minLength", keyword: "minLength", params: { limit: 1 }, message: "must NOT have fewer than 1 characters" };
+      let data4 = data.jti;
+      if (typeof data4 === "string") {
+        if (func2(data4) < 1) {
+          const err15 = { instancePath: instancePath + "/jti", schemaPath: "#/properties/jti/minLength", keyword: "minLength", params: { limit: 1 }, message: "must NOT have fewer than 1 characters" };
           if (vErrors === null) {
-            vErrors = [err28];
+            vErrors = [err15];
           } else {
-            vErrors.push(err28);
+            vErrors.push(err15);
           }
           errors++;
         }
       } else {
-        const err29 = { instancePath: instancePath + "/jti", schemaPath: "#/properties/jti/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+        const err16 = { instancePath: instancePath + "/jti", schemaPath: "#/properties/jti/type", keyword: "type", params: { type: "string" }, message: "must be string" };
         if (vErrors === null) {
-          vErrors = [err29];
+          vErrors = [err16];
         } else {
-          vErrors.push(err29);
+          vErrors.push(err16);
         }
         errors++;
       }
     }
     if (data.version !== void 0) {
-      let data13 = data.version;
-      if (typeof data13 !== "string") {
-        const err30 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+      let data5 = data.version;
+      if (typeof data5 !== "string") {
+        const err17 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/type", keyword: "type", params: { type: "string" }, message: "must be string" };
         if (vErrors === null) {
-          vErrors = [err30];
+          vErrors = [err17];
         } else {
-          vErrors.push(err30);
+          vErrors.push(err17);
         }
         errors++;
       }
-      if (!(data13 === "v1")) {
-        const err31 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/enum", keyword: "enum", params: { allowedValues: schema11.properties.version.enum }, message: "must be equal to one of the allowed values" };
+      if (!(data5 === "v1")) {
+        const err18 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/enum", keyword: "enum", params: { allowedValues: schema11.properties.version.enum }, message: "must be equal to one of the allowed values" };
         if (vErrors === null) {
-          vErrors = [err31];
+          vErrors = [err18];
         } else {
-          vErrors.push(err31);
+          vErrors.push(err18);
         }
         errors++;
       }
     }
     if (data.leases !== void 0) {
-      let data14 = data.leases;
-      const _errs33 = errors;
-      let valid13 = true;
-      const _errs34 = errors;
-      if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-        if (data14.access !== void 0) {
-          if ("full" !== data14.access) {
-            const err32 = {};
-            if (vErrors === null) {
-              vErrors = [err32];
-            } else {
-              vErrors.push(err32);
-            }
-            errors++;
-          }
-        }
-      }
-      var _valid2 = _errs34 === errors;
-      errors = _errs33;
-      if (vErrors !== null) {
-        if (_errs33) {
-          vErrors.length = _errs33;
-        } else {
-          vErrors = null;
-        }
-      }
-      if (_valid2) {
-        const _errs36 = errors;
-        if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-          if (data14.permissions !== void 0) {
-            const err33 = { instancePath: instancePath + "/leases/permissions", schemaPath: "#/properties/leases/allOf/0/then/properties/permissions/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-            if (vErrors === null) {
-              vErrors = [err33];
-            } else {
-              vErrors.push(err33);
-            }
-            errors++;
-          }
-          if (data14.scope !== void 0) {
-            const err34 = { instancePath: instancePath + "/leases/scope", schemaPath: "#/properties/leases/allOf/0/then/properties/scope/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-            if (vErrors === null) {
-              vErrors = [err34];
-            } else {
-              vErrors.push(err34);
-            }
-            errors++;
-          }
-        }
-        var _valid2 = _errs36 === errors;
-        valid13 = _valid2;
-      }
-      if (!valid13) {
-        const err35 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/allOf/0/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
-        if (vErrors === null) {
-          vErrors = [err35];
-        } else {
-          vErrors.push(err35);
-        }
-        errors++;
-      }
-      const _errs38 = errors;
-      let valid16 = true;
-      const _errs39 = errors;
-      if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-        if (data14.access !== void 0) {
-          if ("scoped" !== data14.access) {
-            const err36 = {};
-            if (vErrors === null) {
-              vErrors = [err36];
-            } else {
-              vErrors.push(err36);
-            }
-            errors++;
-          }
-        }
-      }
-      var _valid3 = _errs39 === errors;
-      errors = _errs38;
-      if (vErrors !== null) {
-        if (_errs38) {
-          vErrors.length = _errs38;
-        } else {
-          vErrors = null;
-        }
-      }
-      if (_valid3) {
-        const _errs41 = errors;
-        if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-          if (data14.scope === void 0) {
-            const err37 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/allOf/1/then/required", keyword: "required", params: { missingProperty: "scope" }, message: "must have required property 'scope'" };
-            if (vErrors === null) {
-              vErrors = [err37];
-            } else {
-              vErrors.push(err37);
-            }
-            errors++;
-          }
-          if (data14.scope !== void 0) {
-            let data19 = data14.scope;
-            if (Array.isArray(data19)) {
-              if (data19.length < 1) {
-                const err38 = { instancePath: instancePath + "/leases/scope", schemaPath: "#/properties/leases/allOf/1/then/properties/scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-                if (vErrors === null) {
-                  vErrors = [err38];
-                } else {
-                  vErrors.push(err38);
-                }
-                errors++;
-              }
-            }
-          }
-          if (data14.permissions !== void 0) {
-            const err39 = { instancePath: instancePath + "/leases/permissions", schemaPath: "#/properties/leases/allOf/1/then/properties/permissions/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-            if (vErrors === null) {
-              vErrors = [err39];
-            } else {
-              vErrors.push(err39);
-            }
-            errors++;
-          }
-        }
-        var _valid3 = _errs41 === errors;
-        valid16 = _valid3;
-      }
-      if (!valid16) {
-        const err40 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/allOf/1/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
-        if (vErrors === null) {
-          vErrors = [err40];
-        } else {
-          vErrors.push(err40);
-        }
-        errors++;
-      }
-      const _errs44 = errors;
-      let valid19 = true;
-      const _errs45 = errors;
-      if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-        let missing4;
-        if (data14.access === void 0 && (missing4 = "access")) {
-          const err41 = {};
-          if (vErrors === null) {
-            vErrors = [err41];
-          } else {
-            vErrors.push(err41);
-          }
-          errors++;
-        } else {
-          if (data14.access !== void 0) {
-            if ("granular" !== data14.access) {
-              const err42 = {};
-              if (vErrors === null) {
-                vErrors = [err42];
-              } else {
-                vErrors.push(err42);
-              }
-              errors++;
-            }
-          }
-        }
-      }
-      var _valid4 = _errs45 === errors;
-      errors = _errs44;
-      if (vErrors !== null) {
-        if (_errs44) {
-          vErrors.length = _errs44;
-        } else {
-          vErrors = null;
-        }
-      }
-      if (_valid4) {
-        const _errs47 = errors;
-        if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-          if (data14.permissions === void 0) {
-            const err43 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/allOf/2/then/required", keyword: "required", params: { missingProperty: "permissions" }, message: "must have required property 'permissions'" };
-            if (vErrors === null) {
-              vErrors = [err43];
-            } else {
-              vErrors.push(err43);
-            }
-            errors++;
-          }
-          if (data14.scope !== void 0) {
-            const err44 = { instancePath: instancePath + "/leases/scope", schemaPath: "#/properties/leases/allOf/2/then/properties/scope/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-            if (vErrors === null) {
-              vErrors = [err44];
-            } else {
-              vErrors.push(err44);
-            }
-            errors++;
-          }
-        }
-        var _valid4 = _errs47 === errors;
-        valid19 = _valid4;
-      }
-      if (!valid19) {
-        const err45 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/allOf/2/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
-        if (vErrors === null) {
-          vErrors = [err45];
-        } else {
-          vErrors.push(err45);
-        }
-        errors++;
-      }
-      if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-        if (data14.access === void 0) {
-          const err46 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
-          if (vErrors === null) {
-            vErrors = [err46];
-          } else {
-            vErrors.push(err46);
-          }
-          errors++;
-        }
-        for (const key1 in data14) {
-          if (!(key1 === "access" || key1 === "scope" || key1 === "permissions")) {
-            const err47 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key1 }, message: "must NOT have additional properties" };
-            if (vErrors === null) {
-              vErrors = [err47];
-            } else {
-              vErrors.push(err47);
-            }
-            errors++;
-          }
-        }
-        if (data14.access !== void 0) {
-          let data23 = data14.access;
-          if (typeof data23 !== "string") {
-            const err48 = { instancePath: instancePath + "/leases/access", schemaPath: "#/properties/leases/properties/access/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-            if (vErrors === null) {
-              vErrors = [err48];
-            } else {
-              vErrors.push(err48);
-            }
-            errors++;
-          }
-          if (!(data23 === "full" || data23 === "granular" || data23 === "scoped")) {
-            const err49 = { instancePath: instancePath + "/leases/access", schemaPath: "#/properties/leases/properties/access/enum", keyword: "enum", params: { allowedValues: schema11.properties.leases.properties.access.enum }, message: "must be equal to one of the allowed values" };
-            if (vErrors === null) {
-              vErrors = [err49];
-            } else {
-              vErrors.push(err49);
-            }
-            errors++;
-          }
-        }
-        if (data14.scope !== void 0) {
-          let data24 = data14.scope;
-          if (Array.isArray(data24)) {
-            if (data24.length < 1) {
-              const err50 = { instancePath: instancePath + "/leases/scope", schemaPath: "#/properties/leases/properties/scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-              if (vErrors === null) {
-                vErrors = [err50];
-              } else {
-                vErrors.push(err50);
-              }
-              errors++;
-            }
-            const len0 = data24.length;
-            for (let i0 = 0; i0 < len0; i0++) {
-              let data25 = data24[i0];
-              if (typeof data25 !== "string") {
-                const err51 = { instancePath: instancePath + "/leases/scope/" + i0, schemaPath: "#/properties/leases/properties/scope/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-                if (vErrors === null) {
-                  vErrors = [err51];
-                } else {
-                  vErrors.push(err51);
-                }
-                errors++;
-              }
-              if (!(data25 === "send-manifest" || data25 === "get-manifest" || data25 === "logs" || data25 === "shell" || data25 === "events" || data25 === "status" || data25 === "restart" || data25 === "hostname-migrate" || data25 === "ip-migrate")) {
-                const err52 = { instancePath: instancePath + "/leases/scope/" + i0, schemaPath: "#/properties/leases/properties/scope/items/enum", keyword: "enum", params: { allowedValues: schema11.properties.leases.properties.scope.items.enum }, message: "must be equal to one of the allowed values" };
-                if (vErrors === null) {
-                  vErrors = [err52];
-                } else {
-                  vErrors.push(err52);
-                }
-                errors++;
-              }
-            }
-            let i1 = data24.length;
-            let j0;
-            if (i1 > 1) {
-              const indices0 = {};
-              for (; i1--; ) {
-                let item0 = data24[i1];
-                if (typeof item0 !== "string") {
-                  continue;
-                }
-                if (typeof indices0[item0] == "number") {
-                  j0 = indices0[item0];
-                  const err53 = { instancePath: instancePath + "/leases/scope", schemaPath: "#/properties/leases/properties/scope/uniqueItems", keyword: "uniqueItems", params: { i: i1, j: j0 }, message: "must NOT have duplicate items (items ## " + j0 + " and " + i1 + " are identical)" };
-                  if (vErrors === null) {
-                    vErrors = [err53];
-                  } else {
-                    vErrors.push(err53);
-                  }
-                  errors++;
-                  break;
-                }
-                indices0[item0] = i1;
-              }
-            }
-          } else {
-            const err54 = { instancePath: instancePath + "/leases/scope", schemaPath: "#/properties/leases/properties/scope/type", keyword: "type", params: { type: "array" }, message: "must be array" };
-            if (vErrors === null) {
-              vErrors = [err54];
-            } else {
-              vErrors.push(err54);
-            }
-            errors++;
-          }
-        }
-        if (data14.permissions !== void 0) {
-          let data26 = data14.permissions;
-          if (Array.isArray(data26)) {
-            if (data26.length < 1) {
-              const err55 = { instancePath: instancePath + "/leases/permissions", schemaPath: "#/properties/leases/properties/permissions/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-              if (vErrors === null) {
-                vErrors = [err55];
-              } else {
-                vErrors.push(err55);
-              }
-              errors++;
-            }
-            const len1 = data26.length;
-            for (let i2 = 0; i2 < len1; i2++) {
-              let data27 = data26[i2];
-              const _errs60 = errors;
-              let valid29 = true;
-              const _errs61 = errors;
-              if (data27 && typeof data27 == "object" && !Array.isArray(data27)) {
-                if (data27.access !== void 0) {
-                  if ("scoped" !== data27.access) {
-                    const err56 = {};
-                    if (vErrors === null) {
-                      vErrors = [err56];
-                    } else {
-                      vErrors.push(err56);
-                    }
-                    errors++;
-                  }
-                }
-              }
-              var _valid5 = _errs61 === errors;
-              errors = _errs60;
-              if (vErrors !== null) {
-                if (_errs60) {
-                  vErrors.length = _errs60;
-                } else {
-                  vErrors = null;
-                }
-              }
-              if (_valid5) {
-                const _errs63 = errors;
-                if (data27 && typeof data27 == "object" && !Array.isArray(data27)) {
-                  if (data27.scope === void 0) {
-                    const err57 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/allOf/0/then/required", keyword: "required", params: { missingProperty: "scope" }, message: "must have required property 'scope'" };
-                    if (vErrors === null) {
-                      vErrors = [err57];
-                    } else {
-                      vErrors.push(err57);
-                    }
-                    errors++;
-                  }
-                  if (data27.scope !== void 0) {
-                    let data29 = data27.scope;
-                    if (Array.isArray(data29)) {
-                      if (data29.length < 1) {
-                        const err58 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/allOf/0/then/properties/scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-                        if (vErrors === null) {
-                          vErrors = [err58];
-                        } else {
-                          vErrors.push(err58);
-                        }
-                        errors++;
-                      }
-                    }
-                  }
-                  if (data27.deployments !== void 0) {
-                    const err59 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments", schemaPath: "#/properties/leases/properties/permissions/items/allOf/0/then/properties/deployments/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-                    if (vErrors === null) {
-                      vErrors = [err59];
-                    } else {
-                      vErrors.push(err59);
-                    }
-                    errors++;
-                  }
-                }
-                var _valid5 = _errs63 === errors;
-                valid29 = _valid5;
-              }
-              if (!valid29) {
-                const err60 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/allOf/0/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
-                if (vErrors === null) {
-                  vErrors = [err60];
-                } else {
-                  vErrors.push(err60);
-                }
-                errors++;
-              }
-              const _errs66 = errors;
-              let valid32 = true;
-              const _errs67 = errors;
-              if (data27 && typeof data27 == "object" && !Array.isArray(data27)) {
-                if (data27.access !== void 0) {
-                  if ("granular" !== data27.access) {
-                    const err61 = {};
-                    if (vErrors === null) {
-                      vErrors = [err61];
-                    } else {
-                      vErrors.push(err61);
-                    }
-                    errors++;
-                  }
-                }
-              }
-              var _valid6 = _errs67 === errors;
-              errors = _errs66;
-              if (vErrors !== null) {
-                if (_errs66) {
-                  vErrors.length = _errs66;
-                } else {
-                  vErrors = null;
-                }
-              }
-              if (_valid6) {
-                const _errs69 = errors;
-                if (data27 && typeof data27 == "object" && !Array.isArray(data27)) {
-                  if (data27.deployments === void 0) {
-                    const err62 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/allOf/1/then/required", keyword: "required", params: { missingProperty: "deployments" }, message: "must have required property 'deployments'" };
-                    if (vErrors === null) {
-                      vErrors = [err62];
-                    } else {
-                      vErrors.push(err62);
-                    }
-                    errors++;
-                  }
-                  if (data27.scope !== void 0) {
-                    const err63 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/allOf/1/then/properties/scope/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-                    if (vErrors === null) {
-                      vErrors = [err63];
-                    } else {
-                      vErrors.push(err63);
-                    }
-                    errors++;
-                  }
-                }
-                var _valid6 = _errs69 === errors;
-                valid32 = _valid6;
-              }
-              if (!valid32) {
-                const err64 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/allOf/1/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
-                if (vErrors === null) {
-                  vErrors = [err64];
-                } else {
-                  vErrors.push(err64);
-                }
-                errors++;
-              }
-              const _errs71 = errors;
-              let valid35 = true;
-              const _errs72 = errors;
-              if (data27 && typeof data27 == "object" && !Array.isArray(data27)) {
-                if (data27.access !== void 0) {
-                  if ("full" !== data27.access) {
-                    const err65 = {};
-                    if (vErrors === null) {
-                      vErrors = [err65];
-                    } else {
-                      vErrors.push(err65);
-                    }
-                    errors++;
-                  }
-                }
-              }
-              var _valid7 = _errs72 === errors;
-              errors = _errs71;
-              if (vErrors !== null) {
-                if (_errs71) {
-                  vErrors.length = _errs71;
-                } else {
-                  vErrors = null;
-                }
-              }
-              if (_valid7) {
-                const _errs74 = errors;
-                if (data27 && typeof data27 == "object" && !Array.isArray(data27)) {
-                  if (data27.scope !== void 0) {
-                    const err66 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/allOf/2/then/properties/scope/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-                    if (vErrors === null) {
-                      vErrors = [err66];
-                    } else {
-                      vErrors.push(err66);
-                    }
-                    errors++;
-                  }
-                  if (data27.deployments !== void 0) {
-                    const err67 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments", schemaPath: "#/properties/leases/properties/permissions/items/allOf/2/then/properties/deployments/false schema", keyword: "false schema", params: {}, message: "boolean schema is false" };
-                    if (vErrors === null) {
-                      vErrors = [err67];
-                    } else {
-                      vErrors.push(err67);
-                    }
-                    errors++;
-                  }
-                }
-                var _valid7 = _errs74 === errors;
-                valid35 = _valid7;
-              }
-              if (!valid35) {
-                const err68 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/allOf/2/if", keyword: "if", params: { failingKeyword: "then" }, message: 'must match "then" schema' };
-                if (vErrors === null) {
-                  vErrors = [err68];
-                } else {
-                  vErrors.push(err68);
-                }
-                errors++;
-              }
-              if (data27 && typeof data27 == "object" && !Array.isArray(data27)) {
-                if (data27.provider === void 0) {
-                  const err69 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/required", keyword: "required", params: { missingProperty: "provider" }, message: "must have required property 'provider'" };
-                  if (vErrors === null) {
-                    vErrors = [err69];
-                  } else {
-                    vErrors.push(err69);
-                  }
-                  errors++;
-                }
-                if (data27.access === void 0) {
-                  const err70 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/required", keyword: "required", params: { missingProperty: "access" }, message: "must have required property 'access'" };
-                  if (vErrors === null) {
-                    vErrors = [err70];
-                  } else {
-                    vErrors.push(err70);
-                  }
-                  errors++;
-                }
-                for (const key2 in data27) {
-                  if (!(key2 === "provider" || key2 === "access" || key2 === "scope" || key2 === "deployments")) {
-                    const err71 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key2 }, message: "must NOT have additional properties" };
-                    if (vErrors === null) {
-                      vErrors = [err71];
-                    } else {
-                      vErrors.push(err71);
-                    }
-                    errors++;
-                  }
-                }
-                if (data27.provider !== void 0) {
-                  let data36 = data27.provider;
-                  if (typeof data36 === "string") {
-                    if (!pattern0.test(data36)) {
-                      const err72 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/provider", schemaPath: "#/properties/leases/properties/permissions/items/properties/provider/pattern", keyword: "pattern", params: { pattern: "^akash1[a-z0-9]{38}$" }, message: 'must match pattern "^akash1[a-z0-9]{38}$"' };
-                      if (vErrors === null) {
-                        vErrors = [err72];
-                      } else {
-                        vErrors.push(err72);
-                      }
-                      errors++;
-                    }
-                  } else {
-                    const err73 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/provider", schemaPath: "#/properties/leases/properties/permissions/items/properties/provider/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-                    if (vErrors === null) {
-                      vErrors = [err73];
-                    } else {
-                      vErrors.push(err73);
-                    }
-                    errors++;
-                  }
-                }
-                if (data27.access !== void 0) {
-                  let data37 = data27.access;
-                  if (typeof data37 !== "string") {
-                    const err74 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/access", schemaPath: "#/properties/leases/properties/permissions/items/properties/access/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-                    if (vErrors === null) {
-                      vErrors = [err74];
-                    } else {
-                      vErrors.push(err74);
-                    }
-                    errors++;
-                  }
-                  if (!(data37 === "full" || data37 === "scoped" || data37 === "granular")) {
-                    const err75 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/access", schemaPath: "#/properties/leases/properties/permissions/items/properties/access/enum", keyword: "enum", params: { allowedValues: schema11.properties.leases.properties.permissions.items.properties.access.enum }, message: "must be equal to one of the allowed values" };
-                    if (vErrors === null) {
-                      vErrors = [err75];
-                    } else {
-                      vErrors.push(err75);
-                    }
-                    errors++;
-                  }
-                }
-                if (data27.scope !== void 0) {
-                  let data38 = data27.scope;
-                  if (Array.isArray(data38)) {
-                    if (data38.length < 1) {
-                      const err76 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/properties/scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-                      if (vErrors === null) {
-                        vErrors = [err76];
-                      } else {
-                        vErrors.push(err76);
-                      }
-                      errors++;
-                    }
-                    const len2 = data38.length;
-                    for (let i3 = 0; i3 < len2; i3++) {
-                      let data39 = data38[i3];
-                      if (typeof data39 !== "string") {
-                        const err77 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope/" + i3, schemaPath: "#/properties/leases/properties/permissions/items/properties/scope/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-                        if (vErrors === null) {
-                          vErrors = [err77];
-                        } else {
-                          vErrors.push(err77);
-                        }
-                        errors++;
-                      }
-                      if (!(data39 === "send-manifest" || data39 === "get-manifest" || data39 === "logs" || data39 === "shell" || data39 === "events" || data39 === "status" || data39 === "restart" || data39 === "hostname-migrate" || data39 === "ip-migrate")) {
-                        const err78 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope/" + i3, schemaPath: "#/properties/leases/properties/permissions/items/properties/scope/items/enum", keyword: "enum", params: { allowedValues: schema11.properties.leases.properties.permissions.items.properties.scope.items.enum }, message: "must be equal to one of the allowed values" };
-                        if (vErrors === null) {
-                          vErrors = [err78];
-                        } else {
-                          vErrors.push(err78);
-                        }
-                        errors++;
-                      }
-                    }
-                    let i4 = data38.length;
-                    let j1;
-                    if (i4 > 1) {
-                      const indices1 = {};
-                      for (; i4--; ) {
-                        let item1 = data38[i4];
-                        if (typeof item1 !== "string") {
-                          continue;
-                        }
-                        if (typeof indices1[item1] == "number") {
-                          j1 = indices1[item1];
-                          const err79 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/properties/scope/uniqueItems", keyword: "uniqueItems", params: { i: i4, j: j1 }, message: "must NOT have duplicate items (items ## " + j1 + " and " + i4 + " are identical)" };
-                          if (vErrors === null) {
-                            vErrors = [err79];
-                          } else {
-                            vErrors.push(err79);
-                          }
-                          errors++;
-                          break;
-                        }
-                        indices1[item1] = i4;
-                      }
-                    }
-                  } else {
-                    const err80 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/properties/scope/type", keyword: "type", params: { type: "array" }, message: "must be array" };
-                    if (vErrors === null) {
-                      vErrors = [err80];
-                    } else {
-                      vErrors.push(err80);
-                    }
-                    errors++;
-                  }
-                }
-                if (data27.deployments !== void 0) {
-                  let data40 = data27.deployments;
-                  if (Array.isArray(data40)) {
-                    if (data40.length < 1) {
-                      const err81 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-                      if (vErrors === null) {
-                        vErrors = [err81];
-                      } else {
-                        vErrors.push(err81);
-                      }
-                      errors++;
-                    }
-                    const len3 = data40.length;
-                    for (let i5 = 0; i5 < len3; i5++) {
-                      let data41 = data40[i5];
-                      if (data41 && typeof data41 == "object" && !Array.isArray(data41)) {
-                        if (data41.dseq === void 0) {
-                          const err82 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/required", keyword: "required", params: { missingProperty: "dseq" }, message: "must have required property 'dseq'" };
-                          if (vErrors === null) {
-                            vErrors = [err82];
-                          } else {
-                            vErrors.push(err82);
-                          }
-                          errors++;
-                        }
-                        if (data41.scope === void 0) {
-                          const err83 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/required", keyword: "required", params: { missingProperty: "scope" }, message: "must have required property 'scope'" };
-                          if (vErrors === null) {
-                            vErrors = [err83];
-                          } else {
-                            vErrors.push(err83);
-                          }
-                          errors++;
-                        }
-                        if (data41.services === void 0) {
-                          const err84 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/required", keyword: "required", params: { missingProperty: "services" }, message: "must have required property 'services'" };
-                          if (vErrors === null) {
-                            vErrors = [err84];
-                          } else {
-                            vErrors.push(err84);
-                          }
-                          errors++;
-                        }
-                        for (const key3 in data41) {
-                          if (!(key3 === "dseq" || key3 === "scope" || key3 === "gseq" || key3 === "oseq" || key3 === "services")) {
-                            const err85 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key3 }, message: "must NOT have additional properties" };
-                            if (vErrors === null) {
-                              vErrors = [err85];
-                            } else {
-                              vErrors.push(err85);
-                            }
-                            errors++;
-                          }
-                        }
-                        if (data41.gseq !== void 0) {
-                          if (data41.dseq === void 0) {
-                            const err86 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/dependencies", keyword: "dependencies", params: {
-                              property: "gseq",
-                              missingProperty: "dseq",
-                              depsCount: 1,
-                              deps: "dseq"
-                            }, message: "must have property dseq when property gseq is present" };
-                            if (vErrors === null) {
-                              vErrors = [err86];
-                            } else {
-                              vErrors.push(err86);
-                            }
-                            errors++;
-                          }
-                        }
-                        if (data41.oseq !== void 0) {
-                          if (data41.dseq === void 0) {
-                            const err87 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/dependencies", keyword: "dependencies", params: {
-                              property: "oseq",
-                              missingProperty: "dseq",
-                              depsCount: 2,
-                              deps: "dseq, gseq"
-                            }, message: "must have properties dseq, gseq when property oseq is present" };
-                            if (vErrors === null) {
-                              vErrors = [err87];
-                            } else {
-                              vErrors.push(err87);
-                            }
-                            errors++;
-                          }
-                          if (data41.gseq === void 0) {
-                            const err88 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/dependencies", keyword: "dependencies", params: {
-                              property: "oseq",
-                              missingProperty: "gseq",
-                              depsCount: 2,
-                              deps: "dseq, gseq"
-                            }, message: "must have properties dseq, gseq when property oseq is present" };
-                            if (vErrors === null) {
-                              vErrors = [err88];
-                            } else {
-                              vErrors.push(err88);
-                            }
-                            errors++;
-                          }
-                        }
-                        if (data41.services !== void 0) {
-                          if (data41.dseq === void 0) {
-                            const err89 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/dependencies", keyword: "dependencies", params: {
-                              property: "services",
-                              missingProperty: "dseq",
-                              depsCount: 1,
-                              deps: "dseq"
-                            }, message: "must have property dseq when property services is present" };
-                            if (vErrors === null) {
-                              vErrors = [err89];
-                            } else {
-                              vErrors.push(err89);
-                            }
-                            errors++;
-                          }
-                        }
-                        if (data41.dseq !== void 0) {
-                          let data42 = data41.dseq;
-                          if (!(typeof data42 == "number" && (!(data42 % 1) && !isNaN(data42)))) {
-                            const err90 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/dseq", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/dseq/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
-                            if (vErrors === null) {
-                              vErrors = [err90];
-                            } else {
-                              vErrors.push(err90);
-                            }
-                            errors++;
-                          }
-                          if (typeof data42 == "number") {
-                            if (data42 < 1 || isNaN(data42)) {
-                              const err91 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/dseq", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/dseq/minimum", keyword: "minimum", params: { comparison: ">=", limit: 1 }, message: "must be >= 1" };
-                              if (vErrors === null) {
-                                vErrors = [err91];
-                              } else {
-                                vErrors.push(err91);
-                              }
-                              errors++;
-                            }
-                          }
-                        }
-                        if (data41.scope !== void 0) {
-                          let data43 = data41.scope;
-                          if (Array.isArray(data43)) {
-                            if (data43.length < 1) {
-                              const err92 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/scope/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-                              if (vErrors === null) {
-                                vErrors = [err92];
-                              } else {
-                                vErrors.push(err92);
-                              }
-                              errors++;
-                            }
-                            const len4 = data43.length;
-                            for (let i6 = 0; i6 < len4; i6++) {
-                              let data44 = data43[i6];
-                              if (typeof data44 !== "string") {
-                                const err93 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/scope/" + i6, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/scope/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-                                if (vErrors === null) {
-                                  vErrors = [err93];
-                                } else {
-                                  vErrors.push(err93);
-                                }
-                                errors++;
-                              }
-                              if (!(data44 === "send-manifest" || data44 === "get-manifest" || data44 === "logs" || data44 === "shell" || data44 === "events" || data44 === "status" || data44 === "restart" || data44 === "hostname-migrate" || data44 === "ip-migrate")) {
-                                const err94 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/scope/" + i6, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/scope/items/enum", keyword: "enum", params: { allowedValues: schema11.properties.leases.properties.permissions.items.properties.deployments.items.properties.scope.items.enum }, message: "must be equal to one of the allowed values" };
-                                if (vErrors === null) {
-                                  vErrors = [err94];
-                                } else {
-                                  vErrors.push(err94);
-                                }
-                                errors++;
-                              }
-                            }
-                            let i7 = data43.length;
-                            let j2;
-                            if (i7 > 1) {
-                              const indices2 = {};
-                              for (; i7--; ) {
-                                let item2 = data43[i7];
-                                if (typeof item2 !== "string") {
-                                  continue;
-                                }
-                                if (typeof indices2[item2] == "number") {
-                                  j2 = indices2[item2];
-                                  const err95 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/scope/uniqueItems", keyword: "uniqueItems", params: { i: i7, j: j2 }, message: "must NOT have duplicate items (items ## " + j2 + " and " + i7 + " are identical)" };
-                                  if (vErrors === null) {
-                                    vErrors = [err95];
-                                  } else {
-                                    vErrors.push(err95);
-                                  }
-                                  errors++;
-                                  break;
-                                }
-                                indices2[item2] = i7;
-                              }
-                            }
-                          } else {
-                            const err96 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/scope", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/scope/type", keyword: "type", params: { type: "array" }, message: "must be array" };
-                            if (vErrors === null) {
-                              vErrors = [err96];
-                            } else {
-                              vErrors.push(err96);
-                            }
-                            errors++;
-                          }
-                        }
-                        if (data41.gseq !== void 0) {
-                          let data45 = data41.gseq;
-                          if (!(typeof data45 == "number" && (!(data45 % 1) && !isNaN(data45)))) {
-                            const err97 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/gseq", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/gseq/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
-                            if (vErrors === null) {
-                              vErrors = [err97];
-                            } else {
-                              vErrors.push(err97);
-                            }
-                            errors++;
-                          }
-                          if (typeof data45 == "number") {
-                            if (data45 < 0 || isNaN(data45)) {
-                              const err98 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/gseq", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/gseq/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
-                              if (vErrors === null) {
-                                vErrors = [err98];
-                              } else {
-                                vErrors.push(err98);
-                              }
-                              errors++;
-                            }
-                          }
-                        }
-                        if (data41.oseq !== void 0) {
-                          let data46 = data41.oseq;
-                          if (!(typeof data46 == "number" && (!(data46 % 1) && !isNaN(data46)))) {
-                            const err99 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/oseq", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/oseq/type", keyword: "type", params: { type: "integer" }, message: "must be integer" };
-                            if (vErrors === null) {
-                              vErrors = [err99];
-                            } else {
-                              vErrors.push(err99);
-                            }
-                            errors++;
-                          }
-                          if (typeof data46 == "number") {
-                            if (data46 < 0 || isNaN(data46)) {
-                              const err100 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/oseq", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/oseq/minimum", keyword: "minimum", params: { comparison: ">=", limit: 0 }, message: "must be >= 0" };
-                              if (vErrors === null) {
-                                vErrors = [err100];
-                              } else {
-                                vErrors.push(err100);
-                              }
-                              errors++;
-                            }
-                          }
-                        }
-                        if (data41.services !== void 0) {
-                          let data47 = data41.services;
-                          if (Array.isArray(data47)) {
-                            if (data47.length < 1) {
-                              const err101 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/services", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/services/minItems", keyword: "minItems", params: { limit: 1 }, message: "must NOT have fewer than 1 items" };
-                              if (vErrors === null) {
-                                vErrors = [err101];
-                              } else {
-                                vErrors.push(err101);
-                              }
-                              errors++;
-                            }
-                            const len5 = data47.length;
-                            for (let i8 = 0; i8 < len5; i8++) {
-                              let data48 = data47[i8];
-                              if (typeof data48 === "string") {
-                                if (func2(data48) < 1) {
-                                  const err102 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/services/" + i8, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/services/items/minLength", keyword: "minLength", params: { limit: 1 }, message: "must NOT have fewer than 1 characters" };
-                                  if (vErrors === null) {
-                                    vErrors = [err102];
-                                  } else {
-                                    vErrors.push(err102);
-                                  }
-                                  errors++;
-                                }
-                              } else {
-                                const err103 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/services/" + i8, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/services/items/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-                                if (vErrors === null) {
-                                  vErrors = [err103];
-                                } else {
-                                  vErrors.push(err103);
-                                }
-                                errors++;
-                              }
-                            }
-                            let i9 = data47.length;
-                            let j3;
-                            if (i9 > 1) {
-                              const indices3 = {};
-                              for (; i9--; ) {
-                                let item3 = data47[i9];
-                                if (typeof item3 !== "string") {
-                                  continue;
-                                }
-                                if (typeof indices3[item3] == "number") {
-                                  j3 = indices3[item3];
-                                  const err104 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/services", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/services/uniqueItems", keyword: "uniqueItems", params: { i: i9, j: j3 }, message: "must NOT have duplicate items (items ## " + j3 + " and " + i9 + " are identical)" };
-                                  if (vErrors === null) {
-                                    vErrors = [err104];
-                                  } else {
-                                    vErrors.push(err104);
-                                  }
-                                  errors++;
-                                  break;
-                                }
-                                indices3[item3] = i9;
-                              }
-                            }
-                          } else {
-                            const err105 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5 + "/services", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/properties/services/type", keyword: "type", params: { type: "array" }, message: "must be array" };
-                            if (vErrors === null) {
-                              vErrors = [err105];
-                            } else {
-                              vErrors.push(err105);
-                            }
-                            errors++;
-                          }
-                        }
-                      } else {
-                        const err106 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments/" + i5, schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/items/type", keyword: "type", params: { type: "object" }, message: "must be object" };
-                        if (vErrors === null) {
-                          vErrors = [err106];
-                        } else {
-                          vErrors.push(err106);
-                        }
-                        errors++;
-                      }
-                    }
-                  } else {
-                    const err107 = { instancePath: instancePath + "/leases/permissions/" + i2 + "/deployments", schemaPath: "#/properties/leases/properties/permissions/items/properties/deployments/type", keyword: "type", params: { type: "array" }, message: "must be array" };
-                    if (vErrors === null) {
-                      vErrors = [err107];
-                    } else {
-                      vErrors.push(err107);
-                    }
-                    errors++;
-                  }
-                }
-              } else {
-                const err108 = { instancePath: instancePath + "/leases/permissions/" + i2, schemaPath: "#/properties/leases/properties/permissions/items/type", keyword: "type", params: { type: "object" }, message: "must be object" };
-                if (vErrors === null) {
-                  vErrors = [err108];
-                } else {
-                  vErrors.push(err108);
-                }
-                errors++;
-              }
-            }
-          } else {
-            const err109 = { instancePath: instancePath + "/leases/permissions", schemaPath: "#/properties/leases/properties/permissions/type", keyword: "type", params: { type: "array" }, message: "must be array" };
-            if (vErrors === null) {
-              vErrors = [err109];
-            } else {
-              vErrors.push(err109);
-            }
-            errors++;
-          }
-        }
-      } else {
-        const err110 = { instancePath: instancePath + "/leases", schemaPath: "#/properties/leases/type", keyword: "type", params: { type: "object" }, message: "must be object" };
-        if (vErrors === null) {
-          vErrors = [err110];
-        } else {
-          vErrors.push(err110);
-        }
-        errors++;
+      if (!validate11(data.leases, { instancePath: instancePath + "/leases", parentData: data, parentDataProperty: "leases", rootData })) {
+        vErrors = vErrors === null ? validate11.errors : vErrors.concat(validate11.errors);
+        errors = vErrors.length;
       }
     }
   } else {
-    const err111 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    const err19 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
     if (vErrors === null) {
-      vErrors = [err111];
+      vErrors = [err19];
     } else {
-      vErrors.push(err111);
+      vErrors.push(err19);
     }
     errors++;
   }

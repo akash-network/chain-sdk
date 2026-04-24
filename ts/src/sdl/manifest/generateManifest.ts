@@ -9,8 +9,6 @@ import { ResourceUnit } from "../../generated/protos/akash/deployment/v1beta4/re
 import { Group } from "../../generated/protos/akash/manifest/v2beta3/group.ts";
 import { ImageCredentials, Service, ServiceParams, StorageParams } from "../../generated/protos/akash/manifest/v2beta3/service.ts";
 import { ServiceExpose } from "../../generated/protos/akash/manifest/v2beta3/serviceexpose.ts";
-import { MAINNET_ID } from "../../network/config.ts";
-import type { NetworkId } from "../../network/types.ts";
 import type { ValidationError } from "../../utils/jsonSchemaValidation.ts";
 import { castArray } from "../utils.ts";
 import type { SDLInput } from "../validateSDL/validateSDL.ts";
@@ -41,8 +39,8 @@ export type Manifest = GenerateManifestOkResult["groups"];
 export type GenerateManifestResult =
   | { ok?: false; value: ValidationError[] }
   | { ok: true; value: GenerateManifestOkResult };
-export function generateManifest(sdl: SDLInput, networkId: NetworkId = MAINNET_ID): GenerateManifestResult {
-  const errors = validateSDL(sdl, networkId);
+export function generateManifest(sdl: SDLInput): GenerateManifestResult {
+  const errors = validateSDL(sdl);
   if (errors) return { ok: false, value: errors };
 
   const endpointSequenceNumbers = computeEndpointSequenceNumbers(sdl.services);

@@ -157,9 +157,9 @@ func TestSchemaValidation_Denom(t *testing.T) {
 		shouldErr bool
 	}{
 		{"valid_uakt", "uakt", false},
-		{"valid_ibc_short", "ibc/ABC123", false},
-		{"valid_ibc_long", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2", false},
+		{"valid_uact", "uact", false},
 		{"invalid_akt", "akt", true},
+		{"invalid_ibc", "ibc/ABC123", true},
 		{"invalid_empty", "", true},
 		{"invalid_usdc", "usdc", true},
 		{"invalid_ibc_without_slash", "ibcABC123", true},
