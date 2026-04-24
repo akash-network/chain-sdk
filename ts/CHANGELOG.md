@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.0](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.30...ts/v1.0.0) (2026-04-24)
+
+
+### Features
+
+* add RPC API version discovery with multi-version negotiation ([#288](https://github.com/akash-network/chain-sdk/issues/288)) ([1cc1690](https://github.com/akash-network/chain-sdk/commit/1cc16900b68d7eb85fa60efa464062b6b35a52ac))
+* **bme:** add max attempts param ([#286](https://github.com/akash-network/chain-sdk/issues/286)) ([dae3bbc](https://github.com/akash-network/chain-sdk/commit/dae3bbc49808b45e3bfc1c6e0e87eb8a63db85f7))
+
+
+### Bug Fixes
+
+* restricts denom validation to uact and uakt ([#290](https://github.com/akash-network/chain-sdk/issues/290)) ([db8cc1d](https://github.com/akash-network/chain-sdk/commit/db8cc1d3fc81183b179e24a9e0d347b09c86fbdb))
+
 ## [1.0.0-alpha.30](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.29...ts/v1.0.0-alpha.30) (2026-04-09)
 
 
