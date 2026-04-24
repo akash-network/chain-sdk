@@ -9,16 +9,32 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
-import { ClientInfo } from "./client_info.ts";
+import { ClientInfo, VersionInfo } from "./client_info.ts";
 
 /** Akash akash specific RPC parameters. */
 export interface Akash {
-  /** ClientInfo holds information about the client. */
-  clientInfo: ClientInfo | undefined;
+  /**
+   * ClientInfo holds information about the client.
+   * Kept for backward compatibility. New clients should use supported_versions.
+   */
+  clientInfo:
+    | ClientInfo
+    | undefined;
+  /**
+   * SupportedVersions lists all API versions the node supports.
+   * Clients should pick the best match from this list.
+   */
+  supportedVersions: VersionInfo[];
+  /** ChainID is the identifier of the blockchain network. */
+  chainId: string;
+  /** NodeVersion is the software version of the node. */
+  nodeVersion: string;
+  /** MinClientVersion is the minimum client version the node accepts. */
+  minClientVersion: string;
 }
 
 function createBaseAkash(): Akash {
-  return { clientInfo: undefined };
+  return { clientInfo: undefined, supportedVersions: [], chainId: "", nodeVersion: "", minClientVersion: "" };
 }
 
 export const Akash: MessageFns<Akash, "akash.discovery.v1.Akash"> = {
@@ -27,6 +43,18 @@ export const Akash: MessageFns<Akash, "akash.discovery.v1.Akash"> = {
   encode(message: Akash, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.clientInfo !== undefined) {
       ClientInfo.encode(message.clientInfo, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.supportedVersions) {
+      VersionInfo.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.chainId !== "") {
+      writer.uint32(26).string(message.chainId);
+    }
+    if (message.nodeVersion !== "") {
+      writer.uint32(34).string(message.nodeVersion);
+    }
+    if (message.minClientVersion !== "") {
+      writer.uint32(42).string(message.minClientVersion);
     }
     return writer;
   },
@@ -46,6 +74,38 @@ export const Akash: MessageFns<Akash, "akash.discovery.v1.Akash"> = {
           message.clientInfo = ClientInfo.decode(reader, reader.uint32());
           continue;
         }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.supportedVersions.push(VersionInfo.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.chainId = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.nodeVersion = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.minClientVersion = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -56,13 +116,33 @@ export const Akash: MessageFns<Akash, "akash.discovery.v1.Akash"> = {
   },
 
   fromJSON(object: any): Akash {
-    return { clientInfo: isSet(object.client_info) ? ClientInfo.fromJSON(object.client_info) : undefined };
+    return {
+      clientInfo: isSet(object.client_info) ? ClientInfo.fromJSON(object.client_info) : undefined,
+      supportedVersions: globalThis.Array.isArray(object?.supported_versions)
+        ? object.supported_versions.map((e: any) => VersionInfo.fromJSON(e))
+        : [],
+      chainId: isSet(object.chain_id) ? globalThis.String(object.chain_id) : "",
+      nodeVersion: isSet(object.node_version) ? globalThis.String(object.node_version) : "",
+      minClientVersion: isSet(object.min_client_version) ? globalThis.String(object.min_client_version) : "",
+    };
   },
 
   toJSON(message: Akash): unknown {
     const obj: any = {};
     if (message.clientInfo !== undefined) {
       obj.client_info = ClientInfo.toJSON(message.clientInfo);
+    }
+    if (message.supportedVersions?.length) {
+      obj.supported_versions = message.supportedVersions.map((e) => VersionInfo.toJSON(e));
+    }
+    if (message.chainId !== "") {
+      obj.chain_id = message.chainId;
+    }
+    if (message.nodeVersion !== "") {
+      obj.node_version = message.nodeVersion;
+    }
+    if (message.minClientVersion !== "") {
+      obj.min_client_version = message.minClientVersion;
     }
     return obj;
   },
@@ -71,6 +151,10 @@ export const Akash: MessageFns<Akash, "akash.discovery.v1.Akash"> = {
     message.clientInfo = (object.clientInfo !== undefined && object.clientInfo !== null)
       ? ClientInfo.fromPartial(object.clientInfo)
       : undefined;
+    message.supportedVersions = object.supportedVersions?.map((e) => VersionInfo.fromPartial(e)) || [];
+    message.chainId = object.chainId ?? "";
+    message.nodeVersion = object.nodeVersion ?? "";
+    message.minClientVersion = object.minClientVersion ?? "";
     return message;
   },
 };
