@@ -3,6 +3,174 @@
 /* eslint-disable */
 // @ts-nocheck
 
+/**
+ * Access level for the lease: 'full' for unrestricted access to all actions, 'scoped' for specific actions across all provider leases, 'granular' for provider-specific permissions.
+ */
+export type Leases = LeasesFull | LeasesScoped | LeasesGranular;
+/**
+ * Global list of permitted actions across all owned leases (no duplicates).
+ *
+ * @minItems 1
+ */
+export type ActionScope = (
+  | "send-manifest"
+  | "get-manifest"
+  | "logs"
+  | "shell"
+  | "events"
+  | "status"
+  | "restart"
+  | "hostname-migrate"
+  | "ip-migrate"
+)[];
+/**
+ * Provider-level access: 'full' for all actions, 'scoped' for specific actions across all provider leases, 'granular' for deployment-specific actions.
+ */
+export type LeasePermission = LeasePermissionFull | LeasePermissionScoped | LeasePermissionGranular;
+/**
+ * Provider-level list of permitted actions (no duplicates).
+ *
+ * @minItems 1
+ */
+export type ActionScope1 = (
+  | "send-manifest"
+  | "get-manifest"
+  | "logs"
+  | "shell"
+  | "events"
+  | "status"
+  | "restart"
+  | "hostname-migrate"
+  | "ip-migrate"
+)[];
+/**
+ * Deployment-level list of permitted actions (no duplicates).
+ *
+ * @minItems 1
+ */
+export type ActionScope2 = (
+  | "send-manifest"
+  | "get-manifest"
+  | "logs"
+  | "shell"
+  | "events"
+  | "status"
+  | "restart"
+  | "hostname-migrate"
+  | "ip-migrate"
+)[];
+
+/**
+ * JSON Schema for JWT used in the Akash Provider API.
+ */
+export interface JwtTokenPayload {
+  /**
+   * Akash address of the lease(s) owner, e.g., akash1abcd... (44 characters)
+   */
+  iss: string;
+  /**
+   * Token issuance timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be <= exp and >= nbf.
+   */
+  iat: number;
+  /**
+   * Not valid before timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be <= iat.
+   */
+  nbf: number;
+  /**
+   * Expiration timestamp as Unix time (seconds since 1970-01-01T00:00:00Z). Should be >= iat.
+   */
+  exp: number;
+  /**
+   * Unique identifier for the JWT, used to prevent token reuse.
+   */
+  jti?: string;
+  /**
+   * Version of the JWT specification (currently fixed at v1).
+   */
+  version: "v1";
+  leases: Leases;
+}
+export interface LeasesFull {
+  /**
+   * Unrestricted access to all actions on all leases.
+   */
+  access: "full";
+}
+export interface LeasesScoped {
+  /**
+   * Specific actions across all provider leases.
+   */
+  access: "scoped";
+  scope: ActionScope;
+}
+export interface LeasesGranular {
+  /**
+   * Provider-specific permissions.
+   */
+  access: "granular";
+  /**
+   * Defines provider-specific permissions. The provider address must be unique across all permissions entries.
+   *
+   * @minItems 1
+   */
+  permissions: LeasePermission[];
+}
+export interface LeasePermissionFull {
+  /**
+   * Provider address, e.g., akash1xyz... (44 characters).
+   */
+  provider: string;
+  /**
+   * Full access to all actions on this provider's leases.
+   */
+  access: "full";
+}
+export interface LeasePermissionScoped {
+  /**
+   * Provider address, e.g., akash1xyz... (44 characters).
+   */
+  provider: string;
+  /**
+   * Specific actions across all this provider's leases.
+   */
+  access: "scoped";
+  scope: ActionScope1;
+}
+export interface LeasePermissionGranular {
+  /**
+   * Provider address, e.g., akash1xyz... (44 characters).
+   */
+  provider: string;
+  /**
+   * Deployment-specific actions.
+   */
+  access: "granular";
+  /**
+   * @minItems 1
+   */
+  deployments: LeasePermissionDeployment[];
+}
+export interface LeasePermissionDeployment {
+  /**
+   * Deployment sequence number.
+   */
+  dseq: number;
+  scope: ActionScope2;
+  /**
+   * Group sequence number (requires dseq).
+   */
+  gseq?: number;
+  /**
+   * Order sequence number (requires dseq and gseq).
+   */
+  oseq?: number;
+  /**
+   * List of service names (requires dseq).
+   *
+   * @minItems 1
+   */
+  services: string[];
+}
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
