@@ -10,6 +10,7 @@ import esbuild from "esbuild";
 
 const SCHEMAS = {
   jwtTokenPayload: {
+    typeName: "JwtTokenPayload",
     output: path.join(import.meta.dirname, "../src/sdk/provider/auth/jwt/validateJwtPayload.ts"),
     get content() {
       return JSON.parse(fs.readFileSync(path.join(import.meta.dirname, "../../specs/jwt-schema.json"), "utf8"));
