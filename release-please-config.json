@@ -12,9 +12,8 @@
       "component": "ts",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
-      "versioning": "prerelease",
+      "prerelease": true,
       "prerelease-type": "alpha",
-      "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true
     }
   }
