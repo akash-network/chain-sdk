@@ -452,6 +452,13 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getMsgClient(service).closeLease(input, options);
           }, { path: [14, "closeLease"], serviceLoader }),
           /**
+           * leaseStartReclaim initiates the reclamation window on an active lease.
+           */
+          leaseStartReclaim: withMetadata(async function leaseStartReclaim(input: DeepSimplify<akash_market_v1beta5_leasemsg.MsgLeaseStartReclaim>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(14);
+            return getMsgClient(service).leaseStartReclaim(input, options);
+          }, { path: [14, "leaseStartReclaim"], serviceLoader }),
+          /**
            * updateParams defines a governance operation for updating the x/market module
            * parameters. The authority is hard-coded to the x/gov module account.
            *

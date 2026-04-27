@@ -166,6 +166,7 @@
  - [akash/deployment/v1/deployment.proto](#akash/deployment/v1/deployment.proto)
      - [Deployment](#akash.deployment.v1.Deployment)
      - [DeploymentID](#akash.deployment.v1.DeploymentID)
+     - [DeploymentReclamation](#akash.deployment.v1.DeploymentReclamation)
    
      - [Deployment.State](#akash.deployment.v1.Deployment.State)
    
@@ -335,6 +336,9 @@
  - [akash/market/v1/types.proto](#akash/market/v1/types.proto)
      - [LeaseClosedReason](#akash.market.v1.LeaseClosedReason)
    
+ - [akash/market/v1/reclamation.proto](#akash/market/v1/reclamation.proto)
+     - [Reclamation](#akash.market.v1.Reclamation)
+   
  - [akash/market/v1/lease.proto](#akash/market/v1/lease.proto)
      - [Lease](#akash.market.v1.Lease)
      - [LeaseID](#akash.market.v1.LeaseID)
@@ -346,6 +350,7 @@
      - [EventBidCreated](#akash.market.v1.EventBidCreated)
      - [EventLeaseClosed](#akash.market.v1.EventLeaseClosed)
      - [EventLeaseCreated](#akash.market.v1.EventLeaseCreated)
+     - [EventLeaseReclaimStarted](#akash.market.v1.EventLeaseReclaimStarted)
      - [EventOrderClosed](#akash.market.v1.EventOrderClosed)
      - [EventOrderCreated](#akash.market.v1.EventOrderCreated)
    
@@ -389,6 +394,8 @@
      - [MsgCloseLeaseResponse](#akash.market.v1beta5.MsgCloseLeaseResponse)
      - [MsgCreateLease](#akash.market.v1beta5.MsgCreateLease)
      - [MsgCreateLeaseResponse](#akash.market.v1beta5.MsgCreateLeaseResponse)
+     - [MsgLeaseStartReclaim](#akash.market.v1beta5.MsgLeaseStartReclaim)
+     - [MsgLeaseStartReclaimResponse](#akash.market.v1beta5.MsgLeaseStartReclaimResponse)
      - [MsgWithdrawLease](#akash.market.v1beta5.MsgWithdrawLease)
      - [MsgWithdrawLeaseResponse](#akash.market.v1beta5.MsgWithdrawLeaseResponse)
    
@@ -2585,6 +2592,7 @@ Example: "akash1..." |
  | `state` | [Deployment.State](#akash.deployment.v1.Deployment.State) |  | State defines the sate of the deployment. A deployment can be either active or inactive. |
  | `hash` | [bytes](#bytes) |  | Hash is an hashed representation of the deployment. |
  | `created_at` | [int64](#int64) |  | CreatedAt indicates when the deployment was created as a block height value. |
+ | `reclamation` | [DeploymentReclamation](#akash.deployment.v1.DeploymentReclamation) |  | reclamation stores the deployment's reclamation requirements for persistence. Needed so that StartGroup can propagate reclamation to newly created orders. |
  
  
 
@@ -2604,6 +2612,22 @@ It is composed of two fields: an owner address and a sequence number (dseq).
 
 Example: "akash1..." |
  | `dseq` | [uint64](#uint64) |  | Dseq (deployment sequence number) is a unique numeric identifier for the deployment. It is used to differentiate deployments created by the same owner. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.deployment.v1.DeploymentReclamation"></a>
+
+ ### DeploymentReclamation
+ DeploymentReclamation defines the tenant's reclamation requirements.
+Stored on the Deployment and propagated to Orders.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `min_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | min_window is the minimum reclamation window the tenant requires. |
  
  
 
@@ -2895,6 +2919,7 @@ This includes attributes like the group name, placement requirements, and resour
  | `groups` | [GroupSpec](#akash.deployment.v1beta4.GroupSpec) | repeated | GroupSpec is a list of group specifications for the deployment. This field is required and must be a list of GroupSpec. |
  | `hash` | [bytes](#bytes) |  | Hash of the deployment. |
  | `deposit` | [akash.base.deposit.v1.Deposit](#akash.base.deposit.v1.Deposit) |  | Deposit specifies the amount of coins to include in the deployment's first deposit. |
+ | `reclamation` | [akash.deployment.v1.DeploymentReclamation](#akash.deployment.v1.DeploymentReclamation) |  | reclamation specifies the deployment-level reclamation requirements. Nil means the tenant does not require reclamation. |
  
  
 
@@ -4577,6 +4602,40 @@ Example: "akash1..." |
 
  
  
+ <a name="akash/market/v1/reclamation.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/market/v1/reclamation.proto
+ 
+
+ 
+ <a name="akash.market.v1.Reclamation"></a>
+
+ ### Reclamation
+ Reclamation defines the runtime reclamation state stored on a Lease.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | window is the negotiated reclamation window duration (from the winning bid). |
+ | `started_at` | [int64](#int64) |  | started_at is the block height at which reclamation was initiated. Zero means reclamation has not been started yet. |
+ | `deadline` | [int64](#int64) |  | deadline is the unix timestamp at which the reclamation window expires. Zero means reclamation has not been started yet. |
+ | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  | reason is the provider's stated reason for reclamation. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/market/v1/lease.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -4601,6 +4660,7 @@ Leases are paid from the tenant to the provider through a deposit and withdraw m
  | `created_at` | [int64](#int64) |  | CreatedAt is the block height at which the Lease was created. |
  | `closed_on` | [int64](#int64) |  | ClosedOn is the block height at which the Lease was closed. |
  | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  |  |
+ | `reclamation` | [Reclamation](#akash.market.v1.Reclamation) |  | Reclamation holds reclamation configuration and state, if applicable. Nil if reclamation is not configured for this lease. |
  
  
 
@@ -4644,6 +4704,7 @@ Example: "akash1..." |
  | active | 1 | LeaseActive denotes state for lease active. |
  | insufficient_funds | 2 | LeaseInsufficientFunds denotes state for lease insufficient_funds. |
  | closed | 3 | LeaseClosed denotes state for lease closed. |
+ | reclaiming | 4 | LeaseReclaiming denotes a lease in reclamation (grace period before closure). |
  
 
   <!-- end enums -->
@@ -4722,6 +4783,23 @@ It contains all the information required to identify a lease.
  | ----- | ---- | ----- | ----------- |
  | `id` | [LeaseID](#akash.market.v1.LeaseID) |  | Id is the unique identifier of the Lease. |
  | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price settled for the lease. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1.EventLeaseReclaimStarted"></a>
+
+ ### EventLeaseReclaimStarted
+ EventLeaseReclaimStarted is triggered when a provider initiates reclamation on a lease.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [LeaseID](#akash.market.v1.LeaseID) |  | Id is the unique identifier of the Lease. |
+ | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  | reason is the provider's stated reason for reclamation. |
+ | `deadline` | [int64](#int64) |  | deadline is the unix timestamp when the reclamation window expires. |
  
  
 
@@ -4932,6 +5010,7 @@ per-class storage pricing in a bid.
  | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price holds the pricing stated on the Bid. |
  | `created_at` | [int64](#int64) |  | CreatedAt is the block height at which the Bid was created. |
  | `resources_offer` | [ResourceOffer](#akash.market.v1beta5.ResourceOffer) | repeated | ResourceOffer is a list of offers. |
+ | `reclamation_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | reclamation_window is the reclamation window offered by this provider. |
  
  
 
@@ -5007,6 +5086,7 @@ per-class storage pricing in a bid.
  | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price holds the pricing stated on the Bid. |
  | `deposit` | [akash.base.deposit.v1.Deposit](#akash.base.deposit.v1.Deposit) |  | Deposit holds the amount of coins to deposit. |
  | `resources_offer` | [ResourceOffer](#akash.market.v1beta5.ResourceOffer) | repeated | ResourceOffer is a list of resource offers. |
+ | `reclamation_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | reclamation_window is the reclamation window duration the provider offers. If the order requires reclamation, this must be >= the order's min_window. Nil means the provider does not offer reclamation on this bid. |
  
  
 
@@ -5112,6 +5192,8 @@ Example: "akash1..." |
  | `bid_min_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BidMinDeposit is a parameter for the minimum deposit on a Bid. Deprecated: use BidMinDeposits |
  | `order_max_bids` | [uint32](#uint32) |  | OrderMaxBids is a parameter for the maximum number of bids in an order. |
  | `bid_min_deposits` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | BidMinDeposits is a parameter for the minimum deposits per denom on a Bid. |
+ | `min_reclamation_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | min_reclamation_window is the minimum reclamation window duration allowed. |
+ | `max_reclamation_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  | max_reclamation_window is the maximum reclamation window duration allowed. |
  
  
 
@@ -5146,6 +5228,7 @@ Example: "akash1..." |
  | `state` | [Order.State](#akash.market.v1beta5.Order.State) |  |  |
  | `spec` | [akash.deployment.v1beta4.GroupSpec](#akash.deployment.v1beta4.GroupSpec) |  |  |
  | `created_at` | [int64](#int64) |  |  |
+ | `reclamation` | [akash.deployment.v1.DeploymentReclamation](#akash.deployment.v1.DeploymentReclamation) |  | reclamation is the deployment-level reclamation requirement, propagated to the order. Nil means the deployment does not require reclamation. |
  
  
 
@@ -5261,6 +5344,32 @@ Example: "akash1..." |
 
  ### MsgCreateLeaseResponse
  MsgCreateLeaseResponse is the response from creating a lease.
+
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1beta5.MsgLeaseStartReclaim"></a>
+
+ ### MsgLeaseStartReclaim
+ MsgLeaseStartReclaim is sent by the provider to initiate reclamation on an active lease.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  | Id is the unique identifier of the Lease. |
+ | `reason` | [akash.market.v1.LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  | reason is the provider's stated reason for initiating reclamation. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1beta5.MsgLeaseStartReclaimResponse"></a>
+
+ ### MsgLeaseStartReclaimResponse
+ MsgLeaseStartReclaimResponse is the response from starting lease reclamation.
 
  
 
@@ -5620,6 +5729,7 @@ Since: akash v1.0.0
  | `WithdrawLease` | [MsgWithdrawLease](#akash.market.v1beta5.MsgWithdrawLease) | [MsgWithdrawLeaseResponse](#akash.market.v1beta5.MsgWithdrawLeaseResponse) | WithdrawLease withdraws accrued funds from the lease payment | |
  | `CreateLease` | [MsgCreateLease](#akash.market.v1beta5.MsgCreateLease) | [MsgCreateLeaseResponse](#akash.market.v1beta5.MsgCreateLeaseResponse) | CreateLease creates a new lease | |
  | `CloseLease` | [MsgCloseLease](#akash.market.v1beta5.MsgCloseLease) | [MsgCloseLeaseResponse](#akash.market.v1beta5.MsgCloseLeaseResponse) | CloseLease defines a method to close an order given proper inputs. | |
+ | `LeaseStartReclaim` | [MsgLeaseStartReclaim](#akash.market.v1beta5.MsgLeaseStartReclaim) | [MsgLeaseStartReclaimResponse](#akash.market.v1beta5.MsgLeaseStartReclaimResponse) | LeaseStartReclaim initiates the reclamation window on an active lease. | |
  | `UpdateParams` | [MsgUpdateParams](#akash.market.v1beta5.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.market.v1beta5.MsgUpdateParamsResponse) | UpdateParams defines a governance operation for updating the x/market module parameters. The authority is hard-coded to the x/gov module account.
 
 Since: akash v1.0.0 | |

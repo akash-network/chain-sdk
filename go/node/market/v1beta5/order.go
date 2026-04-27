@@ -77,6 +77,11 @@ func (o *Order) MatchResourcesRequirements(attr attr.Attributes) bool {
 	return o.Spec.MatchResourcesRequirements(attr)
 }
 
+// RequiresReclamation returns true if the order has a reclamation requirement.
+func (o *Order) RequiresReclamation() bool {
+	return o.Reclamation != nil
+}
+
 // Filters returns whether order filters valid or not
 func (o *Order) Filters(filters OrderFilters, stateVal Order_State) bool {
 	// Checking owner filter

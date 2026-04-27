@@ -3,6 +3,7 @@ package akash.market.v1beta5;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/duration.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
@@ -31,5 +32,21 @@ message Params {
     (gogoproto.nullable)     = false,
     (gogoproto.jsontag)      = "bid_min_deposits",
     (gogoproto.moretags)     = "yaml:\"bid_min_deposits\""
+  ];
+
+  // min_reclamation_window is the minimum reclamation window duration allowed.
+  google.protobuf.Duration min_reclamation_window = 4 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "min_reclamation_window",
+    (gogoproto.moretags)    = "yaml:\"min_reclamation_window\""
+  ];
+
+  // max_reclamation_window is the maximum reclamation window duration allowed.
+  google.protobuf.Duration max_reclamation_window = 5 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "max_reclamation_window",
+    (gogoproto.moretags)    = "yaml:\"max_reclamation_window\""
   ];
 }

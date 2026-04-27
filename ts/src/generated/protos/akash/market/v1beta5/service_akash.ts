@@ -1,5 +1,5 @@
 import { MsgCloseBid, MsgCloseBidResponse, MsgCreateBid, MsgCreateBidResponse } from "./bidmsg.ts";
-import { MsgCloseLease, MsgCloseLeaseResponse, MsgCreateLease, MsgCreateLeaseResponse, MsgWithdrawLease, MsgWithdrawLeaseResponse } from "./leasemsg.ts";
+import { MsgCloseLease, MsgCloseLeaseResponse, MsgCreateLease, MsgCreateLeaseResponse, MsgLeaseStartReclaim, MsgLeaseStartReclaimResponse, MsgWithdrawLease, MsgWithdrawLeaseResponse } from "./leasemsg.ts";
 import { MsgUpdateParams, MsgUpdateParamsResponse } from "./paramsmsg.ts";
 
 export const Msg = {
@@ -33,6 +33,12 @@ export const Msg = {
       name: "CloseLease",
       input: MsgCloseLease,
       output: MsgCloseLeaseResponse,
+      get parent() { return Msg; },
+    },
+    leaseStartReclaim: {
+      name: "LeaseStartReclaim",
+      input: MsgLeaseStartReclaim,
+      output: MsgLeaseStartReclaimResponse,
       get parent() { return Msg; },
     },
     updateParams: {

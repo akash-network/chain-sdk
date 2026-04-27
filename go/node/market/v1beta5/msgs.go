@@ -16,8 +16,9 @@ var (
 	msgTypeCloseBid      = ""
 	msgTypeCreateLease   = ""
 	msgTypeCloseLease    = ""
-	msgTypeWithdrawLease = ""
-	msgTypeUpdateParams  = ""
+	msgTypeWithdrawLease    = ""
+	msgTypeUpdateParams     = ""
+	msgTypeLeaseStartReclaim = ""
 )
 
 var (
@@ -29,6 +30,7 @@ var (
 	_ sdk.Msg            = &MsgWithdrawLease{}
 	_ sdk.Msg            = &MsgCloseLease{}
 	_ sdk.Msg            = &MsgUpdateParams{}
+	_ sdk.Msg            = &MsgLeaseStartReclaim{}
 )
 
 func init() {
@@ -38,6 +40,7 @@ func init() {
 	msgTypeCloseLease = reflect.TypeOf(&MsgCloseLease{}).Elem().Name()
 	msgTypeWithdrawLease = reflect.TypeOf(&MsgWithdrawLease{}).Elem().Name()
 	msgTypeUpdateParams = reflect.TypeOf(&MsgUpdateParams{}).Elem().Name()
+	msgTypeLeaseStartReclaim = reflect.TypeOf(&MsgLeaseStartReclaim{}).Elem().Name()
 }
 
 // NewMsgCreateBid creates a new MsgCreateBid instance
@@ -89,6 +92,10 @@ func (msg *MsgCreateBid) ValidateBasic() error {
 
 	if msg.Price.IsZero() {
 		return v1.ErrBidZeroPrice
+	}
+
+	if msg.ReclamationWindow != nil && *msg.ReclamationWindow < 0 {
+		return v1.ErrReclamationWindowInvalid
 	}
 
 	return nil
@@ -228,6 +235,40 @@ func (msg *MsgUpdateParams) ValidateBasic() error {
 	return nil
 }
 
+// NewMsgLeaseStartReclaim creates a new MsgLeaseStartReclaim instance
+func NewMsgLeaseStartReclaim(id v1.LeaseID, reason v1.LeaseClosedReason) *MsgLeaseStartReclaim {
+	return &MsgLeaseStartReclaim{
+		ID:     id,
+		Reason: reason,
+	}
+}
+
+// Type implements the sdk.Msg interface
+func (msg *MsgLeaseStartReclaim) Type() string { return msgTypeLeaseStartReclaim }
+
+// GetSigners defines whose signature is required
+func (msg *MsgLeaseStartReclaim) GetSigners() []sdk.AccAddress {
+	provider, err := sdk.AccAddressFromBech32(msg.ID.Provider)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{provider}
+}
+
+// ValidateBasic method for MsgLeaseStartReclaim
+func (msg *MsgLeaseStartReclaim) ValidateBasic() error {
+	if err := msg.ID.Validate(); err != nil {
+		return err
+	}
+
+	if !msg.Reason.IsRange(v1.LeaseClosedReasonRangeProvider) {
+		return cerrors.Wrapf(v1.ErrInvalidLeaseClosedReason, "value \"%d\" range 10000..19999", msg.Reason)
+	}
+
+	return nil
+}
+
 // ============= GetSignBytes =============
 // ModuleCdc is defined in codec.go
 // TODO @troian to check if we need them at all
@@ -274,6 +315,13 @@ func (msg *MsgUpdateParams) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) // nolint: staticcheck
 }
 
+// GetSignBytes encodes the message for signing
+//
+// Deprecated: GetSignBytes is deprecated
+func (msg *MsgLeaseStartReclaim) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg)) // nolint: staticcheck
+}
+
 // ============= Route =============
 // ModuleCdc is defined in codec.go
 // TODO @troian to check if we need them at all since sdk.Msg does not not have Route defined anymore
@@ -307,3 +355,8 @@ func (msg *MsgCloseLease) Route() string { return v1.RouterKey }
 //
 // Deprecated: Route is deprecated
 func (msg *MsgUpdateParams) Route() string { return v1.RouterKey }
+
+// Route implements the sdk.Msg interface
+//
+// Deprecated: Route is deprecated
+func (msg *MsgLeaseStartReclaim) Route() string { return v1.RouterKey }

@@ -913,6 +913,20 @@ paths:
                     description: >-
                       CreatedAt indicates when the deployment was created as a
                       block height value.
+                  reclamation:
+                    description: >-
+                      reclamation stores the deployment's reclamation
+                      requirements for persistence.
+
+                      Needed so that StartGroup can propagate reclamation to
+                      newly created orders.
+                    type: object
+                    properties:
+                      min_window:
+                        type: string
+                        description: >-
+                          min_window is the minimum reclamation window the
+                          tenant requires.
               groups:
                 type: array
                 items:
@@ -1560,6 +1574,20 @@ paths:
                           description: >-
                             CreatedAt indicates when the deployment was created
                             as a block height value.
+                        reclamation:
+                          description: >-
+                            reclamation stores the deployment's reclamation
+                            requirements for persistence.
+
+                            Needed so that StartGroup can propagate reclamation
+                            to newly created orders.
+                          type: object
+                          properties:
+                            min_window:
+                              type: string
+                              description: >-
+                                min_window is the minimum reclamation window the
+                                tenant requires.
                     groups:
                       type: array
                       items:
@@ -3224,6 +3252,11 @@ paths:
 
                         for deployment.
                     description: ResourceOffer is a list of offers.
+                  reclamation_window:
+                    type: string
+                    description: >-
+                      reclamation_window is the reclamation window offered by
+                      this provider.
               escrow_account:
                 description: >-
                   EscrowAccount represents the escrow account created for the
@@ -3980,6 +4013,11 @@ paths:
 
                               for deployment.
                           description: ResourceOffer is a list of offers.
+                        reclamation_window:
+                          type: string
+                          description: >-
+                            reclamation_window is the reclamation window offered
+                            by this provider.
                     escrow_account:
                       description: >-
                         EscrowAccount represents the escrow account created for
@@ -4400,6 +4438,7 @@ paths:
                       - active
                       - insufficient_funds
                       - closed
+                      - reclaiming
                     default: invalid
                   price:
                     type: object
@@ -4457,6 +4496,64 @@ paths:
                        - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                        - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
                     title: LeaseClosedReason indicates reason bid was closed
+                  reclamation:
+                    description: >-
+                      Reclamation holds reclamation configuration and state, if
+                      applicable.
+
+                      Nil if reclamation is not configured for this lease.
+                    type: object
+                    properties:
+                      window:
+                        type: string
+                        description: >-
+                          window is the negotiated reclamation window duration
+                          (from the winning bid).
+                      started_at:
+                        type: string
+                        format: int64
+                        description: >-
+                          started_at is the block height at which reclamation
+                          was initiated.
+
+                          Zero means reclamation has not been started yet.
+                      deadline:
+                        type: string
+                        format: int64
+                        description: >-
+                          deadline is the unix timestamp at which the
+                          reclamation window expires.
+
+                          Zero means reclamation has not been started yet.
+                      reason:
+                        type: string
+                        enum:
+                          - lease_closed_invalid
+                          - lease_closed_owner
+                          - lease_closed_reason_unstable
+                          - lease_closed_reason_decommission
+                          - lease_closed_reason_unspecified
+                          - lease_closed_reason_manifest_timeout
+                          - lease_closed_reason_insufficient_funds
+                        default: lease_closed_invalid
+                        description: >-
+                          - lease_closed_invalid: LeaseClosedReasonInvalid
+                          represents the default zero value for
+                          LeaseClosedReason.
+
+                          This value indicates an uninitialized or invalid lease
+                          closure reason and should not
+
+                          be used
+                           - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+                           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                          lease_closed_reason_unstable lease workloads have been
+                          unstable
+                           - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                           - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                           - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+                           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                        title: LeaseClosedReason indicates reason bid was closed
               escrow_payment:
                 description: >-
                   EscrowPayment holds information about the Lease's fractional
@@ -4757,6 +4854,7 @@ paths:
                             - active
                             - insufficient_funds
                             - closed
+                            - reclaiming
                           default: invalid
                         price:
                           type: object
@@ -4815,6 +4913,66 @@ paths:
                              - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                              - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
                           title: LeaseClosedReason indicates reason bid was closed
+                        reclamation:
+                          description: >-
+                            Reclamation holds reclamation configuration and
+                            state, if applicable.
+
+                            Nil if reclamation is not configured for this lease.
+                          type: object
+                          properties:
+                            window:
+                              type: string
+                              description: >-
+                                window is the negotiated reclamation window
+                                duration (from the winning bid).
+                            started_at:
+                              type: string
+                              format: int64
+                              description: >-
+                                started_at is the block height at which
+                                reclamation was initiated.
+
+                                Zero means reclamation has not been started yet.
+                            deadline:
+                              type: string
+                              format: int64
+                              description: >-
+                                deadline is the unix timestamp at which the
+                                reclamation window expires.
+
+                                Zero means reclamation has not been started yet.
+                            reason:
+                              type: string
+                              enum:
+                                - lease_closed_invalid
+                                - lease_closed_owner
+                                - lease_closed_reason_unstable
+                                - lease_closed_reason_decommission
+                                - lease_closed_reason_unspecified
+                                - lease_closed_reason_manifest_timeout
+                                - lease_closed_reason_insufficient_funds
+                              default: lease_closed_invalid
+                              description: >-
+                                - lease_closed_invalid: LeaseClosedReasonInvalid
+                                represents the default zero value for
+                                LeaseClosedReason.
+
+                                This value indicates an uninitialized or invalid
+                                lease closure reason and should not
+
+                                be used
+                                 - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+                                 - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                                lease_closed_reason_unstable lease workloads
+                                have been unstable
+                                 - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                                 - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                                 - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+                                 - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                              title: >-
+                                LeaseClosedReason indicates reason bid was
+                                closed
                     escrow_payment:
                       description: >-
                         EscrowPayment holds information about the Lease's
@@ -5510,6 +5668,19 @@ paths:
                   created_at:
                     type: string
                     format: int64
+                  reclamation:
+                    description: >-
+                      reclamation is the deployment-level reclamation
+                      requirement, propagated to the order.
+
+                      Nil means the deployment does not require reclamation.
+                    type: object
+                    properties:
+                      min_window:
+                        type: string
+                        description: >-
+                          min_window is the minimum reclamation window the
+                          tenant requires.
             description: >-
               QueryOrderResponse is response type for the Query/Order RPC
               method.
@@ -5986,6 +6157,19 @@ paths:
                     created_at:
                       type: string
                       format: int64
+                    reclamation:
+                      description: >-
+                        reclamation is the deployment-level reclamation
+                        requirement, propagated to the order.
+
+                        Nil means the deployment does not require reclamation.
+                      type: object
+                      properties:
+                        min_window:
+                          type: string
+                          description: >-
+                            min_window is the minimum reclamation window the
+                            tenant requires.
                   description: Order stores orderID, state of order and other details.
                 description: Orders is a list of market orders.
               pagination:
@@ -6198,6 +6382,16 @@ paths:
                     description: >-
                       BidMinDeposits is a parameter for the minimum deposits per
                       denom on a Bid.
+                  min_reclamation_window:
+                    type: string
+                    description: >-
+                      min_reclamation_window is the minimum reclamation window
+                      duration allowed.
+                  max_reclamation_window:
+                    type: string
+                    description: >-
+                      max_reclamation_window is the maximum reclamation window
+                      duration allowed.
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -46409,6 +46603,18 @@ definitions:
         description: >-
           CreatedAt indicates when the deployment was created as a block height
           value.
+      reclamation:
+        description: >-
+          reclamation stores the deployment's reclamation requirements for
+          persistence.
+
+          Needed so that StartGroup can propagate reclamation to newly created
+          orders.
+        type: object
+        properties:
+          min_window:
+            type: string
+            description: min_window is the minimum reclamation window the tenant requires.
     description: Deployment stores deploymentID, state and checksum details.
   akash.deployment.v1.Deployment.State:
     type: string
@@ -46451,6 +46657,15 @@ definitions:
 
       It is composed of two fields: an owner address and a sequence number
       (dseq).
+  akash.deployment.v1.DeploymentReclamation:
+    type: object
+    properties:
+      min_window:
+        type: string
+        description: min_window is the minimum reclamation window the tenant requires.
+    description: |-
+      DeploymentReclamation defines the tenant's reclamation requirements.
+      Stored on the Deployment and propagated to Orders.
   akash.deployment.v1.GroupID:
     type: object
     properties:
@@ -47251,6 +47466,20 @@ definitions:
             description: >-
               CreatedAt indicates when the deployment was created as a block
               height value.
+          reclamation:
+            description: >-
+              reclamation stores the deployment's reclamation requirements for
+              persistence.
+
+              Needed so that StartGroup can propagate reclamation to newly
+              created orders.
+            type: object
+            properties:
+              min_window:
+                type: string
+                description: >-
+                  min_window is the minimum reclamation window the tenant
+                  requires.
       groups:
         type: array
         items:
@@ -47825,6 +48054,20 @@ definitions:
                   description: >-
                     CreatedAt indicates when the deployment was created as a
                     block height value.
+                reclamation:
+                  description: >-
+                    reclamation stores the deployment's reclamation requirements
+                    for persistence.
+
+                    Needed so that StartGroup can propagate reclamation to newly
+                    created orders.
+                  type: object
+                  properties:
+                    min_window:
+                      type: string
+                      description: >-
+                        min_window is the minimum reclamation window the tenant
+                        requires.
             groups:
               type: array
               items:
@@ -49775,6 +50018,7 @@ definitions:
           - active
           - insufficient_funds
           - closed
+          - reclaiming
         default: invalid
       price:
         type: object
@@ -49823,6 +50067,58 @@ definitions:
            - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
            - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
         title: LeaseClosedReason indicates reason bid was closed
+      reclamation:
+        description: |-
+          Reclamation holds reclamation configuration and state, if applicable.
+          Nil if reclamation is not configured for this lease.
+        type: object
+        properties:
+          window:
+            type: string
+            description: >-
+              window is the negotiated reclamation window duration (from the
+              winning bid).
+          started_at:
+            type: string
+            format: int64
+            description: |-
+              started_at is the block height at which reclamation was initiated.
+              Zero means reclamation has not been started yet.
+          deadline:
+            type: string
+            format: int64
+            description: >-
+              deadline is the unix timestamp at which the reclamation window
+              expires.
+
+              Zero means reclamation has not been started yet.
+          reason:
+            type: string
+            enum:
+              - lease_closed_invalid
+              - lease_closed_owner
+              - lease_closed_reason_unstable
+              - lease_closed_reason_decommission
+              - lease_closed_reason_unspecified
+              - lease_closed_reason_manifest_timeout
+              - lease_closed_reason_insufficient_funds
+            default: lease_closed_invalid
+            description: >-
+              - lease_closed_invalid: LeaseClosedReasonInvalid represents the
+              default zero value for LeaseClosedReason.
+
+              This value indicates an uninitialized or invalid lease closure
+              reason and should not
+
+              be used
+               - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+               - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+              lease_closed_reason_unstable lease workloads have been unstable
+               - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+               - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+               - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+               - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+            title: LeaseClosedReason indicates reason bid was closed
     description: >-
       Lease stores LeaseID, state of lease and price.
 
@@ -49840,6 +50136,7 @@ definitions:
       - active
       - insufficient_funds
       - closed
+      - reclaiming
     default: invalid
     description: |-
       State is an enum which refers to state of lease.
@@ -49848,6 +50145,7 @@ definitions:
        - active: LeaseActive denotes state for lease active.
        - insufficient_funds: LeaseInsufficientFunds denotes state for lease insufficient_funds.
        - closed: LeaseClosed denotes state for lease closed.
+       - reclaiming: LeaseReclaiming denotes a lease in reclamation (grace period before closure).
   akash.market.v1.LeaseClosedReason:
     type: string
     enum:
@@ -50029,6 +50327,56 @@ definitions:
           Oseq is incremented when a lease associated with an existing
           deployment is closed, and a new order is generated.
     description: OrderId stores owner and all other seq numbers.
+  akash.market.v1.Reclamation:
+    type: object
+    properties:
+      window:
+        type: string
+        description: >-
+          window is the negotiated reclamation window duration (from the winning
+          bid).
+      started_at:
+        type: string
+        format: int64
+        description: |-
+          started_at is the block height at which reclamation was initiated.
+          Zero means reclamation has not been started yet.
+      deadline:
+        type: string
+        format: int64
+        description: >-
+          deadline is the unix timestamp at which the reclamation window
+          expires.
+
+          Zero means reclamation has not been started yet.
+      reason:
+        type: string
+        enum:
+          - lease_closed_invalid
+          - lease_closed_owner
+          - lease_closed_reason_unstable
+          - lease_closed_reason_decommission
+          - lease_closed_reason_unspecified
+          - lease_closed_reason_manifest_timeout
+          - lease_closed_reason_insufficient_funds
+        default: lease_closed_invalid
+        description: >-
+          - lease_closed_invalid: LeaseClosedReasonInvalid represents the
+          default zero value for LeaseClosedReason.
+
+          This value indicates an uninitialized or invalid lease closure reason
+          and should not
+
+          be used
+           - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+          lease_closed_reason_unstable lease workloads have been unstable
+           - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+           - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+           - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+        title: LeaseClosedReason indicates reason bid was closed
+    description: Reclamation defines the runtime reclamation state stored on a Lease.
   akash.market.v1beta5.Bid:
     type: object
     properties:
@@ -50495,6 +50843,9 @@ definitions:
             ResourceOffer describes resources that provider is offering
             for deployment.
         description: ResourceOffer is a list of offers.
+      reclamation_window:
+        type: string
+        description: reclamation_window is the reclamation window offered by this provider.
     description: Bid stores BidID, state of bid and price.
   akash.market.v1beta5.Bid.State:
     type: string
@@ -51154,6 +51505,17 @@ definitions:
       created_at:
         type: string
         format: int64
+      reclamation:
+        description: >-
+          reclamation is the deployment-level reclamation requirement,
+          propagated to the order.
+
+          Nil means the deployment does not require reclamation.
+        type: object
+        properties:
+          min_window:
+            type: string
+            description: min_window is the minimum reclamation window the tenant requires.
     description: Order stores orderID, state of order and other details.
   akash.market.v1beta5.Order.State:
     type: string
@@ -51255,6 +51617,16 @@ definitions:
         description: >-
           BidMinDeposits is a parameter for the minimum deposits per denom on a
           Bid.
+      min_reclamation_window:
+        type: string
+        description: >-
+          min_reclamation_window is the minimum reclamation window duration
+          allowed.
+      max_reclamation_window:
+        type: string
+        description: >-
+          max_reclamation_window is the maximum reclamation window duration
+          allowed.
     description: Params is the params for the x/market module.
   akash.market.v1beta5.QueryBidResponse:
     type: object
@@ -51731,6 +52103,11 @@ definitions:
                 ResourceOffer describes resources that provider is offering
                 for deployment.
             description: ResourceOffer is a list of offers.
+          reclamation_window:
+            type: string
+            description: >-
+              reclamation_window is the reclamation window offered by this
+              provider.
       escrow_account:
         description: EscrowAccount represents the escrow account created for the Bid.
         type: object
@@ -52366,6 +52743,11 @@ definitions:
 
                       for deployment.
                   description: ResourceOffer is a list of offers.
+                reclamation_window:
+                  type: string
+                  description: >-
+                    reclamation_window is the reclamation window offered by this
+                    provider.
             escrow_account:
               description: EscrowAccount represents the escrow account created for the Bid.
               type: object
@@ -52613,6 +52995,7 @@ definitions:
               - active
               - insufficient_funds
               - closed
+              - reclaiming
             default: invalid
           price:
             type: object
@@ -52664,6 +53047,63 @@ definitions:
                - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
             title: LeaseClosedReason indicates reason bid was closed
+          reclamation:
+            description: >-
+              Reclamation holds reclamation configuration and state, if
+              applicable.
+
+              Nil if reclamation is not configured for this lease.
+            type: object
+            properties:
+              window:
+                type: string
+                description: >-
+                  window is the negotiated reclamation window duration (from the
+                  winning bid).
+              started_at:
+                type: string
+                format: int64
+                description: >-
+                  started_at is the block height at which reclamation was
+                  initiated.
+
+                  Zero means reclamation has not been started yet.
+              deadline:
+                type: string
+                format: int64
+                description: >-
+                  deadline is the unix timestamp at which the reclamation window
+                  expires.
+
+                  Zero means reclamation has not been started yet.
+              reason:
+                type: string
+                enum:
+                  - lease_closed_invalid
+                  - lease_closed_owner
+                  - lease_closed_reason_unstable
+                  - lease_closed_reason_decommission
+                  - lease_closed_reason_unspecified
+                  - lease_closed_reason_manifest_timeout
+                  - lease_closed_reason_insufficient_funds
+                default: lease_closed_invalid
+                description: >-
+                  - lease_closed_invalid: LeaseClosedReasonInvalid represents
+                  the default zero value for LeaseClosedReason.
+
+                  This value indicates an uninitialized or invalid lease closure
+                  reason and should not
+
+                  be used
+                   - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+                   - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                  lease_closed_reason_unstable lease workloads have been
+                  unstable
+                   - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                   - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                   - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+                   - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                title: LeaseClosedReason indicates reason bid was closed
       escrow_payment:
         description: EscrowPayment holds information about the Lease's fractional payment.
         type: object
@@ -52862,6 +53302,7 @@ definitions:
                     - active
                     - insufficient_funds
                     - closed
+                    - reclaiming
                   default: invalid
                 price:
                   type: object
@@ -52917,6 +53358,63 @@ definitions:
                      - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
                      - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
                   title: LeaseClosedReason indicates reason bid was closed
+                reclamation:
+                  description: >-
+                    Reclamation holds reclamation configuration and state, if
+                    applicable.
+
+                    Nil if reclamation is not configured for this lease.
+                  type: object
+                  properties:
+                    window:
+                      type: string
+                      description: >-
+                        window is the negotiated reclamation window duration
+                        (from the winning bid).
+                    started_at:
+                      type: string
+                      format: int64
+                      description: >-
+                        started_at is the block height at which reclamation was
+                        initiated.
+
+                        Zero means reclamation has not been started yet.
+                    deadline:
+                      type: string
+                      format: int64
+                      description: >-
+                        deadline is the unix timestamp at which the reclamation
+                        window expires.
+
+                        Zero means reclamation has not been started yet.
+                    reason:
+                      type: string
+                      enum:
+                        - lease_closed_invalid
+                        - lease_closed_owner
+                        - lease_closed_reason_unstable
+                        - lease_closed_reason_decommission
+                        - lease_closed_reason_unspecified
+                        - lease_closed_reason_manifest_timeout
+                        - lease_closed_reason_insufficient_funds
+                      default: lease_closed_invalid
+                      description: >-
+                        - lease_closed_invalid: LeaseClosedReasonInvalid
+                        represents the default zero value for LeaseClosedReason.
+
+                        This value indicates an uninitialized or invalid lease
+                        closure reason and should not
+
+                        be used
+                         - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
+                         - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                        lease_closed_reason_unstable lease workloads have been
+                        unstable
+                         - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                         - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                         - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+                         - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                      title: LeaseClosedReason indicates reason bid was closed
             escrow_payment:
               description: >-
                 EscrowPayment holds information about the Lease's fractional
@@ -53445,6 +53943,19 @@ definitions:
           created_at:
             type: string
             format: int64
+          reclamation:
+            description: >-
+              reclamation is the deployment-level reclamation requirement,
+              propagated to the order.
+
+              Nil means the deployment does not require reclamation.
+            type: object
+            properties:
+              min_window:
+                type: string
+                description: >-
+                  min_window is the minimum reclamation window the tenant
+                  requires.
     description: QueryOrderResponse is response type for the Query/Order RPC method.
   akash.market.v1beta5.QueryOrdersResponse:
     type: object
@@ -53835,6 +54346,19 @@ definitions:
             created_at:
               type: string
               format: int64
+            reclamation:
+              description: >-
+                reclamation is the deployment-level reclamation requirement,
+                propagated to the order.
+
+                Nil means the deployment does not require reclamation.
+              type: object
+              properties:
+                min_window:
+                  type: string
+                  description: >-
+                    min_window is the minimum reclamation window the tenant
+                    requires.
           description: Order stores orderID, state of order and other details.
         description: Orders is a list of market orders.
       pagination:
@@ -53908,6 +54432,16 @@ definitions:
             description: >-
               BidMinDeposits is a parameter for the minimum deposits per denom
               on a Bid.
+          min_reclamation_window:
+            type: string
+            description: >-
+              min_reclamation_window is the minimum reclamation window duration
+              allowed.
+          max_reclamation_window:
+            type: string
+            description: >-
+              max_reclamation_window is the maximum reclamation window duration
+              allowed.
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   akash.market.v1beta5.ResourceOffer:
     type: object
@@ -54319,6 +54853,11 @@ definitions:
   akash.market.v1beta5.MsgCreateLeaseResponse:
     type: object
     description: MsgCreateLeaseResponse is the response from creating a lease.
+  akash.market.v1beta5.MsgLeaseStartReclaimResponse:
+    type: object
+    description: >-
+      MsgLeaseStartReclaimResponse is the response from starting lease
+      reclamation.
   akash.market.v1beta5.MsgUpdateParamsResponse:
     type: object
     description: |-

@@ -3,6 +3,7 @@ package akash.market.v1beta5;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/duration.proto";
 
 import "akash/market/v1beta5/resourcesoffer.proto";
 import "akash/market/v1/bid.proto";
@@ -75,5 +76,13 @@ message Bid {
     (gogoproto.customname)   = "ResourcesOffer",
     (gogoproto.jsontag)      = "resources_offer",
     (gogoproto.moretags)     = "yaml:\"resources_offer\""
+  ];
+
+  // reclamation_window is the reclamation window offered by this provider.
+  google.protobuf.Duration reclamation_window = 6 [
+    (gogoproto.nullable)    = true,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "reclamation_window,omitempty",
+    (gogoproto.moretags)    = "yaml:\"reclamation_window,omitempty\""
   ];
 }

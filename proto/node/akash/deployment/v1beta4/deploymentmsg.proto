@@ -42,6 +42,14 @@ message MsgCreateDeployment {
     (gogoproto.jsontag)  = "deposit",
     (gogoproto.moretags) = "yaml:\"deposit\""
   ];
+
+  // reclamation specifies the deployment-level reclamation requirements.
+  // Nil means the tenant does not require reclamation.
+  akash.deployment.v1.DeploymentReclamation reclamation = 5 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "reclamation,omitempty",
+    (gogoproto.moretags) = "yaml:\"reclamation,omitempty\""
+  ];
 }
 
 // MsgCreateDeploymentResponse defines the Msg/CreateDeployment response type.

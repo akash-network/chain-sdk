@@ -44,6 +44,20 @@ export interface MsgCloseLease {
 export interface MsgCloseLeaseResponse {
 }
 
+/** MsgLeaseStartReclaim is sent by the provider to initiate reclamation on an active lease. */
+export interface MsgLeaseStartReclaim {
+  /** Id is the unique identifier of the Lease. */
+  id:
+    | LeaseID
+    | undefined;
+  /** reason is the provider's stated reason for initiating reclamation. */
+  reason: LeaseClosedReason;
+}
+
+/** MsgLeaseStartReclaimResponse is the response from starting lease reclamation. */
+export interface MsgLeaseStartReclaimResponse {
+}
+
 function createBaseMsgCreateLease(): MsgCreateLease {
   return { bidId: undefined };
 }
@@ -353,6 +367,124 @@ export const MsgCloseLeaseResponse: MessageFns<MsgCloseLeaseResponse, "akash.mar
   },
   fromPartial(_: DeepPartial<MsgCloseLeaseResponse>): MsgCloseLeaseResponse {
     const message = createBaseMsgCloseLeaseResponse();
+    return message;
+  },
+};
+
+function createBaseMsgLeaseStartReclaim(): MsgLeaseStartReclaim {
+  return { id: undefined, reason: 0 };
+}
+
+export const MsgLeaseStartReclaim: MessageFns<MsgLeaseStartReclaim, "akash.market.v1beta5.MsgLeaseStartReclaim"> = {
+  $type: "akash.market.v1beta5.MsgLeaseStartReclaim" as const,
+
+  encode(message: MsgLeaseStartReclaim, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      LeaseID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.reason !== 0) {
+      writer.uint32(16).int32(message.reason);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgLeaseStartReclaim {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgLeaseStartReclaim();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = LeaseID.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.reason = reader.int32() as any;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgLeaseStartReclaim {
+    return {
+      id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
+      reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
+    };
+  },
+
+  toJSON(message: MsgLeaseStartReclaim): unknown {
+    const obj: any = {};
+    if (message.id !== undefined) {
+      obj.id = LeaseID.toJSON(message.id);
+    }
+    if (message.reason !== 0) {
+      obj.reason = leaseClosedReasonToJSON(message.reason);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<MsgLeaseStartReclaim>): MsgLeaseStartReclaim {
+    const message = createBaseMsgLeaseStartReclaim();
+    message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
+    message.reason = object.reason ?? 0;
+    return message;
+  },
+};
+
+function createBaseMsgLeaseStartReclaimResponse(): MsgLeaseStartReclaimResponse {
+  return {};
+}
+
+export const MsgLeaseStartReclaimResponse: MessageFns<
+  MsgLeaseStartReclaimResponse,
+  "akash.market.v1beta5.MsgLeaseStartReclaimResponse"
+> = {
+  $type: "akash.market.v1beta5.MsgLeaseStartReclaimResponse" as const,
+
+  encode(_: MsgLeaseStartReclaimResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgLeaseStartReclaimResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgLeaseStartReclaimResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): MsgLeaseStartReclaimResponse {
+    return {};
+  },
+
+  toJSON(_: MsgLeaseStartReclaimResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+  fromPartial(_: DeepPartial<MsgLeaseStartReclaimResponse>): MsgLeaseStartReclaimResponse {
+    const message = createBaseMsgLeaseStartReclaimResponse();
     return message;
   },
 };

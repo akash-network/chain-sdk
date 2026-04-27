@@ -115,3 +115,28 @@ message EventLeaseClosed {
   ];
 }
 
+// EventLeaseReclaimStarted is triggered when a provider initiates reclamation on a lease.
+message EventLeaseReclaimStarted {
+  option (gogoproto.equal) = true;
+
+  // Id is the unique identifier of the Lease.
+  LeaseID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // reason is the provider's stated reason for reclamation.
+  LeaseClosedReason reason = 2 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // deadline is the unix timestamp when the reclamation window expires.
+  int64 deadline = 3 [
+    (gogoproto.jsontag)  = "deadline",
+    (gogoproto.moretags) = "yaml:\"deadline\""
+  ];
+}
+
