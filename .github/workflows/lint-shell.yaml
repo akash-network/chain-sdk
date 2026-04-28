@@ -7,7 +7,7 @@ on:
       - ".github/workflows/lint-shell.yaml"
 jobs:
   shell:
-    runs-on: [self-hosted, akash]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: git fetch --prune --unshallow
