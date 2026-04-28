@@ -89,6 +89,12 @@ func (msg *MsgCreateDeployment) ValidateBasic() error {
 		return v1.ErrInvalidHash
 	}
 
+	if msg.Reclamation != nil {
+		if msg.Reclamation.MinWindow < 0 {
+			return v1.ErrInvalidReclamation.Wrap("min_window must be >= 0")
+		}
+	}
+
 	for _, gs := range msg.Groups {
 		err := gs.ValidateBasic()
 		if err != nil {

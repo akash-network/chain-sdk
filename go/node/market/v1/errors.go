@@ -40,6 +40,13 @@ const (
 	errCodeCapabilitiesMismatch
 	errInvalidLeaseClosedReason
 	errInvalidEscrowID
+	errLeaseNotReclamable
+	errLeaseAlreadyReclaiming
+	errReclamationNotStarted
+	errReclamationWindowNotElapsed
+	errReclamationWindowInvalid
+	errReclamationRequired
+	errReclamationWindowTooShort
 )
 
 var (
@@ -110,4 +117,19 @@ var (
 	// ErrInvalidLeaseClosedReason indicates reason for lease close does not match context
 	ErrInvalidLeaseClosedReason = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidLeaseClosedReason, codes.InvalidArgument, "invalid lease closed reason")
 	ErrInvalidEscrowID          = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidEscrowID, codes.InvalidArgument, "invalid escrow id")
+
+	// ErrLeaseNotReclamable is the error when lease does not have reclamation configured
+	ErrLeaseNotReclamable = sdkerrors.RegisterWithGRPCCode(ModuleName, errLeaseNotReclamable, codes.FailedPrecondition, "lease does not have reclamation configured")
+	// ErrLeaseAlreadyReclaiming is the error when reclamation has already been started
+	ErrLeaseAlreadyReclaiming = sdkerrors.RegisterWithGRPCCode(ModuleName, errLeaseAlreadyReclaiming, codes.FailedPrecondition, "reclamation already in progress")
+	// ErrReclamationNotStarted is the error when provider tries to close without starting reclamation
+	ErrReclamationNotStarted = sdkerrors.RegisterWithGRPCCode(ModuleName, errReclamationNotStarted, codes.FailedPrecondition, "reclamation not started; call MsgLeaseStartReclaim first")
+	// ErrReclamationWindowNotElapsed is the error when reclamation window has not yet expired
+	ErrReclamationWindowNotElapsed = sdkerrors.RegisterWithGRPCCode(ModuleName, errReclamationWindowNotElapsed, codes.FailedPrecondition, "reclamation window has not elapsed")
+	// ErrReclamationWindowInvalid is the error when window duration is outside governance bounds
+	ErrReclamationWindowInvalid = sdkerrors.RegisterWithGRPCCode(ModuleName, errReclamationWindowInvalid, codes.InvalidArgument, "reclamation window outside governance bounds")
+	// ErrReclamationRequired is the error when order requires reclamation but bid does not offer it
+	ErrReclamationRequired = sdkerrors.RegisterWithGRPCCode(ModuleName, errReclamationRequired, codes.InvalidArgument, "order requires reclamation but bid does not offer it")
+	// ErrReclamationWindowTooShort is the error when provider's window is shorter than order minimum
+	ErrReclamationWindowTooShort = sdkerrors.RegisterWithGRPCCode(ModuleName, errReclamationWindowTooShort, codes.InvalidArgument, "reclamation window shorter than order minimum")
 )

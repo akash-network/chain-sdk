@@ -61,3 +61,25 @@ message MsgCloseLease {
 
 // MsgCloseLeaseResponse defines the Msg/CloseLease response type.
 message MsgCloseLeaseResponse {}
+
+// MsgLeaseStartReclaim is sent by the provider to initiate reclamation on an active lease.
+message MsgLeaseStartReclaim {
+  option (gogoproto.equal) = false;
+
+  // Id is the unique identifier of the Lease.
+  akash.market.v1.LeaseID id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.nullable)   = false,
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // reason is the provider's stated reason for initiating reclamation.
+  akash.market.v1.LeaseClosedReason reason = 2 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+}
+
+// MsgLeaseStartReclaimResponse is the response from starting lease reclamation.
+message MsgLeaseStartReclaimResponse {}

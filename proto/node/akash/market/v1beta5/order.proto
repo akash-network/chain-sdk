@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 import "akash/deployment/v1beta4/groupspec.proto";
 
 import "akash/market/v1/order.proto";
+import "akash/deployment/v1/deployment.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
@@ -56,4 +57,12 @@ message Order {
   ];
 
   int64 created_at = 4;
+
+  // reclamation is the deployment-level reclamation requirement, propagated to the order.
+  // Nil means the deployment does not require reclamation.
+  akash.deployment.v1.DeploymentReclamation reclamation = 5 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "reclamation,omitempty",
+    (gogoproto.moretags) = "yaml:\"reclamation,omitempty\""
+  ];
 }

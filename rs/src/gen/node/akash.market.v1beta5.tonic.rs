@@ -734,8 +734,6 @@ pub mod msg_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
-    /** Msg defines the market Msg service.
-*/
     #[derive(Debug, Clone)]
     pub struct MsgClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -816,6 +814,8 @@ pub mod msg_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
+        /** CreateBid defines a method to create a bid given proper inputs.
+*/
         pub async fn create_bid(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgCreateBid>,
@@ -949,6 +949,35 @@ pub mod msg_client {
                 .insert(GrpcMethod::new("akash.market.v1beta5.Msg", "CloseLease"));
             self.inner.unary(req, path, codec).await
         }
+        /** LeaseStartReclaim initiates the reclamation window on an active lease.
+*/
+        pub async fn lease_start_reclaim(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgLeaseStartReclaim>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgLeaseStartReclaimResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.market.v1beta5.Msg/LeaseStartReclaim",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("akash.market.v1beta5.Msg", "LeaseStartReclaim"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
         /** UpdateParams defines a governance operation for updating the x/market module
  parameters. The authority is hard-coded to the x/gov module account.
 
@@ -988,6 +1017,8 @@ pub mod msg_server {
     /// Generated trait containing gRPC methods that should be implemented for use with MsgServer.
     #[async_trait]
     pub trait Msg: Send + Sync + 'static {
+        /** CreateBid defines a method to create a bid given proper inputs.
+*/
         async fn create_bid(
             &self,
             request: tonic::Request<super::MsgCreateBid>,
@@ -1031,6 +1062,15 @@ pub mod msg_server {
             tonic::Response<super::MsgCloseLeaseResponse>,
             tonic::Status,
         >;
+        /** LeaseStartReclaim initiates the reclamation window on an active lease.
+*/
+        async fn lease_start_reclaim(
+            &self,
+            request: tonic::Request<super::MsgLeaseStartReclaim>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgLeaseStartReclaimResponse>,
+            tonic::Status,
+        >;
         /** UpdateParams defines a governance operation for updating the x/market module
  parameters. The authority is hard-coded to the x/gov module account.
 
@@ -1044,8 +1084,6 @@ pub mod msg_server {
             tonic::Status,
         >;
     }
-    /** Msg defines the market Msg service.
-*/
     #[derive(Debug)]
     pub struct MsgServer<T: Msg> {
         inner: Arc<T>,
@@ -1322,6 +1360,49 @@ pub mod msg_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CloseLeaseSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.market.v1beta5.Msg/LeaseStartReclaim" => {
+                    #[allow(non_camel_case_types)]
+                    struct LeaseStartReclaimSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgLeaseStartReclaim>
+                    for LeaseStartReclaimSvc<T> {
+                        type Response = super::MsgLeaseStartReclaimResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgLeaseStartReclaim>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Msg>::lease_start_reclaim(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = LeaseStartReclaimSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

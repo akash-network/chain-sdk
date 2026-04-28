@@ -3,6 +3,7 @@ package akash.deployment.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
+import "google/protobuf/duration.proto";
 
 option go_package = "pkg.akt.dev/go/node/deployment/v1";
 
@@ -71,4 +72,24 @@ message Deployment {
 
   // CreatedAt indicates when the deployment was created as a block height value.
   int64 created_at = 4;
+
+  // reclamation stores the deployment's reclamation requirements for persistence.
+  // Needed so that StartGroup can propagate reclamation to newly created orders.
+  DeploymentReclamation reclamation = 5 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "reclamation,omitempty",
+    (gogoproto.moretags) = "yaml:\"reclamation,omitempty\""
+  ];
+}
+
+// DeploymentReclamation defines the tenant's reclamation requirements.
+// Stored on the Deployment and propagated to Orders.
+message DeploymentReclamation {
+  // min_window is the minimum reclamation window the tenant requires.
+  google.protobuf.Duration min_window = 1 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "min_window",
+    (gogoproto.moretags)    = "yaml:\"min_window\""
+  ];
 }

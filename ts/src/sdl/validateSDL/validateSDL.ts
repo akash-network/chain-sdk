@@ -1,11 +1,10 @@
-import { type NetworkId, USDC_IBC_DENOMS } from "../../network/index.ts";
 import type { ErrorMessages, ValidationError, ValidationFunction } from "../../utils/jsonSchemaValidation.ts";
 import { dirname, getErrorLocation, humanizeErrors } from "../../utils/jsonSchemaValidation.ts";
 import { castArray, stringToBoolean } from "../utils.ts";
 import { schema as validationSDLSchema, type SDLInput, validate as validateSDLInput } from "./validateSDLInput.ts";
 
-export type { SDLInput };
 export { validationSDLSchema };
+export type { SDLInput };
 
 const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/storageRamClassMustNotBePersistent"(error) {
@@ -16,13 +15,13 @@ const ERROR_MESSAGES: ErrorMessages = {
   },
 };
 
-export function validateSDL(sdl: SDLInput, networkId: NetworkId): undefined | ValidationError[] {
+export function validateSDL(sdl: SDLInput): undefined | ValidationError[] {
   validateSDLInput(sdl);
   const schemaErrors = humanizeErrors((validateSDLInput as ValidationFunction).errors, validationSDLSchema, ERROR_MESSAGES);
   if (schemaErrors.length) return schemaErrors;
 
   const validator = new SDLValidator(sdl);
-  const errors = validator.validate(networkId);
+  const errors = validator.validate();
 
   const allErrors = schemaErrors.concat(errors);
   return allErrors.length ? allErrors : undefined;
@@ -38,7 +37,7 @@ class SDLValidator {
     this.#sdl = sdl;
   }
 
-  validate(networkId: NetworkId) {
+  validate() {
     if (this.#sdl.services) {
       Object.keys(this.#sdl.services).forEach((serviceName) => {
         this.#validateDeploymentWithRelations(serviceName);
@@ -46,44 +45,8 @@ class SDLValidator {
       });
     }
 
-    this.#validateDenom(networkId);
     this.#validateEndpoints();
     return this.#errors;
-  }
-
-  #validateDenom(networkId: NetworkId) {
-    if (!this.#sdl.profiles?.placement) return;
-
-    const usdcDenom = USDC_IBC_DENOMS[networkId];
-    const invalidDenom = this.#findInvalidUsdcDenom(usdcDenom);
-
-    if (invalidDenom) {
-      this.#errors.push({
-        message: `Invalid format: "denom" at "${invalidDenom.path}" does not match pattern "^(uakt|uact|${usdcDenom})$"`,
-        instancePath: invalidDenom.path,
-        schemaPath: "#/definitions/priceCoin/properties/denom",
-        keyword: "pattern",
-        params: {
-          pattern: "^(uakt|uact|ibc/.*)$",
-        },
-      });
-    }
-  }
-
-  #findInvalidUsdcDenom(usdcDenom: string): { denom: string; path: string } | null {
-    for (const [placementName, placement] of Object.entries(this.#sdl.profiles.placement)) {
-      if (!placement.pricing) continue;
-      for (const [profile, pricing] of Object.entries(placement.pricing)) {
-        if (pricing.denom.startsWith("ibc/") && pricing.denom !== usdcDenom) {
-          return {
-            path: `/profiles/placement/${placementName}/pricing/${profile}/denom`,
-            denom: pricing.denom,
-          };
-        }
-      }
-    }
-
-    return null;
   }
 
   #validateDeploymentWithRelations(serviceName: string) {

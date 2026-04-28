@@ -10,7 +10,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { Deposit } from "../../base/deposit/v1/deposit.ts";
-import { DeploymentID } from "../v1/deployment.ts";
+import { DeploymentID, DeploymentReclamation } from "../v1/deployment.ts";
 import { GroupSpec } from "./groupspec.ts";
 
 /** MsgCreateDeployment defines an SDK message for creating deployment. */
@@ -27,7 +27,14 @@ export interface MsgCreateDeployment {
   /** Hash of the deployment. */
   hash: Uint8Array;
   /** Deposit specifies the amount of coins to include in the deployment's first deposit. */
-  deposit: Deposit | undefined;
+  deposit:
+    | Deposit
+    | undefined;
+  /**
+   * reclamation specifies the deployment-level reclamation requirements.
+   * Nil means the tenant does not require reclamation.
+   */
+  reclamation: DeploymentReclamation | undefined;
 }
 
 /** MsgCreateDeploymentResponse defines the Msg/CreateDeployment response type. */
@@ -59,7 +66,7 @@ export interface MsgCloseDeploymentResponse {
 }
 
 function createBaseMsgCreateDeployment(): MsgCreateDeployment {
-  return { id: undefined, groups: [], hash: new Uint8Array(0), deposit: undefined };
+  return { id: undefined, groups: [], hash: new Uint8Array(0), deposit: undefined, reclamation: undefined };
 }
 
 export const MsgCreateDeployment: MessageFns<MsgCreateDeployment, "akash.deployment.v1beta4.MsgCreateDeployment"> = {
@@ -77,6 +84,9 @@ export const MsgCreateDeployment: MessageFns<MsgCreateDeployment, "akash.deploym
     }
     if (message.deposit !== undefined) {
       Deposit.encode(message.deposit, writer.uint32(34).fork()).join();
+    }
+    if (message.reclamation !== undefined) {
+      DeploymentReclamation.encode(message.reclamation, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -120,6 +130,14 @@ export const MsgCreateDeployment: MessageFns<MsgCreateDeployment, "akash.deploym
           message.deposit = Deposit.decode(reader, reader.uint32());
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.reclamation = DeploymentReclamation.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -135,6 +153,7 @@ export const MsgCreateDeployment: MessageFns<MsgCreateDeployment, "akash.deploym
       groups: globalThis.Array.isArray(object?.groups) ? object.groups.map((e: any) => GroupSpec.fromJSON(e)) : [],
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
       deposit: isSet(object.deposit) ? Deposit.fromJSON(object.deposit) : undefined,
+      reclamation: isSet(object.reclamation) ? DeploymentReclamation.fromJSON(object.reclamation) : undefined,
     };
   },
 
@@ -152,6 +171,9 @@ export const MsgCreateDeployment: MessageFns<MsgCreateDeployment, "akash.deploym
     if (message.deposit !== undefined) {
       obj.deposit = Deposit.toJSON(message.deposit);
     }
+    if (message.reclamation !== undefined) {
+      obj.reclamation = DeploymentReclamation.toJSON(message.reclamation);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<MsgCreateDeployment>): MsgCreateDeployment {
@@ -161,6 +183,9 @@ export const MsgCreateDeployment: MessageFns<MsgCreateDeployment, "akash.deploym
     message.hash = object.hash ?? new Uint8Array(0);
     message.deposit = (object.deposit !== undefined && object.deposit !== null)
       ? Deposit.fromPartial(object.deposit)
+      : undefined;
+    message.reclamation = (object.reclamation !== undefined && object.reclamation !== null)
+      ? DeploymentReclamation.fromPartial(object.reclamation)
       : undefined;
     return message;
   },

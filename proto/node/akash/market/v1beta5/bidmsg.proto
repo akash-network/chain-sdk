@@ -9,6 +9,7 @@ import "akash/market/v1beta5/resourcesoffer.proto";
 import "akash/market/v1/bid.proto";
 import "akash/base/deposit/v1/deposit.proto";
 import "akash/market/v1/types.proto";
+import "google/protobuf/duration.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1beta5";
 
@@ -44,6 +45,16 @@ message MsgCreateBid {
     (gogoproto.customname)   = "ResourcesOffer",
     (gogoproto.jsontag)      = "resources_offer",
     (gogoproto.moretags)     = "yaml:\"resources_offer\""
+  ];
+
+  // reclamation_window is the reclamation window duration the provider offers.
+  // If the order requires reclamation, this must be >= the order's min_window.
+  // Nil means the provider does not offer reclamation on this bid.
+  google.protobuf.Duration reclamation_window = 5 [
+    (gogoproto.nullable)    = true,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "reclamation_window,omitempty",
+    (gogoproto.moretags)    = "yaml:\"reclamation_window,omitempty\""
   ];
 }
 

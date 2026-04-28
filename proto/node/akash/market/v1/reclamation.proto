@@ -1,0 +1,39 @@
+syntax = "proto3";
+package akash.market.v1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "akash/market/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/market/v1";
+
+// Reclamation defines the runtime reclamation state stored on a Lease.
+message Reclamation {
+  // window is the negotiated reclamation window duration (from the winning bid).
+  google.protobuf.Duration window = 1 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "window",
+    (gogoproto.moretags)    = "yaml:\"window\""
+  ];
+
+  // started_at is the block height at which reclamation was initiated.
+  // Zero means reclamation has not been started yet.
+  int64 started_at = 2 [
+    (gogoproto.jsontag)  = "started_at",
+    (gogoproto.moretags) = "yaml:\"started_at\""
+  ];
+
+  // deadline is the unix timestamp at which the reclamation window expires.
+  // Zero means reclamation has not been started yet.
+  int64 deadline = 3 [
+    (gogoproto.jsontag)  = "deadline",
+    (gogoproto.moretags) = "yaml:\"deadline\""
+  ];
+
+  // reason is the provider's stated reason for reclamation.
+  LeaseClosedReason reason = 4 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+}

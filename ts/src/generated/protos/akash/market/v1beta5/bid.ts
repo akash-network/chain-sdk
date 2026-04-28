@@ -10,6 +10,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
+import { Duration } from "../../../google/protobuf/duration.ts";
 import { BidID } from "../v1/bid.ts";
 import { ResourceOffer } from "./resourcesoffer.ts";
 
@@ -32,6 +33,8 @@ export interface Bid {
   createdAt: Long;
   /** ResourceOffer is a list of offers. */
   resourcesOffer: ResourceOffer[];
+  /** reclamation_window is the reclamation window offered by this provider. */
+  reclamationWindow: Duration | undefined;
 }
 
 /** BidState is an enum which refers to state of bid. */
@@ -92,7 +95,14 @@ export function bid_StateToJSON(object: Bid_State): string {
 }
 
 function createBaseBid(): Bid {
-  return { id: undefined, state: 0, price: undefined, createdAt: Long.ZERO, resourcesOffer: [] };
+  return {
+    id: undefined,
+    state: 0,
+    price: undefined,
+    createdAt: Long.ZERO,
+    resourcesOffer: [],
+    reclamationWindow: undefined,
+  };
 }
 
 export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
@@ -113,6 +123,9 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     }
     for (const v of message.resourcesOffer) {
       ResourceOffer.encode(v!, writer.uint32(42).fork()).join();
+    }
+    if (message.reclamationWindow !== undefined) {
+      Duration.encode(message.reclamationWindow, writer.uint32(50).fork()).join();
     }
     return writer;
   },
@@ -164,6 +177,14 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
           message.resourcesOffer.push(ResourceOffer.decode(reader, reader.uint32()));
           continue;
         }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.reclamationWindow = Duration.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -182,6 +203,7 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
       resourcesOffer: globalThis.Array.isArray(object?.resources_offer)
         ? object.resources_offer.map((e: any) => ResourceOffer.fromJSON(e))
         : [],
+      reclamationWindow: isSet(object.reclamation_window) ? Duration.fromJSON(object.reclamation_window) : undefined,
     };
   },
 
@@ -202,6 +224,9 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     if (message.resourcesOffer?.length) {
       obj.resources_offer = message.resourcesOffer.map((e) => ResourceOffer.toJSON(e));
     }
+    if (message.reclamationWindow !== undefined) {
+      obj.reclamation_window = Duration.toJSON(message.reclamationWindow);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Bid>): Bid {
@@ -215,6 +240,9 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
       ? Long.fromValue(object.createdAt)
       : Long.ZERO;
     message.resourcesOffer = object.resourcesOffer?.map((e) => ResourceOffer.fromPartial(e)) || [];
+    message.reclamationWindow = (object.reclamationWindow !== undefined && object.reclamationWindow !== null)
+      ? Duration.fromPartial(object.reclamationWindow)
+      : undefined;
     return message;
   },
 };

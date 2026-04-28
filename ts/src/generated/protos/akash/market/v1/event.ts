@@ -78,6 +78,18 @@ export interface EventLeaseClosed {
   reason: LeaseClosedReason;
 }
 
+/** EventLeaseReclaimStarted is triggered when a provider initiates reclamation on a lease. */
+export interface EventLeaseReclaimStarted {
+  /** Id is the unique identifier of the Lease. */
+  id:
+    | LeaseID
+    | undefined;
+  /** reason is the provider's stated reason for reclamation. */
+  reason: LeaseClosedReason;
+  /** deadline is the unix timestamp when the reclamation window expires. */
+  deadline: Long;
+}
+
 function createBaseEventOrderCreated(): EventOrderCreated {
   return { id: undefined };
 }
@@ -468,6 +480,101 @@ export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.Eve
     const message = createBaseEventLeaseClosed();
     message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
     message.reason = object.reason ?? 0;
+    return message;
+  },
+};
+
+function createBaseEventLeaseReclaimStarted(): EventLeaseReclaimStarted {
+  return { id: undefined, reason: 0, deadline: Long.ZERO };
+}
+
+export const EventLeaseReclaimStarted: MessageFns<
+  EventLeaseReclaimStarted,
+  "akash.market.v1.EventLeaseReclaimStarted"
+> = {
+  $type: "akash.market.v1.EventLeaseReclaimStarted" as const,
+
+  encode(message: EventLeaseReclaimStarted, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      LeaseID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.reason !== 0) {
+      writer.uint32(16).int32(message.reason);
+    }
+    if (!message.deadline.equals(Long.ZERO)) {
+      writer.uint32(24).int64(message.deadline.toString());
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EventLeaseReclaimStarted {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEventLeaseReclaimStarted();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = LeaseID.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.reason = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.deadline = Long.fromString(reader.int64().toString());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EventLeaseReclaimStarted {
+    return {
+      id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
+      reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
+      deadline: isSet(object.deadline) ? Long.fromValue(object.deadline) : Long.ZERO,
+    };
+  },
+
+  toJSON(message: EventLeaseReclaimStarted): unknown {
+    const obj: any = {};
+    if (message.id !== undefined) {
+      obj.id = LeaseID.toJSON(message.id);
+    }
+    if (message.reason !== 0) {
+      obj.reason = leaseClosedReasonToJSON(message.reason);
+    }
+    if (!message.deadline.equals(Long.ZERO)) {
+      obj.deadline = (message.deadline || Long.ZERO).toString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<EventLeaseReclaimStarted>): EventLeaseReclaimStarted {
+    const message = createBaseEventLeaseReclaimStarted();
+    message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
+    message.reason = object.reason ?? 0;
+    message.deadline = (object.deadline !== undefined && object.deadline !== null)
+      ? Long.fromValue(object.deadline)
+      : Long.ZERO;
     return message;
   },
 };

@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "akash/market/v1/types.proto";
+import "akash/market/v1/reclamation.proto";
 
 option go_package = "pkg.akt.dev/go/node/market/v1";
 
@@ -95,6 +96,10 @@ message Lease {
     closed = 3 [
         (gogoproto.enumvalue_customname) = "LeaseClosed"
     ];
+    // LeaseReclaiming denotes a lease in reclamation (grace period before closure).
+    reclaiming = 4 [
+        (gogoproto.enumvalue_customname) = "LeaseReclaiming"
+    ];
   }
 
   // Id is the unique identifier of the Lease.
@@ -132,5 +137,13 @@ message Lease {
   LeaseClosedReason reason = 6 [
     (gogoproto.jsontag)  = "reason",
     (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // Reclamation holds reclamation configuration and state, if applicable.
+  // Nil if reclamation is not configured for this lease.
+  Reclamation reclamation = 7 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "reclamation,omitempty",
+    (gogoproto.moretags) = "yaml:\"reclamation,omitempty\""
   ];
 }

@@ -48,9 +48,5 @@ func (m MockCometRPC) ABCIQueryWithOptions(
 }
 
 func (MockCometRPC) Akash(_ context.Context) (*arpcclient.Akash, error) {
-	return &arpcclient.Akash{
-		ClientInfo: arpcclient.ClientInfo{
-			ApiVersion: arpcclient.VersionV1beta3,
-		},
-	}, nil
+	return arpcclient.GetRegistry().ToAkash(), nil
 }

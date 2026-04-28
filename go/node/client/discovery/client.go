@@ -79,12 +79,7 @@ func DiscoverClient(ctx context.Context, cctx sdkclient.Context, opts ...cltypes
 	return cl, nil
 }
 
+// RPCAkash delegates to the global version registry.
 func RPCAkash(_ *cmtrpctypes.Context) (*aclient.Akash, error) {
-	result := &aclient.Akash{
-		ClientInfo: aclient.ClientInfo{
-			ApiVersion: "v1beta3",
-		},
-	}
-
-	return result, nil
+	return aclient.GetRegistry().ToAkash(), nil
 }

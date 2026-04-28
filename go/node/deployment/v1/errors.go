@@ -31,6 +31,7 @@ const (
 	errInvalidEscrowID
 	errInvalidPrice
 	errDuplicateGroupName
+	errInvalidReclamation
 )
 
 var (
@@ -84,4 +85,6 @@ var (
 	ErrInvalidPrice = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidPrice, codes.InvalidArgument, "invalid price")
 	// ErrDuplicateGroupName indicates group name already exists
 	ErrDuplicateGroupName = sdkerrors.RegisterWithGRPCCode(ModuleName, errDuplicateGroupName, codes.InvalidArgument, "duplicate group name")
+	// ErrInvalidReclamation indicates reclamation configuration is invalid
+	ErrInvalidReclamation = sdkerrors.RegisterWithGRPCCode(ModuleName, errInvalidReclamation, codes.InvalidArgument, "invalid reclamation configuration")
 )

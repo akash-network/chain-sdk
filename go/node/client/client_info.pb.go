@@ -69,8 +69,129 @@ func (m *ClientInfo) GetApiVersion() string {
 	return ""
 }
 
+// ModuleVersion describes a single module and its API version.
+type ModuleVersion struct {
+	// Module is the name of the module (e.g., "deployment", "market", "oracle").
+	Module string `protobuf:"bytes,1,opt,name=module,proto3" json:"module" yaml:"module"`
+	// Version is the API version of the module (e.g., "v1beta4", "v1beta5", "v2").
+	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version" yaml:"version"`
+}
+
+func (m *ModuleVersion) Reset()         { *m = ModuleVersion{} }
+func (m *ModuleVersion) String() string { return proto.CompactTextString(m) }
+func (*ModuleVersion) ProtoMessage()    {}
+func (*ModuleVersion) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d0e1ef320145891a, []int{1}
+}
+func (m *ModuleVersion) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ModuleVersion) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ModuleVersion.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ModuleVersion) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ModuleVersion.Merge(m, src)
+}
+func (m *ModuleVersion) XXX_Size() int {
+	return m.Size()
+}
+func (m *ModuleVersion) XXX_DiscardUnknown() {
+	xxx_messageInfo_ModuleVersion.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ModuleVersion proto.InternalMessageInfo
+
+func (m *ModuleVersion) GetModule() string {
+	if m != nil {
+		return m.Module
+	}
+	return ""
+}
+
+func (m *ModuleVersion) GetVersion() string {
+	if m != nil {
+		return m.Version
+	}
+	return ""
+}
+
+// VersionInfo describes a complete API version and its metadata.
+type VersionInfo struct {
+	// ApiVersion is the composite API version identifier (e.g., "v1beta4").
+	ApiVersion string `protobuf:"bytes,1,opt,name=api_version,json=apiVersion,proto3" json:"api_version" yaml:"api_version"`
+	// Modules lists the per-module versions included in this API version.
+	Modules []ModuleVersion `protobuf:"bytes,2,rep,name=modules,proto3" json:"modules" yaml:"modules"`
+	// Features lists optional feature flags supported by this API version.
+	Features []string `protobuf:"bytes,3,rep,name=features,proto3" json:"features" yaml:"features"`
+}
+
+func (m *VersionInfo) Reset()         { *m = VersionInfo{} }
+func (m *VersionInfo) String() string { return proto.CompactTextString(m) }
+func (*VersionInfo) ProtoMessage()    {}
+func (*VersionInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d0e1ef320145891a, []int{2}
+}
+func (m *VersionInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *VersionInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_VersionInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *VersionInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_VersionInfo.Merge(m, src)
+}
+func (m *VersionInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *VersionInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_VersionInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_VersionInfo proto.InternalMessageInfo
+
+func (m *VersionInfo) GetApiVersion() string {
+	if m != nil {
+		return m.ApiVersion
+	}
+	return ""
+}
+
+func (m *VersionInfo) GetModules() []ModuleVersion {
+	if m != nil {
+		return m.Modules
+	}
+	return nil
+}
+
+func (m *VersionInfo) GetFeatures() []string {
+	if m != nil {
+		return m.Features
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*ClientInfo)(nil), "akash.discovery.v1.ClientInfo")
+	proto.RegisterType((*ModuleVersion)(nil), "akash.discovery.v1.ModuleVersion")
+	proto.RegisterType((*VersionInfo)(nil), "akash.discovery.v1.VersionInfo")
 }
 
 func init() {
@@ -78,20 +199,30 @@ func init() {
 }
 
 var fileDescriptor_d0e1ef320145891a = []byte{
-	// 208 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x49, 0xcc, 0x4e, 0x2c,
-	0xce, 0xd0, 0x4f, 0xc9, 0x2c, 0x4e, 0xce, 0x2f, 0x4b, 0x2d, 0xaa, 0xd4, 0x2f, 0x33, 0xd4, 0x4f,
-	0xce, 0xc9, 0x4c, 0xcd, 0x2b, 0x89, 0xcf, 0xcc, 0x4b, 0xcb, 0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9,
-	0x17, 0x12, 0x02, 0xab, 0xd2, 0x83, 0xab, 0xd2, 0x2b, 0x33, 0x94, 0x12, 0x49, 0xcf, 0x4f, 0xcf,
-	0x07, 0x4b, 0xeb, 0x83, 0x58, 0x10, 0x95, 0x4a, 0x49, 0x5c, 0x5c, 0xce, 0x60, 0xed, 0x9e, 0x79,
-	0x69, 0xf9, 0x42, 0x21, 0x5c, 0xdc, 0x89, 0x05, 0x99, 0xf1, 0x65, 0xa9, 0x45, 0xc5, 0x99, 0xf9,
-	0x79, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x4e, 0xc6, 0x8f, 0xee, 0xc9, 0x73, 0x39, 0x16, 0x64,
-	0x86, 0x41, 0x44, 0x5f, 0xdd, 0x93, 0x47, 0x56, 0xf4, 0xe9, 0x9e, 0xbc, 0x50, 0x65, 0x62, 0x6e,
-	0x8e, 0x95, 0x12, 0x92, 0xa0, 0x52, 0x10, 0x57, 0x22, 0x5c, 0x83, 0x93, 0xc9, 0x89, 0x47, 0x72,
-	0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c, 0xc3, 0x85, 0xc7,
-	0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x44, 0x49, 0x15, 0x64, 0xa7, 0xeb, 0x25, 0x66, 0x97, 0xe8,
-	0xa5, 0xa4, 0x96, 0xe9, 0xa7, 0xe7, 0xeb, 0xe7, 0xe5, 0xa7, 0xa4, 0x42, 0xbd, 0x93, 0xc4, 0x06,
-	0x76, 0xa0, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x68, 0x55, 0x48, 0xbb, 0xf2, 0x00, 0x00, 0x00,
+	// 359 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x92, 0x31, 0x6b, 0xf2, 0x40,
+	0x1c, 0xc6, 0x13, 0x05, 0x7d, 0x3d, 0xf1, 0x7d, 0xe1, 0x78, 0x07, 0xb1, 0x34, 0xa7, 0x47, 0x07,
+	0xa7, 0x0b, 0xd6, 0x42, 0xa1, 0x9d, 0x9a, 0x4e, 0x1d, 0xba, 0x84, 0xd2, 0xa1, 0x43, 0xe5, 0x34,
+	0x67, 0x1a, 0xd4, 0x5c, 0x48, 0x62, 0xc0, 0xa1, 0xd0, 0x8f, 0xd0, 0x8f, 0xe5, 0xe8, 0xd8, 0xe9,
+	0x28, 0x71, 0xcb, 0xe8, 0x27, 0x28, 0xe6, 0x2e, 0xd1, 0xd2, 0xb9, 0x5b, 0xf2, 0x7b, 0x9e, 0x27,
+	0xf7, 0xfc, 0x73, 0x7f, 0x70, 0x46, 0x67, 0x34, 0x7a, 0x31, 0x1d, 0x2f, 0x9a, 0xf0, 0x84, 0x85,
+	0x2b, 0x33, 0x19, 0x98, 0x93, 0xb9, 0xc7, 0xfc, 0x78, 0xe4, 0xf9, 0x53, 0x4e, 0x82, 0x90, 0xc7,
+	0x1c, 0xc2, 0xdc, 0x45, 0x4a, 0x17, 0x49, 0x06, 0x9d, 0xff, 0x2e, 0x77, 0x79, 0x2e, 0x9b, 0xfb,
+	0x27, 0xe9, 0xc4, 0x63, 0x00, 0x6e, 0xf3, 0xf8, 0x9d, 0x3f, 0xe5, 0xf0, 0x01, 0x34, 0x69, 0xe0,
+	0x8d, 0x12, 0x16, 0x46, 0x1e, 0xf7, 0xdb, 0x7a, 0x57, 0xef, 0x37, 0xac, 0x61, 0x2a, 0x10, 0xb8,
+	0x09, 0xbc, 0x47, 0x49, 0x33, 0x81, 0x8e, 0x4d, 0x3b, 0x81, 0xe0, 0x8a, 0x2e, 0xe6, 0x57, 0xf8,
+	0x08, 0x62, 0x1b, 0xd0, 0x32, 0x80, 0x5f, 0x41, 0xeb, 0x9e, 0x3b, 0xcb, 0x39, 0x53, 0x00, 0x0e,
+	0x41, 0x6d, 0x91, 0x03, 0x75, 0xc2, 0x49, 0x26, 0x90, 0x22, 0x3b, 0x81, 0x5a, 0xf2, 0x73, 0xf2,
+	0x1d, 0xdb, 0x4a, 0x80, 0x97, 0xa0, 0x5e, 0xf4, 0xaa, 0xe4, 0xa9, 0xd3, 0x4c, 0xa0, 0xfa, 0xa1,
+	0xc5, 0x5f, 0x19, 0x2b, 0x1b, 0x14, 0x12, 0x7e, 0xab, 0x80, 0xa6, 0x3a, 0xf9, 0xf7, 0x86, 0x84,
+	0xcf, 0xa0, 0x2e, 0x8b, 0x46, 0xed, 0x4a, 0xb7, 0xda, 0x6f, 0x9e, 0xf7, 0xc8, 0xcf, 0x4b, 0x20,
+	0xdf, 0xfe, 0x83, 0xd5, 0x5b, 0x0b, 0xa4, 0xed, 0xa7, 0x50, 0xc9, 0xc3, 0x14, 0x0a, 0x60, 0xbb,
+	0x90, 0xe0, 0x35, 0xf8, 0x33, 0x65, 0x34, 0x5e, 0x86, 0x2c, 0x6a, 0x57, 0xbb, 0xd5, 0x7e, 0xc3,
+	0x42, 0x99, 0x40, 0x25, 0xdb, 0x09, 0xf4, 0x4f, 0x46, 0x0b, 0x82, 0xed, 0x52, 0xb4, 0x2e, 0xd6,
+	0xa9, 0xa1, 0x6f, 0x52, 0x43, 0xff, 0x4c, 0x0d, 0xfd, 0x7d, 0x6b, 0x68, 0x9b, 0xad, 0xa1, 0x7d,
+	0x6c, 0x0d, 0xed, 0xa9, 0x13, 0xcc, 0x5c, 0x42, 0x67, 0x31, 0x71, 0x58, 0x62, 0xba, 0xdc, 0xf4,
+	0xb9, 0xc3, 0xd4, 0x42, 0x8d, 0x6b, 0xf9, 0x8a, 0x0c, 0xbf, 0x02, 0x00, 0x00, 0xff, 0xff, 0x02,
+	0x7d, 0x8d, 0x9b, 0x74, 0x02, 0x00, 0x00,
 }
 
 func (m *ClientInfo) Marshal() (dAtA []byte, err error) {
@@ -124,6 +255,96 @@ func (m *ClientInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *ModuleVersion) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ModuleVersion) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ModuleVersion) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Version) > 0 {
+		i -= len(m.Version)
+		copy(dAtA[i:], m.Version)
+		i = encodeVarintClientInfo(dAtA, i, uint64(len(m.Version)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Module) > 0 {
+		i -= len(m.Module)
+		copy(dAtA[i:], m.Module)
+		i = encodeVarintClientInfo(dAtA, i, uint64(len(m.Module)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *VersionInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *VersionInfo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *VersionInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Features) > 0 {
+		for iNdEx := len(m.Features) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Features[iNdEx])
+			copy(dAtA[i:], m.Features[iNdEx])
+			i = encodeVarintClientInfo(dAtA, i, uint64(len(m.Features[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Modules) > 0 {
+		for iNdEx := len(m.Modules) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Modules[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintClientInfo(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.ApiVersion) > 0 {
+		i -= len(m.ApiVersion)
+		copy(dAtA[i:], m.ApiVersion)
+		i = encodeVarintClientInfo(dAtA, i, uint64(len(m.ApiVersion)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintClientInfo(dAtA []byte, offset int, v uint64) int {
 	offset -= sovClientInfo(v)
 	base := offset
@@ -144,6 +365,48 @@ func (m *ClientInfo) Size() (n int) {
 	l = len(m.ApiVersion)
 	if l > 0 {
 		n += 1 + l + sovClientInfo(uint64(l))
+	}
+	return n
+}
+
+func (m *ModuleVersion) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Module)
+	if l > 0 {
+		n += 1 + l + sovClientInfo(uint64(l))
+	}
+	l = len(m.Version)
+	if l > 0 {
+		n += 1 + l + sovClientInfo(uint64(l))
+	}
+	return n
+}
+
+func (m *VersionInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ApiVersion)
+	if l > 0 {
+		n += 1 + l + sovClientInfo(uint64(l))
+	}
+	if len(m.Modules) > 0 {
+		for _, e := range m.Modules {
+			l = e.Size()
+			n += 1 + l + sovClientInfo(uint64(l))
+		}
+	}
+	if len(m.Features) > 0 {
+		for _, s := range m.Features {
+			l = len(s)
+			n += 1 + l + sovClientInfo(uint64(l))
+		}
 	}
 	return n
 }
@@ -214,6 +477,268 @@ func (m *ClientInfo) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ApiVersion = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipClientInfo(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ModuleVersion) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowClientInfo
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ModuleVersion: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ModuleVersion: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Module", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientInfo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Module = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Version", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientInfo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Version = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipClientInfo(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *VersionInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowClientInfo
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: VersionInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: VersionInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApiVersion", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientInfo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ApiVersion = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Modules", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientInfo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Modules = append(m.Modules, ModuleVersion{})
+			if err := m.Modules[len(m.Modules)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Features", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientInfo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientInfo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Features = append(m.Features, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

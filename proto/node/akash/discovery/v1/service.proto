@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package akash.discovery.v1;
+
+import "akash/discovery/v1/akash.proto";
+import "google/api/annotations.proto";
+
+option go_package = "pkg.akt.dev/go/node/client";
+
+// GetInfoRequest is the request type for the Discovery/GetInfo RPC method.
+message GetInfoRequest {}
+
+// GetInfoResponse is the response type for the Discovery/GetInfo RPC method.
+message GetInfoResponse {
+  // Info contains the node's version and capability information.
+  Akash info = 1;
+}
+
+// Discovery provides version and capability information about the node.
+service Discovery {
+  // GetInfo returns the node's supported API versions and metadata.
+  rpc GetInfo(GetInfoRequest) returns (GetInfoResponse) {
+    option (google.api.http).get = "/akash/discovery/v1/info";
+  }
+}
