@@ -10,7 +10,7 @@ on:
 
 jobs:
   go:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, akash]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
       - name: lint
         run: make lint-go
   proto:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, akash]
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +53,7 @@ jobs:
       - name: lint SDL schema
         run: make lint-sdl-schema
   ts:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, akash]
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4

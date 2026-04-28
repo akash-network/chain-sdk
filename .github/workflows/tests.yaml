@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, akash]
     steps:
       - uses: actions/checkout@v4
       - name: Setup env
@@ -24,7 +24,7 @@ jobs:
           go-version: "${{ env.GOVERSION }}"
       - run: SUB_TESTS=go TEST_RACE=1 make test
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, akash]
     steps:
       - uses: actions/checkout@v4
         with:
