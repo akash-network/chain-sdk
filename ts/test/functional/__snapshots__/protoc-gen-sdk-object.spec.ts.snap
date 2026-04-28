@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`protoc-sdk-objec plugin generates SDK object from proto files 1`] = `
+exports[`protoc-sdk-object plugin generates SDK object from proto files 1`] = `
 "import { createServiceLoader } from "../sdk/client/createServiceLoader.ts";
 
 import type * as msg from "./protos/msg.ts";
@@ -46,7 +46,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
 "
 `;
 
-exports[`protoc-sdk-objec plugin generates SDK object from proto files 2`] = `
+exports[`protoc-sdk-object plugin generates SDK object from proto files 2`] = `
 "import { SendRequest, SendResponse } from "./msg.ts";
 
 export const Msg = {
@@ -63,7 +63,7 @@ export const Msg = {
 "
 `;
 
-exports[`protoc-sdk-objec plugin generates SDK object from proto files 3`] = `
+exports[`protoc-sdk-object plugin generates SDK object from proto files 3`] = `
 "import { GetBlockByHeightRequest, GetBlockByHeightResponse, GetBlockRequest, GetBlockResponse } from "./query.ts";
 
 export const Query = {

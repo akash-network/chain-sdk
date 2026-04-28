@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "@jest/globals";
 import { exec } from "child_process";
-import { access, constants as fsConst, readFile, rm } from "fs/promises";
+import { existsSync } from "fs";
+import { access, constants as fsConst, readFile, rm, rmdir } from "fs/promises";
 import { tmpdir } from "os";
 import { join as joinPath } from "path";
 import type { PluginOptions } from "../../script/protoc-gen-customtype-patches.ts";
