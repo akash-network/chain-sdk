@@ -128,15 +128,10 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
         group.dgroup.resources[location].resource!.endpoints.push(
           ...buildServiceEndpoints(service, endpointSequenceNumbers),
         );
+        group.dgroup.resources[location].resource!.endpoints.sort(
+          (a, b) => a.sequenceNumber - b.sequenceNumber,
+        );
       }
-    }
-  }
-
-  for (const group of groupsMap.values()) {
-    for (const resourceUnit of group.dgroup.resources) {
-      resourceUnit.resource!.endpoints.sort(
-        (a, b) => a.kind - b.kind || a.sequenceNumber - b.sequenceNumber,
-      );
     }
   }
 

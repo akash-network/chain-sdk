@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+# Structurally valid per schema, but semantically invalid:
+# Two persistent volumes mounted at the same path
+---
+version: "2.0"
+services:
+  web:
+    image: nginx
+    expose:
+      - port: 80
+        to:
+          - global: true
+    params:
+      storage:
+        data1:
+          mount: /data
+        data2:
+          mount: /data
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 100m
+        memory:
+          size: 512Mi
+        storage:
+          - size: 1Gi
+          - name: data1
+            size: 5Gi
+            attributes:
+              persistent: true
+              class: beta2
+          - name: data2
+            size: 5Gi
+            attributes:
+              persistent: true
+              class: beta2
+  placement:
+    akash:
+      pricing:
+        web:
+          denom: uakt
+          amount: 100
+deployment:
+  web:
+    akash:
+      profile: web
+      count: 1

@@ -1,10 +1,11 @@
 import { default as stableStringify } from "json-stable-stringify";
 
+import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 import type { GenerateManifestOkResult, Manifest } from "./generateManifest.ts";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
-const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts"]);
+const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts", "allOf", "anyOf"]);
 const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 
 export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {
@@ -37,14 +38,42 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
     return null;
   }
 
+  // Format price amount as LegacyDec (18 decimal places) to match Go output
+  if (key === "amount" && typeof this === "object" && this && Object.hasOwn(this, "denom") && (typeof value === "string" || typeof value === "number")) {
+    return formatLegacyDec(String(value));
+  }
+
   if (OMITTED_MANIFEST_KEYS.has(key) && ((Array.isArray(value) && value.length === 0) || value === 0)) {
+    // In requirements context (group-specs), empty attributes should be null, not omitted
+    if (key === "attributes" && typeof this === "object" && this && Object.hasOwn(this, "signedBy")) {
+      return null;
+    }
     return undefined;
   }
 
   return value;
 }
 
-const MANIFEST_VERSION_FIELD_MAPPING: Record<string, string> = { quantity: "size", sequenceNumber: "sequence_number" };
+const LEGACY_DEC_PRECISION = 18;
+
+function formatLegacyDec(s: string): string {
+  if (!s) return "0.000000000000000000";
+  const atomics = LegacyDec.encode(s);
+  const sign = atomics.startsWith("-") ? "-" : "";
+  const abs = sign ? atomics.slice(1) : atomics;
+  const padded = abs.padStart(LEGACY_DEC_PRECISION + 1, "0");
+  const intPart = padded.slice(0, -LEGACY_DEC_PRECISION);
+  const fracPart = padded.slice(-LEGACY_DEC_PRECISION);
+  return `${sign}${intPart}.${fracPart}`;
+}
+
+const MANIFEST_VERSION_FIELD_MAPPING: Record<string, string> = {
+  quantity: "size",
+  sequenceNumber: "sequence_number",
+  signedBy: "signed_by",
+  allOf: "all_of",
+  anyOf: "any_of",
+};
 const MANIFEST_VERSION_FIELD_REGEX = new RegExp(`"(${Object.keys(MANIFEST_VERSION_FIELD_MAPPING).join("|")})":`, "g");
 function renameFields(jsonStr: string): string {
   MANIFEST_VERSION_FIELD_REGEX.lastIndex = 0; // reset regex state

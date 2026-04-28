@@ -102,13 +102,23 @@ func Read(buf []byte) (sdlObj SDL, err error) {
 		return nil, err
 	}
 
-	if err = obj.validate(); err != nil {
+	if err = validateSDL(obj); err != nil {
 		return nil, err
+	}
+
+	return obj, nil
+}
+
+// validateSDL runs semantic validation, deployment group validation,
+// and manifest validation on an SDL instance.
+func validateSDL(obj *sdl) error {
+	if err := obj.validate(); err != nil {
+		return fmt.Errorf("sdl validation: %w", err)
 	}
 
 	dgroups, err := obj.DeploymentGroups()
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("deployment groups: %w", err)
 	}
 
 	vgroups := make([]dtypes.GroupSpec, 0, len(dgroups))
@@ -117,19 +127,19 @@ func Read(buf []byte) (sdlObj SDL, err error) {
 	}
 
 	if err = dtypes.ValidateDeploymentGroups(vgroups); err != nil {
-		return nil, err
+		return fmt.Errorf("validate deployment groups: %w", err)
 	}
 
 	m, err := obj.Manifest()
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("manifest: %w", err)
 	}
 
 	if err = m.Validate(); err != nil {
-		return nil, err
+		return fmt.Errorf("validate manifest: %w", err)
 	}
 
-	return obj, nil
+	return nil
 }
 
 // Version creates the deterministic Deployment Version hash from the SDL.
@@ -163,4 +173,36 @@ func (s *sdl) validate() error {
 	}
 
 	return s.data.validate()
+}
+
+// ReadFileStrict reads from given path and returns SDL instance with strict
+// schema enforcement. Unlike ReadFile, it returns an error immediately if the
+// input fails schema validation against sdl-input.schema.yaml.
+func ReadFileStrict(path string) (SDL, error) {
+	buf, err := os.ReadFile(path) //nolint: gosec
+	if err != nil {
+		return nil, err
+	}
+	return ReadStrict(buf)
+}
+
+// ReadStrict reads buffer data and returns SDL instance with strict schema
+// enforcement. It validates against sdl-input.schema.yaml first and returns
+// an error immediately on schema failure, then continues with existing Go
+// semantic validation.
+func ReadStrict(buf []byte) (SDL, error) {
+	if err := validateInputAgainstSchema(buf); err != nil {
+		return nil, fmt.Errorf("strict schema validation failed: %w", err)
+	}
+
+	obj := &sdl{}
+	if err := yaml.Unmarshal(buf, obj); err != nil {
+		return nil, err
+	}
+
+	if err := validateSDL(obj); err != nil {
+		return nil, err
+	}
+
+	return obj, nil
 }

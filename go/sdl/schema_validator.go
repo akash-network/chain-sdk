@@ -138,12 +138,23 @@ func checkSchemaValidationResult(schemaErr error, goValidationErr error) {
 }
 
 func (sv *SchemaValidator) checkSchemaValidationResult(schemaErr error, goValidationErr error) {
+	logger := sv.logger.Load().(loggerHolder).Logger
+
 	if schemaErr == nil && goValidationErr != nil {
-		logger := sv.logger.Load().(loggerHolder).Logger
+		// Schema passed but Go rejected — semantic validation not covered by schema
 		logger.Warn(
-			"SDL schema validation mismatch",
+			"SDL schema validation mismatch: schema passed, Go rejected",
 			"schema_validation", "passed",
 			"go_error", goValidationErr.Error(),
+		)
+	}
+
+	if schemaErr != nil && goValidationErr == nil {
+		// Schema rejected but Go accepted — schema is stricter than Go parser
+		logger.Warn(
+			"SDL schema validation mismatch: schema rejected, Go accepted",
+			"schema_error", schemaErr.Error(),
+			"go_validation", "passed",
 		)
 	}
 }
