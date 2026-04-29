@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.0-alpha.31](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.30...ts/v1.0.0-alpha.31) (2026-04-29)
+
+
+### Features
+
+* add RPC API version discovery with multi-version negotiation ([#288](https://github.com/akash-network/chain-sdk/issues/288)) ([1cc1690](https://github.com/akash-network/chain-sdk/commit/1cc16900b68d7eb85fa60efa464062b6b35a52ac))
+* **aep-82:** implement resource reclamation ([#293](https://github.com/akash-network/chain-sdk/issues/293)) ([f12625f](https://github.com/akash-network/chain-sdk/commit/f12625f31842c629b38541275b3eade7222fc13f))
+* **bme:** add max attempts param ([#286](https://github.com/akash-network/chain-sdk/issues/286)) ([dae3bbc](https://github.com/akash-network/chain-sdk/commit/dae3bbc49808b45e3bfc1c6e0e87eb8a63db85f7))
+
+
+### Bug Fixes
+
+* restricts denom validation to uact and uakt ([#290](https://github.com/akash-network/chain-sdk/issues/290)) ([db8cc1d](https://github.com/akash-network/chain-sdk/commit/db8cc1d3fc81183b179e24a9e0d347b09c86fbdb))
+
+
+### Code Refactoring
+
+* **ts:** compiles ts types from new JWT json schema ([#294](https://github.com/akash-network/chain-sdk/issues/294)) ([f668746](https://github.com/akash-network/chain-sdk/commit/f668746282e5d4a4cf7b01f157e9e52d38fd047c))
+* updates cosmjs libs and upgrades vulnerable deps ([#302](https://github.com/akash-network/chain-sdk/issues/302)) ([7a63e09](https://github.com/akash-network/chain-sdk/commit/7a63e0992199b80bed464fbb30cb1882173b6c8c))
+
 ## [1.0.0-alpha.30](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.29...ts/v1.0.0-alpha.30) (2026-04-09)
 
 
