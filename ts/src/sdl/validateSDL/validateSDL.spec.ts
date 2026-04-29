@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
 import { merge } from "lodash";
+import { describe, expect, it } from "vitest";
 
 import type { DeepPartial } from "../../encoding/typeEncodingHelpers.ts";
 import type { NetworkId } from "../../network/index.ts";

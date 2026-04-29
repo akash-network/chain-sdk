@@ -1,8 +1,9 @@
-import { describe, expect, it } from "@jest/globals";
-import type { ErrorObject, ValidateFunction } from "ajv";
-import { Ajv } from "ajv";
 import fs from "node:fs";
 import path from "node:path";
+
+import type { ErrorObject, ValidateFunction } from "ajv";
+import { Ajv } from "ajv";
+import { describe, expect, it } from "vitest";
 
 import { LegacyDec } from "../../src/encoding/customTypes/LegacyDec.ts";
 import { generateManifest } from "../../src/sdl/manifest/generateManifest.ts";
@@ -45,7 +46,7 @@ describe("SDL Parity Tests", () => {
     }
 
     fs.globSync("*.yaml", { cwd: invalidDir }).forEach((filename) => {
-        it(filename, () => {
+      it(filename, () => {
         const fixturePath = path.join(invalidDir, filename);
         const input = fs.readFileSync(fixturePath, "utf8");
         const sdl: SDLInput = yaml.raw(input);
@@ -69,8 +70,8 @@ describe("SDL Parity Tests", () => {
 
     return {
       manifest,
-      expectedManifest
-    }
+      expectedManifest,
+    };
   }
 });
 
@@ -132,9 +133,9 @@ function compileSchema(schemaPath: string): ValidateFunction {
 }
 
 function normalizeManifestJSON(this: unknown, key: string, value: unknown): unknown {
-  if (typeof this !== 'object' || this === null) return value;
+  if (typeof this !== "object" || this === null) return value;
 
-  if (key === "amount" && 'denom' in this && this.denom !== undefined) {
+  if (key === "amount" && "denom" in this && this.denom !== undefined) {
     return LegacyDec.encode(value as string);
   }
 

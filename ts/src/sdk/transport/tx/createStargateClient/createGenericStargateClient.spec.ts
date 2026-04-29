@@ -3,8 +3,8 @@ import type {
   OfflineSigner,
 } from "@cosmjs/proto-signing";
 import type { SigningStargateClient, StdFee } from "@cosmjs/stargate";
-import { describe, expect, it, jest } from "@jest/globals";
-import { mock } from "jest-mock-extended";
+import { describe, expect, it, vi } from "vitest";
+import { mock } from "vitest-mock-extended";
 
 import { createGenericStargateClient, type StargateTxClient } from "./createGenericStargateClient.ts";
 
@@ -37,7 +37,7 @@ describe(createGenericStargateClient.name, () => {
           fromPartial: () => ({}),
         }),
         createClient: async () => mock<SigningStargateClient>({
-          simulate: jest.fn(async () => 1),
+          simulate: vi.fn(async () => 1),
         } as unknown as SigningStargateClient),
       });
 
@@ -58,7 +58,7 @@ describe(createGenericStargateClient.name, () => {
           fromPartial: () => ({}),
         }),
         createClient: async () => mock<SigningStargateClient>({
-          simulate: jest.fn(async () => 2),
+          simulate: vi.fn(async () => 2),
         } as unknown as SigningStargateClient),
       });
 
@@ -70,7 +70,7 @@ describe(createGenericStargateClient.name, () => {
 
   function includeSigningTests(sign: (client: StargateTxClient) => Promise<unknown>) {
     it("does not calls `getMessageType` when signing message with types that are already registered", async () => {
-      const getMessageType = jest.fn(() => {
+      const getMessageType = vi.fn(() => {
         throw new Error("no types");
       });
       const client = createGenericStargateClient({
@@ -84,9 +84,9 @@ describe(createGenericStargateClient.name, () => {
         }],
         getMessageType,
         createClient: async () => ({
-          sign: jest.fn(),
-          simulate: jest.fn(async () => 1),
-          broadcastTx: jest.fn(),
+          sign: vi.fn(),
+          simulate: vi.fn(async () => 1),
+          broadcastTx: vi.fn(),
         } as unknown as SigningStargateClient),
       });
 
@@ -96,7 +96,7 @@ describe(createGenericStargateClient.name, () => {
     });
 
     it("calls `getMessageType` when signing message with types that are not registered", async () => {
-      const getMessageType = jest.fn(() => ({
+      const getMessageType = vi.fn(() => ({
         typeUrl: MESSAGE_TYPE,
         encode: () => new Uint8Array(0),
         decode: () => ({}),
@@ -107,9 +107,9 @@ describe(createGenericStargateClient.name, () => {
         signer: createOfflineSigner(),
         getMessageType,
         createClient: async () => ({
-          sign: jest.fn(),
-          simulate: jest.fn(async () => 1),
-          broadcastTx: jest.fn(),
+          sign: vi.fn(),
+          simulate: vi.fn(async () => 1),
+          broadcastTx: vi.fn(),
         } as unknown as SigningStargateClient),
       });
 

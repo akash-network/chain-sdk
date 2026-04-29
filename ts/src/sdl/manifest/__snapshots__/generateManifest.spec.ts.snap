@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generateManifest fixture file tests GPU basic generates groupSpecs (snapshot): GPU basic groupSpecs 1`] = `
+exports[`generateManifest > fixture file tests > GPU basic > generates groupSpecs (snapshot) > GPU basic groupSpecs 1`] = `
 "[
   {
     "name": "westcoast",
@@ -77,7 +77,7 @@ exports[`generateManifest fixture file tests GPU basic generates groupSpecs (sna
 ]"
 `;
 
-exports[`generateManifest fixture file tests GPU basic generates manifest (snapshot): GPU basic manifest 1`] = `
+exports[`generateManifest > fixture file tests > GPU basic > generates manifest (snapshot) > GPU basic manifest 1`] = `
 "[
   {
     "name": "westcoast",
@@ -165,7 +165,172 @@ exports[`generateManifest fixture file tests GPU basic generates manifest (snaps
 ]"
 `;
 
-exports[`generateManifest fixture file tests GPU basic with RAM and interface generates groupSpecs (snapshot): GPU basic RAM interface groupSpecs 1`] = `
+exports[`generateManifest > fixture file tests > GPU basic with RAM > generates groupSpecs (snapshot) > GPU basic RAM groupSpecs 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "akash1123123",
+          "akash1124123123"
+        ],
+        "any_of": [
+          "akash1123123",
+          "akash1124123123"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "foo",
+          "value": "bar"
+        },
+        {
+          "key": "region",
+          "value": "us-west"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100/ram/40Gi",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "50"
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest > fixture file tests > GPU basic with RAM > generates manifest (snapshot) > GPU basic RAM manifest 1`] = `
+"[
+  {
+    "name": "westcoast",
+    "services": [
+      {
+        "name": "web",
+        "image": "nginx",
+        "resources": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "MTAw"
+            }
+          },
+          "memory": {
+            "quantity": {
+              "val": "MTM0MjE3NzI4"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "quantity": {
+                "val": "MTA3Mzc0MTgyNA=="
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "MQ=="
+            },
+            "attributes": [
+              {
+                "key": "vendor/nvidia/model/a100/ram/40Gi",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {},
+            {
+              "kind": "RANDOM_PORT"
+            }
+          ]
+        },
+        "count": 2,
+        "expose": [
+          {
+            "port": 80,
+            "proto": "TCP",
+            "global": true,
+            "hosts": [
+              "ahostname.com"
+            ],
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          },
+          {
+            "port": 12345,
+            "proto": "UDP",
+            "global": true,
+            "http_options": {
+              "max_body_size": 1048576,
+              "read_timeout": 60000,
+              "send_timeout": 60000,
+              "next_tries": 3,
+              "next_cases": [
+                "error",
+                "timeout"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]"
+`;
+
+exports[`generateManifest > fixture file tests > GPU basic with RAM and interface > generates groupSpecs (snapshot) > GPU basic RAM interface groupSpecs 1`] = `
 "[
   {
     "name": "westcoast",
@@ -242,7 +407,7 @@ exports[`generateManifest fixture file tests GPU basic with RAM and interface ge
 ]"
 `;
 
-exports[`generateManifest fixture file tests GPU basic with RAM and interface generates manifest (snapshot): GPU basic RAM interface manifest 1`] = `
+exports[`generateManifest > fixture file tests > GPU basic with RAM and interface > generates manifest (snapshot) > GPU basic RAM interface manifest 1`] = `
 "[
   {
     "name": "westcoast",
@@ -330,172 +495,7 @@ exports[`generateManifest fixture file tests GPU basic with RAM and interface ge
 ]"
 `;
 
-exports[`generateManifest fixture file tests GPU basic with RAM generates groupSpecs (snapshot): GPU basic RAM groupSpecs 1`] = `
-"[
-  {
-    "name": "westcoast",
-    "requirements": {
-      "signed_by": {
-        "all_of": [
-          "akash1123123",
-          "akash1124123123"
-        ],
-        "any_of": [
-          "akash1123123",
-          "akash1124123123"
-        ]
-      },
-      "attributes": [
-        {
-          "key": "foo",
-          "value": "bar"
-        },
-        {
-          "key": "region",
-          "value": "us-west"
-        }
-      ]
-    },
-    "resources": [
-      {
-        "resource": {
-          "id": 1,
-          "cpu": {
-            "units": {
-              "val": "MTAw"
-            }
-          },
-          "memory": {
-            "quantity": {
-              "val": "MTM0MjE3NzI4"
-            }
-          },
-          "storage": [
-            {
-              "name": "default",
-              "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
-              }
-            }
-          ],
-          "gpu": {
-            "units": {
-              "val": "MQ=="
-            },
-            "attributes": [
-              {
-                "key": "vendor/nvidia/model/a100/ram/40Gi",
-                "value": "true"
-              }
-            ]
-          },
-          "endpoints": [
-            {},
-            {
-              "kind": "RANDOM_PORT"
-            }
-          ]
-        },
-        "count": 2,
-        "price": {
-          "denom": "uakt",
-          "amount": "50"
-        }
-      }
-    ]
-  }
-]"
-`;
-
-exports[`generateManifest fixture file tests GPU basic with RAM generates manifest (snapshot): GPU basic RAM manifest 1`] = `
-"[
-  {
-    "name": "westcoast",
-    "services": [
-      {
-        "name": "web",
-        "image": "nginx",
-        "resources": {
-          "id": 1,
-          "cpu": {
-            "units": {
-              "val": "MTAw"
-            }
-          },
-          "memory": {
-            "quantity": {
-              "val": "MTM0MjE3NzI4"
-            }
-          },
-          "storage": [
-            {
-              "name": "default",
-              "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
-              }
-            }
-          ],
-          "gpu": {
-            "units": {
-              "val": "MQ=="
-            },
-            "attributes": [
-              {
-                "key": "vendor/nvidia/model/a100/ram/40Gi",
-                "value": "true"
-              }
-            ]
-          },
-          "endpoints": [
-            {},
-            {
-              "kind": "RANDOM_PORT"
-            }
-          ]
-        },
-        "count": 2,
-        "expose": [
-          {
-            "port": 80,
-            "proto": "TCP",
-            "global": true,
-            "hosts": [
-              "ahostname.com"
-            ],
-            "http_options": {
-              "max_body_size": 1048576,
-              "read_timeout": 60000,
-              "send_timeout": 60000,
-              "next_tries": 3,
-              "next_cases": [
-                "error",
-                "timeout"
-              ]
-            }
-          },
-          {
-            "port": 12345,
-            "proto": "UDP",
-            "global": true,
-            "http_options": {
-              "max_body_size": 1048576,
-              "read_timeout": 60000,
-              "send_timeout": 60000,
-              "next_tries": 3,
-              "next_cases": [
-                "error",
-                "timeout"
-              ]
-            }
-          }
-        ]
-      }
-    ]
-  }
-]"
-`;
-
-exports[`generateManifest fixture file tests GPU without GPU (units=0) generates groupSpecs (snapshot): GPU zero units groupSpecs 1`] = `
+exports[`generateManifest > fixture file tests > GPU without GPU (units=0) > generates groupSpecs (snapshot) > GPU zero units groupSpecs 1`] = `
 "[
   {
     "name": "westcoast",
@@ -566,7 +566,7 @@ exports[`generateManifest fixture file tests GPU without GPU (units=0) generates
 ]"
 `;
 
-exports[`generateManifest fixture file tests GPU without GPU (units=0) generates manifest (snapshot): GPU zero units manifest 1`] = `
+exports[`generateManifest > fixture file tests > GPU without GPU (units=0) > generates manifest (snapshot) > GPU zero units manifest 1`] = `
 "[
   {
     "name": "westcoast",
@@ -648,7 +648,7 @@ exports[`generateManifest fixture file tests GPU without GPU (units=0) generates
 ]"
 `;
 
-exports[`generateManifest fixture file tests GPU without model generates groupSpecs (snapshot): GPU no model groupSpecs 1`] = `
+exports[`generateManifest > fixture file tests > GPU without model > generates groupSpecs (snapshot) > GPU no model groupSpecs 1`] = `
 "[
   {
     "name": "westcoast",
@@ -725,7 +725,7 @@ exports[`generateManifest fixture file tests GPU without model generates groupSp
 ]"
 `;
 
-exports[`generateManifest fixture file tests GPU without model generates manifest (snapshot): GPU no model manifest 1`] = `
+exports[`generateManifest > fixture file tests > GPU without model > generates manifest (snapshot) > GPU no model manifest 1`] = `
 "[
   {
     "name": "westcoast",
@@ -813,7 +813,7 @@ exports[`generateManifest fixture file tests GPU without model generates manifes
 ]"
 `;
 
-exports[`generateManifest fixture file tests IP lease generates groupSpecs (snapshot): IP lease groupSpecs 1`] = `
+exports[`generateManifest > fixture file tests > IP lease > generates groupSpecs (snapshot) > IP lease groupSpecs 1`] = `
 "[
   {
     "name": "dcloud",
@@ -866,7 +866,7 @@ exports[`generateManifest fixture file tests IP lease generates groupSpecs (snap
 ]"
 `;
 
-exports[`generateManifest fixture file tests IP lease generates manifest (snapshot): IP lease manifest 1`] = `
+exports[`generateManifest > fixture file tests > IP lease > generates manifest (snapshot) > IP lease manifest 1`] = `
 "[
   {
     "name": "dcloud",
@@ -934,7 +934,7 @@ exports[`generateManifest fixture file tests IP lease generates manifest (snapsh
 ]"
 `;
 
-exports[`generateManifest fixture file tests Persistent storage generates groupSpecs (snapshot): Persistent storage groupSpecs 1`] = `
+exports[`generateManifest > fixture file tests > Persistent storage > generates groupSpecs (snapshot) > Persistent storage groupSpecs 1`] = `
 "[
   {
     "name": "akash",
@@ -1085,7 +1085,7 @@ exports[`generateManifest fixture file tests Persistent storage generates groupS
 ]"
 `;
 
-exports[`generateManifest fixture file tests Persistent storage generates manifest (snapshot): Persistent storage manifest 1`] = `
+exports[`generateManifest > fixture file tests > Persistent storage > generates manifest (snapshot) > Persistent storage manifest 1`] = `
 "[
   {
     "name": "akash",
@@ -1305,7 +1305,7 @@ exports[`generateManifest fixture file tests Persistent storage generates manife
 ]"
 `;
 
-exports[`generateManifest fixture file tests WordPress multi-service generates groupSpecs (snapshot): WordPress groupSpecs 1`] = `
+exports[`generateManifest > fixture file tests > WordPress multi-service > generates groupSpecs (snapshot) > WordPress groupSpecs 1`] = `
 "[
   {
     "name": "akash",
@@ -1424,7 +1424,7 @@ exports[`generateManifest fixture file tests WordPress multi-service generates g
 ]"
 `;
 
-exports[`generateManifest fixture file tests WordPress multi-service generates manifest (snapshot): WordPress manifest 1`] = `
+exports[`generateManifest > fixture file tests > WordPress multi-service > generates manifest (snapshot) > WordPress manifest 1`] = `
 "[
   {
     "name": "akash",

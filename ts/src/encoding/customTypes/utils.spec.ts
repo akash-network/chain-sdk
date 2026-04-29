@@ -1,6 +1,6 @@
 import type { DescField } from "@bufbuild/protobuf";
-import { afterEach, describe, expect, it } from "@jest/globals";
 import { proto } from "@test/helpers/proto";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { LegacyDec } from "./LegacyDec.ts";
 import { findPathsToCustomField } from "./utils.ts";

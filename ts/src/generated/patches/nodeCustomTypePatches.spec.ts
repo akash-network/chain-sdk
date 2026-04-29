@@ -8,9 +8,9 @@ import { AggregatedPrice as AggregatedPrice$1, PriceDataState as PriceDataState$
 import { EventPriceData } from "../protos/akash/oracle/v2/events.ts";
 import { MsgAddPriceEntry } from "../protos/akash/oracle/v2/msgs.ts";
 
-import { expect, describe, it } from "@jest/globals";
+import { expect, describe, it } from "vitest";
 import { patches } from "./nodeCustomTypePatches.ts";
-import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";
+import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage.ts";
 import type { TypePatches } from "../../sdk/client/types.ts";
 
 const messageTypes: Record<string, MessageSchema> = {

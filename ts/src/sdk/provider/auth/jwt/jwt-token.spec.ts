@@ -1,8 +1,8 @@
 import { Secp256k1HdWallet } from "@cosmjs/amino";
 import type { AccountData } from "@cosmjs/proto-signing";
-import { beforeAll, describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { toBase64Url } from "./base64.ts";
 import type { CreateJWTOptions } from "./jwt-token.ts";

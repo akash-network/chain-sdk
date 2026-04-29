@@ -1,4 +1,4 @@
-import { create, fromBinary, fromJson, toBinary, toJson, type AnyDesc, type DescFile, type DescMessage, type Message, type MessageInitShape } from "@bufbuild/protobuf";
+import { type AnyDesc, create, type DescFile, type DescMessage, fromBinary, fromJson, type Message, type MessageInitShape, toBinary, toJson } from "@bufbuild/protobuf";
 import type { GenMessage, GenService, GenServiceMethods } from "@bufbuild/protobuf/codegenv1";
 import { BinaryWriter } from "@bufbuild/protobuf/wire";
 import assert from "assert";
@@ -7,6 +7,7 @@ import { createHash } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import { join as joinPath, relative as relativePath } from "path";
 import { promisify } from "util";
+
 import type { MessageDesc, MethodDesc } from "../../src/sdk/client/types.ts";
 
 const execAsync = promisify(exec);
@@ -15,8 +16,8 @@ const PWD = joinPath(__dirname, "..", "..", "..");
 const cache: Record<string, DescFileDefinition> = Object.create(null);
 export async function proto(strings: TemplateStringsArray, ...values: unknown[]): Promise<DescFileDefinition> {
   const content = strings.reduce((result, string, index) => {
-    return result + string + (values[index] ?? '');
-  }, '');
+    return result + string + (values[index] ?? "");
+  }, "");
   const fileContent = [
     "syntax = \"proto3\";",
     "package akash.test.unit;",

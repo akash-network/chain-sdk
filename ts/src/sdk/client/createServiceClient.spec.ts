@@ -1,5 +1,5 @@
 import type { DescMethod, DescMethodBiDiStreaming, DescMethodClientStreaming, DescMethodServerStreaming, DescMethodUnary } from "@bufbuild/protobuf";
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 
 import { proto } from "../../../test/helpers/proto.ts";
 import type { StreamResponse, Transport, UnaryResponse } from "../transport/types.ts";
@@ -23,8 +23,8 @@ describe(createServiceClient.name, () => {
       const headers = {
         "x-test": "test",
       };
-      const onHeader = jest.fn();
-      const onTrailer = jest.fn();
+      const onHeader = vi.fn();
+      const onTrailer = vi.fn();
       const result = await client.testMethod({ test: "input" }, {
         signal: abortSignal,
         timeoutMs: 1000,
@@ -97,8 +97,8 @@ describe(createServiceClient.name, () => {
       const headers = {
         "x-test": "test",
       };
-      const onHeader = jest.fn();
-      const onTrailer = jest.fn();
+      const onHeader = vi.fn();
+      const onTrailer = vi.fn();
       const stream = client.testStreamMethod({ test: "input" }, {
         signal: abortSignal,
         timeoutMs: 1000,
@@ -171,8 +171,8 @@ describe(createServiceClient.name, () => {
       const headers = {
         "x-test": "test",
       };
-      const onHeader = jest.fn();
-      const onTrailer = jest.fn();
+      const onHeader = vi.fn();
+      const onTrailer = vi.fn();
       const input = Array.from({ length: 3 }, (_, i) => ({ test: `input${i + 1}` }));
       const result = await client.testClientStreamMethod(createAsyncIterable(input), {
         signal: abortSignal,
@@ -251,8 +251,8 @@ describe(createServiceClient.name, () => {
       const headers = {
         "x-test": "test",
       };
-      const onHeader = jest.fn();
-      const onTrailer = jest.fn();
+      const onHeader = vi.fn();
+      const onTrailer = vi.fn();
       const input = Array.from({ length: 3 }, (_, i) => ({ test: `input${i + 1}` }));
       const methodsCallResult = client.testBiDiStreamMethod(createAsyncIterable(input), {
         signal: abortSignal,
@@ -315,7 +315,7 @@ describe(createServiceClient.name, () => {
 
   type Response<T extends "stream" | "unary"> = T extends "stream" ? StreamResponse<MessageDesc, MessageDesc> : UnaryResponse<MessageDesc, MessageDesc>;
   function createTransport<T extends "stream" | "unary">(responseType: T, createResponse: () => Pick<Response<T>, "message"> & Partial<Pick<Response<T>, "header" | "trailer">>) {
-    const method = jest.fn(async (method: DescMethod) => {
+    const method = vi.fn(async (method: DescMethod) => {
       return {
         header: new Headers(),
         trailer: new Headers(),
@@ -331,7 +331,7 @@ describe(createServiceClient.name, () => {
       unary: notImplemented,
       stream: notImplemented,
       [responseType]: method,
-    } as unknown as Omit<Transport, T> & Record<T, jest.MockedFunction<Transport[T]>>;
+    } as unknown as Omit<Transport, T> & Record<T, vi.MockedFunction<Transport[T]>>;
   }
 
   async function notImplemented(): Promise<never> {

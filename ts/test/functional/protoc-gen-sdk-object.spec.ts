@@ -1,9 +1,9 @@
-import { describe, expect, it } from "@jest/globals";
 import { exec } from "child_process";
 import { access, constants as fsConst, readFile, rm } from "fs/promises";
 import { tmpdir } from "os";
 import { join as joinPath } from "path";
 import { promisify } from "util";
+import { describe, expect, it } from "vitest";
 
 const execAsync = promisify(exec);
 
@@ -18,7 +18,7 @@ describe("protoc-sdk-objec plugin", () => {
         out: ".",
         opt: [
           "target=ts",
-          "import_extension=ts"
+          "import_extension=ts",
         ],
       },
     ],

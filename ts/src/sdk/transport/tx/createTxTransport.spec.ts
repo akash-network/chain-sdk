@@ -1,6 +1,6 @@
 import type { DescMessage, DescMethodBiDiStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import type { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 
 import { proto } from "../../../../test/helpers/proto.ts";
 import { createAsyncIterable } from "../../client/stream.ts";
@@ -39,14 +39,14 @@ describe(createTxTransport.name, () => {
         authInfoBytes: new Uint8Array(0),
         signatures: [],
       };
-      const afterSign = jest.fn();
-      const afterBroadcast = jest.fn();
+      const afterSign = vi.fn();
+      const afterBroadcast = vi.fn();
       const fee: StdFee = {
         amount: [{ denom: "uakt", amount: "100000" }],
         gas: "100000",
       };
       const client = createMockTxClient({
-        signAndBroadcast: jest.fn((_, options?: TxSignAndBroadcastOptions) => {
+        signAndBroadcast: vi.fn((_, options?: TxSignAndBroadcastOptions) => {
           options?.afterSign?.(txRaw);
           return Promise.resolve(txResponse);
         }),
@@ -96,7 +96,7 @@ describe(createTxTransport.name, () => {
     it("decodes response if `msgResponses` has a response", async () => {
       const { TestServiceSchema } = await setup();
       const client = createMockTxClient({
-        signAndBroadcast: jest.fn(() => Promise.resolve({
+        signAndBroadcast: vi.fn(() => Promise.resolve({
           height: 1,
           txIndex: 0,
           code: 0,
@@ -114,7 +114,7 @@ describe(createTxTransport.name, () => {
         client,
         getMessageType: (typeUrl) => ({
           ...getMessageType(),
-          decode: jest.fn(() => (typeUrl === `/${TestServiceSchema.methods.testMethod.output.$type}` ? { test: "output", ok: true } : null)),
+          decode: vi.fn(() => (typeUrl === `/${TestServiceSchema.methods.testMethod.output.$type}` ? { test: "output", ok: true } : null)),
         }),
       });
 
@@ -125,7 +125,7 @@ describe(createTxTransport.name, () => {
     it("throws if tx response has a non-zero code", async () => {
       const { TestServiceSchema } = await setup();
       const client = createMockTxClient({
-        signAndBroadcast: jest.fn(() => Promise.resolve({
+        signAndBroadcast: vi.fn(() => Promise.resolve({
           height: 1,
           txIndex: 0,
           code: 1,
@@ -170,7 +170,7 @@ describe(createTxTransport.name, () => {
 
   function createMockTxClient(overrides?: Partial<TxClient>): TxClient {
     return {
-      signAndBroadcast: jest.fn(() => Promise.resolve({
+      signAndBroadcast: vi.fn(() => Promise.resolve({
         height: 1,
         txIndex: 0,
         code: 0,
@@ -186,9 +186,9 @@ describe(createTxTransport.name, () => {
 
   function getMessageType() {
     return {
-      decode: jest.fn(),
-      encode: jest.fn(),
-      fromPartial: jest.fn(),
+      decode: vi.fn(),
+      encode: vi.fn(),
+      fromPartial: vi.fn(),
     };
   }
 });

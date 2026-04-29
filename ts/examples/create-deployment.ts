@@ -1,10 +1,10 @@
-import { createChainNodeSDK, createStargateClient, generateManifest, generateManifestVersion, type TxInput, type QueryInput, yaml } from "@akashnetwork/chain-sdk";
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import type { MsgCreateDeployment } from "@akashnetwork/chain-sdk/private-types/akash.v1beta4";
-import type { MsgCreateLease } from "@akashnetwork/chain-sdk/private-types/akash.v1beta5";
-import { type DeploymentID, Source } from "@akashnetwork/chain-sdk/private-types/akash.v1";
 import { setTimeout as wait } from "node:timers/promises";
 
+import { createChainNodeSDK, createStargateClient, generateManifest, generateManifestVersion, type QueryInput, type TxInput, yaml } from "@akashnetwork/chain-sdk";
+import { type DeploymentID, Source } from "@akashnetwork/chain-sdk/private-types/akash.v1";
+import type { MsgCreateDeployment } from "@akashnetwork/chain-sdk/private-types/akash.v1beta4";
+import type { MsgCreateLease } from "@akashnetwork/chain-sdk/private-types/akash.v1beta5";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 const testMnemonic = process.env.MNEMONIC;
 if (!testMnemonic) {
@@ -28,7 +28,7 @@ const sdk = createChainNodeSDK({
     signer: createStargateClient({
       baseUrl: TX_RPC_URL,
       signer: wallet,
-    })
+    }),
   },
 });
 
@@ -92,7 +92,7 @@ deployment:
     dcloud:
       profile: web
       count: 1
-`, 'sandbox');
+`, "sandbox");
 if (!manifest.ok) {
   throw new Error(`Failed to generate manifest: ${manifest.value}`);
 }

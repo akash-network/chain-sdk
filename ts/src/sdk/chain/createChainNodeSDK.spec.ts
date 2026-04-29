@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
-import { mock } from "jest-mock-extended";
+import { describe, expect, it } from "vitest";
+import { mock } from "vitest-mock-extended";
 
 import type { TxClient } from "../transport/tx/TxClient.ts";
 import { createChainNodeSDK } from "./createChainNodeSDK.ts";

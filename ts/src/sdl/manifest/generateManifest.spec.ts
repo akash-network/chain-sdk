@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import { GroupSpec } from "../../generated/protos/index.akash.v1beta4.ts";
 import { Group } from "../../generated/protos/index.provider.akash.v2beta3.ts";

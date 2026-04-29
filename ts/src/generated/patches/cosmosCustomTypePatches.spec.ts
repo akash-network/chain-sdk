@@ -9,9 +9,9 @@ import { Params as Params$2 } from "../protos/cosmos/slashing/v1beta1/slashing.t
 import { CommissionRates, Delegation, Params as Params$3, RedelegationEntry, Validator } from "../protos/cosmos/staking/v1beta1/staking.ts";
 import { MsgEditValidator } from "../protos/cosmos/staking/v1beta1/tx.ts";
 
-import { expect, describe, it } from "@jest/globals";
+import { expect, describe, it } from "vitest";
 import { patches } from "./cosmosCustomTypePatches.ts";
-import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";
+import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage.ts";
 import type { TypePatches } from "../../sdk/client/types.ts";
 
 const messageTypes: Record<string, MessageSchema> = {

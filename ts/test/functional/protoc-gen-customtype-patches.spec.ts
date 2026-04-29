@@ -1,10 +1,11 @@
-import { afterEach, describe, expect, it } from "@jest/globals";
 import { exec } from "child_process";
 import { access, constants as fsConst, readFile, rm } from "fs/promises";
 import { tmpdir } from "os";
 import { join as joinPath } from "path";
-import type { PluginOptions } from "../../script/protoc-gen-customtype-patches.ts";
 import { promisify } from "util";
+import { afterEach, describe, expect, it } from "vitest";
+
+import type { PluginOptions } from "../../script/protoc-gen-customtype-patches.ts";
 
 const execAsync = promisify(exec);
 
@@ -18,7 +19,7 @@ describe("protoc-gen-customtype-patches plugin", () => {
     }
   });
 
-  describe('when patch_whole_tree is true', () => {
+  describe("when patch_whole_tree is true", () => {
     it("generates `Set` instance with all the types that have reference to fields with custom type option", async () => {
       const command = [
         `buf generate`,
@@ -47,7 +48,7 @@ describe("protoc-gen-customtype-patches plugin", () => {
     });
   });
 
-  describe('when patch_whole_tree is false', () => {
+  describe("when patch_whole_tree is false", () => {
     it("generates `Set` instance with all the leaf types that have reference to fields with custom type option", async () => {
       const command = [
         `buf generate`,

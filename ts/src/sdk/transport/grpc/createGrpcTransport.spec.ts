@@ -1,6 +1,6 @@
 import type { DescMethodStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import type { UniversalClientFn } from "@connectrpc/connect/protocol";
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 
 import { proto } from "../../../../test/helpers/proto.ts";
 import { createAsyncIterable } from "../../client/stream.ts";
@@ -197,7 +197,7 @@ describe(createGrpcTransport.name, () => {
       const responseMessageBytes = TestMethodSchema.output.encode({ result: "success" }).finish();
       const { multipleMessages, emptyResponse, headerError, retryOptions, ...transportOptions } = input ?? {};
 
-      const httpClient = jest.fn<UniversalClientFn>(createMockHttpClient(responseMessageBytes, {
+      const httpClient = vi.fn<UniversalClientFn>(createMockHttpClient(responseMessageBytes, {
         multipleMessages, emptyResponse, headerError,
       }));
       const options: GrpcTransportOptions = {
@@ -389,7 +389,7 @@ describe(createGrpcTransport.name, () => {
       const responseMessageBytes = TestStreamMethodSchema.output.encode({ result: "success" }).finish();
       const { multipleMessages, headerError, retryOptions } = input ?? {};
 
-      const httpClient = jest.fn<UniversalClientFn>(createMockHttpClient(responseMessageBytes, { multipleMessages, headerError }));
+      const httpClient = vi.fn<UniversalClientFn>(createMockHttpClient(responseMessageBytes, { multipleMessages, headerError }));
       const options: GrpcTransportOptions = {
         baseUrl: "https://api.example.com",
         httpClient,

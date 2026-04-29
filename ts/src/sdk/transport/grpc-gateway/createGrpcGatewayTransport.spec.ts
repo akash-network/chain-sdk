@@ -1,6 +1,6 @@
 import type { DescMethodStreaming, DescMethodUnary } from "@bufbuild/protobuf";
 import { Code } from "@connectrpc/connect";
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 
 import { proto } from "../../../../test/helpers/proto.ts";
 import { createAsyncIterable } from "../../client/stream.ts";
@@ -253,7 +253,7 @@ describe(createGrpcGatewayTransport.name, () => {
     });
 
     async function setup(input?: Partial<GrpcGatewayTransportOptions> & { retryOptions?: RetryOptions }) {
-      const fetch = jest.fn<typeof globalThis.fetch>();
+      const fetch = vi.fn<typeof globalThis.fetch>();
       const { retryOptions, ...transportOptions } = input ?? {};
       const options: GrpcGatewayTransportOptions = {
         baseUrl: "https://api.example.com",

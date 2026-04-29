@@ -1,8 +1,8 @@
 import { DecCoin } from "../protos/cosmos/base/v1beta1/coin.ts";
 
-import { expect, describe, it } from "@jest/globals";
+import { expect, describe, it } from "vitest";
 import { patches } from "./providerCustomTypePatches.ts";
-import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";
+import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage.ts";
 import type { TypePatches } from "../../sdk/client/types.ts";
 
 const messageTypes: Record<string, MessageSchema> = {

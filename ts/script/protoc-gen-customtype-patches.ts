@@ -226,9 +226,9 @@ function generateImportSymbols(path: string, symbols: Set<string>): string {
 }
 
 function generateTests(fileName: string, testsFile: GeneratedFile, messageToCustomFields: Map<DescMessage, Set<DescField>>) {
-  testsFile.print(`import { expect, describe, it } from "@jest/globals";`);
+  testsFile.print(`import { expect, describe, it } from "vitest";`);
   testsFile.print(`import { patches } from "./${basename(fileName)}";`);
-  testsFile.print(`import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage";`);
+  testsFile.print(`import { generateMessage, type MessageSchema } from "@test/helpers/generateMessage.ts";`);
   testsFile.print(`import type { TypePatches } from "../../sdk/client/types.ts";`);
   testsFile.print("");
   testsFile.print(`const messageTypes: Record<string, MessageSchema> = {`);
