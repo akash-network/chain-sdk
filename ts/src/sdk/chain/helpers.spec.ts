@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 
 import type { ServiceLoader } from "../client/createServiceLoader.ts";
 import { type SDKMethod, withMetadata } from "../client/sdkMetadata.ts";
@@ -9,11 +9,11 @@ import { msg, SIGNER_KEY, transaction, type TxMessage } from "./helpers.ts";
 function createMessageDesc(typeName: string): MessageDesc {
   return {
     $type: typeName,
-    encode: jest.fn() as MessageDesc["encode"],
-    decode: jest.fn() as MessageDesc["decode"],
-    fromPartial: jest.fn((v: unknown) => v) as MessageDesc["fromPartial"],
-    toJSON: jest.fn() as MessageDesc["toJSON"],
-    fromJSON: jest.fn() as MessageDesc["fromJSON"],
+    encode: vi.fn() as MessageDesc["encode"],
+    decode: vi.fn() as MessageDesc["decode"],
+    fromPartial: vi.fn((v: unknown) => v) as MessageDesc["fromPartial"],
+    toJSON: vi.fn() as MessageDesc["toJSON"],
+    fromJSON: vi.fn() as MessageDesc["fromJSON"],
   };
 }
 
@@ -32,12 +32,12 @@ function createMethod(data?: unknown) {
   };
 
   return withMetadata(
-    jest.fn<SDKMethod>().mockResolvedValue(data),
+    vi.fn<SDKMethod>().mockResolvedValue(data),
     {
       path: [0, "testMethod"],
       serviceLoader: {
-        loadAt: jest.fn<() => Promise<ServiceDesc>>().mockResolvedValue(serviceDesc),
-        getLoadedType: jest.fn(),
+        loadAt: vi.fn<() => Promise<ServiceDesc>>().mockResolvedValue(serviceDesc),
+        getLoadedType: vi.fn(),
       } as unknown as ServiceLoader<readonly (() => unknown)[]>,
     },
   );
@@ -45,7 +45,7 @@ function createMethod(data?: unknown) {
 
 function createSigner(): TxClient {
   return {
-    signAndBroadcast: jest.fn<TxClient["signAndBroadcast"]>().mockResolvedValue({
+    signAndBroadcast: vi.fn<TxClient["signAndBroadcast"]>().mockResolvedValue({
       code: 0,
       transactionHash: "abc123",
     } as never),
@@ -136,7 +136,7 @@ describe(transaction.name, () => {
   });
 
   it("throws when method metadata is not found", async () => {
-    const method = jest.fn<SDKMethod>().mockResolvedValue(undefined);
+    const method = vi.fn<SDKMethod>().mockResolvedValue(undefined);
     const messages: TxMessage[] = [msg(method, { sender: "akash1abc" })];
     const signer = createSigner();
     const sdk = { [SIGNER_KEY]: signer };
@@ -148,15 +148,15 @@ describe(transaction.name, () => {
 
   it("throws when method is not found in service descriptor", async () => {
     const method = withMetadata(
-      jest.fn<SDKMethod>().mockResolvedValue(undefined),
+      vi.fn<SDKMethod>().mockResolvedValue(undefined),
       {
         path: [0, "nonExistent"],
         serviceLoader: {
-          loadAt: jest.fn<() => Promise<ServiceDesc>>().mockResolvedValue({
+          loadAt: vi.fn<() => Promise<ServiceDesc>>().mockResolvedValue({
             typeName: "test.v1.MsgService",
             methods: {},
           }),
-          getLoadedType: jest.fn(),
+          getLoadedType: vi.fn(),
         } as unknown as ServiceLoader<readonly (() => unknown)[]>,
       },
     );

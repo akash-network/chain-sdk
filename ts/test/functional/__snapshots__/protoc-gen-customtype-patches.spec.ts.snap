@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`protoc-gen-customtype-patches plugin when patch_whole_tree is false generates \`Set\` instance with all the leaf types that have reference to fields with custom type option 1`] = `
+exports[`protoc-gen-customtype-patches plugin > when patch_whole_tree is false > generates \`Set\` instance with all the leaf types that have reference to fields with custom type option 1`] = `
 "import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 import type * as _protos_customtype from "../protos/customtype.ts";
 
@@ -23,7 +23,7 @@ export const patches = p;
 "
 `;
 
-exports[`protoc-gen-customtype-patches plugin when patch_whole_tree is true generates \`Set\` instance with all the types that have reference to fields with custom type option 1`] = `
+exports[`protoc-gen-customtype-patches plugin > when patch_whole_tree is true > generates \`Set\` instance with all the types that have reference to fields with custom type option 1`] = `
 "import type * as _protos_customtype from "../protos/customtype.ts";
 import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 

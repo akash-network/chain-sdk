@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 
 import { TransportError } from "../TransportError.ts";
 import { createRetryInterceptor, isRetryEnabled, type RetryOptions } from "./retry.ts";
@@ -206,7 +206,7 @@ type ResponseType = Awaited<ReturnType<NextFn>>;
 
 function createMockNext(results: (() => ResponseType)[]) {
   let callIndex = 0;
-  const fn = jest.fn<NextFn>().mockImplementation(async () => {
+  const fn = vi.fn<NextFn>().mockImplementation(async () => {
     const result = results[callIndex++];
     if (!result) throw new Error("unexpected call");
     return result();
