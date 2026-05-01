@@ -172,6 +172,7 @@ func processEvent(bev abci.Event) (interface{}, bool) {
 	case *mtypes.EventBidClosed:
 	case *mtypes.EventLeaseCreated:
 	case *mtypes.EventLeaseClosed:
+	case *mtypes.EventLeaseReclaimStarted:
 	default:
 		return nil, false
 	}

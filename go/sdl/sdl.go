@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
+	dv1 "pkg.akt.dev/go/node/deployment/v1"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 )
 
@@ -26,6 +27,7 @@ type SDL interface {
 	DeploymentGroups() (dtypes.GroupSpecs, error)
 	Manifest() (manifest.Manifest, error)
 	Version() ([]byte, error)
+	Reclamation() (*dv1.DeploymentReclamation, error)
 	validate() error
 }
 
@@ -155,6 +157,14 @@ func (s *sdl) Manifest() (manifest.Manifest, error) {
 	}
 
 	return s.data.Manifest()
+}
+
+func (s *sdl) Reclamation() (*dv1.DeploymentReclamation, error) {
+	if s.data == nil {
+		return nil, errUninitializedConfig
+	}
+
+	return s.data.Reclamation()
 }
 
 func (s *sdl) validate() error {

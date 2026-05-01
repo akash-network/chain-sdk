@@ -87,6 +87,7 @@ const (
 	FlagOSeq                      = "oseq"
 	FlagProvider                  = "provider"
 	FlagClosedReason              = "reason"
+	FlagReclamationWindow         = "reclamation-window"
 	FlagSerial                    = "serial"
 	FlagPrice                     = "price"
 	FlagDeposit                   = "deposit"

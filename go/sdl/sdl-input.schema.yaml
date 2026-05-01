@@ -483,6 +483,23 @@ properties:
       additionalProperties: false
     type: object
 
+  reclamation:
+    description: >-
+      Deployment-level reclamation requirements (optional).
+      When set, providers must offer a reclamation window meeting or exceeding
+      the specified minimum to bid on this deployment.
+    additionalProperties: false
+    properties:
+      min_window:
+        type: string
+        description: >-
+          Minimum reclamation window duration the tenant requires.
+          Go duration format (e.g. "1h", "24h", "720h").
+        minLength: 1
+    required:
+      - min_window
+    type: object
+
   version:
     description: SDL version
     enum:

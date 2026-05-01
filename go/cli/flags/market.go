@@ -2,6 +2,7 @@ package flags
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -222,4 +223,29 @@ func BidClosedReasonFromFlags(flags *pflag.FlagSet) (mv1.LeaseClosedReason, erro
 	}
 
 	return reason, nil
+}
+
+// AddReclamationWindowFlag adds the optional reclamation window flag for bid creation.
+func AddReclamationWindowFlag(flags *pflag.FlagSet) {
+	flags.String(FlagReclamationWindow, "", "Reclamation window duration the provider offers (e.g. 24h, 720h). Optional.")
+}
+
+// ReclamationWindowFromFlags parses the --reclamation-window flag.
+// Returns nil if the flag is empty (not specified).
+func ReclamationWindowFromFlags(flags *pflag.FlagSet) (*time.Duration, error) {
+	val, err := flags.GetString(FlagReclamationWindow)
+	if err != nil {
+		return nil, err
+	}
+
+	if val == "" {
+		return nil, nil
+	}
+
+	d, err := time.ParseDuration(val)
+	if err != nil {
+		return nil, fmt.Errorf("invalid --%s: %w", FlagReclamationWindow, err)
+	}
+
+	return &d, nil
 }

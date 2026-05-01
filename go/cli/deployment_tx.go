@@ -101,11 +101,17 @@ func GetTxDeploymentCreateCmd() *cobra.Command {
 				return err
 			}
 
+			reclamation, err := sdlManifest.Reclamation()
+			if err != nil {
+				return err
+			}
+
 			msg := &dv1beta.MsgCreateDeployment{
-				ID:      id,
-				Hash:    version,
-				Groups:  make(dv1beta.GroupSpecs, 0, len(groups)),
-				Deposit: dep,
+				ID:          id,
+				Hash:        version,
+				Groups:      make(dv1beta.GroupSpecs, 0, len(groups)),
+				Deposit:     dep,
+				Reclamation: reclamation,
 			}
 
 			msg.Groups = append(msg.Groups, groups...)
