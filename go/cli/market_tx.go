@@ -36,6 +36,7 @@ func GetTxMarketBidCmds() *cobra.Command {
 	cmd.AddCommand(
 		GetTxMarketBidCreateCmd(),
 		GetTxMarketBidCloseCmd(),
+		GetTxMarketBidStartReclaimCmd(),
 	)
 	return cmd
 }
@@ -71,10 +72,16 @@ func GetTxMarketBidCreateCmd() *cobra.Command {
 				return err
 			}
 
+			reclaimWindow, err := cflags.ReclamationWindowFromFlags(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
 			msg := &mtypes.MsgCreateBid{
-				ID:      mv1.MakeBidID(id, cctx.GetFromAddress()),
-				Price:   coin,
-				Deposit: deposit,
+				ID:                mv1.MakeBidID(id, cctx.GetFromAddress()),
+				Price:             coin,
+				Deposit:           deposit,
+				ReclamationWindow: reclaimWindow,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
@@ -95,6 +102,7 @@ func GetTxMarketBidCreateCmd() *cobra.Command {
 
 	cmd.Flags().String("price", "", "Bid Price")
 	cflags.AddDepositFlags(cmd.Flags())
+	cflags.AddReclamationWindowFlag(cmd.Flags())
 
 	return cmd
 }
@@ -140,6 +148,49 @@ func GetTxMarketBidCloseCmd() *cobra.Command {
 
 	cflags.AddTxFlagsToCmd(cmd)
 	cflags.AddBidIDFlags(cmd.Flags())
+	cflags.AddBidClosedReasonFlag(cmd.Flags())
+
+	return cmd
+}
+
+func GetTxMarketBidStartReclaimCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "start-reclaim",
+		Short:             "Start reclamation on an active lease (provider only)",
+		Args:              cobra.ExactArgs(0),
+		PersistentPreRunE: TxPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustClientFromContext(ctx)
+			cctx := cl.ClientContext()
+
+			id, err := cflags.LeaseIDFromFlags(cmd.Flags(), cflags.WithProvider(cctx.FromAddress))
+			if err != nil {
+				return err
+			}
+
+			reason, err := cflags.BidClosedReasonFromFlags(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			msg := mtypes.NewMsgLeaseStartReclaim(id, reason)
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
+			if err != nil {
+				return err
+			}
+
+			return cl.PrintMessage(resp)
+		},
+	}
+
+	cflags.AddTxFlagsToCmd(cmd)
+	cflags.AddLeaseIDFlags(cmd.Flags())
 	cflags.AddBidClosedReasonFlag(cmd.Flags())
 
 	return cmd

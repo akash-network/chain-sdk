@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
+	dv1 "pkg.akt.dev/go/node/deployment/v1"
 	dtypes "pkg.akt.dev/go/node/deployment/v1beta4"
 	types "pkg.akt.dev/go/node/types/attributes/v1"
 )
@@ -21,6 +22,7 @@ type v2_1 struct {
 	Profiles    v2profiles            `yaml:"profiles,omitempty"`
 	Deployments v2Deployments         `yaml:"deployment"`
 	Endpoints   map[string]v2Endpoint `yaml:"endpoints"`
+	ReclaimCfg  *v2Reclamation        `yaml:"-"`
 
 	result struct {
 		dgroups dtypes.GroupSpecs
@@ -41,6 +43,10 @@ func (sdl *v2_1) Version() ([]byte, error) {
 	return manifest.Manifest(sdl.result.mgroups).Version()
 }
 
+func (sdl *v2_1) Reclamation() (*dv1.DeploymentReclamation, error) {
+	return sdl.ReclaimCfg.toDeploymentReclamation()
+}
+
 func (sdl *v2_1) UnmarshalYAML(node *yaml.Node) error {
 	result := v2_1{}
 
@@ -58,6 +64,9 @@ loop:
 			val = &result.Deployments
 		case "endpoints":
 			val = &result.Endpoints
+		case "reclamation":
+			result.ReclaimCfg = &v2Reclamation{}
+			val = result.ReclaimCfg
 		case sdlVersionField:
 			// version is already verified
 			continue loop
@@ -80,6 +89,12 @@ loop:
 }
 
 func (sdl *v2_1) validate() error {
+	if sdl.ReclaimCfg != nil {
+		if _, err := sdl.ReclaimCfg.toDeploymentReclamation(); err != nil {
+			return err
+		}
+	}
+
 	for endpointName, endpoint := range sdl.Endpoints {
 		if !endpointNameValidationRegex.MatchString(endpointName) {
 			return fmt.Errorf(
