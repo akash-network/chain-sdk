@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package akash.inventory.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "pkg.akt.dev/go/inventory/v1";
+
+// InventoryService exposes the signed inventory snapshot RPC used by
+// off-chain auditors (AEP-86). It is intentionally distinct from the
+// existing NodeRPC and ClusterRPC services in this package, which stream
+// raw, unsigned hardware state. The snapshot RPC defined here returns an
+// opaque payload signed by the provider's on-chain key so an auditor can
+// independently verify the provider's identity, the freshness of the
+// snapshot via the supplied nonce, and the integrity of the snapshot
+// contents prior to submitting attestations on chain.
+service InventoryService {
+  // GetInventorySnapshot returns a freshly generated, provider-signed
+  // inventory snapshot. The caller (typically an auditor) supplies an
+  // optional 32-byte random nonce that the provider MUST include inside
+  // the signed snapshot_payload to bind the response to this specific
+  // challenge and prevent replay. The snapshot_payload format is
+  // implementation-defined and opaque at the RPC layer; the richer typed
+  // fields (chain id, timestamp, schema version, software_version,
+  // software_signature, total resources, etc.) live INSIDE the payload
+  // and on chain in the ResourceSummary type. See IMPL.md §5.3.
+  rpc GetInventorySnapshot(GetInventorySnapshotRequest) returns (GetInventorySnapshotResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/snapshot"
+      body: "*"
+    };
+  }
+}
+
+// GetInventorySnapshotRequest is the input to InventoryService.GetInventorySnapshot.
+// It carries an optional auditor-supplied nonce used as a freshness
+// challenge bound into the signed response payload.
+message GetInventorySnapshotRequest {
+  // nonce is a cryptographically random 32-byte challenge value supplied
+  // by the auditor. The provider MUST embed this value inside the
+  // returned snapshot_payload before signing so the auditor can verify
+  // that the response was produced specifically for this request and is
+  // not a replay of a previously captured snapshot. The field is
+  // optional; if omitted, the provider returns a snapshot without a
+  // bound challenge (suitable for non-attestation use cases).
+  bytes nonce = 1;
+}
+
+// GetInventorySnapshotResponse is the output of InventoryService.GetInventorySnapshot.
+// It carries the opaque signed snapshot payload, the provider's
+// signature over that payload, and the provider's on-chain bech32
+// address used by the auditor to look up the verifying key.
+message GetInventorySnapshotResponse {
+  // snapshot_payload is the full machine-generated inventory snapshot
+  // produced by the provider. Its internal layout is implementation
+  // defined and opaque at the RPC boundary; it includes (at minimum)
+  // the chain id, timestamp, schema version, software_version,
+  // software_signature, the nonce echoed from the request, and the
+  // multi-source hardware data described in IMPL.md §5.1 and the
+  // README's Snapshot Contents section. The on-chain ResourceSummary
+  // (chain side) carries the typed projection of these fields; see
+  // x/verification state.proto.
+  bytes snapshot_payload = 1;
+
+  // signature is the provider's on-chain key signature computed over
+  // the entire snapshot_payload byte string. Auditors verify this
+  // signature using the public key associated with the provider account
+  // identified by the `provider` field below.
+  bytes signature = 2;
+
+  // provider is the provider's on-chain account address in bech32
+  // form. It is used by the auditor to look up the provider's on-chain
+  // signing key and to bind the snapshot to a specific provider record.
+  string provider = 3;
+}

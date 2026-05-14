@@ -1,0 +1,335 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// VerificationTier represents provider verification levels.
+// Higher numeric value = higher trust. TierUnspecified (L0, permissionless)
+// means no attestation has been recorded for the provider.
+enum VerificationTier {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // TierUnspecified (L0) is the default; no attestation has been recorded.
+  verification_tier_unspecified = 0 [(gogoproto.enumvalue_customname) = "TierUnspecified"];
+  // TierIdentified (L1) indicates the provider has been identified by an auditor.
+  verification_tier_identified = 1 [(gogoproto.enumvalue_customname) = "TierIdentified"];
+  // TierVerified (L2) indicates the provider's identity and capabilities have been verified.
+  verification_tier_verified = 2 [(gogoproto.enumvalue_customname) = "TierVerified"];
+  // TierEstablished (L3) indicates the provider has a track record meeting the L3 criteria.
+  verification_tier_established = 3 [(gogoproto.enumvalue_customname) = "TierEstablished"];
+  // TierTrusted (L4) is the highest tier, reserved for providers with long-running clean history.
+  verification_tier_trusted = 4 [(gogoproto.enumvalue_customname) = "TierTrusted"];
+}
+
+// AuditorStatus represents the lifecycle status of an auditor record.
+enum AuditorStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // AuditorStatusUnspecified is the default; no status has been set.
+  auditor_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "AuditorStatusUnspecified"];
+  // AuditorStatusActive indicates the auditor is bonded and may submit attestations.
+  auditor_status_active = 1 [(gogoproto.enumvalue_customname) = "AuditorStatusActive"];
+  // AuditorStatusFrozen indicates the auditor has been temporarily suspended (e.g. discrepancy threshold).
+  auditor_status_frozen = 2 [(gogoproto.enumvalue_customname) = "AuditorStatusFrozen"];
+  // AuditorStatusLapsed indicates the auditor's renewal deadline has passed without renewal.
+  auditor_status_lapsed = 3 [(gogoproto.enumvalue_customname) = "AuditorStatusLapsed"];
+  // AuditorStatusResigned indicates the auditor voluntarily resigned.
+  auditor_status_resigned = 4 [(gogoproto.enumvalue_customname) = "AuditorStatusResigned"];
+  // AuditorStatusRemoved indicates the auditor was removed by governance.
+  auditor_status_removed = 5 [(gogoproto.enumvalue_customname) = "AuditorStatusRemoved"];
+}
+
+// BondStatus represents the status of an auditor's bond.
+enum BondStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // BondStatusUnspecified is the default; no bond status has been set.
+  bond_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "BondStatusUnspecified"];
+  // BondStatusBonded indicates the bond is fully posted and active.
+  bond_status_bonded = 1 [(gogoproto.enumvalue_customname) = "BondStatusBonded"];
+  // BondStatusFrozen indicates the bond is locked while the auditor is frozen.
+  bond_status_frozen = 2 [(gogoproto.enumvalue_customname) = "BondStatusFrozen"];
+  // BondStatusUnbonding indicates the bond is currently in the unbonding period.
+  bond_status_unbonding = 3 [(gogoproto.enumvalue_customname) = "BondStatusUnbonding"];
+}
+
+// AttestationStatus represents the lifecycle status of an attestation record.
+// Disputed attestations are stored as status=Voided with voided_reason=Discrepancy
+// and a pending DiscrepancyEvent. Replacement is a transition event before the
+// (provider, auditor) attestation record is overwritten, not a persisted status.
+enum AttestationStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // AttestationStatusUnspecified is the default; no status has been set.
+  attestation_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "AttestationStatusUnspecified"];
+  // AttestationStatusValid indicates the attestation is currently valid.
+  attestation_status_valid = 1 [(gogoproto.enumvalue_customname) = "AttestationStatusValid"];
+  // AttestationStatusVoided indicates the attestation has been voided (see VoidedReason).
+  attestation_status_voided = 2 [(gogoproto.enumvalue_customname) = "AttestationStatusVoided"];
+  // AttestationStatusExpired indicates the attestation passed its TTL without renewal.
+  attestation_status_expired = 3 [(gogoproto.enumvalue_customname) = "AttestationStatusExpired"];
+  // AttestationStatusRevoked indicates the attestation was revoked by the auditor.
+  attestation_status_revoked = 4 [(gogoproto.enumvalue_customname) = "AttestationStatusRevoked"];
+  // AttestationStatusRemoved indicates the attestation was removed by governance.
+  attestation_status_removed = 5 [(gogoproto.enumvalue_customname) = "AttestationStatusRemoved"];
+}
+
+// VoidedReason explains why an attestation transitioned to the Voided status.
+enum VoidedReason {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // VoidedReasonUnspecified is the default; no reason has been set.
+  voided_reason_unspecified = 0 [(gogoproto.enumvalue_customname) = "VoidedReasonUnspecified"];
+  // VoidedReasonDiscrepancy indicates the attestation was voided due to an open discrepancy.
+  voided_reason_discrepancy = 1 [(gogoproto.enumvalue_customname) = "VoidedReasonDiscrepancy"];
+  // VoidedReasonGovernance indicates the attestation was voided by governance action.
+  voided_reason_governance = 2 [(gogoproto.enumvalue_customname) = "VoidedReasonGovernance"];
+  // VoidedReasonBondWithdrawn indicates the auditor's bond was withdrawn.
+  voided_reason_bond_withdrawn = 3 [(gogoproto.enumvalue_customname) = "VoidedReasonBondWithdrawn"];
+  // VoidedReasonBondSlashed indicates the auditor's bond was slashed.
+  voided_reason_bond_slashed = 4 [(gogoproto.enumvalue_customname) = "VoidedReasonBondSlashed"];
+}
+
+// FeeStatus tracks the lifecycle of the fee paid by a provider into an audit escrow.
+enum FeeStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // FeeStatusUnspecified is the default; no fee status has been set.
+  fee_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "FeeStatusUnspecified"];
+  // FeeStatusEscrowed indicates the fee is held in escrow pending settlement.
+  fee_status_escrowed = 1 [(gogoproto.enumvalue_customname) = "FeeStatusEscrowed"];
+  // FeeStatusReleasedToAuditor indicates the fee was released to the auditor upon settlement.
+  fee_status_released_to_auditor = 2 [(gogoproto.enumvalue_customname) = "FeeStatusReleasedToAuditor"];
+  // FeeStatusReturnedToProvider indicates the fee was returned to the provider upon settlement.
+  fee_status_returned_to_provider = 3 [(gogoproto.enumvalue_customname) = "FeeStatusReturnedToProvider"];
+}
+
+// DepositStatus tracks the lifecycle of an auditor's anti-griefing deposit.
+enum DepositStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // DepositStatusUnspecified is the default; no deposit status has been set.
+  deposit_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "DepositStatusUnspecified"];
+  // DepositStatusEscrowed indicates the deposit is held in escrow.
+  deposit_status_escrowed = 1 [(gogoproto.enumvalue_customname) = "DepositStatusEscrowed"];
+  // DepositStatusPendingDiscrepancy indicates the deposit is locked pending discrepancy resolution.
+  deposit_status_pending_discrepancy = 2 [(gogoproto.enumvalue_customname) = "DepositStatusPendingDiscrepancy"];
+  // DepositStatusReturnedToAuditor indicates the deposit was returned to the auditor.
+  deposit_status_returned_to_auditor = 3 [(gogoproto.enumvalue_customname) = "DepositStatusReturnedToAuditor"];
+  // DepositStatusSlashed indicates the deposit was slashed.
+  deposit_status_slashed = 4 [(gogoproto.enumvalue_customname) = "DepositStatusSlashed"];
+}
+
+// ProviderDepositStatus tracks the lifecycle of a provider's audit-escrow deposit.
+enum ProviderDepositStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // ProviderDepositStatusUnspecified is the default; no deposit status has been set.
+  provider_deposit_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "ProviderDepositStatusUnspecified"];
+  // ProviderDepositStatusEscrowed indicates the provider's deposit is held in escrow.
+  provider_deposit_status_escrowed = 1 [(gogoproto.enumvalue_customname) = "ProviderDepositStatusEscrowed"];
+  // ProviderDepositStatusReturnedToProvider indicates the deposit was returned to the provider.
+  provider_deposit_status_returned_to_provider = 2 [(gogoproto.enumvalue_customname) = "ProviderDepositStatusReturnedToProvider"];
+  // ProviderDepositStatusSlashed indicates the deposit was slashed.
+  provider_deposit_status_slashed = 3 [(gogoproto.enumvalue_customname) = "ProviderDepositStatusSlashed"];
+}
+
+// FaultAttribution identifies the responsible party in a settlement or resolution decision.
+enum FaultAttribution {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // FaultAttributionUnspecified is the default; no attribution has been set.
+  fault_attribution_unspecified = 0 [(gogoproto.enumvalue_customname) = "FaultAttributionUnspecified"];
+  // FaultAttributionProviderFault assigns fault to the provider.
+  fault_attribution_provider_fault = 1 [(gogoproto.enumvalue_customname) = "FaultAttributionProviderFault"];
+  // FaultAttributionAuditorFault assigns fault to the auditor.
+  fault_attribution_auditor_fault = 2 [(gogoproto.enumvalue_customname) = "FaultAttributionAuditorFault"];
+  // FaultAttributionSharedFault attributes fault to both parties.
+  fault_attribution_shared_fault = 3 [(gogoproto.enumvalue_customname) = "FaultAttributionSharedFault"];
+  // FaultAttributionNoFault indicates neither party is at fault.
+  fault_attribution_no_fault = 4 [(gogoproto.enumvalue_customname) = "FaultAttributionNoFault"];
+  // FaultAttributionInconclusive indicates the evidence does not allow attribution.
+  fault_attribution_inconclusive = 5 [(gogoproto.enumvalue_customname) = "FaultAttributionInconclusive"];
+}
+
+// AttestationRevocationReason enumerates the typed reasons an auditor may revoke
+// an attestation it previously submitted.
+enum AttestationRevocationReason {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // AttestationRevocationReasonUnspecified is the default; no reason has been set.
+  attestation_revocation_reason_unspecified = 0 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonUnspecified"];
+  // AttestationRevocationReasonProviderNoLongerQualifies indicates the provider no longer meets the tier criteria.
+  attestation_revocation_reason_provider_no_longer_qualifies = 1 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonProviderNoLongerQualifies"];
+  // AttestationRevocationReasonSnapshotMismatch indicates the provider's snapshot does not match the attested claim.
+  attestation_revocation_reason_snapshot_mismatch = 2 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonSnapshotMismatch"];
+  // AttestationRevocationReasonSoftwareIdentityChanged indicates the provider's software identity changed.
+  attestation_revocation_reason_software_identity_changed = 3 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonSoftwareIdentityChanged"];
+  // AttestationRevocationReasonCapabilityMisrepresented indicates the provider misrepresented its capabilities.
+  attestation_revocation_reason_capability_misrepresented = 4 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonCapabilityMisrepresented"];
+  // AttestationRevocationReasonProviderNonResponsive indicates the provider became non-responsive to the auditor.
+  attestation_revocation_reason_provider_non_responsive = 5 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonProviderNonResponsive"];
+  // AttestationRevocationReasonAuditorEvidenceError indicates an error in the auditor's evidence forced revocation.
+  attestation_revocation_reason_auditor_evidence_error = 6 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonAuditorEvidenceError"];
+  // AttestationRevocationReasonAuditorOperationalExit indicates the auditor is exiting operations.
+  attestation_revocation_reason_auditor_operational_exit = 7 [(gogoproto.enumvalue_customname) = "AttestationRevocationReasonAuditorOperationalExit"];
+}
+
+// GovernanceAttestationReason enumerates the typed reasons governance may revoke
+// or void attestations independent of the auditor.
+enum GovernanceAttestationReason {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // GovernanceAttestationReasonUnspecified is the default; no reason has been set.
+  governance_attestation_reason_unspecified = 0 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonUnspecified"];
+  // GovernanceAttestationReasonFraudulentProvider indicates governance found the provider fraudulent.
+  governance_attestation_reason_fraudulent_provider = 1 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonFraudulentProvider"];
+  // GovernanceAttestationReasonCompromisedProvider indicates the provider was compromised.
+  governance_attestation_reason_compromised_provider = 2 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonCompromisedProvider"];
+  // GovernanceAttestationReasonProviderNonCooperation indicates the provider refused to cooperate with audit.
+  governance_attestation_reason_provider_non_cooperation = 3 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonProviderNonCooperation"];
+  // GovernanceAttestationReasonFaultyAuditor indicates the auditor was found faulty.
+  governance_attestation_reason_faulty_auditor = 4 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonFaultyAuditor"];
+  // GovernanceAttestationReasonNegligentAuditor indicates the auditor was found negligent.
+  governance_attestation_reason_negligent_auditor = 5 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonNegligentAuditor"];
+  // GovernanceAttestationReasonEvidenceInsufficient indicates evidence supporting the attestation was insufficient.
+  governance_attestation_reason_evidence_insufficient = 6 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonEvidenceInsufficient"];
+  // GovernanceAttestationReasonEmergencySafetyAction indicates an emergency safety action.
+  governance_attestation_reason_emergency_safety_action = 7 [(gogoproto.enumvalue_customname) = "GovernanceAttestationReasonEmergencySafetyAction"];
+}
+
+// AuditEscrowSettlementReason enumerates the reasons an audit escrow may settle.
+enum AuditEscrowSettlementReason {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // AuditEscrowSettlementReasonUnspecified is the default; no reason has been set.
+  audit_escrow_settlement_reason_unspecified = 0 [(gogoproto.enumvalue_customname) = "AuditEscrowSettlementReasonUnspecified"];
+  // AuditEscrowSettlementReasonCancelledUnconsumed indicates the escrow was cancelled without an audit being consumed.
+  audit_escrow_settlement_reason_cancelled_unconsumed = 1 [(gogoproto.enumvalue_customname) = "AuditEscrowSettlementReasonCancelledUnconsumed"];
+  // AuditEscrowSettlementReasonExpiredUnconsumed indicates the escrow expired without an audit being consumed.
+  audit_escrow_settlement_reason_expired_unconsumed = 2 [(gogoproto.enumvalue_customname) = "AuditEscrowSettlementReasonExpiredUnconsumed"];
+  // AuditEscrowSettlementReasonProviderFault indicates settlement was for provider fault.
+  audit_escrow_settlement_reason_provider_fault = 3 [(gogoproto.enumvalue_customname) = "AuditEscrowSettlementReasonProviderFault"];
+  // AuditEscrowSettlementReasonNoFault indicates settlement without fault attribution.
+  audit_escrow_settlement_reason_no_fault = 4 [(gogoproto.enumvalue_customname) = "AuditEscrowSettlementReasonNoFault"];
+}
+
+// DiscrepancyResolutionReason enumerates the reasons a discrepancy may be resolved.
+enum DiscrepancyResolutionReason {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // DiscrepancyResolutionReasonUnspecified is the default; no reason has been set.
+  discrepancy_resolution_reason_unspecified = 0 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonUnspecified"];
+  // DiscrepancyResolutionReasonAuditorACorrect indicates auditor A's attestation was found correct.
+  discrepancy_resolution_reason_auditor_a_correct = 1 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonAuditorACorrect"];
+  // DiscrepancyResolutionReasonAuditorBCorrect indicates auditor B's attestation was found correct.
+  discrepancy_resolution_reason_auditor_b_correct = 2 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonAuditorBCorrect"];
+  // DiscrepancyResolutionReasonBothAuditorsWrong indicates both auditors' attestations were wrong.
+  discrepancy_resolution_reason_both_auditors_wrong = 3 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonBothAuditorsWrong"];
+  // DiscrepancyResolutionReasonProviderFault indicates the provider was at fault.
+  discrepancy_resolution_reason_provider_fault = 4 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonProviderFault"];
+  // DiscrepancyResolutionReasonSharedFault indicates fault is shared between the parties.
+  discrepancy_resolution_reason_shared_fault = 5 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonSharedFault"];
+  // DiscrepancyResolutionReasonEvidenceInconclusive indicates evidence was inconclusive.
+  discrepancy_resolution_reason_evidence_inconclusive = 6 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonEvidenceInconclusive"];
+  // DiscrepancyResolutionReasonGovernanceTimeoutReview indicates governance reviewed a timed-out discrepancy.
+  discrepancy_resolution_reason_governance_timeout_review = 7 [(gogoproto.enumvalue_customname) = "DiscrepancyResolutionReasonGovernanceTimeoutReview"];
+}
+
+// ProviderBondSlashReason enumerates the reasons a provider bond may be slashed.
+enum ProviderBondSlashReason {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // ProviderBondSlashReasonUnspecified is the default; no reason has been set.
+  provider_bond_slash_reason_unspecified = 0 [(gogoproto.enumvalue_customname) = "ProviderBondSlashReasonUnspecified"];
+  // ProviderBondSlashReasonResourceMisrepresentation indicates the provider misrepresented its resources.
+  provider_bond_slash_reason_resource_misrepresentation = 1 [(gogoproto.enumvalue_customname) = "ProviderBondSlashReasonResourceMisrepresentation"];
+  // ProviderBondSlashReasonCapacityOverstatement indicates the provider overstated its capacity.
+  provider_bond_slash_reason_capacity_overstatement = 2 [(gogoproto.enumvalue_customname) = "ProviderBondSlashReasonCapacityOverstatement"];
+  // ProviderBondSlashReasonFraudulentSnapshot indicates the provider submitted a fraudulent snapshot.
+  provider_bond_slash_reason_fraudulent_snapshot = 3 [(gogoproto.enumvalue_customname) = "ProviderBondSlashReasonFraudulentSnapshot"];
+  // ProviderBondSlashReasonProviderCompromise indicates the provider was compromised.
+  provider_bond_slash_reason_provider_compromise = 4 [(gogoproto.enumvalue_customname) = "ProviderBondSlashReasonProviderCompromise"];
+  // ProviderBondSlashReasonSLABreach indicates the provider breached an SLA.
+  provider_bond_slash_reason_sla_breach = 5 [(gogoproto.enumvalue_customname) = "ProviderBondSlashReasonSLABreach"];
+  // ProviderBondSlashReasonNonCooperationDuringAudit indicates the provider did not cooperate during an audit.
+  provider_bond_slash_reason_non_cooperation_during_audit = 6 [(gogoproto.enumvalue_customname) = "ProviderBondSlashReasonNonCooperationDuringAudit"];
+}
+
+// AuditEscrowStatus represents the lifecycle status of an audit escrow record.
+enum AuditEscrowStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // AuditEscrowStatusUnspecified is the default; no status has been set.
+  audit_escrow_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "AuditEscrowStatusUnspecified"];
+  // AuditEscrowStatusOpen indicates the escrow is open and may be consumed by an attestation.
+  audit_escrow_status_open = 1 [(gogoproto.enumvalue_customname) = "AuditEscrowStatusOpen"];
+  // AuditEscrowStatusConsumed indicates the escrow has been consumed by an attestation.
+  audit_escrow_status_consumed = 2 [(gogoproto.enumvalue_customname) = "AuditEscrowStatusConsumed"];
+  // AuditEscrowStatusCancelled indicates the escrow was cancelled before consumption.
+  audit_escrow_status_cancelled = 3 [(gogoproto.enumvalue_customname) = "AuditEscrowStatusCancelled"];
+  // AuditEscrowStatusExpired indicates the escrow expired before consumption.
+  audit_escrow_status_expired = 4 [(gogoproto.enumvalue_customname) = "AuditEscrowStatusExpired"];
+  // AuditEscrowStatusSettled indicates the escrow has been finally settled.
+  audit_escrow_status_settled = 5 [(gogoproto.enumvalue_customname) = "AuditEscrowStatusSettled"];
+}
+
+// VerificationGraceStatus tracks the status of a provider's verification grace period.
+enum VerificationGraceStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // VerificationGraceStatusUnspecified is the default; no grace status has been set.
+  verification_grace_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "VerificationGraceStatusUnspecified"];
+  // VerificationGraceStatusActive indicates the grace window is open.
+  verification_grace_status_active = 1 [(gogoproto.enumvalue_customname) = "VerificationGraceStatusActive"];
+  // VerificationGraceStatusExpired indicates the grace window has elapsed.
+  verification_grace_status_expired = 2 [(gogoproto.enumvalue_customname) = "VerificationGraceStatusExpired"];
+  // VerificationGraceStatusTerminated indicates the grace window was terminated early.
+  verification_grace_status_terminated = 3 [(gogoproto.enumvalue_customname) = "VerificationGraceStatusTerminated"];
+}
+
+// DiscrepancyStatus represents the lifecycle status of a discrepancy event.
+enum DiscrepancyStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // DiscrepancyStatusUnspecified is the default; no status has been set.
+  discrepancy_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "DiscrepancyStatusUnspecified"];
+  // DiscrepancyStatusPending indicates the discrepancy is awaiting resolution.
+  discrepancy_status_pending = 1 [(gogoproto.enumvalue_customname) = "DiscrepancyStatusPending"];
+  // DiscrepancyStatusResolved indicates the discrepancy has been resolved.
+  discrepancy_status_resolved = 2 [(gogoproto.enumvalue_customname) = "DiscrepancyStatusResolved"];
+  // DiscrepancyStatusTimedOut indicates the discrepancy resolution window timed out.
+  discrepancy_status_timed_out = 3 [(gogoproto.enumvalue_customname) = "DiscrepancyStatusTimedOut"];
+}
+
+// CapabilityFlag enumerates the optional provider capabilities that may be asserted
+// by attestations and requested by deployments via the SDL.
+enum CapabilityFlag {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // CapabilityUnspecified is the default; no capability has been asserted.
+  capability_unspecified = 0 [(gogoproto.enumvalue_customname) = "CapabilityUnspecified"];
+  // CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+  capability_tee_hardware_attestation = 1 [(gogoproto.enumvalue_customname) = "CapabilityTEEHardwareAttestation"];
+  // CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+  capability_confidential_computing = 2 [(gogoproto.enumvalue_customname) = "CapabilityConfidentialComputing"];
+  // CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+  capability_persistent_storage = 3 [(gogoproto.enumvalue_customname) = "CapabilityPersistentStorage"];
+  // CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+  capability_bare_metal = 4 [(gogoproto.enumvalue_customname) = "CapabilityBareMetal"];
+}
+
+// AuditorSelectionMode controls how the `required_auditors` list on a
+// VerificationRequirement is evaluated against a provider's set of attestations.
+enum AuditorSelectionMode {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // AuditorSelectionModeUnspecified is the default; treated as Any.
+  auditor_selection_mode_unspecified = 0 [(gogoproto.enumvalue_customname) = "AuditorSelectionModeUnspecified"];
+  // AuditorSelectionModeAny matches when any one of the required auditors has attested.
+  auditor_selection_mode_any = 1 [(gogoproto.enumvalue_customname) = "AuditorSelectionModeAny"];
+  // AuditorSelectionModeAll matches only when all required auditors have attested.
+  auditor_selection_mode_all = 2 [(gogoproto.enumvalue_customname) = "AuditorSelectionModeAll"];
+}
