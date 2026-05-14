@@ -197,3 +197,46 @@ func TestV2Verification_toProto_DefaultAuditorMode(t *testing.T) {
 	require.NotNil(t, got)
 	assert.Equal(t, verificationv1.AuditorSelectionModeAny, got.AuditorMode)
 }
+
+// TestV2Verification_toProto_CollapseVacuous proves that a fully vacuous SDL
+// block (min_tier=0, no capabilities, no auditors, no min_auditor_count)
+// collapses to nil — making `verification: { min_tier: 0 }` exactly equivalent
+// to omitting the block, per AEP-86 §3.5.
+func TestV2Verification_toProto_CollapseVacuous(t *testing.T) {
+	cases := []struct {
+		name string
+		v    *v2Verification
+	}{
+		{name: "zero struct", v: &v2Verification{}},
+		{name: "explicit min_tier 0", v: &v2Verification{MinTier: 0}},
+		{name: "auditor_mode alone is no filter", v: &v2Verification{AuditorMode: "all"}},
+		{name: "auditor_mode any is no filter", v: &v2Verification{AuditorMode: "any"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Nil(t, tc.v.toProto(),
+				"vacuous block must collapse to nil so chain state stays canonical")
+		})
+	}
+}
+
+// TestV2Verification_toProto_DoesNotCollapseFiltering proves that any block
+// expressing real filtering — non-zero tier, any capability, any auditor, or
+// a min count — survives `toProto()` as a non-nil proto.
+func TestV2Verification_toProto_DoesNotCollapseFiltering(t *testing.T) {
+	cases := []struct {
+		name string
+		v    *v2Verification
+	}{
+		{name: "min_tier only", v: &v2Verification{MinTier: 1}},
+		{name: "capability only", v: &v2Verification{Capabilities: []string{"tee_hardware_attestation"}}},
+		{name: "auditor only", v: &v2Verification{Auditors: []string{"akash1abc"}}},
+		{name: "min_auditor_count only", v: &v2Verification{MinAuditorCount: 1}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.NotNil(t, tc.v.toProto(),
+				"block with any real filtering field set must survive toProto")
+		})
+	}
+}
