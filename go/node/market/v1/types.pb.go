@@ -29,9 +29,19 @@ const (
 	// This value indicates an uninitialized or invalid lease closure reason and should not
 	// be used
 	LeaseClosedReasonInvalid LeaseClosedReason = 0
-	// values between 1..9999 indicate owner‑initiated close
+	// values between 1..9999 indicate owner‑initiated close.
+	//
+	// AEP-86 names this the "tenant" close reason: the tenant (deployment owner)
+	// voluntarily ended the lease. Per AEP-86 §1.3, this category counts as
+	// "completed" for the provider's lease-completion-rate metric and does not
+	// count against the provider's verification standing.
 	LeaseClosedReasonOwner LeaseClosedReason = 1
-	// values between 10000..19999 are indicating provider initiated close
+	// values between 10000..19999 are indicating provider initiated close.
+	//
+	// Per AEP-86 §1.3, every value in this range counts as a "terminated"
+	// closure and is the only category that counts AGAINST the provider's
+	// lease-completion-rate metric (used as an L3+ prerequisite).
+	//
 	// lease_closed_reason_unstable lease workloads have been unstable
 	LeaseClosedReasonUnstable LeaseClosedReason = 10000
 	// lease_closed_reason_decommission provider is being decommissioned
@@ -42,7 +52,11 @@ const (
 	LeaseClosedReasonManifestTimeout LeaseClosedReason = 10003
 	// lease_closed_reason_provider provider-initiated close used by AEP-86 to drive the lease completion rate metric
 	LeaseClosedReasonProvider LeaseClosedReason = 10004
-	// values between 20000..29999 indicate network‑initiated close
+	// values between 20000..29999 indicate network‑initiated close.
+	//
+	// Per AEP-86 §1.3, this category counts as "completed" for the provider's
+	// lease-completion-rate metric (the escrow depletion is not the provider's
+	// fault).
 	LeaseClosedReasonInsufficientFunds LeaseClosedReason = 20000
 )
 
