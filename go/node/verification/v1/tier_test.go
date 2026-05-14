@@ -127,34 +127,53 @@ func TestMinBondForTier(t *testing.T) {
 	}
 
 	cases := []struct {
-		name    string
-		tier    VerificationTier
-		want    sdk.Coin
-		wantErr bool
+		name string
+		tier VerificationTier
+		want sdk.Coin
 	}{
-		{"L1 returns BondL1", TierIdentified, bondL1, false},
-		{"L2 returns BondL2", TierVerified, bondL2, false},
-		{"L3 returns BondL3", TierEstablished, bondL3, false},
-		{"L4 returns BondL4", TierTrusted, bondL4, false},
-		{"L0 returns error", TierUnspecified, sdk.Coin{}, true},
-		{"unknown tier returns error", VerificationTier(99), sdk.Coin{}, true},
+		{"L1 returns BondL1", TierIdentified, bondL1},
+		{"L2 returns BondL2", TierVerified, bondL2},
+		{"L3 returns BondL3", TierEstablished, bondL3},
+		{"L4 returns BondL4", TierTrusted, bondL4},
+		{"L0 returns zero coin in BondL1 denom", TierUnspecified, sdk.NewCoin(denom, math.ZeroInt())},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := MinBondForTier(p, tc.tier)
-			if tc.wantErr {
-				if err == nil {
-					t.Fatalf("MinBondForTier(%v) returned no error; want error", tc.tier)
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("MinBondForTier(%v) returned error %v; want nil", tc.tier, err)
-			}
+			got := MinBondForTier(p, tc.tier)
 			if !got.IsEqual(tc.want) {
 				t.Errorf("MinBondForTier(%v) = %v; want %v", tc.tier, got, tc.want)
 			}
 		})
+	}
+}
+
+// TestMinBondForTier_UnknownTierPanics asserts that an unrecognized tier value
+// panics rather than silently returning a coin. Tier values flow from chain-
+// validated proto fields, so an unknown value is a programmer bug or corrupted
+// state — fail loud rather than authorize the wrong bond amount.
+func TestMinBondForTier_UnknownTierPanics(t *testing.T) {
+	p := Params{BondL1: sdk.NewCoin("uakt", math.NewInt(1))}
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatalf("MinBondForTier(unknown) did not panic")
+		}
+	}()
+	_ = MinBondForTier(p, VerificationTier(99))
+}
+
+// TestMinBondForTier_L0_PreservesDenom proves the zero coin returned for L0
+// carries Params.BondL1.Denom so callers comparing against a provider's bond
+// in the same denom get a clean comparison.
+func TestMinBondForTier_L0_PreservesDenom(t *testing.T) {
+	const denom = "uakt"
+	p := Params{BondL1: sdk.NewCoin(denom, math.NewInt(42))}
+	got := MinBondForTier(p, TierUnspecified)
+	if got.Denom != denom {
+		t.Errorf("L0 zero coin denom = %q; want %q", got.Denom, denom)
+	}
+	if !got.Amount.IsZero() {
+		t.Errorf("L0 zero coin amount = %v; want zero", got.Amount)
 	}
 }
