@@ -1,0 +1,646 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/timestamp.proto";
+
+import "akash/verification/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// AuditorRecord captures the on-chain state of a registered auditor including
+// status, maximum attestation tier, bonded amount, registration and renewal
+// timestamps, discrepancy counter, and any pending bond unbonding completion.
+message AuditorRecord {
+  // Address is the bech32 account address of the auditor.
+  string address = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "address",
+    (gogoproto.moretags)  = "yaml:\"address\""
+  ];
+
+  // Status is the lifecycle status of the auditor record.
+  AuditorStatus status = 2 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+
+  // MaxAttestationTier is the highest verification tier this auditor is
+  // permitted to attest, based on the bond posted at registration.
+  VerificationTier max_attestation_tier = 3 [
+    (gogoproto.jsontag)  = "max_attestation_tier",
+    (gogoproto.moretags) = "yaml:\"max_attestation_tier\""
+  ];
+
+  // BondAmount is the coin amount currently bonded by the auditor.
+  cosmos.base.v1beta1.Coin bond_amount = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_amount",
+    (gogoproto.moretags) = "yaml:\"bond_amount\""
+  ];
+
+  // BondStatus is the current status of the auditor bond.
+  BondStatus bond_status = 5 [
+    (gogoproto.jsontag)  = "bond_status",
+    (gogoproto.moretags) = "yaml:\"bond_status\""
+  ];
+
+  // MetadataHash is an opaque hash referencing auditor metadata (off-chain).
+  bytes metadata_hash = 6 [
+    (gogoproto.jsontag)  = "metadata_hash",
+    (gogoproto.moretags) = "yaml:\"metadata_hash\""
+  ];
+
+  // RegisteredAt is the chain timestamp at which this auditor was registered.
+  google.protobuf.Timestamp registered_at = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "registered_at",
+    (gogoproto.moretags) = "yaml:\"registered_at\""
+  ];
+
+  // RenewalDeadline is the chain timestamp by which the auditor must renew.
+  google.protobuf.Timestamp renewal_deadline = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "renewal_deadline",
+    (gogoproto.moretags) = "yaml:\"renewal_deadline\""
+  ];
+
+  // DiscrepancyCount is the running count of discrepancies attributed to this
+  // auditor; used by the keeper to enforce the discrepancy threshold.
+  uint64 discrepancy_count = 9 [
+    (gogoproto.jsontag)  = "discrepancy_count",
+    (gogoproto.moretags) = "yaml:\"discrepancy_count\""
+  ];
+
+  // BondUnbondingCompletionTime is the time at which a pending bond unbonding
+  // completes; nil when no unbonding is in progress.
+  google.protobuf.Timestamp bond_unbonding_completion_time = 10 [
+    (gogoproto.nullable) = true,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "bond_unbonding_completion_time,omitempty",
+    (gogoproto.moretags) = "yaml:\"bond_unbonding_completion_time,omitempty\""
+  ];
+}
+
+// AttestationRecord captures a single attestation issued by an auditor about
+// a provider, including the asserted tier and capabilities, the evidence
+// reference, the audit fee, lifecycle and fault state, anti-griefing
+// deposit, and the audit-escrow ID that authorized the attestation.
+message AttestationRecord {
+  // Provider is the bech32 account address of the attested provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the issuing auditor.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Tier is the verification tier the auditor asserts for the provider.
+  VerificationTier tier = 3 [
+    (gogoproto.jsontag)  = "tier",
+    (gogoproto.moretags) = "yaml:\"tier\""
+  ];
+
+  // Capabilities is the set of capability flags the auditor asserts.
+  repeated CapabilityFlag capabilities = 4 [
+    (gogoproto.jsontag)  = "capabilities",
+    (gogoproto.moretags) = "yaml:\"capabilities\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the auditor's evidence (off-chain).
+  bytes evidence_hash = 5 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+
+  // Fee is the audit fee paid by the provider for this attestation.
+  cosmos.base.v1beta1.Coin fee = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "fee",
+    (gogoproto.moretags) = "yaml:\"fee\""
+  ];
+
+  // FeeStatus is the lifecycle status of the fee held against this attestation.
+  FeeStatus fee_status = 7 [
+    (gogoproto.jsontag)  = "fee_status",
+    (gogoproto.moretags) = "yaml:\"fee_status\""
+  ];
+
+  // CreatedAt is the chain timestamp at which the attestation was created.
+  google.protobuf.Timestamp created_at = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "created_at",
+    (gogoproto.moretags) = "yaml:\"created_at\""
+  ];
+
+  // ExpiresAt is the chain timestamp at which the attestation expires.
+  google.protobuf.Timestamp expires_at = 9 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "expires_at",
+    (gogoproto.moretags) = "yaml:\"expires_at\""
+  ];
+
+  // Status is the lifecycle status of the attestation.
+  AttestationStatus status = 10 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+
+  // VoidedReason carries the typed reason when status == Voided.
+  VoidedReason voided_reason = 11 [
+    (gogoproto.jsontag)  = "voided_reason",
+    (gogoproto.moretags) = "yaml:\"voided_reason\""
+  ];
+
+  // Deposit is the anti-griefing deposit posted by the auditor.
+  cosmos.base.v1beta1.Coin deposit = 12 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "deposit",
+    (gogoproto.moretags) = "yaml:\"deposit\""
+  ];
+
+  // DepositStatus is the lifecycle status of the auditor's deposit.
+  DepositStatus deposit_status = 13 [
+    (gogoproto.jsontag)  = "deposit_status",
+    (gogoproto.moretags) = "yaml:\"deposit_status\""
+  ];
+
+  // AuditEscrowID is the identifier of the audit escrow that authorized this
+  // attestation.
+  uint64 audit_escrow_id = 14 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+
+  // FaultAttribution carries the fault attribution recorded after settlement
+  // or governance resolution involving this attestation.
+  FaultAttribution fault_attribution = 15 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+}
+
+// AuditEscrowRecord captures an audit escrow opened by a provider to fund a
+// pending attestation, including the requested tier and capabilities, the
+// audit fee and provider deposit, lifecycle status, lifecycle timestamps,
+// metadata reference, and final settlement attribution.
+message AuditEscrowRecord {
+  // ID is the unique identifier of the audit escrow.
+  uint64 id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Provider is the bech32 account address of the provider that opened the escrow.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // ConsumedByAuditor is the bech32 address of the auditor that consumed the
+  // escrow when filing an attestation; empty until consumption.
+  string consumed_by_auditor = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "consumed_by_auditor",
+    (gogoproto.moretags)  = "yaml:\"consumed_by_auditor\""
+  ];
+
+  // RequestedTier is the verification tier the provider is requesting.
+  VerificationTier requested_tier = 4 [
+    (gogoproto.jsontag)  = "requested_tier",
+    (gogoproto.moretags) = "yaml:\"requested_tier\""
+  ];
+
+  // RequestedCapabilities is the set of capability flags the provider is requesting.
+  repeated CapabilityFlag requested_capabilities = 5 [
+    (gogoproto.jsontag)  = "requested_capabilities",
+    (gogoproto.moretags) = "yaml:\"requested_capabilities\""
+  ];
+
+  // Fee is the audit fee escrowed by the provider.
+  cosmos.base.v1beta1.Coin fee = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "fee",
+    (gogoproto.moretags) = "yaml:\"fee\""
+  ];
+
+  // FeeStatus is the lifecycle status of the escrowed fee.
+  FeeStatus fee_status = 7 [
+    (gogoproto.jsontag)  = "fee_status",
+    (gogoproto.moretags) = "yaml:\"fee_status\""
+  ];
+
+  // ProviderDeposit is the deposit a provider escrows alongside the fee.
+  cosmos.base.v1beta1.Coin provider_deposit = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "provider_deposit",
+    (gogoproto.moretags) = "yaml:\"provider_deposit\""
+  ];
+
+  // ProviderDepositStatus is the lifecycle status of the provider deposit.
+  ProviderDepositStatus provider_deposit_status = 9 [
+    (gogoproto.jsontag)  = "provider_deposit_status",
+    (gogoproto.moretags) = "yaml:\"provider_deposit_status\""
+  ];
+
+  // Status is the lifecycle status of the audit escrow.
+  AuditEscrowStatus status = 10 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+
+  // OpenedAt is the chain timestamp at which the escrow was opened.
+  google.protobuf.Timestamp opened_at = 11 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "opened_at",
+    (gogoproto.moretags) = "yaml:\"opened_at\""
+  ];
+
+  // ConsumedAt is the chain timestamp at which the escrow was consumed; nil
+  // until consumption.
+  google.protobuf.Timestamp consumed_at = 12 [
+    (gogoproto.nullable) = true,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "consumed_at,omitempty",
+    (gogoproto.moretags) = "yaml:\"consumed_at,omitempty\""
+  ];
+
+  // ExpiresAt is the chain timestamp at which an unconsumed escrow expires.
+  google.protobuf.Timestamp expires_at = 13 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "expires_at",
+    (gogoproto.moretags) = "yaml:\"expires_at\""
+  ];
+
+  // MetadataHash is an opaque hash referencing escrow metadata (off-chain).
+  bytes metadata_hash = 14 [
+    (gogoproto.jsontag)  = "metadata_hash",
+    (gogoproto.moretags) = "yaml:\"metadata_hash\""
+  ];
+
+  // SettlementReason is the typed reason recorded when the escrow is settled.
+  AuditEscrowSettlementReason settlement_reason = 15 [
+    (gogoproto.jsontag)  = "settlement_reason",
+    (gogoproto.moretags) = "yaml:\"settlement_reason\""
+  ];
+
+  // FaultAttribution is the fault attribution recorded at settlement.
+  FaultAttribution fault_attribution = 16 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+}
+
+// VerificationStoreRecord is a generic any-typed wrapper used by genesis
+// import/export to carry sub-record payloads addressed by their proto type URL.
+message VerificationStoreRecord {
+  // TypeURL is the fully-qualified proto type URL of the wrapped record.
+  string type_url = 1 [
+    (gogoproto.customname) = "TypeURL",
+    (gogoproto.jsontag)    = "type_url",
+    (gogoproto.moretags)   = "yaml:\"type_url\""
+  ];
+
+  // Value is the serialized bytes of the wrapped record.
+  bytes value = 2 [
+    (gogoproto.jsontag)  = "value",
+    (gogoproto.moretags) = "yaml:\"value\""
+  ];
+}
+
+// DiscrepancyEvent captures a disagreement between two auditors over a
+// provider, including both attestations' asserted tiers, the resolution
+// state, pointers to the governance proposal and grace record (if any),
+// and the final resolution attribution recorded at settlement.
+message DiscrepancyEvent {
+  // ID is the unique identifier of the discrepancy event.
+  uint64 id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Provider is the bech32 account address of the provider in dispute.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // AuditorA is the bech32 account address of the first auditor.
+  string auditor_a = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor_a",
+    (gogoproto.moretags)  = "yaml:\"auditor_a\""
+  ];
+
+  // AuditorATier is the tier asserted by auditor A.
+  VerificationTier auditor_a_tier = 4 [
+    (gogoproto.jsontag)  = "auditor_a_tier",
+    (gogoproto.moretags) = "yaml:\"auditor_a_tier\""
+  ];
+
+  // AuditorB is the bech32 account address of the second auditor.
+  string auditor_b = 5 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor_b",
+    (gogoproto.moretags)  = "yaml:\"auditor_b\""
+  ];
+
+  // AuditorBTier is the tier asserted by auditor B.
+  VerificationTier auditor_b_tier = 6 [
+    (gogoproto.jsontag)  = "auditor_b_tier",
+    (gogoproto.moretags) = "yaml:\"auditor_b_tier\""
+  ];
+
+  // Timestamp is the chain time at which the discrepancy was detected.
+  google.protobuf.Timestamp timestamp = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "timestamp",
+    (gogoproto.moretags) = "yaml:\"timestamp\""
+  ];
+
+  // ResolutionStatus is the lifecycle status of the resolution flow.
+  DiscrepancyStatus resolution_status = 8 [
+    (gogoproto.jsontag)  = "resolution_status",
+    (gogoproto.moretags) = "yaml:\"resolution_status\""
+  ];
+
+  // ResolutionProposalID is the governance proposal that resolved the
+  // discrepancy; zero when no proposal has been filed.
+  uint64 resolution_proposal_id = 9 [
+    (gogoproto.customname) = "ResolutionProposalID",
+    (gogoproto.jsontag)    = "resolution_proposal_id",
+    (gogoproto.moretags)   = "yaml:\"resolution_proposal_id\""
+  ];
+
+  // GraceRecordID is the provider verification grace record opened in response
+  // to this discrepancy; zero when no grace record exists.
+  uint64 grace_record_id = 10 [
+    (gogoproto.customname) = "GraceRecordID",
+    (gogoproto.jsontag)    = "grace_record_id",
+    (gogoproto.moretags)   = "yaml:\"grace_record_id\""
+  ];
+
+  // ResolutionReason is the typed reason recorded at resolution.
+  DiscrepancyResolutionReason resolution_reason = 11 [
+    (gogoproto.jsontag)  = "resolution_reason",
+    (gogoproto.moretags) = "yaml:\"resolution_reason\""
+  ];
+
+  // FaultAttribution is the fault attribution recorded at resolution.
+  FaultAttribution fault_attribution = 12 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+
+  // ResolutionEvidenceHash is an opaque hash referencing the evidence used at
+  // resolution (off-chain).
+  bytes resolution_evidence_hash = 13 [
+    (gogoproto.jsontag)  = "resolution_evidence_hash",
+    (gogoproto.moretags) = "yaml:\"resolution_evidence_hash\""
+  ];
+}
+
+// ProviderVerificationGraceRecord preserves a provider's verification tier
+// across a discrepancy by tracking the source discrepancies, preserved tier,
+// and the grace window during which the provider may continue to operate.
+message ProviderVerificationGraceRecord {
+  // ID is the unique identifier of the grace record.
+  uint64 id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Provider is the bech32 account address of the provider in grace.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // PreservedTier is the verification tier preserved for the provider during grace.
+  VerificationTier preserved_tier = 3 [
+    (gogoproto.jsontag)  = "preserved_tier",
+    (gogoproto.moretags) = "yaml:\"preserved_tier\""
+  ];
+
+  // SourceDiscrepancyIDs is the list of discrepancy IDs that opened this grace.
+  repeated uint64 source_discrepancy_ids = 4 [
+    (gogoproto.customname) = "SourceDiscrepancyIDs",
+    (gogoproto.jsontag)    = "source_discrepancy_ids",
+    (gogoproto.moretags)   = "yaml:\"source_discrepancy_ids\""
+  ];
+
+  // StartedAt is the chain timestamp at which the grace window began.
+  google.protobuf.Timestamp started_at = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "started_at",
+    (gogoproto.moretags) = "yaml:\"started_at\""
+  ];
+
+  // ExpiresAt is the chain timestamp at which the grace window expires.
+  google.protobuf.Timestamp expires_at = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "expires_at",
+    (gogoproto.moretags) = "yaml:\"expires_at\""
+  ];
+
+  // Status is the lifecycle status of the grace window.
+  VerificationGraceStatus status = 7 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+}
+
+// ProviderBondRecord holds a provider's resource-scaled verification bond,
+// any unbonding entries currently in progress, and slash history.
+message ProviderBondRecord {
+  // Provider is the bech32 account address of the bonded provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // BondedAmount is the coin amount currently bonded by the provider.
+  cosmos.base.v1beta1.Coin bonded_amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bonded_amount",
+    (gogoproto.moretags) = "yaml:\"bonded_amount\""
+  ];
+
+  // UnbondingEntries is the list of pending unbondings against this bond.
+  repeated UnbondingEntry unbonding_entries = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "unbonding_entries",
+    (gogoproto.moretags) = "yaml:\"unbonding_entries\""
+  ];
+
+  // Slashed indicates whether this provider bond has ever been slashed.
+  bool slashed = 4 [
+    (gogoproto.jsontag)  = "slashed",
+    (gogoproto.moretags) = "yaml:\"slashed\""
+  ];
+
+  // LastSlashTime is the chain timestamp of the most recent slash; nil if
+  // the bond has never been slashed.
+  google.protobuf.Timestamp last_slash_time = 5 [
+    (gogoproto.nullable) = true,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "last_slash_time,omitempty",
+    (gogoproto.moretags) = "yaml:\"last_slash_time,omitempty\""
+  ];
+}
+
+// UnbondingEntry represents a single bond-unbonding amount and completion
+// time queued against a provider or auditor bond.
+message UnbondingEntry {
+  // Amount is the coin amount queued for unbonding.
+  cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+
+  // CompletionTime is the chain timestamp at which this entry completes
+  // unbonding and the amount becomes spendable.
+  google.protobuf.Timestamp completion_time = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "completion_time",
+    (gogoproto.moretags) = "yaml:\"completion_time\""
+  ];
+}
+
+// ResourceSummary captures the resource counts a provider claims at snapshot
+// time. Used by the chain to scale the provider bond requirement and as
+// evidence in snapshot records. The software_version and software_signature
+// fields are evidence-only and do not drive on-chain enforcement.
+message ResourceSummary {
+  // TotalGPUs is the total number of GPUs the provider claims.
+  uint32 total_gpus = 1 [
+    (gogoproto.customname) = "TotalGPUs",
+    (gogoproto.jsontag)    = "total_gpus",
+    (gogoproto.moretags)   = "yaml:\"total_gpus\""
+  ];
+
+  // TotalVCPUs is the total number of virtual CPUs the provider claims.
+  uint32 total_vcpus = 2 [
+    (gogoproto.customname) = "TotalVCPUs",
+    (gogoproto.jsontag)    = "total_vcpus",
+    (gogoproto.moretags)   = "yaml:\"total_vcpus\""
+  ];
+
+  // TotalMemoryMB is the total memory in megabytes the provider claims.
+  uint64 total_memory_mb = 3 [
+    (gogoproto.customname) = "TotalMemoryMB",
+    (gogoproto.jsontag)    = "total_memory_mb",
+    (gogoproto.moretags)   = "yaml:\"total_memory_mb\""
+  ];
+
+  // TotalStorageMB is the total storage in megabytes the provider claims.
+  uint64 total_storage_mb = 4 [
+    (gogoproto.customname) = "TotalStorageMB",
+    (gogoproto.jsontag)    = "total_storage_mb",
+    (gogoproto.moretags)   = "yaml:\"total_storage_mb\""
+  ];
+
+  // ActiveLeases is the number of leases currently active on the provider.
+  uint32 active_leases = 5 [
+    (gogoproto.jsontag)  = "active_leases",
+    (gogoproto.moretags) = "yaml:\"active_leases\""
+  ];
+
+  // SoftwareVersion is the provider software version string (evidence-only,
+  // not enforced on-chain in L-1).
+  string software_version = 6 [
+    (gogoproto.jsontag)  = "software_version",
+    (gogoproto.moretags) = "yaml:\"software_version\""
+  ];
+
+  // SoftwareSignature is the provider software signature bytes (evidence-only,
+  // not enforced on-chain in L-1).
+  bytes software_signature = 7 [
+    (gogoproto.jsontag)  = "software_signature",
+    (gogoproto.moretags) = "yaml:\"software_signature\""
+  ];
+}
+
+// ProviderSnapshotRecord is the on-chain record of a provider's most recent
+// resource snapshot, including the snapshot hash, resource summary, posting
+// and snapshot timestamps, the compliance deadline, and suspension state.
+message ProviderSnapshotRecord {
+  // Provider is the bech32 account address of the snapshotting provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // SnapshotHash is the opaque hash of the snapshot payload (off-chain).
+  bytes snapshot_hash = 2 [
+    (gogoproto.jsontag)  = "snapshot_hash",
+    (gogoproto.moretags) = "yaml:\"snapshot_hash\""
+  ];
+
+  // ResourceSummary is the inline resource counts the provider claims at snapshot time.
+  ResourceSummary resource_summary = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "resource_summary",
+    (gogoproto.moretags) = "yaml:\"resource_summary\""
+  ];
+
+  // PostedAt is the chain timestamp at which the snapshot record was posted on-chain.
+  google.protobuf.Timestamp posted_at = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "posted_at",
+    (gogoproto.moretags) = "yaml:\"posted_at\""
+  ];
+
+  // SnapshotTimestamp is the timestamp embedded by the provider in the snapshot itself.
+  google.protobuf.Timestamp snapshot_timestamp = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "snapshot_timestamp",
+    (gogoproto.moretags) = "yaml:\"snapshot_timestamp\""
+  ];
+
+  // ComplianceDeadline is the chain timestamp by which the next snapshot must be posted
+  // to remain compliant with the snapshot cadence.
+  google.protobuf.Timestamp compliance_deadline = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "compliance_deadline",
+    (gogoproto.moretags) = "yaml:\"compliance_deadline\""
+  ];
+
+  // Suspended indicates whether this provider snapshot has been suspended for
+  // missing the compliance deadline.
+  bool suspended = 7 [
+    (gogoproto.jsontag)  = "suspended",
+    (gogoproto.moretags) = "yaml:\"suspended\""
+  ];
+}

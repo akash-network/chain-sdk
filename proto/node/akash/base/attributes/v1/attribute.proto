@@ -3,6 +3,7 @@ syntax = "proto3";
 package akash.base.attributes.v1;
 
 import "gogoproto/gogo.proto";
+import "akash/verification/v1/verificationrequirement.proto";
 
 option (gogoproto.goproto_stringer_all) = false;
 option (gogoproto.stringer_all)         = false;
@@ -59,5 +60,14 @@ message PlacementRequirements {
     (gogoproto.castrepeated) = "Attributes",
     (gogoproto.jsontag)      = "attributes",
     (gogoproto.moretags)     = "yaml:\"attributes\""
+  ];
+
+  // Verification holds the verification requirements for this placement.
+  // Nullable: when nil/omitted, no verification filtering is applied
+  // (backward compatible with pre-AEP-86 SDLs).
+  akash.verification.v1.VerificationRequirement verification = 3 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "verification,omitempty",
+    (gogoproto.moretags) = "yaml:\"verification,omitempty\""
   ];
 }

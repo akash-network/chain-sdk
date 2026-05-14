@@ -322,6 +322,61 @@ properties:
                     type: string
                   type: array
               type: object
+            verification:
+              description: |
+                Optional AEP-86 verification requirements that providers must
+                satisfy to bid on this placement. Omitting the block (or
+                setting min_tier to 0) disables verification filtering for
+                this placement and preserves pre-AEP-86 backward compatibility.
+              additionalProperties: false
+              properties:
+                min_tier:
+                  description: |
+                    Minimum verification tier required of bidding providers.
+                    0 = no requirement (TierUnspecified). Valid values are 0..4
+                    corresponding to L0 (permissionless) through L4 (trusted).
+                  type: integer
+                  minimum: 0
+                  maximum: 4
+                capabilities:
+                  description: |
+                    Optional capability flags the tenant requires bidders to
+                    assert. Each entry must be one of the recognized SDL
+                    capability names.
+                  type: array
+                  items:
+                    enum:
+                      - tee_hardware_attestation
+                      - confidential_computing
+                      - persistent_storage
+                      - bare_metal
+                    type: string
+                auditors:
+                  description: |
+                    Optional list of specific auditor bech32 addresses; the
+                    list is evaluated according to auditor_mode.
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                auditor_mode:
+                  description: |
+                    How the auditors list is evaluated. Omitting the field is
+                    equivalent to "any".
+                  enum:
+                    - any
+                    - all
+                  type: string
+                min_auditor_count:
+                  description: |
+                    Minimum number of independent qualifying auditors that
+                    must have attested the provider, independent of the
+                    auditors list.
+                  type: integer
+                  minimum: 0
+              required:
+                - min_tier
+              type: object
           required:
             - pricing
           type: object
