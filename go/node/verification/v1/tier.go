@@ -8,6 +8,7 @@ package v1
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -42,30 +43,39 @@ func TierRequiresProviderBond(t VerificationTier) bool {
 }
 
 // MinBondForTier returns the auditor-bond amount required for tier `t`, drawn
-// from the per-tier `BondL1`..`BondL4` fields of Params.
+// from the per-tier `BondL1`..`BondL4` fields of Params. The signature matches
+// AEP-86 IMPLEMENTATION.md §3.2 verbatim: a single sdk.Coin return value with
+// no error path.
 //
-// TierUnspecified (L0) returns an error rather than a zero coin: L0 is the
-// permissionless default with no attestation and therefore no auditor bond is
-// associated with it. The spec (§Verification Tiers) treats L1 as the first
-// tier with an economic floor; L0 has no bond requirement at all. Returning
-// an error makes the "no bond exists for this tier" condition unambiguous at
-// call sites — callers must not silently treat a zero coin as "no bond
-// required".
+// Semantics:
+//   - TierIdentified..TierTrusted return the matching Params.BondLn.
+//   - TierUnspecified (L0) returns a **zero coin** in the params bond denom.
+//     L0 is the permissionless default; no auditor bond is associated with it
+//     per the spec. Callers comparing a provider's bond against the result
+//     get the natural short-circuit (every coin is >= zero) without an
+//     error-handling branch.
+//   - An unknown / out-of-range tier value **panics**. Tier values flow only
+//     from chain-validated proto fields, so an unrecognized value indicates
+//     a programmer bug or a corrupted state read — fail loudly rather than
+//     silently authorize the wrong bond amount.
 //
-// An unknown / out-of-range tier value also returns an error.
-func MinBondForTier(p Params, t VerificationTier) (sdk.Coin, error) {
+// The bond denom is taken from Params.BondL1 when the tier is L0 (so the zero
+// coin has the same denom as a real bond requirement). If Params is freshly
+// constructed and BondL1.Denom is empty, the returned coin uses the empty
+// denom — callers must validate Params at genesis time.
+func MinBondForTier(p Params, t VerificationTier) sdk.Coin {
 	switch t {
 	case TierIdentified:
-		return p.BondL1, nil
+		return p.BondL1
 	case TierVerified:
-		return p.BondL2, nil
+		return p.BondL2
 	case TierEstablished:
-		return p.BondL3, nil
+		return p.BondL3
 	case TierTrusted:
-		return p.BondL4, nil
+		return p.BondL4
 	case TierUnspecified:
-		return sdk.Coin{}, fmt.Errorf("no bond requirement for tier %v", t)
+		return sdk.NewCoin(p.BondL1.Denom, math.ZeroInt())
 	default:
-		return sdk.Coin{}, fmt.Errorf("unknown verification tier %v", t)
+		panic(fmt.Sprintf("verification: MinBondForTier: unknown tier %v — programmer bug or corrupted state", t))
 	}
 }
