@@ -38,6 +38,10 @@ enum LeaseClosedReason {
   lease_closed_reason_manifest_timeout = 10003 [
     (gogoproto.enumvalue_customname) = "LeaseClosedReasonManifestTimeout"
   ];
+  // lease_closed_reason_provider provider-initiated close used by AEP-86 to drive the lease completion rate metric
+  lease_closed_reason_provider = 10004 [
+    (gogoproto.enumvalue_customname) = "LeaseClosedReasonProvider"
+  ];
 
   // values between 20000..29999 indicate network‑initiated close
   lease_closed_reason_insufficient_funds = 20000 [

@@ -224,9 +224,10 @@ type v2ProfileCompute struct {
 }
 
 type v2ProfilePlacement struct {
-	Attributes v2PlacementAttributes `yaml:"attributes"`
-	SignedBy   types.SignedBy        `yaml:"signedBy"`
-	Pricing    v2PlacementPricing    `yaml:"pricing"`
+	Attributes   v2PlacementAttributes `yaml:"attributes"`
+	SignedBy     types.SignedBy        `yaml:"signedBy"`
+	Pricing      v2PlacementPricing    `yaml:"pricing"`
+	Verification *v2Verification       `yaml:"verification,omitempty"`
 }
 
 type v2profiles struct {

@@ -4,19 +4,24 @@
 package v1beta4
 
 import (
+	bytes "bytes"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -176,10 +181,182 @@ func (m *EventProviderDeleted) GetOwner() string {
 	return ""
 }
 
+// EventProviderMaintenanceOpened is emitted by the x/provider handler on a
+// successful MsgOpenProviderMaintenance. Tenants, indexers, REST services,
+// and Console use it to map the maintenance window to active leases owned by
+// the provider and to surface tenant-facing alerts off-chain.
+type EventProviderMaintenanceOpened struct {
+	// maintenance_id is the identifier assigned to the new maintenance record.
+	MaintenanceID uint64 `protobuf:"varint,1,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id" yaml:"maintenance_id"`
+	// provider is the bech32 address of the provider that opened the window.
+	//
+	// Example:
+	//   "akash1..."
+	Provider string `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider" yaml:"provider"`
+	// maintenance_type is the declared category of the window.
+	MaintenanceType ProviderMaintenanceType `protobuf:"varint,3,opt,name=maintenance_type,json=maintenanceType,proto3,enum=akash.provider.v1beta4.ProviderMaintenanceType" json:"maintenance_type" yaml:"maintenance_type"`
+	// starts_at is the wall-clock time at which the maintenance window begins.
+	StartsAt time.Time `protobuf:"bytes,4,opt,name=starts_at,json=startsAt,proto3,stdtime" json:"starts_at" yaml:"starts_at"`
+	// expected_ends_at is the wall-clock time at which the provider expects the
+	// window to end.
+	ExpectedEndsAt time.Time `protobuf:"bytes,5,opt,name=expected_ends_at,json=expectedEndsAt,proto3,stdtime" json:"expected_ends_at" yaml:"expected_ends_at"`
+	// metadata_hash is the optional, opaque commitment to off-chain explanatory
+	// metadata supplied in MsgOpenProviderMaintenance.
+	MetadataHash []byte `protobuf:"bytes,6,opt,name=metadata_hash,json=metadataHash,proto3" json:"metadata_hash,omitempty" yaml:"metadata_hash,omitempty"`
+}
+
+func (m *EventProviderMaintenanceOpened) Reset()         { *m = EventProviderMaintenanceOpened{} }
+func (m *EventProviderMaintenanceOpened) String() string { return proto.CompactTextString(m) }
+func (*EventProviderMaintenanceOpened) ProtoMessage()    {}
+func (*EventProviderMaintenanceOpened) Descriptor() ([]byte, []int) {
+	return fileDescriptor_03bf12ee18bdd2de, []int{3}
+}
+func (m *EventProviderMaintenanceOpened) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventProviderMaintenanceOpened) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventProviderMaintenanceOpened.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventProviderMaintenanceOpened) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventProviderMaintenanceOpened.Merge(m, src)
+}
+func (m *EventProviderMaintenanceOpened) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventProviderMaintenanceOpened) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventProviderMaintenanceOpened.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventProviderMaintenanceOpened proto.InternalMessageInfo
+
+func (m *EventProviderMaintenanceOpened) GetMaintenanceID() uint64 {
+	if m != nil {
+		return m.MaintenanceID
+	}
+	return 0
+}
+
+func (m *EventProviderMaintenanceOpened) GetProvider() string {
+	if m != nil {
+		return m.Provider
+	}
+	return ""
+}
+
+func (m *EventProviderMaintenanceOpened) GetMaintenanceType() ProviderMaintenanceType {
+	if m != nil {
+		return m.MaintenanceType
+	}
+	return ProviderMaintenanceType_provider_maintenance_type_unspecified
+}
+
+func (m *EventProviderMaintenanceOpened) GetStartsAt() time.Time {
+	if m != nil {
+		return m.StartsAt
+	}
+	return time.Time{}
+}
+
+func (m *EventProviderMaintenanceOpened) GetExpectedEndsAt() time.Time {
+	if m != nil {
+		return m.ExpectedEndsAt
+	}
+	return time.Time{}
+}
+
+func (m *EventProviderMaintenanceOpened) GetMetadataHash() []byte {
+	if m != nil {
+		return m.MetadataHash
+	}
+	return nil
+}
+
+// EventProviderMaintenanceClosed is emitted by the x/provider handler on a
+// successful MsgCloseProviderMaintenance. It signals to tenant-facing
+// clients that the provider has ended the window earlier than
+// expected_ends_at.
+type EventProviderMaintenanceClosed struct {
+	// maintenance_id is the identifier of the closed maintenance record.
+	MaintenanceID uint64 `protobuf:"varint,1,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id" yaml:"maintenance_id"`
+	// provider is the bech32 address of the provider that closed the window.
+	//
+	// Example:
+	//
+	//	"akash1..."
+	Provider string `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider" yaml:"provider"`
+	// closed_at is the block time at which the handler closed the window.
+	ClosedAt time.Time `protobuf:"bytes,3,opt,name=closed_at,json=closedAt,proto3,stdtime" json:"closed_at" yaml:"closed_at"`
+}
+
+func (m *EventProviderMaintenanceClosed) Reset()         { *m = EventProviderMaintenanceClosed{} }
+func (m *EventProviderMaintenanceClosed) String() string { return proto.CompactTextString(m) }
+func (*EventProviderMaintenanceClosed) ProtoMessage()    {}
+func (*EventProviderMaintenanceClosed) Descriptor() ([]byte, []int) {
+	return fileDescriptor_03bf12ee18bdd2de, []int{4}
+}
+func (m *EventProviderMaintenanceClosed) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventProviderMaintenanceClosed) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventProviderMaintenanceClosed.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventProviderMaintenanceClosed) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventProviderMaintenanceClosed.Merge(m, src)
+}
+func (m *EventProviderMaintenanceClosed) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventProviderMaintenanceClosed) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventProviderMaintenanceClosed.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventProviderMaintenanceClosed proto.InternalMessageInfo
+
+func (m *EventProviderMaintenanceClosed) GetMaintenanceID() uint64 {
+	if m != nil {
+		return m.MaintenanceID
+	}
+	return 0
+}
+
+func (m *EventProviderMaintenanceClosed) GetProvider() string {
+	if m != nil {
+		return m.Provider
+	}
+	return ""
+}
+
+func (m *EventProviderMaintenanceClosed) GetClosedAt() time.Time {
+	if m != nil {
+		return m.ClosedAt
+	}
+	return time.Time{}
+}
+
 func init() {
 	proto.RegisterType((*EventProviderCreated)(nil), "akash.provider.v1beta4.EventProviderCreated")
 	proto.RegisterType((*EventProviderUpdated)(nil), "akash.provider.v1beta4.EventProviderUpdated")
 	proto.RegisterType((*EventProviderDeleted)(nil), "akash.provider.v1beta4.EventProviderDeleted")
+	proto.RegisterType((*EventProviderMaintenanceOpened)(nil), "akash.provider.v1beta4.EventProviderMaintenanceOpened")
+	proto.RegisterType((*EventProviderMaintenanceClosed)(nil), "akash.provider.v1beta4.EventProviderMaintenanceClosed")
 }
 
 func init() {
@@ -187,23 +364,46 @@ func init() {
 }
 
 var fileDescriptor_03bf12ee18bdd2de = []byte{
-	// 249 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x4a, 0xcc, 0x4e, 0x2c,
-	0xce, 0xd0, 0x2f, 0x28, 0xca, 0x2f, 0xcb, 0x4c, 0x49, 0x2d, 0xd2, 0x2f, 0x33, 0x4c, 0x4a, 0x2d,
-	0x49, 0x34, 0xd1, 0x4f, 0x2d, 0x4b, 0xcd, 0x2b, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12,
-	0x03, 0xab, 0xd1, 0x83, 0xa9, 0xd1, 0x83, 0xaa, 0x91, 0x12, 0x49, 0xcf, 0x4f, 0xcf, 0x07, 0x2b,
-	0xd1, 0x07, 0xb1, 0x20, 0xaa, 0xa5, 0x24, 0x93, 0xf3, 0x8b, 0x73, 0xf3, 0x8b, 0xe3, 0x21, 0x12,
-	0x10, 0x0e, 0x44, 0x4a, 0x29, 0x95, 0x4b, 0xc4, 0x15, 0x64, 0x6e, 0x00, 0xd4, 0x24, 0xe7, 0xa2,
-	0xd4, 0xc4, 0x92, 0xd4, 0x14, 0x21, 0x77, 0x2e, 0xd6, 0xfc, 0xf2, 0xbc, 0xd4, 0x22, 0x09, 0x46,
-	0x05, 0x46, 0x0d, 0x4e, 0x27, 0xc3, 0x57, 0xf7, 0xe4, 0x21, 0x02, 0x9f, 0xee, 0xc9, 0xf3, 0x54,
-	0x26, 0xe6, 0xe6, 0x58, 0x29, 0x81, 0xb9, 0x4a, 0x97, 0xb6, 0xe8, 0x8a, 0x40, 0x4d, 0x74, 0x4c,
-	0x49, 0x29, 0x4a, 0x2d, 0x2e, 0x0e, 0x2e, 0x29, 0xca, 0xcc, 0x4b, 0x0f, 0x82, 0x28, 0xb7, 0x62,
-	0x79, 0xb1, 0x40, 0x9e, 0x11, 0xc3, 0x9a, 0xd0, 0x82, 0x14, 0x7a, 0x58, 0xe3, 0x92, 0x9a, 0x93,
-	0x4a, 0x7d, 0x6b, 0x9c, 0xec, 0x4e, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23,
-	0x39, 0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0x4a,
-	0xa5, 0x20, 0x3b, 0x5d, 0x2f, 0x31, 0xbb, 0x44, 0x2f, 0x25, 0xb5, 0x4c, 0x3f, 0x3d, 0x5f, 0x3f,
-	0x2f, 0x3f, 0x25, 0x15, 0x23, 0x26, 0x93, 0xd8, 0xc0, 0x61, 0x6f, 0x0c, 0x08, 0x00, 0x00, 0xff,
-	0xff, 0xd0, 0x37, 0xf5, 0xfa, 0xea, 0x01, 0x00, 0x00,
+	// 610 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x54, 0xcd, 0x6e, 0xd3, 0x4c,
+	0x14, 0x8d, 0xfb, 0xa7, 0xd6, 0x5f, 0x93, 0x46, 0x56, 0x3e, 0x1a, 0xb2, 0xf0, 0x44, 0x16, 0x8b,
+	0x20, 0x81, 0xad, 0x16, 0xa4, 0x4a, 0x15, 0x20, 0xc5, 0x6d, 0x05, 0x5d, 0x20, 0x50, 0x5a, 0x36,
+	0x6c, 0xa2, 0x71, 0xe6, 0xe2, 0x58, 0x89, 0x3d, 0x96, 0x3d, 0x04, 0xb2, 0xe0, 0x09, 0xd8, 0xf4,
+	0x11, 0x78, 0x08, 0x78, 0x03, 0x16, 0x5d, 0x56, 0xac, 0x58, 0x0d, 0x28, 0xd9, 0x20, 0x2f, 0xfd,
+	0x04, 0x28, 0x1e, 0x3b, 0x3f, 0x4d, 0x22, 0xd8, 0x80, 0xc4, 0xce, 0xf7, 0xdc, 0x73, 0xe7, 0xdc,
+	0x7b, 0xe7, 0x8c, 0x65, 0x0d, 0x77, 0x70, 0xd8, 0x36, 0xfc, 0x80, 0xf6, 0x1c, 0x02, 0x81, 0xd1,
+	0xdb, 0xb3, 0x80, 0xe1, 0xfb, 0x06, 0xf4, 0xc0, 0x63, 0xba, 0x1f, 0x50, 0x46, 0x95, 0x1b, 0x09,
+	0x47, 0xcf, 0x38, 0x7a, 0xca, 0xa9, 0x94, 0x6c, 0x6a, 0xd3, 0x84, 0x62, 0x8c, 0xbe, 0x04, 0xbb,
+	0x82, 0x6c, 0x4a, 0xed, 0x2e, 0x18, 0x49, 0x64, 0xbd, 0x7e, 0x65, 0x30, 0xc7, 0x85, 0x90, 0x61,
+	0xd7, 0x4f, 0x09, 0x37, 0x5b, 0x34, 0x74, 0x69, 0xd8, 0x14, 0x95, 0x22, 0x48, 0x53, 0xb5, 0x25,
+	0xdd, 0xb8, 0xd8, 0xf1, 0x18, 0x78, 0xd8, 0x6b, 0x81, 0x60, 0x6a, 0x20, 0x97, 0x4e, 0x46, 0x2d,
+	0x3e, 0x4f, 0xa9, 0x47, 0x01, 0x60, 0x06, 0x44, 0x79, 0x2c, 0xaf, 0xd3, 0x37, 0x1e, 0x04, 0x65,
+	0xa9, 0x2a, 0xd5, 0xb6, 0xcc, 0xbd, 0x88, 0x23, 0x01, 0xc4, 0x1c, 0x6d, 0xf7, 0xb1, 0xdb, 0x3d,
+	0xd4, 0x92, 0x50, 0xfb, 0xf2, 0xf1, 0x6e, 0x29, 0xd5, 0xae, 0x13, 0x12, 0x40, 0x18, 0x9e, 0xb1,
+	0xc0, 0xf1, 0xec, 0x86, 0xa0, 0x1f, 0xae, 0xfd, 0xf8, 0x80, 0xa4, 0x39, 0x99, 0x17, 0x3e, 0xf9,
+	0x1b, 0x32, 0xc7, 0xd0, 0x85, 0x3f, 0x20, 0xf3, 0x69, 0x5d, 0x56, 0x67, 0x74, 0x9e, 0x4e, 0xf6,
+	0xfa, 0xcc, 0x07, 0x0f, 0x88, 0xd2, 0x92, 0x0b, 0x53, 0xcb, 0x6e, 0x3a, 0x24, 0x91, 0x5e, 0x33,
+	0x1f, 0x0c, 0x38, 0xca, 0x4f, 0xd1, 0x4f, 0x8f, 0x23, 0x8e, 0xae, 0x51, 0x63, 0x8e, 0xfe, 0x17,
+	0x4d, 0xcd, 0xe2, 0x5a, 0x23, 0x3f, 0x05, 0x9c, 0x12, 0xe5, 0x4c, 0xde, 0xcc, 0xae, 0xb8, 0xbc,
+	0x92, 0x4c, 0x76, 0x10, 0x71, 0x34, 0xc6, 0x62, 0x8e, 0x76, 0xc4, 0x39, 0x19, 0xb2, 0x7c, 0xbe,
+	0x71, 0x91, 0xf2, 0x5e, 0x92, 0x8b, 0xd3, 0xba, 0xac, 0xef, 0x43, 0x79, 0xb5, 0x2a, 0xd5, 0x0a,
+	0xfb, 0x86, 0xbe, 0xd8, 0xc1, 0xfa, 0x82, 0x3d, 0x9c, 0xf7, 0x7d, 0x30, 0x8d, 0x88, 0xa3, 0xb9,
+	0xc3, 0x62, 0x8e, 0x76, 0xe7, 0xc7, 0x1b, 0x65, 0xb4, 0xc6, 0x8e, 0x3b, 0x7b, 0x82, 0x62, 0xc9,
+	0x5b, 0x21, 0xc3, 0x01, 0x0b, 0x9b, 0x98, 0x95, 0xd7, 0xaa, 0x52, 0xed, 0xbf, 0xfd, 0x8a, 0x2e,
+	0x5e, 0x86, 0x9e, 0xbd, 0x0c, 0xfd, 0x3c, 0x7b, 0x19, 0xe6, 0xed, 0x4b, 0x8e, 0x72, 0x11, 0x47,
+	0x93, 0xa2, 0x98, 0xa3, 0xa2, 0x50, 0x1b, 0x43, 0xda, 0xc5, 0x37, 0x24, 0x35, 0x36, 0x45, 0x5c,
+	0x67, 0xca, 0x3b, 0xb9, 0x08, 0x6f, 0x7d, 0x68, 0x31, 0x20, 0x4d, 0xf0, 0x48, 0x22, 0xb5, 0xfe,
+	0x4b, 0xa9, 0x83, 0x54, 0x6a, 0xae, 0x76, 0x32, 0xdf, 0xf5, 0x8c, 0x10, 0x2e, 0x64, 0xf0, 0x89,
+	0x47, 0x46, 0xf2, 0x96, 0x9c, 0x77, 0x81, 0x61, 0x82, 0x19, 0x6e, 0xb6, 0x71, 0xd8, 0x2e, 0x6f,
+	0x54, 0xa5, 0xda, 0xb6, 0xf9, 0x30, 0xe2, 0x68, 0x77, 0x26, 0x71, 0x87, 0xba, 0x0e, 0x03, 0xd7,
+	0x67, 0xfd, 0x98, 0x23, 0x35, 0x5d, 0xe1, 0x62, 0x82, 0xd6, 0xd8, 0xce, 0x32, 0x4f, 0x70, 0xd8,
+	0x4e, 0x7d, 0xfb, 0x79, 0x65, 0xb9, 0x6f, 0x8f, 0xba, 0x34, 0xfc, 0xa7, 0x7d, 0x6b, 0xc9, 0x5b,
+	0xad, 0x64, 0x86, 0xd1, 0xf5, 0xad, 0xfe, 0xbe, 0x53, 0xc6, 0x45, 0x13, 0xa7, 0x8c, 0xa1, 0xd4,
+	0x29, 0x22, 0xae, 0x33, 0xb1, 0x46, 0xf3, 0xd1, 0xe5, 0x40, 0x95, 0xae, 0x06, 0xaa, 0xf4, 0x7d,
+	0xa0, 0x4a, 0x17, 0x43, 0x35, 0x77, 0x35, 0x54, 0x73, 0x5f, 0x87, 0x6a, 0xee, 0xe5, 0x2d, 0xbf,
+	0x63, 0xeb, 0xb8, 0xc3, 0x74, 0x02, 0x3d, 0xc3, 0xa6, 0x86, 0x47, 0x09, 0xcc, 0xfd, 0x85, 0xad,
+	0x8d, 0xa4, 0x9d, 0x7b, 0x3f, 0x03, 0x00, 0x00, 0xff, 0xff, 0xc6, 0xf5, 0x07, 0xaa, 0x34, 0x06,
+	0x00, 0x00,
 }
 
 func (this *EventProviderCreated) Equal(that interface{}) bool {
@@ -274,6 +474,75 @@ func (this *EventProviderDeleted) Equal(that interface{}) bool {
 		return false
 	}
 	if this.Owner != that1.Owner {
+		return false
+	}
+	return true
+}
+func (this *EventProviderMaintenanceOpened) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventProviderMaintenanceOpened)
+	if !ok {
+		that2, ok := that.(EventProviderMaintenanceOpened)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.MaintenanceID != that1.MaintenanceID {
+		return false
+	}
+	if this.Provider != that1.Provider {
+		return false
+	}
+	if this.MaintenanceType != that1.MaintenanceType {
+		return false
+	}
+	if !this.StartsAt.Equal(that1.StartsAt) {
+		return false
+	}
+	if !this.ExpectedEndsAt.Equal(that1.ExpectedEndsAt) {
+		return false
+	}
+	if !bytes.Equal(this.MetadataHash, that1.MetadataHash) {
+		return false
+	}
+	return true
+}
+func (this *EventProviderMaintenanceClosed) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EventProviderMaintenanceClosed)
+	if !ok {
+		that2, ok := that.(EventProviderMaintenanceClosed)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.MaintenanceID != that1.MaintenanceID {
+		return false
+	}
+	if this.Provider != that1.Provider {
+		return false
+	}
+	if !this.ClosedAt.Equal(that1.ClosedAt) {
 		return false
 	}
 	return true
@@ -368,6 +637,112 @@ func (m *EventProviderDeleted) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *EventProviderMaintenanceOpened) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventProviderMaintenanceOpened) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventProviderMaintenanceOpened) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.MetadataHash) > 0 {
+		i -= len(m.MetadataHash)
+		copy(dAtA[i:], m.MetadataHash)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.MetadataHash)))
+		i--
+		dAtA[i] = 0x32
+	}
+	n1, err1 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.ExpectedEndsAt, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ExpectedEndsAt):])
+	if err1 != nil {
+		return 0, err1
+	}
+	i -= n1
+	i = encodeVarintEvent(dAtA, i, uint64(n1))
+	i--
+	dAtA[i] = 0x2a
+	n2, err2 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.StartsAt, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.StartsAt):])
+	if err2 != nil {
+		return 0, err2
+	}
+	i -= n2
+	i = encodeVarintEvent(dAtA, i, uint64(n2))
+	i--
+	dAtA[i] = 0x22
+	if m.MaintenanceType != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.MaintenanceType))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.Provider) > 0 {
+		i -= len(m.Provider)
+		copy(dAtA[i:], m.Provider)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Provider)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.MaintenanceID != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.MaintenanceID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventProviderMaintenanceClosed) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventProviderMaintenanceClosed) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventProviderMaintenanceClosed) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	n3, err3 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.ClosedAt, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ClosedAt):])
+	if err3 != nil {
+		return 0, err3
+	}
+	i -= n3
+	i = encodeVarintEvent(dAtA, i, uint64(n3))
+	i--
+	dAtA[i] = 0x1a
+	if len(m.Provider) > 0 {
+		i -= len(m.Provider)
+		copy(dAtA[i:], m.Provider)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Provider)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.MaintenanceID != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.MaintenanceID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintEvent(dAtA []byte, offset int, v uint64) int {
 	offset -= sovEvent(v)
 	base := offset
@@ -415,6 +790,51 @@ func (m *EventProviderDeleted) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovEvent(uint64(l))
 	}
+	return n
+}
+
+func (m *EventProviderMaintenanceOpened) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.MaintenanceID != 0 {
+		n += 1 + sovEvent(uint64(m.MaintenanceID))
+	}
+	l = len(m.Provider)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	if m.MaintenanceType != 0 {
+		n += 1 + sovEvent(uint64(m.MaintenanceType))
+	}
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.StartsAt)
+	n += 1 + l + sovEvent(uint64(l))
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ExpectedEndsAt)
+	n += 1 + l + sovEvent(uint64(l))
+	l = len(m.MetadataHash)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	return n
+}
+
+func (m *EventProviderMaintenanceClosed) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.MaintenanceID != 0 {
+		n += 1 + sovEvent(uint64(m.MaintenanceID))
+	}
+	l = len(m.Provider)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ClosedAt)
+	n += 1 + l + sovEvent(uint64(l))
 	return n
 }
 
@@ -648,6 +1068,360 @@ func (m *EventProviderDeleted) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Owner = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvent(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventProviderMaintenanceOpened) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvent
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventProviderMaintenanceOpened: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventProviderMaintenanceOpened: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceID", wireType)
+			}
+			m.MaintenanceID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaintenanceID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Provider", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Provider = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceType", wireType)
+			}
+			m.MaintenanceType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaintenanceType |= ProviderMaintenanceType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartsAt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.StartsAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExpectedEndsAt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.ExpectedEndsAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MetadataHash", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MetadataHash = append(m.MetadataHash[:0], dAtA[iNdEx:postIndex]...)
+			if m.MetadataHash == nil {
+				m.MetadataHash = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvent(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventProviderMaintenanceClosed) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvent
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventProviderMaintenanceClosed: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventProviderMaintenanceClosed: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceID", wireType)
+			}
+			m.MaintenanceID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaintenanceID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Provider", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Provider = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ClosedAt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.ClosedAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

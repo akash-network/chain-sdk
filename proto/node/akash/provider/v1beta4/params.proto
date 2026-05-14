@@ -1,0 +1,32 @@
+syntax = "proto3";
+package akash.provider.v1beta4;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "pkg.akt.dev/go/node/provider/v1beta4";
+
+// ProviderMaintenanceParams holds the governance-tunable bounds enforced by
+// the x/provider module when a provider opens a maintenance window.
+//
+// These values are mutated only through MsgUpdateParams which is gated to the
+// governance module account.
+message ProviderMaintenanceParams {
+  // maintenance_max_duration is the maximum allowed value of
+  // (expected_ends_at - starts_at) when opening a maintenance window.
+  google.protobuf.Duration maintenance_max_duration = 1 [
+    (gogoproto.stdduration) = true,
+    (gogoproto.nullable)    = false,
+    (gogoproto.jsontag)     = "maintenance_max_duration",
+    (gogoproto.moretags)    = "yaml:\"maintenance_max_duration\""
+  ];
+  // maintenance_max_lookahead is the maximum allowed value of
+  // (starts_at - block_time) when opening a maintenance window. A value of
+  // zero means windows may only start at or before the current block time.
+  google.protobuf.Duration maintenance_max_lookahead = 2 [
+    (gogoproto.stdduration) = true,
+    (gogoproto.nullable)    = false,
+    (gogoproto.jsontag)     = "maintenance_max_lookahead",
+    (gogoproto.moretags)    = "yaml:\"maintenance_max_lookahead\""
+  ];
+}
