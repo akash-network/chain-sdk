@@ -3,6 +3,8 @@ package akash.provider.v1beta4;
 
 import "gogoproto/gogo.proto";
 import "akash/provider/v1beta4/provider.proto";
+import "akash/provider/v1beta4/params.proto";
+import "akash/provider/v1beta4/maintenance.proto";
 
 option go_package = "pkg.akt.dev/go/node/provider/v1beta4";
 
@@ -14,5 +16,42 @@ message GenesisState {
     (gogoproto.castrepeated) = "Providers",
     (gogoproto.jsontag)      = "providers",
     (gogoproto.moretags)     = "yaml:\"providers\""
+  ];
+
+  // Params is the set of governance-tunable parameters for the x/provider
+  // module (ProviderMaintenanceParams). At the AEP-86 upgrade height the
+  // upgrade handler installs the module defaults.
+  ProviderMaintenanceParams params = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
+
+  // Maintenances is the list of all provider maintenance records to import
+  // into the keeper at genesis. Each record's id MUST be unique and strictly
+  // less than next_maintenance_id.
+  repeated ProviderMaintenanceRecord maintenances = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "maintenances",
+    (gogoproto.moretags) = "yaml:\"maintenances\""
+  ];
+
+  // NextMaintenanceID is the next maintenance identifier the keeper will
+  // assign on MsgOpenProviderMaintenance. It MUST be strictly greater than
+  // the maximum id present in `maintenances`.
+  uint64 next_maintenance_id = 4 [
+    (gogoproto.customname) = "NextMaintenanceID",
+    (gogoproto.jsontag)    = "next_maintenance_id",
+    (gogoproto.moretags)   = "yaml:\"next_maintenance_id\""
+  ];
+
+  // Registrations is the list of provider registration records (per-provider
+  // registered_at timestamps) to import at genesis. At the AEP-86 upgrade
+  // height the upgrade handler backfills one record per existing provider
+  // with registered_at set to the upgrade block time.
+  repeated ProviderRegistration registrations = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "registrations",
+    (gogoproto.moretags) = "yaml:\"registrations\""
   ];
 }

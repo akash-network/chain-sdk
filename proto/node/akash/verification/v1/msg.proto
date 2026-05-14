@@ -1,0 +1,861 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "amino/amino.proto";
+import "google/protobuf/timestamp.proto";
+
+import "akash/verification/v1/types.proto";
+import "akash/verification/v1/state.proto";
+import "akash/verification/v1/params.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// MsgPostAuditorBond is the auditor-signed message used to post (or top up)
+// the auditor's verification bond. The bond is held by the verification module
+// account and determines the maximum attestation tier the auditor may use.
+message MsgPostAuditorBond {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "auditor";
+  option (amino.name)           = "akash/verification/v1/MsgPostAuditorBond";
+
+  // Auditor is the bech32 account address of the bond-posting auditor and
+  // the signer of this message.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Amount is the coin amount being posted as auditor bond.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// MsgPostAuditorBondResponse is the response type for Msg/PostAuditorBond.
+message MsgPostAuditorBondResponse {}
+
+// MsgSubmitAttestation is the auditor-signed message used to submit an
+// attestation about a provider at a requested tier and capability set. The
+// auditor includes a typed evidence reference, the audit fee, an anti-griefing
+// deposit, and the identifier of the audit escrow that authorizes the
+// attestation. The first valid submission against an open, matching, unexpired
+// escrow consumes it and records the submitting auditor.
+message MsgSubmitAttestation {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "auditor";
+  option (amino.name)           = "akash/verification/v1/MsgSubmitAttestation";
+
+  // Provider is the bech32 account address of the attested provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the issuing auditor and the
+  // signer of this message.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Tier is the verification tier the auditor asserts for the provider.
+  VerificationTier tier = 3 [
+    (gogoproto.jsontag)  = "tier",
+    (gogoproto.moretags) = "yaml:\"tier\""
+  ];
+
+  // Capabilities is the set of capability flags the auditor asserts. The
+  // attestation must include at least the escrow's requested capabilities;
+  // additional capabilities the auditor verified may be included.
+  repeated CapabilityFlag capabilities = 4 [
+    (gogoproto.jsontag)  = "capabilities",
+    (gogoproto.moretags) = "yaml:\"capabilities\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the auditor's evidence
+  // (off-chain).
+  bytes evidence_hash = 5 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+
+  // Fee is the audit fee paid by the provider for this attestation, sourced
+  // from the consumed audit escrow.
+  cosmos.base.v1beta1.Coin fee = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "fee",
+    (gogoproto.moretags) = "yaml:\"fee\""
+  ];
+
+  // Deposit is the anti-griefing deposit posted by the auditor alongside the
+  // attestation.
+  cosmos.base.v1beta1.Coin deposit = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "deposit",
+    (gogoproto.moretags) = "yaml:\"deposit\""
+  ];
+
+  // AuditEscrowID is the identifier of the open audit escrow that authorizes
+  // this attestation; the submit handler consumes the escrow by this ID.
+  uint64 audit_escrow_id = 8 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+}
+
+// MsgSubmitAttestationResponse is the response type for Msg/SubmitAttestation.
+message MsgSubmitAttestationResponse {}
+
+// MsgOpenAuditEscrow is the provider-signed message used to open an audit
+// escrow that funds a pending attestation. The provider escrows both an audit
+// fee and a provider deposit, sets the requested tier and capabilities, and
+// declares an expiry after which the escrow may be settled if no auditor has
+// consumed it. The message does not name an auditor; the first valid
+// attestation against this escrow consumes it.
+message MsgOpenAuditEscrow {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "provider";
+  option (amino.name)           = "akash/verification/v1/MsgOpenAuditEscrow";
+
+  // Provider is the bech32 account address of the provider opening the escrow
+  // and the signer of this message.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // RequestedTier is the verification tier the provider is requesting.
+  VerificationTier requested_tier = 2 [
+    (gogoproto.jsontag)  = "requested_tier",
+    (gogoproto.moretags) = "yaml:\"requested_tier\""
+  ];
+
+  // RequestedCapabilities is the set of capability flags the provider is
+  // requesting that an auditor verify.
+  repeated CapabilityFlag requested_capabilities = 3 [
+    (gogoproto.jsontag)  = "requested_capabilities",
+    (gogoproto.moretags) = "yaml:\"requested_capabilities\""
+  ];
+
+  // Fee is the audit fee the provider is escrowing for the eventual auditor.
+  cosmos.base.v1beta1.Coin fee = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "fee",
+    (gogoproto.moretags) = "yaml:\"fee\""
+  ];
+
+  // ProviderDeposit is the deposit the provider escrows alongside the fee.
+  // It can only be returned to the provider or slashed to the community pool
+  // via governance-authorized settlement.
+  cosmos.base.v1beta1.Coin provider_deposit = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "provider_deposit",
+    (gogoproto.moretags) = "yaml:\"provider_deposit\""
+  ];
+
+  // ExpiresAt is the chain timestamp at which an unconsumed escrow expires
+  // and may be settled.
+  google.protobuf.Timestamp expires_at = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "expires_at",
+    (gogoproto.moretags) = "yaml:\"expires_at\""
+  ];
+
+  // MetadataHash is an opaque hash referencing escrow metadata (off-chain).
+  bytes metadata_hash = 7 [
+    (gogoproto.jsontag)  = "metadata_hash",
+    (gogoproto.moretags) = "yaml:\"metadata_hash\""
+  ];
+}
+
+// MsgOpenAuditEscrowResponse is the response type for Msg/OpenAuditEscrow.
+// It carries the identifier assigned to the newly opened audit escrow.
+message MsgOpenAuditEscrowResponse {
+  // AuditEscrowID is the unique identifier assigned to the opened audit
+  // escrow.
+  uint64 audit_escrow_id = 1 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+}
+
+// MsgCancelAuditEscrow is the provider-signed message used to cancel an open,
+// unconsumed audit escrow before its expiry. Cancellation returns the audit
+// fee and the provider deposit to the provider.
+message MsgCancelAuditEscrow {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "provider";
+  option (amino.name)           = "akash/verification/v1/MsgCancelAuditEscrow";
+
+  // Provider is the bech32 account address of the provider that opened the
+  // escrow and the signer of this message.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // AuditEscrowID is the identifier of the audit escrow being cancelled.
+  uint64 audit_escrow_id = 2 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+}
+
+// MsgCancelAuditEscrowResponse is the response type for Msg/CancelAuditEscrow.
+message MsgCancelAuditEscrowResponse {}
+
+// MsgSettleAuditEscrow is the governance-authority-signed message used to
+// settle an unconsumed audit escrow with an explicit reason, fault
+// attribution, and evidence reference. NoFault returns provider-funded coins
+// to the provider; ProviderFault returns the fee to the provider and slashes
+// the provider deposit to the community pool.
+message MsgSettleAuditEscrow {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgSettleAuditEscrow";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // settle the escrow and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // AuditEscrowID is the identifier of the audit escrow being settled.
+  uint64 audit_escrow_id = 2 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+
+  // Reason is the typed settlement reason recorded against the escrow.
+  AuditEscrowSettlementReason reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // FaultAttribution is the fault attribution recorded against the escrow at
+  // settlement; it must be consistent with the reason.
+  FaultAttribution fault_attribution = 4 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the evidence considered at
+  // settlement (off-chain).
+  bytes evidence_hash = 5 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+}
+
+// MsgSettleAuditEscrowResponse is the response type for Msg/SettleAuditEscrow.
+message MsgSettleAuditEscrowResponse {}
+
+// MsgRevokeAttestation is the auditor-signed message used to revoke a
+// previously submitted attestation for a typed reason, with an evidence
+// reference. Revocation transitions the attestation to the Revoked status.
+message MsgRevokeAttestation {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "auditor";
+  option (amino.name)           = "akash/verification/v1/MsgRevokeAttestation";
+
+  // Provider is the bech32 account address of the attested provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the revoking auditor and the
+  // signer of this message.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Reason is the typed revocation reason recorded against the attestation.
+  AttestationRevocationReason reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the evidence backing the
+  // revocation (off-chain).
+  bytes evidence_hash = 4 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+}
+
+// MsgRevokeAttestationResponse is the response type for Msg/RevokeAttestation.
+message MsgRevokeAttestationResponse {}
+
+// MsgRemoveAttestation is the provider-signed message used to voluntarily
+// remove an attestation associated with the provider. No reason or evidence
+// is required; the attestation transitions to the Removed status.
+message MsgRemoveAttestation {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "provider";
+  option (amino.name)           = "akash/verification/v1/MsgRemoveAttestation";
+
+  // Provider is the bech32 account address of the provider requesting removal
+  // and the signer of this message.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the issuing auditor of the
+  // attestation being removed.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+}
+
+// MsgRemoveAttestationResponse is the response type for Msg/RemoveAttestation.
+message MsgRemoveAttestationResponse {}
+
+// MsgResignAuditor is the auditor-signed message used by an auditor to
+// voluntarily exit the auditor role. Resignation moves the auditor record to
+// the Resigned status and begins unbonding of any posted auditor bond.
+message MsgResignAuditor {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "auditor";
+  option (amino.name)           = "akash/verification/v1/MsgResignAuditor";
+
+  // Auditor is the bech32 account address of the resigning auditor and the
+  // signer of this message.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+}
+
+// MsgResignAuditorResponse is the response type for Msg/ResignAuditor.
+message MsgResignAuditorResponse {}
+
+// MsgPostProviderBond is the provider-signed message used to post (or top up)
+// the provider's resource-scaled verification bond. The bond is held by the
+// verification module account.
+message MsgPostProviderBond {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "provider";
+  option (amino.name)           = "akash/verification/v1/MsgPostProviderBond";
+
+  // Provider is the bech32 account address of the bond-posting provider and
+  // the signer of this message.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Amount is the coin amount being posted as provider bond.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// MsgPostProviderBondResponse is the response type for Msg/PostProviderBond.
+message MsgPostProviderBondResponse {}
+
+// MsgWithdrawProviderBond is the provider-signed message used to initiate
+// withdrawal of part or all of the provider bond. Withdrawal enqueues an
+// unbonding entry against the provider bond record.
+message MsgWithdrawProviderBond {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "provider";
+  option (amino.name)           = "akash/verification/v1/MsgWithdrawProviderBond";
+
+  // Provider is the bech32 account address of the bond-withdrawing provider
+  // and the signer of this message.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Amount is the coin amount being withdrawn from the provider bond.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// MsgWithdrawProviderBondResponse is the response type for
+// Msg/WithdrawProviderBond.
+message MsgWithdrawProviderBondResponse {}
+
+// MsgPostSnapshotHash is the provider-signed message used to post the
+// provider's most recent resource snapshot hash, the inline resource summary
+// claimed by the provider, and the provider-side snapshot timestamp.
+message MsgPostSnapshotHash {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "provider";
+  option (amino.name)           = "akash/verification/v1/MsgPostSnapshotHash";
+
+  // Provider is the bech32 account address of the snapshotting provider and
+  // the signer of this message.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // SnapshotHash is the opaque hash of the snapshot payload (off-chain).
+  bytes snapshot_hash = 2 [
+    (gogoproto.jsontag)  = "snapshot_hash",
+    (gogoproto.moretags) = "yaml:\"snapshot_hash\""
+  ];
+
+  // ResourceSummary is the inline resource counts the provider claims at
+  // snapshot time; used to scale the provider bond requirement.
+  ResourceSummary resource_summary = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "resource_summary",
+    (gogoproto.moretags) = "yaml:\"resource_summary\""
+  ];
+
+  // SnapshotTimestamp is the timestamp embedded by the provider in the
+  // snapshot itself.
+  google.protobuf.Timestamp snapshot_timestamp = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "snapshot_timestamp",
+    (gogoproto.moretags) = "yaml:\"snapshot_timestamp\""
+  ];
+}
+
+// MsgPostSnapshotHashResponse is the response type for Msg/PostSnapshotHash.
+message MsgPostSnapshotHashResponse {}
+
+// MsgRegisterAuditor is the governance-authority-signed message used to
+// register a new auditor with a maximum attestation tier. There is no
+// auditor self-registration path in v1; only governance may register
+// auditors.
+message MsgRegisterAuditor {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgRegisterAuditor";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // register auditors and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor being registered.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // MaxAttestationTier is the highest verification tier this auditor is
+  // permitted to attest, set by governance at registration.
+  VerificationTier max_attestation_tier = 3 [
+    (gogoproto.jsontag)  = "max_attestation_tier",
+    (gogoproto.moretags) = "yaml:\"max_attestation_tier\""
+  ];
+
+  // MetadataHash is an opaque hash referencing auditor metadata (off-chain).
+  bytes metadata_hash = 4 [
+    (gogoproto.jsontag)  = "metadata_hash",
+    (gogoproto.moretags) = "yaml:\"metadata_hash\""
+  ];
+}
+
+// MsgRegisterAuditorResponse is the response type for Msg/RegisterAuditor.
+message MsgRegisterAuditorResponse {}
+
+// MsgRenewAuditor is the governance-authority-signed message used to renew an
+// auditor's registration and reset the renewal deadline.
+message MsgRenewAuditor {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgRenewAuditor";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // renew auditors and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor whose registration
+  // is being renewed.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+}
+
+// MsgRenewAuditorResponse is the response type for Msg/RenewAuditor.
+message MsgRenewAuditorResponse {}
+
+// MsgRemoveAuditor is the governance-authority-signed message used to remove
+// an auditor from the active set. Removal moves the auditor record to the
+// Removed status.
+message MsgRemoveAuditor {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgRemoveAuditor";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // remove auditors and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor being removed.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+}
+
+// MsgRemoveAuditorResponse is the response type for Msg/RemoveAuditor.
+message MsgRemoveAuditorResponse {}
+
+// MsgRevokeProviderAttestation is the governance-authority-signed message
+// used to revoke a single attestation issued by a specific auditor for a
+// specific provider, with a typed reason, fault attribution, and evidence
+// reference.
+message MsgRevokeProviderAttestation {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgRevokeProviderAttestation";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // revoke attestations and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Provider is the bech32 account address of the provider whose attestation
+  // is being revoked.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor whose attestation
+  // is being revoked.
+  string auditor = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Reason is the typed governance attestation reason recorded against the
+  // revocation.
+  GovernanceAttestationReason reason = 4 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // FaultAttribution is the fault attribution recorded at revocation.
+  FaultAttribution fault_attribution = 5 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the evidence backing the
+  // revocation (off-chain).
+  bytes evidence_hash = 6 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+}
+
+// MsgRevokeProviderAttestationResponse is the response type for
+// Msg/RevokeProviderAttestation.
+message MsgRevokeProviderAttestationResponse {}
+
+// MsgRevokeAllProviderAttestations is the governance-authority-signed message
+// used to revoke every active attestation for a single provider, with a
+// typed reason, fault attribution, and evidence reference.
+message MsgRevokeAllProviderAttestations {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgRevokeAllProviderAttestations";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // revoke attestations and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Provider is the bech32 account address of the provider whose attestations
+  // are being revoked en masse.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Reason is the typed governance attestation reason recorded against the
+  // revocations.
+  GovernanceAttestationReason reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // FaultAttribution is the fault attribution recorded against the
+  // revocations.
+  FaultAttribution fault_attribution = 4 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the evidence backing the
+  // revocations (off-chain).
+  bytes evidence_hash = 5 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+}
+
+// MsgRevokeAllProviderAttestationsResponse is the response type for
+// Msg/RevokeAllProviderAttestations.
+message MsgRevokeAllProviderAttestationsResponse {}
+
+// MsgRevokeAuditorAttestations is the governance-authority-signed message
+// used to revoke every active attestation issued by a single auditor, with a
+// typed reason, fault attribution, and evidence reference.
+message MsgRevokeAuditorAttestations {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgRevokeAuditorAttestations";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // revoke attestations and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor whose attestations
+  // are being revoked en masse.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Reason is the typed governance attestation reason recorded against the
+  // revocations.
+  GovernanceAttestationReason reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // FaultAttribution is the fault attribution recorded against the
+  // revocations.
+  FaultAttribution fault_attribution = 4 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the evidence backing the
+  // revocations (off-chain).
+  bytes evidence_hash = 5 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+}
+
+// MsgRevokeAuditorAttestationsResponse is the response type for
+// Msg/RevokeAuditorAttestations.
+message MsgRevokeAuditorAttestationsResponse {}
+
+// MsgResolveDiscrepancy is the governance-authority-signed message used to
+// resolve a pending discrepancy between two auditors over the same provider.
+// The authority names the vindicated auditor (if any), optionally slashes
+// either or both auditor bonds, and records the typed resolution reason,
+// fault attribution, and evidence reference.
+message MsgResolveDiscrepancy {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgResolveDiscrepancy";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // resolve discrepancies and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // DiscrepancyID is the identifier of the discrepancy being resolved.
+  uint64 discrepancy_id = 2 [
+    (gogoproto.customname) = "DiscrepancyID",
+    (gogoproto.jsontag)    = "discrepancy_id",
+    (gogoproto.moretags)   = "yaml:\"discrepancy_id\""
+  ];
+
+  // VindicatedAuditor is the bech32 account address of the auditor whose
+  // attestation is upheld by the resolution; may be empty when no auditor
+  // is vindicated.
+  string vindicated_auditor = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "vindicated_auditor",
+    (gogoproto.moretags)  = "yaml:\"vindicated_auditor\""
+  ];
+
+  // SlashAuditorA indicates whether auditor A's bond should be slashed as
+  // part of this resolution.
+  bool slash_auditor_a = 4 [
+    (gogoproto.jsontag)  = "slash_auditor_a",
+    (gogoproto.moretags) = "yaml:\"slash_auditor_a\""
+  ];
+
+  // SlashAuditorB indicates whether auditor B's bond should be slashed as
+  // part of this resolution.
+  bool slash_auditor_b = 5 [
+    (gogoproto.jsontag)  = "slash_auditor_b",
+    (gogoproto.moretags) = "yaml:\"slash_auditor_b\""
+  ];
+
+  // Reason is the typed discrepancy resolution reason recorded at
+  // resolution.
+  DiscrepancyResolutionReason reason = 6 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // FaultAttribution is the fault attribution recorded at resolution.
+  FaultAttribution fault_attribution = 7 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the evidence considered at
+  // resolution (off-chain).
+  bytes evidence_hash = 8 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+}
+
+// MsgResolveDiscrepancyResponse is the response type for
+// Msg/ResolveDiscrepancy.
+message MsgResolveDiscrepancyResponse {}
+
+// MsgSlashProviderBond is the governance-authority-signed message used to
+// slash a fraction of a provider's verification bond for a typed reason,
+// backed by an evidence reference. The fraction is a LegacyDec in [0, 1].
+message MsgSlashProviderBond {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgSlashProviderBond";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // slash provider bonds and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Provider is the bech32 account address of the provider whose bond is
+  // being slashed.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // SlashFraction is the fraction of the bond to slash, expressed as a
+  // LegacyDec in the inclusive range [0, 1].
+  string slash_fraction = 3 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false,
+    (gogoproto.jsontag)    = "slash_fraction",
+    (gogoproto.moretags)   = "yaml:\"slash_fraction\""
+  ];
+
+  // Reason is the typed provider bond slash reason recorded against the
+  // slash.
+  ProviderBondSlashReason reason = 4 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // EvidenceHash is an opaque hash referencing the evidence backing the
+  // slash (off-chain).
+  bytes evidence_hash = 5 [
+    (gogoproto.jsontag)  = "evidence_hash",
+    (gogoproto.moretags) = "yaml:\"evidence_hash\""
+  ];
+}
+
+// MsgSlashProviderBondResponse is the response type for
+// Msg/SlashProviderBond.
+message MsgSlashProviderBondResponse {}
+
+// MsgUpdateParams is the governance-authority-signed message used to update
+// the x/verification module parameters. All parameters must be supplied.
+message MsgUpdateParams {
+  option (gogoproto.equal)      = false;
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "akash/verification/v1/MsgUpdateParams";
+
+  // Authority is the bech32 address of the governance account authorized to
+  // update module parameters and the signer of this message.
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  // Params defines the x/verification parameters to update. All parameters
+  // must be supplied.
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
+}
+
+// MsgUpdateParamsResponse is the response type for Msg/UpdateParams.
+message MsgUpdateParamsResponse {}

@@ -7,19 +7,24 @@ import (
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
 	pkg_akt_dev_go_node_types_attributes_v1 "pkg.akt.dev/go/node/types/attributes/v1"
 	v1 "pkg.akt.dev/go/node/types/attributes/v1"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -330,6 +335,264 @@ func (m *MsgDeleteProviderResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgDeleteProviderResponse proto.InternalMessageInfo
 
+// MsgOpenProviderMaintenance opens a maintenance window for a registered
+// provider. The signer MUST equal the provider address. The handler enforces:
+//   - provider is a registered provider in x/provider;
+//   - maintenance_type != ProviderMaintenanceType.provider_maintenance_type_unspecified;
+//   - expected_ends_at is strictly after starts_at;
+//   - (expected_ends_at - starts_at) <= ProviderMaintenanceParams.maintenance_max_duration;
+//   - starts_at <= block_time + ProviderMaintenanceParams.maintenance_max_lookahead;
+//   - the provider has no other scheduled or active window (stale elapsed
+//     index entries are cleared transparently on open).
+//
+// On success the handler stores a new ProviderMaintenanceRecord, assigns a
+// fresh maintenance_id, updates the active-maintenance index, and emits
+// EventProviderMaintenanceOpened.
+type MsgOpenProviderMaintenance struct {
+	// provider is the bech32 address of the provider opening the maintenance
+	// window. It MUST equal the transaction signer.
+	//
+	// Example:
+	//
+	//	"akash1..."
+	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider" yaml:"provider"`
+	// maintenance_type is the declared category of the window. It MUST NOT be
+	// provider_maintenance_type_unspecified.
+	MaintenanceType ProviderMaintenanceType `protobuf:"varint,2,opt,name=maintenance_type,json=maintenanceType,proto3,enum=akash.provider.v1beta4.ProviderMaintenanceType" json:"maintenance_type" yaml:"maintenance_type"`
+	// starts_at is the wall-clock time at which the maintenance window begins.
+	StartsAt time.Time `protobuf:"bytes,3,opt,name=starts_at,json=startsAt,proto3,stdtime" json:"starts_at" yaml:"starts_at"`
+	// expected_ends_at is the wall-clock time at which the provider expects the
+	// window to end. It MUST be strictly after starts_at.
+	ExpectedEndsAt time.Time `protobuf:"bytes,4,opt,name=expected_ends_at,json=expectedEndsAt,proto3,stdtime" json:"expected_ends_at" yaml:"expected_ends_at"`
+	// metadata_hash is an optional, opaque commitment to off-chain explanatory
+	// metadata. The chain does not interpret this value.
+	MetadataHash []byte `protobuf:"bytes,5,opt,name=metadata_hash,json=metadataHash,proto3" json:"metadata_hash,omitempty" yaml:"metadata_hash,omitempty"`
+}
+
+func (m *MsgOpenProviderMaintenance) Reset()         { *m = MsgOpenProviderMaintenance{} }
+func (m *MsgOpenProviderMaintenance) String() string { return proto.CompactTextString(m) }
+func (*MsgOpenProviderMaintenance) ProtoMessage()    {}
+func (*MsgOpenProviderMaintenance) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5c874c91147ead42, []int{6}
+}
+func (m *MsgOpenProviderMaintenance) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgOpenProviderMaintenance) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgOpenProviderMaintenance.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgOpenProviderMaintenance) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgOpenProviderMaintenance.Merge(m, src)
+}
+func (m *MsgOpenProviderMaintenance) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgOpenProviderMaintenance) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgOpenProviderMaintenance.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgOpenProviderMaintenance proto.InternalMessageInfo
+
+func (m *MsgOpenProviderMaintenance) GetProvider() string {
+	if m != nil {
+		return m.Provider
+	}
+	return ""
+}
+
+func (m *MsgOpenProviderMaintenance) GetMaintenanceType() ProviderMaintenanceType {
+	if m != nil {
+		return m.MaintenanceType
+	}
+	return ProviderMaintenanceType_provider_maintenance_type_unspecified
+}
+
+func (m *MsgOpenProviderMaintenance) GetStartsAt() time.Time {
+	if m != nil {
+		return m.StartsAt
+	}
+	return time.Time{}
+}
+
+func (m *MsgOpenProviderMaintenance) GetExpectedEndsAt() time.Time {
+	if m != nil {
+		return m.ExpectedEndsAt
+	}
+	return time.Time{}
+}
+
+func (m *MsgOpenProviderMaintenance) GetMetadataHash() []byte {
+	if m != nil {
+		return m.MetadataHash
+	}
+	return nil
+}
+
+// MsgOpenProviderMaintenanceResponse is the response type for
+// MsgOpenProviderMaintenance. It returns the newly assigned maintenance_id so
+// that clients can subsequently address the record without re-querying.
+type MsgOpenProviderMaintenanceResponse struct {
+	// maintenance_id is the identifier assigned by the keeper to the newly
+	// opened maintenance window.
+	MaintenanceID uint64 `protobuf:"varint,1,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id" yaml:"maintenance_id"`
+}
+
+func (m *MsgOpenProviderMaintenanceResponse) Reset()         { *m = MsgOpenProviderMaintenanceResponse{} }
+func (m *MsgOpenProviderMaintenanceResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgOpenProviderMaintenanceResponse) ProtoMessage()    {}
+func (*MsgOpenProviderMaintenanceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5c874c91147ead42, []int{7}
+}
+func (m *MsgOpenProviderMaintenanceResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgOpenProviderMaintenanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgOpenProviderMaintenanceResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgOpenProviderMaintenanceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgOpenProviderMaintenanceResponse.Merge(m, src)
+}
+func (m *MsgOpenProviderMaintenanceResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgOpenProviderMaintenanceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgOpenProviderMaintenanceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgOpenProviderMaintenanceResponse proto.InternalMessageInfo
+
+func (m *MsgOpenProviderMaintenanceResponse) GetMaintenanceID() uint64 {
+	if m != nil {
+		return m.MaintenanceID
+	}
+	return 0
+}
+
+// MsgCloseProviderMaintenance closes an open provider maintenance window
+// early. The signer MUST equal the provider address. The handler enforces:
+//   - the record identified by (provider, maintenance_id) exists;
+//   - the record belongs to the signer;
+//   - the record has not already been closed (closed_at == nil).
+//
+// On success the handler sets closed_at = block_time, clears the
+// active-maintenance index if it points at this record, and emits
+// EventProviderMaintenanceClosed.
+type MsgCloseProviderMaintenance struct {
+	// provider is the bech32 address of the provider closing the maintenance
+	// window. It MUST equal the transaction signer and the stored record's
+	// provider field.
+	//
+	// Example:
+	//
+	//	"akash1..."
+	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider" yaml:"provider"`
+	// maintenance_id is the identifier of the record to close.
+	MaintenanceID uint64 `protobuf:"varint,2,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id" yaml:"maintenance_id"`
+}
+
+func (m *MsgCloseProviderMaintenance) Reset()         { *m = MsgCloseProviderMaintenance{} }
+func (m *MsgCloseProviderMaintenance) String() string { return proto.CompactTextString(m) }
+func (*MsgCloseProviderMaintenance) ProtoMessage()    {}
+func (*MsgCloseProviderMaintenance) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5c874c91147ead42, []int{8}
+}
+func (m *MsgCloseProviderMaintenance) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCloseProviderMaintenance) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCloseProviderMaintenance.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCloseProviderMaintenance) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCloseProviderMaintenance.Merge(m, src)
+}
+func (m *MsgCloseProviderMaintenance) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCloseProviderMaintenance) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCloseProviderMaintenance.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCloseProviderMaintenance proto.InternalMessageInfo
+
+func (m *MsgCloseProviderMaintenance) GetProvider() string {
+	if m != nil {
+		return m.Provider
+	}
+	return ""
+}
+
+func (m *MsgCloseProviderMaintenance) GetMaintenanceID() uint64 {
+	if m != nil {
+		return m.MaintenanceID
+	}
+	return 0
+}
+
+// MsgCloseProviderMaintenanceResponse is the response type for
+// MsgCloseProviderMaintenance.
+type MsgCloseProviderMaintenanceResponse struct {
+}
+
+func (m *MsgCloseProviderMaintenanceResponse) Reset()         { *m = MsgCloseProviderMaintenanceResponse{} }
+func (m *MsgCloseProviderMaintenanceResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgCloseProviderMaintenanceResponse) ProtoMessage()    {}
+func (*MsgCloseProviderMaintenanceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5c874c91147ead42, []int{9}
+}
+func (m *MsgCloseProviderMaintenanceResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCloseProviderMaintenanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCloseProviderMaintenanceResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCloseProviderMaintenanceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCloseProviderMaintenanceResponse.Merge(m, src)
+}
+func (m *MsgCloseProviderMaintenanceResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCloseProviderMaintenanceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCloseProviderMaintenanceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCloseProviderMaintenanceResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgCreateProvider)(nil), "akash.provider.v1beta4.MsgCreateProvider")
 	proto.RegisterType((*MsgCreateProviderResponse)(nil), "akash.provider.v1beta4.MsgCreateProviderResponse")
@@ -337,43 +600,70 @@ func init() {
 	proto.RegisterType((*MsgUpdateProviderResponse)(nil), "akash.provider.v1beta4.MsgUpdateProviderResponse")
 	proto.RegisterType((*MsgDeleteProvider)(nil), "akash.provider.v1beta4.MsgDeleteProvider")
 	proto.RegisterType((*MsgDeleteProviderResponse)(nil), "akash.provider.v1beta4.MsgDeleteProviderResponse")
+	proto.RegisterType((*MsgOpenProviderMaintenance)(nil), "akash.provider.v1beta4.MsgOpenProviderMaintenance")
+	proto.RegisterType((*MsgOpenProviderMaintenanceResponse)(nil), "akash.provider.v1beta4.MsgOpenProviderMaintenanceResponse")
+	proto.RegisterType((*MsgCloseProviderMaintenance)(nil), "akash.provider.v1beta4.MsgCloseProviderMaintenance")
+	proto.RegisterType((*MsgCloseProviderMaintenanceResponse)(nil), "akash.provider.v1beta4.MsgCloseProviderMaintenanceResponse")
 }
 
 func init() { proto.RegisterFile("akash/provider/v1beta4/msg.proto", fileDescriptor_5c874c91147ead42) }
 
 var fileDescriptor_5c874c91147ead42 = []byte{
-	// 495 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x54, 0x4f, 0x6b, 0x13, 0x41,
-	0x1c, 0xdd, 0x35, 0xd5, 0xea, 0x44, 0x94, 0x2e, 0x45, 0xd3, 0x54, 0x76, 0xc2, 0xaa, 0x10, 0x0a,
-	0xce, 0x90, 0xe8, 0xa9, 0x07, 0xa1, 0x51, 0xd1, 0x1e, 0x0a, 0xb2, 0x92, 0x8b, 0x20, 0x65, 0xe2,
-	0x4e, 0xb7, 0x4b, 0x92, 0x9d, 0x65, 0x66, 0xba, 0xd2, 0xab, 0x9f, 0xc0, 0x8f, 0x20, 0x5e, 0x04,
-	0x4f, 0x1e, 0xfc, 0x10, 0x3d, 0x16, 0x4f, 0x9e, 0x46, 0x49, 0x0e, 0x4a, 0x8e, 0xf9, 0x04, 0xb2,
-	0x33, 0xfb, 0xa7, 0xd1, 0xf6, 0xe8, 0x41, 0xe8, 0x6d, 0x7e, 0xbf, 0xdf, 0xfb, 0xbd, 0x79, 0xfb,
-	0xde, 0x32, 0xa0, 0x45, 0x86, 0x44, 0xec, 0xe3, 0x84, 0xb3, 0x34, 0x0a, 0x28, 0xc7, 0x69, 0x67,
-	0x40, 0x25, 0x79, 0x80, 0xc7, 0x22, 0x44, 0x09, 0x67, 0x92, 0x39, 0x37, 0x34, 0x02, 0x15, 0x08,
-	0x94, 0x23, 0x9a, 0xab, 0x21, 0x0b, 0x99, 0x86, 0xe0, 0xec, 0x64, 0xd0, 0xcd, 0x9b, 0xaf, 0x99,
-	0x18, 0x33, 0x91, 0xed, 0xe3, 0xb4, 0x53, 0xd1, 0x34, 0xd7, 0xcc, 0x60, 0xd7, 0x6c, 0x98, 0x22,
-	0x1f, 0xb5, 0x8d, 0x86, 0x01, 0x11, 0x14, 0x13, 0x29, 0x79, 0x34, 0x38, 0x90, 0x54, 0x64, 0xeb,
-	0x65, 0x95, 0x23, 0xef, 0x9e, 0xa1, 0xb6, 0x14, 0xa7, 0x61, 0xde, 0xc7, 0x1a, 0x58, 0xd9, 0x11,
-	0xe1, 0x23, 0x4e, 0x89, 0xa4, 0xcf, 0xf3, 0x99, 0xf3, 0x14, 0x5c, 0x64, 0x6f, 0x62, 0xca, 0x1b,
-	0x76, 0xcb, 0x6e, 0x5f, 0xe9, 0x75, 0x66, 0x0a, 0x9a, 0xc6, 0x5c, 0xc1, 0xab, 0x87, 0x64, 0x3c,
-	0xda, 0xf4, 0x74, 0xe9, 0x7d, 0xfd, 0x72, 0x6f, 0x35, 0x17, 0xb8, 0x15, 0x04, 0x9c, 0x0a, 0xf1,
-	0x42, 0xf2, 0x28, 0x0e, 0x7d, 0x03, 0x77, 0x9e, 0x80, 0xcb, 0xfb, 0x4c, 0xc8, 0xdd, 0x03, 0x1e,
-	0x35, 0x2e, 0x68, 0xae, 0x8d, 0x89, 0x82, 0xcb, 0xcf, 0x98, 0x90, 0x7d, 0x7f, 0x7b, 0xa6, 0x60,
-	0x39, 0x9e, 0x2b, 0x78, 0xdd, 0x30, 0x17, 0x1d, 0xcf, 0x5f, 0xce, 0x8e, 0x7d, 0x1e, 0x39, 0x1f,
-	0x6c, 0x00, 0xaa, 0xcf, 0x6d, 0xd4, 0x5a, 0xb5, 0x76, 0xbd, 0x7b, 0x1b, 0x19, 0xbb, 0x33, 0x33,
-	0x50, 0x35, 0x45, 0x69, 0x07, 0x6d, 0x15, 0x55, 0xef, 0xd5, 0x91, 0x82, 0xd6, 0x4c, 0xc1, 0x13,
-	0xeb, 0x73, 0x05, 0x57, 0xcc, 0x4d, 0x55, 0xcf, 0xfb, 0xf4, 0x1d, 0x76, 0x93, 0x61, 0x88, 0xc8,
-	0x50, 0xa2, 0x80, 0xa6, 0x38, 0x64, 0x38, 0x66, 0x01, 0xc5, 0xf2, 0x30, 0xa1, 0x62, 0xd1, 0xea,
-	0x8a, 0x5d, 0xf8, 0x27, 0x68, 0x9d, 0x1d, 0xb0, 0x14, 0xc5, 0x7b, 0xac, 0xb1, 0xd4, 0xb2, 0xdb,
-	0xf5, 0xee, 0x2d, 0x74, 0xfa, 0xcf, 0x80, 0xb6, 0xe3, 0x3d, 0xd6, 0x5b, 0xcf, 0x65, 0xe9, 0x8d,
-	0xb9, 0x82, 0x75, 0x23, 0x28, 0xab, 0x3c, 0x5f, 0x37, 0x37, 0xaf, 0xfd, 0x7a, 0x0f, 0xad, 0xb7,
-	0x3f, 0x3f, 0x6f, 0x18, 0x2b, 0xbd, 0x75, 0xb0, 0xf6, 0x57, 0x50, 0x3e, 0x15, 0x09, 0x8b, 0x05,
-	0x2d, 0x62, 0xec, 0x27, 0xc1, 0x79, 0x8c, 0xff, 0x43, 0x8c, 0x8b, 0x41, 0x95, 0x31, 0x8e, 0x74,
-	0x8a, 0x8f, 0xe9, 0x88, 0xfe, 0x83, 0x14, 0xcf, 0x90, 0xb2, 0x78, 0x5b, 0x21, 0xa5, 0xf7, 0xf0,
-	0x68, 0xe2, 0xda, 0xc7, 0x13, 0xd7, 0xfe, 0x31, 0x71, 0xed, 0x77, 0x53, 0xd7, 0x3a, 0x9e, 0xba,
-	0xd6, 0xb7, 0xa9, 0x6b, 0xbd, 0xbc, 0x73, 0x9a, 0xc1, 0x7f, 0xbe, 0x33, 0x83, 0x4b, 0xfa, 0x7d,
-	0xb9, 0xff, 0x3b, 0x00, 0x00, 0xff, 0xff, 0xd8, 0xb1, 0x80, 0x88, 0x36, 0x05, 0x00, 0x00,
+	// 851 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x55, 0x4b, 0x6f, 0xe3, 0x44,
+	0x1c, 0x8f, 0x9b, 0x94, 0xed, 0x4e, 0xdb, 0x6c, 0x6b, 0x2d, 0x34, 0x9b, 0xa2, 0x4c, 0xe4, 0x65,
+	0xa5, 0x50, 0x81, 0xad, 0x04, 0xa4, 0x95, 0x22, 0x40, 0xaa, 0xd9, 0xd5, 0x36, 0x87, 0x08, 0xe4,
+	0xdd, 0x5e, 0x90, 0x50, 0x34, 0x89, 0xa7, 0x8e, 0xd5, 0xd8, 0x63, 0x79, 0xa6, 0x81, 0x1c, 0xb8,
+	0x70, 0x03, 0x0e, 0xec, 0x47, 0x00, 0x2e, 0x48, 0x9c, 0xf6, 0xc0, 0x87, 0xd8, 0x63, 0xc5, 0x89,
+	0xd3, 0x14, 0xa5, 0x87, 0xa2, 0x1c, 0xfd, 0x09, 0x90, 0x3d, 0x7e, 0xe4, 0x65, 0xb8, 0x00, 0x12,
+	0x12, 0x97, 0xc8, 0xff, 0xf7, 0xe3, 0xf7, 0x9b, 0x7f, 0x40, 0x1d, 0x9d, 0x23, 0x3a, 0xd4, 0x3c,
+	0x9f, 0x8c, 0x6d, 0x13, 0xfb, 0xda, 0xb8, 0xd9, 0xc7, 0x0c, 0xbd, 0xab, 0x39, 0xd4, 0x52, 0x3d,
+	0x9f, 0x30, 0x22, 0xbf, 0x16, 0x79, 0xa8, 0x89, 0x87, 0x1a, 0x7b, 0x54, 0xef, 0x5a, 0xc4, 0x22,
+	0x91, 0x8b, 0x16, 0x7e, 0x09, 0xef, 0xea, 0xc1, 0x80, 0x50, 0x87, 0xd0, 0x30, 0x5e, 0x1b, 0x37,
+	0xb3, 0x34, 0xd5, 0x7b, 0xc2, 0xd0, 0x13, 0x11, 0x42, 0x88, 0x4d, 0xfb, 0xc8, 0xb1, 0x5d, 0xa2,
+	0x45, 0xbf, 0xb1, 0x0a, 0x5a, 0x84, 0x58, 0x23, 0xac, 0x45, 0x52, 0xff, 0xe2, 0x4c, 0x63, 0xb6,
+	0x83, 0x29, 0x43, 0x8e, 0x17, 0x3b, 0x34, 0x44, 0xdf, 0x7d, 0x44, 0xb1, 0x86, 0x18, 0xf3, 0xed,
+	0xfe, 0x05, 0xc3, 0x34, 0x2c, 0x99, 0x4a, 0xb1, 0xe7, 0x83, 0x9c, 0x09, 0xd3, 0x81, 0x16, 0x12,
+	0xae, 0x2e, 0x02, 0xd9, 0x2e, 0xc3, 0x2e, 0x72, 0x07, 0x71, 0x42, 0xe5, 0xc7, 0x22, 0xd8, 0xef,
+	0x52, 0xeb, 0x43, 0x1f, 0x23, 0x86, 0x3f, 0x8e, 0xfd, 0xe5, 0x27, 0x60, 0x93, 0x7c, 0xe6, 0x62,
+	0xbf, 0x22, 0xd5, 0xa5, 0xc6, 0x6d, 0xbd, 0x39, 0xe3, 0x50, 0x28, 0x02, 0x0e, 0x77, 0x26, 0xc8,
+	0x19, 0xb5, 0x95, 0x48, 0x54, 0x7e, 0xf9, 0xf9, 0xed, 0xbb, 0xf1, 0xf8, 0xc7, 0xa6, 0xe9, 0x63,
+	0x4a, 0x9f, 0x32, 0xdf, 0x76, 0x2d, 0x43, 0xb8, 0xcb, 0x8f, 0xc1, 0xd6, 0x90, 0x50, 0xd6, 0xbb,
+	0xf0, 0xed, 0xca, 0x46, 0x94, 0xeb, 0x68, 0xca, 0xe1, 0xad, 0x13, 0x42, 0xd9, 0xa9, 0xd1, 0x99,
+	0x71, 0x98, 0x9a, 0x03, 0x0e, 0xef, 0x88, 0xcc, 0x89, 0x46, 0x31, 0x6e, 0x85, 0x9f, 0xa7, 0xbe,
+	0x2d, 0xff, 0x20, 0x01, 0x90, 0x2d, 0xa6, 0x52, 0xac, 0x17, 0x1b, 0xdb, 0xad, 0xfb, 0xaa, 0x00,
+	0x33, 0x5c, 0x9b, 0x9a, 0x59, 0xd5, 0x71, 0x53, 0x3d, 0x4e, 0x24, 0xfd, 0xd3, 0x97, 0x1c, 0x16,
+	0x66, 0x1c, 0xce, 0x85, 0x07, 0x1c, 0xee, 0x8b, 0x4a, 0x99, 0x4e, 0xf9, 0xe9, 0x0a, 0xb6, 0xbc,
+	0x73, 0x4b, 0x45, 0xe7, 0x4c, 0x35, 0xf1, 0x58, 0xb3, 0x88, 0xe6, 0x12, 0x13, 0x6b, 0x6c, 0xe2,
+	0x61, 0xba, 0x08, 0x4a, 0x96, 0x9d, 0x1a, 0x73, 0x69, 0xe5, 0x2e, 0x28, 0xd9, 0xee, 0x19, 0xa9,
+	0x94, 0xea, 0x52, 0x63, 0xbb, 0xf5, 0xba, 0xba, 0x9e, 0x6a, 0x6a, 0xc7, 0x3d, 0x23, 0xfa, 0x61,
+	0xdc, 0x56, 0x14, 0x11, 0x70, 0xb8, 0x2d, 0x1a, 0x0a, 0x25, 0xc5, 0x88, 0x94, 0xed, 0xf2, 0xef,
+	0xdf, 0xc1, 0xc2, 0x97, 0x37, 0x2f, 0x8e, 0xc4, 0x2a, 0x95, 0x43, 0x70, 0x6f, 0x05, 0x28, 0x03,
+	0x53, 0x8f, 0xb8, 0x14, 0x27, 0x30, 0x9e, 0x7a, 0xe6, 0xff, 0x30, 0xfe, 0x17, 0x60, 0x5c, 0x04,
+	0x2a, 0x85, 0x71, 0x14, 0xa1, 0xf8, 0x08, 0x8f, 0xf0, 0x3f, 0x80, 0x62, 0x4e, 0x2b, 0x8b, 0xd5,
+	0xd2, 0x56, 0xbe, 0xdd, 0x04, 0xd5, 0x2e, 0xb5, 0x3e, 0xf2, 0xb0, 0x9b, 0xd8, 0xba, 0xd9, 0xf5,
+	0x90, 0x9f, 0x82, 0xad, 0x64, 0x25, 0x71, 0x5f, 0x0f, 0x43, 0x1a, 0x24, 0xba, 0x8c, 0x06, 0x89,
+	0x26, 0xbf, 0xbb, 0x34, 0x48, 0xfe, 0x46, 0x02, 0x7b, 0x73, 0x27, 0xaa, 0x17, 0xa2, 0x16, 0xf1,
+	0xad, 0xdc, 0xd2, 0xf2, 0x70, 0x58, 0xd3, 0xdc, 0xb3, 0x89, 0x87, 0x75, 0x6d, 0xc6, 0xe1, 0x4a,
+	0xb2, 0x80, 0xc3, 0x03, 0xd1, 0xd6, 0xb2, 0x45, 0x31, 0xee, 0x38, 0x8b, 0x19, 0xe4, 0x3e, 0xb8,
+	0x4d, 0x19, 0xf2, 0x19, 0xed, 0x21, 0x56, 0x29, 0x46, 0x6c, 0xa8, 0xaa, 0xe2, 0x94, 0xab, 0xc9,
+	0x29, 0x57, 0x9f, 0x25, 0xa7, 0x5c, 0x7f, 0x33, 0xe6, 0x42, 0x16, 0x14, 0x70, 0xb8, 0x27, 0xaa,
+	0xa5, 0x2a, 0xe5, 0xf9, 0x15, 0x94, 0x8c, 0x2d, 0x21, 0x1f, 0x33, 0xf9, 0x0b, 0xb0, 0x87, 0x3f,
+	0xf7, 0xf0, 0x80, 0x61, 0xb3, 0x87, 0x5d, 0x33, 0x2a, 0x55, 0xfa, 0xcb, 0x52, 0x0f, 0xe3, 0x52,
+	0x2b, 0xb1, 0xd9, 0x7c, 0xcb, 0x16, 0x51, 0xb8, 0x9c, 0xa8, 0x1f, 0xbb, 0x66, 0x58, 0xbe, 0x0f,
+	0x76, 0x1d, 0xcc, 0x90, 0x89, 0x18, 0xea, 0x0d, 0x11, 0x1d, 0x56, 0x36, 0xeb, 0x52, 0x63, 0x47,
+	0x7f, 0x7f, 0xc6, 0xe1, 0xc1, 0x82, 0xe1, 0x2d, 0xe2, 0xd8, 0x0c, 0x3b, 0x1e, 0x9b, 0x04, 0x1c,
+	0xd6, 0xe2, 0x15, 0xae, 0x77, 0x50, 0x8c, 0x9d, 0xc4, 0x72, 0x82, 0xe8, 0xb0, 0xfd, 0x24, 0x61,
+	0x5d, 0x8a, 0xf3, 0xd7, 0x37, 0x2f, 0x8e, 0x9a, 0x39, 0xff, 0x50, 0xf9, 0x94, 0x53, 0xbe, 0x92,
+	0x80, 0x92, 0x6f, 0x4e, 0x88, 0x2b, 0x0f, 0x40, 0x79, 0x1e, 0x5c, 0xdb, 0x8c, 0xf8, 0x59, 0xd2,
+	0xdf, 0x9b, 0x72, 0xb8, 0x3b, 0x17, 0xd0, 0x79, 0x34, 0xe3, 0x70, 0xc9, 0x35, 0xe0, 0xf0, 0xd5,
+	0x55, 0x7e, 0xd8, 0xa6, 0x62, 0xec, 0xce, 0x29, 0x3a, 0xa6, 0xf2, 0xfd, 0x06, 0x38, 0x0c, 0xaf,
+	0xf1, 0x88, 0x50, 0xfc, 0xaf, 0x3d, 0x8f, 0xd5, 0xc9, 0x36, 0xfe, 0xf6, 0xc9, 0xda, 0x27, 0x6b,
+	0xe1, 0x6a, 0xe5, 0xc3, 0x95, 0xb7, 0x03, 0xe5, 0x01, 0xb8, 0xff, 0x27, 0xe6, 0x04, 0x2f, 0xfd,
+	0x83, 0x97, 0xd3, 0x9a, 0x74, 0x39, 0xad, 0x49, 0xbf, 0x4d, 0x6b, 0xd2, 0xf3, 0xeb, 0x5a, 0xe1,
+	0xf2, 0xba, 0x56, 0xf8, 0xf5, 0xba, 0x56, 0xf8, 0xe4, 0x8d, 0x75, 0x97, 0x7c, 0xb9, 0x85, 0xfe,
+	0x2b, 0xd1, 0x03, 0x79, 0xe7, 0x8f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x8a, 0x5d, 0x75, 0xf4, 0xfd,
+	0x09, 0x00, 0x00,
 }
 
 func (m *MsgCreateProvider) Marshal() (dAtA []byte, err error) {
@@ -597,6 +887,150 @@ func (m *MsgDeleteProviderResponse) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgOpenProviderMaintenance) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgOpenProviderMaintenance) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgOpenProviderMaintenance) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.MetadataHash) > 0 {
+		i -= len(m.MetadataHash)
+		copy(dAtA[i:], m.MetadataHash)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.MetadataHash)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	n3, err3 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.ExpectedEndsAt, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ExpectedEndsAt):])
+	if err3 != nil {
+		return 0, err3
+	}
+	i -= n3
+	i = encodeVarintMsg(dAtA, i, uint64(n3))
+	i--
+	dAtA[i] = 0x22
+	n4, err4 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.StartsAt, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.StartsAt):])
+	if err4 != nil {
+		return 0, err4
+	}
+	i -= n4
+	i = encodeVarintMsg(dAtA, i, uint64(n4))
+	i--
+	dAtA[i] = 0x1a
+	if m.MaintenanceType != 0 {
+		i = encodeVarintMsg(dAtA, i, uint64(m.MaintenanceType))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Provider) > 0 {
+		i -= len(m.Provider)
+		copy(dAtA[i:], m.Provider)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.Provider)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgOpenProviderMaintenanceResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgOpenProviderMaintenanceResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgOpenProviderMaintenanceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.MaintenanceID != 0 {
+		i = encodeVarintMsg(dAtA, i, uint64(m.MaintenanceID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCloseProviderMaintenance) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCloseProviderMaintenance) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCloseProviderMaintenance) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.MaintenanceID != 0 {
+		i = encodeVarintMsg(dAtA, i, uint64(m.MaintenanceID))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Provider) > 0 {
+		i -= len(m.Provider)
+		copy(dAtA[i:], m.Provider)
+		i = encodeVarintMsg(dAtA, i, uint64(len(m.Provider)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCloseProviderMaintenanceResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCloseProviderMaintenanceResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCloseProviderMaintenanceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintMsg(dAtA []byte, offset int, v uint64) int {
 	offset -= sovMsg(v)
 	base := offset
@@ -690,6 +1124,67 @@ func (m *MsgDeleteProvider) Size() (n int) {
 }
 
 func (m *MsgDeleteProviderResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgOpenProviderMaintenance) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Provider)
+	if l > 0 {
+		n += 1 + l + sovMsg(uint64(l))
+	}
+	if m.MaintenanceType != 0 {
+		n += 1 + sovMsg(uint64(m.MaintenanceType))
+	}
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.StartsAt)
+	n += 1 + l + sovMsg(uint64(l))
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ExpectedEndsAt)
+	n += 1 + l + sovMsg(uint64(l))
+	l = len(m.MetadataHash)
+	if l > 0 {
+		n += 1 + l + sovMsg(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgOpenProviderMaintenanceResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.MaintenanceID != 0 {
+		n += 1 + sovMsg(uint64(m.MaintenanceID))
+	}
+	return n
+}
+
+func (m *MsgCloseProviderMaintenance) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Provider)
+	if l > 0 {
+		n += 1 + l + sovMsg(uint64(l))
+	}
+	if m.MaintenanceID != 0 {
+		n += 1 + sovMsg(uint64(m.MaintenanceID))
+	}
+	return n
+}
+
+func (m *MsgCloseProviderMaintenanceResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1275,6 +1770,427 @@ func (m *MsgDeleteProviderResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgDeleteProviderResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMsg(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgOpenProviderMaintenance) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMsg
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgOpenProviderMaintenance: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgOpenProviderMaintenance: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Provider", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Provider = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceType", wireType)
+			}
+			m.MaintenanceType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaintenanceType |= ProviderMaintenanceType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartsAt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.StartsAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExpectedEndsAt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.ExpectedEndsAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MetadataHash", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MetadataHash = append(m.MetadataHash[:0], dAtA[iNdEx:postIndex]...)
+			if m.MetadataHash == nil {
+				m.MetadataHash = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMsg(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgOpenProviderMaintenanceResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMsg
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgOpenProviderMaintenanceResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgOpenProviderMaintenanceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceID", wireType)
+			}
+			m.MaintenanceID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaintenanceID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMsg(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCloseProviderMaintenance) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMsg
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCloseProviderMaintenance: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCloseProviderMaintenance: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Provider", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMsg
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Provider = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceID", wireType)
+			}
+			m.MaintenanceID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaintenanceID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMsg(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthMsg
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCloseProviderMaintenanceResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMsg
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCloseProviderMaintenanceResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCloseProviderMaintenanceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

@@ -2,8 +2,11 @@ syntax = "proto3";
 package akash.provider.v1beta4;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 
 import "cosmos_proto/cosmos.proto";
+
+import "akash/provider/v1beta4/maintenance.proto";
 
 option go_package = "pkg.akt.dev/go/node/provider/v1beta4";
 
@@ -51,5 +54,86 @@ message EventProviderDeleted {
       (cosmos_proto.scalar) = "cosmos.AddressString",
       (gogoproto.jsontag)   = "owner",
       (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+}
+
+// EventProviderMaintenanceOpened is emitted by the x/provider handler on a
+// successful MsgOpenProviderMaintenance. Tenants, indexers, REST services,
+// and Console use it to map the maintenance window to active leases owned by
+// the provider and to surface tenant-facing alerts off-chain.
+message EventProviderMaintenanceOpened {
+  option (gogoproto.equal) = true;
+
+  // maintenance_id is the identifier assigned to the new maintenance record.
+  uint64 maintenance_id = 1 [
+    (gogoproto.customname) = "MaintenanceID",
+    (gogoproto.jsontag)    = "maintenance_id",
+    (gogoproto.moretags)   = "yaml:\"maintenance_id\""
+  ];
+  // provider is the bech32 address of the provider that opened the window.
+  //
+  // Example:
+  //   "akash1..."
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+  // maintenance_type is the declared category of the window.
+  ProviderMaintenanceType maintenance_type = 3 [
+    (gogoproto.jsontag)  = "maintenance_type",
+    (gogoproto.moretags) = "yaml:\"maintenance_type\""
+  ];
+  // starts_at is the wall-clock time at which the maintenance window begins.
+  google.protobuf.Timestamp starts_at = 4 [
+    (gogoproto.stdtime)  = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "starts_at",
+    (gogoproto.moretags) = "yaml:\"starts_at\""
+  ];
+  // expected_ends_at is the wall-clock time at which the provider expects the
+  // window to end.
+  google.protobuf.Timestamp expected_ends_at = 5 [
+    (gogoproto.stdtime)  = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "expected_ends_at",
+    (gogoproto.moretags) = "yaml:\"expected_ends_at\""
+  ];
+  // metadata_hash is the optional, opaque commitment to off-chain explanatory
+  // metadata supplied in MsgOpenProviderMaintenance.
+  bytes metadata_hash = 6 [
+    (gogoproto.jsontag)  = "metadata_hash,omitempty",
+    (gogoproto.moretags) = "yaml:\"metadata_hash,omitempty\""
+  ];
+}
+
+// EventProviderMaintenanceClosed is emitted by the x/provider handler on a
+// successful MsgCloseProviderMaintenance. It signals to tenant-facing
+// clients that the provider has ended the window earlier than
+// expected_ends_at.
+message EventProviderMaintenanceClosed {
+  option (gogoproto.equal) = true;
+
+  // maintenance_id is the identifier of the closed maintenance record.
+  uint64 maintenance_id = 1 [
+    (gogoproto.customname) = "MaintenanceID",
+    (gogoproto.jsontag)    = "maintenance_id",
+    (gogoproto.moretags)   = "yaml:\"maintenance_id\""
+  ];
+  // provider is the bech32 address of the provider that closed the window.
+  //
+  // Example:
+  //   "akash1..."
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+  // closed_at is the block time at which the handler closed the window.
+  google.protobuf.Timestamp closed_at = 3 [
+    (gogoproto.stdtime)  = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "closed_at",
+    (gogoproto.moretags) = "yaml:\"closed_at\""
   ];
 }

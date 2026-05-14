@@ -1,0 +1,367 @@
+syntax = "proto3";
+
+// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "google/api/annotations.proto";
+
+import "akash/verification/v1/types.proto";
+import "akash/verification/v1/state.proto";
+import "akash/verification/v1/params.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// Query defines the gRPC querier service for the verification package.
+// It exposes paginated read access to auditor records, attestations,
+// audit-escrow lifecycle records, discrepancy events, provider verification
+// grace records, provider bonds, provider snapshot records, and module params.
+//
+// REST gateway routes are mounted under `/akash/verification/v1/...`.
+service Query {
+  // Auditor returns the on-chain record for a single auditor identified by
+  // its bech32 address.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc Auditor(QueryAuditorRequest) returns (QueryAuditorResponse) {
+    option (google.api.http).get = "/akash/verification/v1/auditors/{auditor}";
+  }
+
+  // Auditors returns a paginated list of auditor records, optionally filtered
+  // by AuditorStatus.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc Auditors(QueryAuditorsRequest) returns (QueryAuditorsResponse) {
+    option (google.api.http).get = "/akash/verification/v1/auditors";
+  }
+
+  // Attestation returns the attestation record for a specific
+  // (provider, auditor) pair.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc Attestation(QueryAttestationRequest) returns (QueryAttestationResponse) {
+    option (google.api.http).get = "/akash/verification/v1/attestations/{provider}/{auditor}";
+  }
+
+  // ProviderAttestations returns a paginated list of all attestation records
+  // for the given provider, optionally filtered by AttestationStatus.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc ProviderAttestations(QueryProviderAttestationsRequest) returns (QueryProviderAttestationsResponse) {
+    option (google.api.http).get = "/akash/verification/v1/providers/{provider}/attestations";
+  }
+
+  // AuditorAttestations returns a paginated list of all attestation records
+  // submitted by the given auditor. No status filter is applied; callers can
+  // page through every attestation the auditor has emitted.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc AuditorAttestations(QueryAuditorAttestationsRequest) returns (QueryAuditorAttestationsResponse) {
+    option (google.api.http).get = "/akash/verification/v1/auditors/{auditor}/attestations";
+  }
+
+  // Discrepancy returns a single discrepancy event by its numeric id.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc Discrepancy(QueryDiscrepancyRequest) returns (QueryDiscrepancyResponse) {
+    option (google.api.http).get = "/akash/verification/v1/discrepancies/{id}";
+  }
+
+  // Discrepancies returns a paginated list of discrepancy events, optionally
+  // filtered by DiscrepancyStatus.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc Discrepancies(QueryDiscrepanciesRequest) returns (QueryDiscrepanciesResponse) {
+    option (google.api.http).get = "/akash/verification/v1/discrepancies";
+  }
+
+  // AuditEscrow returns a single audit-escrow record by its numeric id.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc AuditEscrow(QueryAuditEscrowRequest) returns (QueryAuditEscrowResponse) {
+    option (google.api.http).get = "/akash/verification/v1/audit-escrows/{id}";
+  }
+
+  // ProviderAuditEscrows returns a paginated list of audit-escrow records
+  // opened by the given provider, optionally filtered by AuditEscrowStatus.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc ProviderAuditEscrows(QueryProviderAuditEscrowsRequest) returns (QueryProviderAuditEscrowsResponse) {
+    option (google.api.http).get = "/akash/verification/v1/providers/{provider}/audit-escrows";
+  }
+
+  // ProviderVerificationGrace returns the verification-grace record for the
+  // given provider, if one is currently tracked.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc ProviderVerificationGrace(QueryProviderVerificationGraceRequest) returns (QueryProviderVerificationGraceResponse) {
+    option (google.api.http).get = "/akash/verification/v1/providers/{provider}/grace";
+  }
+
+  // ProviderBond returns the provider's bond record together with the bond
+  // amount required for the provider's currently attested verification tier
+  // (derived from module params and the provider's tier at query time).
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc ProviderBond(QueryProviderBondRequest) returns (QueryProviderBondResponse) {
+    option (google.api.http).get = "/akash/verification/v1/providers/{provider}/bond";
+  }
+
+  // ProviderSnapshot returns the most recent provider snapshot record posted
+  // on-chain by the given provider.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc ProviderSnapshot(QueryProviderSnapshotRequest) returns (QueryProviderSnapshotResponse) {
+    option (google.api.http).get = "/akash/verification/v1/providers/{provider}/snapshot";
+  }
+
+  // Params returns the current parameter set for the verification module.
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/akash/verification/v1/params";
+  }
+}
+
+// QueryAuditorRequest is the request type for the Query/Auditor RPC method.
+message QueryAuditorRequest {
+  // Auditor is the bech32 account address of the auditor being queried.
+  // Example: "akash1...".
+  string auditor = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryAuditorResponse is the response type for the Query/Auditor RPC method.
+message QueryAuditorResponse {
+  // Auditor is the on-chain AuditorRecord for the requested address.
+  AuditorRecord auditor = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryAuditorsRequest is the request type for the Query/Auditors RPC method.
+message QueryAuditorsRequest {
+  // StatusFilter restricts results to auditors with the given AuditorStatus.
+  // Set to AuditorStatusUnspecified (0) to return auditors in any status.
+  AuditorStatus status_filter = 1;
+
+  // Pagination is the standard Cosmos page-request used to paginate results.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryAuditorsResponse is the response type for the Query/Auditors RPC method.
+message QueryAuditorsResponse {
+  // Auditors is the page of AuditorRecord values matching the request filter.
+  repeated AuditorRecord auditors = 1 [(gogoproto.nullable) = false];
+
+  // Pagination is the standard Cosmos page-response carrying the next-key and
+  // total counters for the matched set.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryAttestationRequest is the request type for the Query/Attestation RPC method.
+message QueryAttestationRequest {
+  // Provider is the bech32 account address of the attested provider.
+  string provider = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // Auditor is the bech32 account address of the auditor that submitted the
+  // attestation being requested.
+  string auditor = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryAttestationResponse is the response type for the Query/Attestation RPC method.
+message QueryAttestationResponse {
+  // Attestation is the AttestationRecord for the requested
+  // (provider, auditor) pair.
+  AttestationRecord attestation = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryProviderAttestationsRequest is the request type for the
+// Query/ProviderAttestations RPC method.
+message QueryProviderAttestationsRequest {
+  // Provider is the bech32 account address of the provider whose attestations
+  // are being queried.
+  string provider = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // StatusFilter restricts results to attestations whose AttestationStatus
+  // matches the filter. Set to AttestationStatusUnspecified (0) to return
+  // attestations in any status.
+  AttestationStatus status_filter = 2;
+
+  // Pagination is the standard Cosmos page-request used to paginate results.
+  cosmos.base.query.v1beta1.PageRequest pagination = 3;
+}
+
+// QueryProviderAttestationsResponse is the response type for the
+// Query/ProviderAttestations RPC method.
+message QueryProviderAttestationsResponse {
+  // Attestations is the page of AttestationRecord values matching the request.
+  repeated AttestationRecord attestations = 1 [(gogoproto.nullable) = false];
+
+  // Pagination is the standard Cosmos page-response carrying the next-key and
+  // total counters for the matched set.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryAuditorAttestationsRequest is the request type for the
+// Query/AuditorAttestations RPC method.
+//
+// Note: this request intentionally does not include a status filter — callers
+// receive every attestation the auditor has emitted, regardless of status.
+message QueryAuditorAttestationsRequest {
+  // Auditor is the bech32 account address of the auditor whose attestations
+  // are being queried.
+  string auditor = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // Pagination is the standard Cosmos page-request used to paginate results.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryAuditorAttestationsResponse is the response type for the
+// Query/AuditorAttestations RPC method.
+message QueryAuditorAttestationsResponse {
+  // Attestations is the page of AttestationRecord values emitted by the
+  // requested auditor.
+  repeated AttestationRecord attestations = 1 [(gogoproto.nullable) = false];
+
+  // Pagination is the standard Cosmos page-response carrying the next-key and
+  // total counters for the matched set.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryDiscrepancyRequest is the request type for the Query/Discrepancy RPC method.
+message QueryDiscrepancyRequest {
+  // ID is the numeric identifier of the discrepancy event being requested.
+  uint64 id = 1;
+}
+
+// QueryDiscrepancyResponse is the response type for the Query/Discrepancy RPC method.
+message QueryDiscrepancyResponse {
+  // Discrepancy is the DiscrepancyEvent for the requested id.
+  DiscrepancyEvent discrepancy = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryDiscrepanciesRequest is the request type for the Query/Discrepancies RPC method.
+message QueryDiscrepanciesRequest {
+  // StatusFilter restricts results to discrepancies in the given
+  // DiscrepancyStatus. Set to DiscrepancyStatusUnspecified (0) to return
+  // discrepancies in any status.
+  DiscrepancyStatus status_filter = 1;
+
+  // Pagination is the standard Cosmos page-request used to paginate results.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryDiscrepanciesResponse is the response type for the Query/Discrepancies RPC method.
+message QueryDiscrepanciesResponse {
+  // Discrepancies is the page of DiscrepancyEvent values matching the request.
+  repeated DiscrepancyEvent discrepancies = 1 [(gogoproto.nullable) = false];
+
+  // Pagination is the standard Cosmos page-response carrying the next-key and
+  // total counters for the matched set.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryAuditEscrowRequest is the request type for the Query/AuditEscrow RPC method.
+message QueryAuditEscrowRequest {
+  // ID is the numeric identifier of the audit escrow being requested.
+  uint64 id = 1;
+}
+
+// QueryAuditEscrowResponse is the response type for the Query/AuditEscrow RPC method.
+message QueryAuditEscrowResponse {
+  // Escrow is the AuditEscrowRecord for the requested id.
+  AuditEscrowRecord escrow = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryProviderAuditEscrowsRequest is the request type for the
+// Query/ProviderAuditEscrows RPC method.
+message QueryProviderAuditEscrowsRequest {
+  // Provider is the bech32 account address of the provider whose audit-escrow
+  // records are being queried.
+  string provider = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // StatusFilter restricts results to audit-escrow records whose
+  // AuditEscrowStatus matches the filter. Set to
+  // AuditEscrowStatusUnspecified (0) to return records in any status.
+  AuditEscrowStatus status_filter = 2;
+
+  // Pagination is the standard Cosmos page-request used to paginate results.
+  cosmos.base.query.v1beta1.PageRequest pagination = 3;
+}
+
+// QueryProviderAuditEscrowsResponse is the response type for the
+// Query/ProviderAuditEscrows RPC method.
+message QueryProviderAuditEscrowsResponse {
+  // Escrows is the page of AuditEscrowRecord values matching the request.
+  repeated AuditEscrowRecord escrows = 1 [(gogoproto.nullable) = false];
+
+  // Pagination is the standard Cosmos page-response carrying the next-key and
+  // total counters for the matched set.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryProviderVerificationGraceRequest is the request type for the
+// Query/ProviderVerificationGrace RPC method.
+message QueryProviderVerificationGraceRequest {
+  // Provider is the bech32 account address of the provider whose
+  // verification-grace record is being queried.
+  string provider = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryProviderVerificationGraceResponse is the response type for the
+// Query/ProviderVerificationGrace RPC method.
+message QueryProviderVerificationGraceResponse {
+  // Grace is the ProviderVerificationGraceRecord currently tracked for the
+  // requested provider.
+  ProviderVerificationGraceRecord grace = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryProviderBondRequest is the request type for the Query/ProviderBond RPC method.
+message QueryProviderBondRequest {
+  // Provider is the bech32 account address of the provider whose bond record
+  // is being queried.
+  string provider = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryProviderBondResponse is the response type for the Query/ProviderBond RPC method.
+//
+// In addition to the raw ProviderBondRecord, the response carries the bond
+// amount required for the provider's currently attested verification tier,
+// derived from module Params at query time. This allows clients to compute a
+// bond-deficit without re-implementing the tier-to-bond table.
+message QueryProviderBondResponse {
+  // Bond is the on-chain ProviderBondRecord for the requested provider.
+  ProviderBondRecord bond = 1 [(gogoproto.nullable) = false];
+
+  // RequiredForCurrentTier is the bond amount the provider must hold to
+  // remain at its currently attested tier. Computed from module Params and
+  // the provider's current tier at query time.
+  cosmos.base.v1beta1.Coin required_for_current_tier = 2 [(gogoproto.nullable) = false];
+}
+
+// QueryProviderSnapshotRequest is the request type for the
+// Query/ProviderSnapshot RPC method.
+message QueryProviderSnapshotRequest {
+  // Provider is the bech32 account address of the provider whose latest
+  // snapshot record is being queried.
+  string provider = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryProviderSnapshotResponse is the response type for the
+// Query/ProviderSnapshot RPC method.
+message QueryProviderSnapshotResponse {
+  // Snapshot is the latest ProviderSnapshotRecord posted on-chain by the
+  // requested provider.
+  ProviderSnapshotRecord snapshot = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // Params is the current parameter set for the verification module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
