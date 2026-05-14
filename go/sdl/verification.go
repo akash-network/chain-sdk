@@ -12,13 +12,15 @@ import (
 // described in AEP-86 README §SDL Syntax. The struct is decoded directly from
 // the user's SDL and then converted to the on-chain proto via `toProto()`.
 //
-// Omitting the entire block (i.e. a nil `*v2Verification`) is the way to opt
-// out of verification filtering and remain fully backward compatible with
-// pre-AEP-86 SDLs.
+// There are two equivalent ways for an SDL to express "no verification
+// filtering": omit the entire block, or write a block with `min_tier: 0` (or
+// any other vacuous combination). `toProto()` collapses both to nil so the
+// chain only ever sees one canonical shape for the no-filtering case.
 type v2Verification struct {
 	// MinTier is the minimum verification tier required of bidding providers.
-	// Valid values are 0..4 inclusive; 0 (TierUnspecified) explicitly disables
-	// verification filtering for this placement even when the block is present.
+	// Valid values are 0..4 inclusive. A value of 0 (TierUnspecified) combined
+	// with no other filtering fields collapses the entire block to nil in
+	// `toProto()` so the wire form matches an omitted block.
 	MinTier int `yaml:"min_tier"`
 	// Capabilities is the list of optional provider capability flags the
 	// tenant requires bidders to assert. The SDL strings are the lowercase
@@ -98,13 +100,39 @@ func (v *v2Verification) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	return nil
 }
 
+// isVacuous reports whether this block expresses no actual filtering: no tier
+// floor, no required capabilities, no named auditors, and no minimum auditor
+// count. `AuditorMode` is intentionally ignored because it is only a modifier
+// on `Auditors` — with no auditors listed, the mode has no effect.
+//
+// A vacuous block is functionally indistinguishable from omitting the
+// `verification:` block entirely, so `toProto()` collapses both to nil. The
+// AEP-86 spec (README §SDL Syntax / §3.5) explicitly defines omitted and
+// `min_tier=0` as equivalent "no filtering" cases.
+func (v *v2Verification) isVacuous() bool {
+	return v.MinTier == 0 &&
+		len(v.Capabilities) == 0 &&
+		len(v.Auditors) == 0 &&
+		v.MinAuditorCount == 0
+}
+
 // toProto converts the SDL representation into the on-chain
-// `verificationv1.VerificationRequirement` message. A nil receiver returns
-// nil so callers can write `infra.Verification.toProto()` unconditionally
-// and the `PlacementRequirements.Verification` field stays nil for SDLs that
-// omit the block (preserving backward compatibility).
+// `verificationv1.VerificationRequirement` message. Returns nil when:
+//   - the receiver is nil (SDL omitted the block), or
+//   - the block is vacuous (all filtering fields zero — see `isVacuous`).
+//
+// Collapsing the vacuous case to nil keeps the on-chain `PlacementRequirements`
+// canonical: there is exactly one wire shape for "no verification filtering"
+// rather than two semantically-equivalent ones, which prevents wasteful chain
+// state and avoids latent bugs in BidFilter logic that might naively call
+// `TierAtLeast(providerTier, TierUnspecified)` without short-circuiting.
+//
+// NOTE for L-8 (the on-chain BidFilter): the keeper MUST still short-circuit
+// on vacuous-but-non-nil requirements that arrive through non-SDL paths
+// (e.g. direct gRPC TX submission). The SDL collapse is a layer-1 convenience,
+// not a chain-side invariant.
 func (v *v2Verification) toProto() *verificationv1.VerificationRequirement {
-	if v == nil {
+	if v == nil || v.isVacuous() {
 		return nil
 	}
 
