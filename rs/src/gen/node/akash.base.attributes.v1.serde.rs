@@ -121,12 +121,18 @@ impl serde::Serialize for PlacementRequirements {
         if !self.attributes.is_empty() {
             len += 1;
         }
+        if self.verification.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.base.attributes.v1.PlacementRequirements", len)?;
         if let Some(v) = self.signed_by.as_ref() {
             struct_ser.serialize_field("signedBy", v)?;
         }
         if !self.attributes.is_empty() {
             struct_ser.serialize_field("attributes", &self.attributes)?;
+        }
+        if let Some(v) = self.verification.as_ref() {
+            struct_ser.serialize_field("verification", v)?;
         }
         struct_ser.end()
     }
@@ -141,12 +147,14 @@ impl<'de> serde::Deserialize<'de> for PlacementRequirements {
             "signed_by",
             "signedBy",
             "attributes",
+            "verification",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             SignedBy,
             Attributes,
+            Verification,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -170,6 +178,7 @@ impl<'de> serde::Deserialize<'de> for PlacementRequirements {
                         match value {
                             "signedBy" | "signed_by" => Ok(GeneratedField::SignedBy),
                             "attributes" => Ok(GeneratedField::Attributes),
+                            "verification" => Ok(GeneratedField::Verification),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -191,6 +200,7 @@ impl<'de> serde::Deserialize<'de> for PlacementRequirements {
             {
                 let mut signed_by__ = None;
                 let mut attributes__ = None;
+                let mut verification__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::SignedBy => {
@@ -205,11 +215,18 @@ impl<'de> serde::Deserialize<'de> for PlacementRequirements {
                             }
                             attributes__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Verification => {
+                            if verification__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("verification"));
+                            }
+                            verification__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(PlacementRequirements {
                     signed_by: signed_by__,
                     attributes: attributes__.unwrap_or_default(),
+                    verification: verification__,
                 })
             }
         }

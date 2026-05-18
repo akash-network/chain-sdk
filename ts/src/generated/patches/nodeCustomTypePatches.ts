@@ -8,6 +8,7 @@ import type * as _protos_akash_oracle_v1_prices from "../protos/akash/oracle/v1/
 import type * as _protos_akash_oracle_v2_prices from "../protos/akash/oracle/v2/prices.ts";
 import type * as _protos_akash_oracle_v2_events from "../protos/akash/oracle/v2/events.ts";
 import type * as _protos_akash_oracle_v2_msgs from "../protos/akash/oracle/v2/msgs.ts";
+import type * as _protos_akash_verification_v1_msg from "../protos/akash/verification/v1/msg.ts";
 
 const p = {
   "akash.bme.v1.CollateralRatio"(value: _protos_akash_bme_v1_types.CollateralRatio | undefined | null, transformType: 'encode' | 'decode') {
@@ -89,6 +90,12 @@ const p = {
     if (value == null) return;
     const newValue = { ...value };
     if (value.price != null) newValue.price = LegacyDec[transformType](value.price);
+    return newValue;
+  },
+  "akash.verification.v1.MsgSlashProviderBond"(value: _protos_akash_verification_v1_msg.MsgSlashProviderBond | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.slashFraction != null) newValue.slashFraction = LegacyDec[transformType](value.slashFraction);
     return newValue;
   }
 };

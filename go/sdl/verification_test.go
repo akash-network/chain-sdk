@@ -164,7 +164,7 @@ min_tier: 0
 	var v v2Verification
 	err := yaml.Unmarshal(in, &v)
 	require.NoError(t, err)
-	assert.Equal(t, 0, v.MinTier)
+	assert.Equal(t, int32(0), v.MinTier)
 	assert.Equal(t, "", v.AuditorMode)
 	assert.Empty(t, v.Capabilities)
 	assert.Empty(t, v.Auditors)
