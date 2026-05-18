@@ -1215,6 +1215,7 @@ impl serde::Serialize for LeaseClosedReason {
             Self::Decommission => "lease_closed_reason_decommission",
             Self::Unspecified => "lease_closed_reason_unspecified",
             Self::ManifestTimeout => "lease_closed_reason_manifest_timeout",
+            Self::Provider => "lease_closed_reason_provider",
             Self::InsufficientFunds => "lease_closed_reason_insufficient_funds",
         };
         serializer.serialize_str(variant)
@@ -1233,6 +1234,7 @@ impl<'de> serde::Deserialize<'de> for LeaseClosedReason {
             "lease_closed_reason_decommission",
             "lease_closed_reason_unspecified",
             "lease_closed_reason_manifest_timeout",
+            "lease_closed_reason_provider",
             "lease_closed_reason_insufficient_funds",
         ];
 
@@ -1280,6 +1282,7 @@ impl<'de> serde::Deserialize<'de> for LeaseClosedReason {
                     "lease_closed_reason_decommission" => Ok(LeaseClosedReason::Decommission),
                     "lease_closed_reason_unspecified" => Ok(LeaseClosedReason::Unspecified),
                     "lease_closed_reason_manifest_timeout" => Ok(LeaseClosedReason::ManifestTimeout),
+                    "lease_closed_reason_provider" => Ok(LeaseClosedReason::Provider),
                     "lease_closed_reason_insufficient_funds" => Ok(LeaseClosedReason::InsufficientFunds),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }

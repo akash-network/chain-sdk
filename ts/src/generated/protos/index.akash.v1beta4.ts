@@ -15,8 +15,11 @@ export { GenesisDeployment, GenesisState } from "./akash/deployment/v1beta4/gene
 export { MsgCloseGroup, MsgCloseGroupResponse, MsgPauseGroup, MsgPauseGroupResponse, MsgStartGroup, MsgStartGroupResponse } from "./akash/deployment/v1beta4/groupmsg.ts";
 export { MsgUpdateParams, MsgUpdateParamsResponse } from "./akash/deployment/v1beta4/paramsmsg.ts";
 export { QueryDeploymentsRequest, QueryDeploymentsResponse, QueryDeploymentRequest, QueryDeploymentResponse, QueryGroupRequest, QueryGroupResponse, QueryParamsRequest, QueryParamsResponse } from "./akash/deployment/v1beta4/query.ts";
-export { EventProviderCreated, EventProviderUpdated, EventProviderDeleted } from "./akash/provider/v1beta4/event.ts";
-export { Info, Provider } from "./akash/provider/v1beta4/provider.ts";
+export { ProviderMaintenanceRecord, ProviderMaintenanceWithStatus, ProviderMaintenanceType, ProviderMaintenanceStatus } from "./akash/provider/v1beta4/maintenance.ts";
+export { EventProviderCreated, EventProviderUpdated, EventProviderDeleted, EventProviderMaintenanceOpened, EventProviderMaintenanceClosed } from "./akash/provider/v1beta4/event.ts";
+export { Info, Provider, ProviderRegistration } from "./akash/provider/v1beta4/provider.ts";
+export { ProviderMaintenanceParams } from "./akash/provider/v1beta4/params.ts";
 export { GenesisState as Provider_GenesisState } from "./akash/provider/v1beta4/genesis.ts";
-export { MsgCreateProvider, MsgCreateProviderResponse, MsgUpdateProvider, MsgUpdateProviderResponse, MsgDeleteProvider, MsgDeleteProviderResponse } from "./akash/provider/v1beta4/msg.ts";
-export { QueryProvidersRequest, QueryProvidersResponse, QueryProviderRequest, QueryProviderResponse } from "./akash/provider/v1beta4/query.ts";
+export { MsgCreateProvider, MsgCreateProviderResponse, MsgUpdateProvider, MsgUpdateProviderResponse, MsgDeleteProvider, MsgDeleteProviderResponse, MsgOpenProviderMaintenance, MsgOpenProviderMaintenanceResponse, MsgCloseProviderMaintenance, MsgCloseProviderMaintenanceResponse } from "./akash/provider/v1beta4/msg.ts";
+export { MsgUpdateParams as Provider_MsgUpdateParams, MsgUpdateParamsResponse as Provider_MsgUpdateParamsResponse } from "./akash/provider/v1beta4/paramsmsg.ts";
+export { QueryProvidersRequest, QueryProvidersResponse, QueryProviderRequest, QueryProviderResponse, QueryProviderMaintenanceRequest, QueryProviderMaintenanceResponse, QueryProviderMaintenancesRequest, QueryProviderMaintenancesResponse, QueryParamsRequest as Provider_QueryParamsRequest, QueryParamsResponse as Provider_QueryParamsResponse, QueryRegistrationRequest, QueryRegistrationResponse } from "./akash/provider/v1beta4/query.ts";

@@ -134,6 +134,116 @@ pub mod query_client {
                 .insert(GrpcMethod::new("akash.provider.v1beta4.Query", "Provider"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn provider_maintenance(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryProviderMaintenanceRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryProviderMaintenanceResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1beta4.Query/ProviderMaintenance",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "akash.provider.v1beta4.Query",
+                        "ProviderMaintenance",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn provider_maintenances(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryProviderMaintenancesRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryProviderMaintenancesResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1beta4.Query/ProviderMaintenances",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "akash.provider.v1beta4.Query",
+                        "ProviderMaintenances",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn params(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryParamsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryParamsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1beta4.Query/Params",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.provider.v1beta4.Query", "Params"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn registration(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryRegistrationRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryRegistrationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1beta4.Query/Registration",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.provider.v1beta4.Query", "Registration"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -155,6 +265,34 @@ pub mod query_server {
             request: tonic::Request<super::QueryProviderRequest>,
         ) -> std::result::Result<
             tonic::Response<super::QueryProviderResponse>,
+            tonic::Status,
+        >;
+        async fn provider_maintenance(
+            &self,
+            request: tonic::Request<super::QueryProviderMaintenanceRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryProviderMaintenanceResponse>,
+            tonic::Status,
+        >;
+        async fn provider_maintenances(
+            &self,
+            request: tonic::Request<super::QueryProviderMaintenancesRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryProviderMaintenancesResponse>,
+            tonic::Status,
+        >;
+        async fn params(
+            &self,
+            request: tonic::Request<super::QueryParamsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryParamsResponse>,
+            tonic::Status,
+        >;
+        async fn registration(
+            &self,
+            request: tonic::Request<super::QueryRegistrationRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryRegistrationResponse>,
             tonic::Status,
         >;
     }
@@ -309,6 +447,189 @@ pub mod query_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ProviderSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1beta4.Query/ProviderMaintenance" => {
+                    #[allow(non_camel_case_types)]
+                    struct ProviderMaintenanceSvc<T: Query>(pub Arc<T>);
+                    impl<
+                        T: Query,
+                    > tonic::server::UnaryService<super::QueryProviderMaintenanceRequest>
+                    for ProviderMaintenanceSvc<T> {
+                        type Response = super::QueryProviderMaintenanceResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<
+                                super::QueryProviderMaintenanceRequest,
+                            >,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Query>::provider_maintenance(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = ProviderMaintenanceSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1beta4.Query/ProviderMaintenances" => {
+                    #[allow(non_camel_case_types)]
+                    struct ProviderMaintenancesSvc<T: Query>(pub Arc<T>);
+                    impl<
+                        T: Query,
+                    > tonic::server::UnaryService<
+                        super::QueryProviderMaintenancesRequest,
+                    > for ProviderMaintenancesSvc<T> {
+                        type Response = super::QueryProviderMaintenancesResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<
+                                super::QueryProviderMaintenancesRequest,
+                            >,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Query>::provider_maintenances(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = ProviderMaintenancesSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1beta4.Query/Params" => {
+                    #[allow(non_camel_case_types)]
+                    struct ParamsSvc<T: Query>(pub Arc<T>);
+                    impl<T: Query> tonic::server::UnaryService<super::QueryParamsRequest>
+                    for ParamsSvc<T> {
+                        type Response = super::QueryParamsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryParamsRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Query>::params(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = ParamsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1beta4.Query/Registration" => {
+                    #[allow(non_camel_case_types)]
+                    struct RegistrationSvc<T: Query>(pub Arc<T>);
+                    impl<
+                        T: Query,
+                    > tonic::server::UnaryService<super::QueryRegistrationRequest>
+                    for RegistrationSvc<T> {
+                        type Response = super::QueryRegistrationResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryRegistrationRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Query>::registration(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = RegistrationSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -524,6 +845,104 @@ pub mod msg_client {
                 .insert(GrpcMethod::new("akash.provider.v1beta4.Msg", "DeleteProvider"));
             self.inner.unary(req, path, codec).await
         }
+        /** OpenProviderMaintenance opens a provider-initiated maintenance window
+ against the signer's active leases. See MsgOpenProviderMaintenance for
+ handler-level invariants.
+*/
+        pub async fn open_provider_maintenance(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgOpenProviderMaintenance>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgOpenProviderMaintenanceResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1beta4.Msg/OpenProviderMaintenance",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "akash.provider.v1beta4.Msg",
+                        "OpenProviderMaintenance",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /** CloseProviderMaintenance closes an open maintenance window early. See
+ MsgCloseProviderMaintenance for handler-level invariants.
+*/
+        pub async fn close_provider_maintenance(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgCloseProviderMaintenance>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgCloseProviderMaintenanceResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1beta4.Msg/CloseProviderMaintenance",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "akash.provider.v1beta4.Msg",
+                        "CloseProviderMaintenance",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /** UpdateParams is a governance operation for updating the x/provider
+ ProviderMaintenanceParams. The authority is hard-coded to the x/gov
+ module account.
+
+ Since: akash v1.0.0
+*/
+        pub async fn update_params(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgUpdateParams>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgUpdateParamsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.v1beta4.Msg/UpdateParams",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.provider.v1beta4.Msg", "UpdateParams"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -558,6 +977,40 @@ pub mod msg_server {
             request: tonic::Request<super::MsgDeleteProvider>,
         ) -> std::result::Result<
             tonic::Response<super::MsgDeleteProviderResponse>,
+            tonic::Status,
+        >;
+        /** OpenProviderMaintenance opens a provider-initiated maintenance window
+ against the signer's active leases. See MsgOpenProviderMaintenance for
+ handler-level invariants.
+*/
+        async fn open_provider_maintenance(
+            &self,
+            request: tonic::Request<super::MsgOpenProviderMaintenance>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgOpenProviderMaintenanceResponse>,
+            tonic::Status,
+        >;
+        /** CloseProviderMaintenance closes an open maintenance window early. See
+ MsgCloseProviderMaintenance for handler-level invariants.
+*/
+        async fn close_provider_maintenance(
+            &self,
+            request: tonic::Request<super::MsgCloseProviderMaintenance>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgCloseProviderMaintenanceResponse>,
+            tonic::Status,
+        >;
+        /** UpdateParams is a governance operation for updating the x/provider
+ ProviderMaintenanceParams. The authority is hard-coded to the x/gov
+ module account.
+
+ Since: akash v1.0.0
+*/
+        async fn update_params(
+            &self,
+            request: tonic::Request<super::MsgUpdateParams>,
+        ) -> std::result::Result<
+            tonic::Response<super::MsgUpdateParamsResponse>,
             tonic::Status,
         >;
     }
@@ -751,6 +1204,140 @@ pub mod msg_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteProviderSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1beta4.Msg/OpenProviderMaintenance" => {
+                    #[allow(non_camel_case_types)]
+                    struct OpenProviderMaintenanceSvc<T: Msg>(pub Arc<T>);
+                    impl<
+                        T: Msg,
+                    > tonic::server::UnaryService<super::MsgOpenProviderMaintenance>
+                    for OpenProviderMaintenanceSvc<T> {
+                        type Response = super::MsgOpenProviderMaintenanceResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgOpenProviderMaintenance>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Msg>::open_provider_maintenance(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = OpenProviderMaintenanceSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1beta4.Msg/CloseProviderMaintenance" => {
+                    #[allow(non_camel_case_types)]
+                    struct CloseProviderMaintenanceSvc<T: Msg>(pub Arc<T>);
+                    impl<
+                        T: Msg,
+                    > tonic::server::UnaryService<super::MsgCloseProviderMaintenance>
+                    for CloseProviderMaintenanceSvc<T> {
+                        type Response = super::MsgCloseProviderMaintenanceResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgCloseProviderMaintenance>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Msg>::close_provider_maintenance(&inner, request)
+                                    .await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = CloseProviderMaintenanceSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.v1beta4.Msg/UpdateParams" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateParamsSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgUpdateParams>
+                    for UpdateParamsSvc<T> {
+                        type Response = super::MsgUpdateParamsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgUpdateParams>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Msg>::update_params(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = UpdateParamsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
