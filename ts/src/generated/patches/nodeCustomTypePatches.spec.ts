@@ -7,6 +7,7 @@ import { AggregatedPrice, PriceDataState } from "../protos/akash/oracle/v1/price
 import { AggregatedPrice as AggregatedPrice$1, PriceDataState as PriceDataState$1 } from "../protos/akash/oracle/v2/prices.ts";
 import { EventPriceData } from "../protos/akash/oracle/v2/events.ts";
 import { MsgAddPriceEntry } from "../protos/akash/oracle/v2/msgs.ts";
+import { MsgSlashProviderBond } from "../protos/akash/verification/v1/msg.ts";
 
 import { expect, describe, it } from "vitest";
 import { patches } from "./nodeCustomTypePatches.ts";
@@ -61,6 +62,10 @@ const messageTypes: Record<string, MessageSchema> = {
   "akash.oracle.v2.MsgAddPriceEntry": {
     type: MsgAddPriceEntry,
     fields: [{name: "price",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "akash.verification.v1.MsgSlashProviderBond": {
+    type: MsgSlashProviderBond,
+    fields: [{name: "slashFraction",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
 };
 describe("nodeCustomTypePatches.ts", () => {

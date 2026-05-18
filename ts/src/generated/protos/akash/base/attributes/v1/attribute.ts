@@ -9,6 +9,7 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
+import { VerificationRequirement } from "../../../verification/v1/verificationrequirement.ts";
 
 /** Attribute represents an arbitrary attribute key-value pair. */
 export interface Attribute {
@@ -41,6 +42,12 @@ export interface PlacementRequirements {
     | undefined;
   /** Attribute holds the list of attributes tenant expects from the provider. */
   attributes: Attribute[];
+  /**
+   * Verification holds the verification requirements for this placement.
+   * Nullable: when nil/omitted, no verification filtering is applied
+   * (backward compatible with pre-AEP-86 SDLs).
+   */
+  verification: VerificationRequirement | undefined;
 }
 
 function createBaseAttribute(): Attribute {
@@ -192,7 +199,7 @@ export const SignedBy: MessageFns<SignedBy, "akash.base.attributes.v1.SignedBy">
 };
 
 function createBasePlacementRequirements(): PlacementRequirements {
-  return { signedBy: undefined, attributes: [] };
+  return { signedBy: undefined, attributes: [], verification: undefined };
 }
 
 export const PlacementRequirements: MessageFns<
@@ -207,6 +214,9 @@ export const PlacementRequirements: MessageFns<
     }
     for (const v of message.attributes) {
       Attribute.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.verification !== undefined) {
+      VerificationRequirement.encode(message.verification, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -234,6 +244,14 @@ export const PlacementRequirements: MessageFns<
           message.attributes.push(Attribute.decode(reader, reader.uint32()));
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.verification = VerificationRequirement.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -249,6 +267,7 @@ export const PlacementRequirements: MessageFns<
       attributes: globalThis.Array.isArray(object?.attributes)
         ? object.attributes.map((e: any) => Attribute.fromJSON(e))
         : [],
+      verification: isSet(object.verification) ? VerificationRequirement.fromJSON(object.verification) : undefined,
     };
   },
 
@@ -260,6 +279,9 @@ export const PlacementRequirements: MessageFns<
     if (message.attributes?.length) {
       obj.attributes = message.attributes.map((e) => Attribute.toJSON(e));
     }
+    if (message.verification !== undefined) {
+      obj.verification = VerificationRequirement.toJSON(message.verification);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<PlacementRequirements>): PlacementRequirements {
@@ -268,6 +290,9 @@ export const PlacementRequirements: MessageFns<
       ? SignedBy.fromPartial(object.signedBy)
       : undefined;
     message.attributes = object.attributes?.map((e) => Attribute.fromPartial(e)) || [];
+    message.verification = (object.verification !== undefined && object.verification !== null)
+      ? VerificationRequirement.fromPartial(object.verification)
+      : undefined;
     return message;
   },
 };

@@ -141,7 +141,7 @@ func TestMinBondForTier(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := MinBondForTier(p, tc.tier)
-			if !got.IsEqual(tc.want) {
+			if !got.Equal(tc.want) {
 				t.Errorf("MinBondForTier(%v) = %v; want %v", tc.tier, got, tc.want)
 			}
 		})
