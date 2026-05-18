@@ -60,9 +60,9 @@ func TierRequiresProviderBond(t VerificationTier) bool {
 //     silently authorize the wrong bond amount.
 //
 // The bond denom is taken from Params.BondL1 when the tier is L0 (so the zero
-// coin has the same denom as a real bond requirement). If Params is freshly
-// constructed and BondL1.Denom is empty, the returned coin uses the empty
-// denom — callers must validate Params at genesis time.
+// coin has the same denom as a real bond requirement). Params validation must
+// ensure BondL1.Denom is non-empty before this helper is used; sdk.NewCoin
+// validates denoms and will panic on an invalid one.
 func MinBondForTier(p Params, t VerificationTier) sdk.Coin {
 	switch t {
 	case TierIdentified:
