@@ -6,6 +6,7 @@ export { NodeResources } from "./akash/inventory/v1/resources.ts";
 export { NodeCapabilities, Node } from "./akash/inventory/v1/node.ts";
 export { StorageInfo, Storage } from "./akash/inventory/v1/storage.ts";
 export { Cluster } from "./akash/inventory/v1/cluster.ts";
+export { GetInventorySnapshotRequest, GetInventorySnapshotResponse } from "./akash/inventory/v1/snapshot.ts";
 export { LeaseServiceStatus, LeaseIPStatus, ForwarderPortStatus, ServiceStatus, SendManifestRequest, SendManifestResponse, ServiceLogsRequest, ServiceLogs, ServiceLogsResponse, ShellRequest, ServiceStatusRequest, ServiceStatusResponse, AttestationQuoteRequest, AttestationGPUReport, AttestationQuoteResponse } from "./akash/provider/lease/v1/service.ts";
 export { ResourcesMetric, Leases, ReservationsMetric, Reservations, Inventory, ClusterStatus, BidEngineStatus, ManifestStatus, Status } from "./akash/provider/v1/status.ts";
 export { BidScreeningRequest, BidScreeningResponse } from "./akash/provider/v1/validation.ts";

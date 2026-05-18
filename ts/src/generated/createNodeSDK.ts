@@ -26,8 +26,11 @@ import type * as akash_oracle_v2_query from "./protos/akash/oracle/v2/query.ts";
 import type * as akash_oracle_v2_msgs from "./protos/akash/oracle/v2/msgs.ts";
 import type * as akash_provider_v1beta4_query from "./protos/akash/provider/v1beta4/query.ts";
 import type * as akash_provider_v1beta4_msg from "./protos/akash/provider/v1beta4/msg.ts";
+import type * as akash_provider_v1beta4_paramsmsg from "./protos/akash/provider/v1beta4/paramsmsg.ts";
 import type * as akash_take_v1_query from "./protos/akash/take/v1/query.ts";
 import type * as akash_take_v1_paramsmsg from "./protos/akash/take/v1/paramsmsg.ts";
+import type * as akash_verification_v1_query from "./protos/akash/verification/v1/query.ts";
+import type * as akash_verification_v1_msg from "./protos/akash/verification/v1/msg.ts";
 import type * as akash_wasm_v1_query from "./protos/akash/wasm/v1/query.ts";
 import type * as akash_wasm_v1_paramsmsg from "./protos/akash/wasm/v1/paramsmsg.ts";
 import { createClientFactory } from "../sdk/client/createClientFactory.ts";
@@ -60,6 +63,8 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/akash/provider/v1beta4/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/take/v1/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/take/v1/service_akash.ts").then(m => m.Msg),
+  () => import("./protos/akash/verification/v1/query_akash.ts").then(m => m.Query),
+  () => import("./protos/akash/verification/v1/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/wasm/v1/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/wasm/v1/service_akash.ts").then(m => m.Msg)
 ] as const);
@@ -569,6 +574,37 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).provider(input, options);
           }, { path: [19, "provider"], serviceLoader }),
           /**
+           * getProviderMaintenance returns a single maintenance record for a provider,
+           * with its derived status at query time.
+           */
+          getProviderMaintenance: withMetadata(async function getProviderMaintenance(input: DeepPartial<akash_provider_v1beta4_query.QueryProviderMaintenanceRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(19);
+            return getClient(service).providerMaintenance(input, options);
+          }, { path: [19, "providerMaintenance"], serviceLoader }),
+          /**
+           * getProviderMaintenances lists maintenance records for a provider, optionally
+           * filtered by derived status, with pagination.
+           */
+          getProviderMaintenances: withMetadata(async function getProviderMaintenances(input: DeepPartial<akash_provider_v1beta4_query.QueryProviderMaintenancesRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(19);
+            return getClient(service).providerMaintenances(input, options);
+          }, { path: [19, "providerMaintenances"], serviceLoader }),
+          /**
+           * getParams returns the x/provider ProviderMaintenanceParams.
+           */
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_provider_v1beta4_query.QueryParamsRequest> = {}, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(19);
+            return getClient(service).params(input, options);
+          }, { path: [19, "params"], serviceLoader }),
+          /**
+           * getRegistration returns the registration record (registered_at timestamp)
+           * for a provider. Consumed by x/verification on-chain prerequisite checks.
+           */
+          getRegistration: withMetadata(async function getRegistration(input: DeepPartial<akash_provider_v1beta4_query.QueryRegistrationRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(19);
+            return getClient(service).registration(input, options);
+          }, { path: [19, "registration"], serviceLoader }),
+          /**
            * createProvider defines a method that creates a provider given the proper inputs.
            */
           createProvider: withMetadata(async function createProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgCreateProvider>, options?: TxCallOptions) {
@@ -588,7 +624,35 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           deleteProvider: withMetadata(async function deleteProvider(input: DeepSimplify<akash_provider_v1beta4_msg.MsgDeleteProvider>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(20);
             return getMsgClient(service).deleteProvider(input, options);
-          }, { path: [20, "deleteProvider"], serviceLoader })
+          }, { path: [20, "deleteProvider"], serviceLoader }),
+          /**
+           * openProviderMaintenance opens a provider-initiated maintenance window
+           * against the signer's active leases. See MsgOpenProviderMaintenance for
+           * handler-level invariants.
+           */
+          openProviderMaintenance: withMetadata(async function openProviderMaintenance(input: DeepSimplify<akash_provider_v1beta4_msg.MsgOpenProviderMaintenance>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(20);
+            return getMsgClient(service).openProviderMaintenance(input, options);
+          }, { path: [20, "openProviderMaintenance"], serviceLoader }),
+          /**
+           * closeProviderMaintenance closes an open maintenance window early. See
+           * MsgCloseProviderMaintenance for handler-level invariants.
+           */
+          closeProviderMaintenance: withMetadata(async function closeProviderMaintenance(input: DeepSimplify<akash_provider_v1beta4_msg.MsgCloseProviderMaintenance>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(20);
+            return getMsgClient(service).closeProviderMaintenance(input, options);
+          }, { path: [20, "closeProviderMaintenance"], serviceLoader }),
+          /**
+           * updateParams is a governance operation for updating the x/provider
+           * ProviderMaintenanceParams. The authority is hard-coded to the x/gov
+           * module account.
+           *
+           * Since: akash v1.0.0
+           */
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_provider_v1beta4_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(20);
+            return getMsgClient(service).updateParams(input, options);
+          }, { path: [20, "updateParams"], serviceLoader })
         }
       },
       take: {
@@ -612,15 +676,279 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           }, { path: [22, "updateParams"], serviceLoader })
         }
       },
+      verification: {
+        v1: {
+          /**
+           * getAuditor returns the on-chain record for a single auditor identified by
+           * its bech32 address.
+           */
+          getAuditor: withMetadata(async function getAuditor(input: DeepPartial<akash_verification_v1_query.QueryAuditorRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).auditor(input, options);
+          }, { path: [23, "auditor"], serviceLoader }),
+          /**
+           * getAuditors returns a paginated list of auditor records, optionally filtered
+           * by AuditorStatus.
+           */
+          getAuditors: withMetadata(async function getAuditors(input: DeepPartial<akash_verification_v1_query.QueryAuditorsRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).auditors(input, options);
+          }, { path: [23, "auditors"], serviceLoader }),
+          /**
+           * getAttestation returns the attestation record for a specific
+           * (provider, auditor) pair.
+           */
+          getAttestation: withMetadata(async function getAttestation(input: DeepPartial<akash_verification_v1_query.QueryAttestationRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).attestation(input, options);
+          }, { path: [23, "attestation"], serviceLoader }),
+          /**
+           * getProviderAttestations returns a paginated list of all attestation records
+           * for the given provider, optionally filtered by AttestationStatus.
+           */
+          getProviderAttestations: withMetadata(async function getProviderAttestations(input: DeepPartial<akash_verification_v1_query.QueryProviderAttestationsRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).providerAttestations(input, options);
+          }, { path: [23, "providerAttestations"], serviceLoader }),
+          /**
+           * getAuditorAttestations returns a paginated list of all attestation records
+           * submitted by the given auditor. No status filter is applied; callers can
+           * page through every attestation the auditor has emitted.
+           */
+          getAuditorAttestations: withMetadata(async function getAuditorAttestations(input: DeepPartial<akash_verification_v1_query.QueryAuditorAttestationsRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).auditorAttestations(input, options);
+          }, { path: [23, "auditorAttestations"], serviceLoader }),
+          /**
+           * getDiscrepancy returns a single discrepancy event by its numeric id.
+           */
+          getDiscrepancy: withMetadata(async function getDiscrepancy(input: DeepPartial<akash_verification_v1_query.QueryDiscrepancyRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).discrepancy(input, options);
+          }, { path: [23, "discrepancy"], serviceLoader }),
+          /**
+           * getDiscrepancies returns a paginated list of discrepancy events, optionally
+           * filtered by DiscrepancyStatus.
+           */
+          getDiscrepancies: withMetadata(async function getDiscrepancies(input: DeepPartial<akash_verification_v1_query.QueryDiscrepanciesRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).discrepancies(input, options);
+          }, { path: [23, "discrepancies"], serviceLoader }),
+          /**
+           * getAuditEscrow returns a single audit-escrow record by its numeric id.
+           */
+          getAuditEscrow: withMetadata(async function getAuditEscrow(input: DeepPartial<akash_verification_v1_query.QueryAuditEscrowRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).auditEscrow(input, options);
+          }, { path: [23, "auditEscrow"], serviceLoader }),
+          /**
+           * getProviderAuditEscrows returns a paginated list of audit-escrow records
+           * opened by the given provider, optionally filtered by AuditEscrowStatus.
+           */
+          getProviderAuditEscrows: withMetadata(async function getProviderAuditEscrows(input: DeepPartial<akash_verification_v1_query.QueryProviderAuditEscrowsRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).providerAuditEscrows(input, options);
+          }, { path: [23, "providerAuditEscrows"], serviceLoader }),
+          /**
+           * getProviderVerificationGrace returns the verification-grace record for the
+           * given provider, if one is currently tracked.
+           */
+          getProviderVerificationGrace: withMetadata(async function getProviderVerificationGrace(input: DeepPartial<akash_verification_v1_query.QueryProviderVerificationGraceRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).providerVerificationGrace(input, options);
+          }, { path: [23, "providerVerificationGrace"], serviceLoader }),
+          /**
+           * getProviderBond returns the provider's bond record together with the bond
+           * amount required for the provider's currently attested verification tier
+           * (derived from module params and the provider's tier at query time).
+           */
+          getProviderBond: withMetadata(async function getProviderBond(input: DeepPartial<akash_verification_v1_query.QueryProviderBondRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).providerBond(input, options);
+          }, { path: [23, "providerBond"], serviceLoader }),
+          /**
+           * getProviderSnapshot returns the most recent provider snapshot record posted
+           * on-chain by the given provider.
+           */
+          getProviderSnapshot: withMetadata(async function getProviderSnapshot(input: DeepPartial<akash_verification_v1_query.QueryProviderSnapshotRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).providerSnapshot(input, options);
+          }, { path: [23, "providerSnapshot"], serviceLoader }),
+          /**
+           * getParams returns the current parameter set for the verification module.
+           */
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_verification_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(23);
+            return getClient(service).params(input, options);
+          }, { path: [23, "params"], serviceLoader }),
+          /**
+           * postAuditorBond posts (or tops up) an auditor's verification bond.
+           */
+          postAuditorBond: withMetadata(async function postAuditorBond(input: DeepSimplify<akash_verification_v1_msg.MsgPostAuditorBond>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).postAuditorBond(input, options);
+          }, { path: [24, "postAuditorBond"], serviceLoader }),
+          /**
+           * openAuditEscrow opens a new audit escrow funding a pending attestation.
+           */
+          openAuditEscrow: withMetadata(async function openAuditEscrow(input: DeepSimplify<akash_verification_v1_msg.MsgOpenAuditEscrow>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).openAuditEscrow(input, options);
+          }, { path: [24, "openAuditEscrow"], serviceLoader }),
+          /**
+           * cancelAuditEscrow cancels an open, unconsumed audit escrow before expiry
+           * and returns the fee and provider deposit to the provider.
+           */
+          cancelAuditEscrow: withMetadata(async function cancelAuditEscrow(input: DeepSimplify<akash_verification_v1_msg.MsgCancelAuditEscrow>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).cancelAuditEscrow(input, options);
+          }, { path: [24, "cancelAuditEscrow"], serviceLoader }),
+          /**
+           * settleAuditEscrow settles an unconsumed audit escrow with an explicit
+           * reason, fault attribution, and evidence reference.
+           */
+          settleAuditEscrow: withMetadata(async function settleAuditEscrow(input: DeepSimplify<akash_verification_v1_msg.MsgSettleAuditEscrow>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).settleAuditEscrow(input, options);
+          }, { path: [24, "settleAuditEscrow"], serviceLoader }),
+          /**
+           * submitAttestation submits an attestation about a provider; the first
+           * valid submission against a matching open escrow consumes it.
+           */
+          submitAttestation: withMetadata(async function submitAttestation(input: DeepSimplify<akash_verification_v1_msg.MsgSubmitAttestation>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).submitAttestation(input, options);
+          }, { path: [24, "submitAttestation"], serviceLoader }),
+          /**
+           * revokeAttestation revokes a previously submitted attestation with a
+           * typed reason and evidence reference.
+           */
+          revokeAttestation: withMetadata(async function revokeAttestation(input: DeepSimplify<akash_verification_v1_msg.MsgRevokeAttestation>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).revokeAttestation(input, options);
+          }, { path: [24, "revokeAttestation"], serviceLoader }),
+          /**
+           * removeAttestation voluntarily removes an attestation associated with the
+           * signing provider.
+           */
+          removeAttestation: withMetadata(async function removeAttestation(input: DeepSimplify<akash_verification_v1_msg.MsgRemoveAttestation>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).removeAttestation(input, options);
+          }, { path: [24, "removeAttestation"], serviceLoader }),
+          /**
+           * resignAuditor voluntarily exits the auditor role and begins unbonding
+           * of any posted auditor bond.
+           */
+          resignAuditor: withMetadata(async function resignAuditor(input: DeepSimplify<akash_verification_v1_msg.MsgResignAuditor>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).resignAuditor(input, options);
+          }, { path: [24, "resignAuditor"], serviceLoader }),
+          /**
+           * postProviderBond posts (or tops up) a provider's resource-scaled
+           * verification bond.
+           */
+          postProviderBond: withMetadata(async function postProviderBond(input: DeepSimplify<akash_verification_v1_msg.MsgPostProviderBond>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).postProviderBond(input, options);
+          }, { path: [24, "postProviderBond"], serviceLoader }),
+          /**
+           * withdrawProviderBond initiates withdrawal of part or all of a provider's
+           * verification bond.
+           */
+          withdrawProviderBond: withMetadata(async function withdrawProviderBond(input: DeepSimplify<akash_verification_v1_msg.MsgWithdrawProviderBond>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).withdrawProviderBond(input, options);
+          }, { path: [24, "withdrawProviderBond"], serviceLoader }),
+          /**
+           * postSnapshotHash posts the provider's most recent resource snapshot hash
+           * and inline resource summary.
+           */
+          postSnapshotHash: withMetadata(async function postSnapshotHash(input: DeepSimplify<akash_verification_v1_msg.MsgPostSnapshotHash>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).postSnapshotHash(input, options);
+          }, { path: [24, "postSnapshotHash"], serviceLoader }),
+          /**
+           * registerAuditor registers a new auditor with a maximum attestation tier;
+           * governance only.
+           */
+          registerAuditor: withMetadata(async function registerAuditor(input: DeepSimplify<akash_verification_v1_msg.MsgRegisterAuditor>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).registerAuditor(input, options);
+          }, { path: [24, "registerAuditor"], serviceLoader }),
+          /**
+           * renewAuditor renews an auditor's registration and resets the renewal
+           * deadline; governance only.
+           */
+          renewAuditor: withMetadata(async function renewAuditor(input: DeepSimplify<akash_verification_v1_msg.MsgRenewAuditor>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).renewAuditor(input, options);
+          }, { path: [24, "renewAuditor"], serviceLoader }),
+          /**
+           * removeAuditor removes an auditor from the active set; governance only.
+           */
+          removeAuditor: withMetadata(async function removeAuditor(input: DeepSimplify<akash_verification_v1_msg.MsgRemoveAuditor>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).removeAuditor(input, options);
+          }, { path: [24, "removeAuditor"], serviceLoader }),
+          /**
+           * revokeProviderAttestation revokes a single attestation for a specific
+           * provider/auditor pair; governance only.
+           */
+          revokeProviderAttestation: withMetadata(async function revokeProviderAttestation(input: DeepSimplify<akash_verification_v1_msg.MsgRevokeProviderAttestation>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).revokeProviderAttestation(input, options);
+          }, { path: [24, "revokeProviderAttestation"], serviceLoader }),
+          /**
+           * revokeAllProviderAttestations revokes every active attestation for a
+           * single provider; governance only.
+           */
+          revokeAllProviderAttestations: withMetadata(async function revokeAllProviderAttestations(input: DeepSimplify<akash_verification_v1_msg.MsgRevokeAllProviderAttestations>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).revokeAllProviderAttestations(input, options);
+          }, { path: [24, "revokeAllProviderAttestations"], serviceLoader }),
+          /**
+           * revokeAuditorAttestations revokes every active attestation issued by a
+           * single auditor; governance only.
+           */
+          revokeAuditorAttestations: withMetadata(async function revokeAuditorAttestations(input: DeepSimplify<akash_verification_v1_msg.MsgRevokeAuditorAttestations>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).revokeAuditorAttestations(input, options);
+          }, { path: [24, "revokeAuditorAttestations"], serviceLoader }),
+          /**
+           * resolveDiscrepancy resolves a pending discrepancy between two auditors
+           * over the same provider; governance only.
+           */
+          resolveDiscrepancy: withMetadata(async function resolveDiscrepancy(input: DeepSimplify<akash_verification_v1_msg.MsgResolveDiscrepancy>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).resolveDiscrepancy(input, options);
+          }, { path: [24, "resolveDiscrepancy"], serviceLoader }),
+          /**
+           * slashProviderBond slashes a fraction of a provider's verification bond;
+           * governance only.
+           */
+          slashProviderBond: withMetadata(async function slashProviderBond(input: DeepSimplify<akash_verification_v1_msg.MsgSlashProviderBond>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).slashProviderBond(input, options);
+          }, { path: [24, "slashProviderBond"], serviceLoader }),
+          /**
+           * updateParams updates the x/verification module parameters; governance
+           * only.
+           */
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_verification_v1_msg.MsgUpdateParams>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(24);
+            return getMsgClient(service).updateParams(input, options);
+          }, { path: [24, "updateParams"], serviceLoader })
+        }
+      },
       wasm: {
         v1: {
           /**
            * getParams returns the total set of wasm parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_wasm_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(23);
+            const service = await serviceLoader.loadAt(25);
             return getClient(service).params(input, options);
-          }, { path: [23, "params"], serviceLoader }),
+          }, { path: [25, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/wasm module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -628,9 +956,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * Since: akash v2.0.0
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_wasm_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(24);
+            const service = await serviceLoader.loadAt(26);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [24, "updateParams"], serviceLoader })
+          }, { path: [26, "updateParams"], serviceLoader })
         }
       }
     }
