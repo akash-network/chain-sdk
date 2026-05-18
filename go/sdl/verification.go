@@ -21,7 +21,7 @@ type v2Verification struct {
 	// Valid values are 0..4 inclusive. A value of 0 (TierUnspecified) combined
 	// with no other filtering fields collapses the entire block to nil in
 	// `toProto()` so the wire form matches an omitted block.
-	MinTier int `yaml:"min_tier"`
+	MinTier int32 `yaml:"min_tier"`
 	// Capabilities is the list of optional provider capability flags the
 	// tenant requires bidders to assert. The SDL strings are the lowercase
 	// names defined in `verification/v1.capabilities.go` (e.g.
