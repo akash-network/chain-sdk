@@ -13,9 +13,9 @@ import (
 // the user's SDL and then converted to the on-chain proto via `toProto()`.
 //
 // There are two equivalent ways for an SDL to express "no verification
-// filtering": omit the entire block, or write a block with `min_tier: 0` (or
-// any other vacuous combination). `toProto()` collapses both to nil so the
-// chain only ever sees one canonical shape for the no-filtering case.
+// filtering": omit the entire block, or write a fully vacuous block with
+// `min_tier: 0`. `toProto()` collapses both to nil so the chain only ever sees
+// one canonical shape for the no-filtering case.
 type v2Verification struct {
 	// MinTier is the minimum verification tier required of bidding providers.
 	// Valid values are 0..4 inclusive. A value of 0 (TierUnspecified) combined
@@ -52,6 +52,8 @@ const auditorBech32Prefix = "akash1"
 //   - `auditor_mode` must be "", "any", or "all".
 //   - every entry of `capabilities` must be a recognized capability name
 //     (see verificationv1.IsKnownCapabilityName).
+//   - `min_tier=0` cannot be combined with capabilities, auditors, or
+//     min_auditor_count because L0 means "no verification filtering".
 //   - every entry of `auditors` must be a non-empty string with the expected
 //     bech32 human-readable prefix.
 //
@@ -88,12 +90,22 @@ func (v *v2Verification) UnmarshalYAML(unmarshal func(interface{}) error) error 
 		if trimmed == "" {
 			return fmt.Errorf("%w: verification.auditors[%d] is empty", errSDLInvalid, i)
 		}
+		if trimmed != a {
+			return fmt.Errorf("%w: verification.auditors[%d] has surrounding whitespace", errSDLInvalid, i)
+		}
 		if !strings.HasPrefix(trimmed, auditorBech32Prefix) {
 			return fmt.Errorf(
 				"%w: verification.auditors[%d] %q does not have expected bech32 prefix %q",
 				errSDLInvalid, i, trimmed, auditorBech32Prefix,
 			)
 		}
+	}
+
+	if r.MinTier == 0 && (len(r.Capabilities) != 0 || len(r.Auditors) != 0 || r.MinAuditorCount != 0) {
+		return fmt.Errorf(
+			"%w: verification.min_tier must be greater than 0 when capabilities, auditors, or min_auditor_count are set",
+			errSDLInvalid,
+		)
 	}
 
 	*v = v2Verification(r)

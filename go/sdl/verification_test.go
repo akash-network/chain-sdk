@@ -142,6 +142,19 @@ auditors:
 	assert.Contains(t, err.Error(), "prefix")
 }
 
+func TestV2Verification_YAML_AuditorSurroundingWhitespace(t *testing.T) {
+	in := []byte(`
+min_tier: 2
+auditors:
+  - " akash1auditor1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx "
+`)
+	var v v2Verification
+	err := yaml.Unmarshal(in, &v)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, errSDLInvalid)
+	assert.Contains(t, err.Error(), "whitespace")
+}
+
 // TestV2Verification_YAML_Valid_Defaults exercises the happy-path defaults:
 // no auditor_mode (defaults to any), no capabilities, no auditors, min_tier=0.
 func TestV2Verification_YAML_Valid_Defaults(t *testing.T) {
@@ -155,6 +168,54 @@ min_tier: 0
 	assert.Equal(t, "", v.AuditorMode)
 	assert.Empty(t, v.Capabilities)
 	assert.Empty(t, v.Auditors)
+}
+
+func TestV2Verification_YAML_TierUnspecifiedRejectsDependentFilters(t *testing.T) {
+	cases := []struct {
+		name string
+		in   []byte
+	}{
+		{
+			name: "capability without tier",
+			in: []byte(`
+capabilities:
+  - tee_hardware_attestation
+`),
+		},
+		{
+			name: "capability with explicit L0",
+			in: []byte(`
+min_tier: 0
+capabilities:
+  - tee_hardware_attestation
+`),
+		},
+		{
+			name: "auditor with explicit L0",
+			in: []byte(`
+min_tier: 0
+auditors:
+  - akash1auditor1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+`),
+		},
+		{
+			name: "minimum auditor count with explicit L0",
+			in: []byte(`
+min_tier: 0
+min_auditor_count: 1
+`),
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var v v2Verification
+			err := yaml.Unmarshal(tc.in, &v)
+			require.Error(t, err)
+			assert.ErrorIs(t, err, errSDLInvalid)
+			assert.Contains(t, err.Error(), "min_tier")
+		})
+	}
 }
 
 // TestV2Verification_toProto_NilReceiver ensures the helper is safe to call
@@ -220,18 +281,19 @@ func TestV2Verification_toProto_CollapseVacuous(t *testing.T) {
 	}
 }
 
-// TestV2Verification_toProto_DoesNotCollapseFiltering proves that any block
-// expressing real filtering — non-zero tier, any capability, any auditor, or
-// a min count — survives `toProto()` as a non-nil proto.
+// TestV2Verification_toProto_DoesNotCollapseFiltering proves that blocks
+// expressing real filtering survive `toProto()` as non-nil protos. Dependent
+// filters are paired with a non-zero tier because UnmarshalYAML rejects
+// capabilities/auditors/min-count requirements with TierUnspecified.
 func TestV2Verification_toProto_DoesNotCollapseFiltering(t *testing.T) {
 	cases := []struct {
 		name string
 		v    *v2Verification
 	}{
 		{name: "min_tier only", v: &v2Verification{MinTier: 1}},
-		{name: "capability only", v: &v2Verification{Capabilities: []string{"tee_hardware_attestation"}}},
-		{name: "auditor only", v: &v2Verification{Auditors: []string{"akash1abc"}}},
-		{name: "min_auditor_count only", v: &v2Verification{MinAuditorCount: 1}},
+		{name: "tier with capability", v: &v2Verification{MinTier: 1, Capabilities: []string{"tee_hardware_attestation"}}},
+		{name: "tier with auditor", v: &v2Verification{MinTier: 1, Auditors: []string{"akash1abc"}}},
+		{name: "tier with min_auditor_count", v: &v2Verification{MinTier: 1, MinAuditorCount: 1}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
