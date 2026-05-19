@@ -2,9 +2,124 @@ syntax = "proto3";
 
 package akash.inventory.v1;
 
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "akash/inventory/v1/cluster.proto";
 
 option go_package = "pkg.akt.dev/go/inventory/v1";
+
+// SnapshotPayload is the deterministic payload signed by a provider.
+message SnapshotPayload {
+  // schema_version identifies the payload schema used by snapshot_payload.
+  uint32 schema_version = 1 [
+    (gogoproto.jsontag)  = "schema_version",
+    (gogoproto.moretags) = "yaml:\"schema_version\""
+  ];
+
+  // provider is the provider account address in bech32 form.
+  string provider = 2 [
+    (gogoproto.jsontag)  = "provider",
+    (gogoproto.moretags) = "yaml:\"provider\""
+  ];
+
+  // chain_id binds the snapshot to the chain the provider is operating on.
+  string chain_id = 3 [
+    (gogoproto.customname) = "ChainID",
+    (gogoproto.jsontag)    = "chain_id",
+    (gogoproto.moretags)   = "yaml:\"chain_id\""
+  ];
+
+  // nonce is the optional challenge supplied by the caller.
+  bytes nonce = 4 [
+    (gogoproto.jsontag)  = "nonce",
+    (gogoproto.moretags) = "yaml:\"nonce\""
+  ];
+
+  // timestamp is the provider-local snapshot generation time.
+  google.protobuf.Timestamp timestamp = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "timestamp",
+    (gogoproto.moretags) = "yaml:\"timestamp\""
+  ];
+
+  // cluster is the current cluster inventory view.
+  Cluster cluster = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "cluster",
+    (gogoproto.moretags) = "yaml:\"cluster\""
+  ];
+
+  // resource_summary is the chain-facing summary derived from the full snapshot.
+  SnapshotResourceSummary resource_summary = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "resource_summary",
+    (gogoproto.moretags) = "yaml:\"resource_summary\""
+  ];
+
+  // evidence_sections carries named collector payloads for auditor evidence.
+  repeated SnapshotEvidenceSection evidence_sections = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "evidence_sections",
+    (gogoproto.moretags) = "yaml:\"evidence_sections\""
+  ];
+}
+
+// SnapshotResourceSummary captures the snapshot fields posted on-chain.
+message SnapshotResourceSummary {
+  uint32 total_gpus = 1 [
+    (gogoproto.customname) = "TotalGPUs",
+    (gogoproto.jsontag)    = "total_gpus",
+    (gogoproto.moretags)   = "yaml:\"total_gpus\""
+  ];
+
+  uint32 total_vcpus = 2 [
+    (gogoproto.customname) = "TotalVCPUs",
+    (gogoproto.jsontag)    = "total_vcpus",
+    (gogoproto.moretags)   = "yaml:\"total_vcpus\""
+  ];
+
+  uint64 total_memory_mb = 3 [
+    (gogoproto.customname) = "TotalMemoryMB",
+    (gogoproto.jsontag)    = "total_memory_mb",
+    (gogoproto.moretags)   = "yaml:\"total_memory_mb\""
+  ];
+
+  uint64 total_storage_mb = 4 [
+    (gogoproto.customname) = "TotalStorageMB",
+    (gogoproto.jsontag)    = "total_storage_mb",
+    (gogoproto.moretags)   = "yaml:\"total_storage_mb\""
+  ];
+
+  uint32 active_leases = 5 [
+    (gogoproto.jsontag)  = "active_leases",
+    (gogoproto.moretags) = "yaml:\"active_leases\""
+  ];
+
+  string software_version = 6 [
+    (gogoproto.jsontag)  = "software_version",
+    (gogoproto.moretags) = "yaml:\"software_version\""
+  ];
+
+  bytes software_signature = 7 [
+    (gogoproto.jsontag)  = "software_signature",
+    (gogoproto.moretags) = "yaml:\"software_signature\""
+  ];
+}
+
+// SnapshotEvidenceSection carries an opaque payload from one collector.
+message SnapshotEvidenceSection {
+  string name = 1 [
+    (gogoproto.jsontag)  = "name",
+    (gogoproto.moretags) = "yaml:\"name\""
+  ];
+
+  bytes payload = 2 [
+    (gogoproto.jsontag)  = "payload",
+    (gogoproto.moretags) = "yaml:\"payload\""
+  ];
+}
 
 // InventoryService exposes signed provider inventory snapshots.
 service InventoryService {
