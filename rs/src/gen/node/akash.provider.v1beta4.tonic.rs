@@ -845,9 +845,7 @@ pub mod msg_client {
                 .insert(GrpcMethod::new("akash.provider.v1beta4.Msg", "DeleteProvider"));
             self.inner.unary(req, path, codec).await
         }
-        /** OpenProviderMaintenance opens a provider-initiated maintenance window
- against the signer's active leases. See MsgOpenProviderMaintenance for
- handler-level invariants.
+        /** OpenProviderMaintenance opens a provider maintenance window.
 */
         pub async fn open_provider_maintenance(
             &mut self,
@@ -879,8 +877,7 @@ pub mod msg_client {
                 );
             self.inner.unary(req, path, codec).await
         }
-        /** CloseProviderMaintenance closes an open maintenance window early. See
- MsgCloseProviderMaintenance for handler-level invariants.
+        /** CloseProviderMaintenance closes an open maintenance window.
 */
         pub async fn close_provider_maintenance(
             &mut self,
@@ -913,8 +910,7 @@ pub mod msg_client {
             self.inner.unary(req, path, codec).await
         }
         /** UpdateParams is a governance operation for updating the x/provider
- ProviderMaintenanceParams. The authority is hard-coded to the x/gov
- module account.
+ parameters.
 
  Since: akash v1.0.0
 */
@@ -979,9 +975,7 @@ pub mod msg_server {
             tonic::Response<super::MsgDeleteProviderResponse>,
             tonic::Status,
         >;
-        /** OpenProviderMaintenance opens a provider-initiated maintenance window
- against the signer's active leases. See MsgOpenProviderMaintenance for
- handler-level invariants.
+        /** OpenProviderMaintenance opens a provider maintenance window.
 */
         async fn open_provider_maintenance(
             &self,
@@ -990,8 +984,7 @@ pub mod msg_server {
             tonic::Response<super::MsgOpenProviderMaintenanceResponse>,
             tonic::Status,
         >;
-        /** CloseProviderMaintenance closes an open maintenance window early. See
- MsgCloseProviderMaintenance for handler-level invariants.
+        /** CloseProviderMaintenance closes an open maintenance window.
 */
         async fn close_provider_maintenance(
             &self,
@@ -1001,8 +994,7 @@ pub mod msg_server {
             tonic::Status,
         >;
         /** UpdateParams is a governance operation for updating the x/provider
- ProviderMaintenanceParams. The authority is hard-coded to the x/gov
- module account.
+ parameters.
 
  Since: akash v1.0.0
 */

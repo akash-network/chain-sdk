@@ -1151,17 +1151,11 @@ func (m *QueryProviderBondRequest) GetProvider() string {
 }
 
 // QueryProviderBondResponse is the response type for the Query/ProviderBond RPC method.
-//
-// In addition to the raw ProviderBondRecord, the response carries the bond
-// amount required for the provider's currently attested verification tier,
-// derived from module Params at query time. This allows clients to compute a
-// bond-deficit without re-implementing the tier-to-bond table.
 type QueryProviderBondResponse struct {
 	// Bond is the on-chain ProviderBondRecord for the requested provider.
 	Bond ProviderBondRecord `protobuf:"bytes,1,opt,name=bond,proto3" json:"bond"`
-	// RequiredForCurrentTier is the bond amount the provider must hold to
-	// remain at its currently attested tier. Computed from module Params and
-	// the provider's current tier at query time.
+	// RequiredForCurrentTier is the required bond amount for the provider's
+	// current tier.
 	RequiredForCurrentTier types.Coin `protobuf:"bytes,2,opt,name=required_for_current_tier,json=requiredForCurrentTier,proto3" json:"required_for_current_tier"`
 }
 
@@ -1571,9 +1565,7 @@ type QueryClient interface {
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	ProviderVerificationGrace(ctx context.Context, in *QueryProviderVerificationGraceRequest, opts ...grpc.CallOption) (*QueryProviderVerificationGraceResponse, error)
-	// ProviderBond returns the provider's bond record together with the bond
-	// amount required for the provider's currently attested verification tier
-	// (derived from module params and the provider's tier at query time).
+	// ProviderBond returns the provider's bond record.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	ProviderBond(ctx context.Context, in *QueryProviderBondRequest, opts ...grpc.CallOption) (*QueryProviderBondResponse, error)
@@ -1764,9 +1756,7 @@ type QueryServer interface {
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	ProviderVerificationGrace(context.Context, *QueryProviderVerificationGraceRequest) (*QueryProviderVerificationGraceResponse, error)
-	// ProviderBond returns the provider's bond record together with the bond
-	// amount required for the provider's currently attested verification tier
-	// (derived from module params and the provider's tier at query time).
+	// ProviderBond returns the provider's bond record.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	ProviderBond(context.Context, *QueryProviderBondRequest) (*QueryProviderBondResponse, error)

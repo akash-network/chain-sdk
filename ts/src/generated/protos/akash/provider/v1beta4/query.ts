@@ -64,11 +64,7 @@ export interface QueryProviderMaintenanceRequest {
    *   "akash1..."
    */
   provider: string;
-  /**
-   * maintenance_id is the identifier of the maintenance record.
-   * No customname: the grpc-gateway expects MaintenanceId (camel-from-snake)
-   * because this field is bound to a REST path parameter.
-   */
+  /** maintenance_id is the identifier of the maintenance record. */
   maintenanceId: Long;
 }
 
@@ -77,10 +73,7 @@ export interface QueryProviderMaintenanceRequest {
  * Query/ProviderMaintenance RPC method.
  */
 export interface QueryProviderMaintenanceResponse {
-  /**
-   * maintenance is the requested record paired with its derived status at
-   * query time.
-   */
+  /** maintenance is the requested maintenance record. */
   maintenance: ProviderMaintenanceWithStatus | undefined;
 }
 
@@ -97,11 +90,7 @@ export interface QueryProviderMaintenancesRequest {
    *   "akash1..."
    */
   provider: string;
-  /**
-   * status_filter optionally restricts the results to records that resolve
-   * (at query time) to the given derived status. A value of
-   * provider_maintenance_status_unspecified disables the filter.
-   */
+  /** status_filter optionally restricts the results by status. */
   statusFilter: ProviderMaintenanceStatus;
   /** pagination is used to paginate the request. */
   pagination: PageRequest | undefined;
@@ -112,10 +101,7 @@ export interface QueryProviderMaintenancesRequest {
  * Query/ProviderMaintenances RPC method.
  */
 export interface QueryProviderMaintenancesResponse {
-  /**
-   * maintenance is the list of records (with derived statuses) matching the
-   * request filter and pagination.
-   */
+  /** maintenance is the list of records matching the request. */
   maintenance: ProviderMaintenanceWithStatus[];
   /** pagination contains the information about response pagination. */
   pagination: PageResponse | undefined;
@@ -151,10 +137,7 @@ export interface QueryRegistrationRequest {
  * RPC method.
  */
 export interface QueryRegistrationResponse {
-  /**
-   * registration is the provider registration record, including the
-   * registered_at timestamp.
-   */
+  /** registration is the provider registration record. */
   registration: ProviderRegistration | undefined;
 }
 

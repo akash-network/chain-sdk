@@ -73,16 +73,12 @@ type MsgClient interface {
 	UpdateProvider(ctx context.Context, in *MsgUpdateProvider, opts ...grpc.CallOption) (*MsgUpdateProviderResponse, error)
 	// DeleteProvider defines a method that deletes a provider given the proper inputs.
 	DeleteProvider(ctx context.Context, in *MsgDeleteProvider, opts ...grpc.CallOption) (*MsgDeleteProviderResponse, error)
-	// OpenProviderMaintenance opens a provider-initiated maintenance window
-	// against the signer's active leases. See MsgOpenProviderMaintenance for
-	// handler-level invariants.
+	// OpenProviderMaintenance opens a provider maintenance window.
 	OpenProviderMaintenance(ctx context.Context, in *MsgOpenProviderMaintenance, opts ...grpc.CallOption) (*MsgOpenProviderMaintenanceResponse, error)
-	// CloseProviderMaintenance closes an open maintenance window early. See
-	// MsgCloseProviderMaintenance for handler-level invariants.
+	// CloseProviderMaintenance closes an open maintenance window.
 	CloseProviderMaintenance(ctx context.Context, in *MsgCloseProviderMaintenance, opts ...grpc.CallOption) (*MsgCloseProviderMaintenanceResponse, error)
 	// UpdateParams is a governance operation for updating the x/provider
-	// ProviderMaintenanceParams. The authority is hard-coded to the x/gov
-	// module account.
+	// parameters.
 	//
 	// Since: akash v1.0.0
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
@@ -158,16 +154,12 @@ type MsgServer interface {
 	UpdateProvider(context.Context, *MsgUpdateProvider) (*MsgUpdateProviderResponse, error)
 	// DeleteProvider defines a method that deletes a provider given the proper inputs.
 	DeleteProvider(context.Context, *MsgDeleteProvider) (*MsgDeleteProviderResponse, error)
-	// OpenProviderMaintenance opens a provider-initiated maintenance window
-	// against the signer's active leases. See MsgOpenProviderMaintenance for
-	// handler-level invariants.
+	// OpenProviderMaintenance opens a provider maintenance window.
 	OpenProviderMaintenance(context.Context, *MsgOpenProviderMaintenance) (*MsgOpenProviderMaintenanceResponse, error)
-	// CloseProviderMaintenance closes an open maintenance window early. See
-	// MsgCloseProviderMaintenance for handler-level invariants.
+	// CloseProviderMaintenance closes an open maintenance window.
 	CloseProviderMaintenance(context.Context, *MsgCloseProviderMaintenance) (*MsgCloseProviderMaintenanceResponse, error)
 	// UpdateParams is a governance operation for updating the x/provider
-	// ProviderMaintenanceParams. The authority is hard-coded to the x/gov
-	// module account.
+	// parameters.
 	//
 	// Since: akash v1.0.0
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)

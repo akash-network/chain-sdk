@@ -37,6 +37,12 @@
      - [ClusterRPC](#akash.inventory.v1.ClusterRPC)
      - [NodeRPC](#akash.inventory.v1.NodeRPC)
    
+ - [akash/inventory/v1/snapshot.proto](#akash/inventory/v1/snapshot.proto)
+     - [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest)
+     - [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse)
+
+     - [InventoryService](#akash.inventory.v1.InventoryService)
+
  - [akash/manifest/v2beta3/httpoptions.proto](#akash/manifest/v2beta3/httpoptions.proto)
      - [ServiceExposeHTTPOptions](#akash.manifest.v2beta3.ServiceExposeHTTPOptions)
    
@@ -480,6 +486,64 @@
 
  
  
+ <a name="akash/inventory/v1/snapshot.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/inventory/v1/snapshot.proto
+
+
+
+ <a name="akash.inventory.v1.GetInventorySnapshotRequest"></a>
+
+ ### GetInventorySnapshotRequest
+ GetInventorySnapshotRequest is the request type for GetInventorySnapshot.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `nonce` | [bytes](#bytes) |  | nonce is an optional 32-byte challenge bound into the signed payload. |
+
+
+
+
+
+
+ <a name="akash.inventory.v1.GetInventorySnapshotResponse"></a>
+
+ ### GetInventorySnapshotResponse
+ GetInventorySnapshotResponse is the response type for GetInventorySnapshot.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot_payload` | [bytes](#bytes) |  | snapshot_payload is the opaque inventory snapshot payload. |
+ | `signature` | [bytes](#bytes) |  | signature is the provider signature over snapshot_payload. |
+ | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
+
+
+
+
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+
+ <a name="akash.inventory.v1.InventoryService"></a>
+
+ ### InventoryService
+ InventoryService exposes signed provider inventory snapshots.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `GetInventorySnapshot` | [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest) | [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse) | GetInventorySnapshot returns a provider-signed inventory snapshot. | POST|/v1/inventory/snapshot|
+
+  <!-- end services -->
+
+
+
  <a name="akash/manifest/v2beta3/httpoptions.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 

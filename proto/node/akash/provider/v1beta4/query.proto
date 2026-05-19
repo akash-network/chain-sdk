@@ -25,14 +25,12 @@ service Query {
     option (google.api.http).get = "/akash/provider/v1beta4/providers/{owner}";
   }
 
-  // ProviderMaintenance returns a single maintenance record for a provider,
-  // with its derived status at query time.
+  // ProviderMaintenance queries a provider maintenance record.
   rpc ProviderMaintenance(QueryProviderMaintenanceRequest) returns (QueryProviderMaintenanceResponse) {
     option (google.api.http).get = "/akash/provider/v1beta4/providers/{provider}/maintenance/{maintenance_id}";
   }
 
-  // ProviderMaintenances lists maintenance records for a provider, optionally
-  // filtered by derived status, with pagination.
+  // ProviderMaintenances queries provider maintenance records.
   rpc ProviderMaintenances(QueryProviderMaintenancesRequest) returns (QueryProviderMaintenancesResponse) {
     option (google.api.http).get = "/akash/provider/v1beta4/providers/{provider}/maintenance";
   }
@@ -42,8 +40,7 @@ service Query {
     option (google.api.http).get = "/akash/provider/v1beta4/params";
   }
 
-  // Registration returns the registration record (registered_at timestamp)
-  // for a provider. Consumed by x/verification on-chain prerequisite checks.
+  // Registration queries provider registration details.
   rpc Registration(QueryRegistrationRequest) returns (QueryRegistrationResponse) {
     option (google.api.http).get = "/akash/provider/v1beta4/providers/{provider}/registration";
   }
@@ -97,16 +94,13 @@ message QueryProviderMaintenanceRequest {
     (cosmos_proto.scalar) = "cosmos.AddressString"
   ];
   // maintenance_id is the identifier of the maintenance record.
-  // No customname: the grpc-gateway expects MaintenanceId (camel-from-snake)
-  // because this field is bound to a REST path parameter.
   uint64 maintenance_id = 2;
 }
 
 // QueryProviderMaintenanceResponse is the response type for the
 // Query/ProviderMaintenance RPC method.
 message QueryProviderMaintenanceResponse {
-  // maintenance is the requested record paired with its derived status at
-  // query time.
+  // maintenance is the requested maintenance record.
   ProviderMaintenanceWithStatus maintenance = 1 [
     (gogoproto.nullable) = false
   ];
@@ -123,9 +117,7 @@ message QueryProviderMaintenancesRequest {
   string provider = 1 [
     (cosmos_proto.scalar) = "cosmos.AddressString"
   ];
-  // status_filter optionally restricts the results to records that resolve
-  // (at query time) to the given derived status. A value of
-  // provider_maintenance_status_unspecified disables the filter.
+  // status_filter optionally restricts the results by status.
   ProviderMaintenanceStatus status_filter = 2;
   // pagination is used to paginate the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 3;
@@ -134,8 +126,7 @@ message QueryProviderMaintenancesRequest {
 // QueryProviderMaintenancesResponse is the response type for the
 // Query/ProviderMaintenances RPC method.
 message QueryProviderMaintenancesResponse {
-  // maintenance is the list of records (with derived statuses) matching the
-  // request filter and pagination.
+  // maintenance is the list of records matching the request.
   repeated ProviderMaintenanceWithStatus maintenance = 1 [
     (gogoproto.nullable) = false
   ];
@@ -171,8 +162,7 @@ message QueryRegistrationRequest {
 // QueryRegistrationResponse is the response type for the Query/Registration
 // RPC method.
 message QueryRegistrationResponse {
-  // registration is the provider registration record, including the
-  // registered_at timestamp.
+  // registration is the provider registration record.
   ProviderRegistration registration = 1 [
     (gogoproto.nullable) = false
   ];

@@ -27,22 +27,13 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type GenesisState struct {
 	// Providers is a list of genesis providers.
 	Providers Providers `protobuf:"bytes,1,rep,name=providers,proto3,castrepeated=Providers" json:"providers" yaml:"providers"`
-	// Params is the set of governance-tunable parameters for the x/provider
-	// module (ProviderMaintenanceParams). At the AEP-86 upgrade height the
-	// upgrade handler installs the module defaults.
+	// Params is the provider module parameter set.
 	Params ProviderMaintenanceParams `protobuf:"bytes,2,opt,name=params,proto3" json:"params" yaml:"params"`
-	// Maintenances is the list of all provider maintenance records to import
-	// into the keeper at genesis. Each record's id MUST be unique and strictly
-	// less than next_maintenance_id.
+	// Maintenances is the list of provider maintenance records.
 	Maintenances []ProviderMaintenanceRecord `protobuf:"bytes,3,rep,name=maintenances,proto3" json:"maintenances" yaml:"maintenances"`
-	// NextMaintenanceID is the next maintenance identifier the keeper will
-	// assign on MsgOpenProviderMaintenance. It MUST be strictly greater than
-	// the maximum id present in `maintenances`.
+	// NextMaintenanceID is the next provider maintenance identifier.
 	NextMaintenanceID uint64 `protobuf:"varint,4,opt,name=next_maintenance_id,json=nextMaintenanceId,proto3" json:"next_maintenance_id" yaml:"next_maintenance_id"`
-	// Registrations is the list of provider registration records (per-provider
-	// registered_at timestamps) to import at genesis. At the AEP-86 upgrade
-	// height the upgrade handler backfills one record per existing provider
-	// with registered_at set to the upgrade block time.
+	// Registrations is the list of provider registration records to import at genesis.
 	Registrations []ProviderRegistration `protobuf:"bytes,5,rep,name=registrations,proto3" json:"registrations" yaml:"registrations"`
 }
 

@@ -998,11 +998,9 @@ type ResourceSummary struct {
 	TotalStorageMB uint64 `protobuf:"varint,4,opt,name=total_storage_mb,json=totalStorageMb,proto3" json:"total_storage_mb" yaml:"total_storage_mb"`
 	// ActiveLeases is the number of leases currently active on the provider.
 	ActiveLeases uint32 `protobuf:"varint,5,opt,name=active_leases,json=activeLeases,proto3" json:"active_leases" yaml:"active_leases"`
-	// SoftwareVersion is the provider software version string (evidence-only,
-	// not enforced on-chain in L-1).
+	// SoftwareVersion is the provider software version string.
 	SoftwareVersion string `protobuf:"bytes,6,opt,name=software_version,json=softwareVersion,proto3" json:"software_version" yaml:"software_version"`
-	// SoftwareSignature is the provider software signature bytes (evidence-only,
-	// not enforced on-chain in L-1).
+	// SoftwareSignature is the provider software signature bytes.
 	SoftwareSignature []byte `protobuf:"bytes,7,opt,name=software_signature,json=softwareSignature,proto3" json:"software_signature" yaml:"software_signature"`
 }
 

@@ -27,11 +27,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// ProviderMaintenanceParams holds the governance-tunable bounds enforced by
-// the x/provider module when a provider opens a maintenance window.
-//
-// These values are mutated only through MsgUpdateParams which is gated to the
-// governance module account.
+// ProviderMaintenanceParams defines maintenance window parameters.
 type ProviderMaintenanceParams struct {
 	// maintenance_max_duration is the maximum allowed value of
 	// (expected_ends_at - starts_at) when opening a maintenance window.
