@@ -335,34 +335,21 @@ func (m *MsgDeleteProviderResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgDeleteProviderResponse proto.InternalMessageInfo
 
-// MsgOpenProviderMaintenance opens a maintenance window for a registered
-// provider. The signer MUST equal the provider address. The handler enforces:
-//   - provider is a registered provider in x/provider;
-//   - maintenance_type != ProviderMaintenanceType.provider_maintenance_type_unspecified;
-//   - expected_ends_at is strictly after starts_at;
-//   - (expected_ends_at - starts_at) <= ProviderMaintenanceParams.maintenance_max_duration;
-//   - starts_at <= block_time + ProviderMaintenanceParams.maintenance_max_lookahead;
-//   - the provider has no other scheduled or active window (stale elapsed
-//     index entries are cleared transparently on open).
-//
-// On success the handler stores a new ProviderMaintenanceRecord, assigns a
-// fresh maintenance_id, updates the active-maintenance index, and emits
-// EventProviderMaintenanceOpened.
+// MsgOpenProviderMaintenance opens a maintenance window for a provider.
 type MsgOpenProviderMaintenance struct {
 	// provider is the bech32 address of the provider opening the maintenance
-	// window. It MUST equal the transaction signer.
+	// window.
 	//
 	// Example:
 	//
 	//	"akash1..."
 	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider" yaml:"provider"`
-	// maintenance_type is the declared category of the window. It MUST NOT be
-	// provider_maintenance_type_unspecified.
+	// maintenance_type is the declared category of the window.
 	MaintenanceType ProviderMaintenanceType `protobuf:"varint,2,opt,name=maintenance_type,json=maintenanceType,proto3,enum=akash.provider.v1beta4.ProviderMaintenanceType" json:"maintenance_type" yaml:"maintenance_type"`
 	// starts_at is the wall-clock time at which the maintenance window begins.
 	StartsAt time.Time `protobuf:"bytes,3,opt,name=starts_at,json=startsAt,proto3,stdtime" json:"starts_at" yaml:"starts_at"`
 	// expected_ends_at is the wall-clock time at which the provider expects the
-	// window to end. It MUST be strictly after starts_at.
+	// window to end.
 	ExpectedEndsAt time.Time `protobuf:"bytes,4,opt,name=expected_ends_at,json=expectedEndsAt,proto3,stdtime" json:"expected_ends_at" yaml:"expected_ends_at"`
 	// metadata_hash is an optional, opaque commitment to off-chain explanatory
 	// metadata. The chain does not interpret this value.
@@ -438,11 +425,9 @@ func (m *MsgOpenProviderMaintenance) GetMetadataHash() []byte {
 }
 
 // MsgOpenProviderMaintenanceResponse is the response type for
-// MsgOpenProviderMaintenance. It returns the newly assigned maintenance_id so
-// that clients can subsequently address the record without re-querying.
+// MsgOpenProviderMaintenance.
 type MsgOpenProviderMaintenanceResponse struct {
-	// maintenance_id is the identifier assigned by the keeper to the newly
-	// opened maintenance window.
+	// maintenance_id is the identifier assigned to the maintenance window.
 	MaintenanceID uint64 `protobuf:"varint,1,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id" yaml:"maintenance_id"`
 }
 
@@ -486,19 +471,10 @@ func (m *MsgOpenProviderMaintenanceResponse) GetMaintenanceID() uint64 {
 	return 0
 }
 
-// MsgCloseProviderMaintenance closes an open provider maintenance window
-// early. The signer MUST equal the provider address. The handler enforces:
-//   - the record identified by (provider, maintenance_id) exists;
-//   - the record belongs to the signer;
-//   - the record has not already been closed (closed_at == nil).
-//
-// On success the handler sets closed_at = block_time, clears the
-// active-maintenance index if it points at this record, and emits
-// EventProviderMaintenanceClosed.
+// MsgCloseProviderMaintenance closes an open provider maintenance window.
 type MsgCloseProviderMaintenance struct {
 	// provider is the bech32 address of the provider closing the maintenance
-	// window. It MUST equal the transaction signer and the stored record's
-	// provider field.
+	// window.
 	//
 	// Example:
 	//

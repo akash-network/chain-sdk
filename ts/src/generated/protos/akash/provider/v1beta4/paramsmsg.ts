@@ -12,22 +12,14 @@ import Long from "long";
 import { ProviderMaintenanceParams } from "./params.ts";
 
 /**
- * MsgUpdateParams is the governance Msg used to mutate the x/provider module
- * parameters. The signer is hard-coded to the governance module account.
+ * MsgUpdateParams is the Msg/UpdateParams request type.
  *
  * Since: akash v1.0.0
  */
 export interface MsgUpdateParams {
-  /**
-   * authority is the address of the governance account permitted to mutate
-   * x/provider params. It MUST equal the x/gov module account address.
-   */
+  /** authority is the address of the governance account. */
   authority: string;
-  /**
-   * params is the full set of provider maintenance parameters to install. All
-   * fields MUST be supplied; this message replaces the stored params record
-   * atomically.
-   */
+  /** params defines the x/provider parameters to update. */
   params: ProviderMaintenanceParams | undefined;
 }
 

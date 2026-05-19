@@ -10,55 +10,19 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 
-/**
- * GetInventorySnapshotRequest is the input to InventoryService.GetInventorySnapshot.
- * It carries an optional auditor-supplied nonce used as a freshness
- * challenge bound into the signed response payload.
- */
+/** GetInventorySnapshotRequest is the request type for GetInventorySnapshot. */
 export interface GetInventorySnapshotRequest {
-  /**
-   * nonce is a cryptographically random 32-byte challenge value supplied
-   * by the auditor. The provider MUST embed this value inside the
-   * returned snapshot_payload before signing so the auditor can verify
-   * that the response was produced specifically for this request and is
-   * not a replay of a previously captured snapshot. The field is
-   * optional; if omitted, the provider returns a snapshot without a
-   * bound challenge (suitable for non-attestation use cases).
-   */
+  /** nonce is an optional 32-byte challenge bound into the signed payload. */
   nonce: Uint8Array;
 }
 
-/**
- * GetInventorySnapshotResponse is the output of InventoryService.GetInventorySnapshot.
- * It carries the opaque signed snapshot payload, the provider's
- * signature over that payload, and the provider's on-chain bech32
- * address used by the auditor to look up the verifying key.
- */
+/** GetInventorySnapshotResponse is the response type for GetInventorySnapshot. */
 export interface GetInventorySnapshotResponse {
-  /**
-   * snapshot_payload is the full machine-generated inventory snapshot
-   * produced by the provider. Its internal layout is implementation
-   * defined and opaque at the RPC boundary; it includes (at minimum)
-   * the chain id, timestamp, schema version, software_version,
-   * software_signature, the nonce echoed from the request, and the
-   * multi-source hardware data described in IMPL.md §5.1 and the
-   * README's Snapshot Contents section. The on-chain ResourceSummary
-   * (chain side) carries the typed projection of these fields; see
-   * x/verification state.proto.
-   */
+  /** snapshot_payload is the opaque inventory snapshot payload. */
   snapshotPayload: Uint8Array;
-  /**
-   * signature is the provider's on-chain key signature computed over
-   * the entire snapshot_payload byte string. Auditors verify this
-   * signature using the public key associated with the provider account
-   * identified by the `provider` field below.
-   */
+  /** signature is the provider signature over snapshot_payload. */
   signature: Uint8Array;
-  /**
-   * provider is the provider's on-chain account address in bech32
-   * form. It is used by the auditor to look up the provider's on-chain
-   * signing key and to bind the snapshot to a specific provider record.
-   */
+  /** provider is the provider account address in bech32 form. */
   provider: string;
 }
 

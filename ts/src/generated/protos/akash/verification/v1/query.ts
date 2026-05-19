@@ -275,23 +275,15 @@ export interface QueryProviderBondRequest {
   provider: string;
 }
 
-/**
- * QueryProviderBondResponse is the response type for the Query/ProviderBond RPC method.
- *
- * In addition to the raw ProviderBondRecord, the response carries the bond
- * amount required for the provider's currently attested verification tier,
- * derived from module Params at query time. This allows clients to compute a
- * bond-deficit without re-implementing the tier-to-bond table.
- */
+/** QueryProviderBondResponse is the response type for the Query/ProviderBond RPC method. */
 export interface QueryProviderBondResponse {
   /** Bond is the on-chain ProviderBondRecord for the requested provider. */
   bond:
     | ProviderBondRecord
     | undefined;
   /**
-   * RequiredForCurrentTier is the bond amount the provider must hold to
-   * remain at its currently attested tier. Computed from module Params and
-   * the provider's current tier at query time.
+   * RequiredForCurrentTier is the required bond amount for the provider's
+   * current tier.
    */
   requiredForCurrentTier: Coin | undefined;
 }

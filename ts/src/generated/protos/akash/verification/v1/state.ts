@@ -350,15 +350,9 @@ export interface ResourceSummary {
   totalStorageMb: Long;
   /** ActiveLeases is the number of leases currently active on the provider. */
   activeLeases: number;
-  /**
-   * SoftwareVersion is the provider software version string (evidence-only,
-   * not enforced on-chain in L-1).
-   */
+  /** SoftwareVersion is the provider software version string. */
   softwareVersion: string;
-  /**
-   * SoftwareSignature is the provider software signature bytes (evidence-only,
-   * not enforced on-chain in L-1).
-   */
+  /** SoftwareSignature is the provider software signature bytes. */
   softwareSignature: Uint8Array;
 }
 

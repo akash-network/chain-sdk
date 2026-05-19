@@ -64,34 +64,17 @@ export interface MsgDeleteProvider {
 export interface MsgDeleteProviderResponse {
 }
 
-/**
- * MsgOpenProviderMaintenance opens a maintenance window for a registered
- * provider. The signer MUST equal the provider address. The handler enforces:
- *   - provider is a registered provider in x/provider;
- *   - maintenance_type != ProviderMaintenanceType.provider_maintenance_type_unspecified;
- *   - expected_ends_at is strictly after starts_at;
- *   - (expected_ends_at - starts_at) <= ProviderMaintenanceParams.maintenance_max_duration;
- *   - starts_at <= block_time + ProviderMaintenanceParams.maintenance_max_lookahead;
- *   - the provider has no other scheduled or active window (stale elapsed
- *     index entries are cleared transparently on open).
- *
- * On success the handler stores a new ProviderMaintenanceRecord, assigns a
- * fresh maintenance_id, updates the active-maintenance index, and emits
- * EventProviderMaintenanceOpened.
- */
+/** MsgOpenProviderMaintenance opens a maintenance window for a provider. */
 export interface MsgOpenProviderMaintenance {
   /**
    * provider is the bech32 address of the provider opening the maintenance
-   * window. It MUST equal the transaction signer.
+   * window.
    *
    * Example:
    *   "akash1..."
    */
   provider: string;
-  /**
-   * maintenance_type is the declared category of the window. It MUST NOT be
-   * provider_maintenance_type_unspecified.
-   */
+  /** maintenance_type is the declared category of the window. */
   maintenanceType: ProviderMaintenanceType;
   /** starts_at is the wall-clock time at which the maintenance window begins. */
   startsAt:
@@ -99,7 +82,7 @@ export interface MsgOpenProviderMaintenance {
     | undefined;
   /**
    * expected_ends_at is the wall-clock time at which the provider expects the
-   * window to end. It MUST be strictly after starts_at.
+   * window to end.
    */
   expectedEndsAt:
     | Date
@@ -113,33 +96,18 @@ export interface MsgOpenProviderMaintenance {
 
 /**
  * MsgOpenProviderMaintenanceResponse is the response type for
- * MsgOpenProviderMaintenance. It returns the newly assigned maintenance_id so
- * that clients can subsequently address the record without re-querying.
+ * MsgOpenProviderMaintenance.
  */
 export interface MsgOpenProviderMaintenanceResponse {
-  /**
-   * maintenance_id is the identifier assigned by the keeper to the newly
-   * opened maintenance window.
-   */
+  /** maintenance_id is the identifier assigned to the maintenance window. */
   maintenanceId: Long;
 }
 
-/**
- * MsgCloseProviderMaintenance closes an open provider maintenance window
- * early. The signer MUST equal the provider address. The handler enforces:
- *   - the record identified by (provider, maintenance_id) exists;
- *   - the record belongs to the signer;
- *   - the record has not already been closed (closed_at == nil).
- *
- * On success the handler sets closed_at = block_time, clears the
- * active-maintenance index if it points at this record, and emits
- * EventProviderMaintenanceClosed.
- */
+/** MsgCloseProviderMaintenance closes an open provider maintenance window. */
 export interface MsgCloseProviderMaintenance {
   /**
    * provider is the bech32 address of the provider closing the maintenance
-   * window. It MUST equal the transaction signer and the stored record's
-   * provider field.
+   * window.
    *
    * Example:
    *   "akash1..."

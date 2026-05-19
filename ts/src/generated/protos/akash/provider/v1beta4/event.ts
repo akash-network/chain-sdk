@@ -58,12 +58,7 @@ export interface EventProviderDeleted {
   owner: string;
 }
 
-/**
- * EventProviderMaintenanceOpened is emitted by the x/provider handler on a
- * successful MsgOpenProviderMaintenance. Tenants, indexers, REST services,
- * and Console use it to map the maintenance window to active leases owned by
- * the provider and to surface tenant-facing alerts off-chain.
- */
+/** EventProviderMaintenanceOpened is emitted when provider maintenance opens. */
 export interface EventProviderMaintenanceOpened {
   /** maintenance_id is the identifier assigned to the new maintenance record. */
   maintenanceId: Long;
@@ -87,19 +82,11 @@ export interface EventProviderMaintenanceOpened {
   expectedEndsAt:
     | Date
     | undefined;
-  /**
-   * metadata_hash is the optional, opaque commitment to off-chain explanatory
-   * metadata supplied in MsgOpenProviderMaintenance.
-   */
+  /** metadata_hash is the optional, opaque hash of off-chain metadata. */
   metadataHash: Uint8Array;
 }
 
-/**
- * EventProviderMaintenanceClosed is emitted by the x/provider handler on a
- * successful MsgCloseProviderMaintenance. It signals to tenant-facing
- * clients that the provider has ended the window earlier than
- * expected_ends_at.
- */
+/** EventProviderMaintenanceClosed is emitted when provider maintenance closes. */
 export interface EventProviderMaintenanceClosed {
   /** maintenance_id is the identifier of the closed maintenance record. */
   maintenanceId: Long;
@@ -110,7 +97,7 @@ export interface EventProviderMaintenanceClosed {
    *   "akash1..."
    */
   provider: string;
-  /** closed_at is the block time at which the handler closed the window. */
+  /** closed_at is the block time at which the window closed. */
   closedAt: Date | undefined;
 }
 
