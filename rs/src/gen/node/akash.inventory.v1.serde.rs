@@ -1663,6 +1663,556 @@ impl<'de> serde::Deserialize<'de> for ResourcePair {
         deserializer.deserialize_struct("akash.inventory.v1.ResourcePair", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for SnapshotEvidenceSection {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if !self.payload.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.inventory.v1.SnapshotEvidenceSection", len)?;
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if !self.payload.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("payload", pbjson::private::base64::encode(&self.payload).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SnapshotEvidenceSection {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "name",
+            "payload",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Name,
+            Payload,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "name" => Ok(GeneratedField::Name),
+                            "payload" => Ok(GeneratedField::Payload),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SnapshotEvidenceSection;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.inventory.v1.SnapshotEvidenceSection")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SnapshotEvidenceSection, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut name__ = None;
+                let mut payload__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Payload => {
+                            if payload__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("payload"));
+                            }
+                            payload__ =
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(SnapshotEvidenceSection {
+                    name: name__.unwrap_or_default(),
+                    payload: payload__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.inventory.v1.SnapshotEvidenceSection", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SnapshotPayload {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.schema_version != 0 {
+            len += 1;
+        }
+        if !self.provider.is_empty() {
+            len += 1;
+        }
+        if !self.chain_id.is_empty() {
+            len += 1;
+        }
+        if !self.nonce.is_empty() {
+            len += 1;
+        }
+        if self.timestamp.is_some() {
+            len += 1;
+        }
+        if self.cluster.is_some() {
+            len += 1;
+        }
+        if self.resource_summary.is_some() {
+            len += 1;
+        }
+        if !self.evidence_sections.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.inventory.v1.SnapshotPayload", len)?;
+        if self.schema_version != 0 {
+            struct_ser.serialize_field("schemaVersion", &self.schema_version)?;
+        }
+        if !self.provider.is_empty() {
+            struct_ser.serialize_field("provider", &self.provider)?;
+        }
+        if !self.chain_id.is_empty() {
+            struct_ser.serialize_field("chainId", &self.chain_id)?;
+        }
+        if !self.nonce.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("nonce", pbjson::private::base64::encode(&self.nonce).as_str())?;
+        }
+        if let Some(v) = self.timestamp.as_ref() {
+            struct_ser.serialize_field("timestamp", v)?;
+        }
+        if let Some(v) = self.cluster.as_ref() {
+            struct_ser.serialize_field("cluster", v)?;
+        }
+        if let Some(v) = self.resource_summary.as_ref() {
+            struct_ser.serialize_field("resourceSummary", v)?;
+        }
+        if !self.evidence_sections.is_empty() {
+            struct_ser.serialize_field("evidenceSections", &self.evidence_sections)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SnapshotPayload {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "schema_version",
+            "schemaVersion",
+            "provider",
+            "chain_id",
+            "chainId",
+            "nonce",
+            "timestamp",
+            "cluster",
+            "resource_summary",
+            "resourceSummary",
+            "evidence_sections",
+            "evidenceSections",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            SchemaVersion,
+            Provider,
+            ChainId,
+            Nonce,
+            Timestamp,
+            Cluster,
+            ResourceSummary,
+            EvidenceSections,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "schemaVersion" | "schema_version" => Ok(GeneratedField::SchemaVersion),
+                            "provider" => Ok(GeneratedField::Provider),
+                            "chainId" | "chain_id" => Ok(GeneratedField::ChainId),
+                            "nonce" => Ok(GeneratedField::Nonce),
+                            "timestamp" => Ok(GeneratedField::Timestamp),
+                            "cluster" => Ok(GeneratedField::Cluster),
+                            "resourceSummary" | "resource_summary" => Ok(GeneratedField::ResourceSummary),
+                            "evidenceSections" | "evidence_sections" => Ok(GeneratedField::EvidenceSections),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SnapshotPayload;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.inventory.v1.SnapshotPayload")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SnapshotPayload, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut schema_version__ = None;
+                let mut provider__ = None;
+                let mut chain_id__ = None;
+                let mut nonce__ = None;
+                let mut timestamp__ = None;
+                let mut cluster__ = None;
+                let mut resource_summary__ = None;
+                let mut evidence_sections__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::SchemaVersion => {
+                            if schema_version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schemaVersion"));
+                            }
+                            schema_version__ =
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Provider => {
+                            if provider__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("provider"));
+                            }
+                            provider__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ChainId => {
+                            if chain_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("chainId"));
+                            }
+                            chain_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Nonce => {
+                            if nonce__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nonce"));
+                            }
+                            nonce__ =
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Timestamp => {
+                            if timestamp__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("timestamp"));
+                            }
+                            timestamp__ = map_.next_value()?;
+                        }
+                        GeneratedField::Cluster => {
+                            if cluster__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("cluster"));
+                            }
+                            cluster__ = map_.next_value()?;
+                        }
+                        GeneratedField::ResourceSummary => {
+                            if resource_summary__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("resourceSummary"));
+                            }
+                            resource_summary__ = map_.next_value()?;
+                        }
+                        GeneratedField::EvidenceSections => {
+                            if evidence_sections__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("evidenceSections"));
+                            }
+                            evidence_sections__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(SnapshotPayload {
+                    schema_version: schema_version__.unwrap_or_default(),
+                    provider: provider__.unwrap_or_default(),
+                    chain_id: chain_id__.unwrap_or_default(),
+                    nonce: nonce__.unwrap_or_default(),
+                    timestamp: timestamp__,
+                    cluster: cluster__,
+                    resource_summary: resource_summary__,
+                    evidence_sections: evidence_sections__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.inventory.v1.SnapshotPayload", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SnapshotResourceSummary {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.total_gpus != 0 {
+            len += 1;
+        }
+        if self.total_vcpus != 0 {
+            len += 1;
+        }
+        if self.total_memory_mb != 0 {
+            len += 1;
+        }
+        if self.total_storage_mb != 0 {
+            len += 1;
+        }
+        if self.active_leases != 0 {
+            len += 1;
+        }
+        if !self.software_version.is_empty() {
+            len += 1;
+        }
+        if !self.software_signature.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.inventory.v1.SnapshotResourceSummary", len)?;
+        if self.total_gpus != 0 {
+            struct_ser.serialize_field("totalGpus", &self.total_gpus)?;
+        }
+        if self.total_vcpus != 0 {
+            struct_ser.serialize_field("totalVcpus", &self.total_vcpus)?;
+        }
+        if self.total_memory_mb != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("totalMemoryMb", ToString::to_string(&self.total_memory_mb).as_str())?;
+        }
+        if self.total_storage_mb != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("totalStorageMb", ToString::to_string(&self.total_storage_mb).as_str())?;
+        }
+        if self.active_leases != 0 {
+            struct_ser.serialize_field("activeLeases", &self.active_leases)?;
+        }
+        if !self.software_version.is_empty() {
+            struct_ser.serialize_field("softwareVersion", &self.software_version)?;
+        }
+        if !self.software_signature.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("softwareSignature", pbjson::private::base64::encode(&self.software_signature).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "total_gpus",
+            "totalGpus",
+            "total_vcpus",
+            "totalVcpus",
+            "total_memory_mb",
+            "totalMemoryMb",
+            "total_storage_mb",
+            "totalStorageMb",
+            "active_leases",
+            "activeLeases",
+            "software_version",
+            "softwareVersion",
+            "software_signature",
+            "softwareSignature",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            TotalGpus,
+            TotalVcpus,
+            TotalMemoryMb,
+            TotalStorageMb,
+            ActiveLeases,
+            SoftwareVersion,
+            SoftwareSignature,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "totalGpus" | "total_gpus" => Ok(GeneratedField::TotalGpus),
+                            "totalVcpus" | "total_vcpus" => Ok(GeneratedField::TotalVcpus),
+                            "totalMemoryMb" | "total_memory_mb" => Ok(GeneratedField::TotalMemoryMb),
+                            "totalStorageMb" | "total_storage_mb" => Ok(GeneratedField::TotalStorageMb),
+                            "activeLeases" | "active_leases" => Ok(GeneratedField::ActiveLeases),
+                            "softwareVersion" | "software_version" => Ok(GeneratedField::SoftwareVersion),
+                            "softwareSignature" | "software_signature" => Ok(GeneratedField::SoftwareSignature),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SnapshotResourceSummary;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.inventory.v1.SnapshotResourceSummary")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SnapshotResourceSummary, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut total_gpus__ = None;
+                let mut total_vcpus__ = None;
+                let mut total_memory_mb__ = None;
+                let mut total_storage_mb__ = None;
+                let mut active_leases__ = None;
+                let mut software_version__ = None;
+                let mut software_signature__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::TotalGpus => {
+                            if total_gpus__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalGpus"));
+                            }
+                            total_gpus__ =
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::TotalVcpus => {
+                            if total_vcpus__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalVcpus"));
+                            }
+                            total_vcpus__ =
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::TotalMemoryMb => {
+                            if total_memory_mb__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalMemoryMb"));
+                            }
+                            total_memory_mb__ =
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::TotalStorageMb => {
+                            if total_storage_mb__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalStorageMb"));
+                            }
+                            total_storage_mb__ =
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::ActiveLeases => {
+                            if active_leases__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("activeLeases"));
+                            }
+                            active_leases__ =
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::SoftwareVersion => {
+                            if software_version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("softwareVersion"));
+                            }
+                            software_version__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SoftwareSignature => {
+                            if software_signature__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("softwareSignature"));
+                            }
+                            software_signature__ =
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(SnapshotResourceSummary {
+                    total_gpus: total_gpus__.unwrap_or_default(),
+                    total_vcpus: total_vcpus__.unwrap_or_default(),
+                    total_memory_mb: total_memory_mb__.unwrap_or_default(),
+                    total_storage_mb: total_storage_mb__.unwrap_or_default(),
+                    active_leases: active_leases__.unwrap_or_default(),
+                    software_version: software_version__.unwrap_or_default(),
+                    software_signature: software_signature__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.inventory.v1.SnapshotResourceSummary", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for Storage {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
