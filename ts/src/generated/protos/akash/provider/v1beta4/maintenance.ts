@@ -11,18 +11,9 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 
-/**
- * ProviderMaintenanceType enumerates the kinds of provider-initiated maintenance
- * windows that may be opened against a provider's active leases.
- *
- * The chain stores the declared type so tenants, indexers, and integrators can
- * distinguish planned downtime from urgent incidents when surfacing alerts.
- */
+/** ProviderMaintenanceType enumerates provider maintenance window types. */
 export enum ProviderMaintenanceType {
-  /**
-   * provider_maintenance_type_unspecified - provider_maintenance_type_unspecified is the zero value and MUST NOT be
-   * accepted by handlers. It exists only to satisfy proto3 enum defaults.
-   */
+  /** provider_maintenance_type_unspecified - provider_maintenance_type_unspecified is the zero value. */
   provider_maintenance_type_unspecified = 0,
   /**
    * provider_maintenance_type_planned - provider_maintenance_type_planned represents a scheduled, non-urgent
@@ -99,37 +90,17 @@ export function providerMaintenanceTypeToJSON(object: ProviderMaintenanceType): 
   }
 }
 
-/**
- * ProviderMaintenanceStatus enumerates the derived lifecycle states of a
- * provider maintenance record. Status is derived from block time and the
- * record's `closed_at` field rather than being stored directly; see the query
- * implementation for the exact derivation rules.
- */
+/** ProviderMaintenanceStatus enumerates provider maintenance lifecycle states. */
 export enum ProviderMaintenanceStatus {
-  /**
-   * provider_maintenance_status_unspecified - provider_maintenance_status_unspecified is the zero value and indicates a
-   * missing or invalid status. It MUST NOT be returned for a valid record.
-   */
+  /** provider_maintenance_status_unspecified - provider_maintenance_status_unspecified is the zero value. */
   provider_maintenance_status_unspecified = 0,
-  /**
-   * provider_maintenance_status_scheduled - provider_maintenance_status_scheduled means the window has been opened but
-   * `block_time` has not yet reached `starts_at`.
-   */
+  /** provider_maintenance_status_scheduled - provider_maintenance_status_scheduled means the window has not started. */
   provider_maintenance_status_scheduled = 1,
-  /**
-   * provider_maintenance_status_active - provider_maintenance_status_active means `starts_at <= block_time` and the
-   * window has not been explicitly closed nor reached `expected_ends_at`.
-   */
+  /** provider_maintenance_status_active - provider_maintenance_status_active means the window is active. */
   provider_maintenance_status_active = 2,
-  /**
-   * provider_maintenance_status_elapsed - provider_maintenance_status_elapsed means `block_time >= expected_ends_at`
-   * and the window has not been explicitly closed.
-   */
+  /** provider_maintenance_status_elapsed - provider_maintenance_status_elapsed means the window reached expected_ends_at. */
   provider_maintenance_status_elapsed = 3,
-  /**
-   * provider_maintenance_status_closed - provider_maintenance_status_closed means `closed_at` has been set by an
-   * explicit MsgCloseProviderMaintenance.
-   */
+  /** provider_maintenance_status_closed - provider_maintenance_status_closed means the window was closed explicitly. */
   provider_maintenance_status_closed = 4,
   UNRECOGNIZED = -1,
 }
@@ -176,75 +147,44 @@ export function providerMaintenanceStatusToJSON(object: ProviderMaintenanceStatu
   }
 }
 
-/**
- * ProviderMaintenanceRecord is the canonical on-chain record for a provider
- * maintenance window. It is keyed by `id` and indexed by `provider`.
- */
+/** ProviderMaintenanceRecord is an on-chain provider maintenance record. */
 export interface ProviderMaintenanceRecord {
-  /**
-   * id is the monotonically increasing maintenance identifier assigned by the
-   * x/provider keeper on MsgOpenProviderMaintenance.
-   */
+  /** id is the maintenance identifier. */
   id: Long;
   /**
    * provider is the bech32 address of the provider owning the maintenance
-   * window. It must match the signer of MsgOpenProviderMaintenance.
+   * window.
    *
    * Example:
    *   "akash1..."
    */
   provider: string;
-  /**
-   * maintenance_type is the declared category of the window. It MUST NOT be
-   * provider_maintenance_type_unspecified.
-   */
+  /** maintenance_type is the declared category of the window. */
   maintenanceType: ProviderMaintenanceType;
-  /**
-   * starts_at is the wall-clock time at which the maintenance window begins.
-   * It may be in the future relative to the opening block time, bounded by
-   * ProviderMaintenanceParams.maintenance_max_lookahead.
-   */
+  /** starts_at is the wall-clock time at which the maintenance window begins. */
   startsAt:
     | Date
     | undefined;
   /**
    * expected_ends_at is the wall-clock time at which the provider expects the
-   * window to end. It MUST be strictly after starts_at and the duration
-   * (expected_ends_at - starts_at) MUST be less than or equal to
-   * ProviderMaintenanceParams.maintenance_max_duration.
+   * window to end.
    */
   expectedEndsAt:
     | Date
     | undefined;
-  /**
-   * opened_at is the block time at which MsgOpenProviderMaintenance was
-   * processed. It is set by the keeper and is not user-supplied.
-   */
+  /** opened_at is the block time at which the window was opened. */
   openedAt:
     | Date
     | undefined;
-  /**
-   * closed_at is the block time at which MsgCloseProviderMaintenance was
-   * processed. It is nullable: a record without an explicit close has
-   * closed_at == nil regardless of whether expected_ends_at has elapsed.
-   */
+  /** closed_at is the block time at which the window was closed. */
   closedAt:
     | Date
     | undefined;
-  /**
-   * metadata_hash is an optional, opaque hash committing to off-chain
-   * explanatory metadata (e.g., an IPFS hash). The chain does not interpret
-   * this field; it is surfaced for clients and indexers.
-   */
+  /** metadata_hash is an optional, opaque hash of off-chain metadata. */
   metadataHash: Uint8Array;
 }
 
-/**
- * ProviderMaintenanceWithStatus pairs a stored ProviderMaintenanceRecord with
- * its derived ProviderMaintenanceStatus at query time. Queries MUST compute
- * status from block time and the record's closed_at field rather than relying
- * solely on an active-maintenance index.
- */
+/** ProviderMaintenanceWithStatus pairs a maintenance record with its status. */
 export interface ProviderMaintenanceWithStatus {
   /** record is the stored maintenance window. */
   record:

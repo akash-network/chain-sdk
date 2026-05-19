@@ -190,10 +190,8 @@ definitions:
 
   verificationRequirement:
     description: |
-      Optional AEP-86 verification requirements that providers must satisfy
-      to bid on this placement. Omitting the block (or setting min_tier to 0
-      with no dependent filters) disables verification filtering for this
-      placement and preserves pre-AEP-86 backward compatibility.
+      Optional verification requirements that providers must satisfy to bid
+      on this placement. Omitting the block disables verification filtering.
     additionalProperties: false
     allOf:
       - $ref: '#/definitions/verificationTierZeroAllowsNoFilters'
@@ -202,8 +200,7 @@ definitions:
         description: |
           Minimum verification tier required of bidding providers. 0 = no
           requirement (TierUnspecified) and cannot be combined with
-          capabilities, auditors, or min_auditor_count. Valid values are 0..4
-          corresponding to L0 (permissionless) through L4 (trusted).
+          capabilities, auditors, or min_auditor_count. Valid values are 0..4.
         type: integer
         minimum: 0
         maximum: 4

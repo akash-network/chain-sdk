@@ -573,15 +573,13 @@ message ResourceSummary {
     (gogoproto.moretags) = "yaml:\"active_leases\""
   ];
 
-  // SoftwareVersion is the provider software version string (evidence-only,
-  // not enforced on-chain in L-1).
+  // SoftwareVersion is the provider software version string.
   string software_version = 6 [
     (gogoproto.jsontag)  = "software_version",
     (gogoproto.moretags) = "yaml:\"software_version\""
   ];
 
-  // SoftwareSignature is the provider software signature bytes (evidence-only,
-  // not enforced on-chain in L-1).
+  // SoftwareSignature is the provider software signature bytes.
   bytes software_signature = 7 [
     (gogoproto.jsontag)  = "software_signature",
     (gogoproto.moretags) = "yaml:\"software_signature\""

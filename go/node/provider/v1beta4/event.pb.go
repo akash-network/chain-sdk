@@ -181,10 +181,7 @@ func (m *EventProviderDeleted) GetOwner() string {
 	return ""
 }
 
-// EventProviderMaintenanceOpened is emitted by the x/provider handler on a
-// successful MsgOpenProviderMaintenance. Tenants, indexers, REST services,
-// and Console use it to map the maintenance window to active leases owned by
-// the provider and to surface tenant-facing alerts off-chain.
+// EventProviderMaintenanceOpened is emitted when provider maintenance opens.
 type EventProviderMaintenanceOpened struct {
 	// maintenance_id is the identifier assigned to the new maintenance record.
 	MaintenanceID uint64 `protobuf:"varint,1,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id" yaml:"maintenance_id"`
@@ -200,8 +197,7 @@ type EventProviderMaintenanceOpened struct {
 	// expected_ends_at is the wall-clock time at which the provider expects the
 	// window to end.
 	ExpectedEndsAt time.Time `protobuf:"bytes,5,opt,name=expected_ends_at,json=expectedEndsAt,proto3,stdtime" json:"expected_ends_at" yaml:"expected_ends_at"`
-	// metadata_hash is the optional, opaque commitment to off-chain explanatory
-	// metadata supplied in MsgOpenProviderMaintenance.
+	// metadata_hash is the optional, opaque hash of off-chain metadata.
 	MetadataHash []byte `protobuf:"bytes,6,opt,name=metadata_hash,json=metadataHash,proto3" json:"metadata_hash,omitempty" yaml:"metadata_hash,omitempty"`
 }
 
@@ -280,10 +276,7 @@ func (m *EventProviderMaintenanceOpened) GetMetadataHash() []byte {
 	return nil
 }
 
-// EventProviderMaintenanceClosed is emitted by the x/provider handler on a
-// successful MsgCloseProviderMaintenance. It signals to tenant-facing
-// clients that the provider has ended the window earlier than
-// expected_ends_at.
+// EventProviderMaintenanceClosed is emitted when provider maintenance closes.
 type EventProviderMaintenanceClosed struct {
 	// maintenance_id is the identifier of the closed maintenance record.
 	MaintenanceID uint64 `protobuf:"varint,1,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id" yaml:"maintenance_id"`
@@ -293,7 +286,7 @@ type EventProviderMaintenanceClosed struct {
 	//
 	//	"akash1..."
 	Provider string `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider" yaml:"provider"`
-	// closed_at is the block time at which the handler closed the window.
+	// closed_at is the block time at which the window closed.
 	ClosedAt time.Time `protobuf:"bytes,3,opt,name=closed_at,json=closedAt,proto3,stdtime" json:"closed_at" yaml:"closed_at"`
 }
 

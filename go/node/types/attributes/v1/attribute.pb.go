@@ -114,8 +114,6 @@ type PlacementRequirements struct {
 	// Attribute holds the list of attributes tenant expects from the provider.
 	Attributes Attributes `protobuf:"bytes,2,rep,name=attributes,proto3,castrepeated=Attributes" json:"attributes" yaml:"attributes"`
 	// Verification holds the verification requirements for this placement.
-	// Nullable: when nil/omitted, no verification filtering is applied
-	// (backward compatible with pre-AEP-86 SDLs).
 	Verification *v1.VerificationRequirement `protobuf:"bytes,3,opt,name=verification,proto3" json:"verification,omitempty" yaml:"verification,omitempty"`
 }
 
