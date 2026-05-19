@@ -11,13 +11,7 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { Duration } from "../../../google/protobuf/duration.ts";
 
-/**
- * ProviderMaintenanceParams holds the governance-tunable bounds enforced by
- * the x/provider module when a provider opens a maintenance window.
- *
- * These values are mutated only through MsgUpdateParams which is gated to the
- * governance module account.
- */
+/** ProviderMaintenanceParams defines maintenance window parameters. */
 export interface ProviderMaintenanceParams {
   /**
    * maintenance_max_duration is the maximum allowed value of

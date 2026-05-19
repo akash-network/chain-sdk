@@ -47,35 +47,16 @@ export interface Provider {
   info: Info | undefined;
 }
 
-/**
- * ProviderRegistration captures the registration timestamp of a provider on
- * the network. It is stored alongside (and not embedded in) the canonical
- * Provider record so that the existing Provider message shape remains
- * unchanged.
- *
- * The registration timestamp is required by AEP-86 on-chain prerequisite
- * enforcement (e.g., min_age_l2/l3/l4 verification tier checks performed by
- * x/verification via GetRegistrationTime(provider) -> time.Time).
- *
- * Backfill behavior at the upgrade introducing this record: every existing
- * provider has its registered_at set to the upgrade block time, which is the
- * conservative default for time-based prerequisites.
- */
+/** ProviderRegistration captures when a provider was registered. */
 export interface ProviderRegistration {
   /**
-   * owner is the bech32 address of the provider account this registration
-   * belongs to. It MUST match an existing Provider.owner.
+   * owner is the bech32 address of the provider account.
    *
    * Example:
    *   "akash1..."
    */
   owner: string;
-  /**
-   * registered_at is the block time at which the provider was first
-   * registered on the network. For providers created via MsgCreateProvider
-   * this is the block time of that transaction; for providers existing prior
-   * to the AEP-86 upgrade this is the upgrade block time.
-   */
+  /** registered_at is the block time at which the provider was registered. */
   registeredAt: Date | undefined;
 }
 

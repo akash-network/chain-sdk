@@ -574,16 +574,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).provider(input, options);
           }, { path: [19, "provider"], serviceLoader }),
           /**
-           * getProviderMaintenance returns a single maintenance record for a provider,
-           * with its derived status at query time.
+           * getProviderMaintenance queries a provider maintenance record.
            */
           getProviderMaintenance: withMetadata(async function getProviderMaintenance(input: DeepPartial<akash_provider_v1beta4_query.QueryProviderMaintenanceRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(19);
             return getClient(service).providerMaintenance(input, options);
           }, { path: [19, "providerMaintenance"], serviceLoader }),
           /**
-           * getProviderMaintenances lists maintenance records for a provider, optionally
-           * filtered by derived status, with pagination.
+           * getProviderMaintenances queries provider maintenance records.
            */
           getProviderMaintenances: withMetadata(async function getProviderMaintenances(input: DeepPartial<akash_provider_v1beta4_query.QueryProviderMaintenancesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(19);
@@ -597,8 +595,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).params(input, options);
           }, { path: [19, "params"], serviceLoader }),
           /**
-           * getRegistration returns the registration record (registered_at timestamp)
-           * for a provider. Consumed by x/verification on-chain prerequisite checks.
+           * getRegistration queries provider registration details.
            */
           getRegistration: withMetadata(async function getRegistration(input: DeepPartial<akash_provider_v1beta4_query.QueryRegistrationRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(19);
@@ -626,17 +623,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getMsgClient(service).deleteProvider(input, options);
           }, { path: [20, "deleteProvider"], serviceLoader }),
           /**
-           * openProviderMaintenance opens a provider-initiated maintenance window
-           * against the signer's active leases. See MsgOpenProviderMaintenance for
-           * handler-level invariants.
+           * openProviderMaintenance opens a provider maintenance window.
            */
           openProviderMaintenance: withMetadata(async function openProviderMaintenance(input: DeepSimplify<akash_provider_v1beta4_msg.MsgOpenProviderMaintenance>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(20);
             return getMsgClient(service).openProviderMaintenance(input, options);
           }, { path: [20, "openProviderMaintenance"], serviceLoader }),
           /**
-           * closeProviderMaintenance closes an open maintenance window early. See
-           * MsgCloseProviderMaintenance for handler-level invariants.
+           * closeProviderMaintenance closes an open maintenance window.
            */
           closeProviderMaintenance: withMetadata(async function closeProviderMaintenance(input: DeepSimplify<akash_provider_v1beta4_msg.MsgCloseProviderMaintenance>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(20);
@@ -644,8 +638,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           }, { path: [20, "closeProviderMaintenance"], serviceLoader }),
           /**
            * updateParams is a governance operation for updating the x/provider
-           * ProviderMaintenanceParams. The authority is hard-coded to the x/gov
-           * module account.
+           * parameters.
            *
            * Since: akash v1.0.0
            */
@@ -758,9 +751,7 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).providerVerificationGrace(input, options);
           }, { path: [23, "providerVerificationGrace"], serviceLoader }),
           /**
-           * getProviderBond returns the provider's bond record together with the bond
-           * amount required for the provider's currently attested verification tier
-           * (derived from module params and the provider's tier at query time).
+           * getProviderBond returns the provider's bond record.
            */
           getProviderBond: withMetadata(async function getProviderBond(input: DeepPartial<akash_verification_v1_query.QueryProviderBondRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(23);

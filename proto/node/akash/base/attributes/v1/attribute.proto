@@ -63,8 +63,6 @@ message PlacementRequirements {
   ];
 
   // Verification holds the verification requirements for this placement.
-  // Nullable: when nil/omitted, no verification filtering is applied
-  // (backward compatible with pre-AEP-86 SDLs).
   akash.verification.v1.VerificationRequirement verification = 3 [
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "verification,omitempty",

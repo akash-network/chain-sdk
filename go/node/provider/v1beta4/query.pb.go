@@ -239,8 +239,6 @@ type QueryProviderMaintenanceRequest struct {
 	//   "akash1..."
 	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
 	// maintenance_id is the identifier of the maintenance record.
-	// No customname: the grpc-gateway expects MaintenanceId (camel-from-snake)
-	// because this field is bound to a REST path parameter.
 	MaintenanceId uint64 `protobuf:"varint,2,opt,name=maintenance_id,json=maintenanceId,proto3" json:"maintenance_id,omitempty"`
 }
 
@@ -294,8 +292,7 @@ func (m *QueryProviderMaintenanceRequest) GetMaintenanceId() uint64 {
 // QueryProviderMaintenanceResponse is the response type for the
 // Query/ProviderMaintenance RPC method.
 type QueryProviderMaintenanceResponse struct {
-	// maintenance is the requested record paired with its derived status at
-	// query time.
+	// maintenance is the requested maintenance record.
 	Maintenance ProviderMaintenanceWithStatus `protobuf:"bytes,1,opt,name=maintenance,proto3" json:"maintenance"`
 }
 
@@ -349,9 +346,7 @@ type QueryProviderMaintenancesRequest struct {
 	//
 	//	"akash1..."
 	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
-	// status_filter optionally restricts the results to records that resolve
-	// (at query time) to the given derived status. A value of
-	// provider_maintenance_status_unspecified disables the filter.
+	// status_filter optionally restricts the results by status.
 	StatusFilter ProviderMaintenanceStatus `protobuf:"varint,2,opt,name=status_filter,json=statusFilter,proto3,enum=akash.provider.v1beta4.ProviderMaintenanceStatus" json:"status_filter,omitempty"`
 	// pagination is used to paginate the request.
 	Pagination *query.PageRequest `protobuf:"bytes,3,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -414,8 +409,7 @@ func (m *QueryProviderMaintenancesRequest) GetPagination() *query.PageRequest {
 // QueryProviderMaintenancesResponse is the response type for the
 // Query/ProviderMaintenances RPC method.
 type QueryProviderMaintenancesResponse struct {
-	// maintenance is the list of records (with derived statuses) matching the
-	// request filter and pagination.
+	// maintenance is the list of records matching the request.
 	Maintenance []ProviderMaintenanceWithStatus `protobuf:"bytes,1,rep,name=maintenance,proto3" json:"maintenance"`
 	// pagination contains the information about response pagination.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -606,8 +600,7 @@ func (m *QueryRegistrationRequest) GetProvider() string {
 // QueryRegistrationResponse is the response type for the Query/Registration
 // RPC method.
 type QueryRegistrationResponse struct {
-	// registration is the provider registration record, including the
-	// registered_at timestamp.
+	// registration is the provider registration record.
 	Registration ProviderRegistration `protobuf:"bytes,1,opt,name=registration,proto3" json:"registration"`
 }
 
@@ -743,16 +736,13 @@ type QueryClient interface {
 	Providers(ctx context.Context, in *QueryProvidersRequest, opts ...grpc.CallOption) (*QueryProvidersResponse, error)
 	// Provider queries provider details
 	Provider(ctx context.Context, in *QueryProviderRequest, opts ...grpc.CallOption) (*QueryProviderResponse, error)
-	// ProviderMaintenance returns a single maintenance record for a provider,
-	// with its derived status at query time.
+	// ProviderMaintenance queries a provider maintenance record.
 	ProviderMaintenance(ctx context.Context, in *QueryProviderMaintenanceRequest, opts ...grpc.CallOption) (*QueryProviderMaintenanceResponse, error)
-	// ProviderMaintenances lists maintenance records for a provider, optionally
-	// filtered by derived status, with pagination.
+	// ProviderMaintenances queries provider maintenance records.
 	ProviderMaintenances(ctx context.Context, in *QueryProviderMaintenancesRequest, opts ...grpc.CallOption) (*QueryProviderMaintenancesResponse, error)
 	// Params returns the x/provider ProviderMaintenanceParams.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// Registration returns the registration record (registered_at timestamp)
-	// for a provider. Consumed by x/verification on-chain prerequisite checks.
+	// Registration queries provider registration details.
 	Registration(ctx context.Context, in *QueryRegistrationRequest, opts ...grpc.CallOption) (*QueryRegistrationResponse, error)
 }
 
@@ -824,16 +814,13 @@ type QueryServer interface {
 	Providers(context.Context, *QueryProvidersRequest) (*QueryProvidersResponse, error)
 	// Provider queries provider details
 	Provider(context.Context, *QueryProviderRequest) (*QueryProviderResponse, error)
-	// ProviderMaintenance returns a single maintenance record for a provider,
-	// with its derived status at query time.
+	// ProviderMaintenance queries a provider maintenance record.
 	ProviderMaintenance(context.Context, *QueryProviderMaintenanceRequest) (*QueryProviderMaintenanceResponse, error)
-	// ProviderMaintenances lists maintenance records for a provider, optionally
-	// filtered by derived status, with pagination.
+	// ProviderMaintenances queries provider maintenance records.
 	ProviderMaintenances(context.Context, *QueryProviderMaintenancesRequest) (*QueryProviderMaintenancesResponse, error)
 	// Params returns the x/provider ProviderMaintenanceParams.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// Registration returns the registration record (registered_at timestamp)
-	// for a provider. Consumed by x/verification on-chain prerequisite checks.
+	// Registration queries provider registration details.
 	Registration(context.Context, *QueryRegistrationRequest) (*QueryRegistrationResponse, error)
 }
 

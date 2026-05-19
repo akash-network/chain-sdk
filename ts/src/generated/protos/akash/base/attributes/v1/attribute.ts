@@ -42,11 +42,7 @@ export interface PlacementRequirements {
     | undefined;
   /** Attribute holds the list of attributes tenant expects from the provider. */
   attributes: Attribute[];
-  /**
-   * Verification holds the verification requirements for this placement.
-   * Nullable: when nil/omitted, no verification filtering is applied
-   * (backward compatible with pre-AEP-86 SDLs).
-   */
+  /** Verification holds the verification requirements for this placement. */
   verification: VerificationRequirement | undefined;
 }
 

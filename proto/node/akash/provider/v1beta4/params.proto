@@ -6,11 +6,7 @@ import "google/protobuf/duration.proto";
 
 option go_package = "pkg.akt.dev/go/node/provider/v1beta4";
 
-// ProviderMaintenanceParams holds the governance-tunable bounds enforced by
-// the x/provider module when a provider opens a maintenance window.
-//
-// These values are mutated only through MsgUpdateParams which is gated to the
-// governance module account.
+// ProviderMaintenanceParams defines maintenance window parameters.
 message ProviderMaintenanceParams {
   // maintenance_max_duration is the maximum allowed value of
   // (expected_ends_at - starts_at) when opening a maintenance window.

@@ -17,32 +17,15 @@ import { Provider, ProviderRegistration } from "./provider.ts";
 export interface GenesisState {
   /** Providers is a list of genesis providers. */
   providers: Provider[];
-  /**
-   * Params is the set of governance-tunable parameters for the x/provider
-   * module (ProviderMaintenanceParams). At the AEP-86 upgrade height the
-   * upgrade handler installs the module defaults.
-   */
+  /** Params is the provider module parameter set. */
   params:
     | ProviderMaintenanceParams
     | undefined;
-  /**
-   * Maintenances is the list of all provider maintenance records to import
-   * into the keeper at genesis. Each record's id MUST be unique and strictly
-   * less than next_maintenance_id.
-   */
+  /** Maintenances is the list of provider maintenance records. */
   maintenances: ProviderMaintenanceRecord[];
-  /**
-   * NextMaintenanceID is the next maintenance identifier the keeper will
-   * assign on MsgOpenProviderMaintenance. It MUST be strictly greater than
-   * the maximum id present in `maintenances`.
-   */
+  /** NextMaintenanceID is the next provider maintenance identifier. */
   nextMaintenanceId: Long;
-  /**
-   * Registrations is the list of provider registration records (per-provider
-   * registered_at timestamps) to import at genesis. At the AEP-86 upgrade
-   * height the upgrade handler backfills one record per existing provider
-   * with registered_at set to the upgrade block time.
-   */
+  /** Registrations is the list of provider registration records to import at genesis. */
   registrations: ProviderRegistration[];
 }
 
