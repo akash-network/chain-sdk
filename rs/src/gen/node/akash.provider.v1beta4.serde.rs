@@ -284,7 +284,7 @@ impl<'de> serde::Deserialize<'de> for EventProviderMaintenanceClosed {
                             if maintenance_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maintenanceId"));
                             }
-                            maintenance_id__ =
+                            maintenance_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -452,7 +452,7 @@ impl<'de> serde::Deserialize<'de> for EventProviderMaintenanceOpened {
                             if maintenance_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maintenanceId"));
                             }
-                            maintenance_id__ =
+                            maintenance_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -484,7 +484,7 @@ impl<'de> serde::Deserialize<'de> for EventProviderMaintenanceOpened {
                             if metadata_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadataHash"));
                             }
-                            metadata_hash__ =
+                            metadata_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -734,7 +734,7 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             if next_maintenance_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nextMaintenanceId"));
                             }
-                            next_maintenance_id__ =
+                            next_maintenance_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -964,7 +964,7 @@ impl<'de> serde::Deserialize<'de> for MsgCloseProviderMaintenance {
                             if maintenance_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maintenanceId"));
                             }
-                            maintenance_id__ =
+                            maintenance_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -1577,7 +1577,7 @@ impl<'de> serde::Deserialize<'de> for MsgOpenProviderMaintenance {
                             if metadata_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadataHash"));
                             }
-                            metadata_hash__ =
+                            metadata_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -1677,7 +1677,7 @@ impl<'de> serde::Deserialize<'de> for MsgOpenProviderMaintenanceResponse {
                             if maintenance_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maintenanceId"));
                             }
-                            maintenance_id__ =
+                            maintenance_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2498,7 +2498,7 @@ impl<'de> serde::Deserialize<'de> for ProviderMaintenanceRecord {
                             if id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            id__ =
+                            id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2542,7 +2542,7 @@ impl<'de> serde::Deserialize<'de> for ProviderMaintenanceRecord {
                             if metadata_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadataHash"));
                             }
-                            metadata_hash__ =
+                            metadata_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -3205,7 +3205,7 @@ impl<'de> serde::Deserialize<'de> for QueryProviderMaintenanceRequest {
                             if maintenance_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maintenanceId"));
                             }
-                            maintenance_id__ =
+                            maintenance_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
