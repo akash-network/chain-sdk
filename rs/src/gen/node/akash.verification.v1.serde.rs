@@ -270,7 +270,7 @@ impl<'de> serde::Deserialize<'de> for AttestationRecord {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -326,7 +326,7 @@ impl<'de> serde::Deserialize<'de> for AttestationRecord {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -793,7 +793,7 @@ impl<'de> serde::Deserialize<'de> for AuditEscrowRecord {
                             if id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            id__ =
+                            id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -873,7 +873,7 @@ impl<'de> serde::Deserialize<'de> for AuditEscrowRecord {
                             if metadata_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadataHash"));
                             }
-                            metadata_hash__ =
+                            metadata_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -1294,7 +1294,7 @@ impl<'de> serde::Deserialize<'de> for AuditorRecord {
                             if metadata_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadataHash"));
                             }
-                            metadata_hash__ =
+                            metadata_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -1314,7 +1314,7 @@ impl<'de> serde::Deserialize<'de> for AuditorRecord {
                             if discrepancy_count__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("discrepancyCount"));
                             }
-                            discrepancy_count__ =
+                            discrepancy_count__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -1964,7 +1964,7 @@ impl<'de> serde::Deserialize<'de> for DiscrepancyEvent {
                             if id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            id__ =
+                            id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2014,7 +2014,7 @@ impl<'de> serde::Deserialize<'de> for DiscrepancyEvent {
                             if resolution_proposal_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("resolutionProposalId"));
                             }
-                            resolution_proposal_id__ =
+                            resolution_proposal_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2022,7 +2022,7 @@ impl<'de> serde::Deserialize<'de> for DiscrepancyEvent {
                             if grace_record_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("graceRecordId"));
                             }
-                            grace_record_id__ =
+                            grace_record_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2042,7 +2042,7 @@ impl<'de> serde::Deserialize<'de> for DiscrepancyEvent {
                             if resolution_evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("resolutionEvidenceHash"));
                             }
-                            resolution_evidence_hash__ =
+                            resolution_evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2526,7 +2526,7 @@ impl<'de> serde::Deserialize<'de> for EventAttestationReplaced {
                             if old_audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("oldAuditEscrowId"));
                             }
-                            old_audit_escrow_id__ =
+                            old_audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2534,7 +2534,7 @@ impl<'de> serde::Deserialize<'de> for EventAttestationReplaced {
                             if new_audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("newAuditEscrowId"));
                             }
-                            new_audit_escrow_id__ =
+                            new_audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2866,7 +2866,7 @@ impl<'de> serde::Deserialize<'de> for EventAttestationSubmitted {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -3125,7 +3125,7 @@ impl<'de> serde::Deserialize<'de> for EventAuditEscrowOpened {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -3267,7 +3267,7 @@ impl<'de> serde::Deserialize<'de> for EventAuditEscrowSettled {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -3501,7 +3501,7 @@ impl<'de> serde::Deserialize<'de> for EventAuditorFrozen {
                             if discrepancy_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("discrepancyId"));
                             }
-                            discrepancy_id__ =
+                            discrepancy_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -4365,7 +4365,7 @@ impl<'de> serde::Deserialize<'de> for EventDiscrepancyDetected {
                             if discrepancy_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("discrepancyId"));
                             }
-                            discrepancy_id__ =
+                            discrepancy_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -4532,7 +4532,7 @@ impl<'de> serde::Deserialize<'de> for EventDiscrepancyResolved {
                             if discrepancy_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("discrepancyId"));
                             }
-                            discrepancy_id__ =
+                            discrepancy_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -4671,7 +4671,7 @@ impl<'de> serde::Deserialize<'de> for EventDiscrepancyTimedOut {
                             if discrepancy_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("discrepancyId"));
                             }
-                            discrepancy_id__ =
+                            discrepancy_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -5637,7 +5637,7 @@ impl<'de> serde::Deserialize<'de> for EventSnapshotHashPosted {
                             if snapshot_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotHash"));
                             }
-                            snapshot_hash__ =
+                            snapshot_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -5935,7 +5935,7 @@ impl<'de> serde::Deserialize<'de> for EventVerificationGraceEnded {
                             if grace_record_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("graceRecordId"));
                             }
-                            grace_record_id__ =
+                            grace_record_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -6061,7 +6061,7 @@ impl<'de> serde::Deserialize<'de> for EventVerificationGraceStarted {
                             if grace_record_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("graceRecordId"));
                             }
-                            grace_record_id__ =
+                            grace_record_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -6477,7 +6477,7 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             if next_discrepancy_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nextDiscrepancyId"));
                             }
-                            next_discrepancy_id__ =
+                            next_discrepancy_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -6491,7 +6491,7 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             if next_audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nextAuditEscrowId"));
                             }
-                            next_audit_escrow_id__ =
+                            next_audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -6505,7 +6505,7 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             if next_grace_record_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nextGraceRecordId"));
                             }
-                            next_grace_record_id__ =
+                            next_grace_record_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -6716,7 +6716,7 @@ impl<'de> serde::Deserialize<'de> for MsgCancelAuditEscrow {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -6990,7 +6990,7 @@ impl<'de> serde::Deserialize<'de> for MsgOpenAuditEscrow {
                             if metadata_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadataHash"));
                             }
-                            metadata_hash__ =
+                            metadata_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -7092,7 +7092,7 @@ impl<'de> serde::Deserialize<'de> for MsgOpenAuditEscrowResponse {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -7584,7 +7584,7 @@ impl<'de> serde::Deserialize<'de> for MsgPostSnapshotHash {
                             if snapshot_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotHash"));
                             }
-                            snapshot_hash__ =
+                            snapshot_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -7817,7 +7817,7 @@ impl<'de> serde::Deserialize<'de> for MsgRegisterAuditor {
                             if metadata_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadataHash"));
                             }
-                            metadata_hash__ =
+                            metadata_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -8773,7 +8773,7 @@ impl<'de> serde::Deserialize<'de> for MsgResolveDiscrepancy {
                             if discrepancy_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("discrepancyId"));
                             }
-                            discrepancy_id__ =
+                            discrepancy_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -8811,7 +8811,7 @@ impl<'de> serde::Deserialize<'de> for MsgResolveDiscrepancy {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -9054,7 +9054,7 @@ impl<'de> serde::Deserialize<'de> for MsgRevokeAllProviderAttestations {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -9275,7 +9275,7 @@ impl<'de> serde::Deserialize<'de> for MsgRevokeAttestation {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -9514,7 +9514,7 @@ impl<'de> serde::Deserialize<'de> for MsgRevokeAuditorAttestations {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -9770,7 +9770,7 @@ impl<'de> serde::Deserialize<'de> for MsgRevokeProviderAttestation {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -9996,7 +9996,7 @@ impl<'de> serde::Deserialize<'de> for MsgSettleAuditEscrow {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -10016,7 +10016,7 @@ impl<'de> serde::Deserialize<'de> for MsgSettleAuditEscrow {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -10254,7 +10254,7 @@ impl<'de> serde::Deserialize<'de> for MsgSlashProviderBond {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -10528,7 +10528,7 @@ impl<'de> serde::Deserialize<'de> for MsgSubmitAttestation {
                             if evidence_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("evidenceHash"));
                             }
-                            evidence_hash__ =
+                            evidence_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -10548,7 +10548,7 @@ impl<'de> serde::Deserialize<'de> for MsgSubmitAttestation {
                             if audit_escrow_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("auditEscrowId"));
                             }
-                            audit_escrow_id__ =
+                            audit_escrow_id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -11810,7 +11810,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if discrepancy_threshold__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("discrepancyThreshold"));
                             }
-                            discrepancy_threshold__ =
+                            discrepancy_threshold__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -11956,7 +11956,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if min_lease_completion_bps_l3__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("minLeaseCompletionBpsL3"));
                             }
-                            min_lease_completion_bps_l3__ =
+                            min_lease_completion_bps_l3__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -11964,7 +11964,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if min_lease_completion_bps_l4__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("minLeaseCompletionBpsL4"));
                             }
-                            min_lease_completion_bps_l4__ =
+                            min_lease_completion_bps_l4__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -11990,7 +11990,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if min_leases_for_completion_rate__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("minLeasesForCompletionRate"));
                             }
-                            min_leases_for_completion_rate__ =
+                            min_leases_for_completion_rate__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -11998,7 +11998,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if max_endblocker_attestation_expiries__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxEndblockerAttestationExpiries"));
                             }
-                            max_endblocker_attestation_expiries__ =
+                            max_endblocker_attestation_expiries__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -12006,7 +12006,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if max_endblocker_snapshot_suspensions__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxEndblockerSnapshotSuspensions"));
                             }
-                            max_endblocker_snapshot_suspensions__ =
+                            max_endblocker_snapshot_suspensions__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -12014,7 +12014,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if max_endblocker_unbonding_completions__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxEndblockerUnbondingCompletions"));
                             }
-                            max_endblocker_unbonding_completions__ =
+                            max_endblocker_unbonding_completions__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -12022,7 +12022,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if max_endblocker_discrepancy_timeouts__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxEndblockerDiscrepancyTimeouts"));
                             }
-                            max_endblocker_discrepancy_timeouts__ =
+                            max_endblocker_discrepancy_timeouts__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -12030,7 +12030,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if max_endblocker_audit_escrow_expiries__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxEndblockerAuditEscrowExpiries"));
                             }
-                            max_endblocker_audit_escrow_expiries__ =
+                            max_endblocker_audit_escrow_expiries__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -12038,7 +12038,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                             if max_endblocker_grace_expiries__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxEndblockerGraceExpiries"));
                             }
-                            max_endblocker_grace_expiries__ =
+                            max_endblocker_grace_expiries__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -12667,7 +12667,7 @@ impl<'de> serde::Deserialize<'de> for ProviderSnapshotRecord {
                             if snapshot_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotHash"));
                             }
-                            snapshot_hash__ =
+                            snapshot_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -12866,7 +12866,7 @@ impl<'de> serde::Deserialize<'de> for ProviderVerificationGraceRecord {
                             if id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            id__ =
+                            id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -12886,7 +12886,7 @@ impl<'de> serde::Deserialize<'de> for ProviderVerificationGraceRecord {
                             if source_discrepancy_ids__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("sourceDiscrepancyIds"));
                             }
-                            source_discrepancy_ids__ =
+                            source_discrepancy_ids__ = 
                                 Some(map_.next_value::<Vec<::pbjson::private::NumberDeserialize<_>>>()?
                                     .into_iter().map(|x| x.0).collect())
                             ;
@@ -13205,7 +13205,7 @@ impl<'de> serde::Deserialize<'de> for QueryAuditEscrowRequest {
                             if id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            id__ =
+                            id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -14227,7 +14227,7 @@ impl<'de> serde::Deserialize<'de> for QueryDiscrepancyRequest {
                             if id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("id"));
                             }
-                            id__ =
+                            id__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -15682,7 +15682,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                             if total_gpus__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalGpus"));
                             }
-                            total_gpus__ =
+                            total_gpus__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -15690,7 +15690,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                             if total_vcpus__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalVcpus"));
                             }
-                            total_vcpus__ =
+                            total_vcpus__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -15698,7 +15698,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                             if total_memory_mb__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalMemoryMb"));
                             }
-                            total_memory_mb__ =
+                            total_memory_mb__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -15706,7 +15706,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                             if total_storage_mb__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalStorageMb"));
                             }
-                            total_storage_mb__ =
+                            total_storage_mb__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -15714,7 +15714,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                             if active_leases__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("activeLeases"));
                             }
-                            active_leases__ =
+                            active_leases__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -15728,7 +15728,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                             if software_signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("softwareSignature"));
                             }
-                            software_signature__ =
+                            software_signature__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -16090,7 +16090,7 @@ impl<'de> serde::Deserialize<'de> for VerificationRequirement {
                             if min_auditor_count__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("minAuditorCount"));
                             }
-                            min_auditor_count__ =
+                            min_auditor_count__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -16206,7 +16206,7 @@ impl<'de> serde::Deserialize<'de> for VerificationStoreRecord {
                             if value__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("value"));
                             }
-                            value__ =
+                            value__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
