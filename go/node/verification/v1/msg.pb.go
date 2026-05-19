@@ -155,7 +155,7 @@ type MsgSubmitAttestation struct {
 	// attestation.
 	Deposit types.Coin `protobuf:"bytes,7,opt,name=deposit,proto3" json:"deposit" yaml:"deposit"`
 	// AuditEscrowID is the identifier of the open audit escrow that authorizes
-	// this attestation; the submit handler consumes the escrow by this ID.
+	// this attestation.
 	AuditEscrowID uint64 `protobuf:"varint,8,opt,name=audit_escrow_id,json=auditEscrowId,proto3" json:"audit_escrow_id" yaml:"audit_escrow_id"`
 }
 

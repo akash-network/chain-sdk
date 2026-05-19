@@ -28,17 +28,9 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GetInventorySnapshotRequest is the input to InventoryService.GetInventorySnapshot.
-// It carries an optional auditor-supplied nonce used as a freshness
-// challenge bound into the signed response payload.
+// GetInventorySnapshotRequest is the request type for GetInventorySnapshot.
 type GetInventorySnapshotRequest struct {
-	// nonce is a cryptographically random 32-byte challenge value supplied
-	// by the auditor. The provider MUST embed this value inside the
-	// returned snapshot_payload before signing so the auditor can verify
-	// that the response was produced specifically for this request and is
-	// not a replay of a previously captured snapshot. The field is
-	// optional; if omitted, the provider returns a snapshot without a
-	// bound challenge (suitable for non-attestation use cases).
+	// nonce is an optional 32-byte challenge bound into the signed payload.
 	Nonce []byte `protobuf:"bytes,1,opt,name=nonce,proto3" json:"nonce,omitempty"`
 }
 
@@ -82,29 +74,13 @@ func (m *GetInventorySnapshotRequest) GetNonce() []byte {
 	return nil
 }
 
-// GetInventorySnapshotResponse is the output of InventoryService.GetInventorySnapshot.
-// It carries the opaque signed snapshot payload, the provider's
-// signature over that payload, and the provider's on-chain bech32
-// address used by the auditor to look up the verifying key.
+// GetInventorySnapshotResponse is the response type for GetInventorySnapshot.
 type GetInventorySnapshotResponse struct {
-	// snapshot_payload is the full machine-generated inventory snapshot
-	// produced by the provider. Its internal layout is implementation
-	// defined and opaque at the RPC boundary; it includes (at minimum)
-	// the chain id, timestamp, schema version, software_version,
-	// software_signature, the nonce echoed from the request, and the
-	// multi-source hardware data described in IMPL.md §5.1 and the
-	// README's Snapshot Contents section. The on-chain ResourceSummary
-	// (chain side) carries the typed projection of these fields; see
-	// x/verification state.proto.
+	// snapshot_payload is the opaque inventory snapshot payload.
 	SnapshotPayload []byte `protobuf:"bytes,1,opt,name=snapshot_payload,json=snapshotPayload,proto3" json:"snapshot_payload,omitempty"`
-	// signature is the provider's on-chain key signature computed over
-	// the entire snapshot_payload byte string. Auditors verify this
-	// signature using the public key associated with the provider account
-	// identified by the `provider` field below.
+	// signature is the provider signature over snapshot_payload.
 	Signature []byte `protobuf:"bytes,2,opt,name=signature,proto3" json:"signature,omitempty"`
-	// provider is the provider's on-chain account address in bech32
-	// form. It is used by the auditor to look up the provider's on-chain
-	// signing key and to bind the snapshot to a specific provider record.
+	// provider is the provider account address in bech32 form.
 	Provider string `protobuf:"bytes,3,opt,name=provider,proto3" json:"provider,omitempty"`
 }
 
@@ -205,15 +181,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type InventoryServiceClient interface {
-	// GetInventorySnapshot returns a freshly generated, provider-signed
-	// inventory snapshot. The caller (typically an auditor) supplies an
-	// optional 32-byte random nonce that the provider MUST include inside
-	// the signed snapshot_payload to bind the response to this specific
-	// challenge and prevent replay. The snapshot_payload format is
-	// implementation-defined and opaque at the RPC layer; the richer typed
-	// fields (chain id, timestamp, schema version, software_version,
-	// software_signature, total resources, etc.) live INSIDE the payload
-	// and on chain in the ResourceSummary type. See IMPL.md §5.3.
+	// GetInventorySnapshot returns a provider-signed inventory snapshot.
 	GetInventorySnapshot(ctx context.Context, in *GetInventorySnapshotRequest, opts ...grpc.CallOption) (*GetInventorySnapshotResponse, error)
 }
 
@@ -236,15 +204,7 @@ func (c *inventoryServiceClient) GetInventorySnapshot(ctx context.Context, in *G
 
 // InventoryServiceServer is the server API for InventoryService service.
 type InventoryServiceServer interface {
-	// GetInventorySnapshot returns a freshly generated, provider-signed
-	// inventory snapshot. The caller (typically an auditor) supplies an
-	// optional 32-byte random nonce that the provider MUST include inside
-	// the signed snapshot_payload to bind the response to this specific
-	// challenge and prevent replay. The snapshot_payload format is
-	// implementation-defined and opaque at the RPC layer; the richer typed
-	// fields (chain id, timestamp, schema version, software_version,
-	// software_signature, total resources, etc.) live INSIDE the payload
-	// and on chain in the ResourceSummary type. See IMPL.md §5.3.
+	// GetInventorySnapshot returns a provider-signed inventory snapshot.
 	GetInventorySnapshot(context.Context, *GetInventorySnapshotRequest) (*GetInventorySnapshotResponse, error)
 }
 

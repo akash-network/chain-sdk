@@ -7,8 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// allTiers lists every VerificationTier in declaration order. The 5x5
-// pair-wise tables below iterate this list against itself.
 var allTiers = []VerificationTier{
 	TierUnspecified,
 	TierIdentified,
@@ -65,9 +63,6 @@ func TestTierBetter_Matrix(t *testing.T) {
 	}
 }
 
-// TestTierAtLeast_UnspecifiedSentinel exercises the spec sentinel that
-// TierUnspecified on the left is never sufficient, even against
-// TierUnspecified on the right. AEP-86 IMPLEMENTATION.md §3.2.
 func TestTierAtLeast_UnspecifiedSentinel(t *testing.T) {
 	for _, need := range allTiers {
 		if TierAtLeast(TierUnspecified, need) {
@@ -148,10 +143,6 @@ func TestMinBondForTier(t *testing.T) {
 	}
 }
 
-// TestMinBondForTier_UnknownTierPanics asserts that an unrecognized tier value
-// panics rather than silently returning a coin. Tier values flow from chain-
-// validated proto fields, so an unknown value is a programmer bug or corrupted
-// state — fail loud rather than authorize the wrong bond amount.
 func TestMinBondForTier_UnknownTierPanics(t *testing.T) {
 	p := Params{BondL1: sdk.NewCoin("uakt", math.NewInt(1))}
 	defer func() {
@@ -163,9 +154,6 @@ func TestMinBondForTier_UnknownTierPanics(t *testing.T) {
 	_ = MinBondForTier(p, VerificationTier(99))
 }
 
-// TestMinBondForTier_L0_PreservesDenom proves the zero coin returned for L0
-// carries Params.BondL1.Denom so callers comparing against a provider's bond
-// in the same denom get a clean comparison.
 func TestMinBondForTier_L0_PreservesDenom(t *testing.T) {
 	const denom = "uakt"
 	p := Params{BondL1: sdk.NewCoin(denom, math.NewInt(42))}

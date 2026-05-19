@@ -105,7 +105,7 @@ export interface MsgSubmitAttestation {
     | undefined;
   /**
    * AuditEscrowID is the identifier of the open audit escrow that authorizes
-   * this attestation; the submit handler consumes the escrow by this ID.
+   * this attestation.
    */
   auditEscrowId: Long;
 }

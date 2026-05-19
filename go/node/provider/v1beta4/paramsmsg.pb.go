@@ -26,17 +26,13 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgUpdateParams is the governance Msg used to mutate the x/provider module
-// parameters. The signer is hard-coded to the governance module account.
+// MsgUpdateParams is the Msg/UpdateParams request type.
 //
 // Since: akash v1.0.0
 type MsgUpdateParams struct {
-	// authority is the address of the governance account permitted to mutate
-	// x/provider params. It MUST equal the x/gov module account address.
+	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// params is the full set of provider maintenance parameters to install. All
-	// fields MUST be supplied; this message replaces the stored params record
-	// atomically.
+	// params defines the x/provider parameters to update.
 	Params ProviderMaintenanceParams `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
 

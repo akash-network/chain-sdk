@@ -28,16 +28,11 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// ProviderMaintenanceType enumerates the kinds of provider-initiated maintenance
-// windows that may be opened against a provider's active leases.
-//
-// The chain stores the declared type so tenants, indexers, and integrators can
-// distinguish planned downtime from urgent incidents when surfacing alerts.
+// ProviderMaintenanceType enumerates provider maintenance window types.
 type ProviderMaintenanceType int32
 
 const (
-	// provider_maintenance_type_unspecified is the zero value and MUST NOT be
-	// accepted by handlers. It exists only to satisfy proto3 enum defaults.
+	// provider_maintenance_type_unspecified is the zero value.
 	ProviderMaintenanceType_provider_maintenance_type_unspecified ProviderMaintenanceType = 0
 	// provider_maintenance_type_planned represents a scheduled, non-urgent
 	// maintenance window communicated to tenants ahead of time.
@@ -82,27 +77,19 @@ func (ProviderMaintenanceType) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_5dda6751b25c2949, []int{0}
 }
 
-// ProviderMaintenanceStatus enumerates the derived lifecycle states of a
-// provider maintenance record. Status is derived from block time and the
-// record's `closed_at` field rather than being stored directly; see the query
-// implementation for the exact derivation rules.
+// ProviderMaintenanceStatus enumerates provider maintenance lifecycle states.
 type ProviderMaintenanceStatus int32
 
 const (
-	// provider_maintenance_status_unspecified is the zero value and indicates a
-	// missing or invalid status. It MUST NOT be returned for a valid record.
+	// provider_maintenance_status_unspecified is the zero value.
 	ProviderMaintenanceStatus_provider_maintenance_status_unspecified ProviderMaintenanceStatus = 0
-	// provider_maintenance_status_scheduled means the window has been opened but
-	// `block_time` has not yet reached `starts_at`.
+	// provider_maintenance_status_scheduled means the window has not started.
 	ProviderMaintenanceStatus_provider_maintenance_status_scheduled ProviderMaintenanceStatus = 1
-	// provider_maintenance_status_active means `starts_at <= block_time` and the
-	// window has not been explicitly closed nor reached `expected_ends_at`.
+	// provider_maintenance_status_active means the window is active.
 	ProviderMaintenanceStatus_provider_maintenance_status_active ProviderMaintenanceStatus = 2
-	// provider_maintenance_status_elapsed means `block_time >= expected_ends_at`
-	// and the window has not been explicitly closed.
+	// provider_maintenance_status_elapsed means the window reached expected_ends_at.
 	ProviderMaintenanceStatus_provider_maintenance_status_elapsed ProviderMaintenanceStatus = 3
-	// provider_maintenance_status_closed means `closed_at` has been set by an
-	// explicit MsgCloseProviderMaintenance.
+	// provider_maintenance_status_closed means the window was closed explicitly.
 	ProviderMaintenanceStatus_provider_maintenance_status_closed ProviderMaintenanceStatus = 4
 )
 
@@ -130,40 +117,28 @@ func (ProviderMaintenanceStatus) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_5dda6751b25c2949, []int{1}
 }
 
-// ProviderMaintenanceRecord is the canonical on-chain record for a provider
-// maintenance window. It is keyed by `id` and indexed by `provider`.
+// ProviderMaintenanceRecord is an on-chain provider maintenance record.
 type ProviderMaintenanceRecord struct {
-	// id is the monotonically increasing maintenance identifier assigned by the
-	// x/provider keeper on MsgOpenProviderMaintenance.
+	// id is the maintenance identifier.
 	ID uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id" yaml:"id"`
 	// provider is the bech32 address of the provider owning the maintenance
-	// window. It must match the signer of MsgOpenProviderMaintenance.
+	// window.
 	//
 	// Example:
 	//   "akash1..."
 	Provider string `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider" yaml:"provider"`
-	// maintenance_type is the declared category of the window. It MUST NOT be
-	// provider_maintenance_type_unspecified.
+	// maintenance_type is the declared category of the window.
 	MaintenanceType ProviderMaintenanceType `protobuf:"varint,3,opt,name=maintenance_type,json=maintenanceType,proto3,enum=akash.provider.v1beta4.ProviderMaintenanceType" json:"maintenance_type" yaml:"maintenance_type"`
 	// starts_at is the wall-clock time at which the maintenance window begins.
-	// It may be in the future relative to the opening block time, bounded by
-	// ProviderMaintenanceParams.maintenance_max_lookahead.
 	StartsAt time.Time `protobuf:"bytes,4,opt,name=starts_at,json=startsAt,proto3,stdtime" json:"starts_at" yaml:"starts_at"`
 	// expected_ends_at is the wall-clock time at which the provider expects the
-	// window to end. It MUST be strictly after starts_at and the duration
-	// (expected_ends_at - starts_at) MUST be less than or equal to
-	// ProviderMaintenanceParams.maintenance_max_duration.
+	// window to end.
 	ExpectedEndsAt time.Time `protobuf:"bytes,5,opt,name=expected_ends_at,json=expectedEndsAt,proto3,stdtime" json:"expected_ends_at" yaml:"expected_ends_at"`
-	// opened_at is the block time at which MsgOpenProviderMaintenance was
-	// processed. It is set by the keeper and is not user-supplied.
+	// opened_at is the block time at which the window was opened.
 	OpenedAt time.Time `protobuf:"bytes,6,opt,name=opened_at,json=openedAt,proto3,stdtime" json:"opened_at" yaml:"opened_at"`
-	// closed_at is the block time at which MsgCloseProviderMaintenance was
-	// processed. It is nullable: a record without an explicit close has
-	// closed_at == nil regardless of whether expected_ends_at has elapsed.
+	// closed_at is the block time at which the window was closed.
 	ClosedAt *time.Time `protobuf:"bytes,7,opt,name=closed_at,json=closedAt,proto3,stdtime" json:"closed_at,omitempty" yaml:"closed_at,omitempty"`
-	// metadata_hash is an optional, opaque hash committing to off-chain
-	// explanatory metadata (e.g., an IPFS hash). The chain does not interpret
-	// this field; it is surfaced for clients and indexers.
+	// metadata_hash is an optional, opaque hash of off-chain metadata.
 	MetadataHash []byte `protobuf:"bytes,8,opt,name=metadata_hash,json=metadataHash,proto3" json:"metadata_hash,omitempty" yaml:"metadata_hash,omitempty"`
 }
 
@@ -256,10 +231,7 @@ func (m *ProviderMaintenanceRecord) GetMetadataHash() []byte {
 	return nil
 }
 
-// ProviderMaintenanceWithStatus pairs a stored ProviderMaintenanceRecord with
-// its derived ProviderMaintenanceStatus at query time. Queries MUST compute
-// status from block time and the record's closed_at field rather than relying
-// solely on an active-maintenance index.
+// ProviderMaintenanceWithStatus pairs a maintenance record with its status.
 type ProviderMaintenanceWithStatus struct {
 	// record is the stored maintenance window.
 	Record ProviderMaintenanceRecord `protobuf:"bytes,1,opt,name=record,proto3" json:"record" yaml:"record"`

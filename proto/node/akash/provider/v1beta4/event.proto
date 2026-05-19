@@ -57,10 +57,7 @@ message EventProviderDeleted {
   ];
 }
 
-// EventProviderMaintenanceOpened is emitted by the x/provider handler on a
-// successful MsgOpenProviderMaintenance. Tenants, indexers, REST services,
-// and Console use it to map the maintenance window to active leases owned by
-// the provider and to surface tenant-facing alerts off-chain.
+// EventProviderMaintenanceOpened is emitted when provider maintenance opens.
 message EventProviderMaintenanceOpened {
   option (gogoproto.equal) = true;
 
@@ -99,18 +96,14 @@ message EventProviderMaintenanceOpened {
     (gogoproto.jsontag)  = "expected_ends_at",
     (gogoproto.moretags) = "yaml:\"expected_ends_at\""
   ];
-  // metadata_hash is the optional, opaque commitment to off-chain explanatory
-  // metadata supplied in MsgOpenProviderMaintenance.
+  // metadata_hash is the optional, opaque hash of off-chain metadata.
   bytes metadata_hash = 6 [
     (gogoproto.jsontag)  = "metadata_hash,omitempty",
     (gogoproto.moretags) = "yaml:\"metadata_hash,omitempty\""
   ];
 }
 
-// EventProviderMaintenanceClosed is emitted by the x/provider handler on a
-// successful MsgCloseProviderMaintenance. It signals to tenant-facing
-// clients that the provider has ended the window earlier than
-// expected_ends_at.
+// EventProviderMaintenanceClosed is emitted when provider maintenance closes.
 message EventProviderMaintenanceClosed {
   option (gogoproto.equal) = true;
 
@@ -129,7 +122,7 @@ message EventProviderMaintenanceClosed {
     (gogoproto.jsontag)   = "provider",
     (gogoproto.moretags)  = "yaml:\"provider\""
   ];
-  // closed_at is the block time at which the handler closed the window.
+  // closed_at is the block time at which the window closed.
   google.protobuf.Timestamp closed_at = 3 [
     (gogoproto.stdtime)  = true,
     (gogoproto.nullable) = false,

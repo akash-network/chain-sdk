@@ -18,37 +18,28 @@ message GenesisState {
     (gogoproto.moretags)     = "yaml:\"providers\""
   ];
 
-  // Params is the set of governance-tunable parameters for the x/provider
-  // module (ProviderMaintenanceParams). At the AEP-86 upgrade height the
-  // upgrade handler installs the module defaults.
+  // Params is the provider module parameter set.
   ProviderMaintenanceParams params = 2 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "params",
     (gogoproto.moretags) = "yaml:\"params\""
   ];
 
-  // Maintenances is the list of all provider maintenance records to import
-  // into the keeper at genesis. Each record's id MUST be unique and strictly
-  // less than next_maintenance_id.
+  // Maintenances is the list of provider maintenance records.
   repeated ProviderMaintenanceRecord maintenances = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "maintenances",
     (gogoproto.moretags) = "yaml:\"maintenances\""
   ];
 
-  // NextMaintenanceID is the next maintenance identifier the keeper will
-  // assign on MsgOpenProviderMaintenance. It MUST be strictly greater than
-  // the maximum id present in `maintenances`.
+  // NextMaintenanceID is the next provider maintenance identifier.
   uint64 next_maintenance_id = 4 [
     (gogoproto.customname) = "NextMaintenanceID",
     (gogoproto.jsontag)    = "next_maintenance_id",
     (gogoproto.moretags)   = "yaml:\"next_maintenance_id\""
   ];
 
-  // Registrations is the list of provider registration records (per-provider
-  // registered_at timestamps) to import at genesis. At the AEP-86 upgrade
-  // height the upgrade handler backfills one record per existing provider
-  // with registered_at set to the upgrade block time.
+  // Registrations is the list of provider registration records to import at genesis.
   repeated ProviderRegistration registrations = 5 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "registrations",

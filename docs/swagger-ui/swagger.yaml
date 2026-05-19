@@ -1032,6 +1032,87 @@ paths:
                               description: >-
                                 Attribute holds the list of attributes tenant
                                 expects from the provider.
+                            verification:
+                              description: >-
+                                Verification holds the verification requirements
+                                for this placement.
+                              type: object
+                              properties:
+                                min_tier:
+                                  description: >-
+                                    MinTier is the minimum verification tier
+                                    required of bidding providers.
+
+                                    A value of 0 (TierUnspecified) means no tier
+                                    requirement.
+                                  type: string
+                                  enum:
+                                    - verification_tier_unspecified
+                                    - verification_tier_identified
+                                    - verification_tier_verified
+                                    - verification_tier_established
+                                    - verification_tier_trusted
+                                  default: verification_tier_unspecified
+                                required_capabilities:
+                                  type: array
+                                  items:
+                                    type: string
+                                    enum:
+                                      - capability_unspecified
+                                      - capability_tee_hardware_attestation
+                                      - capability_confidential_computing
+                                      - capability_persistent_storage
+                                      - capability_bare_metal
+                                    default: capability_unspecified
+                                    description: >-
+                                      CapabilityFlag enumerates the optional
+                                      provider capabilities that may be asserted
+
+                                      by attestations and requested by
+                                      deployments via the SDL.
+
+                                       - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                                       - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                                       - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                                       - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                                       - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                                  description: >-
+                                    RequiredCapabilities is the set of
+                                    capability flags providers must assert.
+                                required_auditors:
+                                  type: array
+                                  items:
+                                    type: string
+                                  description: >-
+                                    RequiredAuditors is an optional list of
+                                    specific auditor bech32 addresses
+
+                                    whose attestations must be present on the
+                                    provider, interpreted per
+
+                                    `auditor_mode`.
+                                auditor_mode:
+                                  description: >-
+                                    AuditorMode controls how `required_auditors`
+                                    is evaluated.
+
+                                    AuditorSelectionModeUnspecified is treated
+                                    as Any.
+                                  type: string
+                                  enum:
+                                    - auditor_selection_mode_unspecified
+                                    - auditor_selection_mode_any
+                                    - auditor_selection_mode_all
+                                  default: auditor_selection_mode_unspecified
+                                min_auditor_count:
+                                  type: integer
+                                  format: int64
+                                  description: >-
+                                    MinAuditorCount is the minimum number of
+                                    independent auditors that must
+
+                                    have attested the provider, regardless of
+                                    identity.
                         resources:
                           type: array
                           items:
@@ -1695,6 +1776,88 @@ paths:
                                     description: >-
                                       Attribute holds the list of attributes
                                       tenant expects from the provider.
+                                  verification:
+                                    description: >-
+                                      Verification holds the verification
+                                      requirements for this placement.
+                                    type: object
+                                    properties:
+                                      min_tier:
+                                        description: >-
+                                          MinTier is the minimum verification tier
+                                          required of bidding providers.
+
+                                          A value of 0 (TierUnspecified) means no
+                                          tier requirement.
+                                        type: string
+                                        enum:
+                                          - verification_tier_unspecified
+                                          - verification_tier_identified
+                                          - verification_tier_verified
+                                          - verification_tier_established
+                                          - verification_tier_trusted
+                                        default: verification_tier_unspecified
+                                      required_capabilities:
+                                        type: array
+                                        items:
+                                          type: string
+                                          enum:
+                                            - capability_unspecified
+                                            - capability_tee_hardware_attestation
+                                            - capability_confidential_computing
+                                            - capability_persistent_storage
+                                            - capability_bare_metal
+                                          default: capability_unspecified
+                                          description: >-
+                                            CapabilityFlag enumerates the optional
+                                            provider capabilities that may be
+                                            asserted
+
+                                            by attestations and requested by
+                                            deployments via the SDL.
+
+                                             - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                                             - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                                             - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                                             - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                                             - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                                        description: >-
+                                          RequiredCapabilities is the set of
+                                          capability flags providers must assert.
+                                      required_auditors:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: >-
+                                          RequiredAuditors is an optional list of
+                                          specific auditor bech32 addresses
+
+                                          whose attestations must be present on
+                                          the provider, interpreted per
+
+                                          `auditor_mode`.
+                                      auditor_mode:
+                                        description: >-
+                                          AuditorMode controls how
+                                          `required_auditors` is evaluated.
+
+                                          AuditorSelectionModeUnspecified is
+                                          treated as Any.
+                                        type: string
+                                        enum:
+                                          - auditor_selection_mode_unspecified
+                                          - auditor_selection_mode_any
+                                          - auditor_selection_mode_all
+                                        default: auditor_selection_mode_unspecified
+                                      min_auditor_count:
+                                        type: integer
+                                        format: int64
+                                        description: >-
+                                          MinAuditorCount is the minimum number of
+                                          independent auditors that must
+
+                                          have attested the provider, regardless
+                                          of identity.
                               resources:
                                 type: array
                                 items:
@@ -2378,6 +2541,87 @@ paths:
                             description: >-
                               Attribute holds the list of attributes tenant
                               expects from the provider.
+                          verification:
+                            description: >-
+                              Verification holds the verification requirements
+                              for this placement.
+                            type: object
+                            properties:
+                              min_tier:
+                                description: >-
+                                  MinTier is the minimum verification tier
+                                  required of bidding providers.
+
+                                  A value of 0 (TierUnspecified) means no tier
+                                  requirement.
+                                type: string
+                                enum:
+                                  - verification_tier_unspecified
+                                  - verification_tier_identified
+                                  - verification_tier_verified
+                                  - verification_tier_established
+                                  - verification_tier_trusted
+                                default: verification_tier_unspecified
+                              required_capabilities:
+                                type: array
+                                items:
+                                  type: string
+                                  enum:
+                                    - capability_unspecified
+                                    - capability_tee_hardware_attestation
+                                    - capability_confidential_computing
+                                    - capability_persistent_storage
+                                    - capability_bare_metal
+                                  default: capability_unspecified
+                                  description: >-
+                                    CapabilityFlag enumerates the optional
+                                    provider capabilities that may be asserted
+
+                                    by attestations and requested by deployments
+                                    via the SDL.
+
+                                     - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                                     - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                                     - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                                     - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                                     - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                                description: >-
+                                  RequiredCapabilities is the set of capability
+                                  flags providers must assert.
+                              required_auditors:
+                                type: array
+                                items:
+                                  type: string
+                                description: >-
+                                  RequiredAuditors is an optional list of
+                                  specific auditor bech32 addresses
+
+                                  whose attestations must be present on the
+                                  provider, interpreted per
+
+                                  `auditor_mode`.
+                              auditor_mode:
+                                description: >-
+                                  AuditorMode controls how `required_auditors`
+                                  is evaluated.
+
+                                  AuditorSelectionModeUnspecified is treated as
+                                  Any.
+                                type: string
+                                enum:
+                                  - auditor_selection_mode_unspecified
+                                  - auditor_selection_mode_any
+                                  - auditor_selection_mode_all
+                                default: auditor_selection_mode_unspecified
+                              min_auditor_count:
+                                type: integer
+                                format: int64
+                                description: >-
+                                  MinAuditorCount is the minimum number of
+                                  independent auditors that must
+
+                                  have attested the provider, regardless of
+                                  identity.
                       resources:
                         type: array
                         items:
@@ -4477,6 +4721,7 @@ paths:
                       - lease_closed_reason_decommission
                       - lease_closed_reason_unspecified
                       - lease_closed_reason_manifest_timeout
+                      - lease_closed_reason_provider
                       - lease_closed_reason_insufficient_funds
                     default: lease_closed_invalid
                     description: >-
@@ -4487,14 +4732,15 @@ paths:
                       closure reason and should not
 
                       be used
-                       - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-                       - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                       - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                       - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
                       lease_closed_reason_unstable lease workloads have been
                       unstable
                        - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                        - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                        - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-                       - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                       - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                       - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
                     title: LeaseClosedReason indicates reason bid was closed
                   reclamation:
                     description: >-
@@ -4534,6 +4780,7 @@ paths:
                           - lease_closed_reason_decommission
                           - lease_closed_reason_unspecified
                           - lease_closed_reason_manifest_timeout
+                          - lease_closed_reason_provider
                           - lease_closed_reason_insufficient_funds
                         default: lease_closed_invalid
                         description: >-
@@ -4545,14 +4792,15 @@ paths:
                           closure reason and should not
 
                           be used
-                           - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-                           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                           - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
                           lease_closed_reason_unstable lease workloads have been
                           unstable
                            - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                            - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                            - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-                           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                           - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
                         title: LeaseClosedReason indicates reason bid was closed
               escrow_payment:
                 description: >-
@@ -4893,6 +5141,7 @@ paths:
                             - lease_closed_reason_decommission
                             - lease_closed_reason_unspecified
                             - lease_closed_reason_manifest_timeout
+                            - lease_closed_reason_provider
                             - lease_closed_reason_insufficient_funds
                           default: lease_closed_invalid
                           description: >-
@@ -4904,14 +5153,15 @@ paths:
                             lease closure reason and should not
 
                             be used
-                             - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-                             - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                             - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                             - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
                             lease_closed_reason_unstable lease workloads have
                             been unstable
                              - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                              - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                              - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-                             - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                             - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                             - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
                           title: LeaseClosedReason indicates reason bid was closed
                         reclamation:
                           description: >-
@@ -4951,6 +5201,7 @@ paths:
                                 - lease_closed_reason_decommission
                                 - lease_closed_reason_unspecified
                                 - lease_closed_reason_manifest_timeout
+                                - lease_closed_reason_provider
                                 - lease_closed_reason_insufficient_funds
                               default: lease_closed_invalid
                               description: >-
@@ -4962,14 +5213,15 @@ paths:
                                 lease closure reason and should not
 
                                 be used
-                                 - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-                                 - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                                 - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                                 - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
                                 lease_closed_reason_unstable lease workloads
                                 have been unstable
                                  - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                                  - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                                  - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-                                 - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                                 - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                                 - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
                               title: >-
                                 LeaseClosedReason indicates reason bid was
                                 closed
@@ -5397,6 +5649,87 @@ paths:
                             description: >-
                               Attribute holds the list of attributes tenant
                               expects from the provider.
+                          verification:
+                            description: >-
+                              Verification holds the verification requirements
+                              for this placement.
+                            type: object
+                            properties:
+                              min_tier:
+                                description: >-
+                                  MinTier is the minimum verification tier
+                                  required of bidding providers.
+
+                                  A value of 0 (TierUnspecified) means no tier
+                                  requirement.
+                                type: string
+                                enum:
+                                  - verification_tier_unspecified
+                                  - verification_tier_identified
+                                  - verification_tier_verified
+                                  - verification_tier_established
+                                  - verification_tier_trusted
+                                default: verification_tier_unspecified
+                              required_capabilities:
+                                type: array
+                                items:
+                                  type: string
+                                  enum:
+                                    - capability_unspecified
+                                    - capability_tee_hardware_attestation
+                                    - capability_confidential_computing
+                                    - capability_persistent_storage
+                                    - capability_bare_metal
+                                  default: capability_unspecified
+                                  description: >-
+                                    CapabilityFlag enumerates the optional
+                                    provider capabilities that may be asserted
+
+                                    by attestations and requested by deployments
+                                    via the SDL.
+
+                                     - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                                     - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                                     - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                                     - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                                     - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                                description: >-
+                                  RequiredCapabilities is the set of capability
+                                  flags providers must assert.
+                              required_auditors:
+                                type: array
+                                items:
+                                  type: string
+                                description: >-
+                                  RequiredAuditors is an optional list of
+                                  specific auditor bech32 addresses
+
+                                  whose attestations must be present on the
+                                  provider, interpreted per
+
+                                  `auditor_mode`.
+                              auditor_mode:
+                                description: >-
+                                  AuditorMode controls how `required_auditors`
+                                  is evaluated.
+
+                                  AuditorSelectionModeUnspecified is treated as
+                                  Any.
+                                type: string
+                                enum:
+                                  - auditor_selection_mode_unspecified
+                                  - auditor_selection_mode_any
+                                  - auditor_selection_mode_all
+                                default: auditor_selection_mode_unspecified
+                              min_auditor_count:
+                                type: integer
+                                format: int64
+                                description: >-
+                                  MinAuditorCount is the minimum number of
+                                  independent auditors that must
+
+                                  have attested the provider, regardless of
+                                  identity.
                       resources:
                         type: array
                         items:
@@ -5884,6 +6217,87 @@ paths:
                               description: >-
                                 Attribute holds the list of attributes tenant
                                 expects from the provider.
+                            verification:
+                              description: >-
+                                Verification holds the verification requirements
+                                for this placement.
+                              type: object
+                              properties:
+                                min_tier:
+                                  description: >-
+                                    MinTier is the minimum verification tier
+                                    required of bidding providers.
+
+                                    A value of 0 (TierUnspecified) means no tier
+                                    requirement.
+                                  type: string
+                                  enum:
+                                    - verification_tier_unspecified
+                                    - verification_tier_identified
+                                    - verification_tier_verified
+                                    - verification_tier_established
+                                    - verification_tier_trusted
+                                  default: verification_tier_unspecified
+                                required_capabilities:
+                                  type: array
+                                  items:
+                                    type: string
+                                    enum:
+                                      - capability_unspecified
+                                      - capability_tee_hardware_attestation
+                                      - capability_confidential_computing
+                                      - capability_persistent_storage
+                                      - capability_bare_metal
+                                    default: capability_unspecified
+                                    description: >-
+                                      CapabilityFlag enumerates the optional
+                                      provider capabilities that may be asserted
+
+                                      by attestations and requested by
+                                      deployments via the SDL.
+
+                                       - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                                       - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                                       - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                                       - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                                       - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                                  description: >-
+                                    RequiredCapabilities is the set of
+                                    capability flags providers must assert.
+                                required_auditors:
+                                  type: array
+                                  items:
+                                    type: string
+                                  description: >-
+                                    RequiredAuditors is an optional list of
+                                    specific auditor bech32 addresses
+
+                                    whose attestations must be present on the
+                                    provider, interpreted per
+
+                                    `auditor_mode`.
+                                auditor_mode:
+                                  description: >-
+                                    AuditorMode controls how `required_auditors`
+                                    is evaluated.
+
+                                    AuditorSelectionModeUnspecified is treated
+                                    as Any.
+                                  type: string
+                                  enum:
+                                    - auditor_selection_mode_unspecified
+                                    - auditor_selection_mode_any
+                                    - auditor_selection_mode_all
+                                  default: auditor_selection_mode_unspecified
+                                min_auditor_count:
+                                  type: integer
+                                  format: int64
+                                  description: >-
+                                    MinAuditorCount is the minimum number of
+                                    independent auditors that must
+
+                                    have attested the provider, regardless of
+                                    identity.
                         resources:
                           type: array
                           items:
@@ -6419,6 +6833,64 @@ paths:
                       format: byte
       tags:
         - Query
+  /akash/provider/v1beta4/params:
+    get:
+      summary: Params returns the x/provider ProviderMaintenanceParams.
+      operationId: ProviderParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the x/provider module.
+                type: object
+                properties:
+                  maintenance_max_duration:
+                    type: string
+                    description: >-
+                      maintenance_max_duration is the maximum allowed value of
+
+                      (expected_ends_at - starts_at) when opening a maintenance
+                      window.
+                  maintenance_max_lookahead:
+                    type: string
+                    description: >-
+                      maintenance_max_lookahead is the maximum allowed value of
+
+                      (starts_at - block_time) when opening a maintenance
+                      window. A value of
+
+                      zero means windows may only start at or before the current
+                      block time.
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   /akash/provider/v1beta4/providers:
     get:
       summary: Providers queries providers
@@ -6711,6 +7183,442 @@ paths:
           description: |-
             Owner is the bech32 address of the account of the provider.
             It is a string representing a valid account address.
+
+            Example:
+              "akash1..."
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /akash/provider/v1beta4/providers/{provider}/maintenance:
+    get:
+      summary: ProviderMaintenances queries provider maintenance records.
+      operationId: ProviderMaintenances
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              maintenance:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    record:
+                      description: record is the stored maintenance window.
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uint64
+                          description: id is the maintenance identifier.
+                        provider:
+                          type: string
+                          description: >-
+                            provider is the bech32 address of the provider
+                            owning the maintenance
+
+                            window.
+
+
+                            Example:
+                              "akash1..."
+                        maintenance_type:
+                          description: >-
+                            maintenance_type is the declared category of the
+                            window.
+                          type: string
+                          enum:
+                            - provider_maintenance_type_unspecified
+                            - provider_maintenance_type_planned
+                            - provider_maintenance_type_emergency
+                            - provider_maintenance_type_security
+                            - provider_maintenance_type_network
+                            - provider_maintenance_type_capacity
+                          default: provider_maintenance_type_unspecified
+                        starts_at:
+                          type: string
+                          format: date-time
+                          description: >-
+                            starts_at is the wall-clock time at which the
+                            maintenance window begins.
+                        expected_ends_at:
+                          type: string
+                          format: date-time
+                          description: >-
+                            expected_ends_at is the wall-clock time at which the
+                            provider expects the
+
+                            window to end.
+                        opened_at:
+                          type: string
+                          format: date-time
+                          description: >-
+                            opened_at is the block time at which the window was
+                            opened.
+                        closed_at:
+                          type: string
+                          format: date-time
+                          description: >-
+                            closed_at is the block time at which the window was
+                            closed.
+                        metadata_hash:
+                          type: string
+                          format: byte
+                          description: >-
+                            metadata_hash is an optional, opaque hash of
+                            off-chain metadata.
+                    status:
+                      description: >-
+                        status is the derived lifecycle state of the record at
+                        query time.
+                      type: string
+                      enum:
+                        - provider_maintenance_status_unspecified
+                        - provider_maintenance_status_scheduled
+                        - provider_maintenance_status_active
+                        - provider_maintenance_status_elapsed
+                        - provider_maintenance_status_closed
+                      default: provider_maintenance_status_unspecified
+                  description: >-
+                    ProviderMaintenanceWithStatus pairs a maintenance record
+                    with its status.
+                description: maintenance is the list of records matching the request.
+              pagination:
+                description: pagination contains the information about response pagination.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: |-
+              QueryProviderMaintenancesResponse is the response type for the
+              Query/ProviderMaintenances RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: provider
+          description: >-
+            provider is the bech32 address of the provider whose maintenance
+            records
+
+            are being listed.
+
+
+            Example:
+              "akash1..."
+          in: path
+          required: true
+          type: string
+        - name: status_filter
+          description: |-
+            status_filter optionally restricts the results by status.
+
+             - provider_maintenance_status_unspecified: provider_maintenance_status_unspecified is the zero value.
+             - provider_maintenance_status_scheduled: provider_maintenance_status_scheduled means the window has not started.
+             - provider_maintenance_status_active: provider_maintenance_status_active means the window is active.
+             - provider_maintenance_status_elapsed: provider_maintenance_status_elapsed means the window reached expected_ends_at.
+             - provider_maintenance_status_closed: provider_maintenance_status_closed means the window was closed explicitly.
+          in: query
+          required: false
+          type: string
+          enum:
+            - provider_maintenance_status_unspecified
+            - provider_maintenance_status_scheduled
+            - provider_maintenance_status_active
+            - provider_maintenance_status_elapsed
+            - provider_maintenance_status_closed
+          default: provider_maintenance_status_unspecified
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /akash/provider/v1beta4/providers/{provider}/maintenance/{maintenance_id}:
+    get:
+      summary: ProviderMaintenance queries a provider maintenance record.
+      operationId: ProviderMaintenance
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              maintenance:
+                type: object
+                properties:
+                  record:
+                    description: record is the stored maintenance window.
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uint64
+                        description: id is the maintenance identifier.
+                      provider:
+                        type: string
+                        description: >-
+                          provider is the bech32 address of the provider owning
+                          the maintenance
+
+                          window.
+
+
+                          Example:
+                            "akash1..."
+                      maintenance_type:
+                        description: >-
+                          maintenance_type is the declared category of the
+                          window.
+                        type: string
+                        enum:
+                          - provider_maintenance_type_unspecified
+                          - provider_maintenance_type_planned
+                          - provider_maintenance_type_emergency
+                          - provider_maintenance_type_security
+                          - provider_maintenance_type_network
+                          - provider_maintenance_type_capacity
+                        default: provider_maintenance_type_unspecified
+                      starts_at:
+                        type: string
+                        format: date-time
+                        description: >-
+                          starts_at is the wall-clock time at which the
+                          maintenance window begins.
+                      expected_ends_at:
+                        type: string
+                        format: date-time
+                        description: >-
+                          expected_ends_at is the wall-clock time at which the
+                          provider expects the
+
+                          window to end.
+                      opened_at:
+                        type: string
+                        format: date-time
+                        description: >-
+                          opened_at is the block time at which the window was
+                          opened.
+                      closed_at:
+                        type: string
+                        format: date-time
+                        description: >-
+                          closed_at is the block time at which the window was
+                          closed.
+                      metadata_hash:
+                        type: string
+                        format: byte
+                        description: >-
+                          metadata_hash is an optional, opaque hash of off-chain
+                          metadata.
+                  status:
+                    description: >-
+                      status is the derived lifecycle state of the record at
+                      query time.
+                    type: string
+                    enum:
+                      - provider_maintenance_status_unspecified
+                      - provider_maintenance_status_scheduled
+                      - provider_maintenance_status_active
+                      - provider_maintenance_status_elapsed
+                      - provider_maintenance_status_closed
+                    default: provider_maintenance_status_unspecified
+                description: >-
+                  ProviderMaintenanceWithStatus pairs a maintenance record with
+                  its status.
+            description: |-
+              QueryProviderMaintenanceResponse is the response type for the
+              Query/ProviderMaintenance RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: provider
+          description: >-
+            provider is the bech32 address of the provider whose maintenance
+            record
+
+            is being looked up.
+
+
+            Example:
+              "akash1..."
+          in: path
+          required: true
+          type: string
+        - name: maintenance_id
+          description: maintenance_id is the identifier of the maintenance record.
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+  /akash/provider/v1beta4/providers/{provider}/registration:
+    get:
+      summary: Registration queries provider registration details.
+      operationId: Registration
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              registration:
+                description: registration is the provider registration record.
+                type: object
+                properties:
+                  owner:
+                    type: string
+                    description: |-
+                      owner is the bech32 address of the provider account.
+
+                      Example:
+                        "akash1..."
+                  registered_at:
+                    type: string
+                    format: date-time
+                    description: >-
+                      registered_at is the block time at which the provider was
+                      registered.
+            description: >-
+              QueryRegistrationResponse is the response type for the
+              Query/Registration
+
+              RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: provider
+          description: >-
+            provider is the bech32 address of the provider whose registration
+            record
+
+            is being looked up.
+
 
             Example:
               "akash1..."
@@ -46175,6 +47083,79 @@ definitions:
         description: >-
           Attribute holds the list of attributes tenant expects from the
           provider.
+      verification:
+        description: Verification holds the verification requirements for this placement.
+        type: object
+        properties:
+          min_tier:
+            description: >-
+              MinTier is the minimum verification tier required of bidding
+              providers.
+
+              A value of 0 (TierUnspecified) means no tier requirement.
+            type: string
+            enum:
+              - verification_tier_unspecified
+              - verification_tier_identified
+              - verification_tier_verified
+              - verification_tier_established
+              - verification_tier_trusted
+            default: verification_tier_unspecified
+          required_capabilities:
+            type: array
+            items:
+              type: string
+              enum:
+                - capability_unspecified
+                - capability_tee_hardware_attestation
+                - capability_confidential_computing
+                - capability_persistent_storage
+                - capability_bare_metal
+              default: capability_unspecified
+              description: >-
+                CapabilityFlag enumerates the optional provider capabilities
+                that may be asserted
+
+                by attestations and requested by deployments via the SDL.
+
+                 - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                 - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                 - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                 - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                 - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+            description: >-
+              RequiredCapabilities is the set of capability flags providers must
+              assert.
+          required_auditors:
+            type: array
+            items:
+              type: string
+            description: >-
+              RequiredAuditors is an optional list of specific auditor bech32
+              addresses
+
+              whose attestations must be present on the provider, interpreted
+              per
+
+              `auditor_mode`.
+          auditor_mode:
+            description: |-
+              AuditorMode controls how `required_auditors` is evaluated.
+              AuditorSelectionModeUnspecified is treated as Any.
+            type: string
+            enum:
+              - auditor_selection_mode_unspecified
+              - auditor_selection_mode_any
+              - auditor_selection_mode_all
+            default: auditor_selection_mode_unspecified
+          min_auditor_count:
+            type: integer
+            format: int64
+            description: >-
+              MinAuditorCount is the minimum number of independent auditors that
+              must
+
+              have attested the provider, regardless of identity.
     description: >-
       PlacementRequirements represents the requirements for a provider placement
       on the network.
@@ -46825,6 +47806,82 @@ definitions:
                 description: >-
                   Attribute holds the list of attributes tenant expects from the
                   provider.
+              verification:
+                description: >-
+                  Verification holds the verification requirements for this
+                  placement.
+                type: object
+                properties:
+                  min_tier:
+                    description: >-
+                      MinTier is the minimum verification tier required of
+                      bidding providers.
+
+                      A value of 0 (TierUnspecified) means no tier requirement.
+                    type: string
+                    enum:
+                      - verification_tier_unspecified
+                      - verification_tier_identified
+                      - verification_tier_verified
+                      - verification_tier_established
+                      - verification_tier_trusted
+                    default: verification_tier_unspecified
+                  required_capabilities:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - capability_unspecified
+                        - capability_tee_hardware_attestation
+                        - capability_confidential_computing
+                        - capability_persistent_storage
+                        - capability_bare_metal
+                      default: capability_unspecified
+                      description: >-
+                        CapabilityFlag enumerates the optional provider
+                        capabilities that may be asserted
+
+                        by attestations and requested by deployments via the
+                        SDL.
+
+                         - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                         - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                         - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                         - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                         - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                    description: >-
+                      RequiredCapabilities is the set of capability flags
+                      providers must assert.
+                  required_auditors:
+                    type: array
+                    items:
+                      type: string
+                    description: >-
+                      RequiredAuditors is an optional list of specific auditor
+                      bech32 addresses
+
+                      whose attestations must be present on the provider,
+                      interpreted per
+
+                      `auditor_mode`.
+                  auditor_mode:
+                    description: |-
+                      AuditorMode controls how `required_auditors` is evaluated.
+                      AuditorSelectionModeUnspecified is treated as Any.
+                    type: string
+                    enum:
+                      - auditor_selection_mode_unspecified
+                      - auditor_selection_mode_any
+                      - auditor_selection_mode_all
+                    default: auditor_selection_mode_unspecified
+                  min_auditor_count:
+                    type: integer
+                    format: int64
+                    description: >-
+                      MinAuditorCount is the minimum number of independent
+                      auditors that must
+
+                      have attested the provider, regardless of identity.
           resources:
             type: array
             items:
@@ -47145,6 +48202,81 @@ definitions:
             description: >-
               Attribute holds the list of attributes tenant expects from the
               provider.
+          verification:
+            description: >-
+              Verification holds the verification requirements for this
+              placement.
+            type: object
+            properties:
+              min_tier:
+                description: >-
+                  MinTier is the minimum verification tier required of bidding
+                  providers.
+
+                  A value of 0 (TierUnspecified) means no tier requirement.
+                type: string
+                enum:
+                  - verification_tier_unspecified
+                  - verification_tier_identified
+                  - verification_tier_verified
+                  - verification_tier_established
+                  - verification_tier_trusted
+                default: verification_tier_unspecified
+              required_capabilities:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - capability_unspecified
+                    - capability_tee_hardware_attestation
+                    - capability_confidential_computing
+                    - capability_persistent_storage
+                    - capability_bare_metal
+                  default: capability_unspecified
+                  description: >-
+                    CapabilityFlag enumerates the optional provider capabilities
+                    that may be asserted
+
+                    by attestations and requested by deployments via the SDL.
+
+                     - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                     - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                     - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                     - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                     - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                description: >-
+                  RequiredCapabilities is the set of capability flags providers
+                  must assert.
+              required_auditors:
+                type: array
+                items:
+                  type: string
+                description: >-
+                  RequiredAuditors is an optional list of specific auditor
+                  bech32 addresses
+
+                  whose attestations must be present on the provider,
+                  interpreted per
+
+                  `auditor_mode`.
+              auditor_mode:
+                description: |-
+                  AuditorMode controls how `required_auditors` is evaluated.
+                  AuditorSelectionModeUnspecified is treated as Any.
+                type: string
+                enum:
+                  - auditor_selection_mode_unspecified
+                  - auditor_selection_mode_any
+                  - auditor_selection_mode_all
+                default: auditor_selection_mode_unspecified
+              min_auditor_count:
+                type: integer
+                format: int64
+                description: >-
+                  MinAuditorCount is the minimum number of independent auditors
+                  that must
+
+                  have attested the provider, regardless of identity.
       resources:
         type: array
         items:
@@ -47582,6 +48714,85 @@ definitions:
                       description: >-
                         Attribute holds the list of attributes tenant expects
                         from the provider.
+                    verification:
+                      description: >-
+                        Verification holds the verification requirements for
+                        this placement.
+                      type: object
+                      properties:
+                        min_tier:
+                          description: >-
+                            MinTier is the minimum verification tier required of
+                            bidding providers.
+
+                            A value of 0 (TierUnspecified) means no tier
+                            requirement.
+                          type: string
+                          enum:
+                            - verification_tier_unspecified
+                            - verification_tier_identified
+                            - verification_tier_verified
+                            - verification_tier_established
+                            - verification_tier_trusted
+                          default: verification_tier_unspecified
+                        required_capabilities:
+                          type: array
+                          items:
+                            type: string
+                            enum:
+                              - capability_unspecified
+                              - capability_tee_hardware_attestation
+                              - capability_confidential_computing
+                              - capability_persistent_storage
+                              - capability_bare_metal
+                            default: capability_unspecified
+                            description: >-
+                              CapabilityFlag enumerates the optional provider
+                              capabilities that may be asserted
+
+                              by attestations and requested by deployments via
+                              the SDL.
+
+                               - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                               - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                               - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                               - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                               - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                          description: >-
+                            RequiredCapabilities is the set of capability flags
+                            providers must assert.
+                        required_auditors:
+                          type: array
+                          items:
+                            type: string
+                          description: >-
+                            RequiredAuditors is an optional list of specific
+                            auditor bech32 addresses
+
+                            whose attestations must be present on the provider,
+                            interpreted per
+
+                            `auditor_mode`.
+                        auditor_mode:
+                          description: >-
+                            AuditorMode controls how `required_auditors` is
+                            evaluated.
+
+                            AuditorSelectionModeUnspecified is treated as Any.
+                          type: string
+                          enum:
+                            - auditor_selection_mode_unspecified
+                            - auditor_selection_mode_any
+                            - auditor_selection_mode_all
+                          default: auditor_selection_mode_unspecified
+                        min_auditor_count:
+                          type: integer
+                          format: int64
+                          description: >-
+                            MinAuditorCount is the minimum number of independent
+                            auditors that must
+
+                            have attested the provider, regardless of identity.
                 resources:
                   type: array
                   items:
@@ -48173,6 +49384,87 @@ definitions:
                             description: >-
                               Attribute holds the list of attributes tenant
                               expects from the provider.
+                          verification:
+                            description: >-
+                              Verification holds the verification requirements
+                              for this placement.
+                            type: object
+                            properties:
+                              min_tier:
+                                description: >-
+                                  MinTier is the minimum verification tier
+                                  required of bidding providers.
+
+                                  A value of 0 (TierUnspecified) means no tier
+                                  requirement.
+                                type: string
+                                enum:
+                                  - verification_tier_unspecified
+                                  - verification_tier_identified
+                                  - verification_tier_verified
+                                  - verification_tier_established
+                                  - verification_tier_trusted
+                                default: verification_tier_unspecified
+                              required_capabilities:
+                                type: array
+                                items:
+                                  type: string
+                                  enum:
+                                    - capability_unspecified
+                                    - capability_tee_hardware_attestation
+                                    - capability_confidential_computing
+                                    - capability_persistent_storage
+                                    - capability_bare_metal
+                                  default: capability_unspecified
+                                  description: >-
+                                    CapabilityFlag enumerates the optional
+                                    provider capabilities that may be asserted
+
+                                    by attestations and requested by deployments
+                                    via the SDL.
+
+                                     - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                                     - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                                     - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                                     - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                                     - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                                description: >-
+                                  RequiredCapabilities is the set of capability
+                                  flags providers must assert.
+                              required_auditors:
+                                type: array
+                                items:
+                                  type: string
+                                description: >-
+                                  RequiredAuditors is an optional list of
+                                  specific auditor bech32 addresses
+
+                                  whose attestations must be present on the
+                                  provider, interpreted per
+
+                                  `auditor_mode`.
+                              auditor_mode:
+                                description: >-
+                                  AuditorMode controls how `required_auditors`
+                                  is evaluated.
+
+                                  AuditorSelectionModeUnspecified is treated as
+                                  Any.
+                                type: string
+                                enum:
+                                  - auditor_selection_mode_unspecified
+                                  - auditor_selection_mode_any
+                                  - auditor_selection_mode_all
+                                default: auditor_selection_mode_unspecified
+                              min_auditor_count:
+                                type: integer
+                                format: int64
+                                description: >-
+                                  MinAuditorCount is the minimum number of
+                                  independent auditors that must
+
+                                  have attested the provider, regardless of
+                                  identity.
                       resources:
                         type: array
                         items:
@@ -48723,6 +50015,85 @@ definitions:
                     description: >-
                       Attribute holds the list of attributes tenant expects from
                       the provider.
+                  verification:
+                    description: >-
+                      Verification holds the verification requirements for this
+                      placement.
+                    type: object
+                    properties:
+                      min_tier:
+                        description: >-
+                          MinTier is the minimum verification tier required of
+                          bidding providers.
+
+                          A value of 0 (TierUnspecified) means no tier
+                          requirement.
+                        type: string
+                        enum:
+                          - verification_tier_unspecified
+                          - verification_tier_identified
+                          - verification_tier_verified
+                          - verification_tier_established
+                          - verification_tier_trusted
+                        default: verification_tier_unspecified
+                      required_capabilities:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - capability_unspecified
+                            - capability_tee_hardware_attestation
+                            - capability_confidential_computing
+                            - capability_persistent_storage
+                            - capability_bare_metal
+                          default: capability_unspecified
+                          description: >-
+                            CapabilityFlag enumerates the optional provider
+                            capabilities that may be asserted
+
+                            by attestations and requested by deployments via the
+                            SDL.
+
+                             - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                             - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                             - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                             - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                             - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                        description: >-
+                          RequiredCapabilities is the set of capability flags
+                          providers must assert.
+                      required_auditors:
+                        type: array
+                        items:
+                          type: string
+                        description: >-
+                          RequiredAuditors is an optional list of specific
+                          auditor bech32 addresses
+
+                          whose attestations must be present on the provider,
+                          interpreted per
+
+                          `auditor_mode`.
+                      auditor_mode:
+                        description: >-
+                          AuditorMode controls how `required_auditors` is
+                          evaluated.
+
+                          AuditorSelectionModeUnspecified is treated as Any.
+                        type: string
+                        enum:
+                          - auditor_selection_mode_unspecified
+                          - auditor_selection_mode_any
+                          - auditor_selection_mode_all
+                        default: auditor_selection_mode_unspecified
+                      min_auditor_count:
+                        type: integer
+                        format: int64
+                        description: >-
+                          MinAuditorCount is the minimum number of independent
+                          auditors that must
+
+                          have attested the provider, regardless of identity.
               resources:
                 type: array
                 items:
@@ -49599,6 +50970,148 @@ definitions:
        - open: StateOpen is the state when an object is open.
        - closed: StateClosed is the state when an object is closed.
        - overdrawn: StateOverdrawn is the state when an object are overdrawn.
+  akash.verification.v1.AuditorSelectionMode:
+    type: string
+    enum:
+      - auditor_selection_mode_unspecified
+      - auditor_selection_mode_any
+      - auditor_selection_mode_all
+    default: auditor_selection_mode_unspecified
+    description: >-
+      AuditorSelectionMode controls how the `required_auditors` list on a
+
+      VerificationRequirement is evaluated against a provider's set of
+      attestations.
+
+       - auditor_selection_mode_unspecified: AuditorSelectionModeUnspecified is the default; treated as Any.
+       - auditor_selection_mode_any: AuditorSelectionModeAny matches when any one of the required auditors has attested.
+       - auditor_selection_mode_all: AuditorSelectionModeAll matches only when all required auditors have attested.
+  akash.verification.v1.CapabilityFlag:
+    type: string
+    enum:
+      - capability_unspecified
+      - capability_tee_hardware_attestation
+      - capability_confidential_computing
+      - capability_persistent_storage
+      - capability_bare_metal
+    default: capability_unspecified
+    description: >-
+      CapabilityFlag enumerates the optional provider capabilities that may be
+      asserted
+
+      by attestations and requested by deployments via the SDL.
+
+       - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+       - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+       - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+       - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+       - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+  akash.verification.v1.VerificationRequirement:
+    type: object
+    properties:
+      min_tier:
+        description: >-
+          MinTier is the minimum verification tier required of bidding
+          providers.
+
+          A value of 0 (TierUnspecified) means no tier requirement.
+        type: string
+        enum:
+          - verification_tier_unspecified
+          - verification_tier_identified
+          - verification_tier_verified
+          - verification_tier_established
+          - verification_tier_trusted
+        default: verification_tier_unspecified
+      required_capabilities:
+        type: array
+        items:
+          type: string
+          enum:
+            - capability_unspecified
+            - capability_tee_hardware_attestation
+            - capability_confidential_computing
+            - capability_persistent_storage
+            - capability_bare_metal
+          default: capability_unspecified
+          description: >-
+            CapabilityFlag enumerates the optional provider capabilities that
+            may be asserted
+
+            by attestations and requested by deployments via the SDL.
+
+             - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+             - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+             - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+             - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+             - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+        description: >-
+          RequiredCapabilities is the set of capability flags providers must
+          assert.
+      required_auditors:
+        type: array
+        items:
+          type: string
+        description: >-
+          RequiredAuditors is an optional list of specific auditor bech32
+          addresses
+
+          whose attestations must be present on the provider, interpreted per
+
+          `auditor_mode`.
+      auditor_mode:
+        description: |-
+          AuditorMode controls how `required_auditors` is evaluated.
+          AuditorSelectionModeUnspecified is treated as Any.
+        type: string
+        enum:
+          - auditor_selection_mode_unspecified
+          - auditor_selection_mode_any
+          - auditor_selection_mode_all
+        default: auditor_selection_mode_unspecified
+      min_auditor_count:
+        type: integer
+        format: int64
+        description: >-
+          MinAuditorCount is the minimum number of independent auditors that
+          must
+
+          have attested the provider, regardless of identity.
+    description: >-
+      VerificationRequirement holds the verification constraints that a
+      deployment
+
+      places on the providers eligible to bid on a group. It is referenced from
+      the
+
+      deployment-module `PlacementRequirements` message; this file is split out
+      from
+
+      `state.proto` so the deployment-side import surface stays minimal (only
+      the
+
+      shared enums in `types.proto` need to come along).
+
+      A `min_tier` of 0 (TierUnspecified) means "no requirement".
+  akash.verification.v1.VerificationTier:
+    type: string
+    enum:
+      - verification_tier_unspecified
+      - verification_tier_identified
+      - verification_tier_verified
+      - verification_tier_established
+      - verification_tier_trusted
+    default: verification_tier_unspecified
+    description: |-
+      VerificationTier represents provider verification levels.
+      Higher numeric value = higher trust. TierUnspecified (L0, permissionless)
+      means no attestation has been recorded for the provider.
+
+       - verification_tier_unspecified: TierUnspecified (L0) is the default; no attestation has been recorded.
+       - verification_tier_identified: TierIdentified (L1) indicates the provider has been identified by an auditor.
+       - verification_tier_verified: TierVerified (L2) indicates the provider's identity and capabilities have been verified.
+       - verification_tier_established: TierEstablished (L3) indicates the provider has a track record meeting the L3 criteria.
+       - verification_tier_trusted: TierTrusted (L4) is the highest tier, reserved for providers with long-running clean history.
   cosmos.base.v1beta1.Coin:
     type: object
     properties:
@@ -50049,6 +51562,7 @@ definitions:
           - lease_closed_reason_decommission
           - lease_closed_reason_unspecified
           - lease_closed_reason_manifest_timeout
+          - lease_closed_reason_provider
           - lease_closed_reason_insufficient_funds
         default: lease_closed_invalid
         description: >-
@@ -50059,13 +51573,14 @@ definitions:
           and should not
 
           be used
-           - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+           - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
           lease_closed_reason_unstable lease workloads have been unstable
            - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
            - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
            - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+           - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
         title: LeaseClosedReason indicates reason bid was closed
       reclamation:
         description: |-
@@ -50101,6 +51616,7 @@ definitions:
               - lease_closed_reason_decommission
               - lease_closed_reason_unspecified
               - lease_closed_reason_manifest_timeout
+              - lease_closed_reason_provider
               - lease_closed_reason_insufficient_funds
             default: lease_closed_invalid
             description: >-
@@ -50111,13 +51627,14 @@ definitions:
               reason and should not
 
               be used
-               - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-               - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+               - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+               - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
               lease_closed_reason_unstable lease workloads have been unstable
                - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-               - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+               - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+               - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
             title: LeaseClosedReason indicates reason bid was closed
     description: >-
       Lease stores LeaseID, state of lease and price.
@@ -50155,6 +51672,7 @@ definitions:
       - lease_closed_reason_decommission
       - lease_closed_reason_unspecified
       - lease_closed_reason_manifest_timeout
+      - lease_closed_reason_provider
       - lease_closed_reason_insufficient_funds
     default: lease_closed_invalid
     description: >-
@@ -50165,13 +51683,14 @@ definitions:
       should not
 
       be used
-       - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-       - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+       - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+       - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
       lease_closed_reason_unstable lease workloads have been unstable
        - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
        - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
        - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-       - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+       - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+       - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
     title: LeaseClosedReason indicates reason bid was closed
   akash.market.v1.LeaseFilters:
     type: object
@@ -50358,6 +51877,7 @@ definitions:
           - lease_closed_reason_decommission
           - lease_closed_reason_unspecified
           - lease_closed_reason_manifest_timeout
+          - lease_closed_reason_provider
           - lease_closed_reason_insufficient_funds
         default: lease_closed_invalid
         description: >-
@@ -50368,13 +51888,14 @@ definitions:
           and should not
 
           be used
-           - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+           - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
           lease_closed_reason_unstable lease workloads have been unstable
            - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
            - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
            - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+           - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
         title: LeaseClosedReason indicates reason bid was closed
     description: Reclamation defines the runtime reclamation state stored on a Lease.
   akash.market.v1beta5.Bid:
@@ -51239,6 +52760,82 @@ definitions:
                 description: >-
                   Attribute holds the list of attributes tenant expects from the
                   provider.
+              verification:
+                description: >-
+                  Verification holds the verification requirements for this
+                  placement.
+                type: object
+                properties:
+                  min_tier:
+                    description: >-
+                      MinTier is the minimum verification tier required of
+                      bidding providers.
+
+                      A value of 0 (TierUnspecified) means no tier requirement.
+                    type: string
+                    enum:
+                      - verification_tier_unspecified
+                      - verification_tier_identified
+                      - verification_tier_verified
+                      - verification_tier_established
+                      - verification_tier_trusted
+                    default: verification_tier_unspecified
+                  required_capabilities:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - capability_unspecified
+                        - capability_tee_hardware_attestation
+                        - capability_confidential_computing
+                        - capability_persistent_storage
+                        - capability_bare_metal
+                      default: capability_unspecified
+                      description: >-
+                        CapabilityFlag enumerates the optional provider
+                        capabilities that may be asserted
+
+                        by attestations and requested by deployments via the
+                        SDL.
+
+                         - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                         - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                         - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                         - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                         - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                    description: >-
+                      RequiredCapabilities is the set of capability flags
+                      providers must assert.
+                  required_auditors:
+                    type: array
+                    items:
+                      type: string
+                    description: >-
+                      RequiredAuditors is an optional list of specific auditor
+                      bech32 addresses
+
+                      whose attestations must be present on the provider,
+                      interpreted per
+
+                      `auditor_mode`.
+                  auditor_mode:
+                    description: |-
+                      AuditorMode controls how `required_auditors` is evaluated.
+                      AuditorSelectionModeUnspecified is treated as Any.
+                    type: string
+                    enum:
+                      - auditor_selection_mode_unspecified
+                      - auditor_selection_mode_any
+                      - auditor_selection_mode_all
+                    default: auditor_selection_mode_unspecified
+                  min_auditor_count:
+                    type: integer
+                    format: int64
+                    description: >-
+                      MinAuditorCount is the minimum number of independent
+                      auditors that must
+
+                      have attested the provider, regardless of identity.
           resources:
             type: array
             items:
@@ -53029,6 +54626,7 @@ definitions:
               - lease_closed_reason_decommission
               - lease_closed_reason_unspecified
               - lease_closed_reason_manifest_timeout
+              - lease_closed_reason_provider
               - lease_closed_reason_insufficient_funds
             default: lease_closed_invalid
             description: >-
@@ -53039,13 +54637,14 @@ definitions:
               reason and should not
 
               be used
-               - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-               - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+               - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+               - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
               lease_closed_reason_unstable lease workloads have been unstable
                - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-               - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+               - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+               - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
             title: LeaseClosedReason indicates reason bid was closed
           reclamation:
             description: >-
@@ -53085,6 +54684,7 @@ definitions:
                   - lease_closed_reason_decommission
                   - lease_closed_reason_unspecified
                   - lease_closed_reason_manifest_timeout
+                  - lease_closed_reason_provider
                   - lease_closed_reason_insufficient_funds
                 default: lease_closed_invalid
                 description: >-
@@ -53095,14 +54695,15 @@ definitions:
                   reason and should not
 
                   be used
-                   - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-                   - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                   - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                   - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
                   lease_closed_reason_unstable lease workloads have been
                   unstable
                    - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                    - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                    - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-                   - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                   - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                   - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
                 title: LeaseClosedReason indicates reason bid was closed
       escrow_payment:
         description: EscrowPayment holds information about the Lease's fractional payment.
@@ -53339,6 +54940,7 @@ definitions:
                     - lease_closed_reason_decommission
                     - lease_closed_reason_unspecified
                     - lease_closed_reason_manifest_timeout
+                    - lease_closed_reason_provider
                     - lease_closed_reason_insufficient_funds
                   default: lease_closed_invalid
                   description: >-
@@ -53349,14 +54951,15 @@ definitions:
                     closure reason and should not
 
                     be used
-                     - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-                     - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                     - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                     - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
                     lease_closed_reason_unstable lease workloads have been
                     unstable
                      - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                      - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                      - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-                     - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                     - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                     - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
                   title: LeaseClosedReason indicates reason bid was closed
                 reclamation:
                   description: >-
@@ -53396,6 +54999,7 @@ definitions:
                         - lease_closed_reason_decommission
                         - lease_closed_reason_unspecified
                         - lease_closed_reason_manifest_timeout
+                        - lease_closed_reason_provider
                         - lease_closed_reason_insufficient_funds
                       default: lease_closed_invalid
                       description: >-
@@ -53406,14 +55010,15 @@ definitions:
                         closure reason and should not
 
                         be used
-                         - lease_closed_owner: values between 1..9999 indicate owner‑initiated close
-                         - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close
+                         - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                         - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
                         lease_closed_reason_unstable lease workloads have been
                         unstable
                          - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
                          - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
                          - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
-                         - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network‑initiated close
+                         - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                         - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
                       title: LeaseClosedReason indicates reason bid was closed
             escrow_payment:
               description: >-
@@ -53675,6 +55280,85 @@ definitions:
                     description: >-
                       Attribute holds the list of attributes tenant expects from
                       the provider.
+                  verification:
+                    description: >-
+                      Verification holds the verification requirements for this
+                      placement.
+                    type: object
+                    properties:
+                      min_tier:
+                        description: >-
+                          MinTier is the minimum verification tier required of
+                          bidding providers.
+
+                          A value of 0 (TierUnspecified) means no tier
+                          requirement.
+                        type: string
+                        enum:
+                          - verification_tier_unspecified
+                          - verification_tier_identified
+                          - verification_tier_verified
+                          - verification_tier_established
+                          - verification_tier_trusted
+                        default: verification_tier_unspecified
+                      required_capabilities:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - capability_unspecified
+                            - capability_tee_hardware_attestation
+                            - capability_confidential_computing
+                            - capability_persistent_storage
+                            - capability_bare_metal
+                          default: capability_unspecified
+                          description: >-
+                            CapabilityFlag enumerates the optional provider
+                            capabilities that may be asserted
+
+                            by attestations and requested by deployments via the
+                            SDL.
+
+                             - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                             - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                             - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                             - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                             - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                        description: >-
+                          RequiredCapabilities is the set of capability flags
+                          providers must assert.
+                      required_auditors:
+                        type: array
+                        items:
+                          type: string
+                        description: >-
+                          RequiredAuditors is an optional list of specific
+                          auditor bech32 addresses
+
+                          whose attestations must be present on the provider,
+                          interpreted per
+
+                          `auditor_mode`.
+                      auditor_mode:
+                        description: >-
+                          AuditorMode controls how `required_auditors` is
+                          evaluated.
+
+                          AuditorSelectionModeUnspecified is treated as Any.
+                        type: string
+                        enum:
+                          - auditor_selection_mode_unspecified
+                          - auditor_selection_mode_any
+                          - auditor_selection_mode_all
+                        default: auditor_selection_mode_unspecified
+                      min_auditor_count:
+                        type: integer
+                        format: int64
+                        description: >-
+                          MinAuditorCount is the minimum number of independent
+                          auditors that must
+
+                          have attested the provider, regardless of identity.
               resources:
                 type: array
                 items:
@@ -54078,6 +55762,85 @@ definitions:
                       description: >-
                         Attribute holds the list of attributes tenant expects
                         from the provider.
+                    verification:
+                      description: >-
+                        Verification holds the verification requirements for
+                        this placement.
+                      type: object
+                      properties:
+                        min_tier:
+                          description: >-
+                            MinTier is the minimum verification tier required of
+                            bidding providers.
+
+                            A value of 0 (TierUnspecified) means no tier
+                            requirement.
+                          type: string
+                          enum:
+                            - verification_tier_unspecified
+                            - verification_tier_identified
+                            - verification_tier_verified
+                            - verification_tier_established
+                            - verification_tier_trusted
+                          default: verification_tier_unspecified
+                        required_capabilities:
+                          type: array
+                          items:
+                            type: string
+                            enum:
+                              - capability_unspecified
+                              - capability_tee_hardware_attestation
+                              - capability_confidential_computing
+                              - capability_persistent_storage
+                              - capability_bare_metal
+                            default: capability_unspecified
+                            description: >-
+                              CapabilityFlag enumerates the optional provider
+                              capabilities that may be asserted
+
+                              by attestations and requested by deployments via
+                              the SDL.
+
+                               - capability_unspecified: CapabilityUnspecified is the default; no capability has been asserted.
+                               - capability_tee_hardware_attestation: CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support.
+                               - capability_confidential_computing: CapabilityConfidentialComputing indicates the provider asserts confidential computing support.
+                               - capability_persistent_storage: CapabilityPersistentStorage indicates the provider asserts persistent storage support.
+                               - capability_bare_metal: CapabilityBareMetal indicates the provider asserts bare-metal hosting support.
+                          description: >-
+                            RequiredCapabilities is the set of capability flags
+                            providers must assert.
+                        required_auditors:
+                          type: array
+                          items:
+                            type: string
+                          description: >-
+                            RequiredAuditors is an optional list of specific
+                            auditor bech32 addresses
+
+                            whose attestations must be present on the provider,
+                            interpreted per
+
+                            `auditor_mode`.
+                        auditor_mode:
+                          description: >-
+                            AuditorMode controls how `required_auditors` is
+                            evaluated.
+
+                            AuditorSelectionModeUnspecified is treated as Any.
+                          type: string
+                          enum:
+                            - auditor_selection_mode_unspecified
+                            - auditor_selection_mode_any
+                            - auditor_selection_mode_all
+                          default: auditor_selection_mode_unspecified
+                        min_auditor_count:
+                          type: integer
+                          format: int64
+                          description: >-
+                            MinAuditorCount is the minimum number of independent
+                            auditors that must
+
+                            have attested the provider, regardless of identity.
                 resources:
                   type: array
                   items:
@@ -54933,6 +56696,408 @@ definitions:
 
       Users can then choose a provider based on factors such as cost,
       performance, and location.
+  akash.provider.v1beta4.ProviderMaintenanceParams:
+    type: object
+    properties:
+      maintenance_max_duration:
+        type: string
+        description: |-
+          maintenance_max_duration is the maximum allowed value of
+          (expected_ends_at - starts_at) when opening a maintenance window.
+      maintenance_max_lookahead:
+        type: string
+        description: |-
+          maintenance_max_lookahead is the maximum allowed value of
+          (starts_at - block_time) when opening a maintenance window. A value of
+          zero means windows may only start at or before the current block time.
+    description: ProviderMaintenanceParams defines maintenance window parameters.
+  akash.provider.v1beta4.ProviderMaintenanceRecord:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uint64
+        description: id is the maintenance identifier.
+      provider:
+        type: string
+        description: |-
+          provider is the bech32 address of the provider owning the maintenance
+          window.
+
+          Example:
+            "akash1..."
+      maintenance_type:
+        description: maintenance_type is the declared category of the window.
+        type: string
+        enum:
+          - provider_maintenance_type_unspecified
+          - provider_maintenance_type_planned
+          - provider_maintenance_type_emergency
+          - provider_maintenance_type_security
+          - provider_maintenance_type_network
+          - provider_maintenance_type_capacity
+        default: provider_maintenance_type_unspecified
+      starts_at:
+        type: string
+        format: date-time
+        description: >-
+          starts_at is the wall-clock time at which the maintenance window
+          begins.
+      expected_ends_at:
+        type: string
+        format: date-time
+        description: >-
+          expected_ends_at is the wall-clock time at which the provider expects
+          the
+
+          window to end.
+      opened_at:
+        type: string
+        format: date-time
+        description: opened_at is the block time at which the window was opened.
+      closed_at:
+        type: string
+        format: date-time
+        description: closed_at is the block time at which the window was closed.
+      metadata_hash:
+        type: string
+        format: byte
+        description: metadata_hash is an optional, opaque hash of off-chain metadata.
+    description: ProviderMaintenanceRecord is an on-chain provider maintenance record.
+  akash.provider.v1beta4.ProviderMaintenanceStatus:
+    type: string
+    enum:
+      - provider_maintenance_status_unspecified
+      - provider_maintenance_status_scheduled
+      - provider_maintenance_status_active
+      - provider_maintenance_status_elapsed
+      - provider_maintenance_status_closed
+    default: provider_maintenance_status_unspecified
+    description: >-
+      ProviderMaintenanceStatus enumerates provider maintenance lifecycle
+      states.
+
+       - provider_maintenance_status_unspecified: provider_maintenance_status_unspecified is the zero value.
+       - provider_maintenance_status_scheduled: provider_maintenance_status_scheduled means the window has not started.
+       - provider_maintenance_status_active: provider_maintenance_status_active means the window is active.
+       - provider_maintenance_status_elapsed: provider_maintenance_status_elapsed means the window reached expected_ends_at.
+       - provider_maintenance_status_closed: provider_maintenance_status_closed means the window was closed explicitly.
+  akash.provider.v1beta4.ProviderMaintenanceType:
+    type: string
+    enum:
+      - provider_maintenance_type_unspecified
+      - provider_maintenance_type_planned
+      - provider_maintenance_type_emergency
+      - provider_maintenance_type_security
+      - provider_maintenance_type_network
+      - provider_maintenance_type_capacity
+    default: provider_maintenance_type_unspecified
+    description: |-
+      ProviderMaintenanceType enumerates provider maintenance window types.
+
+       - provider_maintenance_type_unspecified: provider_maintenance_type_unspecified is the zero value.
+       - provider_maintenance_type_planned: provider_maintenance_type_planned represents a scheduled, non-urgent
+      maintenance window communicated to tenants ahead of time.
+       - provider_maintenance_type_emergency: provider_maintenance_type_emergency represents an urgent, unplanned
+      maintenance window driven by operational incidents.
+       - provider_maintenance_type_security: provider_maintenance_type_security represents a window opened to apply a
+      security patch or to remediate a security event.
+       - provider_maintenance_type_network: provider_maintenance_type_network represents a window driven by network
+      connectivity work (e.g., upstream provider, peering, or DNS changes).
+       - provider_maintenance_type_capacity: provider_maintenance_type_capacity represents a window opened to perform
+      capacity changes such as adding, draining, or removing hardware.
+  akash.provider.v1beta4.ProviderMaintenanceWithStatus:
+    type: object
+    properties:
+      record:
+        description: record is the stored maintenance window.
+        type: object
+        properties:
+          id:
+            type: string
+            format: uint64
+            description: id is the maintenance identifier.
+          provider:
+            type: string
+            description: >-
+              provider is the bech32 address of the provider owning the
+              maintenance
+
+              window.
+
+
+              Example:
+                "akash1..."
+          maintenance_type:
+            description: maintenance_type is the declared category of the window.
+            type: string
+            enum:
+              - provider_maintenance_type_unspecified
+              - provider_maintenance_type_planned
+              - provider_maintenance_type_emergency
+              - provider_maintenance_type_security
+              - provider_maintenance_type_network
+              - provider_maintenance_type_capacity
+            default: provider_maintenance_type_unspecified
+          starts_at:
+            type: string
+            format: date-time
+            description: >-
+              starts_at is the wall-clock time at which the maintenance window
+              begins.
+          expected_ends_at:
+            type: string
+            format: date-time
+            description: >-
+              expected_ends_at is the wall-clock time at which the provider
+              expects the
+
+              window to end.
+          opened_at:
+            type: string
+            format: date-time
+            description: opened_at is the block time at which the window was opened.
+          closed_at:
+            type: string
+            format: date-time
+            description: closed_at is the block time at which the window was closed.
+          metadata_hash:
+            type: string
+            format: byte
+            description: metadata_hash is an optional, opaque hash of off-chain metadata.
+      status:
+        description: status is the derived lifecycle state of the record at query time.
+        type: string
+        enum:
+          - provider_maintenance_status_unspecified
+          - provider_maintenance_status_scheduled
+          - provider_maintenance_status_active
+          - provider_maintenance_status_elapsed
+          - provider_maintenance_status_closed
+        default: provider_maintenance_status_unspecified
+    description: ProviderMaintenanceWithStatus pairs a maintenance record with its status.
+  akash.provider.v1beta4.ProviderRegistration:
+    type: object
+    properties:
+      owner:
+        type: string
+        description: |-
+          owner is the bech32 address of the provider account.
+
+          Example:
+            "akash1..."
+      registered_at:
+        type: string
+        format: date-time
+        description: registered_at is the block time at which the provider was registered.
+    description: ProviderRegistration captures when a provider was registered.
+  akash.provider.v1beta4.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the x/provider module.
+        type: object
+        properties:
+          maintenance_max_duration:
+            type: string
+            description: |-
+              maintenance_max_duration is the maximum allowed value of
+              (expected_ends_at - starts_at) when opening a maintenance window.
+          maintenance_max_lookahead:
+            type: string
+            description: >-
+              maintenance_max_lookahead is the maximum allowed value of
+
+              (starts_at - block_time) when opening a maintenance window. A
+              value of
+
+              zero means windows may only start at or before the current block
+              time.
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  akash.provider.v1beta4.QueryProviderMaintenanceResponse:
+    type: object
+    properties:
+      maintenance:
+        type: object
+        properties:
+          record:
+            description: record is the stored maintenance window.
+            type: object
+            properties:
+              id:
+                type: string
+                format: uint64
+                description: id is the maintenance identifier.
+              provider:
+                type: string
+                description: >-
+                  provider is the bech32 address of the provider owning the
+                  maintenance
+
+                  window.
+
+
+                  Example:
+                    "akash1..."
+              maintenance_type:
+                description: maintenance_type is the declared category of the window.
+                type: string
+                enum:
+                  - provider_maintenance_type_unspecified
+                  - provider_maintenance_type_planned
+                  - provider_maintenance_type_emergency
+                  - provider_maintenance_type_security
+                  - provider_maintenance_type_network
+                  - provider_maintenance_type_capacity
+                default: provider_maintenance_type_unspecified
+              starts_at:
+                type: string
+                format: date-time
+                description: >-
+                  starts_at is the wall-clock time at which the maintenance
+                  window begins.
+              expected_ends_at:
+                type: string
+                format: date-time
+                description: >-
+                  expected_ends_at is the wall-clock time at which the provider
+                  expects the
+
+                  window to end.
+              opened_at:
+                type: string
+                format: date-time
+                description: opened_at is the block time at which the window was opened.
+              closed_at:
+                type: string
+                format: date-time
+                description: closed_at is the block time at which the window was closed.
+              metadata_hash:
+                type: string
+                format: byte
+                description: >-
+                  metadata_hash is an optional, opaque hash of off-chain
+                  metadata.
+          status:
+            description: status is the derived lifecycle state of the record at query time.
+            type: string
+            enum:
+              - provider_maintenance_status_unspecified
+              - provider_maintenance_status_scheduled
+              - provider_maintenance_status_active
+              - provider_maintenance_status_elapsed
+              - provider_maintenance_status_closed
+            default: provider_maintenance_status_unspecified
+        description: >-
+          ProviderMaintenanceWithStatus pairs a maintenance record with its
+          status.
+    description: |-
+      QueryProviderMaintenanceResponse is the response type for the
+      Query/ProviderMaintenance RPC method.
+  akash.provider.v1beta4.QueryProviderMaintenancesResponse:
+    type: object
+    properties:
+      maintenance:
+        type: array
+        items:
+          type: object
+          properties:
+            record:
+              description: record is the stored maintenance window.
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uint64
+                  description: id is the maintenance identifier.
+                provider:
+                  type: string
+                  description: >-
+                    provider is the bech32 address of the provider owning the
+                    maintenance
+
+                    window.
+
+
+                    Example:
+                      "akash1..."
+                maintenance_type:
+                  description: maintenance_type is the declared category of the window.
+                  type: string
+                  enum:
+                    - provider_maintenance_type_unspecified
+                    - provider_maintenance_type_planned
+                    - provider_maintenance_type_emergency
+                    - provider_maintenance_type_security
+                    - provider_maintenance_type_network
+                    - provider_maintenance_type_capacity
+                  default: provider_maintenance_type_unspecified
+                starts_at:
+                  type: string
+                  format: date-time
+                  description: >-
+                    starts_at is the wall-clock time at which the maintenance
+                    window begins.
+                expected_ends_at:
+                  type: string
+                  format: date-time
+                  description: >-
+                    expected_ends_at is the wall-clock time at which the
+                    provider expects the
+
+                    window to end.
+                opened_at:
+                  type: string
+                  format: date-time
+                  description: opened_at is the block time at which the window was opened.
+                closed_at:
+                  type: string
+                  format: date-time
+                  description: closed_at is the block time at which the window was closed.
+                metadata_hash:
+                  type: string
+                  format: byte
+                  description: >-
+                    metadata_hash is an optional, opaque hash of off-chain
+                    metadata.
+            status:
+              description: >-
+                status is the derived lifecycle state of the record at query
+                time.
+              type: string
+              enum:
+                - provider_maintenance_status_unspecified
+                - provider_maintenance_status_scheduled
+                - provider_maintenance_status_active
+                - provider_maintenance_status_elapsed
+                - provider_maintenance_status_closed
+              default: provider_maintenance_status_unspecified
+          description: >-
+            ProviderMaintenanceWithStatus pairs a maintenance record with its
+            status.
+        description: maintenance is the list of records matching the request.
+      pagination:
+        description: pagination contains the information about response pagination.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+    description: |-
+      QueryProviderMaintenancesResponse is the response type for the
+      Query/ProviderMaintenances RPC method.
   akash.provider.v1beta4.QueryProviderResponse:
     type: object
     properties:
@@ -55083,6 +57248,29 @@ definitions:
 
               was set, its value is undefined otherwise
     title: QueryProvidersResponse is response type for the Query/Providers RPC method
+  akash.provider.v1beta4.QueryRegistrationResponse:
+    type: object
+    properties:
+      registration:
+        description: registration is the provider registration record.
+        type: object
+        properties:
+          owner:
+            type: string
+            description: |-
+              owner is the bech32 address of the provider account.
+
+              Example:
+                "akash1..."
+          registered_at:
+            type: string
+            format: date-time
+            description: >-
+              registered_at is the block time at which the provider was
+              registered.
+    description: |-
+      QueryRegistrationResponse is the response type for the Query/Registration
+      RPC method.
   akash.take.v1.DenomTakeRate:
     type: object
     properties:

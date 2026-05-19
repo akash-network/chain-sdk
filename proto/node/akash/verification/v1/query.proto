@@ -17,11 +17,6 @@ import "akash/verification/v1/params.proto";
 option go_package = "pkg.akt.dev/go/node/verification/v1";
 
 // Query defines the gRPC querier service for the verification package.
-// It exposes paginated read access to auditor records, attestations,
-// audit-escrow lifecycle records, discrepancy events, provider verification
-// grace records, provider bonds, provider snapshot records, and module params.
-//
-// REST gateway routes are mounted under `/akash/verification/v1/...`.
 service Query {
   // Auditor returns the on-chain record for a single auditor identified by
   // its bech32 address.
@@ -102,9 +97,7 @@ service Query {
     option (google.api.http).get = "/akash/verification/v1/providers/{provider}/grace";
   }
 
-  // ProviderBond returns the provider's bond record together with the bond
-  // amount required for the provider's currently attested verification tier
-  // (derived from module params and the provider's tier at query time).
+  // ProviderBond returns the provider's bond record.
   // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
   // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   rpc ProviderBond(QueryProviderBondRequest) returns (QueryProviderBondResponse) {
@@ -327,17 +320,12 @@ message QueryProviderBondRequest {
 
 // QueryProviderBondResponse is the response type for the Query/ProviderBond RPC method.
 //
-// In addition to the raw ProviderBondRecord, the response carries the bond
-// amount required for the provider's currently attested verification tier,
-// derived from module Params at query time. This allows clients to compute a
-// bond-deficit without re-implementing the tier-to-bond table.
 message QueryProviderBondResponse {
   // Bond is the on-chain ProviderBondRecord for the requested provider.
   ProviderBondRecord bond = 1 [(gogoproto.nullable) = false];
 
-  // RequiredForCurrentTier is the bond amount the provider must hold to
-  // remain at its currently attested tier. Computed from module Params and
-  // the provider's current tier at query time.
+  // RequiredForCurrentTier is the required bond amount for the provider's
+  // current tier.
   cosmos.base.v1beta1.Coin required_for_current_tier = 2 [(gogoproto.nullable) = false];
 }
 

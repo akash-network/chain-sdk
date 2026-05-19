@@ -52,15 +52,7 @@ export function createSDK(transport: Transport) {
             return getClient(service).streamCluster(input, options);
           }, { path: [1, "streamCluster"], serviceLoader }),
           /**
-           * getInventorySnapshot returns a freshly generated, provider-signed
-           * inventory snapshot. The caller (typically an auditor) supplies an
-           * optional 32-byte random nonce that the provider MUST include inside
-           * the signed snapshot_payload to bind the response to this specific
-           * challenge and prevent replay. The snapshot_payload format is
-           * implementation-defined and opaque at the RPC layer; the richer typed
-           * fields (chain id, timestamp, schema version, software_version,
-           * software_signature, total resources, etc.) live INSIDE the payload
-           * and on chain in the ResourceSummary type. See IMPL.md §5.3.
+           * getInventorySnapshot returns a provider-signed inventory snapshot.
            */
           getInventorySnapshot: withMetadata(async function getInventorySnapshot(input: DeepPartial<akash_inventory_v1_snapshot.GetInventorySnapshotRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(2);
