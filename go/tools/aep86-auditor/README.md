@@ -40,3 +40,19 @@ Validate the local artifact directory before submitting evidence elsewhere:
 ```sh
 go run ./go/tools/aep86-auditor verify ./aep86-audit
 ```
+
+Prepare a submission command from a verified artifact directory:
+
+```sh
+go run ./go/tools/aep86-auditor submit \
+  --fee 100uakt \
+  --deposit 200uakt \
+  ./aep86-audit
+```
+
+`submit` is currently a dry-run UX. It validates canonical `evidence.draft.json`, verifies
+`evidence.draft.sha256`, checks optional provider/auditor/audit-escrow/tier/capability/chain flags
+against the evidence, validates fee and deposit coin syntax, and prints the exact
+`akash tx verification submit-attestation` command. Real broadcast should wait until this tool can
+reuse the existing Akash CLI chain client, keyring, and transaction helpers instead of carrying a
+parallel signing and broadcast stack.
