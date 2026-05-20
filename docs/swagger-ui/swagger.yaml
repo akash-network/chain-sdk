@@ -6833,6 +6833,133 @@ paths:
                       format: byte
       tags:
         - Query
+  /akash/market/v1beta5/providers/{provider}/lease-stats:
+    get:
+      summary: >-
+        ProviderLeaseStats queries aggregate lease-completion stats for a
+        provider.
+      operationId: ProviderLeaseStats
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              stats:
+                description: >-
+                  Stats holds the aggregate lease-completion stats for the
+                  provider.
+                type: object
+                properties:
+                  total_leases:
+                    type: string
+                    format: uint64
+                    description: >-
+                      TotalLeases is the total number of leases included in the
+                      aggregate.
+                  completed_leases:
+                    type: string
+                    format: uint64
+                    description: >-
+                      CompletedLeases is the number of leases not closed for
+                      provider-fault
+
+                      reasons.
+                  provider_faulted_leases:
+                    type: string
+                    format: uint64
+                    description: >-
+                      ProviderFaultedLeases is the number of provider-fault
+                      lease closures.
+                  provider_faults:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        reason:
+                          type: string
+                          enum:
+                            - lease_closed_invalid
+                            - lease_closed_owner
+                            - lease_closed_reason_unstable
+                            - lease_closed_reason_decommission
+                            - lease_closed_reason_unspecified
+                            - lease_closed_reason_manifest_timeout
+                            - lease_closed_reason_provider
+                            - lease_closed_reason_insufficient_funds
+                          default: lease_closed_invalid
+                          description: >-
+                            - lease_closed_invalid: LeaseClosedReasonInvalid
+                            represents the default zero value for
+                            LeaseClosedReason.
+
+                            This value indicates an uninitialized or invalid
+                            lease closure reason and should not
+
+                            be used
+                             - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                             - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
+                            lease_closed_reason_unstable lease workloads have
+                            been unstable
+                             - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                             - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                             - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+                             - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                             - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
+                          title: LeaseClosedReason indicates reason bid was closed
+                        count:
+                          type: string
+                          format: uint64
+                          description: >-
+                            Count is the number of leases closed for this
+                            reason.
+                      description: >-
+                        ProviderLeaseStatsByReason stores a provider-fault lease
+                        count for one close
+
+                        reason.
+                    description: >-
+                      ProviderFaults is the provider-fault lease count split by
+                      close reason.
+            description: |-
+              QueryProviderLeaseStatsResponse is the response type for the
+              Query/ProviderLeaseStats RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: provider
+          description: >-
+            Provider is the account bech32 address of the provider being
+            queried.
+
+
+            Example:
+              "akash1..."
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
   /akash/provider/v1beta4/params:
     get:
       summary: Params returns the x/provider ProviderMaintenanceParams.
@@ -51846,6 +51973,111 @@ definitions:
           Oseq is incremented when a lease associated with an existing
           deployment is closed, and a new order is generated.
     description: OrderId stores owner and all other seq numbers.
+  akash.market.v1.ProviderLeaseStats:
+    type: object
+    properties:
+      total_leases:
+        type: string
+        format: uint64
+        description: TotalLeases is the total number of leases included in the aggregate.
+      completed_leases:
+        type: string
+        format: uint64
+        description: |-
+          CompletedLeases is the number of leases not closed for provider-fault
+          reasons.
+      provider_faulted_leases:
+        type: string
+        format: uint64
+        description: ProviderFaultedLeases is the number of provider-fault lease closures.
+      provider_faults:
+        type: array
+        items:
+          type: object
+          properties:
+            reason:
+              type: string
+              enum:
+                - lease_closed_invalid
+                - lease_closed_owner
+                - lease_closed_reason_unstable
+                - lease_closed_reason_decommission
+                - lease_closed_reason_unspecified
+                - lease_closed_reason_manifest_timeout
+                - lease_closed_reason_provider
+                - lease_closed_reason_insufficient_funds
+              default: lease_closed_invalid
+              description: >-
+                - lease_closed_invalid: LeaseClosedReasonInvalid represents the
+                default zero value for LeaseClosedReason.
+
+                This value indicates an uninitialized or invalid lease closure
+                reason and should not
+
+                be used
+                 - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                 - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
+                lease_closed_reason_unstable lease workloads have been unstable
+                 - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                 - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                 - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+                 - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                 - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
+              title: LeaseClosedReason indicates reason bid was closed
+            count:
+              type: string
+              format: uint64
+              description: Count is the number of leases closed for this reason.
+          description: >-
+            ProviderLeaseStatsByReason stores a provider-fault lease count for
+            one close
+
+            reason.
+        description: >-
+          ProviderFaults is the provider-fault lease count split by close
+          reason.
+    description: ProviderLeaseStats stores aggregate lease-completion stats for a provider.
+  akash.market.v1.ProviderLeaseStatsByReason:
+    type: object
+    properties:
+      reason:
+        type: string
+        enum:
+          - lease_closed_invalid
+          - lease_closed_owner
+          - lease_closed_reason_unstable
+          - lease_closed_reason_decommission
+          - lease_closed_reason_unspecified
+          - lease_closed_reason_manifest_timeout
+          - lease_closed_reason_provider
+          - lease_closed_reason_insufficient_funds
+        default: lease_closed_invalid
+        description: >-
+          - lease_closed_invalid: LeaseClosedReasonInvalid represents the
+          default zero value for LeaseClosedReason.
+
+          This value indicates an uninitialized or invalid lease closure reason
+          and should not
+
+          be used
+           - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+           - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
+          lease_closed_reason_unstable lease workloads have been unstable
+           - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+           - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+           - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+           - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+           - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
+        title: LeaseClosedReason indicates reason bid was closed
+      count:
+        type: string
+        format: uint64
+        description: Count is the number of leases closed for this reason.
+    description: >-
+      ProviderLeaseStatsByReason stores a provider-fault lease count for one
+      close
+
+      reason.
   akash.market.v1.Reclamation:
     type: object
     properties:
@@ -56206,6 +56438,83 @@ definitions:
               max_reclamation_window is the maximum reclamation window duration
               allowed.
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  akash.market.v1beta5.QueryProviderLeaseStatsResponse:
+    type: object
+    properties:
+      stats:
+        description: Stats holds the aggregate lease-completion stats for the provider.
+        type: object
+        properties:
+          total_leases:
+            type: string
+            format: uint64
+            description: >-
+              TotalLeases is the total number of leases included in the
+              aggregate.
+          completed_leases:
+            type: string
+            format: uint64
+            description: >-
+              CompletedLeases is the number of leases not closed for
+              provider-fault
+
+              reasons.
+          provider_faulted_leases:
+            type: string
+            format: uint64
+            description: >-
+              ProviderFaultedLeases is the number of provider-fault lease
+              closures.
+          provider_faults:
+            type: array
+            items:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  enum:
+                    - lease_closed_invalid
+                    - lease_closed_owner
+                    - lease_closed_reason_unstable
+                    - lease_closed_reason_decommission
+                    - lease_closed_reason_unspecified
+                    - lease_closed_reason_manifest_timeout
+                    - lease_closed_reason_provider
+                    - lease_closed_reason_insufficient_funds
+                  default: lease_closed_invalid
+                  description: >-
+                    - lease_closed_invalid: LeaseClosedReasonInvalid represents
+                    the default zero value for LeaseClosedReason.
+
+                    This value indicates an uninitialized or invalid lease
+                    closure reason and should not
+
+                    be used
+                     - lease_closed_owner: values between 1..9999 indicate owner-initiated close.
+                     - lease_closed_reason_unstable: values between 10000..19999 are indicating provider initiated close.
+                    lease_closed_reason_unstable lease workloads have been
+                    unstable
+                     - lease_closed_reason_decommission: lease_closed_reason_decommission provider is being decommissioned
+                     - lease_closed_reason_unspecified: lease_closed_reason_unspecified provider did not specify reason
+                     - lease_closed_reason_manifest_timeout: lease_closed_reason_manifest_timeout provider closed leases due to manifest not received
+                     - lease_closed_reason_provider: lease_closed_reason_provider provider closed the lease
+                     - lease_closed_reason_insufficient_funds: values between 20000..29999 indicate network-initiated close.
+                  title: LeaseClosedReason indicates reason bid was closed
+                count:
+                  type: string
+                  format: uint64
+                  description: Count is the number of leases closed for this reason.
+              description: >-
+                ProviderLeaseStatsByReason stores a provider-fault lease count
+                for one close
+
+                reason.
+            description: >-
+              ProviderFaults is the provider-fault lease count split by close
+              reason.
+    description: |-
+      QueryProviderLeaseStatsResponse is the response type for the
+      Query/ProviderLeaseStats RPC method.
   akash.market.v1beta5.ResourceOffer:
     type: object
     properties:
