@@ -1,0 +1,52 @@
+syntax = "proto3";
+package akash.market.v1;
+
+import "gogoproto/gogo.proto";
+import "akash/market/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/market/v1";
+
+// ProviderLeaseStatsByReason stores a provider-fault lease count for one close
+// reason.
+message ProviderLeaseStatsByReason {
+  // Reason is the provider-initiated close reason being counted.
+  LeaseClosedReason reason = 1 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // Count is the number of leases closed for this reason.
+  uint64 count = 2 [
+    (gogoproto.jsontag)  = "count",
+    (gogoproto.moretags) = "yaml:\"count\""
+  ];
+}
+
+// ProviderLeaseStats stores aggregate lease-completion stats for a provider.
+message ProviderLeaseStats {
+  // TotalLeases is the total number of leases included in the aggregate.
+  uint64 total_leases = 1 [
+    (gogoproto.jsontag)  = "total_leases",
+    (gogoproto.moretags) = "yaml:\"total_leases\""
+  ];
+
+  // CompletedLeases is the number of leases not closed for provider-fault
+  // reasons.
+  uint64 completed_leases = 2 [
+    (gogoproto.jsontag)  = "completed_leases",
+    (gogoproto.moretags) = "yaml:\"completed_leases\""
+  ];
+
+  // ProviderFaultedLeases is the number of provider-fault lease closures.
+  uint64 provider_faulted_leases = 3 [
+    (gogoproto.jsontag)  = "provider_faulted_leases",
+    (gogoproto.moretags) = "yaml:\"provider_faulted_leases\""
+  ];
+
+  // ProviderFaults is the provider-fault lease count split by close reason.
+  repeated ProviderLeaseStatsByReason provider_faults = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "provider_faults",
+    (gogoproto.moretags) = "yaml:\"provider_faults\""
+  ];
+}
