@@ -156,6 +156,9 @@ func marshalEvidenceCanonical(evidence EvidenceDocument) ([]byte, string, error)
 	if err != nil {
 		return nil, "", err
 	}
+	if err := validateEvidenceBytes(raw); err != nil {
+		return nil, "", err
+	}
 
 	return raw, sha256Ref(sha256Bytes(raw)), nil
 }
