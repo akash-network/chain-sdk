@@ -59,6 +59,54 @@ func TestParseCapabilityFlag(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestParseAuditEscrowSettlementReason(t *testing.T) {
+	testCases := []struct {
+		input string
+		want  types.AuditEscrowSettlementReason
+	}{
+		{"provider-fault", types.AuditEscrowSettlementReasonProviderFault},
+		{"provider_fault", types.AuditEscrowSettlementReasonProviderFault},
+		{"audit_escrow_settlement_reason_provider_fault", types.AuditEscrowSettlementReasonProviderFault},
+		{"no-fault", types.AuditEscrowSettlementReasonNoFault},
+		{"audit_escrow_settlement_reason_no_fault", types.AuditEscrowSettlementReasonNoFault},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.input, func(t *testing.T) {
+			got, err := parseAuditEscrowSettlementReason(tc.input)
+			require.NoError(t, err)
+			require.Equal(t, tc.want, got)
+		})
+	}
+
+	_, err := parseAuditEscrowSettlementReason("cancelled")
+	require.Error(t, err)
+}
+
+func TestParseFaultAttribution(t *testing.T) {
+	testCases := []struct {
+		input string
+		want  types.FaultAttribution
+	}{
+		{"provider-fault", types.FaultAttributionProviderFault},
+		{"auditor_fault", types.FaultAttributionAuditorFault},
+		{"fault_attribution_shared_fault", types.FaultAttributionSharedFault},
+		{"no-fault", types.FaultAttributionNoFault},
+		{"inconclusive", types.FaultAttributionInconclusive},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.input, func(t *testing.T) {
+			got, err := parseFaultAttribution(tc.input)
+			require.NoError(t, err)
+			require.Equal(t, tc.want, got)
+		})
+	}
+
+	_, err := parseFaultAttribution("unknown")
+	require.Error(t, err)
+}
+
 func TestParseHexHash(t *testing.T) {
 	raw := []byte("12345678901234567890123456789012")
 	hexVal := hex.EncodeToString(raw)

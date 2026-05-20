@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,10 +27,12 @@ const (
 	flagEvidenceHash      = "evidence-hash"
 	flagExpiresAt         = "expires-at"
 	flagFee               = "fee"
+	flagFaultAttribution  = "fault-attribution"
 	flagMaxTier           = "max-tier"
 	flagMetadataHash      = "metadata-hash"
 	flagProvider          = "provider"
 	flagProviderDeposit   = "provider-deposit"
+	flagReason            = "reason"
 	flagRequestedTier     = "requested-tier"
 	flagResourceSummary   = "resource-summary"
 	flagSnapshotHash      = "snapshot-hash"
@@ -51,6 +54,8 @@ func GetTxVerificationCmd() *cobra.Command {
 		GetTxVerificationPostProviderBondCmd(),
 		GetTxVerificationPostSnapshotHashCmd(),
 		GetTxVerificationOpenAuditEscrowCmd(),
+		GetTxVerificationCancelAuditEscrowCmd(),
+		GetTxVerificationSettleAuditEscrowCmd(),
 		GetTxVerificationSubmitAttestationCmd(),
 	)
 
@@ -295,6 +300,100 @@ func GetTxVerificationOpenAuditEscrowCmd() *cobra.Command {
 	return cmd
 }
 
+func GetTxVerificationCancelAuditEscrowCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "cancel-audit-escrow [audit-escrow-id]",
+		Short:             "Cancel an open provider audit escrow",
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: TxPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+			cl := MustClientFromContext(ctx)
+			cctx := cl.ClientContext()
+
+			escrowID, err := parseUint64Arg(args[0], "audit escrow id")
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgCancelAuditEscrow{
+				Provider:      cctx.GetFromAddress().String(),
+				AuditEscrowID: escrowID,
+			}
+
+			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
+			if err != nil {
+				return err
+			}
+
+			return cl.PrintMessage(resp)
+		},
+	}
+
+	cflags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxVerificationSettleAuditEscrowCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "settle-audit-escrow [audit-escrow-id]",
+		Short:             "Settle an unconsumed audit escrow",
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: TxPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+			cl := MustClientFromContext(ctx)
+			cctx := cl.ClientContext()
+
+			escrowID, err := parseUint64Arg(args[0], "audit escrow id")
+			if err != nil {
+				return err
+			}
+			authority, err := readAuthority(cmd, cctx)
+			if err != nil {
+				return err
+			}
+			reason, err := readAuditEscrowSettlementReasonFlag(cmd)
+			if err != nil {
+				return err
+			}
+			fault, err := readFaultAttributionFlag(cmd)
+			if err != nil {
+				return err
+			}
+			evidenceHash, err := readRequiredHashFlag(cmd, flagEvidenceHash)
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgSettleAuditEscrow{
+				Authority:        authority,
+				AuditEscrowID:    escrowID,
+				Reason:           reason,
+				FaultAttribution: fault,
+				EvidenceHash:     evidenceHash,
+			}
+
+			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
+			if err != nil {
+				return err
+			}
+
+			return cl.PrintMessage(resp)
+		},
+	}
+
+	cflags.AddTxFlagsToCmd(cmd)
+	cmd.Flags().String(flagAuthority, "", "Governance authority address; defaults to --from")
+	cmd.Flags().String(flagReason, "", "Settlement reason: provider_fault or no_fault")
+	cmd.Flags().String(flagFaultAttribution, "", "Fault attribution: provider_fault or no_fault")
+	cmd.Flags().String(flagEvidenceHash, "", "Evidence hash in hex or sha256:<hex> form")
+	mustMarkRequired(cmd, flagReason, flagFaultAttribution, flagEvidenceHash)
+
+	return cmd
+}
+
 func GetTxVerificationSubmitAttestationCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "submit-attestation",
@@ -407,6 +506,14 @@ func readUint64Flag(cmd *cobra.Command, name string) (uint64, error) {
 	return val, nil
 }
 
+func parseUint64Arg(val, name string) (uint64, error) {
+	res, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s %q: %w", name, val, err)
+	}
+	return res, nil
+}
+
 func readTierFlag(cmd *cobra.Command, name string) (types.VerificationTier, error) {
 	val, err := cmd.Flags().GetString(name)
 	if err != nil {
@@ -427,6 +534,50 @@ func parseVerificationTier(val string) (types.VerificationTier, error) {
 		return types.TierTrusted, nil
 	default:
 		return types.TierUnspecified, fmt.Errorf("invalid verification tier %q", val)
+	}
+}
+
+func readAuditEscrowSettlementReasonFlag(cmd *cobra.Command) (types.AuditEscrowSettlementReason, error) {
+	val, err := cmd.Flags().GetString(flagReason)
+	if err != nil {
+		return types.AuditEscrowSettlementReasonUnspecified, err
+	}
+	return parseAuditEscrowSettlementReason(val)
+}
+
+func parseAuditEscrowSettlementReason(val string) (types.AuditEscrowSettlementReason, error) {
+	switch normalizeEnumInput(val) {
+	case "provider_fault", "audit_escrow_settlement_reason_provider_fault":
+		return types.AuditEscrowSettlementReasonProviderFault, nil
+	case "no_fault", "audit_escrow_settlement_reason_no_fault":
+		return types.AuditEscrowSettlementReasonNoFault, nil
+	default:
+		return types.AuditEscrowSettlementReasonUnspecified, fmt.Errorf("invalid audit escrow settlement reason %q", val)
+	}
+}
+
+func readFaultAttributionFlag(cmd *cobra.Command) (types.FaultAttribution, error) {
+	val, err := cmd.Flags().GetString(flagFaultAttribution)
+	if err != nil {
+		return types.FaultAttributionUnspecified, err
+	}
+	return parseFaultAttribution(val)
+}
+
+func parseFaultAttribution(val string) (types.FaultAttribution, error) {
+	switch normalizeEnumInput(val) {
+	case "provider_fault", "fault_attribution_provider_fault":
+		return types.FaultAttributionProviderFault, nil
+	case "auditor_fault", "fault_attribution_auditor_fault":
+		return types.FaultAttributionAuditorFault, nil
+	case "shared_fault", "fault_attribution_shared_fault":
+		return types.FaultAttributionSharedFault, nil
+	case "no_fault", "fault_attribution_no_fault":
+		return types.FaultAttributionNoFault, nil
+	case "inconclusive", "fault_attribution_inconclusive":
+		return types.FaultAttributionInconclusive, nil
+	default:
+		return types.FaultAttributionUnspecified, fmt.Errorf("invalid fault attribution %q", val)
 	}
 }
 
