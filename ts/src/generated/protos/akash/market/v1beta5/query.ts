@@ -16,6 +16,7 @@ import { BidID } from "../v1/bid.ts";
 import { LeaseFilters } from "../v1/filters.ts";
 import { Lease, LeaseID } from "../v1/lease.ts";
 import { OrderID } from "../v1/order.ts";
+import { ProviderLeaseStats } from "../v1/stats.ts";
 import { Bid } from "./bid.ts";
 import { BidFilters, OrderFilters } from "./filters.ts";
 import { Order } from "./order.ts";
@@ -117,6 +118,29 @@ export interface QueryLeaseResponse {
     | undefined;
   /** EscrowPayment holds information about the Lease's fractional payment. */
   escrowPayment: Payment | undefined;
+}
+
+/**
+ * QueryProviderLeaseStatsRequest is the request type for the
+ * Query/ProviderLeaseStats RPC method.
+ */
+export interface QueryProviderLeaseStatsRequest {
+  /**
+   * Provider is the account bech32 address of the provider being queried.
+   *
+   * Example:
+   *   "akash1..."
+   */
+  provider: string;
+}
+
+/**
+ * QueryProviderLeaseStatsResponse is the response type for the
+ * Query/ProviderLeaseStats RPC method.
+ */
+export interface QueryProviderLeaseStatsResponse {
+  /** Stats holds the aggregate lease-completion stats for the provider. */
+  stats: ProviderLeaseStats | undefined;
 }
 
 /** QueryParamsRequest is the request type for the Query/Params RPC method. */
@@ -964,6 +988,126 @@ export const QueryLeaseResponse: MessageFns<QueryLeaseResponse, "akash.market.v1
     message.lease = (object.lease !== undefined && object.lease !== null) ? Lease.fromPartial(object.lease) : undefined;
     message.escrowPayment = (object.escrowPayment !== undefined && object.escrowPayment !== null)
       ? Payment.fromPartial(object.escrowPayment)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryProviderLeaseStatsRequest(): QueryProviderLeaseStatsRequest {
+  return { provider: "" };
+}
+
+export const QueryProviderLeaseStatsRequest: MessageFns<
+  QueryProviderLeaseStatsRequest,
+  "akash.market.v1beta5.QueryProviderLeaseStatsRequest"
+> = {
+  $type: "akash.market.v1beta5.QueryProviderLeaseStatsRequest" as const,
+
+  encode(message: QueryProviderLeaseStatsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.provider !== "") {
+      writer.uint32(10).string(message.provider);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryProviderLeaseStatsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryProviderLeaseStatsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.provider = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryProviderLeaseStatsRequest {
+    return { provider: isSet(object.provider) ? globalThis.String(object.provider) : "" };
+  },
+
+  toJSON(message: QueryProviderLeaseStatsRequest): unknown {
+    const obj: any = {};
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryProviderLeaseStatsRequest>): QueryProviderLeaseStatsRequest {
+    const message = createBaseQueryProviderLeaseStatsRequest();
+    message.provider = object.provider ?? "";
+    return message;
+  },
+};
+
+function createBaseQueryProviderLeaseStatsResponse(): QueryProviderLeaseStatsResponse {
+  return { stats: undefined };
+}
+
+export const QueryProviderLeaseStatsResponse: MessageFns<
+  QueryProviderLeaseStatsResponse,
+  "akash.market.v1beta5.QueryProviderLeaseStatsResponse"
+> = {
+  $type: "akash.market.v1beta5.QueryProviderLeaseStatsResponse" as const,
+
+  encode(message: QueryProviderLeaseStatsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.stats !== undefined) {
+      ProviderLeaseStats.encode(message.stats, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryProviderLeaseStatsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryProviderLeaseStatsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.stats = ProviderLeaseStats.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryProviderLeaseStatsResponse {
+    return { stats: isSet(object.stats) ? ProviderLeaseStats.fromJSON(object.stats) : undefined };
+  },
+
+  toJSON(message: QueryProviderLeaseStatsResponse): unknown {
+    const obj: any = {};
+    if (message.stats !== undefined) {
+      obj.stats = ProviderLeaseStats.toJSON(message.stats);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryProviderLeaseStatsResponse>): QueryProviderLeaseStatsResponse {
+    const message = createBaseQueryProviderLeaseStatsResponse();
+    message.stats = (object.stats !== undefined && object.stats !== null)
+      ? ProviderLeaseStats.fromPartial(object.stats)
       : undefined;
     return message;
   },
