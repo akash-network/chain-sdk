@@ -28,6 +28,8 @@ go run ./tools/aep86-auditor collect \
 The provider endpoint is the existing provider daemon gRPC endpoint with the public AEP-86 inventory service registered.
 The chain endpoint is an Akash node gRPC endpoint used to query the provider account public key and best-effort
 verification facts.
+`--software-binary-hash` is required and must use `sha256:<64-hex>` form so the draft evidence satisfies the
+strict evidence schema.
 
 For local devnets with self-signed provider certificates, add `--provider-skip-tls-verify`. For plaintext test servers,
 add `--provider-insecure`.

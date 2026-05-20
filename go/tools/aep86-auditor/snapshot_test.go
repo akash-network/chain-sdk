@@ -107,6 +107,38 @@ func TestMarshalEvidenceCanonicalIsStable(t *testing.T) {
 	require.NotContains(t, string(first), "\n")
 }
 
+func TestMarshalEvidenceCanonicalEmptyAttestedCapabilitiesIsArray(t *testing.T) {
+	evidence := EvidenceDocument{}
+
+	raw, _, err := marshalEvidenceCanonical(evidence)
+	require.NoError(t, err)
+	require.Contains(t, string(raw), `"attested_capabilities":[]`)
+	require.NotContains(t, string(raw), `"attested_capabilities":null`)
+}
+
+func TestValidateEvidenceInputsRequiresSoftwareBinaryHash(t *testing.T) {
+	cfg := validCollectConfig()
+	cfg.softwareBinaryHash = ""
+
+	err := validateEvidenceInputs(cfg)
+	require.ErrorContains(t, err, "software-binary-hash is required")
+}
+
+func TestValidateEvidenceInputsRejectsInvalidSoftwareBinaryHash(t *testing.T) {
+	cfg := validCollectConfig()
+	cfg.softwareBinaryHash = "sha256:not-hex"
+
+	err := validateEvidenceInputs(cfg)
+	require.ErrorContains(t, err, "software-binary-hash must use sha256:<64 hex> form")
+}
+
+func TestValidateEvidenceInputsAcceptsSoftwareBinaryHash(t *testing.T) {
+	cfg := validCollectConfig()
+
+	err := validateEvidenceInputs(cfg)
+	require.NoError(t, err)
+}
+
 func mustSnapshotPayload(t *testing.T, provider string, nonce []byte) []byte {
 	t.Helper()
 
@@ -125,4 +157,16 @@ func mustSnapshotPayload(t *testing.T, provider string, nonce []byte) []byte {
 	require.NoError(t, err)
 
 	return raw
+}
+
+func validCollectConfig() collectConfig {
+	return collectConfig{
+		providerGRPC:       "provider.example.com:8443",
+		chainGRPC:          "rpc.example.com:9090",
+		auditor:            "akash1auditor",
+		auditEscrowID:      "7",
+		targetTier:         "L1",
+		attestedTier:       "L1",
+		softwareBinaryHash: "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+	}
 }

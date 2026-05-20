@@ -148,6 +148,10 @@ func evidenceChecks(snapshot *verifiedSnapshot, chainFacts *chainFactsResult) []
 }
 
 func marshalEvidenceCanonical(evidence EvidenceDocument) ([]byte, string, error) {
+	if evidence.AttestedCapabilities == nil {
+		evidence.AttestedCapabilities = []string{}
+	}
+
 	raw, err := json.Marshal(evidence)
 	if err != nil {
 		return nil, "", err
