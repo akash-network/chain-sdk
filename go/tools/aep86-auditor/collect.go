@@ -106,7 +106,7 @@ func newCollectCmd() *cobra.Command {
 	flags.StringVar(&cfg.targetTier, "target-tier", "L1", "Target verification tier for draft evidence")
 	flags.StringVar(&cfg.attestedTier, "attested-tier", "", "Attested verification tier for draft evidence; defaults to target tier")
 	flags.StringSliceVar(&cfg.attestedCapabilities, "capability", nil, "Attested capability for draft evidence; repeat or comma-separate")
-	flags.StringVar(&cfg.softwareBinaryHash, "software-binary-hash", "", "Observed provider software binary hash in sha256:<hex> form")
+	flags.StringVar(&cfg.softwareBinaryHash, "software-binary-hash", "", "Required observed provider software binary hash in sha256:<hex> form")
 	flags.StringVar(&cfg.outputDir, "output-dir", "", "Directory for raw artifacts and draft evidence")
 	flags.DurationVar(&cfg.timeout, "timeout", 30*time.Second, "Collection timeout")
 	flags.BoolVar(&cfg.allowMissingChainPubKey, "allow-missing-chain-pubkey", false, "Write artifacts even when provider account public key cannot be queried")
@@ -114,6 +114,7 @@ func newCollectCmd() *cobra.Command {
 	_ = cmd.MarkFlagRequired("provider-grpc")
 	_ = cmd.MarkFlagRequired("chain-grpc")
 	_ = cmd.MarkFlagRequired("auditor")
+	_ = cmd.MarkFlagRequired("software-binary-hash")
 
 	return cmd
 }
@@ -195,9 +196,6 @@ func runCollect(cmd *cobra.Command, cfg collectConfig) error {
 	collectedAt := time.Now().UTC()
 	checks := evidenceChecks(verified, chainFacts)
 	warnings := append([]string(nil), chainFacts.Warnings...)
-	if cfg.softwareBinaryHash == "" {
-		warnings = append(warnings, "software_binary_hash not supplied; draft evidence is shape-complete but not schema-valid for final submission")
-	}
 
 	evidence := buildEvidence(cfg, verified, chainFacts, collectedAt, checks)
 	evidenceBytes, evidenceHash, err := marshalEvidenceCanonical(evidence)
@@ -274,7 +272,10 @@ func validateEvidenceInputs(cfg collectConfig) error {
 	if !isTier(cfg.attestedTier) {
 		return fmt.Errorf("invalid attested-tier %q", cfg.attestedTier)
 	}
-	if cfg.softwareBinaryHash != "" && !isSHA256Ref(cfg.softwareBinaryHash) {
+	if cfg.softwareBinaryHash == "" {
+		return fmt.Errorf("software-binary-hash is required")
+	}
+	if !isSHA256Ref(cfg.softwareBinaryHash) {
 		return fmt.Errorf("software-binary-hash must use sha256:<64 hex> form")
 	}
 
