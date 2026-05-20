@@ -2,10 +2,13 @@ package main
 
 import (
 	_ "embed"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -36,7 +39,7 @@ func (v *evidenceSchemaValidator) validate(raw []byte) error {
 		return fmt.Errorf("failed to validate evidence schema: %w", err)
 	}
 	if result.Valid() {
-		return nil
+		return validateEvidenceSemantics(raw)
 	}
 
 	errs := make([]string, 0, len(result.Errors()))
@@ -80,6 +83,78 @@ func (v *evidenceSchemaValidator) compiledSchema() (*gojsonschema.Schema, error)
 	})
 
 	return v.schema, v.compileError
+}
+
+func validateEvidenceSemantics(raw []byte) error {
+	var evidence EvidenceDocument
+	if err := json.Unmarshal(raw, &evidence); err != nil {
+		return fmt.Errorf("decode evidence: %w", err)
+	}
+
+	errs := make([]string, 0)
+	if tierRank(evidence.AttestedTier) > tierRank(evidence.TargetTier) {
+		errs = append(errs, fmt.Sprintf("attested_tier %q exceeds target_tier %q", evidence.AttestedTier, evidence.TargetTier))
+	}
+	if err := validateCapabilitySet("attested_capabilities", evidence.AttestedCapabilities); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if err := validateUint64String("audit_escrow_id", evidence.AuditEscrowID); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if err := validateUint64String("block_height", evidence.BlockHeight); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if err := validateBase64Field("inventory_nonce", evidence.InventoryNonce); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if evidence.Software.Signature != "" {
+		if err := validateBase64Field("software.signature", evidence.Software.Signature); err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
+	if err := validateTimestampField("collected_at", evidence.CollectedAt); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if err := validateTimestampField("sustained_validation.last_checked_at", evidence.SustainedValidation.LastCheckedAt); err != nil {
+		errs = append(errs, err.Error())
+	}
+	for idx, check := range evidence.Checks {
+		if check.ObservedAt == "" {
+			continue
+		}
+		if err := validateTimestampField(fmt.Sprintf("checks[%d].observed_at", idx), check.ObservedAt); err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("evidence semantic validation failed: %s", strings.Join(errs, "; "))
+	}
+
+	return nil
+}
+
+func validateUint64String(field, value string) error {
+	if _, err := strconv.ParseUint(value, 10, 64); err != nil {
+		return fmt.Errorf("%s must be a uint64 string: %w", field, err)
+	}
+
+	return nil
+}
+
+func validateBase64Field(field, value string) error {
+	if _, err := base64.StdEncoding.DecodeString(value); err != nil {
+		return fmt.Errorf("%s must be base64: %w", field, err)
+	}
+
+	return nil
+}
+
+func validateTimestampField(field, value string) error {
+	if _, err := time.Parse(time.RFC3339, value); err != nil {
+		return fmt.Errorf("%s must be RFC3339 date-time: %w", field, err)
+	}
+
+	return nil
 }
 
 func adaptEvidenceSchemaForDraft7(node any) {
