@@ -272,6 +272,12 @@ func validateEvidenceInputs(cfg collectConfig) error {
 	if !isTier(cfg.attestedTier) {
 		return fmt.Errorf("invalid attested-tier %q", cfg.attestedTier)
 	}
+	if tierRank(cfg.attestedTier) > tierRank(cfg.targetTier) {
+		return fmt.Errorf("attested-tier %q exceeds target-tier %q", cfg.attestedTier, cfg.targetTier)
+	}
+	if err := validateCapabilitySet("capability", cfg.attestedCapabilities); err != nil {
+		return err
+	}
 	if cfg.softwareBinaryHash == "" {
 		return fmt.Errorf("software-binary-hash is required")
 	}
@@ -373,6 +379,21 @@ func isSHA256Ref(val string) bool {
 	return err == nil
 }
 
+func tierRank(val string) int {
+	switch val {
+	case "L1":
+		return 1
+	case "L2":
+		return 2
+	case "L3":
+		return 3
+	case "L4":
+		return 4
+	default:
+		return 0
+	}
+}
+
 func isTier(val string) bool {
 	switch val {
 	case "L1", "L2", "L3", "L4":
@@ -380,6 +401,30 @@ func isTier(val string) bool {
 	default:
 		return false
 	}
+}
+
+func isCapability(val string) bool {
+	switch val {
+	case "tee_hardware_attestation", "confidential_computing", "persistent_storage", "bare_metal":
+		return true
+	default:
+		return false
+	}
+}
+
+func validateCapabilitySet(field string, capabilities []string) error {
+	seen := make(map[string]struct{}, len(capabilities))
+	for _, capability := range capabilities {
+		if !isCapability(capability) {
+			return fmt.Errorf("invalid %s %q", field, capability)
+		}
+		if _, exists := seen[capability]; exists {
+			return fmt.Errorf("duplicate %s %q", field, capability)
+		}
+		seen[capability] = struct{}{}
+	}
+
+	return nil
 }
 
 func protoUnmarshalSnapshotPayload(raw []byte) (*inventoryv1.SnapshotPayload, error) {

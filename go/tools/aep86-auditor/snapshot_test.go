@@ -147,6 +147,43 @@ func TestMarshalEvidenceCanonicalRejectsDuplicateCapabilities(t *testing.T) {
 	require.ErrorContains(t, err, "attested_capabilities")
 }
 
+func TestMarshalEvidenceCanonicalRejectsAttestedTierAboveTargetTier(t *testing.T) {
+	evidence := validEvidenceDocument()
+	evidence.TargetTier = "L1"
+	evidence.AttestedTier = "L2"
+
+	_, _, err := marshalEvidenceCanonical(evidence)
+	require.ErrorContains(t, err, "evidence semantic validation failed")
+	require.ErrorContains(t, err, `attested_tier "L2" exceeds target_tier "L1"`)
+}
+
+func TestMarshalEvidenceCanonicalRejectsMalformedBase64(t *testing.T) {
+	evidence := validEvidenceDocument()
+	evidence.InventoryNonce = "not-base64"
+
+	_, _, err := marshalEvidenceCanonical(evidence)
+	require.ErrorContains(t, err, "evidence semantic validation failed")
+	require.ErrorContains(t, err, "inventory_nonce must be base64")
+}
+
+func TestMarshalEvidenceCanonicalRejectsMalformedTimestamp(t *testing.T) {
+	evidence := validEvidenceDocument()
+	evidence.CollectedAt = "not-a-date-time"
+
+	_, _, err := marshalEvidenceCanonical(evidence)
+	require.ErrorContains(t, err, "evidence schema validation failed")
+	require.ErrorContains(t, err, "collected_at")
+}
+
+func TestMarshalEvidenceCanonicalRejectsUint64Overflow(t *testing.T) {
+	evidence := validEvidenceDocument()
+	evidence.BlockHeight = "18446744073709551616"
+
+	_, _, err := marshalEvidenceCanonical(evidence)
+	require.ErrorContains(t, err, "evidence semantic validation failed")
+	require.ErrorContains(t, err, "block_height must be a uint64 string")
+}
+
 func TestValidateEvidenceInputsRequiresSoftwareBinaryHash(t *testing.T) {
 	cfg := validCollectConfig()
 	cfg.softwareBinaryHash = ""
@@ -161,6 +198,31 @@ func TestValidateEvidenceInputsRejectsInvalidSoftwareBinaryHash(t *testing.T) {
 
 	err := validateEvidenceInputs(cfg)
 	require.ErrorContains(t, err, "software-binary-hash must use sha256:<64 hex> form")
+}
+
+func TestValidateEvidenceInputsRejectsAttestedTierAboveTargetTier(t *testing.T) {
+	cfg := validCollectConfig()
+	cfg.targetTier = "L1"
+	cfg.attestedTier = "L2"
+
+	err := validateEvidenceInputs(cfg)
+	require.ErrorContains(t, err, `attested-tier "L2" exceeds target-tier "L1"`)
+}
+
+func TestValidateEvidenceInputsRejectsUnknownCapability(t *testing.T) {
+	cfg := validCollectConfig()
+	cfg.attestedCapabilities = []string{"gpu"}
+
+	err := validateEvidenceInputs(cfg)
+	require.ErrorContains(t, err, `invalid capability "gpu"`)
+}
+
+func TestValidateEvidenceInputsRejectsDuplicateCapability(t *testing.T) {
+	cfg := validCollectConfig()
+	cfg.attestedCapabilities = []string{"persistent_storage", "persistent_storage"}
+
+	err := validateEvidenceInputs(cfg)
+	require.ErrorContains(t, err, `duplicate capability "persistent_storage"`)
 }
 
 func TestValidateEvidenceInputsAcceptsSoftwareBinaryHash(t *testing.T) {
