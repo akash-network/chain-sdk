@@ -43,6 +43,7 @@ export { Reclamation } from "./akash/market/v1/reclamation.ts";
 export { LeaseID, Lease, Lease_State } from "./akash/market/v1/lease.ts";
 export { EventOrderCreated, EventOrderClosed, EventBidCreated, EventBidClosed, EventLeaseCreated, EventLeaseClosed, EventLeaseReclaimStarted } from "./akash/market/v1/event.ts";
 export { LeaseFilters } from "./akash/market/v1/filters.ts";
+export { ProviderLeaseStatsByReason, ProviderLeaseStats } from "./akash/market/v1/stats.ts";
 export { DataID, PriceDataID, PriceDataRecordID, PriceDataState, PriceData, AggregatedPrice, PriceHealth, PricesFilter, QueryPricesRequest, QueryPricesResponse } from "./akash/oracle/v1/prices.ts";
 export { EventPriceData, EventPriceStaleWarning, EventPriceStaled, EventPriceRecovered, EventAggregatedPrice } from "./akash/oracle/v1/events.ts";
 export { Params as Oracle_Params } from "./akash/oracle/v1/params.ts";

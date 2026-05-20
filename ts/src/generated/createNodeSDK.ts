@@ -415,6 +415,13 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).lease(input, options);
           }, { path: [13, "lease"], serviceLoader }),
           /**
+           * getProviderLeaseStats queries aggregate lease-completion stats for a provider.
+           */
+          getProviderLeaseStats: withMetadata(async function getProviderLeaseStats(input: DeepPartial<akash_market_v1beta5_query.QueryProviderLeaseStatsRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(13);
+            return getClient(service).providerLeaseStats(input, options);
+          }, { path: [13, "providerLeaseStats"], serviceLoader }),
+          /**
            * getParams returns the total set of market parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_market_v1beta5_query.QueryParamsRequest> = {}, options?: CallOptions) {

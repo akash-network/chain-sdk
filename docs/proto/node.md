@@ -381,6 +381,10 @@
  - [akash/market/v1/filters.proto](#akash/market/v1/filters.proto)
      - [LeaseFilters](#akash.market.v1.LeaseFilters)
    
+ - [akash/market/v1/stats.proto](#akash/market/v1/stats.proto)
+     - [ProviderLeaseStats](#akash.market.v1.ProviderLeaseStats)
+     - [ProviderLeaseStatsByReason](#akash.market.v1.ProviderLeaseStatsByReason)
+
  - [akash/market/v1beta5/resourcesoffer.proto](#akash/market/v1beta5/resourcesoffer.proto)
      - [EndpointOfferPrice](#akash.market.v1beta5.EndpointOfferPrice)
      - [OfferPrices](#akash.market.v1beta5.OfferPrices)
@@ -442,6 +446,8 @@
      - [QueryOrdersResponse](#akash.market.v1beta5.QueryOrdersResponse)
      - [QueryParamsRequest](#akash.market.v1beta5.QueryParamsRequest)
      - [QueryParamsResponse](#akash.market.v1beta5.QueryParamsResponse)
+     - [QueryProviderLeaseStatsRequest](#akash.market.v1beta5.QueryProviderLeaseStatsRequest)
+     - [QueryProviderLeaseStatsResponse](#akash.market.v1beta5.QueryProviderLeaseStatsResponse)
    
      - [Query](#akash.market.v1beta5.Query)
    
@@ -5427,6 +5433,57 @@ Example: "akash1..." |
 
  
  
+ <a name="akash/market/v1/stats.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/market/v1/stats.proto
+
+
+
+ <a name="akash.market.v1.ProviderLeaseStats"></a>
+
+ ### ProviderLeaseStats
+ ProviderLeaseStats stores aggregate lease-completion stats for a provider.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `total_leases` | [uint64](#uint64) |  | TotalLeases is the total number of leases included in the aggregate. |
+ | `completed_leases` | [uint64](#uint64) |  | CompletedLeases is the number of leases not closed for provider-fault reasons. |
+ | `provider_faulted_leases` | [uint64](#uint64) |  | ProviderFaultedLeases is the number of provider-fault lease closures. |
+ | `provider_faults` | [ProviderLeaseStatsByReason](#akash.market.v1.ProviderLeaseStatsByReason) | repeated | ProviderFaults is the provider-fault lease count split by close reason. |
+
+
+
+
+
+
+ <a name="akash.market.v1.ProviderLeaseStatsByReason"></a>
+
+ ### ProviderLeaseStatsByReason
+ ProviderLeaseStatsByReason stores a provider-fault lease count for one close
+reason.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  | Reason is the provider-initiated close reason being counted. |
+ | `count` | [uint64](#uint64) |  | Count is the number of leases closed for this reason. |
+
+
+
+
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+
+
  <a name="akash/market/v1beta5/resourcesoffer.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -6217,6 +6274,40 @@ Since: akash v1.0.0
 
  
 
+
+ <a name="akash.market.v1beta5.QueryProviderLeaseStatsRequest"></a>
+
+ ### QueryProviderLeaseStatsRequest
+ QueryProviderLeaseStatsRequest is the request type for the
+Query/ProviderLeaseStats RPC method.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the account bech32 address of the provider being queried.
+
+Example: "akash1..." |
+
+
+
+
+
+
+ <a name="akash.market.v1beta5.QueryProviderLeaseStatsResponse"></a>
+
+ ### QueryProviderLeaseStatsResponse
+ QueryProviderLeaseStatsResponse is the response type for the
+Query/ProviderLeaseStats RPC method.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `stats` | [akash.market.v1.ProviderLeaseStats](#akash.market.v1.ProviderLeaseStats) |  | Stats holds the aggregate lease-completion stats for the provider. |
+
+
+
+
+
   <!-- end messages -->
 
   <!-- end enums -->
@@ -6237,6 +6328,7 @@ Since: akash v1.0.0
  | `Bid` | [QueryBidRequest](#akash.market.v1beta5.QueryBidRequest) | [QueryBidResponse](#akash.market.v1beta5.QueryBidResponse) | Bid queries bid details. | GET|/akash/market/v1beta5/bids/info|
  | `Leases` | [QueryLeasesRequest](#akash.market.v1beta5.QueryLeasesRequest) | [QueryLeasesResponse](#akash.market.v1beta5.QueryLeasesResponse) | Leases queries leases with filters. | GET|/akash/market/v1beta5/leases/list|
  | `Lease` | [QueryLeaseRequest](#akash.market.v1beta5.QueryLeaseRequest) | [QueryLeaseResponse](#akash.market.v1beta5.QueryLeaseResponse) | Lease queries lease details. | GET|/akash/market/v1beta5/leases/info|
+ | `ProviderLeaseStats` | [QueryProviderLeaseStatsRequest](#akash.market.v1beta5.QueryProviderLeaseStatsRequest) | [QueryProviderLeaseStatsResponse](#akash.market.v1beta5.QueryProviderLeaseStatsResponse) | ProviderLeaseStats queries aggregate lease-completion stats for a provider. | GET|/akash/market/v1beta5/providers/{provider}/lease-stats|
  | `Params` | [QueryParamsRequest](#akash.market.v1beta5.QueryParamsRequest) | [QueryParamsResponse](#akash.market.v1beta5.QueryParamsResponse) | Params returns the total set of market parameters. | GET|/akash/market/v1beta5/params|
  
   <!-- end services -->
