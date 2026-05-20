@@ -23,7 +23,7 @@ func newRootCmd() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	cmd.AddCommand(newCollectCmd())
+	cmd.AddCommand(newCollectCmd(), newEvidenceCmd())
 
 	return cmd
 }
