@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -108,12 +109,42 @@ func TestMarshalEvidenceCanonicalIsStable(t *testing.T) {
 }
 
 func TestMarshalEvidenceCanonicalEmptyAttestedCapabilitiesIsArray(t *testing.T) {
-	evidence := EvidenceDocument{}
+	evidence := validEvidenceDocument()
+	evidence.AttestedCapabilities = nil
 
 	raw, _, err := marshalEvidenceCanonical(evidence)
 	require.NoError(t, err)
 	require.Contains(t, string(raw), `"attested_capabilities":[]`)
 	require.NotContains(t, string(raw), `"attested_capabilities":null`)
+}
+
+func TestEvidenceSchemaArtifactIsCanonicalV1(t *testing.T) {
+	var schema map[string]any
+	require.NoError(t, json.Unmarshal(embeddedEvidenceSchema, &schema))
+	require.Equal(t, "https://json-schema.org/draft/2020-12/schema", schema["$schema"])
+	require.Equal(t, evidenceSchema, schema["$id"])
+	require.Contains(t, schema, "$defs")
+	require.NotContains(t, schema, "definitions")
+}
+
+func TestMarshalEvidenceCanonicalRejectsSchemaViolationBeforeHash(t *testing.T) {
+	evidence := validEvidenceDocument()
+	evidence.Software.BinaryHash = "not-a-sha256-ref"
+
+	raw, hash, err := marshalEvidenceCanonical(evidence)
+	require.ErrorContains(t, err, "evidence schema validation failed")
+	require.ErrorContains(t, err, "software.binary_hash")
+	require.Nil(t, raw)
+	require.Empty(t, hash)
+}
+
+func TestMarshalEvidenceCanonicalRejectsDuplicateCapabilities(t *testing.T) {
+	evidence := validEvidenceDocument()
+	evidence.AttestedCapabilities = []string{"persistent_storage", "persistent_storage"}
+
+	_, _, err := marshalEvidenceCanonical(evidence)
+	require.ErrorContains(t, err, "evidence schema validation failed")
+	require.ErrorContains(t, err, "attested_capabilities")
 }
 
 func TestValidateEvidenceInputsRequiresSoftwareBinaryHash(t *testing.T) {
@@ -157,6 +188,51 @@ func mustSnapshotPayload(t *testing.T, provider string, nonce []byte) []byte {
 	require.NoError(t, err)
 
 	return raw
+}
+
+func validEvidenceDocument() EvidenceDocument {
+	return EvidenceDocument{
+		SchemaVersion:        evidenceSchema,
+		ChainID:              "akash-local",
+		Provider:             "akash1provider",
+		Auditor:              "akash1auditor",
+		AuditEscrowID:        "7",
+		TargetTier:           "L1",
+		AttestedTier:         "L1",
+		AttestedCapabilities: []string{"persistent_storage"},
+		CollectedAt:          "2026-05-19T00:00:00Z",
+		BlockHeight:          "123",
+		SnapshotHash:         "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+		InventoryNonce:       "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+		Software: SoftwareEvidence{
+			Version:            "test",
+			BinaryHash:         "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+			VerificationStatus: "observed_only",
+		},
+		NetworkBaseline: NetworkBaseline{
+			ProofRef: "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+		},
+		SustainedValidation: SustainedValidation{
+			BaselineID:    "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			Window:        "attestation_ttl",
+			LastCheckedAt: "2026-05-19T00:00:00Z",
+			Status:        "not_evaluated",
+			ProofRef:      "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+		},
+		Checks: []EvidenceCheck{{
+			Name:     "inventory_signature_valid",
+			Status:   "pass",
+			ProofRef: "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			Details: map[string]any{
+				"a": "first",
+				"z": true,
+			},
+		}},
+		FaultContext: FaultContext{
+			FaultAttribution: "unspecified",
+			Reason:           "unspecified",
+		},
+	}
 }
 
 func validCollectConfig() collectConfig {

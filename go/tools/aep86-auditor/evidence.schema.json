@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "akash.audit.evidence.v1",
+  "title": "Akash AEP-86 Auditor Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "chain_id",
+    "provider",
+    "auditor",
+    "audit_escrow_id",
+    "target_tier",
+    "attested_tier",
+    "attested_capabilities",
+    "collected_at",
+    "block_height",
+    "snapshot_hash",
+    "inventory_nonce",
+    "software",
+    "network_baseline",
+    "sustained_validation",
+    "checks",
+    "fault_context"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "akash.audit.evidence.v1"
+    },
+    "chain_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider": {
+      "$ref": "#/$defs/akash_address"
+    },
+    "auditor": {
+      "$ref": "#/$defs/akash_address"
+    },
+    "audit_escrow_id": {
+      "$ref": "#/$defs/uint64_string"
+    },
+    "target_tier": {
+      "$ref": "#/$defs/tier"
+    },
+    "attested_tier": {
+      "$ref": "#/$defs/tier"
+    },
+    "attested_capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/capability"
+      }
+    },
+    "collected_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "block_height": {
+      "$ref": "#/$defs/uint64_string"
+    },
+    "snapshot_hash": {
+      "$ref": "#/$defs/sha256"
+    },
+    "inventory_nonce": {
+      "$ref": "#/$defs/base64"
+    },
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "binary_hash", "verification_status"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "binary_hash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "signature": {
+          "$ref": "#/$defs/base64"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/software_verification_status"
+        }
+      }
+    },
+    "network_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mbps_down", "mbps_up", "latency_ms_p95", "proof_ref"],
+      "properties": {
+        "mbps_down": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mbps_up": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "latency_ms_p95": {
+          "type": "number",
+          "minimum": 0
+        },
+        "proof_ref": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "sustained_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_id",
+        "window",
+        "last_checked_at",
+        "status",
+        "proof_ref"
+      ],
+      "properties": {
+        "baseline_id": {
+          "$ref": "#/$defs/sha256"
+        },
+        "window": {
+          "type": "string",
+          "enum": ["attestation_ttl"]
+        },
+        "last_checked_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "status": {
+          "$ref": "#/$defs/validation_status"
+        },
+        "proof_ref": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "status", "proof_ref"],
+        "properties": {
+          "name": {
+            "$ref": "#/$defs/check_name"
+          },
+          "status": {
+            "$ref": "#/$defs/check_status"
+          },
+          "proof_ref": {
+            "$ref": "#/$defs/sha256"
+          },
+          "observed_at": {
+            "$ref": "#/$defs/timestamp"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/typed_value"
+            }
+          }
+        }
+      }
+    },
+    "fault_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fault_attribution", "reason"],
+      "properties": {
+        "fault_attribution": {
+          "$ref": "#/$defs/fault_attribution"
+        },
+        "reason": {
+          "$ref": "#/$defs/reason"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "akash_address": {
+      "type": "string",
+      "pattern": "^akash1[0-9a-z]+$"
+    },
+    "uint64_string": {
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[A-Fa-f0-9]{64}$"
+    },
+    "base64": {
+      "type": "string",
+      "contentEncoding": "base64"
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["L1", "L2", "L3", "L4"]
+    },
+    "capability": {
+      "type": "string",
+      "enum": [
+        "tee_hardware_attestation",
+        "confidential_computing",
+        "persistent_storage",
+        "bare_metal"
+      ]
+    },
+    "software_verification_status": {
+      "type": "string",
+      "enum": [
+        "observed_only",
+        "not_implemented_v1",
+        "unsigned_binary",
+        "not_applicable"
+      ]
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": [
+        "baseline_established",
+        "pass",
+        "fail",
+        "not_applicable",
+        "not_evaluated"
+      ]
+    },
+    "check_status": {
+      "type": "string",
+      "enum": ["pass", "fail", "not_applicable", "not_evaluated"]
+    },
+    "check_name": {
+      "type": "string",
+      "enum": [
+        "provider_registered_on_chain",
+        "provider_bond_sufficient",
+        "provider_age_sufficient",
+        "lease_completion_sufficient",
+        "no_recent_slashing",
+        "snapshot_not_suspended",
+        "snapshot_hash_matches_chain",
+        "inventory_nonce_matches",
+        "inventory_signature_valid",
+        "software_identity_recorded",
+        "resource_delivery_verified",
+        "network_baseline_verified",
+        "location_verified",
+        "identity_verified",
+        "virtualization_status_verified",
+        "capability_verified",
+        "contact_responsiveness_checked",
+        "data_isolation_verified",
+        "physical_audit_verified",
+        "sustained_baseline_checked"
+      ]
+    },
+    "fault_attribution": {
+      "type": "string",
+      "enum": [
+        "unspecified",
+        "provider_fault",
+        "auditor_fault",
+        "shared_fault",
+        "no_fault",
+        "inconclusive"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "unspecified",
+        "provider_no_longer_qualifies",
+        "snapshot_mismatch",
+        "software_identity_changed",
+        "capability_misrepresented",
+        "provider_non_responsive",
+        "auditor_evidence_error",
+        "auditor_operational_exit",
+        "fraudulent_provider",
+        "compromised_provider",
+        "provider_non_cooperation",
+        "faulty_auditor",
+        "negligent_auditor",
+        "evidence_insufficient",
+        "emergency_safety_action",
+        "cancelled_unconsumed",
+        "expired_unconsumed",
+        "auditor_a_correct",
+        "auditor_b_correct",
+        "both_auditors_wrong",
+        "provider_fault",
+        "shared_fault",
+        "evidence_inconclusive",
+        "governance_timeout_review",
+        "resource_misrepresentation",
+        "capacity_overstatement",
+        "fraudulent_snapshot",
+        "provider_compromise",
+        "sla_breach",
+        "non_cooperation_during_audit"
+      ]
+    },
+    "typed_value": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    }
+  }
+}
