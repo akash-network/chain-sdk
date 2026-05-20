@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"sort"
 	"time"
 )
 
@@ -150,6 +151,9 @@ func evidenceChecks(snapshot *verifiedSnapshot, chainFacts *chainFactsResult) []
 func marshalEvidenceCanonical(evidence EvidenceDocument) ([]byte, string, error) {
 	if evidence.AttestedCapabilities == nil {
 		evidence.AttestedCapabilities = []string{}
+	} else {
+		evidence.AttestedCapabilities = append([]string(nil), evidence.AttestedCapabilities...)
+		sort.Strings(evidence.AttestedCapabilities)
 	}
 
 	raw, err := json.Marshal(evidence)

@@ -118,6 +118,15 @@ func TestMarshalEvidenceCanonicalEmptyAttestedCapabilitiesIsArray(t *testing.T) 
 	require.NotContains(t, string(raw), `"attested_capabilities":null`)
 }
 
+func TestMarshalEvidenceCanonicalSortsAttestedCapabilities(t *testing.T) {
+	evidence := validEvidenceDocument()
+	evidence.AttestedCapabilities = []string{"persistent_storage", "bare_metal"}
+
+	raw, _, err := marshalEvidenceCanonical(evidence)
+	require.NoError(t, err)
+	require.Contains(t, string(raw), `"attested_capabilities":["bare_metal","persistent_storage"]`)
+}
+
 func TestEvidenceSchemaArtifactIsCanonicalV1(t *testing.T) {
 	var schema map[string]any
 	require.NoError(t, json.Unmarshal(embeddedEvidenceSchema, &schema))

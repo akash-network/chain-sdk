@@ -53,6 +53,22 @@ func TestEvidenceCmdRejectsNonCanonicalEvidence(t *testing.T) {
 	require.ErrorContains(t, err, "evidence is not canonical JSON")
 }
 
+func TestEvidenceCmdRejectsUnsortedAttestedCapabilities(t *testing.T) {
+	dir := t.TempDir()
+	evidence := validEvidenceDocument()
+	evidence.AttestedCapabilities = []string{"persistent_storage", "bare_metal"}
+	raw, err := json.Marshal(evidence)
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(dir, evidenceDraftFile), raw, 0o644))
+
+	root := newRootCmd()
+	root.SetOut(&bytes.Buffer{})
+	root.SetArgs([]string{"evidence", dir})
+
+	err = root.Execute()
+	require.ErrorContains(t, err, "evidence is not canonical JSON")
+}
+
 func TestEvidenceCmdRejectsSchemaViolation(t *testing.T) {
 	dir := t.TempDir()
 	evidence := validEvidenceDocument()
