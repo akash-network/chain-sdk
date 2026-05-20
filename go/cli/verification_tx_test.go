@@ -79,6 +79,9 @@ func TestParseHexHash(t *testing.T) {
 
 	_, err := parseHexHash("not-hex")
 	require.Error(t, err)
+
+	_, err = parseHexHash(hex.EncodeToString([]byte("too short")))
+	require.ErrorContains(t, err, "hash must be 32 bytes")
 }
 
 func TestReadResourceSummaryFlag(t *testing.T) {

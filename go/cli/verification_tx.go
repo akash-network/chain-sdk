@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -495,6 +496,9 @@ func parseHexHash(val string) ([]byte, error) {
 	res, err := hex.DecodeString(val)
 	if err != nil {
 		return nil, err
+	}
+	if len(res) != sha256.Size {
+		return nil, fmt.Errorf("hash must be %d bytes", sha256.Size)
 	}
 	return res, nil
 }
