@@ -241,6 +241,80 @@ func TestValidateEvidenceInputsAcceptsSoftwareBinaryHash(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestEvidenceChecksMapObservedChainFacts(t *testing.T) {
+	payloadHash := []byte("12345678901234567890123456789012")
+	snapshot := &verifiedSnapshot{
+		PayloadHash:           payloadHash,
+		SignatureVerified:     true,
+		ProviderPubKeyAddress: "akash1provider",
+		Payload: &inventoryv1.SnapshotPayload{
+			Timestamp: time.Unix(1, 0).UTC(),
+			Nonce:     []byte("12345678901234567890123456789012"),
+			ResourceSummary: inventoryv1.SnapshotResourceSummary{
+				SoftwareVersion: "provider-services-test",
+			},
+		},
+	}
+	chainFacts := &chainFactsResult{
+		ProviderPubKeyAddress:  "akash1provider",
+		ProviderRegistered:     true,
+		ProviderBondObserved:   true,
+		ProviderBondSufficient: true,
+		SnapshotObserved:       true,
+		SnapshotHash:           payloadHash,
+		LeaseStatsObserved:     true,
+		TotalLeases:            10,
+		CompletedLeases:        9,
+		ProviderFaultedLeases:  1,
+	}
+
+	checks := evidenceChecks(snapshot, chainFacts)
+	byName := evidenceChecksByName(checks)
+
+	require.Equal(t, "pass", byName["provider_registered_on_chain"].Status)
+	require.Equal(t, "pass", byName["provider_bond_sufficient"].Status)
+	require.Equal(t, "not_evaluated", byName["provider_age_sufficient"].Status)
+	require.Equal(t, "not_evaluated", byName["lease_completion_sufficient"].Status)
+	require.Equal(t, uint64(10), byName["lease_completion_sufficient"].Details["total_leases"])
+	require.Equal(t, "pass", byName["snapshot_not_suspended"].Status)
+	require.Equal(t, "pass", byName["snapshot_hash_matches_chain"].Status)
+	require.Equal(t, "pass", byName["inventory_signature_valid"].Status)
+}
+
+func TestEvidenceChecksDoNotPassUnobservedFacts(t *testing.T) {
+	payloadHash := []byte("12345678901234567890123456789012")
+	snapshot := &verifiedSnapshot{
+		PayloadHash: payloadHash,
+		Payload: &inventoryv1.SnapshotPayload{
+			Timestamp: time.Unix(1, 0).UTC(),
+			Nonce:     []byte("12345678901234567890123456789012"),
+			ResourceSummary: inventoryv1.SnapshotResourceSummary{
+				SoftwareVersion: "provider-services-test",
+			},
+		},
+	}
+
+	checks := evidenceChecks(snapshot, &chainFactsResult{})
+	byName := evidenceChecksByName(checks)
+
+	require.Equal(t, "fail", byName["provider_registered_on_chain"].Status)
+	require.Equal(t, "not_evaluated", byName["provider_bond_sufficient"].Status)
+	require.Equal(t, "not_evaluated", byName["lease_completion_sufficient"].Status)
+	require.Nil(t, byName["lease_completion_sufficient"].Details)
+	require.Equal(t, "not_evaluated", byName["snapshot_not_suspended"].Status)
+	require.Equal(t, "not_evaluated", byName["snapshot_hash_matches_chain"].Status)
+	require.Equal(t, "not_evaluated", byName["inventory_signature_valid"].Status)
+}
+
+func evidenceChecksByName(checks []EvidenceCheck) map[string]EvidenceCheck {
+	res := make(map[string]EvidenceCheck, len(checks))
+	for _, check := range checks {
+		res[check.Name] = check
+	}
+
+	return res
+}
+
 func mustSnapshotPayload(t *testing.T, provider string, nonce []byte) []byte {
 	t.Helper()
 
