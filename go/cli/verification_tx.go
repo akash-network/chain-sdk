@@ -57,6 +57,7 @@ func GetTxVerificationCmd() *cobra.Command {
 		GetTxVerificationCancelAuditEscrowCmd(),
 		GetTxVerificationSettleAuditEscrowCmd(),
 		GetTxVerificationSubmitAttestationCmd(),
+		GetTxVerificationRevokeAttestationCmd(),
 	)
 
 	return cmd
@@ -467,6 +468,55 @@ func GetTxVerificationSubmitAttestationCmd() *cobra.Command {
 	return cmd
 }
 
+func GetTxVerificationRevokeAttestationCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "revoke-attestation",
+		Short:             "Revoke provider attestation",
+		Args:              cobra.NoArgs,
+		PersistentPreRunE: TxPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustClientFromContext(ctx)
+			cctx := cl.ClientContext()
+
+			provider, err := readAddressFlag(cmd, flagProvider)
+			if err != nil {
+				return err
+			}
+			reason, err := readAttestationRevocationReasonFlag(cmd)
+			if err != nil {
+				return err
+			}
+			evidenceHash, err := readRequiredHashFlag(cmd, flagEvidenceHash)
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgRevokeAttestation{
+				Provider:     provider.String(),
+				Auditor:      cctx.GetFromAddress().String(),
+				Reason:       reason,
+				EvidenceHash: evidenceHash,
+			}
+
+			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
+			if err != nil {
+				return err
+			}
+
+			return cl.PrintMessage(resp)
+		},
+	}
+
+	cflags.AddTxFlagsToCmd(cmd)
+	cmd.Flags().String(flagProvider, "", "Provider address")
+	cmd.Flags().String(flagReason, "", "Revocation reason")
+	cmd.Flags().String(flagEvidenceHash, "", "Evidence hash in hex or sha256:<hex> form")
+	mustMarkRequired(cmd, flagProvider, flagReason, flagEvidenceHash)
+
+	return cmd
+}
+
 func readAuthority(cmd *cobra.Command, cctx sdkclient.Context) (string, error) {
 	authority, err := cmd.Flags().GetString(flagAuthority)
 	if err != nil {
@@ -543,6 +593,35 @@ func readAuditEscrowSettlementReasonFlag(cmd *cobra.Command) (types.AuditEscrowS
 		return types.AuditEscrowSettlementReasonUnspecified, err
 	}
 	return parseAuditEscrowSettlementReason(val)
+}
+
+func readAttestationRevocationReasonFlag(cmd *cobra.Command) (types.AttestationRevocationReason, error) {
+	val, err := cmd.Flags().GetString(flagReason)
+	if err != nil {
+		return types.AttestationRevocationReasonUnspecified, err
+	}
+	return parseAttestationRevocationReason(val)
+}
+
+func parseAttestationRevocationReason(val string) (types.AttestationRevocationReason, error) {
+	switch normalizeEnumInput(val) {
+	case "provider_no_longer_qualifies", "attestation_revocation_reason_provider_no_longer_qualifies":
+		return types.AttestationRevocationReasonProviderNoLongerQualifies, nil
+	case "snapshot_mismatch", "attestation_revocation_reason_snapshot_mismatch":
+		return types.AttestationRevocationReasonSnapshotMismatch, nil
+	case "software_identity_changed", "attestation_revocation_reason_software_identity_changed":
+		return types.AttestationRevocationReasonSoftwareIdentityChanged, nil
+	case "capability_misrepresented", "attestation_revocation_reason_capability_misrepresented":
+		return types.AttestationRevocationReasonCapabilityMisrepresented, nil
+	case "provider_non_responsive", "attestation_revocation_reason_provider_non_responsive":
+		return types.AttestationRevocationReasonProviderNonResponsive, nil
+	case "auditor_evidence_error", "attestation_revocation_reason_auditor_evidence_error":
+		return types.AttestationRevocationReasonAuditorEvidenceError, nil
+	case "auditor_operational_exit", "attestation_revocation_reason_auditor_operational_exit":
+		return types.AttestationRevocationReasonAuditorOperationalExit, nil
+	default:
+		return types.AttestationRevocationReasonUnspecified, fmt.Errorf("invalid attestation revocation reason %q", val)
+	}
 }
 
 func parseAuditEscrowSettlementReason(val string) (types.AuditEscrowSettlementReason, error) {
