@@ -109,6 +109,10 @@ func buildEvidence(cfg collectConfig, snapshot *verifiedSnapshot, chainFacts *ch
 }
 
 func evidenceChecks(snapshot *verifiedSnapshot, chainFacts *chainFactsResult) []EvidenceCheck {
+	if chainFacts == nil {
+		chainFacts = &chainFactsResult{}
+	}
+
 	observedAt := snapshot.Payload.GetTimestamp().UTC().Format(time.RFC3339Nano)
 	snapshotRef := sha256Ref(snapshot.PayloadHash)
 	resourceSummary := snapshot.Payload.GetResourceSummary()
@@ -117,7 +121,50 @@ func evidenceChecks(snapshot *verifiedSnapshot, chainFacts *chainFactsResult) []
 		signatureStatus = "not_evaluated"
 	}
 
-	return []EvidenceCheck{
+	checks := []EvidenceCheck{
+		{
+			Name:       "provider_registered_on_chain",
+			Status:     statusFromObserved(chainFacts.ProviderRegistered),
+			ProofRef:   snapshotRef,
+			ObservedAt: observedAt,
+		},
+		{
+			Name:       "provider_bond_sufficient",
+			Status:     statusFromOptionalPass(chainFacts.ProviderBondObserved, chainFacts.ProviderBondSufficient),
+			ProofRef:   snapshotRef,
+			ObservedAt: observedAt,
+		},
+		{
+			Name:       "provider_age_sufficient",
+			Status:     "not_evaluated",
+			ProofRef:   snapshotRef,
+			ObservedAt: observedAt,
+		},
+		{
+			Name:       "lease_completion_sufficient",
+			Status:     "not_evaluated",
+			ProofRef:   snapshotRef,
+			ObservedAt: observedAt,
+			Details:    leaseStatsDetails(chainFacts),
+		},
+		{
+			Name:       "no_recent_slashing",
+			Status:     "not_evaluated",
+			ProofRef:   snapshotRef,
+			ObservedAt: observedAt,
+		},
+		{
+			Name:       "snapshot_not_suspended",
+			Status:     statusFromOptionalPass(chainFacts.SnapshotObserved, !chainFacts.SnapshotSuspended),
+			ProofRef:   snapshotRef,
+			ObservedAt: observedAt,
+		},
+		{
+			Name:       "snapshot_hash_matches_chain",
+			Status:     statusFromOptionalPass(chainFacts.SnapshotObserved, chainSnapshotMatchesPayload(chainFacts, snapshot.PayloadHash)),
+			ProofRef:   snapshotRef,
+			ObservedAt: observedAt,
+		},
 		{
 			Name:       "inventory_nonce_matches",
 			Status:     "pass",
@@ -146,6 +193,39 @@ func evidenceChecks(snapshot *verifiedSnapshot, chainFacts *chainFactsResult) []
 			},
 		},
 	}
+
+	return checks
+}
+
+func leaseStatsDetails(chainFacts *chainFactsResult) map[string]any {
+	if chainFacts == nil || !chainFacts.LeaseStatsObserved {
+		return nil
+	}
+
+	return map[string]any{
+		"total_leases":            chainFacts.TotalLeases,
+		"completed_leases":        chainFacts.CompletedLeases,
+		"provider_faulted_leases": chainFacts.ProviderFaultedLeases,
+	}
+}
+
+func statusFromObserved(ok bool) string {
+	if ok {
+		return "pass"
+	}
+
+	return "fail"
+}
+
+func statusFromOptionalPass(observed, ok bool) string {
+	if !observed {
+		return "not_evaluated"
+	}
+	if ok {
+		return "pass"
+	}
+
+	return "fail"
 }
 
 func marshalEvidenceCanonical(evidence EvidenceDocument) ([]byte, string, error) {

@@ -2,7 +2,7 @@
 
 `aep86-auditor` is the local starting point for the AEP-86 L-5 reference auditor CLI.
 
-This tool intentionally lives outside consensus code. The current slice implements local collection and offline evidence checks:
+This tool intentionally lives outside consensus code. The current slice implements local collection, offline evidence checks, sustained baseline comparison, and transaction command preparation:
 
 - generates a cryptographically random 32-byte nonce
 - calls provider `akash.inventory.v1.InventoryService/GetInventorySnapshot`
@@ -12,6 +12,8 @@ This tool intentionally lives outside consensus code. The current slice implemen
 - verifies the provider signature over the raw `snapshot_payload` bytes
 - writes raw artifacts plus a draft `akash.audit.evidence.v1` JSON document
 - verifies that `evidence.draft.json` is schema-valid canonical JSON and matches `evidence.draft.sha256`
+- compares a current evidence artifact against a baseline artifact
+- prepares submit and revoke transaction commands from verified evidence artifacts
 
 ## Run
 
@@ -50,9 +52,20 @@ go run ./go/tools/aep86-auditor submit \
   ./aep86-audit
 ```
 
-`submit` is currently a dry-run UX. It validates canonical `evidence.draft.json`, verifies
-`evidence.draft.sha256`, checks optional provider/auditor/audit-escrow/tier/capability/chain flags
-against the evidence, validates fee and deposit coin syntax, and prints the exact
-`akash tx verification submit-attestation` command. Real broadcast should wait until this tool can
-reuse the existing Akash CLI chain client, keyring, and transaction helpers instead of carrying a
-parallel signing and broadcast stack.
+Compare sustained-validation evidence against the original baseline:
+
+```sh
+go run ./go/tools/aep86-auditor sustain ./aep86-baseline ./aep86-current
+```
+
+Prepare a revocation command from verified revocation evidence:
+
+```sh
+go run ./go/tools/aep86-auditor revoke \
+  --reason provider_no_longer_qualifies \
+  ./aep86-current
+```
+
+`submit` and `revoke` are dry-run helpers. They validate canonical `evidence.draft.json`,
+verify `evidence.draft.sha256`, check optional provider/auditor/audit-escrow/tier/capability/chain
+flags against the evidence, and print the exact `akash tx verification ...` command.

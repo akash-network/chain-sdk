@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -12,16 +14,28 @@ import (
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"google.golang.org/grpc"
 
+	marketv1beta5 "pkg.akt.dev/go/node/market/v1beta5"
+	providerv1beta4 "pkg.akt.dev/go/node/provider/v1beta4"
 	verificationv1 "pkg.akt.dev/go/node/verification/v1"
 	"pkg.akt.dev/go/sdkutil"
 )
 
 type chainFactsResult struct {
-	BlockHeight           string
-	ProviderPubKey        cryptotypes.PubKey
-	ProviderPubKeyAddress string
-	Facts                 map[string]any
-	Warnings              []string
+	BlockHeight            string
+	ProviderPubKey         cryptotypes.PubKey
+	ProviderPubKeyAddress  string
+	Facts                  map[string]any
+	Warnings               []string
+	ProviderRegistered     bool
+	ProviderBondObserved   bool
+	ProviderBondSufficient bool
+	SnapshotObserved       bool
+	SnapshotSuspended      bool
+	SnapshotHash           []byte
+	LeaseStatsObserved     bool
+	TotalLeases            uint64
+	CompletedLeases        uint64
+	ProviderFaultedLeases  uint64
 }
 
 func collectChainFacts(ctx context.Context, cfg collectConfig, provider string) (*chainFactsResult, error) {
@@ -64,6 +78,8 @@ func collectChainFacts(ctx context.Context, cfg collectConfig, provider string) 
 	result.Facts["provider_pubkey_address"] = result.ProviderPubKeyAddress
 	result.Facts["provider_pubkey_type"] = fmt.Sprintf("%T", pubKey)
 
+	queryProviderFacts(ctx, conn, provider, result)
+	queryMarketFacts(ctx, conn, provider, result)
 	queryVerificationFacts(ctx, conn, provider, result)
 
 	return result, nil
@@ -90,6 +106,43 @@ func queryAccountPubKey(ctx context.Context, conn grpc.ClientConnInterface, prov
 	return account.GetPubKey(), nil
 }
 
+func queryProviderFacts(ctx context.Context, conn gogogrpc.ClientConn, provider string, result *chainFactsResult) {
+	registration, err := providerv1beta4.NewQueryClient(conn).Registration(ctx, &providerv1beta4.QueryRegistrationRequest{
+		Provider: provider,
+	})
+	if err != nil {
+		result.Warnings = append(result.Warnings, "provider Registration query failed: "+err.Error())
+		return
+	}
+
+	record := registration.GetRegistration()
+	if record.GetOwner() == provider && !record.GetRegisteredAt().IsZero() {
+		result.ProviderRegistered = true
+		result.Facts["provider_registered_at"] = record.GetRegisteredAt().UTC().Format(time.RFC3339Nano)
+	}
+}
+
+func queryMarketFacts(ctx context.Context, conn gogogrpc.ClientConn, provider string, result *chainFactsResult) {
+	stats, err := marketv1beta5.NewQueryClient(conn).ProviderLeaseStats(ctx, &marketv1beta5.QueryProviderLeaseStatsRequest{
+		Provider: provider,
+	})
+	if err != nil {
+		result.Warnings = append(result.Warnings, "market ProviderLeaseStats query failed: "+err.Error())
+		return
+	}
+
+	record := stats.GetStats()
+	result.LeaseStatsObserved = true
+	result.TotalLeases = record.GetTotalLeases()
+	result.CompletedLeases = record.GetCompletedLeases()
+	result.ProviderFaultedLeases = record.GetProviderFaultedLeases()
+	result.Facts["provider_lease_stats"] = map[string]any{
+		"total_leases":            result.TotalLeases,
+		"completed_leases":        result.CompletedLeases,
+		"provider_faulted_leases": result.ProviderFaultedLeases,
+	}
+}
+
 func queryVerificationFacts(ctx context.Context, conn gogogrpc.ClientConn, provider string, result *chainFactsResult) {
 	query := verificationv1.NewQueryClient(conn)
 
@@ -108,8 +161,12 @@ func queryVerificationFacts(ctx context.Context, conn gogogrpc.ClientConn, provi
 	if err != nil {
 		result.Warnings = append(result.Warnings, "verification ProviderBond query failed: "+err.Error())
 	} else {
-		result.Facts["provider_bond"] = bond.GetBond()
-		result.Facts["provider_bond_required_for_current_tier"] = bond.GetRequiredForCurrentTier()
+		record := bond.GetBond()
+		required := bond.GetRequiredForCurrentTier()
+		result.ProviderBondObserved = true
+		result.ProviderBondSufficient = required.IsZero() || record.GetBondedAmount().IsGTE(required)
+		result.Facts["provider_bond"] = record
+		result.Facts["provider_bond_required_for_current_tier"] = required
 	}
 
 	snapshot, err := query.ProviderSnapshot(ctx, &verificationv1.QueryProviderSnapshotRequest{
@@ -118,6 +175,14 @@ func queryVerificationFacts(ctx context.Context, conn gogogrpc.ClientConn, provi
 	if err != nil {
 		result.Warnings = append(result.Warnings, "verification ProviderSnapshot query failed: "+err.Error())
 	} else {
-		result.Facts["provider_snapshot"] = snapshot.GetSnapshot()
+		record := snapshot.GetSnapshot()
+		result.SnapshotObserved = true
+		result.SnapshotSuspended = record.GetSuspended()
+		result.SnapshotHash = append([]byte(nil), record.GetSnapshotHash()...)
+		result.Facts["provider_snapshot"] = record
 	}
+}
+
+func chainSnapshotMatchesPayload(result *chainFactsResult, payloadHash []byte) bool {
+	return result != nil && result.SnapshotObserved && bytes.Equal(result.SnapshotHash, payloadHash)
 }

@@ -27,6 +27,10 @@ type submitConfig struct {
 	chainID       string
 }
 
+type txCommandSpec struct {
+	args []string
+}
+
 func newSubmitCmd() *cobra.Command {
 	cfg := submitConfig{}
 
@@ -61,6 +65,9 @@ func runSubmit(cmd *cobra.Command, cfg submitConfig) error {
 	if err != nil {
 		return err
 	}
+	if evidenceHasFailedCheck(evidence) {
+		return fmt.Errorf("attestation evidence contains a failed check")
+	}
 
 	spec, err := buildSubmitCommandSpec(cfg, evidence, evidenceHash)
 	if err != nil {
@@ -75,15 +82,11 @@ func runSubmit(cmd *cobra.Command, cfg submitConfig) error {
 	return nil
 }
 
-type submitCommandSpec struct {
-	args []string
-}
-
-func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenceHash string) (submitCommandSpec, error) {
+func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenceHash string) (txCommandSpec, error) {
 	provider := evidence.Provider
 	if cfg.provider != "" {
 		if cfg.provider != evidence.Provider {
-			return submitCommandSpec{}, fmt.Errorf("provider flag %q does not match evidence provider %q", cfg.provider, evidence.Provider)
+			return txCommandSpec{}, fmt.Errorf("provider flag %q does not match evidence provider %q", cfg.provider, evidence.Provider)
 		}
 		provider = cfg.provider
 	}
@@ -91,7 +94,7 @@ func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenc
 	auditor := evidence.Auditor
 	if cfg.auditor != "" {
 		if cfg.auditor != evidence.Auditor {
-			return submitCommandSpec{}, fmt.Errorf("auditor flag %q does not match evidence auditor %q", cfg.auditor, evidence.Auditor)
+			return txCommandSpec{}, fmt.Errorf("auditor flag %q does not match evidence auditor %q", cfg.auditor, evidence.Auditor)
 		}
 		auditor = cfg.auditor
 	}
@@ -99,7 +102,7 @@ func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenc
 	auditEscrowID := evidence.AuditEscrowID
 	if cfg.auditEscrowID != "" {
 		if !sameUint64String(cfg.auditEscrowID, evidence.AuditEscrowID) {
-			return submitCommandSpec{}, fmt.Errorf("audit-escrow-id flag %q does not match evidence audit_escrow_id %q", cfg.auditEscrowID, evidence.AuditEscrowID)
+			return txCommandSpec{}, fmt.Errorf("audit-escrow-id flag %q does not match evidence audit_escrow_id %q", cfg.auditEscrowID, evidence.AuditEscrowID)
 		}
 		auditEscrowID = evidence.AuditEscrowID
 	}
@@ -108,10 +111,10 @@ func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenc
 	if cfg.tier != "" {
 		normalizedTier, err := normalizeSubmitTier(cfg.tier)
 		if err != nil {
-			return submitCommandSpec{}, err
+			return txCommandSpec{}, err
 		}
 		if normalizedTier != evidence.AttestedTier {
-			return submitCommandSpec{}, fmt.Errorf("tier flag %q does not match evidence attested_tier %q", cfg.tier, evidence.AttestedTier)
+			return txCommandSpec{}, fmt.Errorf("tier flag %q does not match evidence attested_tier %q", cfg.tier, evidence.AttestedTier)
 		}
 		tier = normalizedTier
 	}
@@ -120,10 +123,10 @@ func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenc
 	if cfg.capabilities != nil {
 		normalized, err := normalizeSubmitCapabilities(cfg.capabilities)
 		if err != nil {
-			return submitCommandSpec{}, err
+			return txCommandSpec{}, err
 		}
 		if !stringSlicesEqual(normalized, evidence.AttestedCapabilities) {
-			return submitCommandSpec{}, fmt.Errorf("capability flags %q do not match evidence attested_capabilities %q", strings.Join(normalized, ","), strings.Join(evidence.AttestedCapabilities, ","))
+			return txCommandSpec{}, fmt.Errorf("capability flags %q do not match evidence attested_capabilities %q", strings.Join(normalized, ","), strings.Join(evidence.AttestedCapabilities, ","))
 		}
 		capabilities = normalized
 	}
@@ -131,18 +134,18 @@ func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenc
 	chainID := evidence.ChainID
 	if cfg.chainID != "" {
 		if cfg.chainID != evidence.ChainID {
-			return submitCommandSpec{}, fmt.Errorf("chain-id flag %q does not match evidence chain_id %q", cfg.chainID, evidence.ChainID)
+			return txCommandSpec{}, fmt.Errorf("chain-id flag %q does not match evidence chain_id %q", cfg.chainID, evidence.ChainID)
 		}
 		chainID = cfg.chainID
 	}
 
 	fee, err := parseRequiredCoinFlag("fee", cfg.fee)
 	if err != nil {
-		return submitCommandSpec{}, err
+		return txCommandSpec{}, err
 	}
 	deposit, err := parseRequiredCoinFlag("deposit", cfg.deposit)
 	if err != nil {
-		return submitCommandSpec{}, err
+		return txCommandSpec{}, err
 	}
 
 	args := []string{
@@ -162,7 +165,7 @@ func buildSubmitCommandSpec(cfg submitConfig, evidence EvidenceDocument, evidenc
 		"--chain-id", chainID,
 	)
 
-	return submitCommandSpec{args: args}, nil
+	return txCommandSpec{args: args}, nil
 }
 
 func loadVerifiedEvidenceArtifactDir(artifactDir string) (EvidenceDocument, string, error) {

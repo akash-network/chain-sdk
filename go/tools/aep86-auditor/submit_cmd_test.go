@@ -66,6 +66,19 @@ func TestSubmitCmdRejectsMismatchedEvidenceHash(t *testing.T) {
 	require.ErrorContains(t, err, evidenceHashFile+" mismatch")
 }
 
+func TestSubmitCmdRejectsFailedEvidenceCheck(t *testing.T) {
+	dir, _ := writeEvidenceArtifactWithHash(t, func(evidence *EvidenceDocument) {
+		evidence.Checks[0].Status = "fail"
+	})
+
+	root := newRootCmd()
+	root.SetOut(&bytes.Buffer{})
+	root.SetArgs([]string{"submit", "--fee", "100uakt", "--deposit", "200uakt", dir})
+
+	err := root.Execute()
+	require.ErrorContains(t, err, "attestation evidence contains a failed check")
+}
+
 func TestSubmitCmdRejectsMismatchedProviderFlag(t *testing.T) {
 	dir, _ := writeVerifiedEvidenceArtifact(t)
 
