@@ -58,12 +58,22 @@ Compare sustained-validation evidence against the original baseline:
 go run ./go/tools/aep86-auditor sustain ./aep86-baseline ./aep86-current
 ```
 
+Write a sustained-validation evidence artifact that can drive revocation command
+preparation:
+
+```sh
+go run ./go/tools/aep86-auditor sustain \
+  --output-dir ./aep86-sustained \
+  ./aep86-baseline \
+  ./aep86-current
+```
+
 Prepare a revocation command from verified revocation evidence:
 
 ```sh
 go run ./go/tools/aep86-auditor revoke \
-  --reason provider_no_longer_qualifies \
-  ./aep86-current
+  --reason software_identity_changed \
+  ./aep86-sustained
 ```
 
 `submit` and `revoke` are dry-run helpers. They validate canonical `evidence.draft.json`,
