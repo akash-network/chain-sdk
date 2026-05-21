@@ -7,6 +7,7 @@ import "cosmos_proto/cosmos.proto";
 import "google/api/annotations.proto";
 
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "google/protobuf/timestamp.proto";
 
 import "akash/escrow/types/v1/account.proto";
 import "akash/escrow/types/v1/payment.proto";
@@ -202,6 +203,15 @@ message QueryProviderLeaseStatsRequest {
   //   "akash1..."
   string provider = 1 [
     (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
+
+  // Since is the inclusive lower bound for lease close times. If unset, all
+  // retained lease stats are included.
+  google.protobuf.Timestamp since = 2 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "since",
+    (gogoproto.moretags) = "yaml:\"since\""
   ];
 }
 

@@ -35,6 +35,13 @@ export interface ProviderLeaseStats {
   providerFaultedLeases: Long;
   /** ProviderFaults is the provider-fault lease count split by close reason. */
   providerFaults: ProviderLeaseStatsByReason[];
+  /** TenantClosedLeases is the number of tenant/owner-initiated lease closures. */
+  tenantClosedLeases: Long;
+  /**
+   * InsufficientFundsLeases is the number of network closures caused by escrow
+   * depletion.
+   */
+  insufficientFundsLeases: Long;
 }
 
 function createBaseProviderLeaseStatsByReason(): ProviderLeaseStatsByReason {
@@ -120,6 +127,8 @@ function createBaseProviderLeaseStats(): ProviderLeaseStats {
     completedLeases: Long.UZERO,
     providerFaultedLeases: Long.UZERO,
     providerFaults: [],
+    tenantClosedLeases: Long.UZERO,
+    insufficientFundsLeases: Long.UZERO,
   };
 }
 
@@ -138,6 +147,12 @@ export const ProviderLeaseStats: MessageFns<ProviderLeaseStats, "akash.market.v1
     }
     for (const v of message.providerFaults) {
       ProviderLeaseStatsByReason.encode(v!, writer.uint32(34).fork()).join();
+    }
+    if (!message.tenantClosedLeases.equals(Long.UZERO)) {
+      writer.uint32(40).uint64(message.tenantClosedLeases.toString());
+    }
+    if (!message.insufficientFundsLeases.equals(Long.UZERO)) {
+      writer.uint32(48).uint64(message.insufficientFundsLeases.toString());
     }
     return writer;
   },
@@ -181,6 +196,22 @@ export const ProviderLeaseStats: MessageFns<ProviderLeaseStats, "akash.market.v1
           message.providerFaults.push(ProviderLeaseStatsByReason.decode(reader, reader.uint32()));
           continue;
         }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.tenantClosedLeases = Long.fromString(reader.uint64().toString(), true);
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.insufficientFundsLeases = Long.fromString(reader.uint64().toString(), true);
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -200,6 +231,10 @@ export const ProviderLeaseStats: MessageFns<ProviderLeaseStats, "akash.market.v1
       providerFaults: globalThis.Array.isArray(object?.provider_faults)
         ? object.provider_faults.map((e: any) => ProviderLeaseStatsByReason.fromJSON(e))
         : [],
+      tenantClosedLeases: isSet(object.tenant_closed_leases) ? Long.fromValue(object.tenant_closed_leases) : Long.UZERO,
+      insufficientFundsLeases: isSet(object.insufficient_funds_leases)
+        ? Long.fromValue(object.insufficient_funds_leases)
+        : Long.UZERO,
     };
   },
 
@@ -217,6 +252,12 @@ export const ProviderLeaseStats: MessageFns<ProviderLeaseStats, "akash.market.v1
     if (message.providerFaults?.length) {
       obj.provider_faults = message.providerFaults.map((e) => ProviderLeaseStatsByReason.toJSON(e));
     }
+    if (!message.tenantClosedLeases.equals(Long.UZERO)) {
+      obj.tenant_closed_leases = (message.tenantClosedLeases || Long.UZERO).toString();
+    }
+    if (!message.insufficientFundsLeases.equals(Long.UZERO)) {
+      obj.insufficient_funds_leases = (message.insufficientFundsLeases || Long.UZERO).toString();
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ProviderLeaseStats>): ProviderLeaseStats {
@@ -232,6 +273,13 @@ export const ProviderLeaseStats: MessageFns<ProviderLeaseStats, "akash.market.v1
         ? Long.fromValue(object.providerFaultedLeases)
         : Long.UZERO;
     message.providerFaults = object.providerFaults?.map((e) => ProviderLeaseStatsByReason.fromPartial(e)) || [];
+    message.tenantClosedLeases = (object.tenantClosedLeases !== undefined && object.tenantClosedLeases !== null)
+      ? Long.fromValue(object.tenantClosedLeases)
+      : Long.UZERO;
+    message.insufficientFundsLeases =
+      (object.insufficientFundsLeases !== undefined && object.insufficientFundsLeases !== null)
+        ? Long.fromValue(object.insufficientFundsLeases)
+        : Long.UZERO;
     return message;
   },
 };
