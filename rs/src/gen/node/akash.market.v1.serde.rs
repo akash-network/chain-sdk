@@ -1949,7 +1949,7 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
                             if total_leases__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalLeases"));
                             }
-                            total_leases__ =
+                            total_leases__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -1957,7 +1957,7 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
                             if completed_leases__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("completedLeases"));
                             }
-                            completed_leases__ =
+                            completed_leases__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -1965,7 +1965,7 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
                             if provider_faulted_leases__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("providerFaultedLeases"));
                             }
-                            provider_faulted_leases__ =
+                            provider_faulted_leases__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2087,7 +2087,7 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStatsByReason {
                             if count__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("count"));
                             }
-                            count__ =
+                            count__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
