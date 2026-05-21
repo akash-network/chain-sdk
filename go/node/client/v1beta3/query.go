@@ -25,6 +25,7 @@ import (
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	otypes "pkg.akt.dev/go/node/oracle/v2"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
+	vtypes "pkg.akt.dev/go/node/verification/v1"
 )
 
 var _ QueryClient = (*queryClient)(nil)
@@ -54,6 +55,7 @@ type queryClient struct {
 	mclient mtypes.QueryClient
 	pclient ptypes.QueryClient
 	aclient atypes.QueryClient
+	vclient vtypes.QueryClient
 	cclient ctypes.QueryClient
 	sdk     sdkQueryClient
 	cctx    sdkclient.Context
@@ -71,6 +73,7 @@ func newQueryClient(cctx sdkclient.Context) *queryClient {
 		mclient: mtypes.NewQueryClient(cctx),
 		pclient: ptypes.NewQueryClient(cctx),
 		aclient: atypes.NewQueryClient(cctx),
+		vclient: vtypes.NewQueryClient(cctx),
 		cclient: ctypes.NewQueryClient(cctx),
 		sdk: sdkQueryClient{
 			auth:      authtypes.NewQueryClient(cctx),
@@ -117,6 +120,10 @@ func (c *queryClient) Provider() ptypes.QueryClient {
 
 func (c *queryClient) Audit() atypes.QueryClient {
 	return c.aclient
+}
+
+func (c *queryClient) Verification() vtypes.QueryClient {
+	return c.vclient
 }
 
 // Certs implements QueryClient by returning the certs Akash SDK query client.
