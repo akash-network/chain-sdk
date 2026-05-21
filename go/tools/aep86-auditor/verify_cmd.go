@@ -30,12 +30,12 @@ func newVerifyCmd() *cobra.Command {
 }
 
 func runVerify(cmd *cobra.Command, cfg verifyConfig) error {
-	hash, err := validateEvidenceArtifactDir(cfg.artifactDir)
+	evidence, hash, err := loadVerifiedEvidenceArtifactDir(cfg.artifactDir)
 	if err != nil {
 		return err
 	}
 
-	if err := validateEvidenceHashArtifact(cfg.artifactDir, hash); err != nil {
+	if err := validateCollectedArtifactLayout(cfg.artifactDir, evidence); err != nil {
 		return err
 	}
 

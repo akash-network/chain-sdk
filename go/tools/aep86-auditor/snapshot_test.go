@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -390,4 +393,57 @@ func validCollectConfig() collectConfig {
 		attestedTier:       "L1",
 		softwareBinaryHash: "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
 	}
+}
+
+func writeCollectedEvidenceArtifact(t *testing.T, mutate func(*EvidenceDocument)) (string, string) {
+	t.Helper()
+
+	dir := t.TempDir()
+	payload := []byte("canonical test snapshot payload")
+	payloadHash := sha256Ref(sha256Bytes(payload))
+	nonce := []byte("12345678901234567890123456789012")
+
+	evidence := validEvidenceDocument()
+	evidence.SnapshotHash = payloadHash
+	evidence.InventoryNonce = base64.StdEncoding.EncodeToString(nonce)
+	evidence.NetworkBaseline.ProofRef = payloadHash
+	evidence.SustainedValidation.BaselineID = payloadHash
+	evidence.SustainedValidation.ProofRef = payloadHash
+	for idx := range evidence.Checks {
+		evidence.Checks[idx].ProofRef = payloadHash
+	}
+	mutate(&evidence)
+
+	raw, hash, err := marshalEvidenceCanonical(evidence)
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(dir, evidenceDraftFile), raw, 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, evidenceHashFile), []byte(hash+"\n"), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, nonceFile), nonce, 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, snapshotPayloadFile), payload, 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, snapshotSigFile), []byte("signature"), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, snapshotJSONFile), []byte("{}\n"), 0o644))
+
+	collection := collectionArtifact{
+		SchemaVersion:       evidenceSchema + ".collection",
+		CollectedAt:         evidence.CollectedAt,
+		Provider:            evidence.Provider,
+		Auditor:             evidence.Auditor,
+		AuditEscrowID:       evidence.AuditEscrowID,
+		ChainID:             evidence.ChainID,
+		BlockHeight:         evidence.BlockHeight,
+		SnapshotPayloadHash: payloadHash,
+		InventoryNonce:      evidence.InventoryNonce,
+		Signature:           base64.StdEncoding.EncodeToString([]byte("signature")),
+		SignatureVerified:   true,
+		Files: map[string]string{
+			"nonce":            filepath.Join(dir, nonceFile),
+			"snapshot_payload": filepath.Join(dir, snapshotPayloadFile),
+			"signature":        filepath.Join(dir, snapshotSigFile),
+			"payload_json":     filepath.Join(dir, snapshotJSONFile),
+			"evidence_draft":   filepath.Join(dir, evidenceDraftFile),
+		},
+	}
+	require.NoError(t, writeJSON(filepath.Join(dir, collectionFile), collection))
+
+	return dir, hash
 }
