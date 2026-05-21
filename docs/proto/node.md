@@ -384,7 +384,7 @@
  - [akash/market/v1/stats.proto](#akash/market/v1/stats.proto)
      - [ProviderLeaseStats](#akash.market.v1.ProviderLeaseStats)
      - [ProviderLeaseStatsByReason](#akash.market.v1.ProviderLeaseStatsByReason)
-
+   
  - [akash/market/v1beta5/resourcesoffer.proto](#akash/market/v1beta5/resourcesoffer.proto)
      - [EndpointOfferPrice](#akash.market.v1beta5.EndpointOfferPrice)
      - [OfferPrices](#akash.market.v1beta5.OfferPrices)
@@ -5437,42 +5437,42 @@ Example: "akash1..." |
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/market/v1/stats.proto
+ 
 
-
-
+ 
  <a name="akash.market.v1.ProviderLeaseStats"></a>
 
  ### ProviderLeaseStats
  ProviderLeaseStats stores aggregate lease-completion stats for a provider.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `total_leases` | [uint64](#uint64) |  | TotalLeases is the total number of leases included in the aggregate. |
  | `completed_leases` | [uint64](#uint64) |  | CompletedLeases is the number of leases not closed for provider-fault reasons. |
  | `provider_faulted_leases` | [uint64](#uint64) |  | ProviderFaultedLeases is the number of provider-fault lease closures. |
  | `provider_faults` | [ProviderLeaseStatsByReason](#akash.market.v1.ProviderLeaseStatsByReason) | repeated | ProviderFaults is the provider-fault lease count split by close reason. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.market.v1.ProviderLeaseStatsByReason"></a>
 
  ### ProviderLeaseStatsByReason
  ProviderLeaseStatsByReason stores a provider-fault lease count for one close
 reason.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  | Reason is the provider-initiated close reason being counted. |
  | `count` | [uint64](#uint64) |  | Count is the number of leases closed for this reason. |
+ 
+ 
 
-
-
-
+ 
 
   <!-- end messages -->
 
@@ -5482,8 +5482,8 @@ reason.
 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/market/v1beta5/resourcesoffer.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -6274,39 +6274,39 @@ Since: akash v1.0.0
 
  
 
-
+ 
  <a name="akash.market.v1beta5.QueryProviderLeaseStatsRequest"></a>
 
  ### QueryProviderLeaseStatsRequest
  QueryProviderLeaseStatsRequest is the request type for the
 Query/ProviderLeaseStats RPC method.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `provider` | [string](#string) |  | Provider is the account bech32 address of the provider being queried.
 
 Example: "akash1..." |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.market.v1beta5.QueryProviderLeaseStatsResponse"></a>
 
  ### QueryProviderLeaseStatsResponse
  QueryProviderLeaseStatsResponse is the response type for the
 Query/ProviderLeaseStats RPC method.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `stats` | [akash.market.v1.ProviderLeaseStats](#akash.market.v1.ProviderLeaseStats) |  | Stats holds the aggregate lease-completion stats for the provider. |
+ 
+ 
 
-
-
-
+ 
 
   <!-- end messages -->
 
