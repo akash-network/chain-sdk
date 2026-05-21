@@ -83,6 +83,32 @@ func TestParseAuditEscrowSettlementReason(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestParseAttestationRevocationReason(t *testing.T) {
+	testCases := []struct {
+		input string
+		want  types.AttestationRevocationReason
+	}{
+		{"provider-no-longer-qualifies", types.AttestationRevocationReasonProviderNoLongerQualifies},
+		{"snapshot_mismatch", types.AttestationRevocationReasonSnapshotMismatch},
+		{"attestation_revocation_reason_software_identity_changed", types.AttestationRevocationReasonSoftwareIdentityChanged},
+		{"capability_misrepresented", types.AttestationRevocationReasonCapabilityMisrepresented},
+		{"provider_non_responsive", types.AttestationRevocationReasonProviderNonResponsive},
+		{"auditor_evidence_error", types.AttestationRevocationReasonAuditorEvidenceError},
+		{"auditor_operational_exit", types.AttestationRevocationReasonAuditorOperationalExit},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.input, func(t *testing.T) {
+			got, err := parseAttestationRevocationReason(tc.input)
+			require.NoError(t, err)
+			require.Equal(t, tc.want, got)
+		})
+	}
+
+	_, err := parseAttestationRevocationReason("unknown")
+	require.Error(t, err)
+}
+
 func TestParseFaultAttribution(t *testing.T) {
 	testCases := []struct {
 		input string
