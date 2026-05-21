@@ -21,6 +21,7 @@ import (
 
 const (
 	flagAuditEscrowID     = "audit-escrow-id"
+	flagAuditor           = "auditor"
 	flagAuthority         = "authority"
 	flagCapabilities      = "capabilities"
 	flagDeposit           = "deposit"
@@ -58,6 +59,7 @@ func GetTxVerificationCmd() *cobra.Command {
 		GetTxVerificationSettleAuditEscrowCmd(),
 		GetTxVerificationSubmitAttestationCmd(),
 		GetTxVerificationRevokeAttestationCmd(),
+		GetTxVerificationRemoveAttestationCmd(),
 	)
 
 	return cmd
@@ -513,6 +515,43 @@ func GetTxVerificationRevokeAttestationCmd() *cobra.Command {
 	cmd.Flags().String(flagReason, "", "Revocation reason")
 	cmd.Flags().String(flagEvidenceHash, "", "Evidence hash in hex or sha256:<hex> form")
 	mustMarkRequired(cmd, flagProvider, flagReason, flagEvidenceHash)
+
+	return cmd
+}
+
+func GetTxVerificationRemoveAttestationCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "remove-attestation",
+		Short:             "Remove provider attestation",
+		Args:              cobra.NoArgs,
+		PersistentPreRunE: TxPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustClientFromContext(ctx)
+			cctx := cl.ClientContext()
+
+			auditor, err := readAddressFlag(cmd, flagAuditor)
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgRemoveAttestation{
+				Provider: cctx.GetFromAddress().String(),
+				Auditor:  auditor.String(),
+			}
+
+			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
+			if err != nil {
+				return err
+			}
+
+			return cl.PrintMessage(resp)
+		},
+	}
+
+	cflags.AddTxFlagsToCmd(cmd)
+	cmd.Flags().String(flagAuditor, "", "Auditor address for the attestation to remove")
+	mustMarkRequired(cmd, flagAuditor)
 
 	return cmd
 }

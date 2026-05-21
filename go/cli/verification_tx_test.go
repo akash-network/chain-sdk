@@ -133,6 +133,23 @@ func TestParseFaultAttribution(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestTxVerificationIncludesRemoveAttestation(t *testing.T) {
+	root := GetTxVerificationCmd()
+
+	var remove *cobra.Command
+	for _, cmd := range root.Commands() {
+		if cmd.Name() == "remove-attestation" {
+			remove = cmd
+			break
+		}
+	}
+
+	require.NotNil(t, remove)
+	require.NotNil(t, remove.Flags().Lookup(flagAuditor))
+	require.Nil(t, remove.Flags().Lookup(flagReason))
+	require.Nil(t, remove.Flags().Lookup(flagEvidenceHash))
+}
+
 func TestParseHexHash(t *testing.T) {
 	raw := []byte("12345678901234567890123456789012")
 	hexVal := hex.EncodeToString(raw)
