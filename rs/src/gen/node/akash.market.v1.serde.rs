@@ -1850,6 +1850,12 @@ impl serde::Serialize for ProviderLeaseStats {
         if !self.provider_faults.is_empty() {
             len += 1;
         }
+        if self.tenant_closed_leases != 0 {
+            len += 1;
+        }
+        if self.insufficient_funds_leases != 0 {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.market.v1.ProviderLeaseStats", len)?;
         if self.total_leases != 0 {
             #[allow(clippy::needless_borrow)]
@@ -1869,6 +1875,16 @@ impl serde::Serialize for ProviderLeaseStats {
         if !self.provider_faults.is_empty() {
             struct_ser.serialize_field("providerFaults", &self.provider_faults)?;
         }
+        if self.tenant_closed_leases != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("tenantClosedLeases", ToString::to_string(&self.tenant_closed_leases).as_str())?;
+        }
+        if self.insufficient_funds_leases != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("insufficientFundsLeases", ToString::to_string(&self.insufficient_funds_leases).as_str())?;
+        }
         struct_ser.end()
     }
 }
@@ -1887,6 +1903,10 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
             "providerFaultedLeases",
             "provider_faults",
             "providerFaults",
+            "tenant_closed_leases",
+            "tenantClosedLeases",
+            "insufficient_funds_leases",
+            "insufficientFundsLeases",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1895,6 +1915,8 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
             CompletedLeases,
             ProviderFaultedLeases,
             ProviderFaults,
+            TenantClosedLeases,
+            InsufficientFundsLeases,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1920,6 +1942,8 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
                             "completedLeases" | "completed_leases" => Ok(GeneratedField::CompletedLeases),
                             "providerFaultedLeases" | "provider_faulted_leases" => Ok(GeneratedField::ProviderFaultedLeases),
                             "providerFaults" | "provider_faults" => Ok(GeneratedField::ProviderFaults),
+                            "tenantClosedLeases" | "tenant_closed_leases" => Ok(GeneratedField::TenantClosedLeases),
+                            "insufficientFundsLeases" | "insufficient_funds_leases" => Ok(GeneratedField::InsufficientFundsLeases),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1943,6 +1967,8 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
                 let mut completed_leases__ = None;
                 let mut provider_faulted_leases__ = None;
                 let mut provider_faults__ = None;
+                let mut tenant_closed_leases__ = None;
+                let mut insufficient_funds_leases__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::TotalLeases => {
@@ -1975,6 +2001,22 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
                             }
                             provider_faults__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::TenantClosedLeases => {
+                            if tenant_closed_leases__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tenantClosedLeases"));
+                            }
+                            tenant_closed_leases__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::InsufficientFundsLeases => {
+                            if insufficient_funds_leases__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("insufficientFundsLeases"));
+                            }
+                            insufficient_funds_leases__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
                     }
                 }
                 Ok(ProviderLeaseStats {
@@ -1982,6 +2024,8 @@ impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
                     completed_leases: completed_leases__.unwrap_or_default(),
                     provider_faulted_leases: provider_faulted_leases__.unwrap_or_default(),
                     provider_faults: provider_faults__.unwrap_or_default(),
+                    tenant_closed_leases: tenant_closed_leases__.unwrap_or_default(),
+                    insufficient_funds_leases: insufficient_funds_leases__.unwrap_or_default(),
                 })
             }
         }

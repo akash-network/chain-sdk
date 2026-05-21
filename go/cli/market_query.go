@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
@@ -23,8 +25,42 @@ func GetQueryMarketCmds() *cobra.Command {
 		GetQueryMarketOrderCmds(),
 		GetQueryMarketBidCmds(),
 		GetQueryMarketLeaseCmds(),
+		GetQueryMarketProviderLeaseStatsCmd(),
 		GetQueryMarketParamsCmd(),
 	)
+
+	return cmd
+}
+
+func GetQueryMarketProviderLeaseStatsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "provider-lease-stats [provider]",
+		Short:             "Query provider lease completion stats",
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+
+			since, err := readSinceFlag(cmd)
+			if err != nil {
+				return err
+			}
+
+			res, err := cl.Query().Market().ProviderLeaseStats(ctx, &mvbeta.QueryProviderLeaseStatsRequest{
+				Provider: args[0],
+				Since:    since,
+			})
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
+	cmd.Flags().String("since", "", "Only include leases closed at or after this RFC3339 timestamp")
 
 	return cmd
 }
@@ -314,4 +350,15 @@ func GetQueryMarketParamsCmd() *cobra.Command {
 	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
+}
+
+func readSinceFlag(cmd *cobra.Command) (time.Time, error) {
+	val, err := cmd.Flags().GetString("since")
+	if err != nil {
+		return time.Time{}, err
+	}
+	if val == "" {
+		return time.Time{}, nil
+	}
+	return time.Parse(time.RFC3339, val)
 }

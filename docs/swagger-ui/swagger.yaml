@@ -6921,6 +6921,20 @@ paths:
                     description: >-
                       ProviderFaults is the provider-fault lease count split by
                       close reason.
+                  tenant_closed_leases:
+                    type: string
+                    format: uint64
+                    description: >-
+                      TenantClosedLeases is the number of tenant/owner-initiated
+                      lease closures.
+                  insufficient_funds_leases:
+                    type: string
+                    format: uint64
+                    description: >-
+                      InsufficientFundsLeases is the number of network closures
+                      caused by escrow
+
+                      depletion.
             description: |-
               QueryProviderLeaseStatsResponse is the response type for the
               Query/ProviderLeaseStats RPC method.
@@ -6958,6 +6972,16 @@ paths:
           in: path
           required: true
           type: string
+        - name: since
+          description: >-
+            Since is the inclusive lower bound for lease close times. If unset,
+            all
+
+            retained lease stats are included.
+          in: query
+          required: false
+          type: string
+          format: date-time
       tags:
         - Query
   /akash/provider/v1beta4/params:
@@ -52036,6 +52060,20 @@ definitions:
         description: >-
           ProviderFaults is the provider-fault lease count split by close
           reason.
+      tenant_closed_leases:
+        type: string
+        format: uint64
+        description: >-
+          TenantClosedLeases is the number of tenant/owner-initiated lease
+          closures.
+      insufficient_funds_leases:
+        type: string
+        format: uint64
+        description: >-
+          InsufficientFundsLeases is the number of network closures caused by
+          escrow
+
+          depletion.
     description: ProviderLeaseStats stores aggregate lease-completion stats for a provider.
   akash.market.v1.ProviderLeaseStatsByReason:
     type: object
@@ -56512,6 +56550,20 @@ definitions:
             description: >-
               ProviderFaults is the provider-fault lease count split by close
               reason.
+          tenant_closed_leases:
+            type: string
+            format: uint64
+            description: >-
+              TenantClosedLeases is the number of tenant/owner-initiated lease
+              closures.
+          insufficient_funds_leases:
+            type: string
+            format: uint64
+            description: >-
+              InsufficientFundsLeases is the number of network closures caused
+              by escrow
+
+              depletion.
     description: |-
       QueryProviderLeaseStatsResponse is the response type for the
       Query/ProviderLeaseStats RPC method.
