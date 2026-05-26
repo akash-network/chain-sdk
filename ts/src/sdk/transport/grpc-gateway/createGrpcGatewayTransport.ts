@@ -4,6 +4,7 @@ import { type GrpcTransportOptions as ConnectGrpcTransportOptions } from "@conne
 
 import { base64FromBytes } from "../../../encoding/typeEncodingHelpers.ts";
 import type { MessageDesc, MessageInitShape, MessageShape, MethodDesc } from "../../client/types.ts";
+import { asyncNoop } from "../createNoopTransport.ts";
 import { runUnaryCall } from "../runCall.ts";
 import { TransportError } from "../TransportError.ts";
 import { coerceTimeoutMs } from "../transportUtils.ts";
@@ -106,6 +107,7 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
     async stream<I extends MessageDesc, O extends MessageDesc>(): Promise<StreamResponse<I, O>> {
       throw new TransportError(`GrpcGateway transport doesn't support streaming`, TransportError.Code.Unimplemented);
     },
+    dispose: asyncNoop,
   };
 }
 
