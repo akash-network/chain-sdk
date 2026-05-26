@@ -1425,6 +1425,7 @@ impl serde::Serialize for AuditorStatus {
     {
         let variant = match self {
             Self::Unspecified => "auditor_status_unspecified",
+            Self::PendingBond => "auditor_status_pending_bond",
             Self::Active => "auditor_status_active",
             Self::Frozen => "auditor_status_frozen",
             Self::Lapsed => "auditor_status_lapsed",
@@ -1442,6 +1443,7 @@ impl<'de> serde::Deserialize<'de> for AuditorStatus {
     {
         const FIELDS: &[&str] = &[
             "auditor_status_unspecified",
+            "auditor_status_pending_bond",
             "auditor_status_active",
             "auditor_status_frozen",
             "auditor_status_lapsed",
@@ -1488,6 +1490,7 @@ impl<'de> serde::Deserialize<'de> for AuditorStatus {
             {
                 match value {
                     "auditor_status_unspecified" => Ok(AuditorStatus::Unspecified),
+                    "auditor_status_pending_bond" => Ok(AuditorStatus::PendingBond),
                     "auditor_status_active" => Ok(AuditorStatus::Active),
                     "auditor_status_frozen" => Ok(AuditorStatus::Frozen),
                     "auditor_status_lapsed" => Ok(AuditorStatus::Lapsed),
@@ -1508,6 +1511,7 @@ impl serde::Serialize for BondStatus {
     {
         let variant = match self {
             Self::Unspecified => "bond_status_unspecified",
+            Self::NotBonded => "bond_status_not_bonded",
             Self::Bonded => "bond_status_bonded",
             Self::Frozen => "bond_status_frozen",
             Self::Unbonding => "bond_status_unbonding",
@@ -1523,6 +1527,7 @@ impl<'de> serde::Deserialize<'de> for BondStatus {
     {
         const FIELDS: &[&str] = &[
             "bond_status_unspecified",
+            "bond_status_not_bonded",
             "bond_status_bonded",
             "bond_status_frozen",
             "bond_status_unbonding",
@@ -1567,6 +1572,7 @@ impl<'de> serde::Deserialize<'de> for BondStatus {
             {
                 match value {
                     "bond_status_unspecified" => Ok(BondStatus::Unspecified),
+                    "bond_status_not_bonded" => Ok(BondStatus::NotBonded),
                     "bond_status_bonded" => Ok(BondStatus::Bonded),
                     "bond_status_frozen" => Ok(BondStatus::Frozen),
                     "bond_status_unbonding" => Ok(BondStatus::Unbonding),

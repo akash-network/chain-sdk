@@ -873,6 +873,7 @@ VerificationRequirement is evaluated against a provider's set of attestations.
  | Name | Number | Description |
  | ---- | ------ | ----------- |
  | auditor_status_unspecified | 0 | AuditorStatusUnspecified is the default; no status has been set. |
+ | auditor_status_pending_bond | 6 | AuditorStatusPendingBond indicates the auditor has been approved by governance but has not posted enough bond to submit attestations. |
  | auditor_status_active | 1 | AuditorStatusActive indicates the auditor is bonded and may submit attestations. |
  | auditor_status_frozen | 2 | AuditorStatusFrozen indicates the auditor has been temporarily suspended (e.g. discrepancy threshold). |
  | auditor_status_lapsed | 3 | AuditorStatusLapsed indicates the auditor's renewal deadline has passed without renewal. |
@@ -889,6 +890,7 @@ VerificationRequirement is evaluated against a provider's set of attestations.
  | Name | Number | Description |
  | ---- | ------ | ----------- |
  | bond_status_unspecified | 0 | BondStatusUnspecified is the default; no bond status has been set. |
+ | bond_status_not_bonded | 4 | BondStatusNotBonded indicates no active auditor bond is currently posted. |
  | bond_status_bonded | 1 | BondStatusBonded indicates the bond is fully posted and active. |
  | bond_status_frozen | 2 | BondStatusFrozen indicates the bond is locked while the auditor is frozen. |
  | bond_status_unbonding | 3 | BondStatusUnbonding indicates the bond is currently in the unbonding period. |
@@ -9170,7 +9172,7 @@ timestamps, discrepancy counter, and any pending bond unbonding completion.
  | ----- | ---- | ----- | ----------- |
  | `address` | [string](#string) |  | Address is the bech32 account address of the auditor. |
  | `status` | [AuditorStatus](#akash.verification.v1.AuditorStatus) |  | Status is the lifecycle status of the auditor record. |
- | `max_attestation_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | MaxAttestationTier is the highest verification tier this auditor is permitted to attest, based on the bond posted at registration. |
+ | `max_attestation_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | MaxAttestationTier is the highest verification tier this auditor is permitted to attest once the required bond has been posted. |
  | `bond_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondAmount is the coin amount currently bonded by the auditor. |
  | `bond_status` | [BondStatus](#akash.verification.v1.BondStatus) |  | BondStatus is the current status of the auditor bond. |
  | `metadata_hash` | [bytes](#bytes) |  | MetadataHash is an opaque hash referencing auditor metadata (off-chain). |

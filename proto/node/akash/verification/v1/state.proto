@@ -28,7 +28,7 @@ message AuditorRecord {
   ];
 
   // MaxAttestationTier is the highest verification tier this auditor is
-  // permitted to attest, based on the bond posted at registration.
+  // permitted to attest once the required bond has been posted.
   VerificationTier max_attestation_tier = 3 [
     (gogoproto.jsontag)  = "max_attestation_tier",
     (gogoproto.moretags) = "yaml:\"max_attestation_tier\""

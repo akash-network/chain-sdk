@@ -29,6 +29,9 @@ enum AuditorStatus {
 
   // AuditorStatusUnspecified is the default; no status has been set.
   auditor_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "AuditorStatusUnspecified"];
+  // AuditorStatusPendingBond indicates the auditor has been approved by governance
+  // but has not posted enough bond to submit attestations.
+  auditor_status_pending_bond = 6 [(gogoproto.enumvalue_customname) = "AuditorStatusPendingBond"];
   // AuditorStatusActive indicates the auditor is bonded and may submit attestations.
   auditor_status_active = 1 [(gogoproto.enumvalue_customname) = "AuditorStatusActive"];
   // AuditorStatusFrozen indicates the auditor has been temporarily suspended (e.g. discrepancy threshold).
@@ -47,6 +50,8 @@ enum BondStatus {
 
   // BondStatusUnspecified is the default; no bond status has been set.
   bond_status_unspecified = 0 [(gogoproto.enumvalue_customname) = "BondStatusUnspecified"];
+  // BondStatusNotBonded indicates no active auditor bond is currently posted.
+  bond_status_not_bonded = 4 [(gogoproto.enumvalue_customname) = "BondStatusNotBonded"];
   // BondStatusBonded indicates the bond is fully posted and active.
   bond_status_bonded = 1 [(gogoproto.enumvalue_customname) = "BondStatusBonded"];
   // BondStatusFrozen indicates the bond is locked while the auditor is frozen.
