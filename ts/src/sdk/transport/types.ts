@@ -25,6 +25,11 @@ export interface Transport<TCallOptions = unknown> {
    * and responds with zero or more output messages.
    */
   stream<I extends MessageDesc, O extends MessageDesc>(method: MethodDesc<"server_streaming" | "client_streaming" | "bidi_streaming", I, O>, input: AsyncIterable<MessageInitShape<I>>, options?: TCallOptions): Promise<StreamResponse<I, O>>;
+
+  /**
+   * Close the transport and release any resources associated with it. After calling this method, the transport instance should not be used to make any more RPC calls.
+   */
+  dispose(): Promise<void>;
 }
 
 export interface UnaryResponse<I extends MessageDesc, O extends MessageDesc> extends ResponseCommon {

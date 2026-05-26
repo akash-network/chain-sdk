@@ -34,7 +34,14 @@ export function createChainNodeSDK(options: ChainNodeSDKOptions) {
   }
   const nodeSDK = createNodeSDK(queryTransport, txTransport);
   const cosmosSDK = createCosmosSDK(queryTransport, txTransport);
-  return { ...nodeSDK, ...cosmosSDK, [SIGNER_KEY]: options.tx?.signer };
+  return {
+    ...nodeSDK,
+    ...cosmosSDK,
+    [SIGNER_KEY]: options.tx?.signer,
+    [Symbol.asyncDispose]: async () => {
+      await Promise.allSettled([queryTransport.dispose(), txTransport?.dispose()]);
+    },
+  };
 }
 
 export interface ChainNodeSDKOptions {
