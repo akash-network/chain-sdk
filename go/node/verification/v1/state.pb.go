@@ -38,7 +38,7 @@ type AuditorRecord struct {
 	// Status is the lifecycle status of the auditor record.
 	Status AuditorStatus `protobuf:"varint,2,opt,name=status,proto3,enum=akash.verification.v1.AuditorStatus" json:"status" yaml:"status"`
 	// MaxAttestationTier is the highest verification tier this auditor is
-	// permitted to attest, based on the bond posted at registration.
+	// permitted to attest once the required bond has been posted.
 	MaxAttestationTier VerificationTier `protobuf:"varint,3,opt,name=max_attestation_tier,json=maxAttestationTier,proto3,enum=akash.verification.v1.VerificationTier" json:"max_attestation_tier" yaml:"max_attestation_tier"`
 	// BondAmount is the coin amount currently bonded by the auditor.
 	BondAmount types.Coin `protobuf:"bytes,4,opt,name=bond_amount,json=bondAmount,proto3" json:"bond_amount" yaml:"bond_amount"`

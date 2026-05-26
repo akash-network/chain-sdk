@@ -71,7 +71,7 @@ export interface AuditorRecord {
   status: AuditorStatus;
   /**
    * MaxAttestationTier is the highest verification tier this auditor is
-   * permitted to attest, based on the bond posted at registration.
+   * permitted to attest once the required bond has been posted.
    */
   maxAttestationTier: VerificationTier;
   /** BondAmount is the coin amount currently bonded by the auditor. */
