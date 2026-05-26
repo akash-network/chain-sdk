@@ -214,4 +214,6 @@ func TestLeaseEvents_OmitsEmptyService(t *testing.T) {
 
 	q := getQuery()
 	require.Empty(t, q.Get("service"))
+	require.Equal(t, "false", q.Get("follow"))
+	require.Empty(t, q.Get("services"))
 }
