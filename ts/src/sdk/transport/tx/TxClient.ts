@@ -8,6 +8,7 @@ export { DeliverTxResponse, StdFee, EncodeObject, GeneratedType };
 
 export interface TxClient {
   signAndBroadcast(messages: EncodeObject[], options?: TxSignAndBroadcastOptions): Promise<DeliverTxResponse>;
+  disconnect?(): Promise<void>;
 }
 
 export interface TxSignAndBroadcastOptions {

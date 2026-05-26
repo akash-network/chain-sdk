@@ -7,7 +7,9 @@ import { createRetryInterceptor, isRetryEnabled } from "../transport/interceptor
 
 export type { PayloadOf, ResponseOf } from "../types.ts";
 
-type ProviderSDK = PickByPath<ReturnType<typeof createSDK>, "akash.provider.v1">;
+export type ProviderSDK = PickByPath<ReturnType<typeof createSDK>, "akash.provider.v1"> & {
+  [Symbol.asyncDispose]: () => Promise<void>;
+};
 
 export function createProviderSDK(options: ProviderSDKOptions): ProviderSDK {
   const { retry: retryOptions, ...transportOptions } = options.transportOptions ?? {};
@@ -17,18 +19,23 @@ export function createProviderSDK(options: ProviderSDKOptions): ProviderSDK {
         key: options.authentication?.key,
       }
     : null;
+  const transport = createGrpcTransport({
+    ...transportOptions,
+    interceptors: isRetryEnabled(retryOptions) ? [createRetryInterceptor(retryOptions)] : [],
+    baseUrl: options.baseUrl,
+    nodeOptions: {
+      ...certificateOptions,
+      rejectUnauthorized: false,
+    },
+  });
 
-  return createSDK(
-    createGrpcTransport({
-      ...transportOptions,
-      interceptors: isRetryEnabled(retryOptions) ? [createRetryInterceptor(retryOptions)] : [],
-      baseUrl: options.baseUrl,
-      nodeOptions: {
-        ...certificateOptions,
-        rejectUnauthorized: false,
-      },
-    }),
-  );
+  const sdk = createSDK(transport);
+  return {
+    ...sdk,
+    [Symbol.asyncDispose]: async () => {
+      await transport.dispose();
+    },
+  };
 }
 
 export interface ProviderSDKOptions {
