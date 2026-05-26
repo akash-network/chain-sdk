@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.32](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.31...ts/v1.0.0-alpha.32) (2026-05-26)
+
+
+### Features
+
+* adds asyncDispose methods to sdks ([#309](https://github.com/akash-network/chain-sdk/issues/309)) ([e9b410d](https://github.com/akash-network/chain-sdk/commit/e9b410d5917680514a301a2f8907dc79a92100c1))
+
 ## [1.0.0-alpha.31](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.30...ts/v1.0.0-alpha.31) (2026-04-29)
 
 
