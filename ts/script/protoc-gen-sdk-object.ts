@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --experimental-strip-types --no-warnings
+#!/usr/bin/env -S node
 
 import { type DescExtension, type DescMethod, type DescService, getOption, hasOption } from "@bufbuild/protobuf";
 import {

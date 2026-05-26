@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --experimental-strip-types --no-warnings
+#!/usr/bin/env -S node
 
 import { promises as fs } from "node:fs";
 import { dirname, relative as relativePath, resolve as resolvePath } from "node:path";
