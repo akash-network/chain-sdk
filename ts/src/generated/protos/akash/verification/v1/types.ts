@@ -71,6 +71,11 @@ export function verificationTierToJSON(object: VerificationTier): string {
 export enum AuditorStatus {
   /** auditor_status_unspecified - AuditorStatusUnspecified is the default; no status has been set. */
   auditor_status_unspecified = 0,
+  /**
+   * auditor_status_pending_bond - AuditorStatusPendingBond indicates the auditor has been approved by governance
+   * but has not posted enough bond to submit attestations.
+   */
+  auditor_status_pending_bond = 6,
   /** auditor_status_active - AuditorStatusActive indicates the auditor is bonded and may submit attestations. */
   auditor_status_active = 1,
   /** auditor_status_frozen - AuditorStatusFrozen indicates the auditor has been temporarily suspended (e.g. discrepancy threshold). */
@@ -89,6 +94,9 @@ export function auditorStatusFromJSON(object: any): AuditorStatus {
     case 0:
     case "auditor_status_unspecified":
       return AuditorStatus.auditor_status_unspecified;
+    case 6:
+    case "auditor_status_pending_bond":
+      return AuditorStatus.auditor_status_pending_bond;
     case 1:
     case "auditor_status_active":
       return AuditorStatus.auditor_status_active;
@@ -115,6 +123,8 @@ export function auditorStatusToJSON(object: AuditorStatus): string {
   switch (object) {
     case AuditorStatus.auditor_status_unspecified:
       return "auditor_status_unspecified";
+    case AuditorStatus.auditor_status_pending_bond:
+      return "auditor_status_pending_bond";
     case AuditorStatus.auditor_status_active:
       return "auditor_status_active";
     case AuditorStatus.auditor_status_frozen:
@@ -135,6 +145,8 @@ export function auditorStatusToJSON(object: AuditorStatus): string {
 export enum BondStatus {
   /** bond_status_unspecified - BondStatusUnspecified is the default; no bond status has been set. */
   bond_status_unspecified = 0,
+  /** bond_status_not_bonded - BondStatusNotBonded indicates no active auditor bond is currently posted. */
+  bond_status_not_bonded = 4,
   /** bond_status_bonded - BondStatusBonded indicates the bond is fully posted and active. */
   bond_status_bonded = 1,
   /** bond_status_frozen - BondStatusFrozen indicates the bond is locked while the auditor is frozen. */
@@ -149,6 +161,9 @@ export function bondStatusFromJSON(object: any): BondStatus {
     case 0:
     case "bond_status_unspecified":
       return BondStatus.bond_status_unspecified;
+    case 4:
+    case "bond_status_not_bonded":
+      return BondStatus.bond_status_not_bonded;
     case 1:
     case "bond_status_bonded":
       return BondStatus.bond_status_bonded;
@@ -169,6 +184,8 @@ export function bondStatusToJSON(object: BondStatus): string {
   switch (object) {
     case BondStatus.bond_status_unspecified:
       return "bond_status_unspecified";
+    case BondStatus.bond_status_not_bonded:
+      return "bond_status_not_bonded";
     case BondStatus.bond_status_bonded:
       return "bond_status_bonded";
     case BondStatus.bond_status_frozen:
