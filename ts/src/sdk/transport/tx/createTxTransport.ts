@@ -52,6 +52,9 @@ export function createTxTransport(transportOptions: TransactionTransportOptions)
     async stream() {
       throw new TransportError(`Transaction transport doesn't support streaming`, TransportError.Code.Unimplemented);
     },
+    async dispose() {
+      await transportOptions.client.disconnect?.();
+    },
   };
 }
 

@@ -1,4 +1,6 @@
 import { createContextValues } from "@connectrpc/connect";
+import type {
+  UniversalClientFn } from "@connectrpc/connect/protocol";
 import {
   createAsyncIterable,
   pipe,
@@ -22,8 +24,12 @@ import type { CallOptions, StreamRequest, StreamResponse, Transport, UnaryReques
 export type GrpcCallOptions = Omit<CallOptions, "onHeader" | "onTrailer"> & {
   header?: HeadersInit;
 };
+
+type DisposableUniversalClientFn = UniversalClientFn & {
+  [Symbol.dispose]?: () => void;
+};
 export interface GrpcTransportOptions extends Omit<ConnectGrpcTransportOptions, "useBinaryFormat"> {
-  httpClient?: ReturnType<typeof createNodeHttpClient>;
+  httpClient?: DisposableUniversalClientFn;
 }
 
 /**
@@ -221,10 +227,13 @@ export function createGrpcTransport(options: GrpcTransportOptions): Transport<Gr
         },
       });
     },
+    async dispose() {
+      httpClient[Symbol.dispose]?.();
+    },
   };
 }
 
-function createDefaultHttpClient(options: GrpcTransportOptions) {
+function createDefaultHttpClient(options: GrpcTransportOptions): DisposableUniversalClientFn {
   const sessionManager = options.sessionManager ?? new Http2SessionManager(
     options.baseUrl,
     {
@@ -235,8 +244,16 @@ function createDefaultHttpClient(options: GrpcTransportOptions) {
     },
     options.nodeOptions,
   );
-  return createNodeHttpClient({
+  const fetch: DisposableUniversalClientFn = createNodeHttpClient({
     httpVersion: "2",
     sessionProvider: () => sessionManager,
   });
+
+  fetch[Symbol.dispose] = () => {
+    if (sessionManager && "abort" in sessionManager && typeof sessionManager.abort === "function") {
+      sessionManager.abort();
+    }
+  };
+
+  return fetch;
 }

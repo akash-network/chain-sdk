@@ -1,6 +1,9 @@
 import { TransportError } from "./TransportError.ts";
 import type { Transport, TxCallOptions } from "./types.ts";
 
+const resolvedPromise = Promise.resolve();
+export const asyncNoop = () => resolvedPromise;
+
 export function createNoopTransport(options: NoopTransportOptions): Transport<TxCallOptions> {
   return {
     async unary() {
@@ -9,6 +12,7 @@ export function createNoopTransport(options: NoopTransportOptions): Transport<Tx
     async stream() {
       throw new TransportError(options.streamErrorMessage || "Transaction transport doesn't support streaming", TransportError.Code.Unimplemented);
     },
+    dispose: asyncNoop,
   };
 }
 
