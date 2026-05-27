@@ -760,3 +760,239 @@ func TestV2_1_ParseServiceMix2(t *testing.T) {
 		},
 	}, mani.GetGroups()[0])
 }
+
+func TestV2_1_ConfidentialComputeGPU(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-confidential-compute-gpu.yaml")
+	require.NoError(t, err)
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+	require.Len(t, groups, 1)
+
+	group := groups[0]
+
+	// Verify CC attributes survive SDL → GroupSpec round-trip
+	ccFound := false
+	teeFound := false
+	for _, attr := range group.Requirements.Attributes {
+		if attr.Key == "confidential-compute" && attr.Value == "true" {
+			ccFound = true
+		}
+		if attr.Key == "confidential-compute-tee" && attr.Value == "amd-sev-snp" {
+			teeFound = true
+		}
+	}
+	assert.True(t, ccFound, "confidential-compute attribute must survive round-trip")
+	assert.True(t, teeFound, "confidential-compute-tee attribute must survive round-trip")
+
+	// Verify GPU resources are present
+	require.Len(t, group.GetResourceUnits(), 1)
+	ru := group.GetResourceUnits()[0]
+	require.NotNil(t, ru.GPU)
+	assert.Equal(t, uint64(1), ru.GPU.Units.Value())
+	assert.Equal(t, atypes.Attributes{
+		{Key: "vendor/nvidia/model/h100", Value: "true"},
+	}, ru.GPU.Attributes)
+
+	// Verify manifest also round-trips correctly
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+	require.Len(t, mani.GetGroups(), 1)
+
+	svc := mani.GetGroups()[0].Services[0]
+	assert.Equal(t, "web", svc.Name)
+	assert.Equal(t, "nginx", svc.Image)
+	require.NotNil(t, svc.Resources.GPU)
+	assert.Equal(t, uint64(1), svc.Resources.GPU.Units.Value())
+}
+
+func TestV2_1_ConfidentialComputeCPUOnly(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-confidential-compute-cpu-only.yaml")
+	require.NoError(t, err)
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+	require.Len(t, groups, 1)
+
+	group := groups[0]
+
+	// Verify CC attribute survives SDL → GroupSpec round-trip
+	ccFound := false
+	for _, attr := range group.Requirements.Attributes {
+		if attr.Key == "confidential-compute" && attr.Value == "true" {
+			ccFound = true
+		}
+	}
+	assert.True(t, ccFound, "confidential-compute attribute must survive round-trip")
+
+	// Verify no GPU resources (CPU-only CC)
+	require.Len(t, group.GetResourceUnits(), 1)
+	ru := group.GetResourceUnits()[0]
+	require.NotNil(t, ru.GPU)
+	assert.Equal(t, uint64(0), ru.GPU.Units.Value())
+
+	// Verify manifest round-trip
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+	require.Len(t, mani.GetGroups(), 1)
+	assert.Equal(t, "web", mani.GetGroups()[0].Services[0].Name)
+}
+
+func TestV2_1_ConfidentialComputeAttributeInline(t *testing.T) {
+	stream := `
+version: "2.1"
+services:
+  app:
+    image: myapp:latest
+    expose:
+      - port: 8080
+        to:
+          - global: true
+profiles:
+  compute:
+    app:
+      resources:
+        cpu:
+          units: "500m"
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+              - model: h100
+                ram: 80Gi
+        memory:
+          size: "512Mi"
+        storage:
+        - size: "2Gi"
+  placement:
+    dc1:
+      attributes:
+        confidential-compute: "true"
+        confidential-compute-tee: amd-sev-snp
+      pricing:
+        app:
+          denom: uakt
+          amount: 100
+deployment:
+  app:
+    dc1:
+      profile: app
+      count: 1
+`
+	sdl, err := Read([]byte(stream))
+	require.NoError(t, err)
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+	require.Len(t, groups, 1)
+
+	group := groups[0]
+
+	// Both CC attributes must be present
+	attrMap := make(map[string]string)
+	for _, attr := range group.Requirements.Attributes {
+		attrMap[attr.Key] = attr.Value
+	}
+	assert.Equal(t, "true", attrMap["confidential-compute"])
+	assert.Equal(t, "amd-sev-snp", attrMap["confidential-compute-tee"])
+
+	// GPU with RAM attribute
+	ru := group.GetResourceUnits()[0]
+	require.NotNil(t, ru.GPU)
+	assert.Equal(t, uint64(1), ru.GPU.Units.Value())
+	assert.Contains(t, ru.GPU.Attributes[0].Key, "vendor/nvidia/model/h100")
+}
+
+func TestV2_1_ConfidentialComputeAttestationOptOut(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-confidential-compute-no-attestation.yaml")
+	require.NoError(t, err)
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+	require.Len(t, groups, 1)
+
+	// Verify CC attribute is present
+	ccFound := false
+	for _, attr := range groups[0].Requirements.Attributes {
+		if attr.Key == "confidential-compute" && attr.Value == "true" {
+			ccFound = true
+		}
+	}
+	assert.True(t, ccFound, "confidential-compute attribute must survive round-trip")
+
+	// Verify manifest parses — the attestation opt-out is in service params
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+	require.Len(t, mani.GetGroups(), 1)
+
+	svc := mani.GetGroups()[0].Services[0]
+	assert.Equal(t, "web", svc.Name)
+
+	// Verify attestation opt-out flows through to manifest ServiceParams
+	require.NotNil(t, svc.Params, "service params must not be nil")
+	require.NotNil(t, svc.Params.Attestation, "attestation params must not be nil")
+	assert.False(t, svc.Params.Attestation.Enabled, "attestation must be disabled")
+}
+
+func TestV2_1_ConfidentialComputeTDXCPUOnly(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-confidential-compute-tdx.yaml")
+	require.NoError(t, err)
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+	require.Len(t, groups, 1)
+
+	group := groups[0]
+
+	attrMap := make(map[string]string)
+	for _, attr := range group.Requirements.Attributes {
+		attrMap[attr.Key] = attr.Value
+	}
+	assert.Equal(t, "true", attrMap["confidential-compute"])
+	assert.Equal(t, "intel-tdx", attrMap["confidential-compute-tee"])
+
+	// CPU-only: no GPU
+	ru := group.GetResourceUnits()[0]
+	require.NotNil(t, ru.GPU)
+	assert.Equal(t, uint64(0), ru.GPU.Units.Value())
+
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+	require.Len(t, mani.GetGroups(), 1)
+	assert.Equal(t, "web", mani.GetGroups()[0].Services[0].Name)
+}
+
+func TestV2_1_ConfidentialComputeTDXGPU(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-confidential-compute-tdx-gpu.yaml")
+	require.NoError(t, err)
+
+	groups, err := sdl.DeploymentGroups()
+	require.NoError(t, err)
+	require.Len(t, groups, 1)
+
+	group := groups[0]
+
+	attrMap := make(map[string]string)
+	for _, attr := range group.Requirements.Attributes {
+		attrMap[attr.Key] = attr.Value
+	}
+	assert.Equal(t, "true", attrMap["confidential-compute"])
+	assert.Equal(t, "intel-tdx", attrMap["confidential-compute-tee"])
+
+	// GPU present
+	ru := group.GetResourceUnits()[0]
+	require.NotNil(t, ru.GPU)
+	assert.Equal(t, uint64(1), ru.GPU.Units.Value())
+	assert.Equal(t, atypes.Attributes{
+		{Key: "vendor/nvidia/model/h100", Value: "true"},
+	}, ru.GPU.Attributes)
+
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+	require.Len(t, mani.GetGroups(), 1)
+	svc := mani.GetGroups()[0].Services[0]
+	assert.Equal(t, "nvidia-app", svc.Image)
+	require.NotNil(t, svc.Resources.GPU)
+	assert.Equal(t, uint64(1), svc.Resources.GPU.Units.Value())
+}

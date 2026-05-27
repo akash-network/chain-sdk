@@ -133,6 +133,12 @@ func (sdl *v2_1) buildGroups() error {
 					}
 				}
 
+				if svc.Params.Attestation != nil && svc.Params.Attestation.Enabled != nil {
+					params.Attestation = &manifest.AttestationParams{
+						Enabled: *svc.Params.Attestation.Enabled,
+					}
+				}
+
 				msvc.Params = params
 			}
 

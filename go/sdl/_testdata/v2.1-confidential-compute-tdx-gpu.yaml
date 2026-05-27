@@ -1,0 +1,40 @@
+---
+version: "2.1"
+services:
+  web:
+    image: nvidia-app
+    expose:
+      - port: 8080
+        to:
+          - global: true
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: "500m"
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+              - model: h100
+        memory:
+          size: "512Mi"
+        storage:
+        - size: "2Gi"
+  placement:
+    datacenter:
+      attributes:
+        region: us-east
+        confidential-compute: "true"
+        confidential-compute-tee: intel-tdx
+      pricing:
+        web:
+          denom: uact
+          amount: 100
+deployment:
+  web:
+    datacenter:
+      profile: web
+      count: 1

@@ -171,9 +171,18 @@ type v2ServicePermissions struct {
 	Read []string `yaml:"read,omitempty"`
 }
 
+// v2AttestationParams controls attestation sidecar injection for CC workloads.
+type v2AttestationParams struct {
+	// Enabled controls whether the provider injects an attestation sidecar.
+	// Defaults to true when confidential-compute is active via placement attributes.
+	// Set to false to opt out (e.g., when bringing your own attestation tooling).
+	Enabled *bool `yaml:"enabled,omitempty"`
+}
+
 type v2ServiceParams struct {
 	Storage     map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
 	Permissions *v2ServicePermissions             `yaml:"permissions,omitempty"`
+	Attestation *v2AttestationParams              `yaml:"attestation,omitempty"`
 }
 
 type v2Service struct {

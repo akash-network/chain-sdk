@@ -37,6 +37,20 @@ message ServicePermissions {
   ];
 }
 
+// AttestationParams controls attestation sidecar injection for confidential compute.
+// When confidential-compute is enabled via placement attributes, the provider
+// automatically injects an attestation sidecar. This message allows the tenant
+// to opt out (e.g., when bringing their own attestation tooling).
+message AttestationParams {
+  // enabled controls whether the attestation sidecar is injected.
+  // Defaults to true when confidential-compute is active.
+  // Set to false to opt out of provider-managed attestation.
+  bool enabled = 1 [
+    (gogoproto.jsontag)  = "enabled",
+    (gogoproto.moretags) = "yaml:\"enabled\""
+  ];
+}
+
 // ServiceParams
 message ServiceParams {
   repeated StorageParams storage = 1 [
@@ -53,6 +67,11 @@ message ServiceParams {
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "permissions,omitempty",
     (gogoproto.moretags) = "yaml:\"permissions,omitempty\""
+  ];
+  AttestationParams attestation = 12 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "attestation,omitempty",
+    (gogoproto.moretags) = "yaml:\"attestation,omitempty\""
   ];
 }
 

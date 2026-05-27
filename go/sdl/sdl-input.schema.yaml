@@ -476,6 +476,12 @@ properties:
                       - events
                   type: array
               type: object
+            attestation:
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+              type: object
           type: object
       required:
         - image
