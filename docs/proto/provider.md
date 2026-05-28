@@ -970,6 +970,7 @@ Resources map to Kubernetes RBAC permissions:
  | ----- | ---- | ----- | ----------- |
  | `cluster` | [akash.inventory.v1.Cluster](#akash.inventory.v1.Cluster) |  |  |
  | `reservations` | [Reservations](#akash.provider.v1.Reservations) |  |  |
+ | `leased_ip` | [akash.inventory.v1.ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  
  
 
