@@ -466,12 +466,18 @@ impl serde::Serialize for Inventory {
         if self.reservations.is_some() {
             len += 1;
         }
+        if self.leased_ip.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.provider.v1.Inventory", len)?;
         if let Some(v) = self.cluster.as_ref() {
             struct_ser.serialize_field("cluster", v)?;
         }
         if let Some(v) = self.reservations.as_ref() {
             struct_ser.serialize_field("reservations", v)?;
+        }
+        if let Some(v) = self.leased_ip.as_ref() {
+            struct_ser.serialize_field("leasedIp", v)?;
         }
         struct_ser.end()
     }
@@ -485,12 +491,15 @@ impl<'de> serde::Deserialize<'de> for Inventory {
         const FIELDS: &[&str] = &[
             "cluster",
             "reservations",
+            "leased_ip",
+            "leasedIp",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Cluster,
             Reservations,
+            LeasedIp,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -514,6 +523,7 @@ impl<'de> serde::Deserialize<'de> for Inventory {
                         match value {
                             "cluster" => Ok(GeneratedField::Cluster),
                             "reservations" => Ok(GeneratedField::Reservations),
+                            "leasedIp" | "leased_ip" => Ok(GeneratedField::LeasedIp),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -535,6 +545,7 @@ impl<'de> serde::Deserialize<'de> for Inventory {
             {
                 let mut cluster__ = None;
                 let mut reservations__ = None;
+                let mut leased_ip__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Cluster => {
@@ -549,11 +560,18 @@ impl<'de> serde::Deserialize<'de> for Inventory {
                             }
                             reservations__ = map_.next_value()?;
                         }
+                        GeneratedField::LeasedIp => {
+                            if leased_ip__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("leasedIp"));
+                            }
+                            leased_ip__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(Inventory {
                     cluster: cluster__,
                     reservations: reservations__,
+                    leased_ip: leased_ip__,
                 })
             }
         }
