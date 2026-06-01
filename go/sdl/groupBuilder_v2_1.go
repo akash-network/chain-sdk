@@ -54,6 +54,27 @@ func (sdl *v2_1) buildGroups() error {
 				groups[placementName] = group
 			}
 
+			// Validate TEE + GPU consistency
+			if svc.Params != nil && svc.Params.TEE != nil {
+				hasGPU := compute.Resources.GPU != nil && compute.Resources.GPU.Units > 0
+				if err := svc.Params.TEE.validateWithGPU(hasGPU); err != nil {
+					return err
+				}
+			}
+
+			// Project TEE params as placement requirement attributes so the
+			// bid engine can match providers with capabilities/tee/... attributes.
+			if svc.Params != nil && svc.Params.TEE != nil {
+				teeAttrs := svc.Params.TEE.toAttributes()
+				for _, attr := range teeAttrs {
+					group.dgroup.Requirements.Attributes = append(
+						group.dgroup.Requirements.Attributes,
+						types.Attribute{Key: attr.Key, Value: attr.Value},
+					)
+				}
+				sort.Sort(group.dgroup.Requirements.Attributes)
+			}
+
 			if _, exists := group.boundComputes[placementName]; !exists {
 				group.boundComputes[placementName] = make(map[string]int)
 			}
@@ -130,6 +151,17 @@ func (sdl *v2_1) buildGroups() error {
 				if svc.Params.Permissions != nil {
 					params.Permissions = &manifest.ServicePermissions{
 						Read: svc.Params.Permissions.Read,
+					}
+				}
+
+				if svc.Params.TEE != nil {
+					attestation := true
+					if svc.Params.TEE.Attestation != nil {
+						attestation = *svc.Params.TEE.Attestation
+					}
+					params.TEE = &manifest.TEEParams{
+						Type:        svc.Params.TEE.Type,
+						Attestation: attestation,
 					}
 				}
 

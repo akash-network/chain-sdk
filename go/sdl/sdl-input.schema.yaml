@@ -476,6 +476,21 @@ properties:
                       - events
                   type: array
               type: object
+            tee:
+              additionalProperties: false
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - sev-snp
+                    - sev-snp-gpu
+                    - tdx
+                    - tdx-gpu
+                attestation:
+                  type: boolean
+              required:
+                - type
+              type: object
           type: object
       required:
         - image

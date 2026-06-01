@@ -96,6 +96,7 @@ func (g GroupSpec) MatchResourcesRequirements(pattr attr.Attributes) bool {
 				return false
 			}
 		}
+
 	}
 
 	return true

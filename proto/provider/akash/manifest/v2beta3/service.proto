@@ -37,6 +37,23 @@ message ServicePermissions {
   ];
 }
 
+// TEEParams configures Trusted Execution Environment for the service.
+// The type field selects the TEE technology and maps to a Kata runtime class.
+// The attestation field controls whether the provider injects an attestation sidecar.
+message TEEParams {
+  // type is the TEE technology: sev-snp, sev-snp-gpu, tdx, tdx-gpu
+  string type = 1 [
+    (gogoproto.jsontag)  = "type",
+    (gogoproto.moretags) = "yaml:\"type\""
+  ];
+  // attestation controls whether the provider injects an attestation sidecar.
+  // Defaults to true. Set to false to bring your own attestation.
+  bool attestation = 2 [
+    (gogoproto.jsontag)  = "attestation",
+    (gogoproto.moretags) = "yaml:\"attestation\""
+  ];
+}
+
 // ServiceParams
 message ServiceParams {
   repeated StorageParams storage = 1 [
@@ -53,6 +70,12 @@ message ServiceParams {
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "permissions,omitempty",
     (gogoproto.moretags) = "yaml:\"permissions,omitempty\""
+  ];
+  TEEParams tee = 12 [
+    (gogoproto.nullable) = true,
+    (gogoproto.customname) = "TEE",
+    (gogoproto.jsontag)  = "tee,omitempty",
+    (gogoproto.moretags) = "yaml:\"tee,omitempty\""
   ];
 }
 

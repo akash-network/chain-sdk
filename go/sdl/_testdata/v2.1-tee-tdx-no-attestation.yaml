@@ -1,0 +1,36 @@
+---
+version: "2.1"
+services:
+  web:
+    image: nginx
+    expose:
+      - port: 80
+        to:
+          - global: true
+    params:
+      tee:
+        type: tdx
+        attestation: false
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: "100m"
+        memory:
+          size: "128Mi"
+        storage:
+          size: "1Gi"
+  placement:
+    westcoast:
+      attributes:
+        region: us-west
+      pricing:
+        web:
+          denom: uact
+          amount: 50
+deployment:
+  web:
+    westcoast:
+      profile: web
+      count: 1

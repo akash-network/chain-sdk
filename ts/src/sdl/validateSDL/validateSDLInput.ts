@@ -167,6 +167,10 @@ export interface SDLInput {
         permissions?: {
           read?: ("deployment" | "logs" | "events")[];
         };
+        tee?: {
+          type: "sev-snp" | "sev-snp-gpu" | "tdx" | "tdx-gpu";
+          attestation?: boolean;
+        };
       };
     };
   };
@@ -239,7 +243,7 @@ var require_ucs2length = __commonJS({
 // <stdin>
 var validate = validate27;
 var stdin_default = validate27;
-var schema28 = { "$schema": "http://json-schema.org/draft-07/schema#", "additionalProperties": false, "description": "Schema for Akash Stack Definition Language (SDL) YAML input files.\n\nNote: This schema validates structure only. Semantic validations (cross-references,\nunused endpoints, profile references, etc.) are performed at runtime by the Go parser.\nSee README.md for details.\n", "definitions": { "stringArrayOrNull": { "description": "String array or null value (used for command args and env vars)", "oneOf": [{ "items": { "type": "string" }, "type": "array" }, { "type": "null" }] }, "portNumber": { "description": "Valid TCP/UDP port number (1-65535)", "type": "integer", "minimum": 1, "maximum": 65535 }, "httpErrorCode": { "description": "HTTP error codes for proxy retry logic", "enum": ["error", "timeout", "500", "502", "503", "504", "403", "404", "429", "off"], "type": "string" }, "priceCoin": { "description": "Price definition with amount and denomination", "additionalProperties": false, "properties": { "amount": { "oneOf": [{ "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$", "description": "Positive number as string" }, { "type": "number", "minimum": 0, "description": "Positive number" }] }, "denom": { "enum": ["uakt", "uact"], "type": "string" } }, "required": ["denom", "amount"], "type": "object" }, "storageRamClassMustNotBePersistent": { "description": "RAM storage class must not have persistent=true", "not": { "properties": { "class": { "const": "ram" }, "persistent": { "oneOf": [{ "const": true }, { "const": "true" }] } }, "required": ["class", "persistent"] } }, "storageNonRamClassRequiresPersistent": { "description": "Non-RAM storage classes (beta1, beta2, beta3, default) require persistent=true", "if": { "properties": { "class": { "enum": ["beta1", "beta2", "beta3", "default"] } }, "required": ["class"] }, "then": { "properties": { "persistent": { "oneOf": [{ "const": true }, { "const": "true" }] } }, "required": ["persistent"] } }, "storageAttributesValidation": { "description": "Storage attributes validation:\n1. RAM class must not be persistent\n2. Non-RAM classes (beta1, beta2, beta3, default) require persistent=true\n", "additionalProperties": false, "properties": { "class": { "type": "string" }, "persistent": { "oneOf": [{ "type": "boolean" }, { "type": "string" }] } }, "allOf": [{ "$ref": "#/definitions/storageRamClassMustNotBePersistent" }, { "$ref": "#/definitions/storageNonRamClassRequiresPersistent" }], "required": ["class", "persistent"], "type": "object" }, "storageVolume": { "description": "Storage volume definition with size and optional attributes", "additionalProperties": false, "properties": { "attributes": { "$ref": "#/definitions/storageAttributesValidation" }, "name": { "type": "string" }, "size": { "type": "string" } }, "required": ["size"], "type": "object" }, "absolutePath": { "description": "Absolute filesystem path starting with /", "type": "string", "minLength": 1, "pattern": "^/" }, "gpuUnitsGt0RequiresAttributes": { "description": "GPU units > 0 requires attributes to be present", "if": { "properties": { "units": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "type": "string", "not": { "pattern": "^0+(\\.0+)?$" } }] } }, "required": ["units"] }, "then": { "required": ["attributes"] } }, "gpuAttributesRequireUnitsGt0": { "description": "GPU attributes present requires units > 0", "if": { "required": ["attributes"] }, "then": { "properties": { "units": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "type": "string", "not": { "pattern": "^0+(\\.0+)?$" } }] } }, "required": ["units"] } }, "exposeToWithIpEnforcesGlobal": { "description": "Expose to with IP enforces global", "if": { "properties": { "ip": { "type": "string", "minLength": 1 } }, "required": ["ip"] }, "then": { "properties": { "global": { "const": true } }, "required": ["global"] } } }, "properties": { "deployment": { "additionalProperties": { "additionalProperties": { "additionalProperties": false, "properties": { "count": { "minimum": 1, "type": "integer" }, "profile": { "type": "string" } }, "required": ["profile", "count"], "type": "object" }, "type": "object" }, "type": "object" }, "endpoints": { "additionalProperties": false, "patternProperties": { "^[a-z]+[-_0-9a-z]+$": { "additionalProperties": false, "properties": { "kind": { "enum": ["ip"], "type": "string" } }, "required": ["kind"], "type": "object" } }, "type": "object" }, "include": { "description": "Optional list of files to include", "items": { "type": "string" }, "type": "array" }, "profiles": { "additionalProperties": false, "properties": { "compute": { "additionalProperties": { "additionalProperties": false, "properties": { "resources": { "additionalProperties": false, "properties": { "cpu": { "additionalProperties": false, "properties": { "attributes": { "type": "object" }, "units": { "oneOf": [{ "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?[a-zA-Z]*$", "not": { "pattern": "^0+(\\.0+)?m?$" } }, { "type": "number", "exclusiveMinimum": 0 }] } }, "required": ["units"], "type": "object" }, "gpu": { "description": "GPU resource specification.\n- units defaults to 0 if omitted\n- Bidirectional validation: units > 0 requires attributes, and attributes require units > 0\n", "additionalProperties": false, "properties": { "attributes": { "additionalProperties": false, "properties": { "vendor": { "additionalProperties": false, "minProperties": 1, "properties": { "nvidia": { "oneOf": [{ "type": "array", "items": { "additionalProperties": false, "properties": { "interface": { "enum": ["pcie", "sxm"], "type": "string" }, "model": { "type": "string" }, "ram": { "type": "string" } }, "type": "object" } }, { "type": "null" }] } }, "type": "object" } }, "type": "object" }, "units": { "oneOf": [{ "type": "string" }, { "type": "number" }] } }, "allOf": [{ "$ref": "#/definitions/gpuUnitsGt0RequiresAttributes" }, { "$ref": "#/definitions/gpuAttributesRequireUnitsGt0" }], "type": "object" }, "memory": { "additionalProperties": false, "properties": { "size": { "type": "string" } }, "required": ["size"], "type": "object" }, "storage": { "oneOf": [{ "$ref": "#/definitions/storageVolume" }, { "items": { "$ref": "#/definitions/storageVolume" }, "type": "array" }] } }, "required": ["cpu", "memory", "storage"], "type": "object" } }, "required": ["resources"], "type": "object" }, "type": "object" }, "placement": { "additionalProperties": { "additionalProperties": false, "properties": { "attributes": { "type": "object" }, "pricing": { "additionalProperties": { "$ref": "#/definitions/priceCoin" }, "type": "object" }, "signedBy": { "additionalProperties": false, "properties": { "allOf": { "items": { "type": "string" }, "type": "array" }, "anyOf": { "items": { "type": "string" }, "type": "array" } }, "type": "object" } }, "required": ["pricing"], "type": "object" }, "type": "object" } }, "required": ["compute", "placement"], "type": "object" }, "services": { "additionalProperties": { "properties": { "args": { "$ref": "#/definitions/stringArrayOrNull" }, "command": { "$ref": "#/definitions/stringArrayOrNull" }, "credentials": { "additionalProperties": false, "properties": { "email": { "type": "string", "minLength": 5 }, "host": { "type": "string", "minLength": 1 }, "password": { "type": "string", "minLength": 6 }, "username": { "type": "string", "minLength": 1 } }, "required": ["host", "username", "password"], "type": "object" }, "dependencies": { "items": { "additionalProperties": false, "properties": { "service": { "type": "string" } }, "type": "object" }, "type": "array" }, "env": { "$ref": "#/definitions/stringArrayOrNull" }, "expose": { "oneOf": [{ "type": "array", "items": { "additionalProperties": false, "properties": { "accept": { "items": { "type": "string" }, "type": "array" }, "as": { "$ref": "#/definitions/portNumber" }, "http_options": { "additionalProperties": false, "properties": { "max_body_size": { "type": "integer", "minimum": 0, "maximum": 104857600, "description": "Maximum body size in bytes (max 100 MB)" }, "next_cases": { "oneOf": [{ "type": "array", "items": { "$ref": "#/definitions/httpErrorCode" }, "contains": { "const": "off" }, "maxItems": 1, "minItems": 1 }, { "type": "array", "items": { "$ref": "#/definitions/httpErrorCode" }, "not": { "contains": { "const": "off" } } }] }, "next_timeout": { "type": "integer", "minimum": 0 }, "next_tries": { "type": "integer", "minimum": 0 }, "read_timeout": { "type": "integer", "minimum": 0, "maximum": 6e4, "description": "Read timeout in milliseconds (max 60 seconds)" }, "send_timeout": { "type": "integer", "minimum": 0, "maximum": 6e4, "description": "Send timeout in milliseconds (max 60 seconds)" } }, "type": "object" }, "port": { "$ref": "#/definitions/portNumber" }, "proto": { "enum": ["TCP", "UDP", "tcp", "udp"], "type": "string" }, "to": { "items": { "additionalProperties": false, "properties": { "global": { "type": "boolean" }, "ip": { "minLength": 1, "type": "string" }, "service": { "type": "string" } }, "allOf": [{ "$ref": "#/definitions/exposeToWithIpEnforcesGlobal" }], "type": "object" }, "type": "array" } }, "required": ["port"], "type": "object" } }, { "type": "null" }] }, "image": { "type": "string", "minLength": 1 }, "params": { "additionalProperties": false, "properties": { "storage": { "additionalProperties": { "additionalProperties": false, "properties": { "mount": { "$ref": "#/definitions/absolutePath" }, "readOnly": { "type": "boolean" } }, "type": "object" }, "type": "object" }, "permissions": { "additionalProperties": false, "properties": { "read": { "items": { "type": "string", "enum": ["deployment", "logs", "events"] }, "type": "array" } }, "type": "object" } }, "type": "object" } }, "required": ["image"], "type": "object", "additionalProperties": false }, "type": "object" }, "reclamation": { "description": "Deployment-level reclamation requirements (optional). When set, providers must offer a reclamation window meeting or exceeding the specified minimum to bid on this deployment.", "additionalProperties": false, "properties": { "min_window": { "type": "string", "pattern": "^[1-9][0-9]*(s|m|h)$", "description": 'Minimum reclamation window the tenant requires, as a whole number followed by a unit (s, m, or h). E.g. "1h", "24h", "720h".' } }, "required": ["min_window"], "type": "object" }, "version": { "description": "SDL version", "enum": ["2.0", "2.1"], "type": "string" } }, "required": ["version", "services", "profiles", "deployment"], "title": "Akash SDL Input Schema", "type": "object" };
+var schema28 = { "$schema": "http://json-schema.org/draft-07/schema#", "additionalProperties": false, "description": "Schema for Akash Stack Definition Language (SDL) YAML input files.\n\nNote: This schema validates structure only. Semantic validations (cross-references,\nunused endpoints, profile references, etc.) are performed at runtime by the Go parser.\nSee README.md for details.\n", "definitions": { "stringArrayOrNull": { "description": "String array or null value (used for command args and env vars)", "oneOf": [{ "items": { "type": "string" }, "type": "array" }, { "type": "null" }] }, "portNumber": { "description": "Valid TCP/UDP port number (1-65535)", "type": "integer", "minimum": 1, "maximum": 65535 }, "httpErrorCode": { "description": "HTTP error codes for proxy retry logic", "enum": ["error", "timeout", "500", "502", "503", "504", "403", "404", "429", "off"], "type": "string" }, "priceCoin": { "description": "Price definition with amount and denomination", "additionalProperties": false, "properties": { "amount": { "oneOf": [{ "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$", "description": "Positive number as string" }, { "type": "number", "minimum": 0, "description": "Positive number" }] }, "denom": { "enum": ["uakt", "uact"], "type": "string" } }, "required": ["denom", "amount"], "type": "object" }, "storageRamClassMustNotBePersistent": { "description": "RAM storage class must not have persistent=true", "not": { "properties": { "class": { "const": "ram" }, "persistent": { "oneOf": [{ "const": true }, { "const": "true" }] } }, "required": ["class", "persistent"] } }, "storageNonRamClassRequiresPersistent": { "description": "Non-RAM storage classes (beta1, beta2, beta3, default) require persistent=true", "if": { "properties": { "class": { "enum": ["beta1", "beta2", "beta3", "default"] } }, "required": ["class"] }, "then": { "properties": { "persistent": { "oneOf": [{ "const": true }, { "const": "true" }] } }, "required": ["persistent"] } }, "storageAttributesValidation": { "description": "Storage attributes validation:\n1. RAM class must not be persistent\n2. Non-RAM classes (beta1, beta2, beta3, default) require persistent=true\n", "additionalProperties": false, "properties": { "class": { "type": "string" }, "persistent": { "oneOf": [{ "type": "boolean" }, { "type": "string" }] } }, "allOf": [{ "$ref": "#/definitions/storageRamClassMustNotBePersistent" }, { "$ref": "#/definitions/storageNonRamClassRequiresPersistent" }], "required": ["class", "persistent"], "type": "object" }, "storageVolume": { "description": "Storage volume definition with size and optional attributes", "additionalProperties": false, "properties": { "attributes": { "$ref": "#/definitions/storageAttributesValidation" }, "name": { "type": "string" }, "size": { "type": "string" } }, "required": ["size"], "type": "object" }, "absolutePath": { "description": "Absolute filesystem path starting with /", "type": "string", "minLength": 1, "pattern": "^/" }, "gpuUnitsGt0RequiresAttributes": { "description": "GPU units > 0 requires attributes to be present", "if": { "properties": { "units": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "type": "string", "not": { "pattern": "^0+(\\.0+)?$" } }] } }, "required": ["units"] }, "then": { "required": ["attributes"] } }, "gpuAttributesRequireUnitsGt0": { "description": "GPU attributes present requires units > 0", "if": { "required": ["attributes"] }, "then": { "properties": { "units": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "type": "string", "not": { "pattern": "^0+(\\.0+)?$" } }] } }, "required": ["units"] } }, "exposeToWithIpEnforcesGlobal": { "description": "Expose to with IP enforces global", "if": { "properties": { "ip": { "type": "string", "minLength": 1 } }, "required": ["ip"] }, "then": { "properties": { "global": { "const": true } }, "required": ["global"] } } }, "properties": { "deployment": { "additionalProperties": { "additionalProperties": { "additionalProperties": false, "properties": { "count": { "minimum": 1, "type": "integer" }, "profile": { "type": "string" } }, "required": ["profile", "count"], "type": "object" }, "type": "object" }, "type": "object" }, "endpoints": { "additionalProperties": false, "patternProperties": { "^[a-z]+[-_0-9a-z]+$": { "additionalProperties": false, "properties": { "kind": { "enum": ["ip"], "type": "string" } }, "required": ["kind"], "type": "object" } }, "type": "object" }, "include": { "description": "Optional list of files to include", "items": { "type": "string" }, "type": "array" }, "profiles": { "additionalProperties": false, "properties": { "compute": { "additionalProperties": { "additionalProperties": false, "properties": { "resources": { "additionalProperties": false, "properties": { "cpu": { "additionalProperties": false, "properties": { "attributes": { "type": "object" }, "units": { "oneOf": [{ "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?[a-zA-Z]*$", "not": { "pattern": "^0+(\\.0+)?m?$" } }, { "type": "number", "exclusiveMinimum": 0 }] } }, "required": ["units"], "type": "object" }, "gpu": { "description": "GPU resource specification.\n- units defaults to 0 if omitted\n- Bidirectional validation: units > 0 requires attributes, and attributes require units > 0\n", "additionalProperties": false, "properties": { "attributes": { "additionalProperties": false, "properties": { "vendor": { "additionalProperties": false, "minProperties": 1, "properties": { "nvidia": { "oneOf": [{ "type": "array", "items": { "additionalProperties": false, "properties": { "interface": { "enum": ["pcie", "sxm"], "type": "string" }, "model": { "type": "string" }, "ram": { "type": "string" } }, "type": "object" } }, { "type": "null" }] } }, "type": "object" } }, "type": "object" }, "units": { "oneOf": [{ "type": "string" }, { "type": "number" }] } }, "allOf": [{ "$ref": "#/definitions/gpuUnitsGt0RequiresAttributes" }, { "$ref": "#/definitions/gpuAttributesRequireUnitsGt0" }], "type": "object" }, "memory": { "additionalProperties": false, "properties": { "size": { "type": "string" } }, "required": ["size"], "type": "object" }, "storage": { "oneOf": [{ "$ref": "#/definitions/storageVolume" }, { "items": { "$ref": "#/definitions/storageVolume" }, "type": "array" }] } }, "required": ["cpu", "memory", "storage"], "type": "object" } }, "required": ["resources"], "type": "object" }, "type": "object" }, "placement": { "additionalProperties": { "additionalProperties": false, "properties": { "attributes": { "type": "object" }, "pricing": { "additionalProperties": { "$ref": "#/definitions/priceCoin" }, "type": "object" }, "signedBy": { "additionalProperties": false, "properties": { "allOf": { "items": { "type": "string" }, "type": "array" }, "anyOf": { "items": { "type": "string" }, "type": "array" } }, "type": "object" } }, "required": ["pricing"], "type": "object" }, "type": "object" } }, "required": ["compute", "placement"], "type": "object" }, "services": { "additionalProperties": { "properties": { "args": { "$ref": "#/definitions/stringArrayOrNull" }, "command": { "$ref": "#/definitions/stringArrayOrNull" }, "credentials": { "additionalProperties": false, "properties": { "email": { "type": "string", "minLength": 5 }, "host": { "type": "string", "minLength": 1 }, "password": { "type": "string", "minLength": 6 }, "username": { "type": "string", "minLength": 1 } }, "required": ["host", "username", "password"], "type": "object" }, "dependencies": { "items": { "additionalProperties": false, "properties": { "service": { "type": "string" } }, "type": "object" }, "type": "array" }, "env": { "$ref": "#/definitions/stringArrayOrNull" }, "expose": { "oneOf": [{ "type": "array", "items": { "additionalProperties": false, "properties": { "accept": { "items": { "type": "string" }, "type": "array" }, "as": { "$ref": "#/definitions/portNumber" }, "http_options": { "additionalProperties": false, "properties": { "max_body_size": { "type": "integer", "minimum": 0, "maximum": 104857600, "description": "Maximum body size in bytes (max 100 MB)" }, "next_cases": { "oneOf": [{ "type": "array", "items": { "$ref": "#/definitions/httpErrorCode" }, "contains": { "const": "off" }, "maxItems": 1, "minItems": 1 }, { "type": "array", "items": { "$ref": "#/definitions/httpErrorCode" }, "not": { "contains": { "const": "off" } } }] }, "next_timeout": { "type": "integer", "minimum": 0 }, "next_tries": { "type": "integer", "minimum": 0 }, "read_timeout": { "type": "integer", "minimum": 0, "maximum": 6e4, "description": "Read timeout in milliseconds (max 60 seconds)" }, "send_timeout": { "type": "integer", "minimum": 0, "maximum": 6e4, "description": "Send timeout in milliseconds (max 60 seconds)" } }, "type": "object" }, "port": { "$ref": "#/definitions/portNumber" }, "proto": { "enum": ["TCP", "UDP", "tcp", "udp"], "type": "string" }, "to": { "items": { "additionalProperties": false, "properties": { "global": { "type": "boolean" }, "ip": { "minLength": 1, "type": "string" }, "service": { "type": "string" } }, "allOf": [{ "$ref": "#/definitions/exposeToWithIpEnforcesGlobal" }], "type": "object" }, "type": "array" } }, "required": ["port"], "type": "object" } }, { "type": "null" }] }, "image": { "type": "string", "minLength": 1 }, "params": { "additionalProperties": false, "properties": { "storage": { "additionalProperties": { "additionalProperties": false, "properties": { "mount": { "$ref": "#/definitions/absolutePath" }, "readOnly": { "type": "boolean" } }, "type": "object" }, "type": "object" }, "permissions": { "additionalProperties": false, "properties": { "read": { "items": { "type": "string", "enum": ["deployment", "logs", "events"] }, "type": "array" } }, "type": "object" }, "tee": { "additionalProperties": false, "properties": { "type": { "type": "string", "enum": ["sev-snp", "sev-snp-gpu", "tdx", "tdx-gpu"] }, "attestation": { "type": "boolean" } }, "required": ["type"], "type": "object" } }, "type": "object" } }, "required": ["image"], "type": "object", "additionalProperties": false }, "type": "object" }, "reclamation": { "description": "Deployment-level reclamation requirements (optional). When set, providers must offer a reclamation window meeting or exceeding the specified minimum to bid on this deployment.", "additionalProperties": false, "properties": { "min_window": { "type": "string", "pattern": "^[1-9][0-9]*(s|m|h)$", "description": 'Minimum reclamation window the tenant requires, as a whole number followed by a unit (s, m, or h). E.g. "1h", "24h", "720h".' } }, "required": ["min_window"], "type": "object" }, "version": { "description": "SDL version", "enum": ["2.0", "2.1"], "type": "string" } }, "required": ["version", "services", "profiles", "deployment"], "title": "Akash SDL Input Schema", "type": "object" };
 var schema35 = { "description": "Price definition with amount and denomination", "additionalProperties": false, "properties": { "amount": { "oneOf": [{ "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$", "description": "Positive number as string" }, { "type": "number", "minimum": 0, "description": "Positive number" }] }, "denom": { "enum": ["uakt", "uact"], "type": "string" } }, "required": ["denom", "amount"], "type": "object" };
 var schema40 = { "description": "HTTP error codes for proxy retry logic", "enum": ["error", "timeout", "500", "502", "503", "504", "403", "404", "429", "off"], "type": "string" };
 var pattern4 = new RegExp("^[a-z]+[-_0-9a-z]+$", "u");
@@ -3393,7 +3397,7 @@ function validate27(data, { instancePath = "", parentData, parentDataProperty, r
               let data86 = data45.params;
               if (data86 && typeof data86 == "object" && !Array.isArray(data86)) {
                 for (const key29 in data86) {
-                  if (!(key29 === "storage" || key29 === "permissions")) {
+                  if (!(key29 === "storage" || key29 === "permissions" || key29 === "tee")) {
                     const err204 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params", schemaPath: "#/properties/services/additionalProperties/properties/params/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key29 }, message: "must NOT have additional properties" };
                     if (vErrors === null) {
                       vErrors = [err204];
@@ -3541,95 +3545,93 @@ function validate27(data, { instancePath = "", parentData, parentDataProperty, r
                     errors++;
                   }
                 }
+                if (data86.tee !== void 0) {
+                  let data94 = data86.tee;
+                  if (data94 && typeof data94 == "object" && !Array.isArray(data94)) {
+                    if (data94.type === void 0) {
+                      const err217 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params/tee", schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee/required", keyword: "required", params: { missingProperty: "type" }, message: "must have required property 'type'" };
+                      if (vErrors === null) {
+                        vErrors = [err217];
+                      } else {
+                        vErrors.push(err217);
+                      }
+                      errors++;
+                    }
+                    for (const key33 in data94) {
+                      if (!(key33 === "type" || key33 === "attestation")) {
+                        const err218 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params/tee", schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key33 }, message: "must NOT have additional properties" };
+                        if (vErrors === null) {
+                          vErrors = [err218];
+                        } else {
+                          vErrors.push(err218);
+                        }
+                        errors++;
+                      }
+                    }
+                    if (data94.type !== void 0) {
+                      let data95 = data94.type;
+                      if (typeof data95 !== "string") {
+                        const err219 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params/tee/type", schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee/properties/type/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+                        if (vErrors === null) {
+                          vErrors = [err219];
+                        } else {
+                          vErrors.push(err219);
+                        }
+                        errors++;
+                      }
+                      if (!(data95 === "sev-snp" || data95 === "sev-snp-gpu" || data95 === "tdx" || data95 === "tdx-gpu")) {
+                        const err220 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params/tee/type", schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee/properties/type/enum", keyword: "enum", params: { allowedValues: schema28.properties.services.additionalProperties.properties.params.properties.tee.properties.type.enum }, message: "must be equal to one of the allowed values" };
+                        if (vErrors === null) {
+                          vErrors = [err220];
+                        } else {
+                          vErrors.push(err220);
+                        }
+                        errors++;
+                      }
+                    }
+                    if (data94.attestation !== void 0) {
+                      if (typeof data94.attestation !== "boolean") {
+                        const err221 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params/tee/attestation", schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee/properties/attestation/type", keyword: "type", params: { type: "boolean" }, message: "must be boolean" };
+                        if (vErrors === null) {
+                          vErrors = [err221];
+                        } else {
+                          vErrors.push(err221);
+                        }
+                        errors++;
+                      }
+                    }
+                  } else {
+                    const err222 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params/tee", schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+                    if (vErrors === null) {
+                      vErrors = [err222];
+                    } else {
+                      vErrors.push(err222);
+                    }
+                    errors++;
+                  }
+                }
               } else {
-                const err217 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params", schemaPath: "#/properties/services/additionalProperties/properties/params/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+                const err223 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1") + "/params", schemaPath: "#/properties/services/additionalProperties/properties/params/type", keyword: "type", params: { type: "object" }, message: "must be object" };
                 if (vErrors === null) {
-                  vErrors = [err217];
+                  vErrors = [err223];
                 } else {
-                  vErrors.push(err217);
+                  vErrors.push(err223);
                 }
                 errors++;
               }
             }
           } else {
-            const err218 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1"), schemaPath: "#/properties/services/additionalProperties/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+            const err224 = { instancePath: instancePath + "/services/" + key22.replace(/~/g, "~0").replace(/\//g, "~1"), schemaPath: "#/properties/services/additionalProperties/type", keyword: "type", params: { type: "object" }, message: "must be object" };
             if (vErrors === null) {
-              vErrors = [err218];
+              vErrors = [err224];
             } else {
-              vErrors.push(err218);
+              vErrors.push(err224);
             }
             errors++;
           }
         }
       } else {
-        const err219 = { instancePath: instancePath + "/services", schemaPath: "#/properties/services/type", keyword: "type", params: { type: "object" }, message: "must be object" };
-        if (vErrors === null) {
-          vErrors = [err219];
-        } else {
-          vErrors.push(err219);
-        }
-        errors++;
-      }
-    }
-    if (data.reclamation !== void 0) {
-      let data94 = data.reclamation;
-      if (data94 && typeof data94 == "object" && !Array.isArray(data94)) {
-        if (data94.min_window === void 0) {
-          const err220 = { instancePath: instancePath + "/reclamation", schemaPath: "#/properties/reclamation/required", keyword: "required", params: { missingProperty: "min_window" }, message: "must have required property 'min_window'" };
-          if (vErrors === null) {
-            vErrors = [err220];
-          } else {
-            vErrors.push(err220);
-          }
-          errors++;
-        }
-        for (const key33 in data94) {
-          if (!(key33 === "min_window")) {
-            const err221 = { instancePath: instancePath + "/reclamation", schemaPath: "#/properties/reclamation/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key33 }, message: "must NOT have additional properties" };
-            if (vErrors === null) {
-              vErrors = [err221];
-            } else {
-              vErrors.push(err221);
-            }
-            errors++;
-          }
-        }
-        if (data94.min_window !== void 0) {
-          let data95 = data94.min_window;
-          if (typeof data95 === "string") {
-            if (!pattern12.test(data95)) {
-              const err222 = { instancePath: instancePath + "/reclamation/min_window", schemaPath: "#/properties/reclamation/properties/min_window/pattern", keyword: "pattern", params: { pattern: "^[1-9][0-9]*(s|m|h)$" }, message: 'must match pattern "^[1-9][0-9]*(s|m|h)$"' };
-              if (vErrors === null) {
-                vErrors = [err222];
-              } else {
-                vErrors.push(err222);
-              }
-              errors++;
-            }
-          } else {
-            const err223 = { instancePath: instancePath + "/reclamation/min_window", schemaPath: "#/properties/reclamation/properties/min_window/type", keyword: "type", params: { type: "string" }, message: "must be string" };
-            if (vErrors === null) {
-              vErrors = [err223];
-            } else {
-              vErrors.push(err223);
-            }
-            errors++;
-          }
-        }
-      } else {
-        const err224 = { instancePath: instancePath + "/reclamation", schemaPath: "#/properties/reclamation/type", keyword: "type", params: { type: "object" }, message: "must be object" };
-        if (vErrors === null) {
-          vErrors = [err224];
-        } else {
-          vErrors.push(err224);
-        }
-        errors++;
-      }
-    }
-    if (data.version !== void 0) {
-      let data96 = data.version;
-      if (typeof data96 !== "string") {
-        const err225 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+        const err225 = { instancePath: instancePath + "/services", schemaPath: "#/properties/services/type", keyword: "type", params: { type: "object" }, message: "must be object" };
         if (vErrors === null) {
           vErrors = [err225];
         } else {
@@ -3637,22 +3639,89 @@ function validate27(data, { instancePath = "", parentData, parentDataProperty, r
         }
         errors++;
       }
-      if (!(data96 === "2.0" || data96 === "2.1")) {
-        const err226 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/enum", keyword: "enum", params: { allowedValues: schema28.properties.version.enum }, message: "must be equal to one of the allowed values" };
+    }
+    if (data.reclamation !== void 0) {
+      let data97 = data.reclamation;
+      if (data97 && typeof data97 == "object" && !Array.isArray(data97)) {
+        if (data97.min_window === void 0) {
+          const err226 = { instancePath: instancePath + "/reclamation", schemaPath: "#/properties/reclamation/required", keyword: "required", params: { missingProperty: "min_window" }, message: "must have required property 'min_window'" };
+          if (vErrors === null) {
+            vErrors = [err226];
+          } else {
+            vErrors.push(err226);
+          }
+          errors++;
+        }
+        for (const key34 in data97) {
+          if (!(key34 === "min_window")) {
+            const err227 = { instancePath: instancePath + "/reclamation", schemaPath: "#/properties/reclamation/additionalProperties", keyword: "additionalProperties", params: { additionalProperty: key34 }, message: "must NOT have additional properties" };
+            if (vErrors === null) {
+              vErrors = [err227];
+            } else {
+              vErrors.push(err227);
+            }
+            errors++;
+          }
+        }
+        if (data97.min_window !== void 0) {
+          let data98 = data97.min_window;
+          if (typeof data98 === "string") {
+            if (!pattern12.test(data98)) {
+              const err228 = { instancePath: instancePath + "/reclamation/min_window", schemaPath: "#/properties/reclamation/properties/min_window/pattern", keyword: "pattern", params: { pattern: "^[1-9][0-9]*(s|m|h)$" }, message: 'must match pattern "^[1-9][0-9]*(s|m|h)$"' };
+              if (vErrors === null) {
+                vErrors = [err228];
+              } else {
+                vErrors.push(err228);
+              }
+              errors++;
+            }
+          } else {
+            const err229 = { instancePath: instancePath + "/reclamation/min_window", schemaPath: "#/properties/reclamation/properties/min_window/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+            if (vErrors === null) {
+              vErrors = [err229];
+            } else {
+              vErrors.push(err229);
+            }
+            errors++;
+          }
+        }
+      } else {
+        const err230 = { instancePath: instancePath + "/reclamation", schemaPath: "#/properties/reclamation/type", keyword: "type", params: { type: "object" }, message: "must be object" };
         if (vErrors === null) {
-          vErrors = [err226];
+          vErrors = [err230];
         } else {
-          vErrors.push(err226);
+          vErrors.push(err230);
+        }
+        errors++;
+      }
+    }
+    if (data.version !== void 0) {
+      let data99 = data.version;
+      if (typeof data99 !== "string") {
+        const err231 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/type", keyword: "type", params: { type: "string" }, message: "must be string" };
+        if (vErrors === null) {
+          vErrors = [err231];
+        } else {
+          vErrors.push(err231);
+        }
+        errors++;
+      }
+      if (!(data99 === "2.0" || data99 === "2.1")) {
+        const err232 = { instancePath: instancePath + "/version", schemaPath: "#/properties/version/enum", keyword: "enum", params: { allowedValues: schema28.properties.version.enum }, message: "must be equal to one of the allowed values" };
+        if (vErrors === null) {
+          vErrors = [err232];
+        } else {
+          vErrors.push(err232);
         }
         errors++;
       }
     }
   } else {
-    const err227 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
+    const err233 = { instancePath, schemaPath: "#/type", keyword: "type", params: { type: "object" }, message: "must be object" };
     if (vErrors === null) {
-      vErrors = [err227];
+      vErrors = [err233];
     } else {
-      vErrors.push(err227);
+      vErrors.push(err233);
     }
     errors++;
   }

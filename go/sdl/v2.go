@@ -174,6 +174,7 @@ type v2ServicePermissions struct {
 type v2ServiceParams struct {
 	Storage     map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
 	Permissions *v2ServicePermissions             `yaml:"permissions,omitempty"`
+	TEE         *v2ResourceTEE                    `yaml:"tee,omitempty"`
 }
 
 type v2Service struct {
