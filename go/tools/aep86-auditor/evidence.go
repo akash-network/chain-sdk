@@ -30,7 +30,11 @@ type EvidenceDocument struct {
 type SoftwareEvidence struct {
 	Version            string `json:"version"`
 	BinaryHash         string `json:"binary_hash"`
+	ArtifactRef        string `json:"artifact_ref,omitempty"`
 	Signature          string `json:"signature,omitempty"`
+	SignatureRef       string `json:"signature_ref,omitempty"`
+	SignatureType      string `json:"signature_type,omitempty"`
+	PublicKeyRef       string `json:"public_key_ref,omitempty"`
 	VerificationStatus string `json:"verification_status"`
 }
 
@@ -68,7 +72,12 @@ func buildEvidence(cfg collectConfig, snapshot *verifiedSnapshot, chainFacts *ch
 	softwareHash := cfg.softwareBinaryHash
 	softwareStatus := "observed_only"
 	if softwareHash == "" {
-		softwareStatus = "not_implemented_v1"
+		softwareStatus = "unsigned_binary"
+	}
+	softwareSignature := resourceSummary.GetSoftwareSignature()
+	softwareSignatureType := ""
+	if len(softwareSignature) != 0 {
+		softwareSignatureType = "raw_detached"
 	}
 
 	return EvidenceDocument{
@@ -87,7 +96,8 @@ func buildEvidence(cfg collectConfig, snapshot *verifiedSnapshot, chainFacts *ch
 		Software: SoftwareEvidence{
 			Version:            resourceSummary.GetSoftwareVersion(),
 			BinaryHash:         softwareHash,
-			Signature:          base64.StdEncoding.EncodeToString(resourceSummary.GetSoftwareSignature()),
+			Signature:          base64.StdEncoding.EncodeToString(softwareSignature),
+			SignatureType:      softwareSignatureType,
 			VerificationStatus: softwareStatus,
 		},
 		NetworkBaseline: NetworkBaseline{

@@ -77,8 +77,23 @@
         "binary_hash": {
           "$ref": "#/$defs/sha256"
         },
+        "artifact_ref": {
+          "type": "string",
+          "minLength": 1
+        },
         "signature": {
           "$ref": "#/$defs/base64"
+        },
+        "signature_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signature_type": {
+          "$ref": "#/$defs/software_signature_type"
+        },
+        "public_key_ref": {
+          "type": "string",
+          "minLength": 1
         },
         "verification_status": {
           "$ref": "#/$defs/software_verification_status"
@@ -216,9 +231,19 @@
     "software_verification_status": {
       "type": "string",
       "enum": [
+        "signature_valid",
+        "signature_invalid",
+        "unknown_key",
         "observed_only",
-        "not_implemented_v1",
         "unsigned_binary",
+        "not_applicable"
+      ]
+    },
+    "software_signature_type": {
+      "type": "string",
+      "enum": [
+        "cosign_keyful",
+        "raw_detached",
         "not_applicable"
       ]
     },
