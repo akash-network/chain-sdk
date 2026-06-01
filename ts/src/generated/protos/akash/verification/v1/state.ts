@@ -334,10 +334,34 @@ export interface UnbondingEntry {
 }
 
 /**
+ * SoftwareIdentity carries release artifact identity and signature metadata.
+ * Providers post these fields as evidence; auditors verify them off-chain
+ * against the published Akash release key.
+ */
+export interface SoftwareIdentity {
+  /** Version is the provider or inventory software version string. */
+  version: string;
+  /** ArtifactRef identifies the release artifact whose digest/signature is reported. */
+  artifactRef: string;
+  /** DigestAlgorithm identifies the digest algorithm, e.g. sha3-256. */
+  digestAlgorithm: string;
+  /** Digest is the release artifact digest bytes. */
+  digest: Uint8Array;
+  /** SignatureType identifies the signature format, e.g. cosign. */
+  signatureType: string;
+  /** Signature is the detached signature bytes when carried inline. */
+  signature: Uint8Array;
+  /** SignatureRef identifies an external signature or bundle. */
+  signatureRef: string;
+  /** PublicKeyRef identifies the published release public key. */
+  publicKeyRef: string;
+}
+
+/**
  * ResourceSummary captures the resource counts a provider claims at snapshot
  * time. Used by the chain to scale the provider bond requirement and as
- * evidence in snapshot records. The software_version and software_signature
- * fields are evidence-only and do not drive on-chain enforcement.
+ * evidence in snapshot records. Software identity fields are evidence-only and
+ * do not drive on-chain enforcement.
  */
 export interface ResourceSummary {
   /** TotalGPUs is the total number of GPUs the provider claims. */
@@ -350,10 +374,12 @@ export interface ResourceSummary {
   totalStorageMb: Long;
   /** ActiveLeases is the number of leases currently active on the provider. */
   activeLeases: number;
-  /** SoftwareVersion is the provider software version string. */
+  /** SoftwareVersion is the provider software version string kept for compatibility. */
   softwareVersion: string;
-  /** SoftwareSignature is the provider software signature bytes. */
+  /** SoftwareSignature is the provider software signature kept for compatibility. */
   softwareSignature: Uint8Array;
+  /** SoftwareIdentity carries structured release artifact metadata. */
+  softwareIdentity: SoftwareIdentity | undefined;
 }
 
 /**
@@ -1990,6 +2016,185 @@ export const UnbondingEntry: MessageFns<UnbondingEntry, "akash.verification.v1.U
   },
 };
 
+function createBaseSoftwareIdentity(): SoftwareIdentity {
+  return {
+    version: "",
+    artifactRef: "",
+    digestAlgorithm: "",
+    digest: new Uint8Array(0),
+    signatureType: "",
+    signature: new Uint8Array(0),
+    signatureRef: "",
+    publicKeyRef: "",
+  };
+}
+
+export const SoftwareIdentity: MessageFns<SoftwareIdentity, "akash.verification.v1.SoftwareIdentity"> = {
+  $type: "akash.verification.v1.SoftwareIdentity" as const,
+
+  encode(message: SoftwareIdentity, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.version !== "") {
+      writer.uint32(10).string(message.version);
+    }
+    if (message.artifactRef !== "") {
+      writer.uint32(18).string(message.artifactRef);
+    }
+    if (message.digestAlgorithm !== "") {
+      writer.uint32(26).string(message.digestAlgorithm);
+    }
+    if (message.digest.length !== 0) {
+      writer.uint32(34).bytes(message.digest);
+    }
+    if (message.signatureType !== "") {
+      writer.uint32(42).string(message.signatureType);
+    }
+    if (message.signature.length !== 0) {
+      writer.uint32(50).bytes(message.signature);
+    }
+    if (message.signatureRef !== "") {
+      writer.uint32(58).string(message.signatureRef);
+    }
+    if (message.publicKeyRef !== "") {
+      writer.uint32(66).string(message.publicKeyRef);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SoftwareIdentity {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSoftwareIdentity();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.version = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.artifactRef = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.digestAlgorithm = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.digest = reader.bytes();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.signatureType = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.signature = reader.bytes();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.signatureRef = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.publicKeyRef = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SoftwareIdentity {
+    return {
+      version: isSet(object.version) ? globalThis.String(object.version) : "",
+      artifactRef: isSet(object.artifact_ref) ? globalThis.String(object.artifact_ref) : "",
+      digestAlgorithm: isSet(object.digest_algorithm) ? globalThis.String(object.digest_algorithm) : "",
+      digest: isSet(object.digest) ? bytesFromBase64(object.digest) : new Uint8Array(0),
+      signatureType: isSet(object.signature_type) ? globalThis.String(object.signature_type) : "",
+      signature: isSet(object.signature) ? bytesFromBase64(object.signature) : new Uint8Array(0),
+      signatureRef: isSet(object.signature_ref) ? globalThis.String(object.signature_ref) : "",
+      publicKeyRef: isSet(object.public_key_ref) ? globalThis.String(object.public_key_ref) : "",
+    };
+  },
+
+  toJSON(message: SoftwareIdentity): unknown {
+    const obj: any = {};
+    if (message.version !== "") {
+      obj.version = message.version;
+    }
+    if (message.artifactRef !== "") {
+      obj.artifact_ref = message.artifactRef;
+    }
+    if (message.digestAlgorithm !== "") {
+      obj.digest_algorithm = message.digestAlgorithm;
+    }
+    if (message.digest.length !== 0) {
+      obj.digest = base64FromBytes(message.digest);
+    }
+    if (message.signatureType !== "") {
+      obj.signature_type = message.signatureType;
+    }
+    if (message.signature.length !== 0) {
+      obj.signature = base64FromBytes(message.signature);
+    }
+    if (message.signatureRef !== "") {
+      obj.signature_ref = message.signatureRef;
+    }
+    if (message.publicKeyRef !== "") {
+      obj.public_key_ref = message.publicKeyRef;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<SoftwareIdentity>): SoftwareIdentity {
+    const message = createBaseSoftwareIdentity();
+    message.version = object.version ?? "";
+    message.artifactRef = object.artifactRef ?? "";
+    message.digestAlgorithm = object.digestAlgorithm ?? "";
+    message.digest = object.digest ?? new Uint8Array(0);
+    message.signatureType = object.signatureType ?? "";
+    message.signature = object.signature ?? new Uint8Array(0);
+    message.signatureRef = object.signatureRef ?? "";
+    message.publicKeyRef = object.publicKeyRef ?? "";
+    return message;
+  },
+};
+
 function createBaseResourceSummary(): ResourceSummary {
   return {
     totalGpus: 0,
@@ -1999,6 +2204,7 @@ function createBaseResourceSummary(): ResourceSummary {
     activeLeases: 0,
     softwareVersion: "",
     softwareSignature: new Uint8Array(0),
+    softwareIdentity: undefined,
   };
 }
 
@@ -2026,6 +2232,9 @@ export const ResourceSummary: MessageFns<ResourceSummary, "akash.verification.v1
     }
     if (message.softwareSignature.length !== 0) {
       writer.uint32(58).bytes(message.softwareSignature);
+    }
+    if (message.softwareIdentity !== undefined) {
+      SoftwareIdentity.encode(message.softwareIdentity, writer.uint32(66).fork()).join();
     }
     return writer;
   },
@@ -2093,6 +2302,14 @@ export const ResourceSummary: MessageFns<ResourceSummary, "akash.verification.v1
           message.softwareSignature = reader.bytes();
           continue;
         }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.softwareIdentity = SoftwareIdentity.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2113,6 +2330,9 @@ export const ResourceSummary: MessageFns<ResourceSummary, "akash.verification.v1
       softwareSignature: isSet(object.software_signature)
         ? bytesFromBase64(object.software_signature)
         : new Uint8Array(0),
+      softwareIdentity: isSet(object.software_identity)
+        ? SoftwareIdentity.fromJSON(object.software_identity)
+        : undefined,
     };
   },
 
@@ -2139,6 +2359,9 @@ export const ResourceSummary: MessageFns<ResourceSummary, "akash.verification.v1
     if (message.softwareSignature.length !== 0) {
       obj.software_signature = base64FromBytes(message.softwareSignature);
     }
+    if (message.softwareIdentity !== undefined) {
+      obj.software_identity = SoftwareIdentity.toJSON(message.softwareIdentity);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ResourceSummary>): ResourceSummary {
@@ -2154,6 +2377,9 @@ export const ResourceSummary: MessageFns<ResourceSummary, "akash.verification.v1
     message.activeLeases = object.activeLeases ?? 0;
     message.softwareVersion = object.softwareVersion ?? "";
     message.softwareSignature = object.softwareSignature ?? new Uint8Array(0);
+    message.softwareIdentity = (object.softwareIdentity !== undefined && object.softwareIdentity !== null)
+      ? SoftwareIdentity.fromPartial(object.softwareIdentity)
+      : undefined;
     return message;
   },
 };
