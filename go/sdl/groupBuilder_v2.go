@@ -68,7 +68,7 @@ func (sdl *v2) buildGroups() error {
 				for _, attr := range teeAttrs {
 					group.dgroup.Requirements.Attributes = append(
 						group.dgroup.Requirements.Attributes,
-						types.Attribute{Key: attr.Key, Value: attr.Value},
+						types.Attribute{Key: "tee/" + attr.Key, Value: attr.Value},
 					)
 				}
 				sort.Sort(group.dgroup.Requirements.Attributes)
