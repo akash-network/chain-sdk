@@ -15565,6 +15565,9 @@ impl serde::Serialize for ResourceSummary {
         if !self.software_signature.is_empty() {
             len += 1;
         }
+        if self.software_identity.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.verification.v1.ResourceSummary", len)?;
         if self.total_gpus != 0 {
             struct_ser.serialize_field("totalGpus", &self.total_gpus)?;
@@ -15593,6 +15596,9 @@ impl serde::Serialize for ResourceSummary {
             #[allow(clippy::needless_borrows_for_generic_args)]
             struct_ser.serialize_field("softwareSignature", pbjson::private::base64::encode(&self.software_signature).as_str())?;
         }
+        if let Some(v) = self.software_identity.as_ref() {
+            struct_ser.serialize_field("softwareIdentity", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -15617,6 +15623,8 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
             "softwareVersion",
             "software_signature",
             "softwareSignature",
+            "software_identity",
+            "softwareIdentity",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -15628,6 +15636,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
             ActiveLeases,
             SoftwareVersion,
             SoftwareSignature,
+            SoftwareIdentity,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -15656,6 +15665,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                             "activeLeases" | "active_leases" => Ok(GeneratedField::ActiveLeases),
                             "softwareVersion" | "software_version" => Ok(GeneratedField::SoftwareVersion),
                             "softwareSignature" | "software_signature" => Ok(GeneratedField::SoftwareSignature),
+                            "softwareIdentity" | "software_identity" => Ok(GeneratedField::SoftwareIdentity),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -15682,6 +15692,7 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                 let mut active_leases__ = None;
                 let mut software_version__ = None;
                 let mut software_signature__ = None;
+                let mut software_identity__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::TotalGpus => {
@@ -15738,6 +15749,12 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
+                        GeneratedField::SoftwareIdentity => {
+                            if software_identity__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("softwareIdentity"));
+                            }
+                            software_identity__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(ResourceSummary {
@@ -15748,10 +15765,234 @@ impl<'de> serde::Deserialize<'de> for ResourceSummary {
                     active_leases: active_leases__.unwrap_or_default(),
                     software_version: software_version__.unwrap_or_default(),
                     software_signature: software_signature__.unwrap_or_default(),
+                    software_identity: software_identity__,
                 })
             }
         }
         deserializer.deserialize_struct("akash.verification.v1.ResourceSummary", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SoftwareIdentity {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.version.is_empty() {
+            len += 1;
+        }
+        if !self.artifact_ref.is_empty() {
+            len += 1;
+        }
+        if !self.digest_algorithm.is_empty() {
+            len += 1;
+        }
+        if !self.digest.is_empty() {
+            len += 1;
+        }
+        if !self.signature_type.is_empty() {
+            len += 1;
+        }
+        if !self.signature.is_empty() {
+            len += 1;
+        }
+        if !self.signature_ref.is_empty() {
+            len += 1;
+        }
+        if !self.public_key_ref.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.verification.v1.SoftwareIdentity", len)?;
+        if !self.version.is_empty() {
+            struct_ser.serialize_field("version", &self.version)?;
+        }
+        if !self.artifact_ref.is_empty() {
+            struct_ser.serialize_field("artifactRef", &self.artifact_ref)?;
+        }
+        if !self.digest_algorithm.is_empty() {
+            struct_ser.serialize_field("digestAlgorithm", &self.digest_algorithm)?;
+        }
+        if !self.digest.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("digest", pbjson::private::base64::encode(&self.digest).as_str())?;
+        }
+        if !self.signature_type.is_empty() {
+            struct_ser.serialize_field("signatureType", &self.signature_type)?;
+        }
+        if !self.signature.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("signature", pbjson::private::base64::encode(&self.signature).as_str())?;
+        }
+        if !self.signature_ref.is_empty() {
+            struct_ser.serialize_field("signatureRef", &self.signature_ref)?;
+        }
+        if !self.public_key_ref.is_empty() {
+            struct_ser.serialize_field("publicKeyRef", &self.public_key_ref)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SoftwareIdentity {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "version",
+            "artifact_ref",
+            "artifactRef",
+            "digest_algorithm",
+            "digestAlgorithm",
+            "digest",
+            "signature_type",
+            "signatureType",
+            "signature",
+            "signature_ref",
+            "signatureRef",
+            "public_key_ref",
+            "publicKeyRef",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Version,
+            ArtifactRef,
+            DigestAlgorithm,
+            Digest,
+            SignatureType,
+            Signature,
+            SignatureRef,
+            PublicKeyRef,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "version" => Ok(GeneratedField::Version),
+                            "artifactRef" | "artifact_ref" => Ok(GeneratedField::ArtifactRef),
+                            "digestAlgorithm" | "digest_algorithm" => Ok(GeneratedField::DigestAlgorithm),
+                            "digest" => Ok(GeneratedField::Digest),
+                            "signatureType" | "signature_type" => Ok(GeneratedField::SignatureType),
+                            "signature" => Ok(GeneratedField::Signature),
+                            "signatureRef" | "signature_ref" => Ok(GeneratedField::SignatureRef),
+                            "publicKeyRef" | "public_key_ref" => Ok(GeneratedField::PublicKeyRef),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SoftwareIdentity;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.verification.v1.SoftwareIdentity")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SoftwareIdentity, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut version__ = None;
+                let mut artifact_ref__ = None;
+                let mut digest_algorithm__ = None;
+                let mut digest__ = None;
+                let mut signature_type__ = None;
+                let mut signature__ = None;
+                let mut signature_ref__ = None;
+                let mut public_key_ref__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Version => {
+                            if version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("version"));
+                            }
+                            version__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ArtifactRef => {
+                            if artifact_ref__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("artifactRef"));
+                            }
+                            artifact_ref__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::DigestAlgorithm => {
+                            if digest_algorithm__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("digestAlgorithm"));
+                            }
+                            digest_algorithm__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Digest => {
+                            if digest__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("digest"));
+                            }
+                            digest__ = 
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::SignatureType => {
+                            if signature_type__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("signatureType"));
+                            }
+                            signature_type__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Signature => {
+                            if signature__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("signature"));
+                            }
+                            signature__ = 
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::SignatureRef => {
+                            if signature_ref__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("signatureRef"));
+                            }
+                            signature_ref__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::PublicKeyRef => {
+                            if public_key_ref__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("publicKeyRef"));
+                            }
+                            public_key_ref__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(SoftwareIdentity {
+                    version: version__.unwrap_or_default(),
+                    artifact_ref: artifact_ref__.unwrap_or_default(),
+                    digest_algorithm: digest_algorithm__.unwrap_or_default(),
+                    digest: digest__.unwrap_or_default(),
+                    signature_type: signature_type__.unwrap_or_default(),
+                    signature: signature__.unwrap_or_default(),
+                    signature_ref: signature_ref__.unwrap_or_default(),
+                    public_key_ref: public_key_ref__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.verification.v1.SoftwareIdentity", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for UnbondingEntry {

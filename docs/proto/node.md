@@ -663,6 +663,7 @@
      - [ProviderSnapshotRecord](#akash.verification.v1.ProviderSnapshotRecord)
      - [ProviderVerificationGraceRecord](#akash.verification.v1.ProviderVerificationGraceRecord)
      - [ResourceSummary](#akash.verification.v1.ResourceSummary)
+     - [SoftwareIdentity](#akash.verification.v1.SoftwareIdentity)
      - [UnbondingEntry](#akash.verification.v1.UnbondingEntry)
      - [VerificationStoreRecord](#akash.verification.v1.VerificationStoreRecord)
    
@@ -9287,8 +9288,8 @@ and the grace window during which the provider may continue to operate.
  ### ResourceSummary
  ResourceSummary captures the resource counts a provider claims at snapshot
 time. Used by the chain to scale the provider bond requirement and as
-evidence in snapshot records. The software_version and software_signature
-fields are evidence-only and do not drive on-chain enforcement.
+evidence in snapshot records. Software identity fields are evidence-only and
+do not drive on-chain enforcement.
 
  
  | Field | Type | Label | Description |
@@ -9298,8 +9299,33 @@ fields are evidence-only and do not drive on-chain enforcement.
  | `total_memory_mb` | [uint64](#uint64) |  | TotalMemoryMB is the total memory in megabytes the provider claims. |
  | `total_storage_mb` | [uint64](#uint64) |  | TotalStorageMB is the total storage in megabytes the provider claims. |
  | `active_leases` | [uint32](#uint32) |  | ActiveLeases is the number of leases currently active on the provider. |
- | `software_version` | [string](#string) |  | SoftwareVersion is the provider software version string. |
- | `software_signature` | [bytes](#bytes) |  | SoftwareSignature is the provider software signature bytes. |
+ | `software_version` | [string](#string) |  | SoftwareVersion is the provider software version string kept for compatibility. |
+ | `software_signature` | [bytes](#bytes) |  | SoftwareSignature is the provider software signature kept for compatibility. |
+ | `software_identity` | [SoftwareIdentity](#akash.verification.v1.SoftwareIdentity) |  | SoftwareIdentity carries structured release artifact metadata. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.SoftwareIdentity"></a>
+
+ ### SoftwareIdentity
+ SoftwareIdentity carries release artifact identity and signature metadata.
+Providers post these fields as evidence; auditors verify them off-chain
+against the published Akash release key.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `version` | [string](#string) |  | Version is the provider or inventory software version string. |
+ | `artifact_ref` | [string](#string) |  | ArtifactRef identifies the release artifact whose digest/signature is reported. |
+ | `digest_algorithm` | [string](#string) |  | DigestAlgorithm identifies the digest algorithm, e.g. sha3-256. |
+ | `digest` | [bytes](#bytes) |  | Digest is the release artifact digest bytes. |
+ | `signature_type` | [string](#string) |  | SignatureType identifies the signature format, e.g. cosign. |
+ | `signature` | [bytes](#bytes) |  | Signature is the detached signature bytes when carried inline. |
+ | `signature_ref` | [string](#string) |  | SignatureRef identifies an external signature or bundle. |
+ | `public_key_ref` | [string](#string) |  | PublicKeyRef identifies the published release public key. |
  
  
 
