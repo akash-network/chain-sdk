@@ -845,8 +845,6 @@ pub mod inventory_service_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        /** GetInventorySnapshot returns a provider-signed inventory snapshot.
-*/
         pub async fn get_inventory_snapshot(
             &mut self,
             request: impl tonic::IntoRequest<super::GetInventorySnapshotRequest>,
@@ -886,8 +884,6 @@ pub mod inventory_service_server {
     /// Generated trait containing gRPC methods that should be implemented for use with InventoryServiceServer.
     #[async_trait]
     pub trait InventoryService: Send + Sync + 'static {
-        /** GetInventorySnapshot returns a provider-signed inventory snapshot.
-*/
         async fn get_inventory_snapshot(
             &self,
             request: tonic::Request<super::GetInventorySnapshotRequest>,

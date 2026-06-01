@@ -534,10 +534,63 @@ message UnbondingEntry {
   ];
 }
 
+// SoftwareIdentity carries release artifact identity and signature metadata.
+// Providers post these fields as evidence; auditors verify them off-chain
+// against the published Akash release key.
+message SoftwareIdentity {
+  // Version is the provider or inventory software version string.
+  string version = 1 [
+    (gogoproto.jsontag)  = "version",
+    (gogoproto.moretags) = "yaml:\"version\""
+  ];
+
+  // ArtifactRef identifies the release artifact whose digest/signature is reported.
+  string artifact_ref = 2 [
+    (gogoproto.jsontag)  = "artifact_ref",
+    (gogoproto.moretags) = "yaml:\"artifact_ref\""
+  ];
+
+  // DigestAlgorithm identifies the digest algorithm, e.g. sha3-256.
+  string digest_algorithm = 3 [
+    (gogoproto.jsontag)  = "digest_algorithm",
+    (gogoproto.moretags) = "yaml:\"digest_algorithm\""
+  ];
+
+  // Digest is the release artifact digest bytes.
+  bytes digest = 4 [
+    (gogoproto.jsontag)  = "digest",
+    (gogoproto.moretags) = "yaml:\"digest\""
+  ];
+
+  // SignatureType identifies the signature format, e.g. cosign.
+  string signature_type = 5 [
+    (gogoproto.jsontag)  = "signature_type",
+    (gogoproto.moretags) = "yaml:\"signature_type\""
+  ];
+
+  // Signature is the detached signature bytes when carried inline.
+  bytes signature = 6 [
+    (gogoproto.jsontag)  = "signature",
+    (gogoproto.moretags) = "yaml:\"signature\""
+  ];
+
+  // SignatureRef identifies an external signature or bundle.
+  string signature_ref = 7 [
+    (gogoproto.jsontag)  = "signature_ref",
+    (gogoproto.moretags) = "yaml:\"signature_ref\""
+  ];
+
+  // PublicKeyRef identifies the published release public key.
+  string public_key_ref = 8 [
+    (gogoproto.jsontag)  = "public_key_ref",
+    (gogoproto.moretags) = "yaml:\"public_key_ref\""
+  ];
+}
+
 // ResourceSummary captures the resource counts a provider claims at snapshot
 // time. Used by the chain to scale the provider bond requirement and as
-// evidence in snapshot records. The software_version and software_signature
-// fields are evidence-only and do not drive on-chain enforcement.
+// evidence in snapshot records. Software identity fields are evidence-only and
+// do not drive on-chain enforcement.
 message ResourceSummary {
   // TotalGPUs is the total number of GPUs the provider claims.
   uint32 total_gpus = 1 [
@@ -573,16 +626,22 @@ message ResourceSummary {
     (gogoproto.moretags) = "yaml:\"active_leases\""
   ];
 
-  // SoftwareVersion is the provider software version string.
+  // SoftwareVersion is the provider software version string kept for compatibility.
   string software_version = 6 [
     (gogoproto.jsontag)  = "software_version",
     (gogoproto.moretags) = "yaml:\"software_version\""
   ];
 
-  // SoftwareSignature is the provider software signature bytes.
+  // SoftwareSignature is the provider software signature kept for compatibility.
   bytes software_signature = 7 [
     (gogoproto.jsontag)  = "software_signature",
     (gogoproto.moretags) = "yaml:\"software_signature\""
+  ];
+
+  // SoftwareIdentity carries structured release artifact metadata.
+  SoftwareIdentity software_identity = 8 [
+    (gogoproto.jsontag)  = "software_identity,omitempty",
+    (gogoproto.moretags) = "yaml:\"software_identity,omitempty\""
   ];
 }
 
