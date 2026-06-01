@@ -43,6 +43,7 @@
      - [SnapshotEvidenceSection](#akash.inventory.v1.SnapshotEvidenceSection)
      - [SnapshotPayload](#akash.inventory.v1.SnapshotPayload)
      - [SnapshotResourceSummary](#akash.inventory.v1.SnapshotResourceSummary)
+     - [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity)
    
      - [InventoryService](#akash.inventory.v1.InventoryService)
    
@@ -579,8 +580,33 @@
  | `total_memory_mb` | [uint64](#uint64) |  |  |
  | `total_storage_mb` | [uint64](#uint64) |  |  |
  | `active_leases` | [uint32](#uint32) |  |  |
- | `software_version` | [string](#string) |  |  |
- | `software_signature` | [bytes](#bytes) |  |  |
+ | `software_version` | [string](#string) |  | software_version is the provider software version string kept for compatibility. |
+ | `software_signature` | [bytes](#bytes) |  | software_signature is the provider software signature kept for compatibility. |
+ | `software_identity` | [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity) |  | software_identity carries structured release artifact metadata. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SoftwareIdentity"></a>
+
+ ### SoftwareIdentity
+ SoftwareIdentity carries release artifact identity and signature metadata.
+Providers report these fields; auditors verify them off-chain against the
+published Akash release key.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `version` | [string](#string) |  | version is the provider or inventory software version string. |
+ | `artifact_ref` | [string](#string) |  | artifact_ref identifies the release artifact whose digest/signature is reported. |
+ | `digest_algorithm` | [string](#string) |  | digest_algorithm identifies the digest algorithm, e.g. sha3-256. |
+ | `digest` | [bytes](#bytes) |  | digest is the release artifact digest bytes. |
+ | `signature_type` | [string](#string) |  | signature_type identifies the signature format, e.g. cosign. |
+ | `signature` | [bytes](#bytes) |  | signature is the detached signature bytes when carried inline. |
+ | `signature_ref` | [string](#string) |  | signature_ref identifies an external signature or bundle. |
+ | `public_key_ref` | [string](#string) |  | public_key_ref identifies the published release public key. |
  
  
 
