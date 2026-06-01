@@ -39,24 +39,24 @@ var (
 
 type v2TEEAttributes types.Attributes
 
-// v2ResourceTEE defines the TEE (Trusted Execution Environment) configuration
+// v2TEEParams defines the TEE (Trusted Execution Environment) configuration
 // for a compute resource. Follows the same pattern as v2ResourceStorage.
-type v2ResourceTEE struct {
+type v2TEEParams struct {
 	Type        string `yaml:"type"`
 	Attestation *bool  `yaml:"attestation,omitempty"`
 }
 
-func (tee *v2ResourceTEE) UnmarshalYAML(node *yaml.Node) error {
-	type raw v2ResourceTEE
+func (tee *v2TEEParams) UnmarshalYAML(node *yaml.Node) error {
+	type raw v2TEEParams
 	var r raw
 	if err := node.Decode(&r); err != nil {
 		return err
 	}
-	*tee = v2ResourceTEE(r)
+	*tee = v2TEEParams(r)
 	return tee.validate()
 }
 
-func (tee *v2ResourceTEE) toAttributes() v2TEEAttributes {
+func (tee *v2TEEParams) toAttributes() v2TEEAttributes {
 	if tee == nil {
 		return nil
 	}
@@ -89,7 +89,7 @@ func IsGPUTEEType(t string) bool {
 	return t == TEETypeSEVSNPGPU || t == TEETypeTDXGPU
 }
 
-func (tee *v2ResourceTEE) validate() error {
+func (tee *v2TEEParams) validate() error {
 	if tee == nil {
 		return nil
 	}
@@ -109,7 +109,7 @@ func (tee *v2ResourceTEE) validate() error {
 
 // validateWithGPU checks TEE + GPU consistency. Called during group building
 // when GPU info is available.
-func (tee *v2ResourceTEE) validateWithGPU(hasGPU bool) error {
+func (tee *v2TEEParams) validateWithGPU(hasGPU bool) error {
 	if tee == nil {
 		return nil
 	}
@@ -122,7 +122,7 @@ func (tee *v2ResourceTEE) validateWithGPU(hasGPU bool) error {
 }
 
 func (attr *v2TEEAttributes) UnmarshalYAML(node *yaml.Node) error {
-	var tee v2ResourceTEE
+	var tee v2TEEParams
 
 	if err := node.Decode(&tee); err != nil {
 		return err
