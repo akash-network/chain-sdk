@@ -96,7 +96,8 @@
             "endpointSequenceNumber": 2
           }
         ],
-        "credentials": null
+        "credentials": null,
+        "rdmaGroup": ""
       }
     ]
   }

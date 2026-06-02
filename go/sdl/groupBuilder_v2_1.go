@@ -107,6 +107,11 @@ func (sdl *v2_1) buildGroups() error {
 				Expose:    expose,
 			}
 
+			// CS-3: see groupBuilder_v2.go for rationale.
+			if compute.Resources != nil && compute.Resources.GPU != nil {
+				msvc.RDMAGroup = compute.Resources.GPU.RDMAGroup
+			}
+
 			if svc.Params != nil {
 				params := &manifest.ServiceParams{}
 

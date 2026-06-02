@@ -54,7 +54,22 @@ export interface Service {
   count: number;
   expose: ServiceExpose[];
   params: ServiceParams | undefined;
-  credentials: ImageCredentials | undefined;
+  credentials:
+    | ImageCredentials
+    | undefined;
+  /**
+   * RDMAGroup carries the SDL gpu.attributes.rdma_group peer-group label.
+   * Off-chain only — never reaches Resources.GPU.attributes. Services
+   * sharing the same value form one NCCL peer group; the provider applies
+   * pod anti-affinity within each group when scheduling the workload.
+   * Empty when the service is not part of any RDMA peer group.
+   *
+   * JSON / YAML tag is camelCase (no `omitempty`) to match the existing
+   * convention on this message (cf. `read_only` -> `"readOnly"`) so that
+   * the JSON serialization stays in lock-step with the TypeScript SDK,
+   * which always emits the field regardless of value.
+   */
+  rdmaGroup: string;
 }
 
 function createBaseStorageParams(): StorageParams {
@@ -417,6 +432,7 @@ function createBaseService(): Service {
     expose: [],
     params: undefined,
     credentials: undefined,
+    rdmaGroup: "",
   };
 }
 
@@ -453,6 +469,9 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     }
     if (message.credentials !== undefined) {
       ImageCredentials.encode(message.credentials, writer.uint32(82).fork()).join();
+    }
+    if (message.rdmaGroup !== "") {
+      writer.uint32(90).string(message.rdmaGroup);
     }
     return writer;
   },
@@ -544,6 +563,14 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
           message.credentials = ImageCredentials.decode(reader, reader.uint32());
           continue;
         }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.rdmaGroup = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -565,6 +592,7 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
       expose: globalThis.Array.isArray(object?.expose) ? object.expose.map((e: any) => ServiceExpose.fromJSON(e)) : [],
       params: isSet(object.params) ? ServiceParams.fromJSON(object.params) : undefined,
       credentials: isSet(object.credentials) ? ImageCredentials.fromJSON(object.credentials) : undefined,
+      rdmaGroup: isSet(object.rdma_group) ? globalThis.String(object.rdma_group) : "",
     };
   },
 
@@ -600,6 +628,9 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     if (message.credentials !== undefined) {
       obj.credentials = ImageCredentials.toJSON(message.credentials);
     }
+    if (message.rdmaGroup !== "") {
+      obj.rdma_group = message.rdmaGroup;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Service>): Service {
@@ -620,6 +651,7 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     message.credentials = (object.credentials !== undefined && object.credentials !== null)
       ? ImageCredentials.fromPartial(object.credentials)
       : undefined;
+    message.rdmaGroup = object.rdmaGroup ?? "";
     return message;
   },
 };

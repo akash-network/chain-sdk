@@ -13,6 +13,33 @@ message NodeCapabilities {
     (gogoproto.jsontag)      = "storage_classes",
     (gogoproto.moretags)     = "yaml:\"storage_classes\""
   ];
+
+  // RDMA: Kubernetes extended-resource name the cluster's device plugin publishes
+  // for RDMA-capable HCAs (e.g. rdma/rdma_shared_device_ib for InfiniBand,
+  // rdma/rdma_shared_device_eth for RoCE). Empty when the node has no RDMA
+  // capability. Discovered by the inventory operator from k8s allocatable.
+  string rdma_resource_name = 2 [
+    (gogoproto.customname)   = "RDMAResourceName",
+    (gogoproto.jsontag)      = "rdma_resource_name,omitempty",
+    (gogoproto.moretags)     = "yaml:\"rdma_resource_name,omitempty\""
+  ];
+
+  // RDMA fabric type. "infiniband" or "roce". Derived from
+  // /sys/class/infiniband/<dev>/ports/1/link_layer on the host node.
+  string rdma_fabric = 3 [
+    (gogoproto.customname)   = "RDMAFabric",
+    (gogoproto.jsontag)      = "rdma_fabric,omitempty",
+    (gogoproto.moretags)     = "yaml:\"rdma_fabric,omitempty\""
+  ];
+
+  // NCCL IB HCA prefix - the common device-name prefix under
+  // /sys/class/infiniband (e.g. "mlx5"). Injected by the provider as
+  // NCCL_IB_HCA when scheduling RDMA workloads.
+  string nccl_hca_prefix = 4 [
+    (gogoproto.customname)   = "NCCLHCAPrefix",
+    (gogoproto.jsontag)      = "nccl_hca_prefix,omitempty",
+    (gogoproto.moretags)     = "yaml:\"nccl_hca_prefix,omitempty\""
+  ];
 }
 
 // Node reports node inventory details

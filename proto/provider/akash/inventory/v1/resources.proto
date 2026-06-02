@@ -53,4 +53,15 @@ message NodeResources {
     (gogoproto.jsontag)      = "volumes_mounted",
     (gogoproto.moretags)     = "yaml:\"volumes_mounted\""
   ];
+
+  // RDMA reports node RDMA capacity. Capacity/Allocatable/Allocated are
+  // populated by the inventory operator from k8s allocatable for whichever
+  // rdma/rdma_shared_device_* extended resource the cluster's device plugin
+  // publishes (see NodeCapabilities.rdma_resource_name).
+  ResourcePair rdma = 7 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.customname)   = "RDMA",
+    (gogoproto.jsontag)      = "rdma",
+    (gogoproto.moretags)     = "yaml:\"rdma\""
+  ];
 }

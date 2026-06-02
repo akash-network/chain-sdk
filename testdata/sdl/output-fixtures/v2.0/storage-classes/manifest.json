@@ -114,7 +114,8 @@
             }
           ]
         },
-        "credentials": null
+        "credentials": null,
+        "rdmaGroup": ""
       }
     ]
   }

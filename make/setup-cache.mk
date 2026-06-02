@@ -152,12 +152,16 @@ $(MOCKERY_VERSION_FILE): $(AKASH_DEVCACHE)
 	touch $@
 $(MOCKERY): $(MOCKERY_VERSION_FILE)
 
-GOLANGCI_LINT_MAJOR=$(shell $(SEMVER) get major $(GOLANGCI_LINT_VERSION))
+# NOTE: the module-path major version (v2 vs v3 etc.) is computed from
+# GOLANGCI_LINT_VERSION at *recipe-execute* time, after the $(SEMVER)
+# dependency below has been satisfied. Computing it at parse time with
+# $(shell ...) silently returned empty when semver hadn't been built yet,
+# producing the broken module path .../golangci-lint/v/cmd/golangci-lint.
 
-$(GOLANGCI_LINT_VERSION_FILE): $(AP_DEVCACHE)
+$(GOLANGCI_LINT_VERSION_FILE): $(AP_DEVCACHE) $(SEMVER)
 	@echo "installing golangci-lint $(GOLANGCI_LINT_VERSION) ..."
 	rm -f $(MOCKERY)
-	(cd $(GO_ROOT); GOBIN=$(AKASH_DEVCACHE_BIN) go install github.com/golangci/golangci-lint/v$(GOLANGCI_LINT_MAJOR)/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION))
+	(cd $(GO_ROOT); GOBIN=$(AKASH_DEVCACHE_BIN) go install github.com/golangci/golangci-lint/v$$($(SEMVER) get major $(GOLANGCI_LINT_VERSION))/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION))
 	rm -rf "$(dir $@)"
 	mkdir -p "$(dir $@)"
 	touch $@

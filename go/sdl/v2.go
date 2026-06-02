@@ -533,7 +533,157 @@ func (sdl *v2) validate() error {
 		}
 	}
 
+	if err := sdl.validateRDMA(); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+// validateRDMA enforces the parser-level cross-field invariants for RDMA
+// (CS-5 in the implementation spec):
+//
+//  1. Any compute profile with gpu.attributes.rdma: true must be used by a
+//     deployment whose placement requirements include capabilities/rdma=true.
+//  2. Any compute profile with gpu.attributes.rdma_group set must also have
+//     gpu.attributes.rdma: true on the same profile (a peer group label
+//     without an HCA is a misconfiguration).
+//  3. Within one deployment, if any profile sets rdma_group, every profile
+//     with gpu.attributes.rdma: true in that deployment must set rdma_group.
+//     No implicit-default-plus-explicit mixing within one deployment.
+//
+// The provider relies on these guarantees: rule 1 means an RDMA-required
+// workload always reaches an RDMA-capable provider; rule 2 keeps peer-group
+// labels meaningful; rule 3 keeps the per-group anti-affinity rule
+// unambiguous.
+func (sdl *v2) validateRDMA() error {
+	// Per-profile rule 2: rdma_group ⇒ rdma=true.
+	for profileName, compute := range sdl.Profiles.Compute {
+		if compute.Resources == nil || compute.Resources.GPU == nil {
+			continue
+		}
+		gpu := compute.Resources.GPU
+		if gpu.RDMAGroup != "" && !gpuAttributesHaveRDMA(gpu.Attributes) {
+			return fmt.Errorf(
+				"%w: compute profile %q sets gpu.attributes.rdma_group=%q but does not set gpu.attributes.rdma: true",
+				errSDLInvalid,
+				profileName,
+				gpu.RDMAGroup,
+			)
+		}
+	}
+
+	// Rules 1 and 3 are scoped to one deployment block. SDL v2 only has one
+	// deployment block (sdl.Deployments) so we treat the whole map as a
+	// single deployment for the purposes of these rules.
+	//
+	// Walk every (service, placement) and remember per service-deployment:
+	//   - which profile it points at,
+	//   - whether that profile has rdma=true,
+	//   - whether that profile has rdma_group set.
+	type profUsage struct {
+		profileName string
+		hasRDMA     bool
+		group       string
+	}
+	type placementUsage struct {
+		// indexed by service name
+		usages []profUsage
+	}
+	usagesByPlacement := map[string]*placementUsage{}
+
+	for svcName, depl := range sdl.Deployments {
+		for placementName, svcdepl := range depl {
+			compute, ok := sdl.Profiles.Compute[svcdepl.Profile]
+			if !ok {
+				continue // covered by earlier validate() loop
+			}
+			gpu := (*v2ResourceGPU)(nil)
+			if compute.Resources != nil {
+				gpu = compute.Resources.GPU
+			}
+			usage := profUsage{
+				profileName: svcdepl.Profile,
+			}
+			if gpu != nil {
+				usage.hasRDMA = gpuAttributesHaveRDMA(gpu.Attributes)
+				usage.group = gpu.RDMAGroup
+			}
+
+			pu, ok := usagesByPlacement[placementName]
+			if !ok {
+				pu = &placementUsage{}
+				usagesByPlacement[placementName] = pu
+			}
+			pu.usages = append(pu.usages, usage)
+
+			// Rule 1: per-placement, if this profile has rdma=true, the
+			// placement's requirements must include capabilities/rdma=true.
+			if usage.hasRDMA {
+				infra, ok := sdl.Profiles.Placement[placementName]
+				if !ok {
+					continue // covered by earlier validate() loop
+				}
+				if !placementRequiresRDMA(infra.Attributes) {
+					return fmt.Errorf(
+						"%w: service %q uses RDMA profile %q under placement %q but placement does not require capabilities/rdma=true",
+						errSDLInvalid,
+						svcName,
+						svcdepl.Profile,
+						placementName,
+					)
+				}
+			}
+		}
+	}
+
+	// Rule 3: within one deployment block (= one placementUsage), if any
+	// profile sets rdma_group, every profile with rdma=true must set
+	// rdma_group too. The spec's "deployment" scope is one sdl.Deployments,
+	// so we apply this rule per placement (each placement is what a tenant
+	// sees as one bid target / one set of leased pods).
+	for placementName, pu := range usagesByPlacement {
+		anyGrouped := false
+		for _, u := range pu.usages {
+			if u.group != "" {
+				anyGrouped = true
+				break
+			}
+		}
+		if !anyGrouped {
+			continue
+		}
+		for _, u := range pu.usages {
+			if u.hasRDMA && u.group == "" {
+				return fmt.Errorf(
+					"%w: placement %q mixes explicit and implicit rdma_group: profile %q has gpu.attributes.rdma: true but no rdma_group, while another profile under the same placement sets rdma_group",
+					errSDLInvalid,
+					placementName,
+					u.profileName,
+				)
+			}
+		}
+	}
+
+	return nil
+}
+
+func gpuAttributesHaveRDMA(attrs v2GPUAttributes) bool {
+	for _, a := range attrs {
+		if a.Key == GPUAttributeRDMA && a.Value == valueTrue {
+			return true
+		}
+	}
+	return false
+}
+
+func placementRequiresRDMA(attrs v2PlacementAttributes) bool {
+	for _, a := range attrs {
+		if a.Key == "capabilities/rdma" && a.Value == valueTrue {
+			return true
+		}
+	}
+	return false
 }
 
 func (sdl *v2) computeEndpointSequenceNumbers() map[string]uint32 {

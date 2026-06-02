@@ -124,4 +124,20 @@ message Service {
     (gogoproto.jsontag)  = "credentials",
     (gogoproto.moretags) = "yaml:\"credentials\""
   ];
+
+  // RDMAGroup carries the SDL gpu.attributes.rdma_group peer-group label.
+  // Off-chain only — never reaches Resources.GPU.attributes. Services
+  // sharing the same value form one NCCL peer group; the provider applies
+  // pod anti-affinity within each group when scheduling the workload.
+  // Empty when the service is not part of any RDMA peer group.
+  //
+  // JSON / YAML tag is camelCase (no `omitempty`) to match the existing
+  // convention on this message (cf. `read_only` -> `"readOnly"`) so that
+  // the JSON serialization stays in lock-step with the TypeScript SDK,
+  // which always emits the field regardless of value.
+  string rdma_group = 11 [
+    (gogoproto.customname) = "RDMAGroup",
+    (gogoproto.jsontag)    = "rdmaGroup",
+    (gogoproto.moretags)   = "yaml:\"rdmaGroup\""
+  ];
 }

@@ -69,7 +69,8 @@
             "endpointSequenceNumber": 0
           }
         ],
-        "credentials": null
+        "credentials": null,
+        "rdmaGroup": ""
       }
     ]
   }

@@ -68,7 +68,8 @@
             "endpointSequenceNumber": 3
           }
         ],
-        "credentials": null
+        "credentials": null,
+        "rdmaGroup": ""
       },
       {
         "name": "web",
@@ -164,7 +165,8 @@
             "endpointSequenceNumber": 2
           }
         ],
-        "credentials": null
+        "credentials": null,
+        "rdmaGroup": ""
       }
     ]
   }

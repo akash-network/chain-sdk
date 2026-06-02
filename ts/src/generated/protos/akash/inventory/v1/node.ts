@@ -14,6 +14,24 @@ import { NodeResources } from "./resources.ts";
 /** NodeCapabilities extended list of node capabilities */
 export interface NodeCapabilities {
   storageClasses: string[];
+  /**
+   * RDMA: Kubernetes extended-resource name the cluster's device plugin publishes
+   * for RDMA-capable HCAs (e.g. rdma/rdma_shared_device_ib for InfiniBand,
+   * rdma/rdma_shared_device_eth for RoCE). Empty when the node has no RDMA
+   * capability. Discovered by the inventory operator from k8s allocatable.
+   */
+  rdmaResourceName: string;
+  /**
+   * RDMA fabric type. "infiniband" or "roce". Derived from
+   * /sys/class/infiniband/<dev>/ports/1/link_layer on the host node.
+   */
+  rdmaFabric: string;
+  /**
+   * NCCL IB HCA prefix - the common device-name prefix under
+   * /sys/class/infiniband (e.g. "mlx5"). Injected by the provider as
+   * NCCL_IB_HCA when scheduling RDMA workloads.
+   */
+  ncclHcaPrefix: string;
 }
 
 /** Node reports node inventory details */
@@ -24,7 +42,7 @@ export interface Node {
 }
 
 function createBaseNodeCapabilities(): NodeCapabilities {
-  return { storageClasses: [] };
+  return { storageClasses: [], rdmaResourceName: "", rdmaFabric: "", ncclHcaPrefix: "" };
 }
 
 export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.NodeCapabilities"> = {
@@ -33,6 +51,15 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
   encode(message: NodeCapabilities, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.storageClasses) {
       writer.uint32(10).string(v!);
+    }
+    if (message.rdmaResourceName !== "") {
+      writer.uint32(18).string(message.rdmaResourceName);
+    }
+    if (message.rdmaFabric !== "") {
+      writer.uint32(26).string(message.rdmaFabric);
+    }
+    if (message.ncclHcaPrefix !== "") {
+      writer.uint32(34).string(message.ncclHcaPrefix);
     }
     return writer;
   },
@@ -52,6 +79,30 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
           message.storageClasses.push(reader.string());
           continue;
         }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.rdmaResourceName = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.rdmaFabric = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.ncclHcaPrefix = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -66,6 +117,9 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
       storageClasses: globalThis.Array.isArray(object?.storage_classes)
         ? object.storage_classes.map((e: any) => globalThis.String(e))
         : [],
+      rdmaResourceName: isSet(object.rdma_resource_name) ? globalThis.String(object.rdma_resource_name) : "",
+      rdmaFabric: isSet(object.rdma_fabric) ? globalThis.String(object.rdma_fabric) : "",
+      ncclHcaPrefix: isSet(object.nccl_hca_prefix) ? globalThis.String(object.nccl_hca_prefix) : "",
     };
   },
 
@@ -74,11 +128,23 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     if (message.storageClasses?.length) {
       obj.storage_classes = message.storageClasses;
     }
+    if (message.rdmaResourceName !== "") {
+      obj.rdma_resource_name = message.rdmaResourceName;
+    }
+    if (message.rdmaFabric !== "") {
+      obj.rdma_fabric = message.rdmaFabric;
+    }
+    if (message.ncclHcaPrefix !== "") {
+      obj.nccl_hca_prefix = message.ncclHcaPrefix;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<NodeCapabilities>): NodeCapabilities {
     const message = createBaseNodeCapabilities();
     message.storageClasses = object.storageClasses?.map((e) => e) || [];
+    message.rdmaResourceName = object.rdmaResourceName ?? "";
+    message.rdmaFabric = object.rdmaFabric ?? "";
+    message.ncclHcaPrefix = object.ncclHcaPrefix ?? "";
     return message;
   },
 };

@@ -21,7 +21,16 @@ export interface NodeResources {
   gpu: GPU | undefined;
   ephemeralStorage: ResourcePair | undefined;
   volumesAttached: ResourcePair | undefined;
-  volumesMounted: ResourcePair | undefined;
+  volumesMounted:
+    | ResourcePair
+    | undefined;
+  /**
+   * RDMA reports node RDMA capacity. Capacity/Allocatable/Allocated are
+   * populated by the inventory operator from k8s allocatable for whichever
+   * rdma/rdma_shared_device_* extended resource the cluster's device plugin
+   * publishes (see NodeCapabilities.rdma_resource_name).
+   */
+  rdma: ResourcePair | undefined;
 }
 
 function createBaseNodeResources(): NodeResources {
@@ -32,6 +41,7 @@ function createBaseNodeResources(): NodeResources {
     ephemeralStorage: undefined,
     volumesAttached: undefined,
     volumesMounted: undefined,
+    rdma: undefined,
   };
 }
 
@@ -56,6 +66,9 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
     }
     if (message.volumesMounted !== undefined) {
       ResourcePair.encode(message.volumesMounted, writer.uint32(50).fork()).join();
+    }
+    if (message.rdma !== undefined) {
+      ResourcePair.encode(message.rdma, writer.uint32(58).fork()).join();
     }
     return writer;
   },
@@ -115,6 +128,14 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
           message.volumesMounted = ResourcePair.decode(reader, reader.uint32());
           continue;
         }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.rdma = ResourcePair.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -132,6 +153,7 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
       ephemeralStorage: isSet(object.ephemeral_storage) ? ResourcePair.fromJSON(object.ephemeral_storage) : undefined,
       volumesAttached: isSet(object.volumes_attached) ? ResourcePair.fromJSON(object.volumes_attached) : undefined,
       volumesMounted: isSet(object.volumes_mounted) ? ResourcePair.fromJSON(object.volumes_mounted) : undefined,
+      rdma: isSet(object.rdma) ? ResourcePair.fromJSON(object.rdma) : undefined,
     };
   },
 
@@ -155,6 +177,9 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
     if (message.volumesMounted !== undefined) {
       obj.volumes_mounted = ResourcePair.toJSON(message.volumesMounted);
     }
+    if (message.rdma !== undefined) {
+      obj.rdma = ResourcePair.toJSON(message.rdma);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<NodeResources>): NodeResources {
@@ -172,6 +197,9 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
       : undefined;
     message.volumesMounted = (object.volumesMounted !== undefined && object.volumesMounted !== null)
       ? ResourcePair.fromPartial(object.volumesMounted)
+      : undefined;
+    message.rdma = (object.rdma !== undefined && object.rdma !== null)
+      ? ResourcePair.fromPartial(object.rdma)
       : undefined;
     return message;
   },
