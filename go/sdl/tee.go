@@ -3,16 +3,8 @@ package sdl
 import (
 	"errors"
 	"fmt"
-	"sort"
 
 	"gopkg.in/yaml.v3"
-
-	types "pkg.akt.dev/go/node/types/attributes/v1"
-)
-
-const (
-	TEEAttributeType        = "type"
-	TEEAttributeAttestation = "attestation"
 )
 
 // Supported TEE types, each maps 1:1 to a Kata Containers runtime class.
@@ -35,9 +27,8 @@ var (
 	errTEETypeRequired    = errors.New("sdl: tee type is required")
 	errTEETypeUnsupported = errors.New("sdl: unsupported tee type")
 	errTEEGPURequired     = errors.New("sdl: tee type requires gpu resources")
+	errTEETypeMismatch    = errors.New("sdl: conflicting tee types in the same placement group")
 )
-
-type v2TEEAttributes types.Attributes
 
 // v2TEEParams defines the TEE (Trusted Execution Environment) configuration
 // as a service parameter. Uses *bool for Attestation so we can distinguish
@@ -57,34 +48,6 @@ func (tee *v2TEEParams) UnmarshalYAML(node *yaml.Node) error {
 	}
 	*tee = v2TEEParams(r)
 	return tee.validate()
-}
-
-func (tee *v2TEEParams) toAttributes() v2TEEAttributes {
-	if tee == nil {
-		return nil
-	}
-
-	attrs := make(v2TEEAttributes, 0, 2)
-	attrs = append(attrs, types.Attribute{
-		Key:   TEEAttributeType,
-		Value: tee.Type,
-	})
-
-	// attestation defaults to true (provider injects sidecar)
-	attestation := "true"
-	if tee.Attestation != nil && !*tee.Attestation {
-		attestation = "false"
-	}
-	attrs = append(attrs, types.Attribute{
-		Key:   TEEAttributeAttestation,
-		Value: attestation,
-	})
-
-	sort.Slice(attrs, func(i, j int) bool {
-		return attrs[i].Key < attrs[j].Key
-	})
-
-	return attrs
 }
 
 // IsGPUTEEType returns true if the TEE type requires GPU confidential compute.
@@ -120,22 +83,6 @@ func (tee *v2TEEParams) validateWithGPU(hasGPU bool) error {
 	if IsGPUTEEType(tee.Type) && !hasGPU {
 		return fmt.Errorf("%w: %q specified but no gpu resources defined", errTEEGPURequired, tee.Type)
 	}
-
-	return nil
-}
-
-func (attr *v2TEEAttributes) UnmarshalYAML(node *yaml.Node) error {
-	var tee v2TEEParams
-
-	if err := node.Decode(&tee); err != nil {
-		return err
-	}
-
-	if err := tee.validate(); err != nil {
-		return err
-	}
-
-	*attr = tee.toAttributes()
 
 	return nil
 }

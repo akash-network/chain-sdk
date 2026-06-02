@@ -1,6 +1,7 @@
 package sdl
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -13,6 +14,7 @@ type groupsBuilderV2_1 struct {
 	dgroup        *dtypes.GroupSpec
 	mgroup        *manifest.Group
 	boundComputes map[string]map[string]int
+	teeType       string // tracks the TEE type projected for this group
 }
 
 // buildGroups
@@ -67,11 +69,18 @@ func (sdl *v2_1) buildGroups() error {
 			// Only the type is projected; attestation is a deployment-time
 			// decision handled via manifest TEEParams, not a provider capability.
 			if svc.Params != nil && svc.Params.TEE != nil {
-				group.dgroup.Requirements.Attributes = append(
-					group.dgroup.Requirements.Attributes,
-					types.Attribute{Key: "tee/type", Value: svc.Params.TEE.Type},
-				)
-				sort.Sort(group.dgroup.Requirements.Attributes)
+				if group.teeType != "" && group.teeType != svc.Params.TEE.Type {
+					return fmt.Errorf("%w: group %q has %q and %q",
+						errTEETypeMismatch, placementName, group.teeType, svc.Params.TEE.Type)
+				}
+				if group.teeType == "" {
+					group.teeType = svc.Params.TEE.Type
+					group.dgroup.Requirements.Attributes = append(
+						group.dgroup.Requirements.Attributes,
+						types.Attribute{Key: "tee/type", Value: svc.Params.TEE.Type},
+					)
+					sort.Sort(group.dgroup.Requirements.Attributes)
+				}
 			}
 
 			if _, exists := group.boundComputes[placementName]; !exists {
