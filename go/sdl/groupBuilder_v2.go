@@ -61,16 +61,15 @@ func (sdl *v2) buildGroups() error {
 				}
 			}
 
-			// Project TEE params as placement requirement attributes so the
-			// bid engine can match providers with capabilities/tee/... attributes.
+			// Project TEE type as a placement requirement attribute so the bid
+			// engine matches only providers that support this TEE technology.
+			// Only the type is projected; attestation is a deployment-time
+			// decision handled via manifest TEEParams, not a provider capability.
 			if svc.Params != nil && svc.Params.TEE != nil {
-				teeAttrs := svc.Params.TEE.toAttributes()
-				for _, attr := range teeAttrs {
-					group.dgroup.Requirements.Attributes = append(
-						group.dgroup.Requirements.Attributes,
-						types.Attribute{Key: "tee/" + attr.Key, Value: attr.Value},
-					)
-				}
+				group.dgroup.Requirements.Attributes = append(
+					group.dgroup.Requirements.Attributes,
+					types.Attribute{Key: "tee/type", Value: svc.Params.TEE.Type},
+				)
 				sort.Sort(group.dgroup.Requirements.Attributes)
 			}
 

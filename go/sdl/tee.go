@@ -40,7 +40,10 @@ var (
 type v2TEEAttributes types.Attributes
 
 // v2TEEParams defines the TEE (Trusted Execution Environment) configuration
-// for a compute resource. Follows the same pattern as v2ResourceStorage.
+// as a service parameter. Uses *bool for Attestation so we can distinguish
+// "not set" (nil -> default true) from "explicitly false". The group builder
+// always sets the manifest field explicitly because proto3 bool defaults to
+// false, which would silently disable attestation for non-Go producers.
 type v2TEEParams struct {
 	Type        string `yaml:"type"`
 	Attestation *bool  `yaml:"attestation,omitempty"`
