@@ -54,7 +54,7 @@ replace (
 	// use akash fork of cometbft
 	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.21-akash.1
 
-	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.5-akash.1
+	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.7-akash.2
 	// use akash version of cosmos ledger api
 	github.com/cosmos/ledger-cosmos-go => github.com/akash-network/ledger-go/cosmos v0.16.0
 
