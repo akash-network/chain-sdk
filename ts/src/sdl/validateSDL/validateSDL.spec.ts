@@ -2190,6 +2190,63 @@ describe(validateSDL.name, () => {
     });
   });
 
+  describe("reclamation validation", () => {
+    it("accepts a valid Go-duration min_window", () => {
+      const { validate } = setup({ reclamation: { min_window: "24h" } });
+      expect(validate()).toBeUndefined();
+    });
+
+    it("accepts reclamation on a v2.0 SDL (version-agnostic, mirrors Go)", () => {
+      const { validate } = setup({ version: "2.0", reclamation: { min_window: "1h30m" } });
+      expect(validate()).toBeUndefined();
+    });
+
+    it("accepts reclamation on a v2.1 SDL", () => {
+      const { validate } = setup({ version: "2.1", reclamation: { min_window: "30m" } });
+      expect(validate()).toBeUndefined();
+    });
+
+    it("returns no reclamation error when the block is absent", () => {
+      const { validate } = setup();
+      expect(validate()).toBeUndefined();
+    });
+
+    it("rejects a min_window that is not a valid Go duration", () => {
+      const { validate } = setup({ reclamation: { min_window: "abc" } });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        instancePath: "/reclamation/min_window",
+        schemaPath: "#/properties/reclamation/properties/min_window",
+        keyword: "format",
+      }));
+    });
+
+    it("rejects a zero min_window (must be > 0, mirrors Go)", () => {
+      const { validate } = setup({ reclamation: { min_window: "0s" } });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        instancePath: "/reclamation/min_window",
+        keyword: "format",
+        message: expect.stringContaining("greater than 0"),
+      }));
+    });
+
+    it("rejects a negative min_window (must be > 0, mirrors Go)", () => {
+      const { validate } = setup({ reclamation: { min_window: "-1h" } });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        instancePath: "/reclamation/min_window",
+        keyword: "format",
+        message: expect.stringContaining("greater than 0"),
+      }));
+    });
+
+    it("rejects a unitless min_window", () => {
+      const { validate } = setup({ reclamation: { min_window: "100" } });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        instancePath: "/reclamation/min_window",
+        keyword: "format",
+      }));
+    });
+  });
+
   function setup(overrides: DeepPartial<SDLInput> = {}, networkId: NetworkId = "sandbox") {
     const defaultSDL: SDLInput = {
       version: "2.0",
