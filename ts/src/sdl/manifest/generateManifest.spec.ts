@@ -806,6 +806,59 @@ describe(generateManifest.name, () => {
     });
   });
 
+  describe("reclamation", () => {
+    it("surfaces reclamation min_window as a proto Duration", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "24h" } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("86400");
+      expect(result.reclamation?.minWindow?.nanos).toBe(0);
+    });
+
+    it("surfaces compound durations", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "1h30m" } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("5400");
+      expect(result.reclamation?.minWindow?.nanos).toBe(0);
+    });
+
+    it("surfaces fractional durations", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "1.5h" } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("5400");
+      expect(result.reclamation?.minWindow?.nanos).toBe(0);
+    });
+
+    it("surfaces a sub-second nanos remainder", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "1.5s" } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("1");
+      expect(result.reclamation?.minWindow?.nanos).toBe(500_000_000);
+    });
+
+    it("surfaces a purely sub-second window (zero seconds)", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "500ms" } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("0");
+      expect(result.reclamation?.minWindow?.nanos).toBe(500_000_000);
+    });
+
+    it("surfaces large windows without JS precision loss", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "8760h" } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("31536000");
+      expect(result.reclamation?.minWindow?.nanos).toBe(0);
+    });
+
+    it("leaves reclamation undefined when no block is present", () => {
+      const { result } = setup();
+      expect(result.reclamation).toBeUndefined();
+    });
+
+    it.each(["abc", "0s", "-1h", "100"])("rejects an invalid min_window %j", (minWindow) => {
+      const result = generateManifest(createBasicSdl({ reclamation: { min_window: minWindow } }));
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.value).toContainEqual(expect.objectContaining({
+          instancePath: "/reclamation/min_window",
+        }));
+      }
+    });
+  });
+
   function setup(input?: {
     sdl: SDLInput;
   }) {
@@ -837,6 +890,7 @@ describe(generateManifest.name, () => {
     credentials?: SDLInput["services"][string]["credentials"];
     expose?: SDLInput["services"][string]["expose"];
     endpoints?: SDLInput["endpoints"];
+    reclamation?: SDLInput["reclamation"];
   } = {}): SDLInput {
     const {
       port = 80,
@@ -880,6 +934,7 @@ describe(generateManifest.name, () => {
             profile: web
             count: 1
       endpoints: ${input.endpoints}
+      reclamation: ${input.reclamation}
     `;
   }
 

@@ -4,6 +4,7 @@ import { GPU } from "../../generated/protos/akash/base/resources/v1beta4/gpu.ts"
 import { Memory } from "../../generated/protos/akash/base/resources/v1beta4/memory.ts";
 import { Resources } from "../../generated/protos/akash/base/resources/v1beta4/resources.ts";
 import { Storage } from "../../generated/protos/akash/base/resources/v1beta4/storage.ts";
+import { DeploymentReclamation } from "../../generated/protos/akash/deployment/v1/deployment.ts";
 import { GroupSpec } from "../../generated/protos/akash/deployment/v1beta4/groupspec.ts";
 import { ResourceUnit } from "../../generated/protos/akash/deployment/v1beta4/resourceunit.ts";
 import { Group } from "../../generated/protos/akash/manifest/v2beta3/group.ts";
@@ -29,10 +30,12 @@ import {
   type SDLService,
   transformGpuAttributes,
 } from "./manifestUtils.ts";
+import { parseGoDuration, protoDurationFromNanos } from "./parseGoDuration.ts";
 
 export interface GenerateManifestOkResult {
   groups: Group[];
   groupSpecs: GroupSpec[];
+  reclamation?: DeploymentReclamation;
 }
 
 export type Manifest = GenerateManifestOkResult["groups"];
@@ -144,7 +147,21 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
   let groups: Group[] | undefined;
   let groupSpecs: GroupSpec[] | undefined;
 
+  // reclamation rides on the result like `groupSpecs` — both are
+  // `MsgCreateDeployment` fields, not manifest groups. `validateSDL` (run above)
+  // already guaranteed `min_window` parses to a value > 0, so this never errors.
+  let reclamation: DeploymentReclamation | undefined;
+  if (sdl.reclamation) {
+    const parsed = parseGoDuration(sdl.reclamation.min_window);
+    if (parsed.ok) {
+      reclamation = DeploymentReclamation.fromPartial({
+        minWindow: protoDurationFromNanos(parsed.nanos),
+      });
+    }
+  }
+
   const manifest = {
+    reclamation,
     get groups() {
       groups ??= sortedGroupNames.map((placementName) => {
         const deployments = deploymentsByPlacement.get(placementName)!;

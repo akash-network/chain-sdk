@@ -1,5 +1,6 @@
 import type { ErrorMessages, ValidationError, ValidationFunction } from "../../utils/jsonSchemaValidation.ts";
 import { dirname, getErrorLocation, humanizeErrors } from "../../utils/jsonSchemaValidation.ts";
+import { parseGoDuration } from "../manifest/parseGoDuration.ts";
 import { castArray, stringToBoolean } from "../utils.ts";
 import { schema as validationSDLSchema, type SDLInput, validate as validateSDLInput } from "./validateSDLInput.ts";
 
@@ -46,7 +47,39 @@ class SDLValidator {
     }
 
     this.#validateEndpoints();
+    this.#validateReclamation();
     return this.#errors;
+  }
+
+  // Mirrors go/sdl/reclamation.go `toDeploymentReclamation` (called from each
+  // SDL version's `validate()` — `go/sdl/v2.go:295`, `go/sdl/v2_1.go:91-96`):
+  // parse the Go duration, then reject anything <= 0. Reclamation is
+  // version-agnostic (accepted in both v2.0 and v2.1), so there is no version gate.
+  #validateReclamation() {
+    const reclamation = this.#sdl.reclamation;
+    if (!reclamation) return;
+
+    const parsed = parseGoDuration(reclamation.min_window);
+    if (!parsed.ok) {
+      this.#errors.push({
+        message: `Invalid reclamation min_window "${reclamation.min_window}": must be a valid Go duration (e.g. "24h", "30m", "1h30m").`,
+        instancePath: "/reclamation/min_window",
+        schemaPath: "#/properties/reclamation/properties/min_window",
+        keyword: "format",
+        params: { format: "duration" },
+      });
+      return;
+    }
+
+    if (parsed.nanos <= 0n) {
+      this.#errors.push({
+        message: `Reclamation min_window must be greater than 0.`,
+        instancePath: "/reclamation/min_window",
+        schemaPath: "#/properties/reclamation/properties/min_window",
+        keyword: "format",
+        params: { format: "duration" },
+      });
+    }
   }
 
   #validateDeploymentWithRelations(serviceName: string) {
