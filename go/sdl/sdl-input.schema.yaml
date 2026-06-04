@@ -171,6 +171,77 @@ definitions:
       required:
         - global
 
+  verificationTierZeroAllowsNoFilters:
+    description: Verification tier 0 cannot be combined with filters
+    if:
+      properties:
+        min_tier:
+          const: 0
+      required:
+        - min_tier
+    then:
+      properties:
+        capabilities:
+          maxItems: 0
+        auditors:
+          maxItems: 0
+        min_auditor_count:
+          maximum: 0
+
+  verificationRequirement:
+    description: |
+      Optional verification requirements that providers must satisfy to bid
+      on this placement. Omitting the block disables verification filtering.
+    additionalProperties: false
+    allOf:
+      - $ref: '#/definitions/verificationTierZeroAllowsNoFilters'
+    properties:
+      min_tier:
+        description: |
+          Minimum verification tier required of bidding providers. 0 = no
+          requirement (TierUnspecified) and cannot be combined with
+          capabilities, auditors, or min_auditor_count. Valid values are 0..4.
+        type: integer
+        minimum: 0
+        maximum: 4
+      capabilities:
+        description: |
+          Optional capability flags the tenant requires bidders to assert. Each
+          entry must be one of the recognized SDL capability names.
+        type: array
+        items:
+          enum:
+            - tee_hardware_attestation
+            - confidential_computing
+            - persistent_storage
+            - bare_metal
+          type: string
+      auditors:
+        description: |
+          Optional list of specific auditor bech32 addresses; the list is
+          evaluated according to auditor_mode.
+        type: array
+        items:
+          type: string
+          minLength: 1
+      auditor_mode:
+        description: |
+          How the auditors list is evaluated. Omitting the field is equivalent
+          to "any".
+        enum:
+          - any
+          - all
+        type: string
+      min_auditor_count:
+        description: |
+          Minimum number of independent qualifying auditors that must have
+          attested the provider, independent of the auditors list.
+        type: integer
+        minimum: 0
+    required:
+      - min_tier
+    type: object
+
 properties:
   deployment:
     additionalProperties:
@@ -322,6 +393,8 @@ properties:
                     type: string
                   type: array
               type: object
+            verification:
+              $ref: '#/definitions/verificationRequirement'
           required:
             - pricing
           type: object

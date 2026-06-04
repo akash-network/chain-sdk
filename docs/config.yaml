@@ -18,6 +18,9 @@ apis:
         Params: MarketParams
   - url: "./.cache/tmp/swagger-gen/akash/market/v1beta5/service.swagger.json"
   - url: "./.cache/tmp/swagger-gen/akash/provider/v1beta4/query.swagger.json"
+    operationIds:
+      rename:
+        Params: ProviderParams
   - url: "./.cache/tmp/swagger-gen/akash/take/v1/query.swagger.json"
     operationIds:
       rename:

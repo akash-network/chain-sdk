@@ -4,6 +4,30 @@
 
  ## Table of Contents
  
+ - [akash/verification/v1/types.proto](#akash/verification/v1/types.proto)
+     - [AttestationRevocationReason](#akash.verification.v1.AttestationRevocationReason)
+     - [AttestationStatus](#akash.verification.v1.AttestationStatus)
+     - [AuditEscrowSettlementReason](#akash.verification.v1.AuditEscrowSettlementReason)
+     - [AuditEscrowStatus](#akash.verification.v1.AuditEscrowStatus)
+     - [AuditorSelectionMode](#akash.verification.v1.AuditorSelectionMode)
+     - [AuditorStatus](#akash.verification.v1.AuditorStatus)
+     - [BondStatus](#akash.verification.v1.BondStatus)
+     - [CapabilityFlag](#akash.verification.v1.CapabilityFlag)
+     - [DepositStatus](#akash.verification.v1.DepositStatus)
+     - [DiscrepancyResolutionReason](#akash.verification.v1.DiscrepancyResolutionReason)
+     - [DiscrepancyStatus](#akash.verification.v1.DiscrepancyStatus)
+     - [FaultAttribution](#akash.verification.v1.FaultAttribution)
+     - [FeeStatus](#akash.verification.v1.FeeStatus)
+     - [GovernanceAttestationReason](#akash.verification.v1.GovernanceAttestationReason)
+     - [ProviderBondSlashReason](#akash.verification.v1.ProviderBondSlashReason)
+     - [ProviderDepositStatus](#akash.verification.v1.ProviderDepositStatus)
+     - [VerificationGraceStatus](#akash.verification.v1.VerificationGraceStatus)
+     - [VerificationTier](#akash.verification.v1.VerificationTier)
+     - [VoidedReason](#akash.verification.v1.VoidedReason)
+   
+ - [akash/verification/v1/verificationrequirement.proto](#akash/verification/v1/verificationrequirement.proto)
+     - [VerificationRequirement](#akash.verification.v1.VerificationRequirement)
+   
  - [akash/base/attributes/v1/attribute.proto](#akash/base/attributes/v1/attribute.proto)
      - [Attribute](#akash.base.attributes.v1.Attribute)
      - [PlacementRequirements](#akash.base.attributes.v1.PlacementRequirements)
@@ -357,6 +381,10 @@
  - [akash/market/v1/filters.proto](#akash/market/v1/filters.proto)
      - [LeaseFilters](#akash.market.v1.LeaseFilters)
    
+ - [akash/market/v1/stats.proto](#akash/market/v1/stats.proto)
+     - [ProviderLeaseStats](#akash.market.v1.ProviderLeaseStats)
+     - [ProviderLeaseStatsByReason](#akash.market.v1.ProviderLeaseStatsByReason)
+   
  - [akash/market/v1beta5/resourcesoffer.proto](#akash/market/v1beta5/resourcesoffer.proto)
      - [EndpointOfferPrice](#akash.market.v1beta5.EndpointOfferPrice)
      - [OfferPrices](#akash.market.v1beta5.OfferPrices)
@@ -418,6 +446,8 @@
      - [QueryOrdersResponse](#akash.market.v1beta5.QueryOrdersResponse)
      - [QueryParamsRequest](#akash.market.v1beta5.QueryParamsRequest)
      - [QueryParamsResponse](#akash.market.v1beta5.QueryParamsResponse)
+     - [QueryProviderLeaseStatsRequest](#akash.market.v1beta5.QueryProviderLeaseStatsRequest)
+     - [QueryProviderLeaseStatsResponse](#akash.market.v1beta5.QueryProviderLeaseStatsResponse)
    
      - [Query](#akash.market.v1beta5.Query)
    
@@ -511,31 +541,60 @@
  - [akash/oracle/v2/service.proto](#akash/oracle/v2/service.proto)
      - [Msg](#akash.oracle.v2.Msg)
    
+ - [akash/provider/v1beta4/maintenance.proto](#akash/provider/v1beta4/maintenance.proto)
+     - [ProviderMaintenanceRecord](#akash.provider.v1beta4.ProviderMaintenanceRecord)
+     - [ProviderMaintenanceWithStatus](#akash.provider.v1beta4.ProviderMaintenanceWithStatus)
+   
+     - [ProviderMaintenanceStatus](#akash.provider.v1beta4.ProviderMaintenanceStatus)
+     - [ProviderMaintenanceType](#akash.provider.v1beta4.ProviderMaintenanceType)
+   
  - [akash/provider/v1beta4/event.proto](#akash/provider/v1beta4/event.proto)
      - [EventProviderCreated](#akash.provider.v1beta4.EventProviderCreated)
      - [EventProviderDeleted](#akash.provider.v1beta4.EventProviderDeleted)
+     - [EventProviderMaintenanceClosed](#akash.provider.v1beta4.EventProviderMaintenanceClosed)
+     - [EventProviderMaintenanceOpened](#akash.provider.v1beta4.EventProviderMaintenanceOpened)
      - [EventProviderUpdated](#akash.provider.v1beta4.EventProviderUpdated)
    
  - [akash/provider/v1beta4/provider.proto](#akash/provider/v1beta4/provider.proto)
      - [Info](#akash.provider.v1beta4.Info)
      - [Provider](#akash.provider.v1beta4.Provider)
+     - [ProviderRegistration](#akash.provider.v1beta4.ProviderRegistration)
+   
+ - [akash/provider/v1beta4/params.proto](#akash/provider/v1beta4/params.proto)
+     - [ProviderMaintenanceParams](#akash.provider.v1beta4.ProviderMaintenanceParams)
    
  - [akash/provider/v1beta4/genesis.proto](#akash/provider/v1beta4/genesis.proto)
      - [GenesisState](#akash.provider.v1beta4.GenesisState)
    
  - [akash/provider/v1beta4/msg.proto](#akash/provider/v1beta4/msg.proto)
+     - [MsgCloseProviderMaintenance](#akash.provider.v1beta4.MsgCloseProviderMaintenance)
+     - [MsgCloseProviderMaintenanceResponse](#akash.provider.v1beta4.MsgCloseProviderMaintenanceResponse)
      - [MsgCreateProvider](#akash.provider.v1beta4.MsgCreateProvider)
      - [MsgCreateProviderResponse](#akash.provider.v1beta4.MsgCreateProviderResponse)
      - [MsgDeleteProvider](#akash.provider.v1beta4.MsgDeleteProvider)
      - [MsgDeleteProviderResponse](#akash.provider.v1beta4.MsgDeleteProviderResponse)
+     - [MsgOpenProviderMaintenance](#akash.provider.v1beta4.MsgOpenProviderMaintenance)
+     - [MsgOpenProviderMaintenanceResponse](#akash.provider.v1beta4.MsgOpenProviderMaintenanceResponse)
      - [MsgUpdateProvider](#akash.provider.v1beta4.MsgUpdateProvider)
      - [MsgUpdateProviderResponse](#akash.provider.v1beta4.MsgUpdateProviderResponse)
    
+ - [akash/provider/v1beta4/paramsmsg.proto](#akash/provider/v1beta4/paramsmsg.proto)
+     - [MsgUpdateParams](#akash.provider.v1beta4.MsgUpdateParams)
+     - [MsgUpdateParamsResponse](#akash.provider.v1beta4.MsgUpdateParamsResponse)
+   
  - [akash/provider/v1beta4/query.proto](#akash/provider/v1beta4/query.proto)
+     - [QueryParamsRequest](#akash.provider.v1beta4.QueryParamsRequest)
+     - [QueryParamsResponse](#akash.provider.v1beta4.QueryParamsResponse)
+     - [QueryProviderMaintenanceRequest](#akash.provider.v1beta4.QueryProviderMaintenanceRequest)
+     - [QueryProviderMaintenanceResponse](#akash.provider.v1beta4.QueryProviderMaintenanceResponse)
+     - [QueryProviderMaintenancesRequest](#akash.provider.v1beta4.QueryProviderMaintenancesRequest)
+     - [QueryProviderMaintenancesResponse](#akash.provider.v1beta4.QueryProviderMaintenancesResponse)
      - [QueryProviderRequest](#akash.provider.v1beta4.QueryProviderRequest)
      - [QueryProviderResponse](#akash.provider.v1beta4.QueryProviderResponse)
      - [QueryProvidersRequest](#akash.provider.v1beta4.QueryProvidersRequest)
      - [QueryProvidersResponse](#akash.provider.v1beta4.QueryProvidersResponse)
+     - [QueryRegistrationRequest](#akash.provider.v1beta4.QueryRegistrationRequest)
+     - [QueryRegistrationResponse](#akash.provider.v1beta4.QueryRegistrationResponse)
    
      - [Query](#akash.provider.v1beta4.Query)
    
@@ -562,6 +621,133 @@
  - [akash/take/v1/service.proto](#akash/take/v1/service.proto)
      - [Msg](#akash.take.v1.Msg)
    
+ - [akash/verification/v1/event.proto](#akash/verification/v1/event.proto)
+     - [EventAttestationExpired](#akash.verification.v1.EventAttestationExpired)
+     - [EventAttestationReplaced](#akash.verification.v1.EventAttestationReplaced)
+     - [EventAttestationRevoked](#akash.verification.v1.EventAttestationRevoked)
+     - [EventAttestationSubmitted](#akash.verification.v1.EventAttestationSubmitted)
+     - [EventAttestationVoided](#akash.verification.v1.EventAttestationVoided)
+     - [EventAuditEscrowOpened](#akash.verification.v1.EventAuditEscrowOpened)
+     - [EventAuditEscrowSettled](#akash.verification.v1.EventAuditEscrowSettled)
+     - [EventAuditorBondPosted](#akash.verification.v1.EventAuditorBondPosted)
+     - [EventAuditorFrozen](#akash.verification.v1.EventAuditorFrozen)
+     - [EventAuditorLapsed](#akash.verification.v1.EventAuditorLapsed)
+     - [EventAuditorRegistered](#akash.verification.v1.EventAuditorRegistered)
+     - [EventAuditorRemoved](#akash.verification.v1.EventAuditorRemoved)
+     - [EventAuditorRenewed](#akash.verification.v1.EventAuditorRenewed)
+     - [EventAuditorResigned](#akash.verification.v1.EventAuditorResigned)
+     - [EventDepositReturnedToAuditor](#akash.verification.v1.EventDepositReturnedToAuditor)
+     - [EventDepositSlashed](#akash.verification.v1.EventDepositSlashed)
+     - [EventDiscrepancyDetected](#akash.verification.v1.EventDiscrepancyDetected)
+     - [EventDiscrepancyResolved](#akash.verification.v1.EventDiscrepancyResolved)
+     - [EventDiscrepancyTimedOut](#akash.verification.v1.EventDiscrepancyTimedOut)
+     - [EventFeeEscrowed](#akash.verification.v1.EventFeeEscrowed)
+     - [EventFeeReleasedToAuditor](#akash.verification.v1.EventFeeReleasedToAuditor)
+     - [EventFeeReturnedToProvider](#akash.verification.v1.EventFeeReturnedToProvider)
+     - [EventProviderBondPosted](#akash.verification.v1.EventProviderBondPosted)
+     - [EventProviderBondSlashed](#akash.verification.v1.EventProviderBondSlashed)
+     - [EventProviderBondWithdrawalCompleted](#akash.verification.v1.EventProviderBondWithdrawalCompleted)
+     - [EventProviderBondWithdrawalInitiated](#akash.verification.v1.EventProviderBondWithdrawalInitiated)
+     - [EventSnapshotHashPosted](#akash.verification.v1.EventSnapshotHashPosted)
+     - [EventSnapshotResumed](#akash.verification.v1.EventSnapshotResumed)
+     - [EventSnapshotSuspended](#akash.verification.v1.EventSnapshotSuspended)
+     - [EventVerificationGraceEnded](#akash.verification.v1.EventVerificationGraceEnded)
+     - [EventVerificationGraceStarted](#akash.verification.v1.EventVerificationGraceStarted)
+   
+ - [akash/verification/v1/state.proto](#akash/verification/v1/state.proto)
+     - [AttestationRecord](#akash.verification.v1.AttestationRecord)
+     - [AuditEscrowRecord](#akash.verification.v1.AuditEscrowRecord)
+     - [AuditorRecord](#akash.verification.v1.AuditorRecord)
+     - [DiscrepancyEvent](#akash.verification.v1.DiscrepancyEvent)
+     - [ProviderBondRecord](#akash.verification.v1.ProviderBondRecord)
+     - [ProviderSnapshotRecord](#akash.verification.v1.ProviderSnapshotRecord)
+     - [ProviderVerificationGraceRecord](#akash.verification.v1.ProviderVerificationGraceRecord)
+     - [ResourceSummary](#akash.verification.v1.ResourceSummary)
+     - [SoftwareIdentity](#akash.verification.v1.SoftwareIdentity)
+     - [UnbondingEntry](#akash.verification.v1.UnbondingEntry)
+     - [VerificationStoreRecord](#akash.verification.v1.VerificationStoreRecord)
+   
+ - [akash/verification/v1/params.proto](#akash/verification/v1/params.proto)
+     - [Params](#akash.verification.v1.Params)
+   
+ - [akash/verification/v1/genesis.proto](#akash/verification/v1/genesis.proto)
+     - [GenesisState](#akash.verification.v1.GenesisState)
+   
+ - [akash/verification/v1/msg.proto](#akash/verification/v1/msg.proto)
+     - [MsgCancelAuditEscrow](#akash.verification.v1.MsgCancelAuditEscrow)
+     - [MsgCancelAuditEscrowResponse](#akash.verification.v1.MsgCancelAuditEscrowResponse)
+     - [MsgOpenAuditEscrow](#akash.verification.v1.MsgOpenAuditEscrow)
+     - [MsgOpenAuditEscrowResponse](#akash.verification.v1.MsgOpenAuditEscrowResponse)
+     - [MsgPostAuditorBond](#akash.verification.v1.MsgPostAuditorBond)
+     - [MsgPostAuditorBondResponse](#akash.verification.v1.MsgPostAuditorBondResponse)
+     - [MsgPostProviderBond](#akash.verification.v1.MsgPostProviderBond)
+     - [MsgPostProviderBondResponse](#akash.verification.v1.MsgPostProviderBondResponse)
+     - [MsgPostSnapshotHash](#akash.verification.v1.MsgPostSnapshotHash)
+     - [MsgPostSnapshotHashResponse](#akash.verification.v1.MsgPostSnapshotHashResponse)
+     - [MsgRegisterAuditor](#akash.verification.v1.MsgRegisterAuditor)
+     - [MsgRegisterAuditorResponse](#akash.verification.v1.MsgRegisterAuditorResponse)
+     - [MsgRemoveAttestation](#akash.verification.v1.MsgRemoveAttestation)
+     - [MsgRemoveAttestationResponse](#akash.verification.v1.MsgRemoveAttestationResponse)
+     - [MsgRemoveAuditor](#akash.verification.v1.MsgRemoveAuditor)
+     - [MsgRemoveAuditorResponse](#akash.verification.v1.MsgRemoveAuditorResponse)
+     - [MsgRenewAuditor](#akash.verification.v1.MsgRenewAuditor)
+     - [MsgRenewAuditorResponse](#akash.verification.v1.MsgRenewAuditorResponse)
+     - [MsgResignAuditor](#akash.verification.v1.MsgResignAuditor)
+     - [MsgResignAuditorResponse](#akash.verification.v1.MsgResignAuditorResponse)
+     - [MsgResolveDiscrepancy](#akash.verification.v1.MsgResolveDiscrepancy)
+     - [MsgResolveDiscrepancyResponse](#akash.verification.v1.MsgResolveDiscrepancyResponse)
+     - [MsgRevokeAllProviderAttestations](#akash.verification.v1.MsgRevokeAllProviderAttestations)
+     - [MsgRevokeAllProviderAttestationsResponse](#akash.verification.v1.MsgRevokeAllProviderAttestationsResponse)
+     - [MsgRevokeAttestation](#akash.verification.v1.MsgRevokeAttestation)
+     - [MsgRevokeAttestationResponse](#akash.verification.v1.MsgRevokeAttestationResponse)
+     - [MsgRevokeAuditorAttestations](#akash.verification.v1.MsgRevokeAuditorAttestations)
+     - [MsgRevokeAuditorAttestationsResponse](#akash.verification.v1.MsgRevokeAuditorAttestationsResponse)
+     - [MsgRevokeProviderAttestation](#akash.verification.v1.MsgRevokeProviderAttestation)
+     - [MsgRevokeProviderAttestationResponse](#akash.verification.v1.MsgRevokeProviderAttestationResponse)
+     - [MsgSettleAuditEscrow](#akash.verification.v1.MsgSettleAuditEscrow)
+     - [MsgSettleAuditEscrowResponse](#akash.verification.v1.MsgSettleAuditEscrowResponse)
+     - [MsgSlashProviderBond](#akash.verification.v1.MsgSlashProviderBond)
+     - [MsgSlashProviderBondResponse](#akash.verification.v1.MsgSlashProviderBondResponse)
+     - [MsgSubmitAttestation](#akash.verification.v1.MsgSubmitAttestation)
+     - [MsgSubmitAttestationResponse](#akash.verification.v1.MsgSubmitAttestationResponse)
+     - [MsgUpdateParams](#akash.verification.v1.MsgUpdateParams)
+     - [MsgUpdateParamsResponse](#akash.verification.v1.MsgUpdateParamsResponse)
+     - [MsgWithdrawProviderBond](#akash.verification.v1.MsgWithdrawProviderBond)
+     - [MsgWithdrawProviderBondResponse](#akash.verification.v1.MsgWithdrawProviderBondResponse)
+   
+ - [akash/verification/v1/query.proto](#akash/verification/v1/query.proto)
+     - [QueryAttestationRequest](#akash.verification.v1.QueryAttestationRequest)
+     - [QueryAttestationResponse](#akash.verification.v1.QueryAttestationResponse)
+     - [QueryAuditEscrowRequest](#akash.verification.v1.QueryAuditEscrowRequest)
+     - [QueryAuditEscrowResponse](#akash.verification.v1.QueryAuditEscrowResponse)
+     - [QueryAuditorAttestationsRequest](#akash.verification.v1.QueryAuditorAttestationsRequest)
+     - [QueryAuditorAttestationsResponse](#akash.verification.v1.QueryAuditorAttestationsResponse)
+     - [QueryAuditorRequest](#akash.verification.v1.QueryAuditorRequest)
+     - [QueryAuditorResponse](#akash.verification.v1.QueryAuditorResponse)
+     - [QueryAuditorsRequest](#akash.verification.v1.QueryAuditorsRequest)
+     - [QueryAuditorsResponse](#akash.verification.v1.QueryAuditorsResponse)
+     - [QueryDiscrepanciesRequest](#akash.verification.v1.QueryDiscrepanciesRequest)
+     - [QueryDiscrepanciesResponse](#akash.verification.v1.QueryDiscrepanciesResponse)
+     - [QueryDiscrepancyRequest](#akash.verification.v1.QueryDiscrepancyRequest)
+     - [QueryDiscrepancyResponse](#akash.verification.v1.QueryDiscrepancyResponse)
+     - [QueryParamsRequest](#akash.verification.v1.QueryParamsRequest)
+     - [QueryParamsResponse](#akash.verification.v1.QueryParamsResponse)
+     - [QueryProviderAttestationsRequest](#akash.verification.v1.QueryProviderAttestationsRequest)
+     - [QueryProviderAttestationsResponse](#akash.verification.v1.QueryProviderAttestationsResponse)
+     - [QueryProviderAuditEscrowsRequest](#akash.verification.v1.QueryProviderAuditEscrowsRequest)
+     - [QueryProviderAuditEscrowsResponse](#akash.verification.v1.QueryProviderAuditEscrowsResponse)
+     - [QueryProviderBondRequest](#akash.verification.v1.QueryProviderBondRequest)
+     - [QueryProviderBondResponse](#akash.verification.v1.QueryProviderBondResponse)
+     - [QueryProviderSnapshotRequest](#akash.verification.v1.QueryProviderSnapshotRequest)
+     - [QueryProviderSnapshotResponse](#akash.verification.v1.QueryProviderSnapshotResponse)
+     - [QueryProviderVerificationGraceRequest](#akash.verification.v1.QueryProviderVerificationGraceRequest)
+     - [QueryProviderVerificationGraceResponse](#akash.verification.v1.QueryProviderVerificationGraceResponse)
+   
+     - [Query](#akash.verification.v1.Query)
+   
+ - [akash/verification/v1/service.proto](#akash/verification/v1/service.proto)
+     - [Msg](#akash.verification.v1.Msg)
+   
  - [akash/wasm/v1/event.proto](#akash/wasm/v1/event.proto)
      - [EventMsgBlocked](#akash.wasm.v1.EventMsgBlocked)
    
@@ -585,6 +771,366 @@
      - [Msg](#akash.wasm.v1.Msg)
    
  - [Scalar Value Types](#scalar-value-types)
+
+ 
+ 
+ <a name="akash/verification/v1/types.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/types.proto
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.verification.v1.AttestationRevocationReason"></a>
+
+ ### AttestationRevocationReason
+ AttestationRevocationReason enumerates the typed reasons an auditor may revoke
+an attestation it previously submitted.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | attestation_revocation_reason_unspecified | 0 | AttestationRevocationReasonUnspecified is the default; no reason has been set. |
+ | attestation_revocation_reason_provider_no_longer_qualifies | 1 | AttestationRevocationReasonProviderNoLongerQualifies indicates the provider no longer meets the tier criteria. |
+ | attestation_revocation_reason_snapshot_mismatch | 2 | AttestationRevocationReasonSnapshotMismatch indicates the provider's snapshot does not match the attested claim. |
+ | attestation_revocation_reason_software_identity_changed | 3 | AttestationRevocationReasonSoftwareIdentityChanged indicates the provider's software identity changed. |
+ | attestation_revocation_reason_capability_misrepresented | 4 | AttestationRevocationReasonCapabilityMisrepresented indicates the provider misrepresented its capabilities. |
+ | attestation_revocation_reason_provider_non_responsive | 5 | AttestationRevocationReasonProviderNonResponsive indicates the provider became non-responsive to the auditor. |
+ | attestation_revocation_reason_auditor_evidence_error | 6 | AttestationRevocationReasonAuditorEvidenceError indicates an error in the auditor's evidence forced revocation. |
+ | attestation_revocation_reason_auditor_operational_exit | 7 | AttestationRevocationReasonAuditorOperationalExit indicates the auditor is exiting operations. |
+ 
+
+ 
+ <a name="akash.verification.v1.AttestationStatus"></a>
+
+ ### AttestationStatus
+ AttestationStatus represents the lifecycle status of an attestation record.
+Disputed attestations are stored as status=Voided with voided_reason=Discrepancy
+and a pending DiscrepancyEvent. Replacement is a transition event before the
+(provider, auditor) attestation record is overwritten, not a persisted status.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | attestation_status_unspecified | 0 | AttestationStatusUnspecified is the default; no status has been set. |
+ | attestation_status_valid | 1 | AttestationStatusValid indicates the attestation is currently valid. |
+ | attestation_status_voided | 2 | AttestationStatusVoided indicates the attestation has been voided (see VoidedReason). |
+ | attestation_status_expired | 3 | AttestationStatusExpired indicates the attestation passed its TTL without renewal. |
+ | attestation_status_revoked | 4 | AttestationStatusRevoked indicates the attestation was revoked by the auditor. |
+ | attestation_status_removed | 5 | AttestationStatusRemoved indicates the attestation was removed by governance. |
+ 
+
+ 
+ <a name="akash.verification.v1.AuditEscrowSettlementReason"></a>
+
+ ### AuditEscrowSettlementReason
+ AuditEscrowSettlementReason enumerates the reasons an audit escrow may settle.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | audit_escrow_settlement_reason_unspecified | 0 | AuditEscrowSettlementReasonUnspecified is the default; no reason has been set. |
+ | audit_escrow_settlement_reason_cancelled_unconsumed | 1 | AuditEscrowSettlementReasonCancelledUnconsumed indicates the escrow was cancelled without an audit being consumed. |
+ | audit_escrow_settlement_reason_expired_unconsumed | 2 | AuditEscrowSettlementReasonExpiredUnconsumed indicates the escrow expired without an audit being consumed. |
+ | audit_escrow_settlement_reason_provider_fault | 3 | AuditEscrowSettlementReasonProviderFault indicates settlement was for provider fault. |
+ | audit_escrow_settlement_reason_no_fault | 4 | AuditEscrowSettlementReasonNoFault indicates settlement without fault attribution. |
+ 
+
+ 
+ <a name="akash.verification.v1.AuditEscrowStatus"></a>
+
+ ### AuditEscrowStatus
+ AuditEscrowStatus represents the lifecycle status of an audit escrow record.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | audit_escrow_status_unspecified | 0 | AuditEscrowStatusUnspecified is the default; no status has been set. |
+ | audit_escrow_status_open | 1 | AuditEscrowStatusOpen indicates the escrow is open and may be consumed by an attestation. |
+ | audit_escrow_status_consumed | 2 | AuditEscrowStatusConsumed indicates the escrow has been consumed by an attestation. |
+ | audit_escrow_status_cancelled | 3 | AuditEscrowStatusCancelled indicates the escrow was cancelled before consumption. |
+ | audit_escrow_status_expired | 4 | AuditEscrowStatusExpired indicates the escrow expired before consumption. |
+ | audit_escrow_status_settled | 5 | AuditEscrowStatusSettled indicates the escrow has been finally settled. |
+ 
+
+ 
+ <a name="akash.verification.v1.AuditorSelectionMode"></a>
+
+ ### AuditorSelectionMode
+ AuditorSelectionMode controls how the `required_auditors` list on a
+VerificationRequirement is evaluated against a provider's set of attestations.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | auditor_selection_mode_unspecified | 0 | AuditorSelectionModeUnspecified is the default; treated as Any. |
+ | auditor_selection_mode_any | 1 | AuditorSelectionModeAny matches when any one of the required auditors has attested. |
+ | auditor_selection_mode_all | 2 | AuditorSelectionModeAll matches only when all required auditors have attested. |
+ 
+
+ 
+ <a name="akash.verification.v1.AuditorStatus"></a>
+
+ ### AuditorStatus
+ AuditorStatus represents the lifecycle status of an auditor record.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | auditor_status_unspecified | 0 | AuditorStatusUnspecified is the default; no status has been set. |
+ | auditor_status_pending_bond | 6 | AuditorStatusPendingBond indicates the auditor has been approved by governance but has not posted enough bond to submit attestations. |
+ | auditor_status_active | 1 | AuditorStatusActive indicates the auditor is bonded and may submit attestations. |
+ | auditor_status_frozen | 2 | AuditorStatusFrozen indicates the auditor has been temporarily suspended (e.g. discrepancy threshold). |
+ | auditor_status_lapsed | 3 | AuditorStatusLapsed indicates the auditor's renewal deadline has passed without renewal. |
+ | auditor_status_resigned | 4 | AuditorStatusResigned indicates the auditor voluntarily resigned. |
+ | auditor_status_removed | 5 | AuditorStatusRemoved indicates the auditor was removed by governance. |
+ 
+
+ 
+ <a name="akash.verification.v1.BondStatus"></a>
+
+ ### BondStatus
+ BondStatus represents the status of an auditor's bond.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | bond_status_unspecified | 0 | BondStatusUnspecified is the default; no bond status has been set. |
+ | bond_status_not_bonded | 4 | BondStatusNotBonded indicates no active auditor bond is currently posted. |
+ | bond_status_bonded | 1 | BondStatusBonded indicates the bond is fully posted and active. |
+ | bond_status_frozen | 2 | BondStatusFrozen indicates the bond is locked while the auditor is frozen. |
+ | bond_status_unbonding | 3 | BondStatusUnbonding indicates the bond is currently in the unbonding period. |
+ 
+
+ 
+ <a name="akash.verification.v1.CapabilityFlag"></a>
+
+ ### CapabilityFlag
+ CapabilityFlag enumerates the optional provider capabilities that may be asserted
+by attestations and requested by deployments via the SDL.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | capability_unspecified | 0 | CapabilityUnspecified is the default; no capability has been asserted. |
+ | capability_tee_hardware_attestation | 1 | CapabilityTEEHardwareAttestation indicates the provider asserts TEE hardware attestation support. |
+ | capability_confidential_computing | 2 | CapabilityConfidentialComputing indicates the provider asserts confidential computing support. |
+ | capability_persistent_storage | 3 | CapabilityPersistentStorage indicates the provider asserts persistent storage support. |
+ | capability_bare_metal | 4 | CapabilityBareMetal indicates the provider asserts bare-metal hosting support. |
+ 
+
+ 
+ <a name="akash.verification.v1.DepositStatus"></a>
+
+ ### DepositStatus
+ DepositStatus tracks the lifecycle of an auditor's anti-griefing deposit.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | deposit_status_unspecified | 0 | DepositStatusUnspecified is the default; no deposit status has been set. |
+ | deposit_status_escrowed | 1 | DepositStatusEscrowed indicates the deposit is held in escrow. |
+ | deposit_status_pending_discrepancy | 2 | DepositStatusPendingDiscrepancy indicates the deposit is locked pending discrepancy resolution. |
+ | deposit_status_returned_to_auditor | 3 | DepositStatusReturnedToAuditor indicates the deposit was returned to the auditor. |
+ | deposit_status_slashed | 4 | DepositStatusSlashed indicates the deposit was slashed. |
+ 
+
+ 
+ <a name="akash.verification.v1.DiscrepancyResolutionReason"></a>
+
+ ### DiscrepancyResolutionReason
+ DiscrepancyResolutionReason enumerates the reasons a discrepancy may be resolved.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | discrepancy_resolution_reason_unspecified | 0 | DiscrepancyResolutionReasonUnspecified is the default; no reason has been set. |
+ | discrepancy_resolution_reason_auditor_a_correct | 1 | DiscrepancyResolutionReasonAuditorACorrect indicates auditor A's attestation was found correct. |
+ | discrepancy_resolution_reason_auditor_b_correct | 2 | DiscrepancyResolutionReasonAuditorBCorrect indicates auditor B's attestation was found correct. |
+ | discrepancy_resolution_reason_both_auditors_wrong | 3 | DiscrepancyResolutionReasonBothAuditorsWrong indicates both auditors' attestations were wrong. |
+ | discrepancy_resolution_reason_provider_fault | 4 | DiscrepancyResolutionReasonProviderFault indicates the provider was at fault. |
+ | discrepancy_resolution_reason_shared_fault | 5 | DiscrepancyResolutionReasonSharedFault indicates fault is shared between the parties. |
+ | discrepancy_resolution_reason_evidence_inconclusive | 6 | DiscrepancyResolutionReasonEvidenceInconclusive indicates evidence was inconclusive. |
+ | discrepancy_resolution_reason_governance_timeout_review | 7 | DiscrepancyResolutionReasonGovernanceTimeoutReview indicates governance reviewed a timed-out discrepancy. |
+ 
+
+ 
+ <a name="akash.verification.v1.DiscrepancyStatus"></a>
+
+ ### DiscrepancyStatus
+ DiscrepancyStatus represents the lifecycle status of a discrepancy event.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | discrepancy_status_unspecified | 0 | DiscrepancyStatusUnspecified is the default; no status has been set. |
+ | discrepancy_status_pending | 1 | DiscrepancyStatusPending indicates the discrepancy is awaiting resolution. |
+ | discrepancy_status_resolved | 2 | DiscrepancyStatusResolved indicates the discrepancy has been resolved. |
+ | discrepancy_status_timed_out | 3 | DiscrepancyStatusTimedOut indicates the discrepancy resolution window timed out. |
+ 
+
+ 
+ <a name="akash.verification.v1.FaultAttribution"></a>
+
+ ### FaultAttribution
+ FaultAttribution identifies the responsible party in a settlement or resolution decision.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | fault_attribution_unspecified | 0 | FaultAttributionUnspecified is the default; no attribution has been set. |
+ | fault_attribution_provider_fault | 1 | FaultAttributionProviderFault assigns fault to the provider. |
+ | fault_attribution_auditor_fault | 2 | FaultAttributionAuditorFault assigns fault to the auditor. |
+ | fault_attribution_shared_fault | 3 | FaultAttributionSharedFault attributes fault to both parties. |
+ | fault_attribution_no_fault | 4 | FaultAttributionNoFault indicates neither party is at fault. |
+ | fault_attribution_inconclusive | 5 | FaultAttributionInconclusive indicates the evidence does not allow attribution. |
+ 
+
+ 
+ <a name="akash.verification.v1.FeeStatus"></a>
+
+ ### FeeStatus
+ FeeStatus tracks the lifecycle of the fee paid by a provider into an audit escrow.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | fee_status_unspecified | 0 | FeeStatusUnspecified is the default; no fee status has been set. |
+ | fee_status_escrowed | 1 | FeeStatusEscrowed indicates the fee is held in escrow pending settlement. |
+ | fee_status_released_to_auditor | 2 | FeeStatusReleasedToAuditor indicates the fee was released to the auditor upon settlement. |
+ | fee_status_returned_to_provider | 3 | FeeStatusReturnedToProvider indicates the fee was returned to the provider upon settlement. |
+ 
+
+ 
+ <a name="akash.verification.v1.GovernanceAttestationReason"></a>
+
+ ### GovernanceAttestationReason
+ GovernanceAttestationReason enumerates the typed reasons governance may revoke
+or void attestations independent of the auditor.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | governance_attestation_reason_unspecified | 0 | GovernanceAttestationReasonUnspecified is the default; no reason has been set. |
+ | governance_attestation_reason_fraudulent_provider | 1 | GovernanceAttestationReasonFraudulentProvider indicates governance found the provider fraudulent. |
+ | governance_attestation_reason_compromised_provider | 2 | GovernanceAttestationReasonCompromisedProvider indicates the provider was compromised. |
+ | governance_attestation_reason_provider_non_cooperation | 3 | GovernanceAttestationReasonProviderNonCooperation indicates the provider refused to cooperate with audit. |
+ | governance_attestation_reason_faulty_auditor | 4 | GovernanceAttestationReasonFaultyAuditor indicates the auditor was found faulty. |
+ | governance_attestation_reason_negligent_auditor | 5 | GovernanceAttestationReasonNegligentAuditor indicates the auditor was found negligent. |
+ | governance_attestation_reason_evidence_insufficient | 6 | GovernanceAttestationReasonEvidenceInsufficient indicates evidence supporting the attestation was insufficient. |
+ | governance_attestation_reason_emergency_safety_action | 7 | GovernanceAttestationReasonEmergencySafetyAction indicates an emergency safety action. |
+ 
+
+ 
+ <a name="akash.verification.v1.ProviderBondSlashReason"></a>
+
+ ### ProviderBondSlashReason
+ ProviderBondSlashReason enumerates the reasons a provider bond may be slashed.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | provider_bond_slash_reason_unspecified | 0 | ProviderBondSlashReasonUnspecified is the default; no reason has been set. |
+ | provider_bond_slash_reason_resource_misrepresentation | 1 | ProviderBondSlashReasonResourceMisrepresentation indicates the provider misrepresented its resources. |
+ | provider_bond_slash_reason_capacity_overstatement | 2 | ProviderBondSlashReasonCapacityOverstatement indicates the provider overstated its capacity. |
+ | provider_bond_slash_reason_fraudulent_snapshot | 3 | ProviderBondSlashReasonFraudulentSnapshot indicates the provider submitted a fraudulent snapshot. |
+ | provider_bond_slash_reason_provider_compromise | 4 | ProviderBondSlashReasonProviderCompromise indicates the provider was compromised. |
+ | provider_bond_slash_reason_sla_breach | 5 | ProviderBondSlashReasonSLABreach indicates the provider breached an SLA. |
+ | provider_bond_slash_reason_non_cooperation_during_audit | 6 | ProviderBondSlashReasonNonCooperationDuringAudit indicates the provider did not cooperate during an audit. |
+ 
+
+ 
+ <a name="akash.verification.v1.ProviderDepositStatus"></a>
+
+ ### ProviderDepositStatus
+ ProviderDepositStatus tracks the lifecycle of a provider's audit-escrow deposit.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | provider_deposit_status_unspecified | 0 | ProviderDepositStatusUnspecified is the default; no deposit status has been set. |
+ | provider_deposit_status_escrowed | 1 | ProviderDepositStatusEscrowed indicates the provider's deposit is held in escrow. |
+ | provider_deposit_status_returned_to_provider | 2 | ProviderDepositStatusReturnedToProvider indicates the deposit was returned to the provider. |
+ | provider_deposit_status_slashed | 3 | ProviderDepositStatusSlashed indicates the deposit was slashed. |
+ 
+
+ 
+ <a name="akash.verification.v1.VerificationGraceStatus"></a>
+
+ ### VerificationGraceStatus
+ VerificationGraceStatus tracks the status of a provider's verification grace period.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | verification_grace_status_unspecified | 0 | VerificationGraceStatusUnspecified is the default; no grace status has been set. |
+ | verification_grace_status_active | 1 | VerificationGraceStatusActive indicates the grace window is open. |
+ | verification_grace_status_expired | 2 | VerificationGraceStatusExpired indicates the grace window has elapsed. |
+ | verification_grace_status_terminated | 3 | VerificationGraceStatusTerminated indicates the grace window was terminated early. |
+ 
+
+ 
+ <a name="akash.verification.v1.VerificationTier"></a>
+
+ ### VerificationTier
+ VerificationTier represents provider verification levels.
+Higher numeric value = higher trust. TierUnspecified (L0, permissionless)
+means no attestation has been recorded for the provider.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | verification_tier_unspecified | 0 | TierUnspecified (L0) is the default; no attestation has been recorded. |
+ | verification_tier_identified | 1 | TierIdentified (L1) indicates the provider has been identified by an auditor. |
+ | verification_tier_verified | 2 | TierVerified (L2) indicates the provider's identity and capabilities have been verified. |
+ | verification_tier_established | 3 | TierEstablished (L3) indicates the provider has a track record meeting the L3 criteria. |
+ | verification_tier_trusted | 4 | TierTrusted (L4) is the highest tier, reserved for providers with long-running clean history. |
+ 
+
+ 
+ <a name="akash.verification.v1.VoidedReason"></a>
+
+ ### VoidedReason
+ VoidedReason explains why an attestation transitioned to the Voided status.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | voided_reason_unspecified | 0 | VoidedReasonUnspecified is the default; no reason has been set. |
+ | voided_reason_discrepancy | 1 | VoidedReasonDiscrepancy indicates the attestation was voided due to an open discrepancy. |
+ | voided_reason_governance | 2 | VoidedReasonGovernance indicates the attestation was voided by governance action. |
+ | voided_reason_bond_withdrawn | 3 | VoidedReasonBondWithdrawn indicates the auditor's bond was withdrawn. |
+ | voided_reason_bond_slashed | 4 | VoidedReasonBondSlashed indicates the auditor's bond was slashed. |
+ 
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/verificationrequirement.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/verificationrequirement.proto
+ 
+
+ 
+ <a name="akash.verification.v1.VerificationRequirement"></a>
+
+ ### VerificationRequirement
+ VerificationRequirement holds the verification constraints that a deployment
+places on the providers eligible to bid on a group. It is referenced from the
+deployment-module `PlacementRequirements` message; this file is split out from
+`state.proto` so the deployment-side import surface stays minimal (only the
+shared enums in `types.proto` need to come along).
+A `min_tier` of 0 (TierUnspecified) means "no requirement".
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `min_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | MinTier is the minimum verification tier required of bidding providers. A value of 0 (TierUnspecified) means no tier requirement. |
+ | `required_capabilities` | [CapabilityFlag](#akash.verification.v1.CapabilityFlag) | repeated | RequiredCapabilities is the set of capability flags providers must assert. |
+ | `required_auditors` | [string](#string) | repeated | RequiredAuditors is an optional list of specific auditor bech32 addresses whose attestations must be present on the provider, interpreted per `auditor_mode`. |
+ | `auditor_mode` | [AuditorSelectionMode](#akash.verification.v1.AuditorSelectionMode) |  | AuditorMode controls how `required_auditors` is evaluated. AuditorSelectionModeUnspecified is treated as Any. |
+ | `min_auditor_count` | [uint32](#uint32) |  | MinAuditorCount is the minimum number of independent auditors that must have attested the provider, regardless of identity. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
 
  
  
@@ -622,6 +1168,7 @@ It is used to specify the characteristics and constraints of a provider that can
  | ----- | ---- | ----- | ----------- |
  | `signed_by` | [SignedBy](#akash.base.attributes.v1.SignedBy) |  | SignedBy holds the list of keys that tenants expect to have signatures from. |
  | `attributes` | [Attribute](#akash.base.attributes.v1.Attribute) | repeated | Attribute holds the list of attributes tenant expects from the provider. |
+ | `verification` | [akash.verification.v1.VerificationRequirement](#akash.verification.v1.VerificationRequirement) |  | Verification holds the verification requirements for this placement. |
  
  
 
@@ -4586,12 +5133,13 @@ Example: "akash1..." |
  | Name | Number | Description |
  | ---- | ------ | ----------- |
  | lease_closed_invalid | 0 | LeaseClosedReasonInvalid represents the default zero value for LeaseClosedReason. This value indicates an uninitialized or invalid lease closure reason and should not be used |
- | lease_closed_owner | 1 | values between 1..9999 indicate owner‑initiated close |
- | lease_closed_reason_unstable | 10000 | values between 10000..19999 are indicating provider initiated close lease_closed_reason_unstable lease workloads have been unstable |
+ | lease_closed_owner | 1 | values between 1..9999 indicate owner-initiated close. |
+ | lease_closed_reason_unstable | 10000 | values between 10000..19999 are indicating provider initiated close. lease_closed_reason_unstable lease workloads have been unstable |
  | lease_closed_reason_decommission | 10001 | lease_closed_reason_decommission provider is being decommissioned |
  | lease_closed_reason_unspecified | 10002 | lease_closed_reason_unspecified provider did not specify reason |
  | lease_closed_reason_manifest_timeout | 10003 | lease_closed_reason_manifest_timeout provider closed leases due to manifest not received |
- | lease_closed_reason_insufficient_funds | 20000 | values between 20000..29999 indicate network‑initiated close |
+ | lease_closed_reason_provider | 10004 | lease_closed_reason_provider provider closed the lease |
+ | lease_closed_reason_insufficient_funds | 20000 | values between 20000..29999 indicate network-initiated close. |
  
 
   <!-- end enums -->
@@ -4873,6 +5421,57 @@ Example: "akash1..." |
 Example: "akash1..." |
  | `state` | [string](#string) |  | State represents the state of the lease. |
  | `bseq` | [uint32](#uint32) |  | BSeq (bid sequence) distinguishes multiple bids associated with a single deployment from same provider. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/market/v1/stats.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/market/v1/stats.proto
+ 
+
+ 
+ <a name="akash.market.v1.ProviderLeaseStats"></a>
+
+ ### ProviderLeaseStats
+ ProviderLeaseStats stores aggregate lease-completion stats for a provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `total_leases` | [uint64](#uint64) |  | TotalLeases is the total number of leases included in the aggregate. |
+ | `completed_leases` | [uint64](#uint64) |  | CompletedLeases is the number of leases not closed for provider-fault reasons. |
+ | `provider_faulted_leases` | [uint64](#uint64) |  | ProviderFaultedLeases is the number of provider-fault lease closures. |
+ | `provider_faults` | [ProviderLeaseStatsByReason](#akash.market.v1.ProviderLeaseStatsByReason) | repeated | ProviderFaults is the provider-fault lease count split by close reason. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1.ProviderLeaseStatsByReason"></a>
+
+ ### ProviderLeaseStatsByReason
+ ProviderLeaseStatsByReason stores a provider-fault lease count for one close
+reason.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `reason` | [LeaseClosedReason](#akash.market.v1.LeaseClosedReason) |  | Reason is the provider-initiated close reason being counted. |
+ | `count` | [uint64](#uint64) |  | Count is the number of leases closed for this reason. |
  
  
 
@@ -5678,6 +6277,40 @@ Since: akash v1.0.0
 
  
 
+ 
+ <a name="akash.market.v1beta5.QueryProviderLeaseStatsRequest"></a>
+
+ ### QueryProviderLeaseStatsRequest
+ QueryProviderLeaseStatsRequest is the request type for the
+Query/ProviderLeaseStats RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the account bech32 address of the provider being queried.
+
+Example: "akash1..." |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.market.v1beta5.QueryProviderLeaseStatsResponse"></a>
+
+ ### QueryProviderLeaseStatsResponse
+ QueryProviderLeaseStatsResponse is the response type for the
+Query/ProviderLeaseStats RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `stats` | [akash.market.v1.ProviderLeaseStats](#akash.market.v1.ProviderLeaseStats) |  | Stats holds the aggregate lease-completion stats for the provider. |
+ 
+ 
+
+ 
+
   <!-- end messages -->
 
   <!-- end enums -->
@@ -5698,6 +6331,7 @@ Since: akash v1.0.0
  | `Bid` | [QueryBidRequest](#akash.market.v1beta5.QueryBidRequest) | [QueryBidResponse](#akash.market.v1beta5.QueryBidResponse) | Bid queries bid details. | GET|/akash/market/v1beta5/bids/info|
  | `Leases` | [QueryLeasesRequest](#akash.market.v1beta5.QueryLeasesRequest) | [QueryLeasesResponse](#akash.market.v1beta5.QueryLeasesResponse) | Leases queries leases with filters. | GET|/akash/market/v1beta5/leases/list|
  | `Lease` | [QueryLeaseRequest](#akash.market.v1beta5.QueryLeaseRequest) | [QueryLeaseResponse](#akash.market.v1beta5.QueryLeaseResponse) | Lease queries lease details. | GET|/akash/market/v1beta5/leases/info|
+ | `ProviderLeaseStats` | [QueryProviderLeaseStatsRequest](#akash.market.v1beta5.QueryProviderLeaseStatsRequest) | [QueryProviderLeaseStatsResponse](#akash.market.v1beta5.QueryProviderLeaseStatsResponse) | ProviderLeaseStats queries aggregate lease-completion stats for a provider. | GET|/akash/market/v1beta5/providers/{provider}/lease-stats|
  | `Params` | [QueryParamsRequest](#akash.market.v1beta5.QueryParamsRequest) | [QueryParamsResponse](#akash.market.v1beta5.QueryParamsResponse) | Params returns the total set of market parameters. | GET|/akash/market/v1beta5/params|
  
   <!-- end services -->
@@ -6894,6 +7528,93 @@ Since: akash v2.0.0 | |
 
  
  
+ <a name="akash/provider/v1beta4/maintenance.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/provider/v1beta4/maintenance.proto
+ 
+
+ 
+ <a name="akash.provider.v1beta4.ProviderMaintenanceRecord"></a>
+
+ ### ProviderMaintenanceRecord
+ ProviderMaintenanceRecord is an on-chain provider maintenance record.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [uint64](#uint64) |  | id is the maintenance identifier. |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider owning the maintenance window.
+
+Example: "akash1..." |
+ | `maintenance_type` | [ProviderMaintenanceType](#akash.provider.v1beta4.ProviderMaintenanceType) |  | maintenance_type is the declared category of the window. |
+ | `starts_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | starts_at is the wall-clock time at which the maintenance window begins. |
+ | `expected_ends_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | expected_ends_at is the wall-clock time at which the provider expects the window to end. |
+ | `opened_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | opened_at is the block time at which the window was opened. |
+ | `closed_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | closed_at is the block time at which the window was closed. |
+ | `metadata_hash` | [bytes](#bytes) |  | metadata_hash is an optional, opaque hash of off-chain metadata. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.ProviderMaintenanceWithStatus"></a>
+
+ ### ProviderMaintenanceWithStatus
+ ProviderMaintenanceWithStatus pairs a maintenance record with its status.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `record` | [ProviderMaintenanceRecord](#akash.provider.v1beta4.ProviderMaintenanceRecord) |  | record is the stored maintenance window. |
+ | `status` | [ProviderMaintenanceStatus](#akash.provider.v1beta4.ProviderMaintenanceStatus) |  | status is the derived lifecycle state of the record at query time. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.provider.v1beta4.ProviderMaintenanceStatus"></a>
+
+ ### ProviderMaintenanceStatus
+ ProviderMaintenanceStatus enumerates provider maintenance lifecycle states.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | provider_maintenance_status_unspecified | 0 | provider_maintenance_status_unspecified is the zero value. |
+ | provider_maintenance_status_scheduled | 1 | provider_maintenance_status_scheduled means the window has not started. |
+ | provider_maintenance_status_active | 2 | provider_maintenance_status_active means the window is active. |
+ | provider_maintenance_status_elapsed | 3 | provider_maintenance_status_elapsed means the window reached expected_ends_at. |
+ | provider_maintenance_status_closed | 4 | provider_maintenance_status_closed means the window was closed explicitly. |
+ 
+
+ 
+ <a name="akash.provider.v1beta4.ProviderMaintenanceType"></a>
+
+ ### ProviderMaintenanceType
+ ProviderMaintenanceType enumerates provider maintenance window types.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | provider_maintenance_type_unspecified | 0 | provider_maintenance_type_unspecified is the zero value. |
+ | provider_maintenance_type_planned | 1 | provider_maintenance_type_planned represents a scheduled, non-urgent maintenance window communicated to tenants ahead of time. |
+ | provider_maintenance_type_emergency | 2 | provider_maintenance_type_emergency represents an urgent, unplanned maintenance window driven by operational incidents. |
+ | provider_maintenance_type_security | 3 | provider_maintenance_type_security represents a window opened to apply a security patch or to remediate a security event. |
+ | provider_maintenance_type_network | 4 | provider_maintenance_type_network represents a window driven by network connectivity work (e.g., upstream provider, peering, or DNS changes). |
+ | provider_maintenance_type_capacity | 5 | provider_maintenance_type_capacity represents a window opened to perform capacity changes such as adding, draining, or removing hardware. |
+ 
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/provider/v1beta4/event.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
@@ -6930,6 +7651,47 @@ Example: "akash1..." |
  | `owner` | [string](#string) |  | Owner is the bech32 address of the account of the provider. It is a string representing a valid account address.
 
 Example: "akash1..." |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.EventProviderMaintenanceClosed"></a>
+
+ ### EventProviderMaintenanceClosed
+ EventProviderMaintenanceClosed is emitted when provider maintenance closes.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `maintenance_id` | [uint64](#uint64) |  | maintenance_id is the identifier of the closed maintenance record. |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider that closed the window.
+
+Example: "akash1..." |
+ | `closed_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | closed_at is the block time at which the window closed. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.EventProviderMaintenanceOpened"></a>
+
+ ### EventProviderMaintenanceOpened
+ EventProviderMaintenanceOpened is emitted when provider maintenance opens.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `maintenance_id` | [uint64](#uint64) |  | maintenance_id is the identifier assigned to the new maintenance record. |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider that opened the window.
+
+Example: "akash1..." |
+ | `maintenance_type` | [ProviderMaintenanceType](#akash.provider.v1beta4.ProviderMaintenanceType) |  | maintenance_type is the declared category of the window. |
+ | `starts_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | starts_at is the wall-clock time at which the maintenance window begins. |
+ | `expected_ends_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | expected_ends_at is the wall-clock time at which the provider expects the window to end. |
+ | `metadata_hash` | [bytes](#bytes) |  | metadata_hash is the optional, opaque hash of off-chain metadata. |
  
  
 
@@ -7009,6 +7771,56 @@ Example: "akash1..." |
 
  
 
+ 
+ <a name="akash.provider.v1beta4.ProviderRegistration"></a>
+
+ ### ProviderRegistration
+ ProviderRegistration captures when a provider was registered.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `owner` | [string](#string) |  | owner is the bech32 address of the provider account.
+
+Example: "akash1..." |
+ | `registered_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | registered_at is the block time at which the provider was registered. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/provider/v1beta4/params.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/provider/v1beta4/params.proto
+ 
+
+ 
+ <a name="akash.provider.v1beta4.ProviderMaintenanceParams"></a>
+
+ ### ProviderMaintenanceParams
+ ProviderMaintenanceParams defines maintenance window parameters.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `maintenance_max_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | maintenance_max_duration is the maximum allowed value of (expected_ends_at - starts_at) when opening a maintenance window. |
+ | `maintenance_max_lookahead` | [google.protobuf.Duration](#google.protobuf.Duration) |  | maintenance_max_lookahead is the maximum allowed value of (starts_at - block_time) when opening a maintenance window. A value of zero means windows may only start at or before the current block time. |
+ 
+ 
+
+ 
+
   <!-- end messages -->
 
   <!-- end enums -->
@@ -7035,6 +7847,10 @@ Example: "akash1..." |
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `providers` | [Provider](#akash.provider.v1beta4.Provider) | repeated | Providers is a list of genesis providers. |
+ | `params` | [ProviderMaintenanceParams](#akash.provider.v1beta4.ProviderMaintenanceParams) |  | Params is the provider module parameter set. |
+ | `maintenances` | [ProviderMaintenanceRecord](#akash.provider.v1beta4.ProviderMaintenanceRecord) | repeated | Maintenances is the list of provider maintenance records. |
+ | `next_maintenance_id` | [uint64](#uint64) |  | NextMaintenanceID is the next provider maintenance identifier. |
+ | `registrations` | [ProviderRegistration](#akash.provider.v1beta4.ProviderRegistration) | repeated | Registrations is the list of provider registration records to import at genesis. |
  
  
 
@@ -7054,6 +7870,35 @@ Example: "akash1..." |
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/v1beta4/msg.proto
+ 
+
+ 
+ <a name="akash.provider.v1beta4.MsgCloseProviderMaintenance"></a>
+
+ ### MsgCloseProviderMaintenance
+ MsgCloseProviderMaintenance closes an open provider maintenance window.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider closing the maintenance window.
+
+Example: "akash1..." |
+ | `maintenance_id` | [uint64](#uint64) |  | maintenance_id is the identifier of the record to close. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.MsgCloseProviderMaintenanceResponse"></a>
+
+ ### MsgCloseProviderMaintenanceResponse
+ MsgCloseProviderMaintenanceResponse is the response type for
+MsgCloseProviderMaintenance.
+
+ 
+
  
 
  
@@ -7112,6 +7957,43 @@ Example: "akash1..." |
  
 
  
+ <a name="akash.provider.v1beta4.MsgOpenProviderMaintenance"></a>
+
+ ### MsgOpenProviderMaintenance
+ MsgOpenProviderMaintenance opens a maintenance window for a provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider opening the maintenance window.
+
+Example: "akash1..." |
+ | `maintenance_type` | [ProviderMaintenanceType](#akash.provider.v1beta4.ProviderMaintenanceType) |  | maintenance_type is the declared category of the window. |
+ | `starts_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | starts_at is the wall-clock time at which the maintenance window begins. |
+ | `expected_ends_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | expected_ends_at is the wall-clock time at which the provider expects the window to end. |
+ | `metadata_hash` | [bytes](#bytes) |  | metadata_hash is an optional, opaque commitment to off-chain explanatory metadata. The chain does not interpret this value. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.MsgOpenProviderMaintenanceResponse"></a>
+
+ ### MsgOpenProviderMaintenanceResponse
+ MsgOpenProviderMaintenanceResponse is the response type for
+MsgOpenProviderMaintenance.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `maintenance_id` | [uint64](#uint64) |  | maintenance_id is the identifier assigned to the maintenance window. |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.provider.v1beta4.MsgUpdateProvider"></a>
 
  ### MsgUpdateProvider
@@ -7149,10 +8031,153 @@ Example: "akash1..." |
 
  
  
+ <a name="akash/provider/v1beta4/paramsmsg.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/provider/v1beta4/paramsmsg.proto
+ 
+
+ 
+ <a name="akash.provider.v1beta4.MsgUpdateParams"></a>
+
+ ### MsgUpdateParams
+ MsgUpdateParams is the Msg/UpdateParams request type.
+
+Since: akash v1.0.0
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | authority is the address of the governance account. |
+ | `params` | [ProviderMaintenanceParams](#akash.provider.v1beta4.ProviderMaintenanceParams) |  | params defines the x/provider parameters to update. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.MsgUpdateParamsResponse"></a>
+
+ ### MsgUpdateParamsResponse
+ MsgUpdateParamsResponse is the response type for MsgUpdateParams.
+
+Since: akash v1.0.0
+
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/provider/v1beta4/query.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/v1beta4/query.proto
+ 
+
+ 
+ <a name="akash.provider.v1beta4.QueryParamsRequest"></a>
+
+ ### QueryParamsRequest
+ QueryParamsRequest is the request type for the Query/Params RPC method.
+
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.QueryParamsResponse"></a>
+
+ ### QueryParamsResponse
+ QueryParamsResponse is the response type for the Query/Params RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [ProviderMaintenanceParams](#akash.provider.v1beta4.ProviderMaintenanceParams) |  | params defines the parameters of the x/provider module. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.QueryProviderMaintenanceRequest"></a>
+
+ ### QueryProviderMaintenanceRequest
+ QueryProviderMaintenanceRequest is the request type for the
+Query/ProviderMaintenance RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider whose maintenance record is being looked up.
+
+Example: "akash1..." |
+ | `maintenance_id` | [uint64](#uint64) |  | maintenance_id is the identifier of the maintenance record. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.QueryProviderMaintenanceResponse"></a>
+
+ ### QueryProviderMaintenanceResponse
+ QueryProviderMaintenanceResponse is the response type for the
+Query/ProviderMaintenance RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `maintenance` | [ProviderMaintenanceWithStatus](#akash.provider.v1beta4.ProviderMaintenanceWithStatus) |  | maintenance is the requested maintenance record. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.QueryProviderMaintenancesRequest"></a>
+
+ ### QueryProviderMaintenancesRequest
+ QueryProviderMaintenancesRequest is the request type for the
+Query/ProviderMaintenances RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider whose maintenance records are being listed.
+
+Example: "akash1..." |
+ | `status_filter` | [ProviderMaintenanceStatus](#akash.provider.v1beta4.ProviderMaintenanceStatus) |  | status_filter optionally restricts the results by status. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination is used to paginate the request. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.QueryProviderMaintenancesResponse"></a>
+
+ ### QueryProviderMaintenancesResponse
+ QueryProviderMaintenancesResponse is the response type for the
+Query/ProviderMaintenances RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `maintenance` | [ProviderMaintenanceWithStatus](#akash.provider.v1beta4.ProviderMaintenanceWithStatus) | repeated | maintenance is the list of records matching the request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination contains the information about response pagination. |
+ 
+ 
+
  
 
  
@@ -7218,6 +8243,40 @@ Example: "akash1..." |
 
  
 
+ 
+ <a name="akash.provider.v1beta4.QueryRegistrationRequest"></a>
+
+ ### QueryRegistrationRequest
+ QueryRegistrationRequest is the request type for the Query/Registration RPC
+method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | provider is the bech32 address of the provider whose registration record is being looked up.
+
+Example: "akash1..." |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.v1beta4.QueryRegistrationResponse"></a>
+
+ ### QueryRegistrationResponse
+ QueryRegistrationResponse is the response type for the Query/Registration
+RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `registration` | [ProviderRegistration](#akash.provider.v1beta4.ProviderRegistration) |  | registration is the provider registration record. |
+ 
+ 
+
+ 
+
   <!-- end messages -->
 
   <!-- end enums -->
@@ -7234,6 +8293,10 @@ Example: "akash1..." |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `Providers` | [QueryProvidersRequest](#akash.provider.v1beta4.QueryProvidersRequest) | [QueryProvidersResponse](#akash.provider.v1beta4.QueryProvidersResponse) | Providers queries providers | GET|/akash/provider/v1beta4/providers|
  | `Provider` | [QueryProviderRequest](#akash.provider.v1beta4.QueryProviderRequest) | [QueryProviderResponse](#akash.provider.v1beta4.QueryProviderResponse) | Provider queries provider details | GET|/akash/provider/v1beta4/providers/{owner}|
+ | `ProviderMaintenance` | [QueryProviderMaintenanceRequest](#akash.provider.v1beta4.QueryProviderMaintenanceRequest) | [QueryProviderMaintenanceResponse](#akash.provider.v1beta4.QueryProviderMaintenanceResponse) | ProviderMaintenance queries a provider maintenance record. | GET|/akash/provider/v1beta4/providers/{provider}/maintenance/{maintenance_id}|
+ | `ProviderMaintenances` | [QueryProviderMaintenancesRequest](#akash.provider.v1beta4.QueryProviderMaintenancesRequest) | [QueryProviderMaintenancesResponse](#akash.provider.v1beta4.QueryProviderMaintenancesResponse) | ProviderMaintenances queries provider maintenance records. | GET|/akash/provider/v1beta4/providers/{provider}/maintenance|
+ | `Params` | [QueryParamsRequest](#akash.provider.v1beta4.QueryParamsRequest) | [QueryParamsResponse](#akash.provider.v1beta4.QueryParamsResponse) | Params returns the x/provider ProviderMaintenanceParams. | GET|/akash/provider/v1beta4/params|
+ | `Registration` | [QueryRegistrationRequest](#akash.provider.v1beta4.QueryRegistrationRequest) | [QueryRegistrationResponse](#akash.provider.v1beta4.QueryRegistrationResponse) | Registration queries provider registration details. | GET|/akash/provider/v1beta4/providers/{provider}/registration|
  
   <!-- end services -->
 
@@ -7262,6 +8325,11 @@ Example: "akash1..." |
  | `CreateProvider` | [MsgCreateProvider](#akash.provider.v1beta4.MsgCreateProvider) | [MsgCreateProviderResponse](#akash.provider.v1beta4.MsgCreateProviderResponse) | CreateProvider defines a method that creates a provider given the proper inputs. | |
  | `UpdateProvider` | [MsgUpdateProvider](#akash.provider.v1beta4.MsgUpdateProvider) | [MsgUpdateProviderResponse](#akash.provider.v1beta4.MsgUpdateProviderResponse) | UpdateProvider defines a method that updates a provider given the proper inputs. | |
  | `DeleteProvider` | [MsgDeleteProvider](#akash.provider.v1beta4.MsgDeleteProvider) | [MsgDeleteProviderResponse](#akash.provider.v1beta4.MsgDeleteProviderResponse) | DeleteProvider defines a method that deletes a provider given the proper inputs. | |
+ | `OpenProviderMaintenance` | [MsgOpenProviderMaintenance](#akash.provider.v1beta4.MsgOpenProviderMaintenance) | [MsgOpenProviderMaintenanceResponse](#akash.provider.v1beta4.MsgOpenProviderMaintenanceResponse) | OpenProviderMaintenance opens a provider maintenance window. | |
+ | `CloseProviderMaintenance` | [MsgCloseProviderMaintenance](#akash.provider.v1beta4.MsgCloseProviderMaintenance) | [MsgCloseProviderMaintenanceResponse](#akash.provider.v1beta4.MsgCloseProviderMaintenanceResponse) | CloseProviderMaintenance closes an open maintenance window. | |
+ | `UpdateParams` | [MsgUpdateParams](#akash.provider.v1beta4.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.provider.v1beta4.MsgUpdateParamsResponse) | UpdateParams is a governance operation for updating the x/provider parameters.
+
+Since: akash v1.0.0 | |
  
   <!-- end services -->
 
@@ -7469,6 +8537,2114 @@ Since: akash v1.0.0
  | `UpdateParams` | [MsgUpdateParams](#akash.take.v1.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.take.v1.MsgUpdateParamsResponse) | UpdateParams defines a governance operation for updating the x/market module parameters. The authority is hard-coded to the x/gov module account.
 
 Since: akash v1.0.0 | |
+ 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/event.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/event.proto
+ 
+
+ 
+ <a name="akash.verification.v1.EventAttestationExpired"></a>
+
+ ### EventAttestationExpired
+ EventAttestationExpired is emitted when an attestation expires.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose attestation expired. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor whose attestation expired. |
+ | `tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | Tier is the tier of the expired attestation. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAttestationReplaced"></a>
+
+ ### EventAttestationReplaced
+ EventAttestationReplaced is emitted when a new attestation replaces an existing
+attestation from the same auditor for the same provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider involved. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor involved. |
+ | `old_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | OldTier is the tier of the previous attestation being replaced. |
+ | `new_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | NewTier is the tier of the new attestation. |
+ | `old_audit_escrow_id` | [uint64](#uint64) |  | OldAuditEscrowID is the audit escrow that authorized the previous attestation. |
+ | `new_audit_escrow_id` | [uint64](#uint64) |  | NewAuditEscrowID is the audit escrow that authorized the new attestation. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAttestationRevoked"></a>
+
+ ### EventAttestationRevoked
+ EventAttestationRevoked is emitted when an attestation is revoked by the auditor.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider involved. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor involved. |
+ | `initiator` | [string](#string) |  | Initiator is the textual identifier of the party that initiated the revocation (e.g. "auditor", "governance"). |
+ | `reason` | [AttestationRevocationReason](#akash.verification.v1.AttestationRevocationReason) |  | Reason is the typed reason recorded for the revocation. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAttestationSubmitted"></a>
+
+ ### EventAttestationSubmitted
+ EventAttestationSubmitted is emitted when an auditor submits an attestation.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the attested provider. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the issuing auditor. |
+ | `tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | Tier is the verification tier asserted by the attestation. |
+ | `capabilities` | [CapabilityFlag](#akash.verification.v1.CapabilityFlag) | repeated | Capabilities is the set of capability flags asserted by the attestation. |
+ | `expires_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ExpiresAt is the chain timestamp at which the attestation expires. |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the audit escrow identifier that authorized the attestation. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAttestationVoided"></a>
+
+ ### EventAttestationVoided
+ EventAttestationVoided is emitted when an attestation transitions to voided state.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose attestation was voided. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor whose attestation was voided. |
+ | `reason` | [VoidedReason](#akash.verification.v1.VoidedReason) |  | Reason is the typed reason recorded for the void. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditEscrowOpened"></a>
+
+ ### EventAuditEscrowOpened
+ EventAuditEscrowOpened is emitted when a provider opens an audit escrow.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the identifier of the newly opened audit escrow. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider opening the escrow. |
+ | `fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Fee is the audit fee escrowed. |
+ | `provider_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | ProviderDeposit is the deposit a provider escrows alongside the fee. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditEscrowSettled"></a>
+
+ ### EventAuditEscrowSettled
+ EventAuditEscrowSettled is emitted when an audit escrow reaches final settlement.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the identifier of the settled audit escrow. |
+ | `reason` | [AuditEscrowSettlementReason](#akash.verification.v1.AuditEscrowSettlementReason) |  | Reason is the typed settlement reason recorded. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the typed fault attribution recorded at settlement. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditorBondPosted"></a>
+
+ ### EventAuditorBondPosted
+ EventAuditorBondPosted is emitted when an auditor posts (or tops up) bond.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the bonding auditor. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount posted as bond. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditorFrozen"></a>
+
+ ### EventAuditorFrozen
+ EventAuditorFrozen is emitted when an auditor crosses the discrepancy
+threshold and is frozen pending governance review.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the frozen auditor. |
+ | `discrepancy_id` | [uint64](#uint64) |  | DiscrepancyID is the identifier of the discrepancy that triggered the freeze. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditorLapsed"></a>
+
+ ### EventAuditorLapsed
+ EventAuditorLapsed is emitted when an auditor's renewal deadline passes
+without renewal.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the lapsed auditor. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditorRegistered"></a>
+
+ ### EventAuditorRegistered
+ EventAuditorRegistered is emitted when a new auditor is registered.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the newly registered auditor. |
+ | `max_attestation_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | MaxAttestationTier is the maximum tier the auditor may attest at. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditorRemoved"></a>
+
+ ### EventAuditorRemoved
+ EventAuditorRemoved is emitted when governance removes an auditor.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the removed auditor. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditorRenewed"></a>
+
+ ### EventAuditorRenewed
+ EventAuditorRenewed is emitted when an auditor's registration is renewed.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the renewed auditor. |
+ | `new_deadline` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | NewDeadline is the new renewal deadline assigned to the auditor. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventAuditorResigned"></a>
+
+ ### EventAuditorResigned
+ EventAuditorResigned is emitted when an auditor voluntarily resigns.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the resigning auditor. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventDepositReturnedToAuditor"></a>
+
+ ### EventDepositReturnedToAuditor
+ EventDepositReturnedToAuditor is emitted when an auditor's anti-griefing
+deposit is returned.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor receiving the deposit. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount returned to the auditor. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventDepositSlashed"></a>
+
+ ### EventDepositSlashed
+ EventDepositSlashed is emitted when an auditor's anti-griefing deposit is slashed.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor whose deposit was slashed. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount slashed from the deposit. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventDiscrepancyDetected"></a>
+
+ ### EventDiscrepancyDetected
+ EventDiscrepancyDetected is emitted when the chain detects two conflicting
+attestations from different auditors for the same provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `discrepancy_id` | [uint64](#uint64) |  | DiscrepancyID is the identifier of the newly created discrepancy record. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the disputed provider. |
+ | `auditor_a` | [string](#string) |  | AuditorA is the bech32 account address of the first auditor in the dispute. |
+ | `tier_a` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | TierA is the tier asserted by auditor A. |
+ | `auditor_b` | [string](#string) |  | AuditorB is the bech32 account address of the second auditor in the dispute. |
+ | `tier_b` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | TierB is the tier asserted by auditor B. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventDiscrepancyResolved"></a>
+
+ ### EventDiscrepancyResolved
+ EventDiscrepancyResolved is emitted when a discrepancy is resolved by governance.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `discrepancy_id` | [uint64](#uint64) |  | DiscrepancyID is the identifier of the resolved discrepancy record. |
+ | `vindicated_auditor` | [string](#string) |  | VindicatedAuditor is the identifier of the auditor vindicated by the resolution; carries an empty string when neither party is vindicated. |
+ | `reason` | [DiscrepancyResolutionReason](#akash.verification.v1.DiscrepancyResolutionReason) |  | Reason is the typed resolution reason recorded by governance. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the typed fault attribution recorded at resolution. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventDiscrepancyTimedOut"></a>
+
+ ### EventDiscrepancyTimedOut
+ EventDiscrepancyTimedOut is emitted when a discrepancy's resolution window
+elapses without governance action.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `discrepancy_id` | [uint64](#uint64) |  | DiscrepancyID is the identifier of the timed-out discrepancy record. |
+ | `auditor_a` | [string](#string) |  | AuditorA is the bech32 account address of the first auditor in the dispute. |
+ | `auditor_b` | [string](#string) |  | AuditorB is the bech32 account address of the second auditor in the dispute. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventFeeEscrowed"></a>
+
+ ### EventFeeEscrowed
+ EventFeeEscrowed is emitted when an audit fee is escrowed by a provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the escrowing provider. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the consuming auditor (may be empty). |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount escrowed. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventFeeReleasedToAuditor"></a>
+
+ ### EventFeeReleasedToAuditor
+ EventFeeReleasedToAuditor is emitted when an escrowed fee is released to the auditor.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor receiving the fee. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount released to the auditor. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventFeeReturnedToProvider"></a>
+
+ ### EventFeeReturnedToProvider
+ EventFeeReturnedToProvider is emitted when an escrowed fee is returned to the provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider receiving the fee. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount returned to the provider. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventProviderBondPosted"></a>
+
+ ### EventProviderBondPosted
+ EventProviderBondPosted is emitted when a provider posts (or tops up) bond.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the bonding provider. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount just posted in this transaction. |
+ | `total_bonded` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | TotalBonded is the resulting total bonded amount after this posting. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventProviderBondSlashed"></a>
+
+ ### EventProviderBondSlashed
+ EventProviderBondSlashed is emitted when a provider's bond is slashed.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the slashed provider. |
+ | `slashed_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | SlashedAmount is the coin amount slashed in this action. |
+ | `reason` | [ProviderBondSlashReason](#akash.verification.v1.ProviderBondSlashReason) |  | Reason is the typed slash reason recorded. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventProviderBondWithdrawalCompleted"></a>
+
+ ### EventProviderBondWithdrawalCompleted
+ EventProviderBondWithdrawalCompleted is emitted when an unbonding entry
+matures and the amount is returned to the provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider receiving the unbonded coins. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount returned to the provider. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventProviderBondWithdrawalInitiated"></a>
+
+ ### EventProviderBondWithdrawalInitiated
+ EventProviderBondWithdrawalInitiated is emitted when a provider begins
+unbonding part or all of its bond.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the unbonding provider. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount the provider is unbonding. |
+ | `completion_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | CompletionTime is the chain timestamp at which the unbonding completes. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventSnapshotHashPosted"></a>
+
+ ### EventSnapshotHashPosted
+ EventSnapshotHashPosted is emitted when a provider posts a snapshot hash.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the snapshotting provider. |
+ | `snapshot_hash` | [bytes](#bytes) |  | SnapshotHash is the opaque hash bytes posted by the provider. |
+ | `compliance_deadline` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ComplianceDeadline is the chain timestamp by which the next snapshot must be posted. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventSnapshotResumed"></a>
+
+ ### EventSnapshotResumed
+ EventSnapshotResumed is emitted when a previously suspended provider snapshot
+returns to compliance.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the resumed provider. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventSnapshotSuspended"></a>
+
+ ### EventSnapshotSuspended
+ EventSnapshotSuspended is emitted when a provider's snapshot is suspended
+for missing a compliance deadline.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the suspended provider. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventVerificationGraceEnded"></a>
+
+ ### EventVerificationGraceEnded
+ EventVerificationGraceEnded is emitted when a verification grace window
+concludes for any reason.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `grace_record_id` | [uint64](#uint64) |  | GraceRecordID is the identifier of the closed grace record. |
+ | `status` | [VerificationGraceStatus](#akash.verification.v1.VerificationGraceStatus) |  | Status is the final lifecycle status of the closed grace record. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.EventVerificationGraceStarted"></a>
+
+ ### EventVerificationGraceStarted
+ EventVerificationGraceStarted is emitted when a provider enters a verification
+grace window.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `grace_record_id` | [uint64](#uint64) |  | GraceRecordID is the identifier of the newly opened grace record. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider entering grace. |
+ | `preserved_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | PreservedTier is the verification tier preserved for the provider during grace. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/state.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/state.proto
+ 
+
+ 
+ <a name="akash.verification.v1.AttestationRecord"></a>
+
+ ### AttestationRecord
+ AttestationRecord captures a single attestation issued by an auditor about
+a provider, including the asserted tier and capabilities, the evidence
+reference, the audit fee, lifecycle and fault state, anti-griefing
+deposit, and the audit-escrow ID that authorized the attestation.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the attested provider. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the issuing auditor. |
+ | `tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | Tier is the verification tier the auditor asserts for the provider. |
+ | `capabilities` | [CapabilityFlag](#akash.verification.v1.CapabilityFlag) | repeated | Capabilities is the set of capability flags the auditor asserts. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the auditor's evidence (off-chain). |
+ | `fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Fee is the audit fee paid by the provider for this attestation. |
+ | `fee_status` | [FeeStatus](#akash.verification.v1.FeeStatus) |  | FeeStatus is the lifecycle status of the fee held against this attestation. |
+ | `created_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | CreatedAt is the chain timestamp at which the attestation was created. |
+ | `expires_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ExpiresAt is the chain timestamp at which the attestation expires. |
+ | `status` | [AttestationStatus](#akash.verification.v1.AttestationStatus) |  | Status is the lifecycle status of the attestation. |
+ | `voided_reason` | [VoidedReason](#akash.verification.v1.VoidedReason) |  | VoidedReason carries the typed reason when status == Voided. |
+ | `deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Deposit is the anti-griefing deposit posted by the auditor. |
+ | `deposit_status` | [DepositStatus](#akash.verification.v1.DepositStatus) |  | DepositStatus is the lifecycle status of the auditor's deposit. |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the identifier of the audit escrow that authorized this attestation. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution carries the fault attribution recorded after settlement or governance resolution involving this attestation. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.AuditEscrowRecord"></a>
+
+ ### AuditEscrowRecord
+ AuditEscrowRecord captures an audit escrow opened by a provider to fund a
+pending attestation, including the requested tier and capabilities, the
+audit fee and provider deposit, lifecycle status, lifecycle timestamps,
+metadata reference, and final settlement attribution.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [uint64](#uint64) |  | ID is the unique identifier of the audit escrow. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider that opened the escrow. |
+ | `consumed_by_auditor` | [string](#string) |  | ConsumedByAuditor is the bech32 address of the auditor that consumed the escrow when filing an attestation; empty until consumption. |
+ | `requested_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | RequestedTier is the verification tier the provider is requesting. |
+ | `requested_capabilities` | [CapabilityFlag](#akash.verification.v1.CapabilityFlag) | repeated | RequestedCapabilities is the set of capability flags the provider is requesting. |
+ | `fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Fee is the audit fee escrowed by the provider. |
+ | `fee_status` | [FeeStatus](#akash.verification.v1.FeeStatus) |  | FeeStatus is the lifecycle status of the escrowed fee. |
+ | `provider_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | ProviderDeposit is the deposit a provider escrows alongside the fee. |
+ | `provider_deposit_status` | [ProviderDepositStatus](#akash.verification.v1.ProviderDepositStatus) |  | ProviderDepositStatus is the lifecycle status of the provider deposit. |
+ | `status` | [AuditEscrowStatus](#akash.verification.v1.AuditEscrowStatus) |  | Status is the lifecycle status of the audit escrow. |
+ | `opened_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | OpenedAt is the chain timestamp at which the escrow was opened. |
+ | `consumed_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ConsumedAt is the chain timestamp at which the escrow was consumed; nil until consumption. |
+ | `expires_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ExpiresAt is the chain timestamp at which an unconsumed escrow expires. |
+ | `metadata_hash` | [bytes](#bytes) |  | MetadataHash is an opaque hash referencing escrow metadata (off-chain). |
+ | `settlement_reason` | [AuditEscrowSettlementReason](#akash.verification.v1.AuditEscrowSettlementReason) |  | SettlementReason is the typed reason recorded when the escrow is settled. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the fault attribution recorded at settlement. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.AuditorRecord"></a>
+
+ ### AuditorRecord
+ AuditorRecord captures the on-chain state of a registered auditor including
+status, maximum attestation tier, bonded amount, registration and renewal
+timestamps, discrepancy counter, and any pending bond unbonding completion.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `address` | [string](#string) |  | Address is the bech32 account address of the auditor. |
+ | `status` | [AuditorStatus](#akash.verification.v1.AuditorStatus) |  | Status is the lifecycle status of the auditor record. |
+ | `max_attestation_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | MaxAttestationTier is the highest verification tier this auditor is permitted to attest once the required bond has been posted. |
+ | `bond_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondAmount is the coin amount currently bonded by the auditor. |
+ | `bond_status` | [BondStatus](#akash.verification.v1.BondStatus) |  | BondStatus is the current status of the auditor bond. |
+ | `metadata_hash` | [bytes](#bytes) |  | MetadataHash is an opaque hash referencing auditor metadata (off-chain). |
+ | `registered_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | RegisteredAt is the chain timestamp at which this auditor was registered. |
+ | `renewal_deadline` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | RenewalDeadline is the chain timestamp by which the auditor must renew. |
+ | `discrepancy_count` | [uint64](#uint64) |  | DiscrepancyCount is the running count of discrepancies attributed to this auditor; used by the keeper to enforce the discrepancy threshold. |
+ | `bond_unbonding_completion_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | BondUnbondingCompletionTime is the time at which a pending bond unbonding completes; nil when no unbonding is in progress. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.DiscrepancyEvent"></a>
+
+ ### DiscrepancyEvent
+ DiscrepancyEvent captures a disagreement between two auditors over a
+provider, including both attestations' asserted tiers, the resolution
+state, pointers to the governance proposal and grace record (if any),
+and the final resolution attribution recorded at settlement.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [uint64](#uint64) |  | ID is the unique identifier of the discrepancy event. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider in dispute. |
+ | `auditor_a` | [string](#string) |  | AuditorA is the bech32 account address of the first auditor. |
+ | `auditor_a_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | AuditorATier is the tier asserted by auditor A. |
+ | `auditor_b` | [string](#string) |  | AuditorB is the bech32 account address of the second auditor. |
+ | `auditor_b_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | AuditorBTier is the tier asserted by auditor B. |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | Timestamp is the chain time at which the discrepancy was detected. |
+ | `resolution_status` | [DiscrepancyStatus](#akash.verification.v1.DiscrepancyStatus) |  | ResolutionStatus is the lifecycle status of the resolution flow. |
+ | `resolution_proposal_id` | [uint64](#uint64) |  | ResolutionProposalID is the governance proposal that resolved the discrepancy; zero when no proposal has been filed. |
+ | `grace_record_id` | [uint64](#uint64) |  | GraceRecordID is the provider verification grace record opened in response to this discrepancy; zero when no grace record exists. |
+ | `resolution_reason` | [DiscrepancyResolutionReason](#akash.verification.v1.DiscrepancyResolutionReason) |  | ResolutionReason is the typed reason recorded at resolution. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the fault attribution recorded at resolution. |
+ | `resolution_evidence_hash` | [bytes](#bytes) |  | ResolutionEvidenceHash is an opaque hash referencing the evidence used at resolution (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.ProviderBondRecord"></a>
+
+ ### ProviderBondRecord
+ ProviderBondRecord holds a provider's resource-scaled verification bond,
+any unbonding entries currently in progress, and slash history.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the bonded provider. |
+ | `bonded_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondedAmount is the coin amount currently bonded by the provider. |
+ | `unbonding_entries` | [UnbondingEntry](#akash.verification.v1.UnbondingEntry) | repeated | UnbondingEntries is the list of pending unbondings against this bond. |
+ | `slashed` | [bool](#bool) |  | Slashed indicates whether this provider bond has ever been slashed. |
+ | `last_slash_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | LastSlashTime is the chain timestamp of the most recent slash; nil if the bond has never been slashed. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.ProviderSnapshotRecord"></a>
+
+ ### ProviderSnapshotRecord
+ ProviderSnapshotRecord is the on-chain record of a provider's most recent
+resource snapshot, including the snapshot hash, resource summary, posting
+and snapshot timestamps, the compliance deadline, and suspension state.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the snapshotting provider. |
+ | `snapshot_hash` | [bytes](#bytes) |  | SnapshotHash is the opaque hash of the snapshot payload (off-chain). |
+ | `resource_summary` | [ResourceSummary](#akash.verification.v1.ResourceSummary) |  | ResourceSummary is the inline resource counts the provider claims at snapshot time. |
+ | `posted_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | PostedAt is the chain timestamp at which the snapshot record was posted on-chain. |
+ | `snapshot_timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | SnapshotTimestamp is the timestamp embedded by the provider in the snapshot itself. |
+ | `compliance_deadline` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ComplianceDeadline is the chain timestamp by which the next snapshot must be posted to remain compliant with the snapshot cadence. |
+ | `suspended` | [bool](#bool) |  | Suspended indicates whether this provider snapshot has been suspended for missing the compliance deadline. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.ProviderVerificationGraceRecord"></a>
+
+ ### ProviderVerificationGraceRecord
+ ProviderVerificationGraceRecord preserves a provider's verification tier
+across a discrepancy by tracking the source discrepancies, preserved tier,
+and the grace window during which the provider may continue to operate.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [uint64](#uint64) |  | ID is the unique identifier of the grace record. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider in grace. |
+ | `preserved_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | PreservedTier is the verification tier preserved for the provider during grace. |
+ | `source_discrepancy_ids` | [uint64](#uint64) | repeated | SourceDiscrepancyIDs is the list of discrepancy IDs that opened this grace. |
+ | `started_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | StartedAt is the chain timestamp at which the grace window began. |
+ | `expires_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ExpiresAt is the chain timestamp at which the grace window expires. |
+ | `status` | [VerificationGraceStatus](#akash.verification.v1.VerificationGraceStatus) |  | Status is the lifecycle status of the grace window. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.ResourceSummary"></a>
+
+ ### ResourceSummary
+ ResourceSummary captures the resource counts a provider claims at snapshot
+time. Used by the chain to scale the provider bond requirement and as
+evidence in snapshot records. Software identity fields are evidence-only and
+do not drive on-chain enforcement.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `total_gpus` | [uint32](#uint32) |  | TotalGPUs is the total number of GPUs the provider claims. |
+ | `total_vcpus` | [uint32](#uint32) |  | TotalVCPUs is the total number of virtual CPUs the provider claims. |
+ | `total_memory_mb` | [uint64](#uint64) |  | TotalMemoryMB is the total memory in megabytes the provider claims. |
+ | `total_storage_mb` | [uint64](#uint64) |  | TotalStorageMB is the total storage in megabytes the provider claims. |
+ | `active_leases` | [uint32](#uint32) |  | ActiveLeases is the number of leases currently active on the provider. |
+ | `software_version` | [string](#string) |  | SoftwareVersion is the provider software version string kept for compatibility. |
+ | `software_signature` | [bytes](#bytes) |  | SoftwareSignature is the provider software signature kept for compatibility. |
+ | `software_identity` | [SoftwareIdentity](#akash.verification.v1.SoftwareIdentity) |  | SoftwareIdentity carries structured release artifact metadata. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.SoftwareIdentity"></a>
+
+ ### SoftwareIdentity
+ SoftwareIdentity carries release artifact identity and signature metadata.
+Providers post these fields as evidence; auditors verify them off-chain
+against the published Akash release key.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `version` | [string](#string) |  | Version is the provider or inventory software version string. |
+ | `artifact_ref` | [string](#string) |  | ArtifactRef identifies the release artifact whose digest/signature is reported. |
+ | `digest_algorithm` | [string](#string) |  | DigestAlgorithm identifies the digest algorithm, e.g. sha3-256. |
+ | `digest` | [bytes](#bytes) |  | Digest is the release artifact digest bytes. |
+ | `signature_type` | [string](#string) |  | SignatureType identifies the signature format, e.g. cosign. |
+ | `signature` | [bytes](#bytes) |  | Signature is the detached signature bytes when carried inline. |
+ | `signature_ref` | [string](#string) |  | SignatureRef identifies an external signature or bundle. |
+ | `public_key_ref` | [string](#string) |  | PublicKeyRef identifies the published release public key. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.UnbondingEntry"></a>
+
+ ### UnbondingEntry
+ UnbondingEntry represents a single bond-unbonding amount and completion
+time queued against a provider or auditor bond.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount queued for unbonding. |
+ | `completion_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | CompletionTime is the chain timestamp at which this entry completes unbonding and the amount becomes spendable. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.VerificationStoreRecord"></a>
+
+ ### VerificationStoreRecord
+ VerificationStoreRecord is a generic any-typed wrapper used by genesis
+import/export to carry sub-record payloads addressed by their proto type URL.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `type_url` | [string](#string) |  | TypeURL is the fully-qualified proto type URL of the wrapped record. |
+ | `value` | [bytes](#bytes) |  | Value is the serialized bytes of the wrapped record. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/params.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/params.proto
+ 
+
+ 
+ <a name="akash.verification.v1.Params"></a>
+
+ ### Params
+ Params defines the on-chain parameters for the verification module.
+Includes per-tier auditor bond and TTL settings, per-tier minimum audit fees,
+resource-scaled provider bond amounts, history requirements for higher tiers,
+EndBlocker budget caps, escrow timing, anti-griefing deposits, the feature
+flag controlling module activation, and per-tier contact-response targets.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `bond_l1` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondL1 is the auditor bond required to attest at L1 (Identified). |
+ | `bond_l2` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondL2 is the auditor bond required to attest at L2 (Verified). |
+ | `bond_l3` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondL3 is the auditor bond required to attest at L3 (Established). |
+ | `bond_l4` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondL4 is the auditor bond required to attest at L4 (Trusted). |
+ | `ttl_l1` | [google.protobuf.Duration](#google.protobuf.Duration) |  | TTLL1 is the time-to-live of an L1 attestation before it expires. |
+ | `ttl_l2` | [google.protobuf.Duration](#google.protobuf.Duration) |  | TTLL2 is the time-to-live of an L2 attestation before it expires. |
+ | `ttl_l3` | [google.protobuf.Duration](#google.protobuf.Duration) |  | TTLL3 is the time-to-live of an L3 attestation before it expires. |
+ | `ttl_l4` | [google.protobuf.Duration](#google.protobuf.Duration) |  | TTLL4 is the time-to-live of an L4 attestation before it expires. |
+ | `min_fee_l1` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | MinFeeL1 is the minimum audit fee a provider must escrow for an L1 audit. |
+ | `min_fee_l2` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | MinFeeL2 is the minimum audit fee a provider must escrow for an L2 audit. |
+ | `min_fee_l3` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | MinFeeL3 is the minimum audit fee a provider must escrow for an L3 audit. |
+ | `min_fee_l4` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | MinFeeL4 is the minimum audit fee a provider must escrow for an L4 audit. |
+ | `discrepancy_threshold` | [uint32](#uint32) |  | DiscrepancyThreshold is the number of discrepancies that triggers auditor freeze. |
+ | `auditor_unbonding_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | AuditorUnbondingPeriod is the unbonding duration applied to an auditor bond upon withdrawal initiation. |
+ | `renewal_period_l1` | [google.protobuf.Duration](#google.protobuf.Duration) |  | RenewalPeriodL1 is the auditor renewal period for L1 attestations. |
+ | `renewal_period_l2` | [google.protobuf.Duration](#google.protobuf.Duration) |  | RenewalPeriodL2 is the auditor renewal period for L2 attestations. |
+ | `renewal_period_l3` | [google.protobuf.Duration](#google.protobuf.Duration) |  | RenewalPeriodL3 is the auditor renewal period for L3 attestations. |
+ | `renewal_period_l4` | [google.protobuf.Duration](#google.protobuf.Duration) |  | RenewalPeriodL4 is the auditor renewal period for L4 attestations. |
+ | `snapshot_hash_interval` | [google.protobuf.Duration](#google.protobuf.Duration) |  | SnapshotHashInterval is the cadence at which providers must post a snapshot hash. |
+ | `max_snapshot_age` | [google.protobuf.Duration](#google.protobuf.Duration) |  | MaxSnapshotAge is the maximum age a provider snapshot may have before being stale. |
+ | `bond_gpu_l2` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondGpuL2 is the per-GPU resource-scaled provider bond at L2. |
+ | `bond_gpu_l3` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondGpuL3 is the per-GPU resource-scaled provider bond at L3. |
+ | `bond_gpu_l4` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondGpuL4 is the per-GPU resource-scaled provider bond at L4. |
+ | `bond_vcpu_l2` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondVcpuL2 is the per-vCPU resource-scaled provider bond at L2. |
+ | `bond_vcpu_l3` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondVcpuL3 is the per-vCPU resource-scaled provider bond at L3. |
+ | `bond_vcpu_l4` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondVcpuL4 is the per-vCPU resource-scaled provider bond at L4. |
+ | `bond_mem_gb_l2` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondMemGbL2 is the per-GB-memory resource-scaled provider bond at L2. |
+ | `bond_mem_gb_l3` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondMemGbL3 is the per-GB-memory resource-scaled provider bond at L3. |
+ | `bond_mem_gb_l4` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondMemGbL4 is the per-GB-memory resource-scaled provider bond at L4. |
+ | `bond_storage_tb_l2` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondStorageTbL2 is the per-TB-storage resource-scaled provider bond at L2. |
+ | `bond_storage_tb_l3` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondStorageTbL3 is the per-TB-storage resource-scaled provider bond at L3. |
+ | `bond_storage_tb_l4` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | BondStorageTbL4 is the per-TB-storage resource-scaled provider bond at L4. |
+ | `provider_bond_unbonding_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ProviderBondUnbondingPeriod is the unbonding duration applied to a provider bond upon withdrawal initiation. |
+ | `min_age_l2` | [google.protobuf.Duration](#google.protobuf.Duration) |  | MinAgeL2 is the minimum provider age required to attain L2. |
+ | `min_age_l3` | [google.protobuf.Duration](#google.protobuf.Duration) |  | MinAgeL3 is the minimum provider age required to attain L3. |
+ | `min_age_l4` | [google.protobuf.Duration](#google.protobuf.Duration) |  | MinAgeL4 is the minimum provider age required to attain L4. |
+ | `min_lease_completion_bps_l3` | [uint32](#uint32) |  | MinLeaseCompletionBpsL3 is the minimum lease-completion rate (basis points) for L3. |
+ | `min_lease_completion_bps_l4` | [uint32](#uint32) |  | MinLeaseCompletionBpsL4 is the minimum lease-completion rate (basis points) for L4. |
+ | `clean_history_window_l3` | [google.protobuf.Duration](#google.protobuf.Duration) |  | CleanHistoryWindowL3 is the clean-history window required to attain L3. |
+ | `clean_history_window_l4` | [google.protobuf.Duration](#google.protobuf.Duration) |  | CleanHistoryWindowL4 is the clean-history window required to attain L4. |
+ | `min_l3_duration_for_l4` | [google.protobuf.Duration](#google.protobuf.Duration) |  | MinL3DurationForL4 is the minimum continuous L3 duration required before promotion to L4. |
+ | `min_leases_for_completion_rate` | [uint32](#uint32) |  | MinLeasesForCompletionRate is the minimum number of leases required before the lease-completion ratio is considered meaningful. |
+ | `max_endblocker_attestation_expiries` | [uint32](#uint32) |  | MaxEndblockerAttestationExpiries caps the number of attestation expiries processed per EndBlocker. |
+ | `max_endblocker_snapshot_suspensions` | [uint32](#uint32) |  | MaxEndblockerSnapshotSuspensions caps the number of snapshot suspensions processed per EndBlocker. |
+ | `max_endblocker_unbonding_completions` | [uint32](#uint32) |  | MaxEndblockerUnbondingCompletions caps the number of unbonding completions processed per EndBlocker. |
+ | `max_endblocker_discrepancy_timeouts` | [uint32](#uint32) |  | MaxEndblockerDiscrepancyTimeouts caps the number of discrepancy timeouts processed per EndBlocker. |
+ | `max_endblocker_audit_escrow_expiries` | [uint32](#uint32) |  | MaxEndblockerAuditEscrowExpiries caps the number of audit escrow expiries processed per EndBlocker. |
+ | `max_endblocker_grace_expiries` | [uint32](#uint32) |  | MaxEndblockerGraceExpiries caps the number of verification-grace expiries processed per EndBlocker. |
+ | `discrepancy_resolution_timeout` | [google.protobuf.Duration](#google.protobuf.Duration) |  | DiscrepancyResolutionTimeout is the maximum time a discrepancy may remain pending before timing out. |
+ | `attestation_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | AttestationDeposit is the anti-griefing deposit required when submitting an attestation. |
+ | `discrepancy_grace_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | DiscrepancyGracePeriod is the grace window applied after a discrepancy is opened. |
+ | `provider_audit_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | ProviderAuditDeposit is the deposit a provider must escrow when opening an audit escrow. |
+ | `verification_module_active` | [bool](#bool) |  | VerificationModuleActive is the feature flag controlling whether the verification module enforces filtering and accepts new transactions. |
+ | `contact_response_critical_l1` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseCriticalL1 is the maximum critical-contact response time at L1. |
+ | `contact_response_critical_l2` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseCriticalL2 is the maximum critical-contact response time at L2. |
+ | `contact_response_critical_l3` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseCriticalL3 is the maximum critical-contact response time at L3. |
+ | `contact_response_critical_l4` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseCriticalL4 is the maximum critical-contact response time at L4. |
+ | `contact_response_standard_l1` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseStandardL1 is the maximum standard-contact response time at L1. |
+ | `contact_response_standard_l2` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseStandardL2 is the maximum standard-contact response time at L2. |
+ | `contact_response_standard_l3` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseStandardL3 is the maximum standard-contact response time at L3. |
+ | `contact_response_standard_l4` | [google.protobuf.Duration](#google.protobuf.Duration) |  | ContactResponseStandardL4 is the maximum standard-contact response time at L4. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/genesis.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/genesis.proto
+ 
+
+ 
+ <a name="akash.verification.v1.GenesisState"></a>
+
+ ### GenesisState
+ GenesisState defines the genesis state of the verification module. It
+contains the on-chain parameters and the full set of records the module
+is responsible for: auditors, attestations, discrepancies (and the next ID
+counter), provider bonds, provider snapshot records, audit escrows (and
+the next ID counter), and provider verification grace records (and the
+next ID counter).
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [Params](#akash.verification.v1.Params) |  | Params holds the on-chain parameters for the verification module. |
+ | `auditors` | [AuditorRecord](#akash.verification.v1.AuditorRecord) | repeated | Auditors is the list of registered auditor records. |
+ | `attestations` | [AttestationRecord](#akash.verification.v1.AttestationRecord) | repeated | Attestations is the list of attestation records. |
+ | `discrepancies` | [DiscrepancyEvent](#akash.verification.v1.DiscrepancyEvent) | repeated | Discrepancies is the list of discrepancy events. |
+ | `provider_bonds` | [ProviderBondRecord](#akash.verification.v1.ProviderBondRecord) | repeated | ProviderBonds is the list of provider bond records. |
+ | `provider_snapshots` | [ProviderSnapshotRecord](#akash.verification.v1.ProviderSnapshotRecord) | repeated | ProviderSnapshots is the list of provider snapshot records. |
+ | `next_discrepancy_id` | [uint64](#uint64) |  | NextDiscrepancyID is the monotonically increasing ID assigned to the next discrepancy event. |
+ | `audit_escrows` | [AuditEscrowRecord](#akash.verification.v1.AuditEscrowRecord) | repeated | AuditEscrows is the list of audit escrow records. |
+ | `next_audit_escrow_id` | [uint64](#uint64) |  | NextAuditEscrowID is the monotonically increasing ID assigned to the next audit escrow record. |
+ | `verification_graces` | [ProviderVerificationGraceRecord](#akash.verification.v1.ProviderVerificationGraceRecord) | repeated | VerificationGraces is the list of provider verification grace records. |
+ | `next_grace_record_id` | [uint64](#uint64) |  | NextGraceRecordID is the monotonically increasing ID assigned to the next provider verification grace record. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/msg.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/msg.proto
+ 
+
+ 
+ <a name="akash.verification.v1.MsgCancelAuditEscrow"></a>
+
+ ### MsgCancelAuditEscrow
+ MsgCancelAuditEscrow is the provider-signed message used to cancel an open,
+unconsumed audit escrow before its expiry. Cancellation returns the audit
+fee and the provider deposit to the provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider that opened the escrow and the signer of this message. |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the identifier of the audit escrow being cancelled. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgCancelAuditEscrowResponse"></a>
+
+ ### MsgCancelAuditEscrowResponse
+ MsgCancelAuditEscrowResponse is the response type for Msg/CancelAuditEscrow.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgOpenAuditEscrow"></a>
+
+ ### MsgOpenAuditEscrow
+ MsgOpenAuditEscrow is the provider-signed message used to open an audit
+escrow that funds a pending attestation. The provider escrows both an audit
+fee and a provider deposit, sets the requested tier and capabilities, and
+declares an expiry after which the escrow may be settled if no auditor has
+consumed it. The message does not name an auditor; the first valid
+attestation against this escrow consumes it.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider opening the escrow and the signer of this message. |
+ | `requested_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | RequestedTier is the verification tier the provider is requesting. |
+ | `requested_capabilities` | [CapabilityFlag](#akash.verification.v1.CapabilityFlag) | repeated | RequestedCapabilities is the set of capability flags the provider is requesting that an auditor verify. |
+ | `fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Fee is the audit fee the provider is escrowing for the eventual auditor. |
+ | `provider_deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | ProviderDeposit is the deposit the provider escrows alongside the fee. It can only be returned to the provider or slashed to the community pool via governance-authorized settlement. |
+ | `expires_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ExpiresAt is the chain timestamp at which an unconsumed escrow expires and may be settled. |
+ | `metadata_hash` | [bytes](#bytes) |  | MetadataHash is an opaque hash referencing escrow metadata (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgOpenAuditEscrowResponse"></a>
+
+ ### MsgOpenAuditEscrowResponse
+ MsgOpenAuditEscrowResponse is the response type for Msg/OpenAuditEscrow.
+It carries the identifier assigned to the newly opened audit escrow.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the unique identifier assigned to the opened audit escrow. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgPostAuditorBond"></a>
+
+ ### MsgPostAuditorBond
+ MsgPostAuditorBond is the auditor-signed message used to post (or top up)
+the auditor's verification bond. The bond is held by the verification module
+account and determines the maximum attestation tier the auditor may use.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the bond-posting auditor and the signer of this message. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount being posted as auditor bond. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgPostAuditorBondResponse"></a>
+
+ ### MsgPostAuditorBondResponse
+ MsgPostAuditorBondResponse is the response type for Msg/PostAuditorBond.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgPostProviderBond"></a>
+
+ ### MsgPostProviderBond
+ MsgPostProviderBond is the provider-signed message used to post (or top up)
+the provider's resource-scaled verification bond. The bond is held by the
+verification module account.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the bond-posting provider and the signer of this message. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount being posted as provider bond. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgPostProviderBondResponse"></a>
+
+ ### MsgPostProviderBondResponse
+ MsgPostProviderBondResponse is the response type for Msg/PostProviderBond.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgPostSnapshotHash"></a>
+
+ ### MsgPostSnapshotHash
+ MsgPostSnapshotHash is the provider-signed message used to post the
+provider's most recent resource snapshot hash, the inline resource summary
+claimed by the provider, and the provider-side snapshot timestamp.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the snapshotting provider and the signer of this message. |
+ | `snapshot_hash` | [bytes](#bytes) |  | SnapshotHash is the opaque hash of the snapshot payload (off-chain). |
+ | `resource_summary` | [ResourceSummary](#akash.verification.v1.ResourceSummary) |  | ResourceSummary is the inline resource counts the provider claims at snapshot time; used to scale the provider bond requirement. |
+ | `snapshot_timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | SnapshotTimestamp is the timestamp embedded by the provider in the snapshot itself. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgPostSnapshotHashResponse"></a>
+
+ ### MsgPostSnapshotHashResponse
+ MsgPostSnapshotHashResponse is the response type for Msg/PostSnapshotHash.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRegisterAuditor"></a>
+
+ ### MsgRegisterAuditor
+ MsgRegisterAuditor is the governance-authority-signed message used to
+register a new auditor with a maximum attestation tier. There is no
+auditor self-registration path in v1; only governance may register
+auditors.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to register auditors and the signer of this message. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor being registered. |
+ | `max_attestation_tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | MaxAttestationTier is the highest verification tier this auditor is permitted to attest, set by governance at registration. |
+ | `metadata_hash` | [bytes](#bytes) |  | MetadataHash is an opaque hash referencing auditor metadata (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRegisterAuditorResponse"></a>
+
+ ### MsgRegisterAuditorResponse
+ MsgRegisterAuditorResponse is the response type for Msg/RegisterAuditor.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRemoveAttestation"></a>
+
+ ### MsgRemoveAttestation
+ MsgRemoveAttestation is the provider-signed message used to voluntarily
+remove an attestation associated with the provider. No reason or evidence
+is required; the attestation transitions to the Removed status.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider requesting removal and the signer of this message. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the issuing auditor of the attestation being removed. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRemoveAttestationResponse"></a>
+
+ ### MsgRemoveAttestationResponse
+ MsgRemoveAttestationResponse is the response type for Msg/RemoveAttestation.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRemoveAuditor"></a>
+
+ ### MsgRemoveAuditor
+ MsgRemoveAuditor is the governance-authority-signed message used to remove
+an auditor from the active set. Removal moves the auditor record to the
+Removed status.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to remove auditors and the signer of this message. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor being removed. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRemoveAuditorResponse"></a>
+
+ ### MsgRemoveAuditorResponse
+ MsgRemoveAuditorResponse is the response type for Msg/RemoveAuditor.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRenewAuditor"></a>
+
+ ### MsgRenewAuditor
+ MsgRenewAuditor is the governance-authority-signed message used to renew an
+auditor's registration and reset the renewal deadline.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to renew auditors and the signer of this message. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor whose registration is being renewed. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRenewAuditorResponse"></a>
+
+ ### MsgRenewAuditorResponse
+ MsgRenewAuditorResponse is the response type for Msg/RenewAuditor.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgResignAuditor"></a>
+
+ ### MsgResignAuditor
+ MsgResignAuditor is the auditor-signed message used by an auditor to
+voluntarily exit the auditor role. Resignation moves the auditor record to
+the Resigned status and begins unbonding of any posted auditor bond.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the resigning auditor and the signer of this message. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgResignAuditorResponse"></a>
+
+ ### MsgResignAuditorResponse
+ MsgResignAuditorResponse is the response type for Msg/ResignAuditor.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgResolveDiscrepancy"></a>
+
+ ### MsgResolveDiscrepancy
+ MsgResolveDiscrepancy is the governance-authority-signed message used to
+resolve a pending discrepancy between two auditors over the same provider.
+The authority names the vindicated auditor (if any), optionally slashes
+either or both auditor bonds, and records the typed resolution reason,
+fault attribution, and evidence reference.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to resolve discrepancies and the signer of this message. |
+ | `discrepancy_id` | [uint64](#uint64) |  | DiscrepancyID is the identifier of the discrepancy being resolved. |
+ | `vindicated_auditor` | [string](#string) |  | VindicatedAuditor is the bech32 account address of the auditor whose attestation is upheld by the resolution; may be empty when no auditor is vindicated. |
+ | `slash_auditor_a` | [bool](#bool) |  | SlashAuditorA indicates whether auditor A's bond should be slashed as part of this resolution. |
+ | `slash_auditor_b` | [bool](#bool) |  | SlashAuditorB indicates whether auditor B's bond should be slashed as part of this resolution. |
+ | `reason` | [DiscrepancyResolutionReason](#akash.verification.v1.DiscrepancyResolutionReason) |  | Reason is the typed discrepancy resolution reason recorded at resolution. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the fault attribution recorded at resolution. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the evidence considered at resolution (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgResolveDiscrepancyResponse"></a>
+
+ ### MsgResolveDiscrepancyResponse
+ MsgResolveDiscrepancyResponse is the response type for
+Msg/ResolveDiscrepancy.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeAllProviderAttestations"></a>
+
+ ### MsgRevokeAllProviderAttestations
+ MsgRevokeAllProviderAttestations is the governance-authority-signed message
+used to revoke every active attestation for a single provider, with a
+typed reason, fault attribution, and evidence reference.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to revoke attestations and the signer of this message. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose attestations are being revoked en masse. |
+ | `reason` | [GovernanceAttestationReason](#akash.verification.v1.GovernanceAttestationReason) |  | Reason is the typed governance attestation reason recorded against the revocations. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the fault attribution recorded against the revocations. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the evidence backing the revocations (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeAllProviderAttestationsResponse"></a>
+
+ ### MsgRevokeAllProviderAttestationsResponse
+ MsgRevokeAllProviderAttestationsResponse is the response type for
+Msg/RevokeAllProviderAttestations.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeAttestation"></a>
+
+ ### MsgRevokeAttestation
+ MsgRevokeAttestation is the auditor-signed message used to revoke a
+previously submitted attestation for a typed reason, with an evidence
+reference. Revocation transitions the attestation to the Revoked status.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the attested provider. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the revoking auditor and the signer of this message. |
+ | `reason` | [AttestationRevocationReason](#akash.verification.v1.AttestationRevocationReason) |  | Reason is the typed revocation reason recorded against the attestation. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the evidence backing the revocation (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeAttestationResponse"></a>
+
+ ### MsgRevokeAttestationResponse
+ MsgRevokeAttestationResponse is the response type for Msg/RevokeAttestation.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeAuditorAttestations"></a>
+
+ ### MsgRevokeAuditorAttestations
+ MsgRevokeAuditorAttestations is the governance-authority-signed message
+used to revoke every active attestation issued by a single auditor, with a
+typed reason, fault attribution, and evidence reference.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to revoke attestations and the signer of this message. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor whose attestations are being revoked en masse. |
+ | `reason` | [GovernanceAttestationReason](#akash.verification.v1.GovernanceAttestationReason) |  | Reason is the typed governance attestation reason recorded against the revocations. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the fault attribution recorded against the revocations. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the evidence backing the revocations (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeAuditorAttestationsResponse"></a>
+
+ ### MsgRevokeAuditorAttestationsResponse
+ MsgRevokeAuditorAttestationsResponse is the response type for
+Msg/RevokeAuditorAttestations.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeProviderAttestation"></a>
+
+ ### MsgRevokeProviderAttestation
+ MsgRevokeProviderAttestation is the governance-authority-signed message
+used to revoke a single attestation issued by a specific auditor for a
+specific provider, with a typed reason, fault attribution, and evidence
+reference.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to revoke attestations and the signer of this message. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose attestation is being revoked. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor whose attestation is being revoked. |
+ | `reason` | [GovernanceAttestationReason](#akash.verification.v1.GovernanceAttestationReason) |  | Reason is the typed governance attestation reason recorded against the revocation. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the fault attribution recorded at revocation. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the evidence backing the revocation (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgRevokeProviderAttestationResponse"></a>
+
+ ### MsgRevokeProviderAttestationResponse
+ MsgRevokeProviderAttestationResponse is the response type for
+Msg/RevokeProviderAttestation.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgSettleAuditEscrow"></a>
+
+ ### MsgSettleAuditEscrow
+ MsgSettleAuditEscrow is the governance-authority-signed message used to
+settle an unconsumed audit escrow with an explicit reason, fault
+attribution, and evidence reference. NoFault returns provider-funded coins
+to the provider; ProviderFault returns the fee to the provider and slashes
+the provider deposit to the community pool.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to settle the escrow and the signer of this message. |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the identifier of the audit escrow being settled. |
+ | `reason` | [AuditEscrowSettlementReason](#akash.verification.v1.AuditEscrowSettlementReason) |  | Reason is the typed settlement reason recorded against the escrow. |
+ | `fault_attribution` | [FaultAttribution](#akash.verification.v1.FaultAttribution) |  | FaultAttribution is the fault attribution recorded against the escrow at settlement; it must be consistent with the reason. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the evidence considered at settlement (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgSettleAuditEscrowResponse"></a>
+
+ ### MsgSettleAuditEscrowResponse
+ MsgSettleAuditEscrowResponse is the response type for Msg/SettleAuditEscrow.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgSlashProviderBond"></a>
+
+ ### MsgSlashProviderBond
+ MsgSlashProviderBond is the governance-authority-signed message used to
+slash a fraction of a provider's verification bond for a typed reason,
+backed by an evidence reference. The fraction is a LegacyDec in [0, 1].
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to slash provider bonds and the signer of this message. |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose bond is being slashed. |
+ | `slash_fraction` | [string](#string) |  | SlashFraction is the fraction of the bond to slash, expressed as a LegacyDec in the inclusive range [0, 1]. |
+ | `reason` | [ProviderBondSlashReason](#akash.verification.v1.ProviderBondSlashReason) |  | Reason is the typed provider bond slash reason recorded against the slash. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the evidence backing the slash (off-chain). |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgSlashProviderBondResponse"></a>
+
+ ### MsgSlashProviderBondResponse
+ MsgSlashProviderBondResponse is the response type for
+Msg/SlashProviderBond.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgSubmitAttestation"></a>
+
+ ### MsgSubmitAttestation
+ MsgSubmitAttestation is the auditor-signed message used to submit an
+attestation about a provider at a requested tier and capability set. The
+auditor includes a typed evidence reference, the audit fee, an anti-griefing
+deposit, and the identifier of the audit escrow that authorizes the
+attestation. The first valid submission against an open, matching, unexpired
+escrow consumes it and records the submitting auditor.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the attested provider. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the issuing auditor and the signer of this message. |
+ | `tier` | [VerificationTier](#akash.verification.v1.VerificationTier) |  | Tier is the verification tier the auditor asserts for the provider. |
+ | `capabilities` | [CapabilityFlag](#akash.verification.v1.CapabilityFlag) | repeated | Capabilities is the set of capability flags the auditor asserts. The attestation must include at least the escrow's requested capabilities; additional capabilities the auditor verified may be included. |
+ | `evidence_hash` | [bytes](#bytes) |  | EvidenceHash is an opaque hash referencing the auditor's evidence (off-chain). |
+ | `fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Fee is the audit fee paid by the provider for this attestation, sourced from the consumed audit escrow. |
+ | `deposit` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Deposit is the anti-griefing deposit posted by the auditor alongside the attestation. |
+ | `audit_escrow_id` | [uint64](#uint64) |  | AuditEscrowID is the identifier of the open audit escrow that authorizes this attestation. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgSubmitAttestationResponse"></a>
+
+ ### MsgSubmitAttestationResponse
+ MsgSubmitAttestationResponse is the response type for Msg/SubmitAttestation.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgUpdateParams"></a>
+
+ ### MsgUpdateParams
+ MsgUpdateParams is the governance-authority-signed message used to update
+the x/verification module parameters. All parameters must be supplied.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  | Authority is the bech32 address of the governance account authorized to update module parameters and the signer of this message. |
+ | `params` | [Params](#akash.verification.v1.Params) |  | Params defines the x/verification parameters to update. All parameters must be supplied. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgUpdateParamsResponse"></a>
+
+ ### MsgUpdateParamsResponse
+ MsgUpdateParamsResponse is the response type for Msg/UpdateParams.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgWithdrawProviderBond"></a>
+
+ ### MsgWithdrawProviderBond
+ MsgWithdrawProviderBond is the provider-signed message used to initiate
+withdrawal of part or all of the provider bond. Withdrawal enqueues an
+unbonding entry against the provider bond record.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the bond-withdrawing provider and the signer of this message. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the coin amount being withdrawn from the provider bond. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.MsgWithdrawProviderBondResponse"></a>
+
+ ### MsgWithdrawProviderBondResponse
+ MsgWithdrawProviderBondResponse is the response type for
+Msg/WithdrawProviderBond.
+
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/query.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/query.proto
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAttestationRequest"></a>
+
+ ### QueryAttestationRequest
+ QueryAttestationRequest is the request type for the Query/Attestation RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the attested provider. |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor that submitted the attestation being requested. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAttestationResponse"></a>
+
+ ### QueryAttestationResponse
+ QueryAttestationResponse is the response type for the Query/Attestation RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `attestation` | [AttestationRecord](#akash.verification.v1.AttestationRecord) |  | Attestation is the AttestationRecord for the requested (provider, auditor) pair. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditEscrowRequest"></a>
+
+ ### QueryAuditEscrowRequest
+ QueryAuditEscrowRequest is the request type for the Query/AuditEscrow RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [uint64](#uint64) |  | ID is the numeric identifier of the audit escrow being requested. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditEscrowResponse"></a>
+
+ ### QueryAuditEscrowResponse
+ QueryAuditEscrowResponse is the response type for the Query/AuditEscrow RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `escrow` | [AuditEscrowRecord](#akash.verification.v1.AuditEscrowRecord) |  | Escrow is the AuditEscrowRecord for the requested id. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditorAttestationsRequest"></a>
+
+ ### QueryAuditorAttestationsRequest
+ QueryAuditorAttestationsRequest is the request type for the
+Query/AuditorAttestations RPC method.
+
+Note: this request intentionally does not include a status filter — callers
+receive every attestation the auditor has emitted, regardless of status.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor whose attestations are being queried. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is the standard Cosmos page-request used to paginate results. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditorAttestationsResponse"></a>
+
+ ### QueryAuditorAttestationsResponse
+ QueryAuditorAttestationsResponse is the response type for the
+Query/AuditorAttestations RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `attestations` | [AttestationRecord](#akash.verification.v1.AttestationRecord) | repeated | Attestations is the page of AttestationRecord values emitted by the requested auditor. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination is the standard Cosmos page-response carrying the next-key and total counters for the matched set. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditorRequest"></a>
+
+ ### QueryAuditorRequest
+ QueryAuditorRequest is the request type for the Query/Auditor RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [string](#string) |  | Auditor is the bech32 account address of the auditor being queried. Example: "akash1...". |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditorResponse"></a>
+
+ ### QueryAuditorResponse
+ QueryAuditorResponse is the response type for the Query/Auditor RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditor` | [AuditorRecord](#akash.verification.v1.AuditorRecord) |  | Auditor is the on-chain AuditorRecord for the requested address. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditorsRequest"></a>
+
+ ### QueryAuditorsRequest
+ QueryAuditorsRequest is the request type for the Query/Auditors RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `status_filter` | [AuditorStatus](#akash.verification.v1.AuditorStatus) |  | StatusFilter restricts results to auditors with the given AuditorStatus. Set to AuditorStatusUnspecified (0) to return auditors in any status. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is the standard Cosmos page-request used to paginate results. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryAuditorsResponse"></a>
+
+ ### QueryAuditorsResponse
+ QueryAuditorsResponse is the response type for the Query/Auditors RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `auditors` | [AuditorRecord](#akash.verification.v1.AuditorRecord) | repeated | Auditors is the page of AuditorRecord values matching the request filter. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination is the standard Cosmos page-response carrying the next-key and total counters for the matched set. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryDiscrepanciesRequest"></a>
+
+ ### QueryDiscrepanciesRequest
+ QueryDiscrepanciesRequest is the request type for the Query/Discrepancies RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `status_filter` | [DiscrepancyStatus](#akash.verification.v1.DiscrepancyStatus) |  | StatusFilter restricts results to discrepancies in the given DiscrepancyStatus. Set to DiscrepancyStatusUnspecified (0) to return discrepancies in any status. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is the standard Cosmos page-request used to paginate results. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryDiscrepanciesResponse"></a>
+
+ ### QueryDiscrepanciesResponse
+ QueryDiscrepanciesResponse is the response type for the Query/Discrepancies RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `discrepancies` | [DiscrepancyEvent](#akash.verification.v1.DiscrepancyEvent) | repeated | Discrepancies is the page of DiscrepancyEvent values matching the request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination is the standard Cosmos page-response carrying the next-key and total counters for the matched set. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryDiscrepancyRequest"></a>
+
+ ### QueryDiscrepancyRequest
+ QueryDiscrepancyRequest is the request type for the Query/Discrepancy RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [uint64](#uint64) |  | ID is the numeric identifier of the discrepancy event being requested. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryDiscrepancyResponse"></a>
+
+ ### QueryDiscrepancyResponse
+ QueryDiscrepancyResponse is the response type for the Query/Discrepancy RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `discrepancy` | [DiscrepancyEvent](#akash.verification.v1.DiscrepancyEvent) |  | Discrepancy is the DiscrepancyEvent for the requested id. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryParamsRequest"></a>
+
+ ### QueryParamsRequest
+ QueryParamsRequest is the request type for the Query/Params RPC method.
+
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryParamsResponse"></a>
+
+ ### QueryParamsResponse
+ QueryParamsResponse is the response type for the Query/Params RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [Params](#akash.verification.v1.Params) |  | Params is the current parameter set for the verification module. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderAttestationsRequest"></a>
+
+ ### QueryProviderAttestationsRequest
+ QueryProviderAttestationsRequest is the request type for the
+Query/ProviderAttestations RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose attestations are being queried. |
+ | `status_filter` | [AttestationStatus](#akash.verification.v1.AttestationStatus) |  | StatusFilter restricts results to attestations whose AttestationStatus matches the filter. Set to AttestationStatusUnspecified (0) to return attestations in any status. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is the standard Cosmos page-request used to paginate results. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderAttestationsResponse"></a>
+
+ ### QueryProviderAttestationsResponse
+ QueryProviderAttestationsResponse is the response type for the
+Query/ProviderAttestations RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `attestations` | [AttestationRecord](#akash.verification.v1.AttestationRecord) | repeated | Attestations is the page of AttestationRecord values matching the request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination is the standard Cosmos page-response carrying the next-key and total counters for the matched set. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderAuditEscrowsRequest"></a>
+
+ ### QueryProviderAuditEscrowsRequest
+ QueryProviderAuditEscrowsRequest is the request type for the
+Query/ProviderAuditEscrows RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose audit-escrow records are being queried. |
+ | `status_filter` | [AuditEscrowStatus](#akash.verification.v1.AuditEscrowStatus) |  | StatusFilter restricts results to audit-escrow records whose AuditEscrowStatus matches the filter. Set to AuditEscrowStatusUnspecified (0) to return records in any status. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | Pagination is the standard Cosmos page-request used to paginate results. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderAuditEscrowsResponse"></a>
+
+ ### QueryProviderAuditEscrowsResponse
+ QueryProviderAuditEscrowsResponse is the response type for the
+Query/ProviderAuditEscrows RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `escrows` | [AuditEscrowRecord](#akash.verification.v1.AuditEscrowRecord) | repeated | Escrows is the page of AuditEscrowRecord values matching the request. |
+ | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | Pagination is the standard Cosmos page-response carrying the next-key and total counters for the matched set. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderBondRequest"></a>
+
+ ### QueryProviderBondRequest
+ QueryProviderBondRequest is the request type for the Query/ProviderBond RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose bond record is being queried. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderBondResponse"></a>
+
+ ### QueryProviderBondResponse
+ QueryProviderBondResponse is the response type for the Query/ProviderBond RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `bond` | [ProviderBondRecord](#akash.verification.v1.ProviderBondRecord) |  | Bond is the on-chain ProviderBondRecord for the requested provider. |
+ | `required_for_current_tier` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | RequiredForCurrentTier is the required bond amount for the provider's current tier. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderSnapshotRequest"></a>
+
+ ### QueryProviderSnapshotRequest
+ QueryProviderSnapshotRequest is the request type for the
+Query/ProviderSnapshot RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose latest snapshot record is being queried. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderSnapshotResponse"></a>
+
+ ### QueryProviderSnapshotResponse
+ QueryProviderSnapshotResponse is the response type for the
+Query/ProviderSnapshot RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot` | [ProviderSnapshotRecord](#akash.verification.v1.ProviderSnapshotRecord) |  | Snapshot is the latest ProviderSnapshotRecord posted on-chain by the requested provider. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderVerificationGraceRequest"></a>
+
+ ### QueryProviderVerificationGraceRequest
+ QueryProviderVerificationGraceRequest is the request type for the
+Query/ProviderVerificationGrace RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [string](#string) |  | Provider is the bech32 account address of the provider whose verification-grace record is being queried. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.verification.v1.QueryProviderVerificationGraceResponse"></a>
+
+ ### QueryProviderVerificationGraceResponse
+ QueryProviderVerificationGraceResponse is the response type for the
+Query/ProviderVerificationGrace RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `grace` | [ProviderVerificationGraceRecord](#akash.verification.v1.ProviderVerificationGraceRecord) |  | Grace is the ProviderVerificationGraceRecord currently tracked for the requested provider. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.verification.v1.Query"></a>
+
+ ### Query
+ Query defines the gRPC querier service for the verification package.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `Auditor` | [QueryAuditorRequest](#akash.verification.v1.QueryAuditorRequest) | [QueryAuditorResponse](#akash.verification.v1.QueryAuditorResponse) | Auditor returns the on-chain record for a single auditor identified by its bech32 address. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/auditors/{auditor}|
+ | `Auditors` | [QueryAuditorsRequest](#akash.verification.v1.QueryAuditorsRequest) | [QueryAuditorsResponse](#akash.verification.v1.QueryAuditorsResponse) | Auditors returns a paginated list of auditor records, optionally filtered by AuditorStatus. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/auditors|
+ | `Attestation` | [QueryAttestationRequest](#akash.verification.v1.QueryAttestationRequest) | [QueryAttestationResponse](#akash.verification.v1.QueryAttestationResponse) | Attestation returns the attestation record for a specific (provider, auditor) pair. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/attestations/{provider}/{auditor}|
+ | `ProviderAttestations` | [QueryProviderAttestationsRequest](#akash.verification.v1.QueryProviderAttestationsRequest) | [QueryProviderAttestationsResponse](#akash.verification.v1.QueryProviderAttestationsResponse) | ProviderAttestations returns a paginated list of all attestation records for the given provider, optionally filtered by AttestationStatus. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/providers/{provider}/attestations|
+ | `AuditorAttestations` | [QueryAuditorAttestationsRequest](#akash.verification.v1.QueryAuditorAttestationsRequest) | [QueryAuditorAttestationsResponse](#akash.verification.v1.QueryAuditorAttestationsResponse) | AuditorAttestations returns a paginated list of all attestation records submitted by the given auditor. No status filter is applied; callers can page through every attestation the auditor has emitted. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/auditors/{auditor}/attestations|
+ | `Discrepancy` | [QueryDiscrepancyRequest](#akash.verification.v1.QueryDiscrepancyRequest) | [QueryDiscrepancyResponse](#akash.verification.v1.QueryDiscrepancyResponse) | Discrepancy returns a single discrepancy event by its numeric id. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/discrepancies/{id}|
+ | `Discrepancies` | [QueryDiscrepanciesRequest](#akash.verification.v1.QueryDiscrepanciesRequest) | [QueryDiscrepanciesResponse](#akash.verification.v1.QueryDiscrepanciesResponse) | Discrepancies returns a paginated list of discrepancy events, optionally filtered by DiscrepancyStatus. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/discrepancies|
+ | `AuditEscrow` | [QueryAuditEscrowRequest](#akash.verification.v1.QueryAuditEscrowRequest) | [QueryAuditEscrowResponse](#akash.verification.v1.QueryAuditEscrowResponse) | AuditEscrow returns a single audit-escrow record by its numeric id. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/audit-escrows/{id}|
+ | `ProviderAuditEscrows` | [QueryProviderAuditEscrowsRequest](#akash.verification.v1.QueryProviderAuditEscrowsRequest) | [QueryProviderAuditEscrowsResponse](#akash.verification.v1.QueryProviderAuditEscrowsResponse) | ProviderAuditEscrows returns a paginated list of audit-escrow records opened by the given provider, optionally filtered by AuditEscrowStatus. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/providers/{provider}/audit-escrows|
+ | `ProviderVerificationGrace` | [QueryProviderVerificationGraceRequest](#akash.verification.v1.QueryProviderVerificationGraceRequest) | [QueryProviderVerificationGraceResponse](#akash.verification.v1.QueryProviderVerificationGraceResponse) | ProviderVerificationGrace returns the verification-grace record for the given provider, if one is currently tracked. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/providers/{provider}/grace|
+ | `ProviderBond` | [QueryProviderBondRequest](#akash.verification.v1.QueryProviderBondRequest) | [QueryProviderBondResponse](#akash.verification.v1.QueryProviderBondResponse) | ProviderBond returns the provider's bond record. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/providers/{provider}/bond|
+ | `ProviderSnapshot` | [QueryProviderSnapshotRequest](#akash.verification.v1.QueryProviderSnapshotRequest) | [QueryProviderSnapshotResponse](#akash.verification.v1.QueryProviderSnapshotResponse) | ProviderSnapshot returns the most recent provider snapshot record posted on-chain by the given provider. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/providers/{provider}/snapshot|
+ | `Params` | [QueryParamsRequest](#akash.verification.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.verification.v1.QueryParamsResponse) | Params returns the current parameter set for the verification module. buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/akash/verification/v1/params|
+ 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/verification/v1/service.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/verification/v1/service.proto
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.verification.v1.Msg"></a>
+
+ ### Msg
+ Msg defines the x/verification Msg service. It carries all transaction RPCs
+for the verification module, including auditor lifecycle, attestation
+submission and revocation, audit escrow flow, provider bond management,
+snapshot posting, discrepancy resolution, and parameter updates.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `PostAuditorBond` | [MsgPostAuditorBond](#akash.verification.v1.MsgPostAuditorBond) | [MsgPostAuditorBondResponse](#akash.verification.v1.MsgPostAuditorBondResponse) | PostAuditorBond posts (or tops up) an auditor's verification bond. | |
+ | `OpenAuditEscrow` | [MsgOpenAuditEscrow](#akash.verification.v1.MsgOpenAuditEscrow) | [MsgOpenAuditEscrowResponse](#akash.verification.v1.MsgOpenAuditEscrowResponse) | OpenAuditEscrow opens a new audit escrow funding a pending attestation. | |
+ | `CancelAuditEscrow` | [MsgCancelAuditEscrow](#akash.verification.v1.MsgCancelAuditEscrow) | [MsgCancelAuditEscrowResponse](#akash.verification.v1.MsgCancelAuditEscrowResponse) | CancelAuditEscrow cancels an open, unconsumed audit escrow before expiry and returns the fee and provider deposit to the provider. | |
+ | `SettleAuditEscrow` | [MsgSettleAuditEscrow](#akash.verification.v1.MsgSettleAuditEscrow) | [MsgSettleAuditEscrowResponse](#akash.verification.v1.MsgSettleAuditEscrowResponse) | SettleAuditEscrow settles an unconsumed audit escrow with an explicit reason, fault attribution, and evidence reference. | |
+ | `SubmitAttestation` | [MsgSubmitAttestation](#akash.verification.v1.MsgSubmitAttestation) | [MsgSubmitAttestationResponse](#akash.verification.v1.MsgSubmitAttestationResponse) | SubmitAttestation submits an attestation about a provider; the first valid submission against a matching open escrow consumes it. | |
+ | `RevokeAttestation` | [MsgRevokeAttestation](#akash.verification.v1.MsgRevokeAttestation) | [MsgRevokeAttestationResponse](#akash.verification.v1.MsgRevokeAttestationResponse) | RevokeAttestation revokes a previously submitted attestation with a typed reason and evidence reference. | |
+ | `RemoveAttestation` | [MsgRemoveAttestation](#akash.verification.v1.MsgRemoveAttestation) | [MsgRemoveAttestationResponse](#akash.verification.v1.MsgRemoveAttestationResponse) | RemoveAttestation voluntarily removes an attestation associated with the signing provider. | |
+ | `ResignAuditor` | [MsgResignAuditor](#akash.verification.v1.MsgResignAuditor) | [MsgResignAuditorResponse](#akash.verification.v1.MsgResignAuditorResponse) | ResignAuditor voluntarily exits the auditor role and begins unbonding of any posted auditor bond. | |
+ | `PostProviderBond` | [MsgPostProviderBond](#akash.verification.v1.MsgPostProviderBond) | [MsgPostProviderBondResponse](#akash.verification.v1.MsgPostProviderBondResponse) | PostProviderBond posts (or tops up) a provider's resource-scaled verification bond. | |
+ | `WithdrawProviderBond` | [MsgWithdrawProviderBond](#akash.verification.v1.MsgWithdrawProviderBond) | [MsgWithdrawProviderBondResponse](#akash.verification.v1.MsgWithdrawProviderBondResponse) | WithdrawProviderBond initiates withdrawal of part or all of a provider's verification bond. | |
+ | `PostSnapshotHash` | [MsgPostSnapshotHash](#akash.verification.v1.MsgPostSnapshotHash) | [MsgPostSnapshotHashResponse](#akash.verification.v1.MsgPostSnapshotHashResponse) | PostSnapshotHash posts the provider's most recent resource snapshot hash and inline resource summary. | |
+ | `RegisterAuditor` | [MsgRegisterAuditor](#akash.verification.v1.MsgRegisterAuditor) | [MsgRegisterAuditorResponse](#akash.verification.v1.MsgRegisterAuditorResponse) | RegisterAuditor registers a new auditor with a maximum attestation tier; governance only. | |
+ | `RenewAuditor` | [MsgRenewAuditor](#akash.verification.v1.MsgRenewAuditor) | [MsgRenewAuditorResponse](#akash.verification.v1.MsgRenewAuditorResponse) | RenewAuditor renews an auditor's registration and resets the renewal deadline; governance only. | |
+ | `RemoveAuditor` | [MsgRemoveAuditor](#akash.verification.v1.MsgRemoveAuditor) | [MsgRemoveAuditorResponse](#akash.verification.v1.MsgRemoveAuditorResponse) | RemoveAuditor removes an auditor from the active set; governance only. | |
+ | `RevokeProviderAttestation` | [MsgRevokeProviderAttestation](#akash.verification.v1.MsgRevokeProviderAttestation) | [MsgRevokeProviderAttestationResponse](#akash.verification.v1.MsgRevokeProviderAttestationResponse) | RevokeProviderAttestation revokes a single attestation for a specific provider/auditor pair; governance only. | |
+ | `RevokeAllProviderAttestations` | [MsgRevokeAllProviderAttestations](#akash.verification.v1.MsgRevokeAllProviderAttestations) | [MsgRevokeAllProviderAttestationsResponse](#akash.verification.v1.MsgRevokeAllProviderAttestationsResponse) | RevokeAllProviderAttestations revokes every active attestation for a single provider; governance only. | |
+ | `RevokeAuditorAttestations` | [MsgRevokeAuditorAttestations](#akash.verification.v1.MsgRevokeAuditorAttestations) | [MsgRevokeAuditorAttestationsResponse](#akash.verification.v1.MsgRevokeAuditorAttestationsResponse) | RevokeAuditorAttestations revokes every active attestation issued by a single auditor; governance only. | |
+ | `ResolveDiscrepancy` | [MsgResolveDiscrepancy](#akash.verification.v1.MsgResolveDiscrepancy) | [MsgResolveDiscrepancyResponse](#akash.verification.v1.MsgResolveDiscrepancyResponse) | ResolveDiscrepancy resolves a pending discrepancy between two auditors over the same provider; governance only. | |
+ | `SlashProviderBond` | [MsgSlashProviderBond](#akash.verification.v1.MsgSlashProviderBond) | [MsgSlashProviderBondResponse](#akash.verification.v1.MsgSlashProviderBondResponse) | SlashProviderBond slashes a fraction of a provider's verification bond; governance only. | |
+ | `UpdateParams` | [MsgUpdateParams](#akash.verification.v1.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.verification.v1.MsgUpdateParamsResponse) | UpdateParams updates the x/verification module parameters; governance only. | |
  
   <!-- end services -->
 

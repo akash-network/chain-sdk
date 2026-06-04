@@ -37,6 +37,16 @@
      - [ClusterRPC](#akash.inventory.v1.ClusterRPC)
      - [NodeRPC](#akash.inventory.v1.NodeRPC)
    
+ - [akash/inventory/v1/snapshot.proto](#akash/inventory/v1/snapshot.proto)
+     - [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest)
+     - [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse)
+     - [SnapshotEvidenceSection](#akash.inventory.v1.SnapshotEvidenceSection)
+     - [SnapshotPayload](#akash.inventory.v1.SnapshotPayload)
+     - [SnapshotResourceSummary](#akash.inventory.v1.SnapshotResourceSummary)
+     - [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity)
+   
+     - [InventoryService](#akash.inventory.v1.InventoryService)
+   
  - [akash/manifest/v2beta3/httpoptions.proto](#akash/manifest/v2beta3/httpoptions.proto)
      - [ServiceExposeHTTPOptions](#akash.manifest.v2beta3.ServiceExposeHTTPOptions)
    
@@ -475,6 +485,148 @@
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `QueryNode` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Node](#akash.inventory.v1.Node) | QueryNode defines a method to query hardware state of the node buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/v1/node|
  | `StreamNode` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Node](#akash.inventory.v1.Node) stream | StreamNode defines a method to stream hardware state of the node buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
+ 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/inventory/v1/snapshot.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/inventory/v1/snapshot.proto
+ 
+
+ 
+ <a name="akash.inventory.v1.GetInventorySnapshotRequest"></a>
+
+ ### GetInventorySnapshotRequest
+ GetInventorySnapshotRequest is the request type for GetInventorySnapshot.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `nonce` | [bytes](#bytes) |  | nonce is an optional 32-byte challenge bound into the signed payload. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.GetInventorySnapshotResponse"></a>
+
+ ### GetInventorySnapshotResponse
+ GetInventorySnapshotResponse is the response type for GetInventorySnapshot.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot_payload` | [bytes](#bytes) |  | snapshot_payload is the opaque inventory snapshot payload. |
+ | `signature` | [bytes](#bytes) |  | signature is the provider signature over snapshot_payload. |
+ | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SnapshotEvidenceSection"></a>
+
+ ### SnapshotEvidenceSection
+ SnapshotEvidenceSection carries an opaque payload from one collector.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `name` | [string](#string) |  |  |
+ | `payload` | [bytes](#bytes) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SnapshotPayload"></a>
+
+ ### SnapshotPayload
+ SnapshotPayload is the deterministic payload signed by a provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `schema_version` | [uint32](#uint32) |  | schema_version identifies the payload schema used by snapshot_payload. |
+ | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
+ | `chain_id` | [string](#string) |  | chain_id binds the snapshot to the chain the provider is operating on. |
+ | `nonce` | [bytes](#bytes) |  | nonce is the optional challenge supplied by the caller. |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp is the provider-local snapshot generation time. |
+ | `cluster` | [Cluster](#akash.inventory.v1.Cluster) |  | cluster is the current cluster inventory view. |
+ | `resource_summary` | [SnapshotResourceSummary](#akash.inventory.v1.SnapshotResourceSummary) |  | resource_summary is the chain-facing summary derived from the full snapshot. |
+ | `evidence_sections` | [SnapshotEvidenceSection](#akash.inventory.v1.SnapshotEvidenceSection) | repeated | evidence_sections carries named collector payloads for auditor evidence. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SnapshotResourceSummary"></a>
+
+ ### SnapshotResourceSummary
+ SnapshotResourceSummary captures the snapshot fields posted on-chain.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `total_gpus` | [uint32](#uint32) |  |  |
+ | `total_vcpus` | [uint32](#uint32) |  |  |
+ | `total_memory_mb` | [uint64](#uint64) |  |  |
+ | `total_storage_mb` | [uint64](#uint64) |  |  |
+ | `active_leases` | [uint32](#uint32) |  |  |
+ | `software_version` | [string](#string) |  | software_version is the provider software version string kept for compatibility. |
+ | `software_signature` | [bytes](#bytes) |  | software_signature is the provider software signature kept for compatibility. |
+ | `software_identity` | [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity) |  | software_identity carries structured release artifact metadata. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SoftwareIdentity"></a>
+
+ ### SoftwareIdentity
+ SoftwareIdentity carries release artifact identity and signature metadata.
+Providers report these fields; auditors verify them off-chain against the
+published Akash release key.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `version` | [string](#string) |  | version is the provider or inventory software version string. |
+ | `artifact_ref` | [string](#string) |  | artifact_ref identifies the release artifact whose digest/signature is reported. |
+ | `digest_algorithm` | [string](#string) |  | digest_algorithm identifies the digest algorithm, e.g. sha3-256. |
+ | `digest` | [bytes](#bytes) |  | digest is the release artifact digest bytes. |
+ | `signature_type` | [string](#string) |  | signature_type identifies the signature format, e.g. cosign. |
+ | `signature` | [bytes](#bytes) |  | signature is the detached signature bytes when carried inline. |
+ | `signature_ref` | [string](#string) |  | signature_ref identifies an external signature or bundle. |
+ | `public_key_ref` | [string](#string) |  | public_key_ref identifies the published release public key. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.inventory.v1.InventoryService"></a>
+
+ ### InventoryService
+ InventoryService exposes signed provider inventory snapshots.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `GetInventorySnapshot` | [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest) | [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse) | GetInventorySnapshot returns a provider-signed inventory snapshot. | POST|/v1/inventory/snapshot|
  
   <!-- end services -->
 

@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package akash.inventory.v1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "akash/inventory/v1/cluster.proto";
+
+option go_package = "pkg.akt.dev/go/inventory/v1";
+
+// SnapshotPayload is the deterministic payload signed by a provider.
+message SnapshotPayload {
+  // schema_version identifies the payload schema used by snapshot_payload.
+  uint32 schema_version = 1 [
+    (gogoproto.jsontag)  = "schema_version",
+    (gogoproto.moretags) = "yaml:\"schema_version\""
+  ];
+
+  // provider is the provider account address in bech32 form.
+  string provider = 2 [
+    (gogoproto.jsontag)  = "provider",
+    (gogoproto.moretags) = "yaml:\"provider\""
+  ];
+
+  // chain_id binds the snapshot to the chain the provider is operating on.
+  string chain_id = 3 [
+    (gogoproto.customname) = "ChainID",
+    (gogoproto.jsontag)    = "chain_id",
+    (gogoproto.moretags)   = "yaml:\"chain_id\""
+  ];
+
+  // nonce is the optional challenge supplied by the caller.
+  bytes nonce = 4 [
+    (gogoproto.jsontag)  = "nonce",
+    (gogoproto.moretags) = "yaml:\"nonce\""
+  ];
+
+  // timestamp is the provider-local snapshot generation time.
+  google.protobuf.Timestamp timestamp = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "timestamp",
+    (gogoproto.moretags) = "yaml:\"timestamp\""
+  ];
+
+  // cluster is the current cluster inventory view.
+  Cluster cluster = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "cluster",
+    (gogoproto.moretags) = "yaml:\"cluster\""
+  ];
+
+  // resource_summary is the chain-facing summary derived from the full snapshot.
+  SnapshotResourceSummary resource_summary = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "resource_summary",
+    (gogoproto.moretags) = "yaml:\"resource_summary\""
+  ];
+
+  // evidence_sections carries named collector payloads for auditor evidence.
+  repeated SnapshotEvidenceSection evidence_sections = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "evidence_sections",
+    (gogoproto.moretags) = "yaml:\"evidence_sections\""
+  ];
+}
+
+// SoftwareIdentity carries release artifact identity and signature metadata.
+// Providers report these fields; auditors verify them off-chain against the
+// published Akash release key.
+message SoftwareIdentity {
+  // version is the provider or inventory software version string.
+  string version = 1 [
+    (gogoproto.jsontag)  = "version",
+    (gogoproto.moretags) = "yaml:\"version\""
+  ];
+
+  // artifact_ref identifies the release artifact whose digest/signature is reported.
+  string artifact_ref = 2 [
+    (gogoproto.jsontag)  = "artifact_ref",
+    (gogoproto.moretags) = "yaml:\"artifact_ref\""
+  ];
+
+  // digest_algorithm identifies the digest algorithm, e.g. sha3-256.
+  string digest_algorithm = 3 [
+    (gogoproto.jsontag)  = "digest_algorithm",
+    (gogoproto.moretags) = "yaml:\"digest_algorithm\""
+  ];
+
+  // digest is the release artifact digest bytes.
+  bytes digest = 4 [
+    (gogoproto.jsontag)  = "digest",
+    (gogoproto.moretags) = "yaml:\"digest\""
+  ];
+
+  // signature_type identifies the signature format, e.g. cosign.
+  string signature_type = 5 [
+    (gogoproto.jsontag)  = "signature_type",
+    (gogoproto.moretags) = "yaml:\"signature_type\""
+  ];
+
+  // signature is the detached signature bytes when carried inline.
+  bytes signature = 6 [
+    (gogoproto.jsontag)  = "signature",
+    (gogoproto.moretags) = "yaml:\"signature\""
+  ];
+
+  // signature_ref identifies an external signature or bundle.
+  string signature_ref = 7 [
+    (gogoproto.jsontag)  = "signature_ref",
+    (gogoproto.moretags) = "yaml:\"signature_ref\""
+  ];
+
+  // public_key_ref identifies the published release public key.
+  string public_key_ref = 8 [
+    (gogoproto.jsontag)  = "public_key_ref",
+    (gogoproto.moretags) = "yaml:\"public_key_ref\""
+  ];
+}
+
+// SnapshotResourceSummary captures the snapshot fields posted on-chain.
+message SnapshotResourceSummary {
+  uint32 total_gpus = 1 [
+    (gogoproto.customname) = "TotalGPUs",
+    (gogoproto.jsontag)    = "total_gpus",
+    (gogoproto.moretags)   = "yaml:\"total_gpus\""
+  ];
+
+  uint32 total_vcpus = 2 [
+    (gogoproto.customname) = "TotalVCPUs",
+    (gogoproto.jsontag)    = "total_vcpus",
+    (gogoproto.moretags)   = "yaml:\"total_vcpus\""
+  ];
+
+  uint64 total_memory_mb = 3 [
+    (gogoproto.customname) = "TotalMemoryMB",
+    (gogoproto.jsontag)    = "total_memory_mb",
+    (gogoproto.moretags)   = "yaml:\"total_memory_mb\""
+  ];
+
+  uint64 total_storage_mb = 4 [
+    (gogoproto.customname) = "TotalStorageMB",
+    (gogoproto.jsontag)    = "total_storage_mb",
+    (gogoproto.moretags)   = "yaml:\"total_storage_mb\""
+  ];
+
+  uint32 active_leases = 5 [
+    (gogoproto.jsontag)  = "active_leases",
+    (gogoproto.moretags) = "yaml:\"active_leases\""
+  ];
+
+  // software_version is the provider software version string kept for compatibility.
+  string software_version = 6 [
+    (gogoproto.jsontag)  = "software_version",
+    (gogoproto.moretags) = "yaml:\"software_version\""
+  ];
+
+  // software_signature is the provider software signature kept for compatibility.
+  bytes software_signature = 7 [
+    (gogoproto.jsontag)  = "software_signature",
+    (gogoproto.moretags) = "yaml:\"software_signature\""
+  ];
+
+  // software_identity carries structured release artifact metadata.
+  SoftwareIdentity software_identity = 8 [
+    (gogoproto.jsontag)  = "software_identity,omitempty",
+    (gogoproto.moretags) = "yaml:\"software_identity,omitempty\""
+  ];
+}
+
+// SnapshotEvidenceSection carries an opaque payload from one collector.
+message SnapshotEvidenceSection {
+  string name = 1 [
+    (gogoproto.jsontag)  = "name",
+    (gogoproto.moretags) = "yaml:\"name\""
+  ];
+
+  bytes payload = 2 [
+    (gogoproto.jsontag)  = "payload",
+    (gogoproto.moretags) = "yaml:\"payload\""
+  ];
+}
+
+// InventoryService exposes signed provider inventory snapshots.
+service InventoryService {
+  // GetInventorySnapshot returns a provider-signed inventory snapshot.
+  rpc GetInventorySnapshot(GetInventorySnapshotRequest) returns (GetInventorySnapshotResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/snapshot"
+      body: "*"
+    };
+  }
+}
+
+// GetInventorySnapshotRequest is the request type for GetInventorySnapshot.
+message GetInventorySnapshotRequest {
+  // nonce is an optional 32-byte challenge bound into the signed payload.
+  bytes nonce = 1;
+}
+
+// GetInventorySnapshotResponse is the response type for GetInventorySnapshot.
+message GetInventorySnapshotResponse {
+  // snapshot_payload is the opaque inventory snapshot payload.
+  bytes snapshot_payload = 1;
+
+  // signature is the provider signature over snapshot_payload.
+  bytes signature = 2;
+
+  // provider is the provider account address in bech32 form.
+  string provider = 3;
+}

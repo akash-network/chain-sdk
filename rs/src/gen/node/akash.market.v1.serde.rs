@@ -1215,6 +1215,7 @@ impl serde::Serialize for LeaseClosedReason {
             Self::Decommission => "lease_closed_reason_decommission",
             Self::Unspecified => "lease_closed_reason_unspecified",
             Self::ManifestTimeout => "lease_closed_reason_manifest_timeout",
+            Self::Provider => "lease_closed_reason_provider",
             Self::InsufficientFunds => "lease_closed_reason_insufficient_funds",
         };
         serializer.serialize_str(variant)
@@ -1233,6 +1234,7 @@ impl<'de> serde::Deserialize<'de> for LeaseClosedReason {
             "lease_closed_reason_decommission",
             "lease_closed_reason_unspecified",
             "lease_closed_reason_manifest_timeout",
+            "lease_closed_reason_provider",
             "lease_closed_reason_insufficient_funds",
         ];
 
@@ -1280,6 +1282,7 @@ impl<'de> serde::Deserialize<'de> for LeaseClosedReason {
                     "lease_closed_reason_decommission" => Ok(LeaseClosedReason::Decommission),
                     "lease_closed_reason_unspecified" => Ok(LeaseClosedReason::Unspecified),
                     "lease_closed_reason_manifest_timeout" => Ok(LeaseClosedReason::ManifestTimeout),
+                    "lease_closed_reason_provider" => Ok(LeaseClosedReason::Provider),
                     "lease_closed_reason_insufficient_funds" => Ok(LeaseClosedReason::InsufficientFunds),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
@@ -1825,6 +1828,278 @@ impl<'de> serde::Deserialize<'de> for OrderId {
             }
         }
         deserializer.deserialize_struct("akash.market.v1.OrderID", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ProviderLeaseStats {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.total_leases != 0 {
+            len += 1;
+        }
+        if self.completed_leases != 0 {
+            len += 1;
+        }
+        if self.provider_faulted_leases != 0 {
+            len += 1;
+        }
+        if !self.provider_faults.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.market.v1.ProviderLeaseStats", len)?;
+        if self.total_leases != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("totalLeases", ToString::to_string(&self.total_leases).as_str())?;
+        }
+        if self.completed_leases != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("completedLeases", ToString::to_string(&self.completed_leases).as_str())?;
+        }
+        if self.provider_faulted_leases != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("providerFaultedLeases", ToString::to_string(&self.provider_faulted_leases).as_str())?;
+        }
+        if !self.provider_faults.is_empty() {
+            struct_ser.serialize_field("providerFaults", &self.provider_faults)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ProviderLeaseStats {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "total_leases",
+            "totalLeases",
+            "completed_leases",
+            "completedLeases",
+            "provider_faulted_leases",
+            "providerFaultedLeases",
+            "provider_faults",
+            "providerFaults",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            TotalLeases,
+            CompletedLeases,
+            ProviderFaultedLeases,
+            ProviderFaults,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "totalLeases" | "total_leases" => Ok(GeneratedField::TotalLeases),
+                            "completedLeases" | "completed_leases" => Ok(GeneratedField::CompletedLeases),
+                            "providerFaultedLeases" | "provider_faulted_leases" => Ok(GeneratedField::ProviderFaultedLeases),
+                            "providerFaults" | "provider_faults" => Ok(GeneratedField::ProviderFaults),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ProviderLeaseStats;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.market.v1.ProviderLeaseStats")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProviderLeaseStats, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut total_leases__ = None;
+                let mut completed_leases__ = None;
+                let mut provider_faulted_leases__ = None;
+                let mut provider_faults__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::TotalLeases => {
+                            if total_leases__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("totalLeases"));
+                            }
+                            total_leases__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::CompletedLeases => {
+                            if completed_leases__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("completedLeases"));
+                            }
+                            completed_leases__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::ProviderFaultedLeases => {
+                            if provider_faulted_leases__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("providerFaultedLeases"));
+                            }
+                            provider_faulted_leases__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::ProviderFaults => {
+                            if provider_faults__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("providerFaults"));
+                            }
+                            provider_faults__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(ProviderLeaseStats {
+                    total_leases: total_leases__.unwrap_or_default(),
+                    completed_leases: completed_leases__.unwrap_or_default(),
+                    provider_faulted_leases: provider_faulted_leases__.unwrap_or_default(),
+                    provider_faults: provider_faults__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.market.v1.ProviderLeaseStats", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ProviderLeaseStatsByReason {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.reason != 0 {
+            len += 1;
+        }
+        if self.count != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.market.v1.ProviderLeaseStatsByReason", len)?;
+        if self.reason != 0 {
+            let v = LeaseClosedReason::try_from(self.reason)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.reason)))?;
+            struct_ser.serialize_field("reason", &v)?;
+        }
+        if self.count != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("count", ToString::to_string(&self.count).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ProviderLeaseStatsByReason {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "reason",
+            "count",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Reason,
+            Count,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "reason" => Ok(GeneratedField::Reason),
+                            "count" => Ok(GeneratedField::Count),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ProviderLeaseStatsByReason;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.market.v1.ProviderLeaseStatsByReason")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProviderLeaseStatsByReason, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut reason__ = None;
+                let mut count__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Reason => {
+                            if reason__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("reason"));
+                            }
+                            reason__ = Some(map_.next_value::<LeaseClosedReason>()? as i32);
+                        }
+                        GeneratedField::Count => {
+                            if count__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("count"));
+                            }
+                            count__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(ProviderLeaseStatsByReason {
+                    reason: reason__.unwrap_or_default(),
+                    count: count__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.market.v1.ProviderLeaseStatsByReason", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Reclamation {
