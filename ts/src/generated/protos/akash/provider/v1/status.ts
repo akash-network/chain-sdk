@@ -12,6 +12,7 @@ import Long from "long";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 import { Quantity } from "../../../k8s.io/apimachinery/pkg/api/resource/generated.ts";
 import { Cluster } from "../../inventory/v1/cluster.ts";
+import { ResourcePair } from "../../inventory/v1/resourcepair.ts";
 
 /** ResourceMetrics */
 export interface ResourcesMetric {
@@ -48,6 +49,7 @@ export interface Reservations {
 export interface Inventory {
   cluster: Cluster | undefined;
   reservations: Reservations | undefined;
+  leasedIp: ResourcePair | undefined;
 }
 
 /** ClusterStatus */
@@ -517,7 +519,7 @@ export const Reservations: MessageFns<Reservations, "akash.provider.v1.Reservati
 };
 
 function createBaseInventory(): Inventory {
-  return { cluster: undefined, reservations: undefined };
+  return { cluster: undefined, reservations: undefined, leasedIp: undefined };
 }
 
 export const Inventory: MessageFns<Inventory, "akash.provider.v1.Inventory"> = {
@@ -529,6 +531,9 @@ export const Inventory: MessageFns<Inventory, "akash.provider.v1.Inventory"> = {
     }
     if (message.reservations !== undefined) {
       Reservations.encode(message.reservations, writer.uint32(18).fork()).join();
+    }
+    if (message.leasedIp !== undefined) {
+      ResourcePair.encode(message.leasedIp, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -556,6 +561,14 @@ export const Inventory: MessageFns<Inventory, "akash.provider.v1.Inventory"> = {
           message.reservations = Reservations.decode(reader, reader.uint32());
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.leasedIp = ResourcePair.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -569,6 +582,7 @@ export const Inventory: MessageFns<Inventory, "akash.provider.v1.Inventory"> = {
     return {
       cluster: isSet(object.cluster) ? Cluster.fromJSON(object.cluster) : undefined,
       reservations: isSet(object.reservations) ? Reservations.fromJSON(object.reservations) : undefined,
+      leasedIp: isSet(object.leased_ip) ? ResourcePair.fromJSON(object.leased_ip) : undefined,
     };
   },
 
@@ -580,6 +594,9 @@ export const Inventory: MessageFns<Inventory, "akash.provider.v1.Inventory"> = {
     if (message.reservations !== undefined) {
       obj.reservations = Reservations.toJSON(message.reservations);
     }
+    if (message.leasedIp !== undefined) {
+      obj.leased_ip = ResourcePair.toJSON(message.leasedIp);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Inventory>): Inventory {
@@ -589,6 +606,9 @@ export const Inventory: MessageFns<Inventory, "akash.provider.v1.Inventory"> = {
       : undefined;
     message.reservations = (object.reservations !== undefined && object.reservations !== null)
       ? Reservations.fromPartial(object.reservations)
+      : undefined;
+    message.leasedIp = (object.leasedIp !== undefined && object.leasedIp !== null)
+      ? ResourcePair.fromPartial(object.leasedIp)
       : undefined;
     return message;
   },

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.33](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.32...ts/v1.0.0-alpha.33) (2026-05-28)
+
+
+### Features
+
+* **provider:** report leased ip inventory status ([#313](https://github.com/akash-network/chain-sdk/issues/313)) ([632e3af](https://github.com/akash-network/chain-sdk/commit/632e3af84ecbb3e9629a427f8913d558d497fd91))
+
 ## [1.0.0-alpha.32](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.31...ts/v1.0.0-alpha.32) (2026-05-26)
 
 

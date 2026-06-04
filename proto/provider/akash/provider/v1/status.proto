@@ -4,6 +4,7 @@ package akash.provider.v1;
 import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 import "akash/inventory/v1/cluster.proto";
+import "akash/inventory/v1/resourcepair.proto";
 import "k8s.io/apimachinery/pkg/api/resource/generated.proto";
 
 option go_package = "pkg.akt.dev/go/provider/v1";
@@ -103,6 +104,13 @@ message Inventory {
     (gogoproto.customname) = "Reservations",
     (gogoproto.jsontag)    = "reservations",
     (gogoproto.moretags)   = "yaml:\"reservations\""
+  ];
+
+  akash.inventory.v1.ResourcePair leased_ip = 3 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "LeasedIP",
+    (gogoproto.jsontag)    = "leased_ip",
+    (gogoproto.moretags)   = "yaml:\"leased_ip\""
   ];
 }
 
