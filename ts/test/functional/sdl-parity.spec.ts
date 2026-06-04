@@ -51,7 +51,7 @@ describe("SDL Parity Tests", () => {
     const EXPECTED_ERRORS: Record<string, { instancePath: string; messageIncludes: string }> = {
       "v2.1-reclamation-bad-window.yaml": {
         instancePath: "/reclamation/min_window",
-        messageIncludes: "greater than 0",
+        messageIncludes: "whole number followed by s, m, or h",
       },
     };
 

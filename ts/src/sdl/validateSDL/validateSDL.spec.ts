@@ -2191,13 +2191,13 @@ describe(validateSDL.name, () => {
   });
 
   describe("reclamation validation", () => {
-    it("accepts a valid Go-duration min_window", () => {
-      const { validate } = setup({ reclamation: { min_window: "24h" } });
+    it.each(["24h", "720h", "8760h", "30m", "1s"])("accepts a valid min_window %j", (minWindow) => {
+      const { validate } = setup({ reclamation: { min_window: minWindow } });
       expect(validate()).toBeUndefined();
     });
 
-    it("accepts reclamation on a v2.0 SDL (version-agnostic, mirrors Go)", () => {
-      const { validate } = setup({ version: "2.0", reclamation: { min_window: "1h30m" } });
+    it("accepts reclamation on a v2.0 SDL (version-agnostic)", () => {
+      const { validate } = setup({ version: "2.0", reclamation: { min_window: "720h" } });
       expect(validate()).toBeUndefined();
     });
 
@@ -2211,38 +2211,17 @@ describe(validateSDL.name, () => {
       expect(validate()).toBeUndefined();
     });
 
-    it("rejects a min_window that is not a valid Go duration", () => {
-      const { validate } = setup({ reclamation: { min_window: "abc" } });
+    // The schema pattern is intentionally stricter than Go's `time.ParseDuration`:
+    // it rejects compound ("1h30m"), fractional ("1.5h"), sub-second units
+    // ("500ms"), signs, zero, and unitless values, leaving only whole s/m/h
+    // windows. Go stays the lenient layer (see go/sdl/reclamation.go).
+    it.each(["abc", "0s", "-1h", "100", "1h30m", "1.5h", "500ms"])("rejects an invalid min_window %j", (minWindow) => {
+      const { validate } = setup({ reclamation: { min_window: minWindow } });
       expect(validate()).toContainEqual(expect.objectContaining({
         instancePath: "/reclamation/min_window",
-        schemaPath: "#/properties/reclamation/properties/min_window",
-        keyword: "format",
-      }));
-    });
-
-    it("rejects a zero min_window (must be > 0, mirrors Go)", () => {
-      const { validate } = setup({ reclamation: { min_window: "0s" } });
-      expect(validate()).toContainEqual(expect.objectContaining({
-        instancePath: "/reclamation/min_window",
-        keyword: "format",
-        message: expect.stringContaining("greater than 0"),
-      }));
-    });
-
-    it("rejects a negative min_window (must be > 0, mirrors Go)", () => {
-      const { validate } = setup({ reclamation: { min_window: "-1h" } });
-      expect(validate()).toContainEqual(expect.objectContaining({
-        instancePath: "/reclamation/min_window",
-        keyword: "format",
-        message: expect.stringContaining("greater than 0"),
-      }));
-    });
-
-    it("rejects a unitless min_window", () => {
-      const { validate } = setup({ reclamation: { min_window: "100" } });
-      expect(validate()).toContainEqual(expect.objectContaining({
-        instancePath: "/reclamation/min_window",
-        keyword: "format",
+        schemaPath: "#/properties/reclamation/properties/min_window/pattern",
+        keyword: "pattern",
+        message: expect.stringContaining("whole number followed by s, m, or h"),
       }));
     });
   });

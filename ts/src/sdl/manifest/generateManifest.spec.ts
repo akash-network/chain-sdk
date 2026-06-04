@@ -807,39 +807,14 @@ describe(generateManifest.name, () => {
   });
 
   describe("reclamation", () => {
-    it("surfaces reclamation min_window as a proto Duration", () => {
-      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "24h" } }) });
-      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("86400");
-      expect(result.reclamation?.minWindow?.nanos).toBe(0);
-    });
-
-    it("surfaces compound durations", () => {
-      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "1h30m" } }) });
-      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("5400");
-      expect(result.reclamation?.minWindow?.nanos).toBe(0);
-    });
-
-    it("surfaces fractional durations", () => {
-      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "1.5h" } }) });
-      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("5400");
-      expect(result.reclamation?.minWindow?.nanos).toBe(0);
-    });
-
-    it("surfaces a sub-second nanos remainder", () => {
-      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "1.5s" } }) });
-      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("1");
-      expect(result.reclamation?.minWindow?.nanos).toBe(500_000_000);
-    });
-
-    it("surfaces a purely sub-second window (zero seconds)", () => {
-      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "500ms" } }) });
-      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("0");
-      expect(result.reclamation?.minWindow?.nanos).toBe(500_000_000);
-    });
-
-    it("surfaces large windows without JS precision loss", () => {
-      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "8760h" } }) });
-      expect(result.reclamation?.minWindow?.seconds.toString()).toBe("31536000");
+    it.each([
+      ["24h", "86400"],
+      ["30m", "1800"],
+      ["720h", "2592000"],
+      ["8760h", "31536000"],
+    ])("surfaces min_window %j as a proto Duration (%s seconds)", (minWindow, seconds) => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: minWindow } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe(seconds);
       expect(result.reclamation?.minWindow?.nanos).toBe(0);
     });
 
@@ -848,7 +823,10 @@ describe(generateManifest.name, () => {
       expect(result.reclamation).toBeUndefined();
     });
 
-    it.each(["abc", "0s", "-1h", "100"])("rejects an invalid min_window %j", (minWindow) => {
+    // Compound ("1h30m"), fractional ("1.5h") and sub-second ("500ms") forms are
+    // accepted by Go's `time.ParseDuration` but rejected by the stricter SDL
+    // schema pattern (`^[1-9][0-9]*(s|m|h)$`).
+    it.each(["abc", "0s", "-1h", "100", "1h30m", "1.5h", "500ms"])("rejects an invalid min_window %j", (minWindow) => {
       const result = generateManifest(createBasicSdl({ reclamation: { min_window: minWindow } }));
       expect(result.ok).toBe(false);
       if (!result.ok) {

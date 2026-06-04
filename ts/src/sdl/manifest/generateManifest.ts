@@ -30,7 +30,7 @@ import {
   type SDLService,
   transformGpuAttributes,
 } from "./manifestUtils.ts";
-import { parseGoDuration, protoDurationFromNanos } from "./parseGoDuration.ts";
+import { minWindowToDuration } from "./reclamationDuration.ts";
 
 export interface GenerateManifestOkResult {
   groups: Group[];
@@ -152,12 +152,9 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
   // already guaranteed `min_window` parses to a value > 0, so this never errors.
   let reclamation: DeploymentReclamation | undefined;
   if (sdl.reclamation) {
-    const parsed = parseGoDuration(sdl.reclamation.min_window);
-    if (parsed.ok) {
-      reclamation = DeploymentReclamation.fromPartial({
-        minWindow: protoDurationFromNanos(parsed.nanos),
-      });
-    }
+    reclamation = DeploymentReclamation.fromPartial({
+      minWindow: minWindowToDuration(sdl.reclamation.min_window),
+    });
   }
 
   const manifest = {
