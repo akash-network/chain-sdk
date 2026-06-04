@@ -12,7 +12,7 @@ const UNIT_SECONDS: Record<string, bigint> = { s: 1n, m: 60n, h: 3600n };
  * and the BigInt product never loses precision.
  */
 export function minWindowToDuration(value: string): Duration {
-  const unitSeconds = UNIT_SECONDS[value.slice(-1)];
+  const unitSeconds = UNIT_SECONDS[value.at(-1) ?? ""];
   const amount = Number(value.slice(0, -1));
   if (unitSeconds === undefined || !Number.isInteger(amount) || amount <= 0) {
     throw new Error(`invalid reclamation min_window "${value}"`);
