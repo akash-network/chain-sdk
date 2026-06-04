@@ -50,8 +50,8 @@ func (tee *v2TEEParams) UnmarshalYAML(node *yaml.Node) error {
 	return tee.validate()
 }
 
-// IsGPUTEEType returns true if the TEE type requires GPU confidential compute.
-func IsGPUTEEType(t string) bool {
+// IsGPURequiredForTEEType returns true if the TEE type requires GPU confidential compute.
+func IsGPURequiredForTEEType(t string) bool {
 	return t == TEETypeSEVSNPGPU || t == TEETypeTDXGPU
 }
 
@@ -80,7 +80,7 @@ func (tee *v2TEEParams) validateWithGPU(hasGPU bool) error {
 		return nil
 	}
 
-	if IsGPUTEEType(tee.Type) && !hasGPU {
+	if IsGPURequiredForTEEType(tee.Type) && !hasGPU {
 		return fmt.Errorf("%w: %q specified but no gpu resources defined", errTEEGPURequired, tee.Type)
 	}
 
