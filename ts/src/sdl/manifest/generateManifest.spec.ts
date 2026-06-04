@@ -835,6 +835,14 @@ describe(generateManifest.name, () => {
         }));
       }
     });
+
+    it("exposes reclamation as a lazy, memoized getter", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "24h" } }) });
+      // It's a getter (computed on access, not eagerly)...
+      expect(Object.getOwnPropertyDescriptor(result, "reclamation")?.get).toBeTypeOf("function");
+      // ...and memoized: repeated reads return the same instance.
+      expect(result.reclamation).toBe(result.reclamation);
+    });
   });
 
   function setup(input?: {

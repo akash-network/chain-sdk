@@ -146,19 +146,25 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
   const sortedGroupNames = [...groupsMap.keys()].sort();
   let groups: Group[] | undefined;
   let groupSpecs: GroupSpec[] | undefined;
-
-  // reclamation rides on the result like `groupSpecs` — both are
-  // `MsgCreateDeployment` fields, not manifest groups. `validateSDL` (run above)
-  // already guaranteed `min_window` parses to a value > 0, so this never errors.
   let reclamation: DeploymentReclamation | undefined;
-  if (sdl.reclamation) {
-    reclamation = DeploymentReclamation.fromPartial({
-      minWindow: minWindowToDuration(sdl.reclamation.min_window),
-    });
-  }
+  let reclamationComputed = false;
 
   const manifest = {
-    reclamation,
+    // reclamation is a `MsgCreateDeployment` field, not a manifest group, and is
+    // not needed in every call — so it's lazy like `groups`/`groupSpecs`.
+    // `validateSDL` (run above) already guaranteed `min_window` is valid, so
+    // `minWindowToDuration` never throws here.
+    get reclamation() {
+      if (!reclamationComputed) {
+        reclamationComputed = true;
+        if (sdl.reclamation) {
+          reclamation = DeploymentReclamation.fromPartial({
+            minWindow: minWindowToDuration(sdl.reclamation.min_window),
+          });
+        }
+      }
+      return reclamation;
+    },
     get groups() {
       groups ??= sortedGroupNames.map((placementName) => {
         const deployments = deploymentsByPlacement.get(placementName)!;
