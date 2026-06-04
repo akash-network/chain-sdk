@@ -5455,6 +5455,8 @@ Example: "akash1..." |
  | `completed_leases` | [uint64](#uint64) |  | CompletedLeases is the number of leases not closed for provider-fault reasons. |
  | `provider_faulted_leases` | [uint64](#uint64) |  | ProviderFaultedLeases is the number of provider-fault lease closures. |
  | `provider_faults` | [ProviderLeaseStatsByReason](#akash.market.v1.ProviderLeaseStatsByReason) | repeated | ProviderFaults is the provider-fault lease count split by close reason. |
+ | `tenant_closed_leases` | [uint64](#uint64) |  | TenantClosedLeases is the number of tenant/owner-initiated lease closures. |
+ | `insufficient_funds_leases` | [uint64](#uint64) |  | InsufficientFundsLeases is the number of network closures caused by escrow depletion. |
  
  
 
@@ -6290,6 +6292,7 @@ Query/ProviderLeaseStats RPC method.
  | `provider` | [string](#string) |  | Provider is the account bech32 address of the provider being queried.
 
 Example: "akash1..." |
+ | `since` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | Since is the inclusive lower bound for lease close times. If unset, all retained lease stats are included. |
  
  
 
