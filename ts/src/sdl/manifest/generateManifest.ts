@@ -147,7 +147,6 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
   let groups: Group[] | undefined;
   let groupSpecs: GroupSpec[] | undefined;
   let reclamation: DeploymentReclamation | undefined;
-  let reclamationComputed = false;
 
   const manifest = {
     // reclamation is a `MsgCreateDeployment` field, not a manifest group, and is
@@ -155,13 +154,10 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
     // `validateSDL` (run above) already guaranteed `min_window` is valid, so
     // `minWindowToDuration` never throws here.
     get reclamation() {
-      if (!reclamationComputed) {
-        reclamationComputed = true;
-        if (sdl.reclamation) {
-          reclamation = DeploymentReclamation.fromPartial({
-            minWindow: minWindowToDuration(sdl.reclamation.min_window),
-          });
-        }
+      if (sdl.reclamation && !reclamation) {
+        reclamation = DeploymentReclamation.fromPartial({
+          minWindow: minWindowToDuration(sdl.reclamation.min_window),
+        });
       }
       return reclamation;
     },
