@@ -492,10 +492,10 @@ properties:
     properties:
       min_window:
         type: string
+        pattern: "^[1-9][0-9]*(s|m|h)$"
         description: >-
-          Minimum reclamation window duration the tenant requires.
-          Go duration format (e.g. "1h", "24h", "720h").
-        minLength: 1
+          Minimum reclamation window the tenant requires, as a whole number
+          followed by a unit (s, m, or h). E.g. "1h", "24h", "720h".
     required:
       - min_window
     type: object

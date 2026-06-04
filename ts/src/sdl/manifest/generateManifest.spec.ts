@@ -806,6 +806,45 @@ describe(generateManifest.name, () => {
     });
   });
 
+  describe("reclamation", () => {
+    it.each([
+      ["24h", "86400"],
+      ["30m", "1800"],
+      ["720h", "2592000"],
+      ["8760h", "31536000"],
+    ])("surfaces min_window %j as a proto Duration (%s seconds)", (minWindow, seconds) => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: minWindow } }) });
+      expect(result.reclamation?.minWindow?.seconds.toString()).toBe(seconds);
+      expect(result.reclamation?.minWindow?.nanos).toBe(0);
+    });
+
+    it("leaves reclamation undefined when no block is present", () => {
+      const { result } = setup();
+      expect(result.reclamation).toBeUndefined();
+    });
+
+    // Compound ("1h30m"), fractional ("1.5h") and sub-second ("500ms") forms are
+    // accepted by Go's `time.ParseDuration` but rejected by the stricter SDL
+    // schema pattern (`^[1-9][0-9]*(s|m|h)$`).
+    it.each(["abc", "0s", "-1h", "100", "1h30m", "1.5h", "500ms"])("rejects an invalid min_window %j", (minWindow) => {
+      const result = generateManifest(createBasicSdl({ reclamation: { min_window: minWindow } }));
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.value).toContainEqual(expect.objectContaining({
+          instancePath: "/reclamation/min_window",
+        }));
+      }
+    });
+
+    it("exposes reclamation as a lazy, memoized getter", () => {
+      const { result } = setup({ sdl: createBasicSdl({ reclamation: { min_window: "24h" } }) });
+      // It's a getter (computed on access, not eagerly)...
+      expect(Object.getOwnPropertyDescriptor(result, "reclamation")?.get).toBeTypeOf("function");
+      // ...and memoized: repeated reads return the same instance.
+      expect(result.reclamation).toBe(result.reclamation);
+    });
+  });
+
   function setup(input?: {
     sdl: SDLInput;
   }) {
@@ -837,6 +876,7 @@ describe(generateManifest.name, () => {
     credentials?: SDLInput["services"][string]["credentials"];
     expose?: SDLInput["services"][string]["expose"];
     endpoints?: SDLInput["endpoints"];
+    reclamation?: SDLInput["reclamation"];
   } = {}): SDLInput {
     const {
       port = 80,
@@ -880,6 +920,7 @@ describe(generateManifest.name, () => {
             profile: web
             count: 1
       endpoints: ${input.endpoints}
+      reclamation: ${input.reclamation}
     `;
   }
 

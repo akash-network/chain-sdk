@@ -2190,6 +2190,42 @@ describe(validateSDL.name, () => {
     });
   });
 
+  describe("reclamation validation", () => {
+    it.each(["24h", "720h", "8760h", "30m", "1s"])("accepts a valid min_window %j", (minWindow) => {
+      const { validate } = setup({ reclamation: { min_window: minWindow } });
+      expect(validate()).toBeUndefined();
+    });
+
+    it("accepts reclamation on a v2.0 SDL (version-agnostic)", () => {
+      const { validate } = setup({ version: "2.0", reclamation: { min_window: "720h" } });
+      expect(validate()).toBeUndefined();
+    });
+
+    it("accepts reclamation on a v2.1 SDL", () => {
+      const { validate } = setup({ version: "2.1", reclamation: { min_window: "30m" } });
+      expect(validate()).toBeUndefined();
+    });
+
+    it("returns no reclamation error when the block is absent", () => {
+      const { validate } = setup();
+      expect(validate()).toBeUndefined();
+    });
+
+    // The schema pattern is intentionally stricter than Go's `time.ParseDuration`:
+    // it rejects compound ("1h30m"), fractional ("1.5h"), sub-second units
+    // ("500ms"), signs, zero, and unitless values, leaving only whole s/m/h
+    // windows. Go stays the lenient layer (see go/sdl/reclamation.go).
+    it.each(["abc", "0s", "-1h", "100", "1h30m", "1.5h", "500ms"])("rejects an invalid min_window %j", (minWindow) => {
+      const { validate } = setup({ reclamation: { min_window: minWindow } });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        instancePath: "/reclamation/min_window",
+        schemaPath: "#/properties/reclamation/properties/min_window/pattern",
+        keyword: "pattern",
+        message: expect.stringContaining("whole number followed by s, m, or h"),
+      }));
+    });
+  });
+
   function setup(overrides: DeepPartial<SDLInput> = {}, networkId: NetworkId = "sandbox") {
     const defaultSDL: SDLInput = {
       version: "2.0",
