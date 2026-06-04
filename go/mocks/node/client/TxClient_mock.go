@@ -7,7 +7,6 @@ import (
 
 	types "github.com/cosmos/cosmos-sdk/types"
 	mock "github.com/stretchr/testify/mock"
-
 	v1beta3 "pkg.akt.dev/go/node/client/v1beta3"
 )
 

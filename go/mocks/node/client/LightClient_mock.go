@@ -5,7 +5,6 @@ package v1beta3
 import (
 	client "github.com/cosmos/cosmos-sdk/client"
 	mock "github.com/stretchr/testify/mock"
-
 	v1beta3 "pkg.akt.dev/go/node/client/v1beta3"
 )
 
