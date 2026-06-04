@@ -66,7 +66,7 @@ PROTOC_GEN_DOC_VERSION          := $(shell cd $(GO_ROOT); $(GO) list -mod=readon
 PROTOC_GEN_SWAGGER_VERSION      := $(PROTOC_GEN_GRPC_GATEWAY_VERSION)
 MODVENDOR_VERSION               ?= v0.5.0
 MOCKERY_VERSION                 ?= 2.52.2
-GOLANGCI_LINT_VERSION           ?= v2.3.0
+GOLANGCI_LINT_VERSION           ?= v2.12.2
 SEMVER_VERSION                  ?= v1.3.0
 
 BUF_VERSION_FILE                     := $(AKASH_DEVCACHE_VERSIONS)/buf/$(BUF_VERSION)
