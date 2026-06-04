@@ -60,24 +60,25 @@ class SDLValidator {
     if (!reclamation) return;
 
     const parsed = parseGoDuration(reclamation.min_window);
+    const baseError = {
+      instancePath: "/reclamation/min_window",
+      schemaPath: "#/properties/reclamation/properties/min_window",
+      keyword: "format",
+      params: { format: "duration" },
+    };
+
     if (!parsed.ok) {
       this.#errors.push({
+        ...baseError,
         message: `Invalid reclamation min_window "${reclamation.min_window}": must be a valid Go duration (e.g. "24h", "30m", "1h30m").`,
-        instancePath: "/reclamation/min_window",
-        schemaPath: "#/properties/reclamation/properties/min_window",
-        keyword: "format",
-        params: { format: "duration" },
       });
       return;
     }
 
     if (parsed.nanos <= 0n) {
       this.#errors.push({
+        ...baseError,
         message: `Reclamation min_window must be greater than 0.`,
-        instancePath: "/reclamation/min_window",
-        schemaPath: "#/properties/reclamation/properties/min_window",
-        keyword: "format",
-        params: { format: "duration" },
       });
     }
   }

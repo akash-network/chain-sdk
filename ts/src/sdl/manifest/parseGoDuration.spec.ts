@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { parseGoDuration, protoDurationFromNanos } from "./parseGoDuration.ts";
 
-const NS = (s: bigint) => s; // readability helper for nanosecond literals
-
 describe("parseGoDuration", () => {
   describe("valid durations (mirrors Go time.ParseDuration)", () => {
     it("parses whole hours", () => {
@@ -24,7 +22,7 @@ describe("parseGoDuration", () => {
     it("parses sub-second units", () => {
       expect(parseGoDuration("500ms")).toEqual({ ok: true, nanos: 500_000_000n });
       expect(parseGoDuration("1us")).toEqual({ ok: true, nanos: 1_000n });
-      expect(parseGoDuration("1ns")).toEqual({ ok: true, nanos: NS(1n) });
+      expect(parseGoDuration("1ns")).toEqual({ ok: true, nanos: 1n });
     });
 
     it("accepts both micro-sign variants Go accepts", () => {
