@@ -45,6 +45,16 @@ describe("SDL Parity Tests", () => {
       return;
     }
 
+    // Fixtures that exist to lock a specific *semantic* rejection (not just "the
+    // schema rejects it") pin their exact error, so they can't silently pass for
+    // the wrong reason if the schema or the fixture later drifts.
+    const EXPECTED_ERRORS: Record<string, { instancePath: string; messageIncludes: string }> = {
+      "v2.1-reclamation-bad-window.yaml": {
+        instancePath: "/reclamation/min_window",
+        messageIncludes: "whole number followed by s, m, or h",
+      },
+    };
+
     fs.globSync("*.yaml", { cwd: invalidDir }).forEach((filename) => {
       it(filename, () => {
         const fixturePath = path.join(invalidDir, filename);
@@ -52,6 +62,14 @@ describe("SDL Parity Tests", () => {
         const sdl: SDLInput = yaml.raw(input);
         const result = generateManifest(sdl);
         expect(result.ok).toBe(false);
+
+        const expected = EXPECTED_ERRORS[filename];
+        if (!result.ok && expected) {
+          expect(result.value).toContainEqual(expect.objectContaining({
+            instancePath: expected.instancePath,
+            message: expect.stringContaining(expected.messageIncludes),
+          }));
+        }
       });
     });
   });

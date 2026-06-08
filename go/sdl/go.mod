@@ -21,7 +21,7 @@ replace (
 	// use akash fork of cometbft
 	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.21-akash.1
 	// use akash fork of cosmos sdk
-	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.5-akash.1
+	github.com/cosmos/cosmos-sdk => github.com/akash-network/cosmos-sdk v0.53.7-akash.2
 
 	// Use regen gogoproto tag
 	// To be replaced by cosmos/gogoproto in future versions
@@ -82,7 +82,7 @@ require (
 	github.com/cosmos/iavl v1.2.6 // indirect
 	github.com/cosmos/ibc-go/v10 v10.5.0 // indirect
 	github.com/cosmos/ics23/go v0.11.0 // indirect
-	github.com/cosmos/ledger-cosmos-go v0.16.0 // indirect
+	github.com/cosmos/ledger-cosmos-go v1.0.0 // indirect
 	github.com/danieljoos/wincred v1.2.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect

@@ -13,6 +13,12 @@ const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/exposeToWithIpEnforcesGlobal"() {
     return `If an IP is declared, the directive must be declared as global.`;
   },
+  // Mirrors the shared schema's `min_window` pattern (`^[1-9][0-9]*(s|m|h)$`).
+  // Go stays the lenient layer (`go/sdl/reclamation.go` accepts any `> 0`
+  // `time.ParseDuration`), so this is a sanctioned schema-only-stricter rule.
+  "#/properties/reclamation/properties/min_window/pattern"() {
+    return `Reclamation min_window must be a whole number followed by s, m, or h (e.g. "24h", "30m").`;
+  },
 };
 
 export function validateSDL(sdl: SDLInput): undefined | ValidationError[] {

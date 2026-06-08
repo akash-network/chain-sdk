@@ -67,6 +67,33 @@ describe(createGrpcGatewayTransport.name, () => {
       expect(url.pathname).toBe("/users/123/resources/456");
     });
 
+    it("interpolates URL path with gRPC capture pattern ({field=**})", async () => {
+      const { transport, fetch, TestMethodSchema } = await setup();
+      const message = { userId: "123", resourceId: "456" };
+
+      Object.assign(TestMethodSchema, { httpPath: "/users/{userId=**}/resources/{resourceId}" });
+      fetch.mockResolvedValue(new Response(JSON.stringify({})));
+
+      await transport.unary(TestMethodSchema, message);
+
+      const url = fetch.mock.calls[0][0] as URL;
+      expect(url.pathname).toBe("/users/123/resources/456");
+    });
+
+    it("throws InvalidArgument naming the bare field when a {field=**} value is missing", async () => {
+      const { transport, TestMethodSchema } = await setup();
+      const message = { resourceId: "456" };
+
+      Object.assign(TestMethodSchema, { httpPath: "/users/{userId=**}" });
+
+      await expect(transport.unary(TestMethodSchema, message)).rejects.toThrow(
+        expect.objectContaining({
+          code: Code.InvalidArgument,
+          message: expect.not.stringContaining("=**"),
+        }),
+      );
+    });
+
     it("throws error when httpPath is missing", async () => {
       const { transport, TestMethodSchema } = await setup();
       const message = { test: "data" };

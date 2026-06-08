@@ -4,6 +4,7 @@ import { GPU } from "../../generated/protos/akash/base/resources/v1beta4/gpu.ts"
 import { Memory } from "../../generated/protos/akash/base/resources/v1beta4/memory.ts";
 import { Resources } from "../../generated/protos/akash/base/resources/v1beta4/resources.ts";
 import { Storage } from "../../generated/protos/akash/base/resources/v1beta4/storage.ts";
+import { DeploymentReclamation } from "../../generated/protos/akash/deployment/v1/deployment.ts";
 import { GroupSpec } from "../../generated/protos/akash/deployment/v1beta4/groupspec.ts";
 import { ResourceUnit } from "../../generated/protos/akash/deployment/v1beta4/resourceunit.ts";
 import { Group } from "../../generated/protos/akash/manifest/v2beta3/group.ts";
@@ -29,10 +30,12 @@ import {
   type SDLService,
   transformGpuAttributes,
 } from "./manifestUtils.ts";
+import { minWindowToDuration } from "./reclamationDuration.ts";
 
 export interface GenerateManifestOkResult {
   groups: Group[];
   groupSpecs: GroupSpec[];
+  reclamation?: DeploymentReclamation;
 }
 
 export type Manifest = GenerateManifestOkResult["groups"];
@@ -143,8 +146,21 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
   const sortedGroupNames = [...groupsMap.keys()].sort();
   let groups: Group[] | undefined;
   let groupSpecs: GroupSpec[] | undefined;
+  let reclamation: DeploymentReclamation | undefined;
 
   const manifest = {
+    // reclamation is a `MsgCreateDeployment` field, not a manifest group, and is
+    // not needed in every call — so it's lazy like `groups`/`groupSpecs`.
+    // `validateSDL` (run above) already guaranteed `min_window` is valid, so
+    // `minWindowToDuration` never throws here.
+    get reclamation() {
+      if (sdl.reclamation && !reclamation) {
+        reclamation = DeploymentReclamation.fromPartial({
+          minWindow: minWindowToDuration(sdl.reclamation.min_window),
+        });
+      }
+      return reclamation;
+    },
     get groups() {
       groups ??= sortedGroupNames.map((placementName) => {
         const deployments = deploymentsByPlacement.get(placementName)!;

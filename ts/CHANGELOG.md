@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-alpha.34](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.33...ts/v1.0.0-alpha.34) (2026-06-04)
+
+
+### Features
+
+* **ts:** surface SDL reclamation from generateManifest ([#318](https://github.com/akash-network/chain-sdk/issues/318)) ([0ed2e9b](https://github.com/akash-network/chain-sdk/commit/0ed2e9b2438ae5c81e5f3d21d76417682fb4ae2f))
+
+
+### Bug Fixes
+
+* **ts:** resolve grpc-gateway path field from {field=**} templates ([#323](https://github.com/akash-network/chain-sdk/issues/323)) ([9e231d6](https://github.com/akash-network/chain-sdk/commit/9e231d63c800b655c559ca9748f02e64d97fc80f))
+
 ## [1.0.0-alpha.33](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.32...ts/v1.0.0-alpha.33) (2026-05-28)
 
 
