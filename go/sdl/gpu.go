@@ -44,24 +44,24 @@ type v2GPUAttributes types.Attributes
 // MatchResourcesRequirements path.
 const GPUAttributeRDMA = "rdma"
 
-// gpuAttributeRDMAGroupSentinel is an internal-only key the SDL parser uses to
-// transport the value of gpu.attributes.rdma_group between
-// v2GPUAttributes.UnmarshalYAML and the parent v2ResourceGPU.UnmarshalYAML.
-// It is stripped out of the GPU attribute slice before those attributes ever
-// reach the on-chain Resources.GPU.attributes — rdma_group is a tenant
-// scheduling directive carried in the off-chain manifest, not a hardware
-// capability claim.
-const gpuAttributeRDMAGroupSentinel = "__rdma_group__"
+// GPUAttributeRDMAGroup is the on-chain GPU-attribute key emitted when an
+// SDL compute profile declares gpu.attributes.rdma_group: <name>. Carries
+// the peer-group label all the way into the on-chain Resources.GPU.attributes
+// so the provider's bid engine can enforce per-group node separation at fit
+// time (it cannot otherwise — Service.RDMAGroup is off-chain only, and the
+// bid engine consumes Resources, not the manifest). The value is also lifted
+// into Service.RDMAGroup so the workload builder's pod anti-affinity rule
+// continues to work the same way.
+const GPUAttributeRDMAGroup = "rdma_group"
 
 type v2ResourceGPU struct {
 	Units      gpuQuantity     `yaml:"units" json:"units"`
 	Attributes v2GPUAttributes `yaml:"attributes,omitempty" json:"attributes,omitempty"`
 
-	// RDMAGroup carries the parsed gpu.attributes.rdma_group value. The SDL
-	// parser strips this key from on-chain GPU attributes (see
-	// gpuAttributeRDMAGroupSentinel) and lifts it here so the higher-level
-	// manifest builder can route it to the per-service Service.RDMAGroup
-	// off-chain manifest field.
+	// RDMAGroup carries the parsed gpu.attributes.rdma_group value. The
+	// same value is also present in Attributes (as GPUAttributeRDMAGroup);
+	// this field exists so the higher-level manifest builder can route it
+	// to Service.RDMAGroup without re-walking the slice.
 	RDMAGroup string `yaml:"-" json:"-"`
 }
 
@@ -83,26 +83,23 @@ func (sdl *v2ResourceGPU) UnmarshalYAML(node *yaml.Node) error {
 		}
 	}
 
-	// Extract the rdma_group sentinel into the dedicated field, then strip
-	// it out of the on-chain attribute slice. After this step Attributes
-	// contains only attributes that are safe to flow to Resources.GPU.attributes.
-	// We must do this *before* Validate() runs against the slice, because the
-	// sentinel key (with leading underscores) does not match the on-chain
-	// attribute key regex.
+	// Lift the rdma_group attribute value into the dedicated RDMAGroup
+	// field for downstream manifest builders, but KEEP it in the
+	// attributes slice — the provider's bid engine consumes the on-chain
+	// Resources.GPU.Attributes and needs rdma_group present there to
+	// enforce per-group node separation during reservation. (Was a
+	// sentinel-stripped off-chain-only field; now flows end-to-end.)
 	if len(res.Attributes) > 0 {
-		filtered := make(types.Attributes, 0, len(res.Attributes))
 		for _, a := range res.Attributes {
-			if a.Key == gpuAttributeRDMAGroupSentinel {
+			if a.Key == GPUAttributeRDMAGroup {
 				res.RDMAGroup = a.Value
-				continue
+				break
 			}
-			filtered = append(filtered, a)
 		}
-		res.Attributes = v2GPUAttributes(filtered)
 
-		// Validate now that the on-chain-bound slice is clean of any sentinel.
-		// (v2GPUAttributes.UnmarshalYAML intentionally skips Validate so this
-		// hook can run post-strip.)
+		// v2GPUAttributes.UnmarshalYAML defers Validate to here so the
+		// final attribute slice (including the rdma_group key, which now
+		// matches the on-chain attribute key regex) gets one validate pass.
 		final := types.Attributes(res.Attributes)
 		if err := final.Validate(); err != nil {
 			return fmt.Errorf("sdl: invalid GPU attributes: %w", err)
@@ -195,11 +192,14 @@ func (sdl *v2GPUAttributes) UnmarshalYAML(node *yaml.Node) error {
 		})
 	}
 
-	// Carry rdma_group as a sentinel; the parent v2ResourceGPU.UnmarshalYAML
-	// peels it off before these attributes ever become on-chain Resources.
+	// Emit rdma_group directly as an on-chain GPU attribute. The provider's
+	// reservation Adjust step reads this to enforce per-group node
+	// separation; the parent v2ResourceGPU.UnmarshalYAML also lifts the
+	// value into v2ResourceGPU.RDMAGroup so the manifest builder can
+	// route it to Service.RDMAGroup for the off-chain workload builder.
 	if rdmaGroup != "" {
 		res = append(res, types.Attribute{
-			Key:   gpuAttributeRDMAGroupSentinel,
+			Key:   GPUAttributeRDMAGroup,
 			Value: rdmaGroup,
 		})
 	}

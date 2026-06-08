@@ -54,24 +54,44 @@ export function isIngress(proto: string, global: boolean, externalPort: number, 
 }
 
 export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[] {
+  const result: Attribute[] = [];
+
   const vendor = attributes.vendor;
-  if (!vendor) return [];
-
-  return Object.keys(vendor)
-    .sort((a, b) => a.localeCompare(b))
-    .flatMap((vendorName) => {
-      const models = vendor[vendorName as keyof typeof vendor];
-      if (!models) {
-        return [{ key: `vendor/${vendorName}/model/*`, value: "true" }];
-      }
-
-      return models.map((model) => {
-        let key = `vendor/${vendorName}/model/${model.model}`;
-        if (model.ram) key += `/ram/${model.ram}`;
-        if (model.interface) key += `/interface/${model.interface}`;
-        return { key, value: "true" };
+  if (vendor) {
+    Object.keys(vendor)
+      .sort((a, b) => a.localeCompare(b))
+      .forEach((vendorName) => {
+        const models = vendor[vendorName as keyof typeof vendor];
+        if (!models) {
+          result.push({ key: `vendor/${vendorName}/model/*`, value: "true" });
+          return;
+        }
+        for (const model of models) {
+          let key = `vendor/${vendorName}/model/${model.model}`;
+          if (model.ram) key += `/ram/${model.ram}`;
+          if (model.interface) key += `/interface/${model.interface}`;
+          result.push({ key, value: "true" });
+        }
       });
-    });
+  }
+
+  // rdma + rdma_group flow into on-chain Resources.GPU.Attributes so the
+  // provider's bid engine can match capability and enforce per-group node
+  // separation. Keep parity with the Go SDL parser in go/sdl/gpu.go — same
+  // key names, same value encoding ("true" for the boolean opt-in).
+  if (attributes.rdma === true) {
+    result.push({ key: "rdma", value: "true" });
+  }
+  if (attributes.rdma_group && attributes.rdma_group.length > 0) {
+    result.push({ key: "rdma_group", value: attributes.rdma_group });
+  }
+
+  // Go SDL parser canonicalizes the slice via sort.Sort(res) before
+  // returning. Mirror that here so the on-chain attribute order matches
+  // byte-for-byte across both implementations.
+  result.sort((a, b) => a.key.localeCompare(b.key));
+
+  return result;
 }
 
 export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTTPOptions {

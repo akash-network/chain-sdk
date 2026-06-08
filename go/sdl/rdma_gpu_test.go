@@ -60,8 +60,6 @@ attributes:
 				if a.Key == GPUAttributeRDMA && a.Value == "true" {
 					hasRDMA = true
 				}
-				require.NotEqual(t, gpuAttributeRDMAGroupSentinel, a.Key,
-					"sentinel must not leak into final attribute slice")
 			}
 			require.Equal(t, tc.expectRDMAAttr, hasRDMA,
 				"unexpected presence of on-chain rdma=true attribute")
@@ -70,10 +68,13 @@ attributes:
 	}
 }
 
-// CS-3: rdma_group lives under gpu.attributes in SDL, but the parser strips
-// it before the GPU attributes reach the chain side and surfaces it on
-// v2ResourceGPU.RDMAGroup for the manifest builder to consume.
-func TestV2ResourceGPU_RDMAGroupRoutedOffChain(t *testing.T) {
+// AKT-443: rdma_group flows end-to-end. It appears in the on-chain GPU
+// attribute slice (so the provider's bid engine can enforce per-group
+// node separation during reservation) AND is lifted onto
+// v2ResourceGPU.RDMAGroup for the manifest builder to route into
+// Service.RDMAGroup (so the workload builder can label pods for
+// anti-affinity). Both consumers see the same value.
+func TestV2ResourceGPU_RDMAGroupOnChainAndOffChain(t *testing.T) {
 	yamlSrc := `units: 8
 attributes:
   vendor:
@@ -87,25 +88,23 @@ attributes:
 	var gpu v2ResourceGPU
 	require.NoError(t, yaml.Unmarshal([]byte(yamlSrc), &gpu))
 
-	// rdma_group surfaces on the dedicated field for the manifest builder.
+	// Off-chain: dedicated field for the manifest builder.
 	require.Equal(t, "pair1", gpu.RDMAGroup,
 		"v2ResourceGPU.RDMAGroup must hold the rdma_group value")
 
-	// On-chain attributes contain rdma=true but NOT rdma_group; the sentinel
-	// must have been peeled off before the attribute slice was finalized.
+	// On-chain: present in the GPU attribute slice alongside rdma=true.
 	keys := map[string]string{}
 	for _, a := range gpu.Attributes {
 		keys[a.Key] = a.Value
 	}
 	require.Equal(t, "true", keys[GPUAttributeRDMA])
-	require.NotContains(t, keys, "rdma_group",
-		"rdma_group must not appear in on-chain GPU attributes")
-	require.NotContains(t, keys, gpuAttributeRDMAGroupSentinel,
-		"sentinel must not leak into on-chain GPU attributes")
+	require.Equal(t, "pair1", keys[GPUAttributeRDMAGroup],
+		"rdma_group must appear in on-chain GPU attributes for bid-engine group tracking")
 }
 
-// CS-3 (continued): omitting rdma_group leaves RDMAGroup empty and the
-// on-chain attributes carry no sentinel residue.
+// AKT-443 (continued): omitting rdma_group leaves both the field empty
+// and the on-chain attribute absent — non-RDMA-group services produce
+// the same byte-for-byte serialization they did before this feature.
 func TestV2ResourceGPU_RDMAGroupOmitted(t *testing.T) {
 	yamlSrc := `units: 8
 attributes:
@@ -119,8 +118,8 @@ attributes:
 
 	require.Empty(t, gpu.RDMAGroup)
 	for _, a := range gpu.Attributes {
-		require.NotEqual(t, gpuAttributeRDMAGroupSentinel, a.Key)
-		require.NotEqual(t, "rdma_group", a.Key)
+		require.NotEqual(t, GPUAttributeRDMAGroup, a.Key,
+			"rdma_group must not appear when SDL omits it")
 	}
 }
 

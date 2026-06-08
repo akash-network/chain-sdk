@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+# Multi-service RDMA peer group fixture. inference-head and inference-worker
+# share the same rdma_group label ("pair0"), which:
+#   - emits an `rdma_group=pair0` attribute into each service's on-chain
+#     Resources.GPU.Attributes (consumed by the provider's bid-engine
+#     group-aware Adjust, AKT-443)
+#   - lifts to Service.RDMAGroup on the off-chain manifest (consumed by
+#     the provider's workload builder for pod anti-affinity)
+#
+# Each service has its own compute profile because the SDL→manifest
+# resource-ID assignment treats per-profile groupings as one resource
+# unit (this is a separate parity concern; see Go vs TS resource-ID logic
+# in groupBuilder_v2.go and generateManifest.ts). Using distinct profiles
+# keeps that orthogonal so this fixture isolates RDMA group behavior.
+version: "2.0"
+services:
+  inference-head:
+    image: tensorflow/tensorflow:latest-gpu
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+  inference-worker:
+    image: tensorflow/tensorflow:latest-gpu
+    expose:
+      - port: 5000
+        to:
+          - service: inference-head
+profiles:
+  compute:
+    rdma-head:
+      resources:
+        cpu:
+          units: 1000m
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+        gpu:
+          units: 1
+          attributes:
+            rdma: true
+            rdma_group: pair0
+            vendor:
+              nvidia:
+                - model: a100
+                  ram: 80Gi
+                  interface: sxm
+    rdma-worker:
+      resources:
+        cpu:
+          units: 1000m
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+        gpu:
+          units: 1
+          attributes:
+            rdma: true
+            rdma_group: pair0
+            vendor:
+              nvidia:
+                - model: a100
+                  ram: 80Gi
+                  interface: sxm
+  placement:
+    rdma-cluster:
+      attributes:
+        capabilities/rdma: "true"
+        capabilities/rdma/fabric/infiniband: "true"
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        rdma-head:
+          denom: uakt
+          amount: 1000
+        rdma-worker:
+          denom: uakt
+          amount: 1000
+deployment:
+  inference-head:
+    rdma-cluster:
+      profile: rdma-head
+      count: 1
+  inference-worker:
+    rdma-cluster:
+      profile: rdma-worker
+      count: 1
