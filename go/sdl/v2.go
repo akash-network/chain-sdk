@@ -533,7 +533,7 @@ func (sdl *v2) validate() error {
 		}
 	}
 
-	if err := sdl.validateRDMA(); err != nil {
+	if err := validateRDMA(sdl.Profiles, sdl.Deployments); err != nil {
 		return err
 	}
 
@@ -556,13 +556,26 @@ func (sdl *v2) validate() error {
 // workload always reaches an RDMA-capable provider; rule 2 keeps peer-group
 // labels meaningful; rule 3 keeps the per-group anti-affinity rule
 // unambiguous.
-func (sdl *v2) validateRDMA() error {
+//
+// Free function (not a method on v2) so v2_1's validate() can call it
+// against the same profile + deployment shape — v2.1 inherits the full
+// RDMA SDL grammar from v2 and must enforce the identical rules.
+func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 	// Per-profile rule 2: rdma_group ⇒ rdma=true.
-	for profileName, compute := range sdl.Profiles.Compute {
+	//
+	// The gpu.Units > 0 guard is defense-in-depth: v2ResourceGPU.UnmarshalYAML
+	// already rejects rdma / rdma_group with gpu.units == 0 at parse time,
+	// but if that parser path is ever bypassed we'd otherwise classify a
+	// zero-GPU profile as RDMA-enabled here and propagate RDMAGroup into
+	// downstream manifest builders.
+	for profileName, compute := range profiles.Compute {
 		if compute.Resources == nil || compute.Resources.GPU == nil {
 			continue
 		}
 		gpu := compute.Resources.GPU
+		if gpu.Units == 0 {
+			continue
+		}
 		if gpu.RDMAGroup != "" && !gpuAttributesHaveRDMA(gpu.Attributes) {
 			return fmt.Errorf(
 				"%w: compute profile %q sets gpu.attributes.rdma_group=%q but does not set gpu.attributes.rdma: true",
@@ -592,9 +605,9 @@ func (sdl *v2) validateRDMA() error {
 	}
 	usagesByPlacement := map[string]*placementUsage{}
 
-	for svcName, depl := range sdl.Deployments {
+	for svcName, depl := range deployments {
 		for placementName, svcdepl := range depl {
-			compute, ok := sdl.Profiles.Compute[svcdepl.Profile]
+			compute, ok := profiles.Compute[svcdepl.Profile]
 			if !ok {
 				continue // covered by earlier validate() loop
 			}
@@ -605,7 +618,11 @@ func (sdl *v2) validateRDMA() error {
 			usage := profUsage{
 				profileName: svcdepl.Profile,
 			}
-			if gpu != nil {
+			// Same defense-in-depth as the rule-2 loop above: an
+			// rdma attribute or rdma_group on a zero-GPU profile would
+			// be parser-rejected upstream, but treat it as "not RDMA"
+			// here just in case the parser is bypassed.
+			if gpu != nil && gpu.Units > 0 {
 				usage.hasRDMA = gpuAttributesHaveRDMA(gpu.Attributes)
 				usage.group = gpu.RDMAGroup
 			}
@@ -620,7 +637,7 @@ func (sdl *v2) validateRDMA() error {
 			// Rule 1: per-placement, if this profile has rdma=true, the
 			// placement's requirements must include capabilities/rdma=true.
 			if usage.hasRDMA {
-				infra, ok := sdl.Profiles.Placement[placementName]
+				infra, ok := profiles.Placement[placementName]
 				if !ok {
 					continue // covered by earlier validate() loop
 				}

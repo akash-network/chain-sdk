@@ -67,21 +67,29 @@ func (m *ResourcePair) Dup() ResourcePair {
 		return ResourcePair{}
 	}
 
-	var capacity, allocatable, allocated resource.Quantity
+	// Preserve the nil/non-nil shape of each quantity pointer. Returning
+	// `&zeroQuantity` for an originally-nil field would change protobuf
+	// field-presence semantics (and the JSON serialization the manifest
+	// version hash is computed from), so a partially-populated source
+	// must Dup to a structurally identical copy.
+	var capacity, allocatable, allocated *resource.Quantity
 	if m.Capacity != nil {
-		capacity = m.Capacity.DeepCopy()
+		c := m.Capacity.DeepCopy()
+		capacity = &c
 	}
 	if m.Allocatable != nil {
-		allocatable = m.Allocatable.DeepCopy()
+		a := m.Allocatable.DeepCopy()
+		allocatable = &a
 	}
 	if m.Allocated != nil {
-		allocated = m.Allocated.DeepCopy()
+		al := m.Allocated.DeepCopy()
+		allocated = &al
 	}
 
 	return ResourcePair{
-		Capacity:    &capacity,
-		Allocatable: &allocatable,
-		Allocated:   &allocated,
+		Capacity:    capacity,
+		Allocatable: allocatable,
+		Allocated:   allocated,
 		Attributes:  m.Attributes.Dup(),
 	}
 }

@@ -48,6 +48,33 @@ func TestResourcePair_Dup_PopulatedRoundTrips(t *testing.T) {
 	require.Equal(t, int64(8), rp.Allocated.Value())
 }
 
+// Regression-pins CodeRabbit review #3: previous Dup() always returned
+// non-nil pointers for Capacity/Allocatable/Allocated even when the
+// source pointers were nil. That changed protobuf field-presence on the
+// copy and shifted the JSON serialization (which the manifest version
+// hash is computed from). A partially-nil source must Dup to a
+// structurally identical copy.
+func TestResourcePair_Dup_PreservesNilPointers(t *testing.T) {
+	q := resource.MustParse("8")
+
+	// Capacity nil; Allocatable + Allocated populated.
+	src := ResourcePair{
+		Allocatable: &q,
+		Allocated:   resource.NewQuantity(0, resource.DecimalSI),
+	}
+	require.False(t, src.IsZero(), "src has non-nil pointers — not zero")
+
+	got := src.Dup()
+	require.Nil(t, got.Capacity, "Dup must preserve nil Capacity")
+	require.NotNil(t, got.Allocatable, "non-nil Allocatable must round-trip")
+	require.NotNil(t, got.Allocated, "non-nil Allocated must round-trip")
+	require.Equal(t, int64(8), got.Allocatable.Value())
+
+	// Mutating the dup must not poison the source.
+	got.Allocatable.Set(99)
+	require.Equal(t, int64(8), src.Allocatable.Value(), "Dup must deep-copy")
+}
+
 // Mirrors the realistic non-RDMA-node case the bug would surface in.
 func TestNodeResources_Dup_ZeroRDMA_DoesNotPanic(t *testing.T) {
 	zero := NewResourcePair(0, 0, 0, resource.DecimalSI)

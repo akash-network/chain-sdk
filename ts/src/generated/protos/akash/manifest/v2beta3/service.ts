@@ -64,10 +64,12 @@ export interface Service {
    * pod anti-affinity within each group when scheduling the workload.
    * Empty when the service is not part of any RDMA peer group.
    *
-   * JSON / YAML tag is camelCase (no `omitempty`) to match the existing
-   * convention on this message (cf. `read_only` -> `"readOnly"`) so that
-   * the JSON serialization stays in lock-step with the TypeScript SDK,
-   * which always emits the field regardless of value.
+   * JSON / YAML tags carry `omitempty`: the on-chain manifest `version`
+   * is a SHA hash of the JSON-serialized off-chain manifest, so any field
+   * that always serializes (even at zero value) would shift the hash for
+   * every pre-RDMA SDL and break send-manifest validation on existing
+   * leases. With omitempty, non-RDMA services serialize identically to
+   * their pre-PR shape; only services that declare a group emit the key.
    */
   rdmaGroup: string;
 }

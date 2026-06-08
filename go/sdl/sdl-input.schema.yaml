@@ -268,6 +268,20 @@ properties:
                                     type: object
                                 - type: 'null'
                           type: object
+                        rdma:
+                          description: |
+                            Opt this resource into RDMA. When true, the bid
+                            engine matches against providers advertising
+                            capabilities/rdma and the workload builder
+                            requests one RDMA HCA per GPU unit (1:1).
+                          type: boolean
+                        rdma_group:
+                          description: |
+                            Peer-group label for multi-service NCCL groups.
+                            All services sharing the same value form one
+                            anti-affinity group: the provider schedules them
+                            on distinct nodes. Implies rdma: true.
+                          type: string
                       type: object
                     units:
                       oneOf:

@@ -341,6 +341,14 @@ func (sdl *v2_1) validate() error {
 		}
 	}
 
+	// v2.1 inherits the full RDMA SDL grammar from v2 (gpu.attributes.rdma
+	// and gpu.attributes.rdma_group propagate to the manifest), so the
+	// cross-field validation rules must also apply. Without this, a v2.1
+	// SDL could bypass the placement + grouping invariants v2 enforces.
+	if err := validateRDMA(sdl.Profiles, sdl.Deployments); err != nil {
+		return err
+	}
+
 	return nil
 }
 
