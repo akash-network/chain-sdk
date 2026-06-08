@@ -7,6 +7,13 @@ const encoder = new TextEncoder();
 const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts"]);
 const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 
+// Manifest fields that on the Go side use `omitempty` for string values —
+// the field must NOT appear in the JSON when its value is the empty
+// string, otherwise the manifest version hash (a SHA over this exact
+// serialization) diverges from the Go side and breaks send-manifest
+// validation on existing leases.
+const OMITTED_WHEN_EMPTY_STRING_KEYS = new Set(["rdmaGroup"]);
+
 export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {
   const jsonStr = manifestToSortedJSON(manifest);
   const sortedBytes = encoder.encode(jsonStr);
@@ -38,6 +45,10 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
   }
 
   if (OMITTED_MANIFEST_KEYS.has(key) && ((Array.isArray(value) && value.length === 0) || value === 0)) {
+    return undefined;
+  }
+
+  if (OMITTED_WHEN_EMPTY_STRING_KEYS.has(key) && value === "") {
     return undefined;
   }
 
