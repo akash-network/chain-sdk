@@ -69,7 +69,8 @@
                     "status",
                     "restart",
                     "hostname-migrate",
-                    "ip-migrate"
+                    "ip-migrate",
+                    "attestation"
                 ]
             }
         },
