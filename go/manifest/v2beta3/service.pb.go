@@ -139,7 +139,9 @@ type TEEParams struct {
 	// type is the TEE technology: sev-snp, sev-snp-gpu, tdx, tdx-gpu
 	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type" yaml:"type"`
 	// attestation controls whether the provider injects an attestation sidecar.
-	// Defaults to true. Set to false to bring your own attestation.
+	// IMPORTANT: proto3 bool defaults to false, but the intended default is true.
+	// All producers MUST set this field explicitly. The Go SDL builder enforces
+	// this; non-Go clients must set attestation=true when sidecar injection is desired.
 	Attestation bool `protobuf:"varint,2,opt,name=attestation,proto3" json:"attestation" yaml:"attestation"`
 }
 
