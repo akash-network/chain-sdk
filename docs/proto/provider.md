@@ -1088,6 +1088,7 @@ Resources map to Kubernetes RBAC permissions:
  | `manifest` | [ManifestStatus](#akash.provider.v1.ManifestStatus) |  |  |
  | `public_hostnames` | [string](#string) | repeated |  |
  | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  |  |
+ | `reclamation_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  |  |
  
  
 
