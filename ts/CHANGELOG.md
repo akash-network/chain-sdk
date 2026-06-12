@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0-alpha.35](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.34...ts/v1.0.0-alpha.35) (2026-06-12)
+
+
+### Features
+
+* **jwt:** add attestation permission scope ([#324](https://github.com/akash-network/chain-sdk/issues/324)) ([8347328](https://github.com/akash-network/chain-sdk/commit/8347328674557c077d4f7ec0550a00ad1ff72d46))
+* **provider:** expose reclamation window in status ([#326](https://github.com/akash-network/chain-sdk/issues/326)) ([4870611](https://github.com/akash-network/chain-sdk/commit/4870611f61568030c270d0305e42bab5eea4a9fe))
+
 ## [1.0.0-alpha.34](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.33...ts/v1.0.0-alpha.34) (2026-06-04)
 
 
