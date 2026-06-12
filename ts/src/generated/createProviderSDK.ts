@@ -97,7 +97,16 @@ export function createSDK(transport: Transport) {
             streamServiceLogs: withMetadata(async function streamServiceLogs(input: DeepPartial<akash_provider_lease_v1_service.ServiceLogsRequest>, options?: CallOptions) {
               const service = await serviceLoader.loadAt(3);
               return getClient(service).streamServiceLogs(input, options);
-            }, { path: [3, "streamServiceLogs"], serviceLoader })
+            }, { path: [3, "streamServiceLogs"], serviceLoader }),
+            /**
+             * attestationQuote requests hardware-signed attestation evidence from the
+             * confidential compute sidecar. The provider forwards the tenant's nonce
+             * to the sidecar and returns the hardware-signed quote verbatim.
+             */
+            attestationQuote: withMetadata(async function attestationQuote(input: DeepPartial<akash_provider_lease_v1_service.AttestationQuoteRequest>, options?: CallOptions) {
+              const service = await serviceLoader.loadAt(3);
+              return getClient(service).attestationQuote(input, options);
+            }, { path: [3, "attestationQuote"], serviceLoader })
           }
         },
         v1: {

@@ -1,4 +1,4 @@
-import { SendManifestRequest, SendManifestResponse, ServiceLogsRequest, ServiceLogsResponse, ServiceStatusRequest, ServiceStatusResponse } from "./service.ts";
+import { AttestationQuoteRequest, AttestationQuoteResponse, SendManifestRequest, SendManifestResponse, ServiceLogsRequest, ServiceLogsResponse, ServiceStatusRequest, ServiceStatusResponse } from "./service.ts";
 
 export const LeaseRPC = {
   typeName: "akash.provider.lease.v1.LeaseRPC",
@@ -33,6 +33,12 @@ export const LeaseRPC = {
       kind: "server_streaming",
       input: ServiceLogsRequest,
       output: ServiceLogsResponse,
+      get parent() { return LeaseRPC; },
+    },
+    attestationQuote: {
+      name: "AttestationQuote",
+      input: AttestationQuoteRequest,
+      output: AttestationQuoteResponse,
       get parent() { return LeaseRPC; },
     },
   },
