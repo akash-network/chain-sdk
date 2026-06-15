@@ -36,6 +36,7 @@ const (
 	PermissionScopeRestart         PermissionScope = "restart"
 	PermissionScopeHostnameMigrate PermissionScope = "hostname-migrate"
 	PermissionScopeIPMigrate       PermissionScope = "ip-migrate"
+	PermissionScopeAttestation     PermissionScope = "attestation"
 )
 
 var (
@@ -49,6 +50,7 @@ var (
 		PermissionScopeStatus:          true,
 		PermissionScopeHostnameMigrate: true,
 		PermissionScopeIPMigrate:       true,
+		PermissionScopeAttestation:     true,
 	}
 )
 

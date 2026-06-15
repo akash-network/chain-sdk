@@ -679,5 +679,51 @@
             "signFail": false,
             "verifyFail": false
         }
+    },
+    {
+        "description": "sign valid/verify scoped attestation access",
+        "claims": {
+            "iss": "{{.Issuer}}",
+            "iat": "{{.IatCurr}}",
+            "nbf": "{{.NbfCurr}}",
+            "exp": "{{.Exp48h}}",
+            "version": "v1",
+            "leases": {
+                "access": "scoped",
+                "scope": [
+                    "attestation"
+                ]
+            }
+        },
+        "expected": {
+            "signFail": false,
+            "verifyFail": false
+        }
+    },
+    {
+        "description": "sign valid/verify pass/specific provider/scoped attestation access",
+        "claims": {
+            "iss": "{{.Issuer}}",
+            "iat": "{{.IatCurr}}",
+            "nbf": "{{.NbfCurr}}",
+            "exp": "{{.Exp48h}}",
+            "version": "v1",
+            "leases": {
+                "access": "granular",
+                "permissions": [
+                    {
+                        "provider": "{{.Provider}}",
+                        "access": "scoped",
+                        "scope": [
+                            "attestation"
+                        ]
+                    }
+                ]
+            }
+        },
+        "expected": {
+            "signFail": false,
+            "verifyFail": false
+        }
     }
 ]

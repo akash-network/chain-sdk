@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"time"
+
 	inventoryV1 "pkg.akt.dev/go/inventory/v1"
 	manifest "pkg.akt.dev/go/manifest/v2beta3"
 )
@@ -32,6 +34,7 @@ type ProviderStatus struct {
 	Bidengine             *BidEngineStatus `json:"bidengine"`
 	Manifest              *ManifestStatus  `json:"manifest"`
 	ClusterPublicHostname string           `json:"cluster_public_hostname,omitempty"`
+	ReclamationWindow     *time.Duration   `json:"reclamation_window,omitempty"`
 }
 
 // MetricTotal represents the total resource metrics across the cluster,

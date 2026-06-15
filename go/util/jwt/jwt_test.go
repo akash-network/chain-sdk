@@ -205,6 +205,7 @@ func TestGetSupportedScopes(t *testing.T) {
 		PermissionScopeRestart,
 		PermissionScopeHostnameMigrate,
 		PermissionScopeIPMigrate,
+		PermissionScopeAttestation,
 	}
 
 	require.Len(t, scopes, len(expectedScopes), "should return all expected scopes")
