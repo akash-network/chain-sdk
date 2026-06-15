@@ -14,27 +14,32 @@ message NodeCapabilities {
     (gogoproto.moretags)     = "yaml:\"storage_classes\""
   ];
 
-  // RDMA: Kubernetes extended-resource name the cluster's device plugin publishes
-  // for RDMA-capable HCAs (e.g. rdma/rdma_shared_device_ib for InfiniBand,
-  // rdma/rdma_shared_device_eth for RoCE). Empty when the node has no RDMA
+  // Kubernetes extended-resource name the cluster's device plugin publishes
+  // for GPU interconnect HCAs (e.g. rdma/rdma_shared_device_ib for an
+  // InfiniBand fabric, rdma/rdma_shared_device_eth for RoCE). The
+  // `rdma/*` prefix is the device-plugin's own convention (Mellanox/NVIDIA)
+  // and stays unchanged here. Empty when the node has no GPU interconnect
   // capability. Discovered by the inventory operator from k8s allocatable.
-  string rdma_resource_name = 2 [
-    (gogoproto.customname)   = "RDMAResourceName",
-    (gogoproto.jsontag)      = "rdma_resource_name,omitempty",
-    (gogoproto.moretags)     = "yaml:\"rdma_resource_name,omitempty\""
+  string interconnect_resource_name = 2 [
+    (gogoproto.customname)   = "InterconnectResourceName",
+    (gogoproto.jsontag)      = "interconnect_resource_name,omitempty",
+    (gogoproto.moretags)     = "yaml:\"interconnect_resource_name,omitempty\""
   ];
 
-  // RDMA fabric type. "infiniband" or "roce". Derived from
+  // GPU interconnect fabric type. "infiniband" or "roce". Internal /
+  // informational — the SDL surface is fabric-agnostic; tenants only
+  // declare `interconnect: true`. Derived from
   // /sys/class/infiniband/<dev>/ports/1/link_layer on the host node.
-  string rdma_fabric = 3 [
-    (gogoproto.customname)   = "RDMAFabric",
-    (gogoproto.jsontag)      = "rdma_fabric,omitempty",
-    (gogoproto.moretags)     = "yaml:\"rdma_fabric,omitempty\""
+  string interconnect_fabric = 3 [
+    (gogoproto.customname)   = "InterconnectFabric",
+    (gogoproto.jsontag)      = "interconnect_fabric,omitempty",
+    (gogoproto.moretags)     = "yaml:\"interconnect_fabric,omitempty\""
   ];
 
   // NCCL IB HCA prefix - the common device-name prefix under
-  // /sys/class/infiniband (e.g. "mlx5"). Injected by the provider as
-  // NCCL_IB_HCA when scheduling RDMA workloads.
+  // /sys/class/infiniband (e.g. "mlx5"). Same key for IB and RoCE since
+  // NCCL uses the IB verbs API for both. Injected by the provider as
+  // NCCL_IB_HCA when scheduling GPU interconnect workloads.
   string nccl_hca_prefix = 4 [
     (gogoproto.customname)   = "NCCLHCAPrefix",
     (gogoproto.jsontag)      = "nccl_hca_prefix,omitempty",

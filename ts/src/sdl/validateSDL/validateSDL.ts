@@ -51,7 +51,7 @@ class SDLValidator {
       });
     }
 
-    this.#validateRDMA();
+    this.#validateInterconnect();
     this.#validateEndpoints();
     return this.#errors;
   }
@@ -259,57 +259,57 @@ class SDLValidator {
       });
     }
 
-    // Note: the units==0 + rdma/rdma_group case is already rejected by
+    // Note: the units==0 + interconnect/interconnect_group case is already rejected by
     // the schema-level rule `gpuAttributesRequireUnitsGt0` — it requires
-    // units > 0 whenever any attribute (including rdma / rdma_group) is
+    // units > 0 whenever any attribute (including interconnect / interconnect_group) is
     // present. So we don't need a duplicate semantic check here. The
     // Go parser (go/sdl/gpu.go) carries its own parse-time check because
     // YAML decoding has no schema layer above it.
   }
 
-  // Mirror the Go-side validateRDMA in go/sdl/v2.go. Three cross-field
+  // Mirror the Go-side validateInterconnect in go/sdl/v2.go. Three cross-field
   // rules the chain SDK enforces; TS must enforce them too so tenants
   // using @akashnetwork/chain-sdk get the same fail-fast feedback as
   // the Go CLI users (the chain doesn't validate SDL semantics).
   //
-  //   1. A profile with gpu.attributes.rdma=true must be used by a
+  //   1. A profile with gpu.attributes.interconnect=true must be used by a
   //      deployment whose placement requirements include
-  //      capabilities/rdma=true.
-  //   2. A profile with gpu.attributes.rdma_group set must also have
-  //      gpu.attributes.rdma=true on the same profile.
+  //      capabilities/gpu-interconnect=true.
+  //   2. A profile with gpu.attributes.interconnect_group set must also have
+  //      gpu.attributes.interconnect=true on the same profile.
   //   3. Within one deployment (placement), if any profile sets
-  //      rdma_group, every rdma=true profile under that placement must
-  //      also set rdma_group — no implicit-default-plus-explicit mixing.
-  #validateRDMA() {
+  //      interconnect_group, every interconnect=true profile under that placement must
+  //      also set interconnect_group — no implicit-default-plus-explicit mixing.
+  #validateInterconnect() {
     const profiles = this.#sdl.profiles?.compute;
     const placements = this.#sdl.profiles?.placement;
     if (!profiles) return;
 
-    // Rule 2: rdma_group ⇒ rdma=true. Per-profile, units > 0 guard so
+    // Rule 2: interconnect_group ⇒ interconnect=true. Per-profile, units > 0 guard so
     // the zero-GPU case is left to #validateGPU's error above (avoids
     // duplicate complaints on the same profile).
     for (const [profileName, compute] of Object.entries(profiles)) {
       const gpu = compute?.resources?.gpu;
       if (!gpu || gpu.units === 0 || gpu.units === undefined) continue;
 
-      if (gpu.attributes?.rdma_group && gpu.attributes.rdma !== true) {
+      if (gpu.attributes?.interconnect_group && gpu.attributes.interconnect !== true) {
         this.#errors.push({
-          message: `Compute profile "${profileName}" sets gpu.attributes.rdma_group="${gpu.attributes.rdma_group}" but does not set gpu.attributes.rdma: true.`,
-          instancePath: `/profiles/compute/${profileName}/resources/gpu/attributes/rdma`,
-          schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/rdma",
+          message: `Compute profile "${profileName}" sets gpu.attributes.interconnect_group="${gpu.attributes.interconnect_group}" but does not set gpu.attributes.interconnect: true.`,
+          instancePath: `/profiles/compute/${profileName}/resources/gpu/attributes.interconnect`,
+          schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/interconnect",
           keyword: "required",
-          params: { missingProperty: "rdma" },
+          params: { missingProperty: "interconnect" },
         });
       }
     }
 
     // Rules 1 + 3 are per-placement. Walk every (service, placement) and
     // capture which profile each service uses, whether that profile has
-    // rdma=true, and whether it sets rdma_group.
+    // interconnect=true, and whether it sets interconnect_group.
     interface profileUsage {
       profileName: string;
       serviceName: string;
-      hasRDMA: boolean;
+      hasInterconnect: boolean;
       group: string;
     }
     const usagesByPlacement = new Map<string, profileUsage[]>();
@@ -322,53 +322,53 @@ class SDLValidator {
         const usage: profileUsage = {
           profileName: svcdepl.profile,
           serviceName,
-          hasRDMA: false,
+          hasInterconnect: false,
           group: "",
         };
         if (gpu && gpu.units !== 0 && gpu.units !== undefined) {
-          usage.hasRDMA = gpu.attributes?.rdma === true;
-          usage.group = gpu.attributes?.rdma_group ?? "";
+          usage.hasInterconnect = gpu.attributes?.interconnect === true;
+          usage.group = gpu.attributes?.interconnect_group ?? "";
         }
 
         const bucket = usagesByPlacement.get(placementName) ?? [];
         bucket.push(usage);
         usagesByPlacement.set(placementName, bucket);
 
-        // Rule 1: a profile with rdma=true must be deployed under a
-        // placement whose attributes require capabilities/rdma=true.
-        if (usage.hasRDMA) {
+        // Rule 1: a profile with interconnect=true must be deployed under a
+        // placement whose attributes require capabilities/gpu-interconnect=true.
+        if (usage.hasInterconnect) {
           const placement = placements?.[placementName];
           // The placement attributes shape is `Record<string, unknown>`
           // in the schema; we look for the literal key/value pair.
           const attrs = (placement?.attributes ?? {}) as Record<string, unknown>;
-          const capability = attrs["capabilities/rdma"];
-          const requiresRDMA = capability === "true" || capability === true;
-          if (!requiresRDMA) {
+          const capability = attrs["capabilities/gpu-interconnect"];
+          const requiresInterconnect = capability === "true" || capability === true;
+          if (!requiresInterconnect) {
             this.#errors.push({
-              message: `Service "${serviceName}" uses RDMA profile "${svcdepl.profile}" under placement "${placementName}" but placement does not require capabilities/rdma=true.`,
+              message: `Service "${serviceName}" uses interconnect profile "${svcdepl.profile}" under placement "${placementName}" but placement does not require capabilities/gpu-interconnect=true.`,
               instancePath: `/profiles/placement/${placementName}/attributes`,
               schemaPath: "#/properties/profiles/properties/placement/additionalProperties/properties/attributes",
               keyword: "required",
-              params: { missingProperty: "capabilities/rdma" },
+              params: { missingProperty: "capabilities/gpu-interconnect" },
             });
           }
         }
       }
     }
 
-    // Rule 3: per placement, if any profile sets rdma_group then every
-    // rdma=true profile under that placement must also set rdma_group.
+    // Rule 3: per placement, if any profile sets interconnect_group then every
+    // interconnect=true profile under that placement must also set interconnect_group.
     for (const [placementName, usages] of usagesByPlacement.entries()) {
       const anyGrouped = usages.some((u) => u.group !== "");
       if (!anyGrouped) continue;
       for (const u of usages) {
-        if (u.hasRDMA && u.group === "") {
+        if (u.hasInterconnect && u.group === "") {
           this.#errors.push({
-            message: `Placement "${placementName}" mixes explicit and implicit rdma_group: profile "${u.profileName}" has gpu.attributes.rdma: true but no rdma_group, while another profile under the same placement sets rdma_group.`,
-            instancePath: `/profiles/compute/${u.profileName}/resources/gpu/attributes/rdma_group`,
-            schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/rdma_group",
+            message: `Placement "${placementName}" mixes explicit and implicit interconnect_group: profile "${u.profileName}" has gpu.attributes.interconnect: true but no interconnect_group, while another profile under the same placement sets interconnect_group.`,
+            instancePath: `/profiles/compute/${u.profileName}/resources/gpu/attributes.interconnect_group`,
+            schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/interconnect_group",
             keyword: "required",
-            params: { missingProperty: "rdma_group" },
+            params: { missingProperty: "interconnect_group" },
           });
         }
       }

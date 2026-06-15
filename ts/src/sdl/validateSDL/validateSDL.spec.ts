@@ -2226,24 +2226,24 @@ describe(validateSDL.name, () => {
     });
   });
 
-  // Mirrors the Go SDL parser's RDMA cross-field rules (go/sdl/v2.go
-  // validateRDMA + go/sdl/gpu.go parse-time guards). Without these TS
+  // Mirrors the Go SDL parser's interconnect cross-field rules (go/sdl/v2.go
+  // validateInterconnect + go/sdl/gpu.go parse-time guards). Without these TS
   // checks, tenants using @akashnetwork/chain-sdk could broadcast SDLs
   // that the Go CLI would have rejected outright.
-  describe("RDMA validation", () => {
-    function rdmaSetup(opts: {
-      rdma?: boolean;
-      rdmaGroup?: string;
+  describe("GPU interconnect validation", () => {
+    function interconnectSetup(opts: {
+      interconnect?: boolean;
+      interconnectGroup?: string;
       units?: number;
-      placementRequiresRDMA?: boolean;
+      placementRequiresInterconnect?: boolean;
     } = {}) {
-      const { rdma, rdmaGroup, units = 1, placementRequiresRDMA = true } = opts;
+      const { interconnect, interconnectGroup, units = 1, placementRequiresInterconnect = true } = opts;
       const placementAttrs: Record<string, string> = {};
-      if (placementRequiresRDMA) placementAttrs["capabilities/rdma"] = "true";
+      if (placementRequiresInterconnect) placementAttrs["capabilities/gpu-interconnect"] = "true";
 
       const gpuAttrs: Record<string, unknown> = { vendor: { nvidia: [{ model: "a100" }] } };
-      if (rdma !== undefined) gpuAttrs.rdma = rdma;
-      if (rdmaGroup !== undefined) gpuAttrs.rdma_group = rdmaGroup;
+      if (interconnect !== undefined) gpuAttrs.interconnect = interconnect;
+      if (interconnectGroup !== undefined) gpuAttrs.interconnect_group = interconnectGroup;
 
       return setup({
         profiles: {
@@ -2266,46 +2266,46 @@ describe(validateSDL.name, () => {
       });
     }
 
-    it("accepts a valid RDMA profile under an RDMA-capable placement", () => {
-      const { validate } = rdmaSetup({ rdma: true });
+    it("accepts a valid interconnect profile under an interconnect-capable placement", () => {
+      const { validate } = interconnectSetup({  interconnect: true });
       expect(validate()).toBeUndefined();
     });
 
-    // units==0 + rdma / rdma_group is rejected by the schema-level
+    // units==0 + interconnect / interconnect_group is rejected by the schema-level
     // gpuAttributesRequireUnitsGt0 rule (any attribute present requires
     // units > 0), so the semantic validator never runs for that case.
     // Pinning the schema's behavior here so a future schema relaxation
     // doesn't silently open a hole.
-    it("rejects gpu.attributes.rdma=true when gpu.units is 0 (schema-level)", () => {
-      const { validate } = rdmaSetup({ rdma: true, units: 0 });
+    it("rejects gpu.attributes.interconnect=true when gpu.units is 0 (schema-level)", () => {
+      const { validate } = interconnectSetup({  interconnect: true, units: 0 });
       expect(validate()).toContainEqual(expect.objectContaining({
         schemaPath: expect.stringContaining("gpuAttributesRequireUnitsGt0"),
       }));
     });
 
-    it("rejects gpu.attributes.rdma_group when gpu.units is 0 (schema-level)", () => {
-      const { validate } = rdmaSetup({ rdmaGroup: "pair0", units: 0 });
+    it("rejects gpu.attributes.interconnect_group when gpu.units is 0 (schema-level)", () => {
+      const { validate } = interconnectSetup({ interconnectGroup: "pair0", units: 0 });
       expect(validate()).toContainEqual(expect.objectContaining({
         schemaPath: expect.stringContaining("gpuAttributesRequireUnitsGt0"),
       }));
     });
 
-    it("rejects rdma_group set without rdma=true", () => {
-      const { validate } = rdmaSetup({ rdmaGroup: "pair0" });
+    it("rejects interconnect_group set without interconnect=true", () => {
+      const { validate } = interconnectSetup({ interconnectGroup: "pair0" });
       expect(validate()).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining(`sets gpu.attributes.rdma_group="pair0" but does not set gpu.attributes.rdma: true`),
+        message: expect.stringContaining(`sets gpu.attributes.interconnect_group="pair0" but does not set gpu.attributes.interconnect: true`),
       }));
     });
 
-    it("rejects rdma=true under a placement that does not require capabilities/rdma=true", () => {
-      const { validate } = rdmaSetup({ rdma: true, placementRequiresRDMA: false });
+    it("rejects interconnect=true under a placement that does not require capabilities/gpu-interconnect=true", () => {
+      const { validate } = interconnectSetup({ interconnect: true, placementRequiresInterconnect: false });
       expect(validate()).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining(`but placement does not require capabilities/rdma=true`),
+        message: expect.stringContaining(`but placement does not require capabilities/gpu-interconnect=true`),
       }));
     });
 
-    it("rejects implicit + explicit rdma_group mixing within one placement", () => {
-      // Two profiles, both RDMA, but only one sets rdma_group.
+    it("rejects implicit + explicit interconnect_group mixing within one placement", () => {
+      // Two profiles, both interconnect, but only one sets interconnect_group.
       const { validate } = setup({
         services: {
           worker: {
@@ -2323,8 +2323,8 @@ describe(validateSDL.name, () => {
                   units: 1,
                   attributes: {
                     vendor: { nvidia: [{ model: "a100" }] },
-                    rdma: true,
-                    rdma_group: "pair0",
+                     interconnect: true,
+                    interconnect_group: "pair0",
                   },
                 },
               },
@@ -2338,8 +2338,8 @@ describe(validateSDL.name, () => {
                   units: 1,
                   attributes: {
                     vendor: { nvidia: [{ model: "a100" }] },
-                    rdma: true,
-                    // rdma_group intentionally omitted -> rule 3 violation
+                     interconnect: true,
+                    // interconnect_group intentionally omitted -> rule 3 violation
                   },
                 },
               },
@@ -2347,7 +2347,7 @@ describe(validateSDL.name, () => {
           },
           placement: {
             dcloud: {
-              attributes: { "capabilities/rdma": "true" },
+              attributes: { "capabilities/gpu-interconnect": "true" },
               pricing: {
                 worker: { amount: "1000", denom: AKT_DENOM },
               },
@@ -2362,7 +2362,7 @@ describe(validateSDL.name, () => {
       });
 
       expect(validate()).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("mixes explicit and implicit rdma_group"),
+        message: expect.stringContaining("mixes explicit and implicit interconnect_group"),
       }));
     });
   });

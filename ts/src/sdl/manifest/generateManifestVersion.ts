@@ -12,7 +12,7 @@ const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 // string, otherwise the manifest version hash (a SHA over this exact
 // serialization) diverges from the Go side and breaks send-manifest
 // validation on existing leases.
-const OMITTED_WHEN_EMPTY_STRING_KEYS = new Set(["rdmaGroup"]);
+const OMITTED_WHEN_EMPTY_STRING_KEYS = new Set(["interconnectGroup"]);
 
 export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {
   const jsonStr = manifestToSortedJSON(manifest);

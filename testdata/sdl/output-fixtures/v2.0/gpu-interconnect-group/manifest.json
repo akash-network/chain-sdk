@@ -1,6 +1,6 @@
 [
   {
-    "name": "rdma-cluster",
+    "name": "interconnect-cluster",
     "services": [
       {
         "name": "inference-head",
@@ -34,11 +34,11 @@
             },
             "attributes": [
               {
-                "key": "rdma",
+                "key": "interconnect",
                 "value": "true"
               },
               {
-                "key": "rdma_group",
+                "key": "interconnect_group",
                 "value": "pair0"
               },
               {
@@ -78,7 +78,7 @@
           }
         ],
         "credentials": null,
-        "rdmaGroup": "pair0"
+        "interconnectGroup": "pair0"
       },
       {
         "name": "inference-worker",
@@ -112,11 +112,11 @@
             },
             "attributes": [
               {
-                "key": "rdma",
+                "key": "interconnect",
                 "value": "true"
               },
               {
-                "key": "rdma_group",
+                "key": "interconnect_group",
                 "value": "pair0"
               },
               {
@@ -152,7 +152,7 @@
           }
         ],
         "credentials": null,
-        "rdmaGroup": "pair0"
+        "interconnectGroup": "pair0"
       }
     ]
   }

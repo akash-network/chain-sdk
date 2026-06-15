@@ -248,12 +248,12 @@ function buildManifestService(
 
   const params = buildParams(service);
 
-  // rdma_group lives under gpu.attributes in the SDL but propagates to the
-  // off-chain manifest's Service.rdmaGroup field so the provider's workload
+  // interconnect_group lives under gpu.attributes in the SDL but propagates to the
+  // off-chain manifest's Service.interconnectGroup field so the provider's workload
   // builder can label pods for per-group anti-affinity. The same value is
   // also emitted into Resources.GPU.Attributes by transformGpuAttributes;
   // both consumers (bid engine vs. workload builder) see it.
-  const rdmaGroup = compute.resources.gpu?.attributes?.rdma_group ?? "";
+  const interconnectGroup = compute.resources.gpu?.attributes?.interconnect_group ?? "";
 
   return Service.fromPartial({
     name,
@@ -266,7 +266,7 @@ function buildManifestService(
     expose: buildManifestExpose(service, endpointSequenceNumbers),
     params,
     credentials,
-    rdmaGroup,
+    interconnectGroup,
   });
 }
 

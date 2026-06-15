@@ -25,12 +25,14 @@ export interface NodeResources {
     | ResourcePair
     | undefined;
   /**
-   * RDMA reports node RDMA capacity. Capacity/Allocatable/Allocated are
-   * populated by the inventory operator from k8s allocatable for whichever
-   * rdma/rdma_shared_device_* extended resource the cluster's device plugin
-   * publishes (see NodeCapabilities.rdma_resource_name).
+   * GPUInterconnect reports node GPU-interconnect HCA capacity.
+   * Capacity/Allocatable/Allocated are populated by the inventory
+   * operator from k8s allocatable for whichever
+   * rdma/rdma_shared_device_* extended resource the cluster's device
+   * plugin publishes (the `rdma/*` prefix is the device plugin's
+   * naming convention; see NodeCapabilities.interconnect_resource_name).
    */
-  rdma: ResourcePair | undefined;
+  gpuInterconnect: ResourcePair | undefined;
 }
 
 function createBaseNodeResources(): NodeResources {
@@ -41,7 +43,7 @@ function createBaseNodeResources(): NodeResources {
     ephemeralStorage: undefined,
     volumesAttached: undefined,
     volumesMounted: undefined,
-    rdma: undefined,
+    gpuInterconnect: undefined,
   };
 }
 
@@ -67,8 +69,8 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
     if (message.volumesMounted !== undefined) {
       ResourcePair.encode(message.volumesMounted, writer.uint32(50).fork()).join();
     }
-    if (message.rdma !== undefined) {
-      ResourcePair.encode(message.rdma, writer.uint32(58).fork()).join();
+    if (message.gpuInterconnect !== undefined) {
+      ResourcePair.encode(message.gpuInterconnect, writer.uint32(58).fork()).join();
     }
     return writer;
   },
@@ -133,7 +135,7 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
             break;
           }
 
-          message.rdma = ResourcePair.decode(reader, reader.uint32());
+          message.gpuInterconnect = ResourcePair.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -153,7 +155,7 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
       ephemeralStorage: isSet(object.ephemeral_storage) ? ResourcePair.fromJSON(object.ephemeral_storage) : undefined,
       volumesAttached: isSet(object.volumes_attached) ? ResourcePair.fromJSON(object.volumes_attached) : undefined,
       volumesMounted: isSet(object.volumes_mounted) ? ResourcePair.fromJSON(object.volumes_mounted) : undefined,
-      rdma: isSet(object.rdma) ? ResourcePair.fromJSON(object.rdma) : undefined,
+      gpuInterconnect: isSet(object.gpu_interconnect) ? ResourcePair.fromJSON(object.gpu_interconnect) : undefined,
     };
   },
 
@@ -177,8 +179,8 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
     if (message.volumesMounted !== undefined) {
       obj.volumes_mounted = ResourcePair.toJSON(message.volumesMounted);
     }
-    if (message.rdma !== undefined) {
-      obj.rdma = ResourcePair.toJSON(message.rdma);
+    if (message.gpuInterconnect !== undefined) {
+      obj.gpu_interconnect = ResourcePair.toJSON(message.gpuInterconnect);
     }
     return obj;
   },
@@ -198,8 +200,8 @@ export const NodeResources: MessageFns<NodeResources, "akash.inventory.v1.NodeRe
     message.volumesMounted = (object.volumesMounted !== undefined && object.volumesMounted !== null)
       ? ResourcePair.fromPartial(object.volumesMounted)
       : undefined;
-    message.rdma = (object.rdma !== undefined && object.rdma !== null)
-      ? ResourcePair.fromPartial(object.rdma)
+    message.gpuInterconnect = (object.gpuInterconnect !== undefined && object.gpuInterconnect !== null)
+      ? ResourcePair.fromPartial(object.gpuInterconnect)
       : undefined;
     return message;
   },

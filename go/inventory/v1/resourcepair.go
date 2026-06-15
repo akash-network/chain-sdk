@@ -49,8 +49,8 @@ func (m *ResourcePair) LT(rhs ResourcePair) bool {
 
 // IsZero reports whether the ResourcePair has been initialized. A
 // zero-valued ResourcePair has nil quantity pointers and is the natural
-// state for, e.g., a node that does not have RDMA capacity (and therefore
-// leaves `NodeResources.RDMA` untouched).
+// state for, e.g., a node that does not have GPU interconnect capacity
+// (and therefore leaves `NodeResources.GPUInterconnect` untouched).
 func (m *ResourcePair) IsZero() bool {
 	if m == nil {
 		return true
@@ -61,8 +61,8 @@ func (m *ResourcePair) IsZero() bool {
 func (m *ResourcePair) Dup() ResourcePair {
 	// A zero-valued ResourcePair (all quantity pointers nil) must round-trip
 	// through Dup() without panicking. Without this guard, calling Dup()
-	// against e.g. an unpopulated `NodeResources.RDMA` on a non-RDMA node
-	// nil-derefs Capacity.DeepCopy().
+	// against e.g. an unpopulated `NodeResources.GPUInterconnect` on a
+	// non-interconnect node nil-derefs Capacity.DeepCopy().
 	if m == nil || m.IsZero() {
 		return ResourcePair{}
 	}

@@ -13,15 +13,15 @@ import (
 
 // CS-6: the provider reservation/commit path on the provider side rebuilds
 // GroupSpec instances from parts and feeds the rebuilt value into the
-// inventory.Adjust path. The provider's RDMA-detection logic reads
+// inventory.Adjust path. The provider's interconnect-detection logic reads
 //
-//   - GroupSpec.Requirements.Attributes  (carrying capabilities/rdma=true)
-//   - Resources.GPU.Attributes           (carrying rdma=true per resource)
+//   - GroupSpec.Requirements.Attributes  (carrying capabilities/gpu-interconnect=true)
+//   - Resources.GPU.Attributes           (carrying interconnect=true per resource)
 //
 // from whatever ResourceGroup-typed value lands on its `reservation.Resources()`
 // call. If anything in the chain SDK's Dup / accessor chain drops either of
 // those attribute slices, the provider silently treats the order as
-// non-RDMA. These tests pin down preservation for every concrete
+// non-interconnect. These tests pin down preservation for every concrete
 // ResourceGroup the provider may hold:
 //
 //   - *Group         (the bid-engine path stores a *dtypes.Group)
@@ -29,21 +29,21 @@ import (
 //   - *GroupSpec     (used by tests and by some legacy adapter paths)
 //   - GroupSpec      (value form returned by Group.GroupSpec)
 //
-// We assert that a representative Group carrying capabilities/rdma=true on
-// Requirements and rdma=true on the first resource's GPU.Attributes survives:
+// We assert that a representative Group carrying capabilities/gpu-interconnect=true on
+// Requirements and interconnect=true on the first resource's GPU.Attributes survives:
 //
 //   1. (Group).Dup()-equivalent — via GroupSpec.Dup().
 //   2. Accessing the value via the ResourceGroup interface (GetResourceUnits).
 //   3. Direct field reads of Requirements.Attributes from any of the four
 //      concrete shapes.
 
-func rdmaSampleGroupSpec() GroupSpec {
+func interconnectSampleGroupSpec() GroupSpec {
 	return GroupSpec{
 		Name: "ib",
 		Requirements: attr.PlacementRequirements{
 			Attributes: attr.Attributes{
-				{Key: "capabilities/rdma", Value: "true"},
-				{Key: "capabilities/rdma/fabric/infiniband", Value: "true"},
+				{Key: "capabilities/gpu-interconnect", Value: "true"},
+				{Key: "capabilities/gpu-interconnect/fabric/infiniband", Value: "true"},
 			},
 		},
 		Resources: ResourceUnits{
@@ -59,7 +59,7 @@ func rdmaSampleGroupSpec() GroupSpec {
 					GPU: &rtypes.GPU{
 						Units: rtypes.NewResourceValue(8),
 						Attributes: attr.Attributes{
-							{Key: "rdma", Value: "true"},
+							{Key: "interconnect", Value: "true"},
 							{Key: "vendor/nvidia/model/a100", Value: "true"},
 						},
 					},
@@ -72,36 +72,36 @@ func rdmaSampleGroupSpec() GroupSpec {
 	}
 }
 
-func assertRDMASignalsPresent(t *testing.T, where string, reqs attr.Attributes, gpu attr.Attributes) {
+func assertInterconnectSignalsPresent(t *testing.T, where string, reqs attr.Attributes, gpu attr.Attributes) {
 	t.Helper()
 
-	hasPlacementRDMA := false
+	hasPlacementInterconnect := false
 	for _, a := range reqs {
-		if a.Key == "capabilities/rdma" && a.Value == "true" {
-			hasPlacementRDMA = true
+		if a.Key == "capabilities/gpu-interconnect" && a.Value == "true" {
+			hasPlacementInterconnect = true
 		}
 	}
-	require.True(t, hasPlacementRDMA, "%s: Requirements lost capabilities/rdma=true", where)
+	require.True(t, hasPlacementInterconnect, "%s: Requirements lost capabilities/gpu-interconnect=true", where)
 
-	hasGPURDMA := false
+	hasGPUInterconnect := false
 	for _, a := range gpu {
-		if a.Key == "rdma" && a.Value == "true" {
-			hasGPURDMA = true
+		if a.Key == "interconnect" && a.Value == "true" {
+			hasGPUInterconnect = true
 		}
 	}
-	require.True(t, hasGPURDMA, "%s: per-resource GPU.Attributes lost rdma=true", where)
+	require.True(t, hasGPUInterconnect, "%s: per-resource GPU.Attributes lost interconnect=true", where)
 }
 
-// TestCS6_RDMASignalsSurviveDup is the canonical regression test: drive the
+// TestCS6_InterconnectSignalsSurviveDup is the canonical regression test: drive the
 // representative GroupSpec through Dup() and assert both attribute slices
 // survive verbatim. If a future change to Resources.Dup() / Requirements.Dup()
 // drops attributes, this fails loudly.
-func TestCS6_RDMASignalsSurviveDup(t *testing.T) {
-	src := rdmaSampleGroupSpec()
+func TestCS6_InterconnectSignalsSurviveDup(t *testing.T) {
+	src := interconnectSampleGroupSpec()
 	dup := src.Dup()
 
 	require.NotSame(t, &src, &dup)
-	assertRDMASignalsPresent(t, "GroupSpec.Dup result",
+	assertInterconnectSignalsPresent(t, "GroupSpec.Dup result",
 		dup.Requirements.Attributes,
 		dup.Resources[0].Resources.GPU.Attributes,
 	)
@@ -109,18 +109,18 @@ func TestCS6_RDMASignalsSurviveDup(t *testing.T) {
 	// And mutating the dup must not poison the source.
 	dup.Requirements.Attributes[0].Value = "false"
 	dup.Resources[0].Resources.GPU.Attributes[0].Value = "false"
-	assertRDMASignalsPresent(t, "source after mutating dup",
+	assertInterconnectSignalsPresent(t, "source after mutating dup",
 		src.Requirements.Attributes,
 		src.Resources[0].Resources.GPU.Attributes,
 	)
 }
 
-// TestCS6_RDMASignalsAcrossConcreteTypes exercises the four concrete
+// TestCS6_InterconnectSignalsAcrossConcreteTypes exercises the four concrete
 // ResourceGroup-shaped values the provider's reservation/commit path can
-// hold. Each row asserts that the RDMA signals are reachable via the
+// hold. Each row asserts that the interconnect signals are reachable via the
 // type-specific accessors the provider uses.
-func TestCS6_RDMASignalsAcrossConcreteTypes(t *testing.T) {
-	specVal := rdmaSampleGroupSpec()
+func TestCS6_InterconnectSignalsAcrossConcreteTypes(t *testing.T) {
+	specVal := interconnectSampleGroupSpec()
 	specPtr := &specVal
 
 	groupVal := Group{
@@ -160,7 +160,7 @@ func TestCS6_RDMASignalsAcrossConcreteTypes(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			assertRDMASignalsPresent(t, tc.name, tc.readReqs(), tc.readGPU())
+			assertInterconnectSignalsPresent(t, tc.name, tc.readReqs(), tc.readGPU())
 		})
 	}
 }
@@ -169,24 +169,24 @@ func TestCS6_RDMASignalsAcrossConcreteTypes(t *testing.T) {
 // ResourceGroup-interface path the provider's commit code uses. The
 // provider iterates GetResourceUnits() and reads each unit's GPU.Attributes;
 // a regression where this collection silently drops attributes would
-// translate to RDMA opt-in disappearing on the wire.
+// translate to interconnect opt-in disappearing on the wire.
 func TestCS6_GetResourceUnitsPreservesGPUAttributes(t *testing.T) {
-	spec := rdmaSampleGroupSpec()
+	spec := interconnectSampleGroupSpec()
 
 	units := spec.GetResourceUnits()
 	require.NotEmpty(t, units, "GetResourceUnits returned empty")
 
-	hasGPURDMA := false
+	hasGPUInterconnect := false
 	for _, u := range units {
 		if u.Resources.GPU == nil {
 			continue
 		}
 		for _, a := range u.Resources.GPU.Attributes {
-			if a.Key == "rdma" && a.Value == "true" {
-				hasGPURDMA = true
+			if a.Key == "interconnect" && a.Value == "true" {
+				hasGPUInterconnect = true
 			}
 		}
 	}
-	require.True(t, hasGPURDMA,
-		"GetResourceUnits() dropped GPU.Attributes — provider would treat as non-RDMA")
+	require.True(t, hasGPUInterconnect,
+		"GetResourceUnits() dropped GPU.Attributes — provider would treat as non-interconnect")
 }

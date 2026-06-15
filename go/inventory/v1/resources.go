@@ -8,7 +8,7 @@ func (s *NodeResources) Dup() NodeResources {
 		EphemeralStorage: s.EphemeralStorage.Dup(),
 		VolumesAttached:  s.VolumesAttached.Dup(),
 		VolumesMounted:   s.VolumesMounted.Dup(),
-		RDMA:             s.RDMA.Dup(),
+		GPUInterconnect:  s.GPUInterconnect.Dup(),
 	}
 
 	return res

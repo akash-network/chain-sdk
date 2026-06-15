@@ -75,15 +75,15 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
       });
   }
 
-  // rdma + rdma_group flow into on-chain Resources.GPU.Attributes so the
+  // interconnect + interconnect_group flow into on-chain Resources.GPU.Attributes so the
   // provider's bid engine can match capability and enforce per-group node
   // separation. Keep parity with the Go SDL parser in go/sdl/gpu.go — same
   // key names, same value encoding ("true" for the boolean opt-in).
-  if (attributes.rdma === true) {
-    result.push({ key: "rdma", value: "true" });
+  if (attributes.interconnect === true) {
+    result.push({ key: "interconnect", value: "true" });
   }
-  if (attributes.rdma_group && attributes.rdma_group.length > 0) {
-    result.push({ key: "rdma_group", value: attributes.rdma_group });
+  if (attributes.interconnect_group && attributes.interconnect_group.length > 0) {
+    result.push({ key: "interconnect_group", value: attributes.interconnect_group });
   }
 
   // Go SDL parser canonicalizes the slice via sort.Sort(res) before

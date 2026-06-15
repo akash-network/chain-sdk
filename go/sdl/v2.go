@@ -533,41 +533,44 @@ func (sdl *v2) validate() error {
 		}
 	}
 
-	if err := validateRDMA(sdl.Profiles, sdl.Deployments); err != nil {
+	if err := validateInterconnect(sdl.Profiles, sdl.Deployments); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// validateRDMA enforces the parser-level cross-field invariants for RDMA
-// (CS-5 in the implementation spec):
+// validateInterconnect enforces the parser-level cross-field invariants
+// for GPU interconnect (CS-5 in the implementation spec):
 //
-//  1. Any compute profile with gpu.attributes.rdma: true must be used by a
-//     deployment whose placement requirements include capabilities/rdma=true.
-//  2. Any compute profile with gpu.attributes.rdma_group set must also have
-//     gpu.attributes.rdma: true on the same profile (a peer group label
-//     without an HCA is a misconfiguration).
-//  3. Within one deployment, if any profile sets rdma_group, every profile
-//     with gpu.attributes.rdma: true in that deployment must set rdma_group.
-//     No implicit-default-plus-explicit mixing within one deployment.
+//  1. Any compute profile with gpu.attributes.interconnect: true must be
+//     used by a deployment whose placement requirements include
+//     capabilities/gpu-interconnect=true.
+//  2. Any compute profile with gpu.attributes.interconnect_group set must
+//     also have gpu.attributes.interconnect: true on the same profile (a
+//     peer group label without an HCA is a misconfiguration).
+//  3. Within one deployment, if any profile sets interconnect_group,
+//     every profile with gpu.attributes.interconnect: true in that
+//     deployment must set interconnect_group. No
+//     implicit-default-plus-explicit mixing within one deployment.
 //
-// The provider relies on these guarantees: rule 1 means an RDMA-required
-// workload always reaches an RDMA-capable provider; rule 2 keeps peer-group
-// labels meaningful; rule 3 keeps the per-group anti-affinity rule
-// unambiguous.
+// The provider relies on these guarantees: rule 1 means an
+// interconnect-required workload always reaches an interconnect-capable
+// provider; rule 2 keeps peer-group labels meaningful; rule 3 keeps the
+// per-group anti-affinity rule unambiguous.
 //
 // Free function (not a method on v2) so v2_1's validate() can call it
 // against the same profile + deployment shape — v2.1 inherits the full
-// RDMA SDL grammar from v2 and must enforce the identical rules.
-func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
-	// Per-profile rule 2: rdma_group ⇒ rdma=true.
+// GPU interconnect SDL grammar from v2 and must enforce the identical
+// rules.
+func validateInterconnect(profiles v2profiles, deployments v2Deployments) error {
+	// Per-profile rule 2: interconnect_group ⇒ interconnect=true.
 	//
 	// The gpu.Units > 0 guard is defense-in-depth: v2ResourceGPU.UnmarshalYAML
-	// already rejects rdma / rdma_group with gpu.units == 0 at parse time,
-	// but if that parser path is ever bypassed we'd otherwise classify a
-	// zero-GPU profile as RDMA-enabled here and propagate RDMAGroup into
-	// downstream manifest builders.
+	// already rejects interconnect / interconnect_group with gpu.units == 0
+	// at parse time, but if that parser path is ever bypassed we'd otherwise
+	// classify a zero-GPU profile as interconnect-enabled here and propagate
+	// InterconnectGroup into downstream manifest builders.
 	for profileName, compute := range profiles.Compute {
 		if compute.Resources == nil || compute.Resources.GPU == nil {
 			continue
@@ -576,12 +579,12 @@ func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 		if gpu.Units == 0 {
 			continue
 		}
-		if gpu.RDMAGroup != "" && !gpuAttributesHaveRDMA(gpu.Attributes) {
+		if gpu.InterconnectGroup != "" && !gpuAttributesHaveInterconnect(gpu.Attributes) {
 			return fmt.Errorf(
-				"%w: compute profile %q sets gpu.attributes.rdma_group=%q but does not set gpu.attributes.rdma: true",
+				"%w: compute profile %q sets gpu.attributes.interconnect_group=%q but does not set gpu.attributes.interconnect: true",
 				errSDLInvalid,
 				profileName,
-				gpu.RDMAGroup,
+				gpu.InterconnectGroup,
 			)
 		}
 	}
@@ -592,12 +595,12 @@ func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 	//
 	// Walk every (service, placement) and remember per service-deployment:
 	//   - which profile it points at,
-	//   - whether that profile has rdma=true,
-	//   - whether that profile has rdma_group set.
+	//   - whether that profile has interconnect=true,
+	//   - whether that profile has interconnect_group set.
 	type profUsage struct {
-		profileName string
-		hasRDMA     bool
-		group       string
+		profileName    string
+		hasInterconnect bool
+		group          string
 	}
 	type placementUsage struct {
 		// indexed by service name
@@ -619,12 +622,12 @@ func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 				profileName: svcdepl.Profile,
 			}
 			// Same defense-in-depth as the rule-2 loop above: an
-			// rdma attribute or rdma_group on a zero-GPU profile would
-			// be parser-rejected upstream, but treat it as "not RDMA"
-			// here just in case the parser is bypassed.
+			// interconnect attribute or interconnect_group on a zero-GPU
+			// profile would be parser-rejected upstream, but treat it as
+			// "not interconnect" here just in case the parser is bypassed.
 			if gpu != nil && gpu.Units > 0 {
-				usage.hasRDMA = gpuAttributesHaveRDMA(gpu.Attributes)
-				usage.group = gpu.RDMAGroup
+				usage.hasInterconnect = gpuAttributesHaveInterconnect(gpu.Attributes)
+				usage.group = gpu.InterconnectGroup
 			}
 
 			pu, ok := usagesByPlacement[placementName]
@@ -634,16 +637,17 @@ func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 			}
 			pu.usages = append(pu.usages, usage)
 
-			// Rule 1: per-placement, if this profile has rdma=true, the
-			// placement's requirements must include capabilities/rdma=true.
-			if usage.hasRDMA {
+			// Rule 1: per-placement, if this profile has interconnect=true,
+			// the placement's requirements must include
+			// capabilities/gpu-interconnect=true.
+			if usage.hasInterconnect {
 				infra, ok := profiles.Placement[placementName]
 				if !ok {
 					continue // covered by earlier validate() loop
 				}
-				if !placementRequiresRDMA(infra.Attributes) {
+				if !placementRequiresInterconnect(infra.Attributes) {
 					return fmt.Errorf(
-						"%w: service %q uses RDMA profile %q under placement %q but placement does not require capabilities/rdma=true",
+						"%w: service %q uses interconnect profile %q under placement %q but placement does not require capabilities/gpu-interconnect=true",
 						errSDLInvalid,
 						svcName,
 						svcdepl.Profile,
@@ -655,10 +659,11 @@ func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 	}
 
 	// Rule 3: within one deployment block (= one placementUsage), if any
-	// profile sets rdma_group, every profile with rdma=true must set
-	// rdma_group too. The spec's "deployment" scope is one sdl.Deployments,
-	// so we apply this rule per placement (each placement is what a tenant
-	// sees as one bid target / one set of leased pods).
+	// profile sets interconnect_group, every profile with interconnect=true
+	// must set interconnect_group too. The spec's "deployment" scope is
+	// one sdl.Deployments, so we apply this rule per placement (each
+	// placement is what a tenant sees as one bid target / one set of
+	// leased pods).
 	for placementName, pu := range usagesByPlacement {
 		anyGrouped := false
 		for _, u := range pu.usages {
@@ -671,9 +676,9 @@ func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 			continue
 		}
 		for _, u := range pu.usages {
-			if u.hasRDMA && u.group == "" {
+			if u.hasInterconnect && u.group == "" {
 				return fmt.Errorf(
-					"%w: placement %q mixes explicit and implicit rdma_group: profile %q has gpu.attributes.rdma: true but no rdma_group, while another profile under the same placement sets rdma_group",
+					"%w: placement %q mixes explicit and implicit interconnect_group: profile %q has gpu.attributes.interconnect: true but no interconnect_group, while another profile under the same placement sets interconnect_group",
 					errSDLInvalid,
 					placementName,
 					u.profileName,
@@ -685,18 +690,18 @@ func validateRDMA(profiles v2profiles, deployments v2Deployments) error {
 	return nil
 }
 
-func gpuAttributesHaveRDMA(attrs v2GPUAttributes) bool {
+func gpuAttributesHaveInterconnect(attrs v2GPUAttributes) bool {
 	for _, a := range attrs {
-		if a.Key == GPUAttributeRDMA && a.Value == valueTrue {
+		if a.Key == GPUAttributeInterconnect && a.Value == valueTrue {
 			return true
 		}
 	}
 	return false
 }
 
-func placementRequiresRDMA(attrs v2PlacementAttributes) bool {
+func placementRequiresInterconnect(attrs v2PlacementAttributes) bool {
 	for _, a := range attrs {
-		if a.Key == "capabilities/rdma" && a.Value == valueTrue {
+		if a.Key == "capabilities/gpu-interconnect" && a.Value == valueTrue {
 			return true
 		}
 	}

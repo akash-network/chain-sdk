@@ -7,12 +7,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// CS-5: parser-level cross-field validations for RDMA.
+// CS-5: parser-level cross-field validations for interconnect.
 //
 // Each test builds a full SDL via Read() — the same entry point the
 // CLI/provider use — so we exercise the real parse + validate pipeline.
 
-const sdlRDMAFixtureHeader = `---
+const sdlInterconnectFixtureHeader = `---
 version: "2.0"
 services:
   inference-head:
@@ -29,7 +29,7 @@ services:
 `
 
 func sdlBody(headGPU, workerGPU, placementAttrs string) string {
-	return sdlRDMAFixtureHeader + `
+	return sdlInterconnectFixtureHeader + `
 profiles:
   compute:
     inference-head:
@@ -49,7 +49,7 @@ profiles:
         storage:
           - size: 512Mi
   placement:
-    rdma:
+    fabric:
       attributes:
 ` + placementAttrs + `
       pricing:
@@ -57,130 +57,130 @@ profiles:
         inference-worker: { denom: uact, amount: 1000000 }
 deployment:
   inference-head:
-    rdma: { profile: inference-head,   count: 1 }
+    fabric: { profile: inference-head,   count: 1 }
   inference-worker:
-    rdma: { profile: inference-worker, count: 1 }
+    fabric: { profile: inference-worker, count: 1 }
 `
 }
 
-func TestSDL_RDMA_Rule1_RDMARequiresPlacementCapability(t *testing.T) {
-	// Profiles declare gpu.attributes.rdma: true but placement does NOT
-	// require capabilities/rdma=true — rule 1 must reject.
+func TestSDL_Interconnect_Rule1_InterconnectRequiresPlacementCapability(t *testing.T) {
+	// Profiles declare gpu.attributes.interconnect: true but placement does NOT
+	// require capabilities/gpu-interconnect=true — rule 1 must reject.
 	body := sdlBody(
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true`,
+            interconnect: true`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true`,
+            interconnect: true`,
 		`        capabilities/gpu: nvidia`,
 	)
 
 	_, err := Read([]byte(body))
 	require.Error(t, err)
 	require.True(t,
-		strings.Contains(err.Error(), "does not require capabilities/rdma=true"),
+		strings.Contains(err.Error(), "does not require capabilities/gpu-interconnect=true"),
 		"unexpected error: %v", err)
 }
 
-func TestSDL_RDMA_Rule1_PassesWhenPlacementRequiresRDMA(t *testing.T) {
+func TestSDL_Interconnect_Rule1_PassesWhenPlacementRequiresInterconnect(t *testing.T) {
 	body := sdlBody(
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true`,
+            interconnect: true`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true`,
-		`        capabilities/rdma: "true"`,
+            interconnect: true`,
+		`        capabilities/gpu-interconnect: "true"`,
 	)
 
 	_, err := Read([]byte(body))
 	require.NoError(t, err)
 }
 
-func TestSDL_RDMA_Rule2_RDMAGroupRequiresRDMAOnSameProfile(t *testing.T) {
+func TestSDL_Interconnect_Rule2_InterconnectGroupRequiresInterconnectOnSameProfile(t *testing.T) {
 	body := sdlBody(
-		// head: rdma: true + rdma_group set (OK)
+		// head: interconnect: true + interconnect_group set (OK)
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true
-            rdma_group: pair1`,
-		// worker: rdma_group set but rdma is NOT true — rule 2 must reject.
+            interconnect: true
+            interconnect_group: pair1`,
+		// worker: interconnect_group set but interconnect is NOT true — rule 2 must reject.
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma_group: pair1`,
-		`        capabilities/rdma: "true"`,
+            interconnect_group: pair1`,
+		`        capabilities/gpu-interconnect: "true"`,
 	)
 
 	_, err := Read([]byte(body))
 	require.Error(t, err)
 	require.True(t,
-		strings.Contains(err.Error(), "rdma_group") && strings.Contains(err.Error(), "rdma: true"),
+		strings.Contains(err.Error(), "interconnect_group") && strings.Contains(err.Error(), "interconnect: true"),
 		"unexpected error: %v", err)
 }
 
-func TestSDL_RDMA_Rule3_NoMixingExplicitAndImplicitGroup(t *testing.T) {
+func TestSDL_Interconnect_Rule3_NoMixingExplicitAndImplicitGroup(t *testing.T) {
 	body := sdlBody(
-		// head: rdma: true with no rdma_group (implicit __default__).
+		// head: interconnect: true with no interconnect_group (implicit __default__).
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true`,
-		// worker: rdma: true with rdma_group explicitly set.
+            interconnect: true`,
+		// worker: interconnect: true with interconnect_group explicitly set.
 		// Rule 3: cannot mix; reject.
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true
-            rdma_group: pair1`,
-		`        capabilities/rdma: "true"`,
+            interconnect: true
+            interconnect_group: pair1`,
+		`        capabilities/gpu-interconnect: "true"`,
 	)
 
 	_, err := Read([]byte(body))
 	require.Error(t, err)
 	require.True(t,
-		strings.Contains(err.Error(), "mixes explicit and implicit rdma_group"),
+		strings.Contains(err.Error(), "mixes explicit and implicit interconnect_group"),
 		"unexpected error: %v", err)
 }
 
-func TestSDL_RDMA_Rule3_AllImplicitOK(t *testing.T) {
-	// Simple head/worker with no rdma_group on either profile — the implicit
+func TestSDL_Interconnect_Rule3_AllImplicitOK(t *testing.T) {
+	// Simple head/worker with no interconnect_group on either profile — the implicit
 	// default group is fine.
 	body := sdlBody(
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true`,
+            interconnect: true`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true`,
-		`        capabilities/rdma: "true"`,
+            interconnect: true`,
+		`        capabilities/gpu-interconnect: "true"`,
 	)
 
 	_, err := Read([]byte(body))
 	require.NoError(t, err)
 }
 
-func TestSDL_RDMA_Rule3_AllExplicitOK(t *testing.T) {
+func TestSDL_Interconnect_Rule3_AllExplicitOK(t *testing.T) {
 	body := sdlBody(
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true
-            rdma_group: pair1`,
+            interconnect: true
+            interconnect_group: pair1`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            rdma: true
-            rdma_group: pair1`,
-		`        capabilities/rdma: "true"`,
+            interconnect: true
+            interconnect_group: pair1`,
+		`        capabilities/gpu-interconnect: "true"`,
 	)
 
 	_, err := Read([]byte(body))

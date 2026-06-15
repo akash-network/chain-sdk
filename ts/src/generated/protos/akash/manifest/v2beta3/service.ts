@@ -58,20 +58,20 @@ export interface Service {
     | ImageCredentials
     | undefined;
   /**
-   * RDMAGroup carries the SDL gpu.attributes.rdma_group peer-group label.
-   * Off-chain only — never reaches Resources.GPU.attributes. Services
-   * sharing the same value form one NCCL peer group; the provider applies
-   * pod anti-affinity within each group when scheduling the workload.
-   * Empty when the service is not part of any RDMA peer group.
+   * InterconnectGroup carries the SDL gpu.attributes.interconnect_group
+   * peer-group label. Lifted from Resources.GPU.Attributes by the
+   * manifest builder so the off-chain workload builder can label pods
+   * for per-group anti-affinity. Services sharing the same value form
+   * one NCCL peer group; the provider schedules them on distinct nodes.
+   * Empty when the service is not part of any GPU interconnect group.
    *
    * JSON / YAML tags carry `omitempty`: the on-chain manifest `version`
-   * is a SHA hash of the JSON-serialized off-chain manifest, so any field
-   * that always serializes (even at zero value) would shift the hash for
-   * every pre-RDMA SDL and break send-manifest validation on existing
-   * leases. With omitempty, non-RDMA services serialize identically to
-   * their pre-PR shape; only services that declare a group emit the key.
+   * is a SHA hash of the JSON-serialized off-chain manifest, so any
+   * field that always serializes (even at zero value) would shift the
+   * hash for every non-interconnect SDL and break send-manifest
+   * validation on existing leases.
    */
-  rdmaGroup: string;
+  interconnectGroup: string;
 }
 
 function createBaseStorageParams(): StorageParams {
@@ -434,7 +434,7 @@ function createBaseService(): Service {
     expose: [],
     params: undefined,
     credentials: undefined,
-    rdmaGroup: "",
+    interconnectGroup: "",
   };
 }
 
@@ -472,8 +472,8 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     if (message.credentials !== undefined) {
       ImageCredentials.encode(message.credentials, writer.uint32(82).fork()).join();
     }
-    if (message.rdmaGroup !== "") {
-      writer.uint32(90).string(message.rdmaGroup);
+    if (message.interconnectGroup !== "") {
+      writer.uint32(90).string(message.interconnectGroup);
     }
     return writer;
   },
@@ -570,7 +570,7 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
             break;
           }
 
-          message.rdmaGroup = reader.string();
+          message.interconnectGroup = reader.string();
           continue;
         }
       }
@@ -594,7 +594,7 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
       expose: globalThis.Array.isArray(object?.expose) ? object.expose.map((e: any) => ServiceExpose.fromJSON(e)) : [],
       params: isSet(object.params) ? ServiceParams.fromJSON(object.params) : undefined,
       credentials: isSet(object.credentials) ? ImageCredentials.fromJSON(object.credentials) : undefined,
-      rdmaGroup: isSet(object.rdma_group) ? globalThis.String(object.rdma_group) : "",
+      interconnectGroup: isSet(object.interconnect_group) ? globalThis.String(object.interconnect_group) : "",
     };
   },
 
@@ -630,8 +630,8 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     if (message.credentials !== undefined) {
       obj.credentials = ImageCredentials.toJSON(message.credentials);
     }
-    if (message.rdmaGroup !== "") {
-      obj.rdma_group = message.rdmaGroup;
+    if (message.interconnectGroup !== "") {
+      obj.interconnect_group = message.interconnectGroup;
     }
     return obj;
   },
@@ -653,7 +653,7 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     message.credentials = (object.credentials !== undefined && object.credentials !== null)
       ? ImageCredentials.fromPartial(object.credentials)
       : undefined;
-    message.rdmaGroup = object.rdmaGroup ?? "";
+    message.interconnectGroup = object.interconnectGroup ?? "";
     return message;
   },
 };

@@ -7,17 +7,17 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-// CodeRabbit follow-up: ResourcePair.Dup() previously dereferenced
-// Capacity/Allocatable/Allocated unconditionally, which panics for a
-// zero-value ResourcePair. Non-RDMA nodes legitimately leave
-// NodeResources.RDMA at zero value (no quantity pointers populated), so
-// NodeResources.Dup() ends up calling ResourcePair.Dup() on a zero value.
+// ResourcePair.Dup() previously dereferenced Capacity/Allocatable/Allocated
+// unconditionally, which panics for a zero-value ResourcePair.
+// Non-interconnect nodes legitimately leave NodeResources.GPUInterconnect
+// at zero value (no quantity pointers populated), so NodeResources.Dup()
+// ends up calling ResourcePair.Dup() on a zero value.
 //
 // Two assertions:
 //  1. ResourcePair.Dup() returns an equivalent zero-valued ResourcePair
 //     without panicking when called on the nil/zero receiver.
-//  2. NodeResources.Dup() round-trips a non-RDMA NodeResources (RDMA
-//     left at zero value) without panicking.
+//  2. NodeResources.Dup() round-trips a non-interconnect NodeResources
+//     (GPUInterconnect left at zero value) without panicking.
 
 func TestResourcePair_Dup_ZeroValueDoesNotPanic(t *testing.T) {
 	var zero ResourcePair
@@ -75,11 +75,12 @@ func TestResourcePair_Dup_PreservesNilPointers(t *testing.T) {
 	require.Equal(t, int64(8), src.Allocatable.Value(), "Dup must deep-copy")
 }
 
-// Mirrors the realistic non-RDMA-node case the bug would surface in.
-func TestNodeResources_Dup_ZeroRDMA_DoesNotPanic(t *testing.T) {
+// Mirrors the realistic non-interconnect-node case the bug would surface in.
+func TestNodeResources_Dup_ZeroGPUInterconnect_DoesNotPanic(t *testing.T) {
 	zero := NewResourcePair(0, 0, 0, resource.DecimalSI)
 
-	// Every member is initialized except RDMA, which is left at zero value.
+	// Every member is initialized except GPUInterconnect, which is left
+	// at zero value.
 	src := NodeResources{
 		CPU:              CPU{Quantity: NewResourcePairMilli(0, 0, 0, resource.DecimalSI)},
 		Memory:           Memory{Quantity: zero},
@@ -87,9 +88,9 @@ func TestNodeResources_Dup_ZeroRDMA_DoesNotPanic(t *testing.T) {
 		EphemeralStorage: zero,
 		VolumesAttached:  zero,
 		VolumesMounted:   zero,
-		// RDMA: <intentionally zero value>
+		// GPUInterconnect: <intentionally zero value>
 	}
 
 	got := src.Dup()
-	require.True(t, got.RDMA.IsZero(), "zero-value RDMA must Dup as zero")
+	require.True(t, got.GPUInterconnect.IsZero(), "zero-value GPUInterconnect must Dup as zero")
 }

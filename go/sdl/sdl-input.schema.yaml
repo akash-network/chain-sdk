@@ -268,19 +268,23 @@ properties:
                                     type: object
                                 - type: 'null'
                           type: object
-                        rdma:
+                        interconnect:
                           description: |
-                            Opt this resource into RDMA. When true, the bid
-                            engine matches against providers advertising
-                            capabilities/rdma and the workload builder
-                            requests one RDMA HCA per GPU unit (1:1).
+                            Opt this resource into GPU interconnect.
+                            When true, the bid engine matches against
+                            providers advertising
+                            capabilities/gpu-interconnect and the
+                            workload builder requests one HCA per GPU
+                            unit (1:1). Fabric (InfiniBand vs RoCE) is
+                            chosen by the provider, not the SDL.
                           type: boolean
-                        rdma_group:
+                        interconnect_group:
                           description: |
-                            Peer-group label for multi-service NCCL groups.
-                            All services sharing the same value form one
-                            anti-affinity group: the provider schedules them
-                            on distinct nodes. Implies rdma: true.
+                            Peer-group label for multi-service NCCL
+                            groups. All services sharing the same value
+                            form one anti-affinity group: the provider
+                            schedules them on distinct nodes. Implies
+                            interconnect: true.
                           type: string
                       type: object
                     units:

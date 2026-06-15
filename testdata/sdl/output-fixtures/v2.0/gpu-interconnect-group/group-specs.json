@@ -1,6 +1,6 @@
 [
   {
-    "name": "rdma-cluster",
+    "name": "interconnect-cluster",
     "requirements": {
       "signed_by": {
         "all_of": null,
@@ -10,11 +10,11 @@
       },
       "attributes": [
         {
-          "key": "capabilities/rdma",
+          "key": "capabilities/gpu-interconnect",
           "value": "true"
         },
         {
-          "key": "capabilities/rdma/fabric/infiniband",
+          "key": "capabilities/gpu-interconnect/fabric/infiniband",
           "value": "true"
         }
       ]
@@ -47,11 +47,11 @@
             },
             "attributes": [
               {
-                "key": "rdma",
+                "key": "interconnect",
                 "value": "true"
               },
               {
-                "key": "rdma_group",
+                "key": "interconnect_group",
                 "value": "pair0"
               },
               {
@@ -99,11 +99,11 @@
             },
             "attributes": [
               {
-                "key": "rdma",
+                "key": "interconnect",
                 "value": "true"
               },
               {
-                "key": "rdma_group",
+                "key": "interconnect_group",
                 "value": "pair0"
               },
               {

@@ -54,14 +54,16 @@ message NodeResources {
     (gogoproto.moretags)     = "yaml:\"volumes_mounted\""
   ];
 
-  // RDMA reports node RDMA capacity. Capacity/Allocatable/Allocated are
-  // populated by the inventory operator from k8s allocatable for whichever
-  // rdma/rdma_shared_device_* extended resource the cluster's device plugin
-  // publishes (see NodeCapabilities.rdma_resource_name).
-  ResourcePair rdma = 7 [
+  // GPUInterconnect reports node GPU-interconnect HCA capacity.
+  // Capacity/Allocatable/Allocated are populated by the inventory
+  // operator from k8s allocatable for whichever
+  // rdma/rdma_shared_device_* extended resource the cluster's device
+  // plugin publishes (the `rdma/*` prefix is the device plugin's
+  // naming convention; see NodeCapabilities.interconnect_resource_name).
+  ResourcePair gpu_interconnect = 7 [
     (gogoproto.nullable)     = false,
-    (gogoproto.customname)   = "RDMA",
-    (gogoproto.jsontag)      = "rdma",
-    (gogoproto.moretags)     = "yaml:\"rdma\""
+    (gogoproto.customname)   = "GPUInterconnect",
+    (gogoproto.jsontag)      = "gpu_interconnect",
+    (gogoproto.moretags)     = "yaml:\"gpu_interconnect\""
   ];
 }

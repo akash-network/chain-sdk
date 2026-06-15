@@ -15,21 +15,26 @@ import { NodeResources } from "./resources.ts";
 export interface NodeCapabilities {
   storageClasses: string[];
   /**
-   * RDMA: Kubernetes extended-resource name the cluster's device plugin publishes
-   * for RDMA-capable HCAs (e.g. rdma/rdma_shared_device_ib for InfiniBand,
-   * rdma/rdma_shared_device_eth for RoCE). Empty when the node has no RDMA
+   * Kubernetes extended-resource name the cluster's device plugin publishes
+   * for GPU interconnect HCAs (e.g. rdma/rdma_shared_device_ib for an
+   * InfiniBand fabric, rdma/rdma_shared_device_eth for RoCE). The
+   * `rdma/*` prefix is the device-plugin's own convention (Mellanox/NVIDIA)
+   * and stays unchanged here. Empty when the node has no GPU interconnect
    * capability. Discovered by the inventory operator from k8s allocatable.
    */
-  rdmaResourceName: string;
+  interconnectResourceName: string;
   /**
-   * RDMA fabric type. "infiniband" or "roce". Derived from
+   * GPU interconnect fabric type. "infiniband" or "roce". Internal /
+   * informational — the SDL surface is fabric-agnostic; tenants only
+   * declare `interconnect: true`. Derived from
    * /sys/class/infiniband/<dev>/ports/1/link_layer on the host node.
    */
-  rdmaFabric: string;
+  interconnectFabric: string;
   /**
    * NCCL IB HCA prefix - the common device-name prefix under
-   * /sys/class/infiniband (e.g. "mlx5"). Injected by the provider as
-   * NCCL_IB_HCA when scheduling RDMA workloads.
+   * /sys/class/infiniband (e.g. "mlx5"). Same key for IB and RoCE since
+   * NCCL uses the IB verbs API for both. Injected by the provider as
+   * NCCL_IB_HCA when scheduling GPU interconnect workloads.
    */
   ncclHcaPrefix: string;
 }
@@ -42,7 +47,7 @@ export interface Node {
 }
 
 function createBaseNodeCapabilities(): NodeCapabilities {
-  return { storageClasses: [], rdmaResourceName: "", rdmaFabric: "", ncclHcaPrefix: "" };
+  return { storageClasses: [], interconnectResourceName: "", interconnectFabric: "", ncclHcaPrefix: "" };
 }
 
 export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.NodeCapabilities"> = {
@@ -52,11 +57,11 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     for (const v of message.storageClasses) {
       writer.uint32(10).string(v!);
     }
-    if (message.rdmaResourceName !== "") {
-      writer.uint32(18).string(message.rdmaResourceName);
+    if (message.interconnectResourceName !== "") {
+      writer.uint32(18).string(message.interconnectResourceName);
     }
-    if (message.rdmaFabric !== "") {
-      writer.uint32(26).string(message.rdmaFabric);
+    if (message.interconnectFabric !== "") {
+      writer.uint32(26).string(message.interconnectFabric);
     }
     if (message.ncclHcaPrefix !== "") {
       writer.uint32(34).string(message.ncclHcaPrefix);
@@ -84,7 +89,7 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
             break;
           }
 
-          message.rdmaResourceName = reader.string();
+          message.interconnectResourceName = reader.string();
           continue;
         }
         case 3: {
@@ -92,7 +97,7 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
             break;
           }
 
-          message.rdmaFabric = reader.string();
+          message.interconnectFabric = reader.string();
           continue;
         }
         case 4: {
@@ -117,8 +122,10 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
       storageClasses: globalThis.Array.isArray(object?.storage_classes)
         ? object.storage_classes.map((e: any) => globalThis.String(e))
         : [],
-      rdmaResourceName: isSet(object.rdma_resource_name) ? globalThis.String(object.rdma_resource_name) : "",
-      rdmaFabric: isSet(object.rdma_fabric) ? globalThis.String(object.rdma_fabric) : "",
+      interconnectResourceName: isSet(object.interconnect_resource_name)
+        ? globalThis.String(object.interconnect_resource_name)
+        : "",
+      interconnectFabric: isSet(object.interconnect_fabric) ? globalThis.String(object.interconnect_fabric) : "",
       ncclHcaPrefix: isSet(object.nccl_hca_prefix) ? globalThis.String(object.nccl_hca_prefix) : "",
     };
   },
@@ -128,11 +135,11 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     if (message.storageClasses?.length) {
       obj.storage_classes = message.storageClasses;
     }
-    if (message.rdmaResourceName !== "") {
-      obj.rdma_resource_name = message.rdmaResourceName;
+    if (message.interconnectResourceName !== "") {
+      obj.interconnect_resource_name = message.interconnectResourceName;
     }
-    if (message.rdmaFabric !== "") {
-      obj.rdma_fabric = message.rdmaFabric;
+    if (message.interconnectFabric !== "") {
+      obj.interconnect_fabric = message.interconnectFabric;
     }
     if (message.ncclHcaPrefix !== "") {
       obj.nccl_hca_prefix = message.ncclHcaPrefix;
@@ -142,8 +149,8 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
   fromPartial(object: DeepPartial<NodeCapabilities>): NodeCapabilities {
     const message = createBaseNodeCapabilities();
     message.storageClasses = object.storageClasses?.map((e) => e) || [];
-    message.rdmaResourceName = object.rdmaResourceName ?? "";
-    message.rdmaFabric = object.rdmaFabric ?? "";
+    message.interconnectResourceName = object.interconnectResourceName ?? "";
+    message.interconnectFabric = object.interconnectFabric ?? "";
     message.ncclHcaPrefix = object.ncclHcaPrefix ?? "";
     return message;
   },
