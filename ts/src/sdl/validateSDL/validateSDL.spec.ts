@@ -2267,7 +2267,7 @@ describe(validateSDL.name, () => {
     }
 
     it("accepts a valid interconnect profile under an interconnect-capable placement", () => {
-      const { validate } = interconnectSetup({  interconnect: true });
+      const { validate } = interconnectSetup({ interconnect: true });
       expect(validate()).toBeUndefined();
     });
 
@@ -2277,7 +2277,7 @@ describe(validateSDL.name, () => {
     // Pinning the schema's behavior here so a future schema relaxation
     // doesn't silently open a hole.
     it("rejects gpu.attributes.interconnect=true when gpu.units is 0 (schema-level)", () => {
-      const { validate } = interconnectSetup({  interconnect: true, units: 0 });
+      const { validate } = interconnectSetup({ interconnect: true, units: 0 });
       expect(validate()).toContainEqual(expect.objectContaining({
         schemaPath: expect.stringContaining("gpuAttributesRequireUnitsGt0"),
       }));
@@ -2323,7 +2323,7 @@ describe(validateSDL.name, () => {
                   units: 1,
                   attributes: {
                     vendor: { nvidia: [{ model: "a100" }] },
-                     interconnect: true,
+                    interconnect: true,
                     interconnect_group: "pair0",
                   },
                 },
@@ -2338,7 +2338,7 @@ describe(validateSDL.name, () => {
                   units: 1,
                   attributes: {
                     vendor: { nvidia: [{ model: "a100" }] },
-                     interconnect: true,
+                    interconnect: true,
                     // interconnect_group intentionally omitted -> rule 3 violation
                   },
                 },
