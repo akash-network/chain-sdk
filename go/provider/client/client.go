@@ -78,7 +78,6 @@ type Client interface {
 		tsq <-chan remotecommand.TerminalSize) error
 	MigrateHostnames(ctx context.Context, hostnames []string, dseq uint64, gseq uint32) error
 	MigrateEndpoints(ctx context.Context, endpoints []string, dseq uint64, gseq uint32) error
-	AttestationQuote(ctx context.Context, id mtypes.LeaseID, requestBody []byte) ([]byte, error)
 }
 
 type client struct {
@@ -893,37 +892,3 @@ func parseCloseMessage(msg string) string {
 	return ""
 }
 
-func (c *client) AttestationQuote(ctx context.Context, id mtypes.LeaseID, requestBody []byte) ([]byte, error) {
-	uri, err := MakeURI(c.host, LeaseAttestationQuotePath(id))
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, bytes.NewReader(requestBody))
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Content-Type", contentTypeJSON)
-	if err = c.setAuth(req.Header); err != nil {
-		return nil, err
-	}
-
-	rCl := c.NewReqClient(ctx)
-	resp, err := rCl.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close() //nolint:errcheck
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("attestation quote failed (status %d): %s", resp.StatusCode, string(body))
-	}
-
-	return body, nil
-}

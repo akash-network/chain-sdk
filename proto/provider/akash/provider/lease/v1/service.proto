@@ -2,6 +2,7 @@ syntax = "proto3";
 package akash.provider.lease.v1;
 
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 import "akash/manifest/v2beta3/group.proto";
 import "akash/market/v1/lease.proto";
@@ -280,5 +281,11 @@ service LeaseRPC {
   // AttestationQuote requests hardware-signed attestation evidence from the
   // confidential compute sidecar. The provider forwards the tenant's nonce
   // to the sidecar and returns the hardware-signed quote verbatim.
-  rpc AttestationQuote(AttestationQuoteRequest) returns (AttestationQuoteResponse);
+  rpc AttestationQuote(AttestationQuoteRequest) returns (AttestationQuoteResponse) {
+    option (google.api.http) = {
+      post: "/v1/lease/attestation/quote"
+      body: "*"
+      response_body: "*"
+    };
+  }
 }

@@ -42,10 +42,6 @@ func LeaseStatusPath(id mtypes.LeaseID) string {
 	return fmt.Sprintf("%s/status", LeasePath(id))
 }
 
-func LeaseAttestationQuotePath(id mtypes.LeaseID) string {
-	return fmt.Sprintf("%s/attestation/quote", LeasePath(id))
-}
-
 func LeaseShellPath(lID mtypes.LeaseID) string {
 	return fmt.Sprintf("%s/shell", LeasePath(lID))
 }
