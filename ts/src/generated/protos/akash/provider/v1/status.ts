@@ -9,6 +9,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
+import { Duration } from "../../../google/protobuf/duration.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
 import { Quantity } from "../../../k8s.io/apimachinery/pkg/api/resource/generated.ts";
 import { Cluster } from "../../inventory/v1/cluster.ts";
@@ -76,6 +77,7 @@ export interface Status {
   manifest: ManifestStatus | undefined;
   publicHostnames: string[];
   timestamp: Date | undefined;
+  reclamationWindow: Duration | undefined;
 }
 
 function createBaseResourcesMetric(): ResourcesMetric {
@@ -812,6 +814,7 @@ function createBaseStatus(): Status {
     manifest: undefined,
     publicHostnames: [],
     timestamp: undefined,
+    reclamationWindow: undefined,
   };
 }
 
@@ -836,6 +839,9 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
     }
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(50).fork()).join();
+    }
+    if (message.reclamationWindow !== undefined) {
+      Duration.encode(message.reclamationWindow, writer.uint32(58).fork()).join();
     }
     return writer;
   },
@@ -895,6 +901,14 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
           message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.reclamationWindow = Duration.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -914,6 +928,7 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
         ? object.public_hostnames.map((e: any) => globalThis.String(e))
         : [],
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      reclamationWindow: isSet(object.reclamation_window) ? Duration.fromJSON(object.reclamation_window) : undefined,
     };
   },
 
@@ -937,6 +952,9 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
+    if (message.reclamationWindow !== undefined) {
+      obj.reclamation_window = Duration.toJSON(message.reclamationWindow);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Status>): Status {
@@ -953,6 +971,9 @@ export const Status: MessageFns<Status, "akash.provider.v1.Status"> = {
       : undefined;
     message.publicHostnames = object.publicHostnames?.map((e) => e) || [];
     message.timestamp = object.timestamp ?? undefined;
+    message.reclamationWindow = (object.reclamationWindow !== undefined && object.reclamationWindow !== null)
+      ? Duration.fromPartial(object.reclamationWindow)
+      : undefined;
     return message;
   },
 };

@@ -1170,6 +1170,9 @@ impl serde::Serialize for Status {
         if self.timestamp.is_some() {
             len += 1;
         }
+        if self.reclamation_window.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.provider.v1.Status", len)?;
         if !self.errors.is_empty() {
             struct_ser.serialize_field("errors", &self.errors)?;
@@ -1189,6 +1192,9 @@ impl serde::Serialize for Status {
         if let Some(v) = self.timestamp.as_ref() {
             struct_ser.serialize_field("timestamp", v)?;
         }
+        if let Some(v) = self.reclamation_window.as_ref() {
+            struct_ser.serialize_field("reclamationWindow", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -1207,6 +1213,8 @@ impl<'de> serde::Deserialize<'de> for Status {
             "public_hostnames",
             "publicHostnames",
             "timestamp",
+            "reclamation_window",
+            "reclamationWindow",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1217,6 +1225,7 @@ impl<'de> serde::Deserialize<'de> for Status {
             Manifest,
             PublicHostnames,
             Timestamp,
+            ReclamationWindow,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1244,6 +1253,7 @@ impl<'de> serde::Deserialize<'de> for Status {
                             "manifest" => Ok(GeneratedField::Manifest),
                             "publicHostnames" | "public_hostnames" => Ok(GeneratedField::PublicHostnames),
                             "timestamp" => Ok(GeneratedField::Timestamp),
+                            "reclamationWindow" | "reclamation_window" => Ok(GeneratedField::ReclamationWindow),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1269,6 +1279,7 @@ impl<'de> serde::Deserialize<'de> for Status {
                 let mut manifest__ = None;
                 let mut public_hostnames__ = None;
                 let mut timestamp__ = None;
+                let mut reclamation_window__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Errors => {
@@ -1307,6 +1318,12 @@ impl<'de> serde::Deserialize<'de> for Status {
                             }
                             timestamp__ = map_.next_value()?;
                         }
+                        GeneratedField::ReclamationWindow => {
+                            if reclamation_window__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("reclamationWindow"));
+                            }
+                            reclamation_window__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(Status {
@@ -1316,6 +1333,7 @@ impl<'de> serde::Deserialize<'de> for Status {
                     manifest: manifest__,
                     public_hostnames: public_hostnames__.unwrap_or_default(),
                     timestamp: timestamp__,
+                    reclamation_window: reclamation_window__,
                 })
             }
         }

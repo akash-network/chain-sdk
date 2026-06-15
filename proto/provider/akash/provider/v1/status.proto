@@ -1,6 +1,7 @@
 syntax = "proto3";
 package akash.provider.v1;
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 import "akash/inventory/v1/cluster.proto";
@@ -191,5 +192,13 @@ message Status {
     (gogoproto.customname) = "Timestamp",
     (gogoproto.jsontag)    = "timestamp",
     (gogoproto.moretags)   = "yaml:\"timestamp\""
+  ];
+
+  google.protobuf.Duration reclamation_window = 7 [
+    (gogoproto.nullable)    = true,
+    (gogoproto.stdduration) = true,
+    (gogoproto.customname)  = "ReclamationWindow",
+    (gogoproto.jsontag)     = "reclamation_window,omitempty",
+    (gogoproto.moretags)    = "yaml:\"reclamation_window,omitempty\""
   ];
 }
