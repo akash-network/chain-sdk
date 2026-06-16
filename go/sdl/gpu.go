@@ -38,32 +38,32 @@ type gpuVendor struct {
 
 type v2GPUAttributes types.Attributes
 
-// GPUAttributeInterconnect is the on-chain GPU-attribute key emitted when
-// an SDL compute profile declares gpu.attributes.interconnect: true.
-// Providers advertising GPU-interconnect-capable hardware match this
-// attribute via the standard GPU MatchResourcesRequirements path. The
-// fabric (InfiniBand vs RoCE) is hidden from the SDL surface; the
-// provider picks whichever it has.
-const GPUAttributeInterconnect = "interconnect"
-
 // GPUAttributeInterconnectGroup is the on-chain GPU-attribute key emitted
-// when an SDL compute profile declares gpu.attributes.interconnect_group:
-// <name>. Carries the peer-group label all the way into the on-chain
-// Resources.GPU.attributes so the provider's bid engine can enforce
-// per-group node separation at fit time (Service.InterconnectGroup
-// off-chain alone would leave the bid step blind). The value is also
-// lifted into Service.InterconnectGroup so the workload builder's pod
-// anti-affinity rule keys off the same string.
-const GPUAttributeInterconnectGroup = "interconnect_group"
+// for every interconnect-enabled resource. Its presence (regardless of
+// value) signals "this resource wants GPU interconnect"; its value is the
+// peer-group label the provider's bid engine uses to enforce per-group
+// node separation. Path-separated key matches the existing
+// `capabilities/gpu-interconnect/fabric/...` convention.
+//
+// Replaces the rc4 pair (`interconnect=true` + `interconnect_group=<name>`)
+// with a single key. See docs/sdl-interconnect-spec.md.
+const GPUAttributeInterconnectGroup = "interconnect/group"
+
+// InterconnectGroupAuto is the reserved group name the SDL parser assigns
+// to every `interconnect: []` resource within one placement. Tenants
+// cannot write this name explicitly under `interconnect: { group: ... }`.
+const InterconnectGroupAuto = "auto"
 
 type v2ResourceGPU struct {
 	Units      gpuQuantity     `yaml:"units" json:"units"`
 	Attributes v2GPUAttributes `yaml:"attributes,omitempty" json:"attributes,omitempty"`
 
-	// InterconnectGroup carries the parsed gpu.attributes.interconnect_group
-	// value. The same value is also present in Attributes (as
-	// GPUAttributeInterconnectGroup); this field exists so the
-	// higher-level manifest builder can route it to
+	// InterconnectGroup carries the parsed group name from
+	// gpu.attributes.interconnect (the implicit `[]` form resolves to
+	// the literal "auto", the explicit `{group: <name>}` form carries
+	// the tenant-chosen name). The same value is also present in
+	// Attributes under the GPUAttributeInterconnectGroup key; this
+	// field exists so the higher-level manifest builder can route it to
 	// Service.InterconnectGroup without re-walking the slice.
 	InterconnectGroup string `yaml:"-" json:"-"`
 }
@@ -86,12 +86,11 @@ func (sdl *v2ResourceGPU) UnmarshalYAML(node *yaml.Node) error {
 		}
 	}
 
-	// Lift the interconnect_group attribute value into the dedicated
+	// Lift the interconnect/group attribute value into the dedicated
 	// InterconnectGroup field for downstream manifest builders, but KEEP
 	// it in the attributes slice — the provider's bid engine consumes the
-	// on-chain Resources.GPU.Attributes and needs interconnect_group
-	// present there to enforce per-group node separation during
-	// reservation.
+	// on-chain Resources.GPU.Attributes and needs the group key present
+	// there to enforce per-group node separation during reservation.
 	if len(res.Attributes) > 0 {
 		for _, a := range res.Attributes {
 			if a.Key == GPUAttributeInterconnectGroup {
@@ -101,7 +100,7 @@ func (sdl *v2ResourceGPU) UnmarshalYAML(node *yaml.Node) error {
 		}
 
 		// v2GPUAttributes.UnmarshalYAML defers Validate to here so the
-		// final attribute slice (including the interconnect_group key,
+		// final attribute slice (including the interconnect/group key,
 		// which matches the on-chain attribute key regex) gets one
 		// validate pass.
 		final := types.Attributes(res.Attributes)
@@ -114,20 +113,16 @@ func (sdl *v2ResourceGPU) UnmarshalYAML(node *yaml.Node) error {
 		return fmt.Errorf("sdl: GPU attributes must be present if units > 0")
 	}
 
-	// CS-5 invariant, enforced here so the SDL fails fast: interconnect
-	// and interconnect_group are nonsense without an actual GPU to attach
-	// an HCA to. A profile declaring interconnect: true or
-	// interconnect_group: <name> with gpu.units == 0 would otherwise be
-	// classified as interconnect-enabled by downstream validation passes
+	// CS-5 invariant, enforced here so the SDL fails fast: any
+	// `interconnect:` opt-in is nonsense without an actual GPU to attach
+	// an HCA to. A profile opting in with gpu.units == 0 would otherwise
+	// be classified as interconnect-enabled by downstream validation passes
 	// and the provider's reservation logic, then rejected much later (or,
-	// worse, treated as a misconfiguration). Reject up front.
-	if res.Units == 0 {
-		if gpuAttributesHaveInterconnect(res.Attributes) {
-			return fmt.Errorf("sdl: gpu.attributes.interconnect cannot be set when gpu.units == 0")
-		}
-		if res.InterconnectGroup != "" {
-			return fmt.Errorf("sdl: gpu.attributes.interconnect_group=%q cannot be set when gpu.units == 0", res.InterconnectGroup)
-		}
+	// worse, treated as a misconfiguration). Reject up front. Since the
+	// group key is now the sole opt-in signal, checking InterconnectGroup
+	// alone covers both implicit and explicit forms.
+	if res.Units == 0 && res.InterconnectGroup != "" {
+		return fmt.Errorf("sdl: gpu.attributes.interconnect cannot be set when gpu.units == 0 (group=%q)", res.InterconnectGroup)
 	}
 
 	*sdl = res
@@ -139,7 +134,6 @@ func (sdl *v2GPUAttributes) UnmarshalYAML(node *yaml.Node) error {
 	var res types.Attributes
 
 	var vendor *gpuVendor
-	interconnectEnabled := false
 	interconnectGroup := ""
 
 	for i := 0; i < len(node.Content); i += 2 {
@@ -149,24 +143,37 @@ func (sdl *v2GPUAttributes) UnmarshalYAML(node *yaml.Node) error {
 				return err
 			}
 		case "interconnect":
-			// gpu.attributes.interconnect: bool (default false). When
-			// true, emit an on-chain GPU attribute so providers
-			// advertising GPU-interconnect-capable hardware can be
-			// matched. Fabric (IB vs RoCE) is hidden from the SDL —
-			// provider picks whichever it has.
-			var ic bool
-			if err := node.Content[i+1].Decode(&ic); err != nil {
-				return fmt.Errorf("sdl: invalid value for gpu.attributes.interconnect: %w", err)
-			}
-			interconnectEnabled = ic
-		case "interconnect_group":
-			// gpu.attributes.interconnect_group: string (peer group
-			// name). Emitted as an on-chain GPU attribute alongside
-			// `interconnect=true` so the provider's bid engine can
-			// track per-group node claims. Also lifted to
-			// v2ResourceGPU.InterconnectGroup for the manifest builder.
-			if err := node.Content[i+1].Decode(&interconnectGroup); err != nil {
-				return fmt.Errorf("sdl: invalid value for gpu.attributes.interconnect_group: %w", err)
+			// gpu.attributes.interconnect accepts two forms:
+			//   - empty sequence `[]`            → implicit group, named `auto`
+			//   - mapping `{group: <name>}`      → explicit named group
+			// Bare boolean and other shapes are rejected. The group
+			// string (whether the literal "auto" sentinel or the
+			// tenant-chosen name) becomes the on-chain
+			// `interconnect/group` attribute value, which is the sole
+			// opt-in signal — no separate "interconnect=true" marker.
+			val := node.Content[i+1]
+			switch val.Kind {
+			case yaml.SequenceNode:
+				if len(val.Content) != 0 {
+					return fmt.Errorf("sdl: gpu.attributes.interconnect: only the empty sequence form `[]` is accepted; use `{group: <name>}` for explicit groups")
+				}
+				interconnectGroup = InterconnectGroupAuto
+			case yaml.MappingNode:
+				var m struct {
+					Group string `yaml:"group"`
+				}
+				if err := val.Decode(&m); err != nil {
+					return fmt.Errorf("sdl: invalid value for gpu.attributes.interconnect: %w", err)
+				}
+				if m.Group == "" {
+					return fmt.Errorf("sdl: gpu.attributes.interconnect: `group` is required when using the mapping form")
+				}
+				if m.Group == InterconnectGroupAuto {
+					return fmt.Errorf("sdl: gpu.attributes.interconnect.group: %q is a reserved name (parser auto-assigns it to `interconnect: []` resources); pick a different name", InterconnectGroupAuto)
+				}
+				interconnectGroup = m.Group
+			default:
+				return fmt.Errorf("sdl: gpu.attributes.interconnect: expected `[]` or `{group: <name>}`; bare scalar (including `true`/`false`) is no longer accepted")
 			}
 		default:
 			return fmt.Errorf("sdl: unsupported attribute (%s) for GPU resource", node.Content[i].Value)
@@ -193,19 +200,12 @@ func (sdl *v2GPUAttributes) UnmarshalYAML(node *yaml.Node) error {
 		})
 	}
 
-	if interconnectEnabled {
-		res = append(res, types.Attribute{
-			Key:   GPUAttributeInterconnect,
-			Value: "true",
-		})
-	}
-
-	// Emit interconnect_group directly as an on-chain GPU attribute. The
-	// provider's reservation Adjust step reads this to enforce per-group
-	// node separation; the parent v2ResourceGPU.UnmarshalYAML also lifts
-	// the value into v2ResourceGPU.InterconnectGroup so the manifest
-	// builder can route it to Service.InterconnectGroup for the off-chain
-	// workload builder.
+	// Emit `interconnect/group = <name>` as the sole opt-in signal — no
+	// separate boolean marker. The provider's bid engine reads this key
+	// during reservation Adjust to enforce per-group node separation; the
+	// parent v2ResourceGPU.UnmarshalYAML lifts the value into
+	// v2ResourceGPU.InterconnectGroup so the manifest builder can route it
+	// to Service.InterconnectGroup for the off-chain workload builder.
 	if interconnectGroup != "" {
 		res = append(res, types.Attribute{
 			Key:   GPUAttributeInterconnectGroup,

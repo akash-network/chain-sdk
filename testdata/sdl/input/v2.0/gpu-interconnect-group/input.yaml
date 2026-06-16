@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
 ---
 # Multi-service GPU interconnect peer group fixture. inference-head and inference-worker
-# share the same interconnect_group label ("pair0"), which:
-#   - emits an `interconnect_group=pair0` attribute into each service's on-chain
+# share the same explicit interconnect group label ("pair0"), which:
+#   - emits an `interconnect/group=pair0` attribute into each service's on-chain
 #     Resources.GPU.Attributes (consumed by the provider's bid-engine
 #     group-aware Adjust, AKT-443)
 #   - lifts to Service.GPU interconnectGroup on the off-chain manifest (consumed by
@@ -41,8 +41,8 @@ profiles:
         gpu:
           units: 1
           attributes:
-            interconnect: true
-            interconnect_group: pair0
+            interconnect:
+              group: pair0
             vendor:
               nvidia:
                 - model: a100
@@ -59,8 +59,8 @@ profiles:
         gpu:
           units: 1
           attributes:
-            interconnect: true
-            interconnect_group: pair0
+            interconnect:
+              group: pair0
             vendor:
               nvidia:
                 - model: a100

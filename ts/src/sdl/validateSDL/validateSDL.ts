@@ -1,5 +1,6 @@
 import type { ErrorMessages, ValidationError, ValidationFunction } from "../../utils/jsonSchemaValidation.ts";
 import { dirname, getErrorLocation, humanizeErrors } from "../../utils/jsonSchemaValidation.ts";
+import { INTERCONNECT_GROUP_AUTO, resolveInterconnectGroup } from "../manifest/manifestUtils.ts";
 import { castArray, stringToBoolean } from "../utils.ts";
 import { schema as validationSDLSchema, type SDLInput, validate as validateSDLInput } from "./validateSDLInput.ts";
 
@@ -267,50 +268,55 @@ class SDLValidator {
     // YAML decoding has no schema layer above it.
   }
 
-  // Mirror the Go-side validateInterconnect in go/sdl/v2.go. Three cross-field
-  // rules the chain SDK enforces; TS must enforce them too so tenants
-  // using @akashnetwork/chain-sdk get the same fail-fast feedback as
-  // the Go CLI users (the chain doesn't validate SDL semantics).
+  // Mirror the Go-side validateInterconnect in go/sdl/v2.go. The TS
+  // SDK enforces the same cross-field rules so tenants using
+  // @akashnetwork/chain-sdk get the same fail-fast feedback as Go CLI
+  // users (the chain doesn't validate SDL semantics). See
+  // docs/sdl-interconnect-spec.md for the spec.
   //
-  //   1. A profile with gpu.attributes.interconnect=true must be used by a
-  //      deployment whose placement requirements include
-  //      capabilities/gpu-interconnect=true.
-  //   2. A profile with gpu.attributes.interconnect_group set must also have
-  //      gpu.attributes.interconnect=true on the same profile.
-  //   3. Within one deployment (placement), if any profile sets
-  //      interconnect_group, every interconnect=true profile under that placement must
-  //      also set interconnect_group — no implicit-default-plus-explicit mixing.
+  //   1. Any opt-in (implicit `[]` or explicit `{ group: <name> }`)
+  //      requires the placement to require
+  //      capabilities/gpu-interconnect="true".
+  //   2. The reserved name `auto` may not be written explicitly under
+  //      `interconnect: { group: ... }`. (Rule 2 is enforced at the
+  //      schema level via the JSON-schema oneOf, but checked here too
+  //      for a friendlier error message.)
+  //   3. Within one placement, no mixing of implicit and explicit
+  //      opt-in forms — either every service uses `[]` or every service
+  //      uses a `{ group: ... }`.
+  //   4. (Schema-level) `gpu.units == 0` with any interconnect opt-in
+  //      is rejected.
   #validateInterconnect() {
     const profiles = this.#sdl.profiles?.compute;
     const placements = this.#sdl.profiles?.placement;
     if (!profiles) return;
 
-    // Rule 2: interconnect_group ⇒ interconnect=true. Per-profile, units > 0 guard so
-    // the zero-GPU case is left to #validateGPU's error above (avoids
-    // duplicate complaints on the same profile).
+    // Rule 2: tenants cannot write `group: auto` under the explicit
+    // mapping form. The JSON schema's `oneOf` already rules this out at
+    // the structural level when the value is bare, but we surface a
+    // friendly error here.
     for (const [profileName, compute] of Object.entries(profiles)) {
       const gpu = compute?.resources?.gpu;
       if (!gpu || gpu.units === 0 || gpu.units === undefined) continue;
-
-      if (gpu.attributes?.interconnect_group && gpu.attributes.interconnect !== true) {
+      const ic = gpu.attributes?.interconnect;
+      if (ic && typeof ic === "object" && !Array.isArray(ic) && (ic as { group?: unknown }).group === INTERCONNECT_GROUP_AUTO) {
         this.#errors.push({
-          message: `Compute profile "${profileName}" sets gpu.attributes.interconnect_group="${gpu.attributes.interconnect_group}" but does not set gpu.attributes.interconnect: true.`,
-          instancePath: `/profiles/compute/${profileName}/resources/gpu/attributes.interconnect`,
+          message: `Compute profile "${profileName}" uses gpu.attributes.interconnect.group="${INTERCONNECT_GROUP_AUTO}", which is reserved (the parser auto-assigns it to "interconnect: []" resources). Pick a different group name.`,
+          instancePath: `/profiles/compute/${profileName}/resources/gpu/attributes/interconnect/group`,
           schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/interconnect",
-          keyword: "required",
-          params: { missingProperty: "interconnect" },
+          keyword: "const",
+          params: { allowedValue: `non-${INTERCONNECT_GROUP_AUTO}` },
         });
       }
     }
 
     // Rules 1 + 3 are per-placement. Walk every (service, placement) and
-    // capture which profile each service uses, whether that profile has
-    // interconnect=true, and whether it sets interconnect_group.
+    // capture which profile each service uses and whether it opted into
+    // interconnect (implicit, explicit, or not at all).
     interface profileUsage {
       profileName: string;
       serviceName: string;
-      hasInterconnect: boolean;
-      group: string;
+      group: string; // "" if non-interconnect, INTERCONNECT_GROUP_AUTO for implicit, else explicit name
     }
     const usagesByPlacement = new Map<string, profileUsage[]>();
 
@@ -322,24 +328,20 @@ class SDLValidator {
         const usage: profileUsage = {
           profileName: svcdepl.profile,
           serviceName,
-          hasInterconnect: false,
           group: "",
         };
         if (gpu && gpu.units !== 0 && gpu.units !== undefined) {
-          usage.hasInterconnect = gpu.attributes?.interconnect === true;
-          usage.group = gpu.attributes?.interconnect_group ?? "";
+          usage.group = resolveInterconnectGroup(gpu.attributes?.interconnect);
         }
 
         const bucket = usagesByPlacement.get(placementName) ?? [];
         bucket.push(usage);
         usagesByPlacement.set(placementName, bucket);
 
-        // Rule 1: a profile with interconnect=true must be deployed under a
+        // Rule 1: any interconnect opt-in must be deployed under a
         // placement whose attributes require capabilities/gpu-interconnect=true.
-        if (usage.hasInterconnect) {
+        if (usage.group !== "") {
           const placement = placements?.[placementName];
-          // The placement attributes shape is `Record<string, unknown>`
-          // in the schema; we look for the literal key/value pair.
           const attrs = (placement?.attributes ?? {}) as Record<string, unknown>;
           const capability = attrs["capabilities/gpu-interconnect"];
           const requiresInterconnect = capability === "true" || capability === true;
@@ -356,21 +358,28 @@ class SDLValidator {
       }
     }
 
-    // Rule 3: per placement, if any profile sets interconnect_group then every
-    // interconnect=true profile under that placement must also set interconnect_group.
+    // Rule 3: within one placement, no mixing of implicit (`auto`) and
+    // explicit (named) opt-ins. Either form alone is fine; combining
+    // them is the failure mode this rule catches.
     for (const [placementName, usages] of usagesByPlacement.entries()) {
-      const anyGrouped = usages.some((u) => u.group !== "");
-      if (!anyGrouped) continue;
+      let firstImplicit: string | undefined;
+      let firstExplicit: string | undefined;
       for (const u of usages) {
-        if (u.hasInterconnect && u.group === "") {
-          this.#errors.push({
-            message: `Placement "${placementName}" mixes explicit and implicit interconnect_group: profile "${u.profileName}" has gpu.attributes.interconnect: true but no interconnect_group, while another profile under the same placement sets interconnect_group.`,
-            instancePath: `/profiles/compute/${u.profileName}/resources/gpu/attributes.interconnect_group`,
-            schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/interconnect_group",
-            keyword: "required",
-            params: { missingProperty: "interconnect_group" },
-          });
+        if (u.group === "") continue;
+        if (u.group === INTERCONNECT_GROUP_AUTO) {
+          firstImplicit ??= u.profileName;
+        } else {
+          firstExplicit ??= u.profileName;
         }
+      }
+      if (firstImplicit !== undefined && firstExplicit !== undefined) {
+        this.#errors.push({
+          message: `Placement "${placementName}" mixes implicit "interconnect: []" (profile "${firstImplicit}") and explicit "interconnect: { group: ... }" (profile "${firstExplicit}"); use one form across the placement.`,
+          instancePath: `/profiles/compute/${firstImplicit}/resources/gpu/attributes/interconnect`,
+          schemaPath: "#/properties/profiles/properties/compute/additionalProperties/properties/resources/properties/gpu/properties/attributes/properties/interconnect",
+          keyword: "oneOf",
+          params: { passingSchemas: [] },
+        });
       }
     }
   }

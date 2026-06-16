@@ -53,6 +53,30 @@ export function isIngress(proto: string, global: boolean, externalPort: number, 
   return global && proto === "TCP" && effectivePort === 80;
 }
 
+// INTERCONNECT_GROUP_AUTO is the reserved name the SDL parser assigns to
+// every `interconnect: []` opt-in within one placement. Tenants cannot
+// write it explicitly under `interconnect: { group: ... }` — mirrors
+// `InterconnectGroupAuto` in go/sdl/gpu.go.
+export const INTERCONNECT_GROUP_AUTO = "auto";
+
+// resolveInterconnectGroup returns the group string the parser derives
+// from gpu.attributes.interconnect:
+//   - empty sequence `[]`         → INTERCONNECT_GROUP_AUTO ("auto")
+//   - mapping `{ group: <name> }` → <name>
+//   - anything else / absent       → ""  (non-interconnect)
+// Both the on-chain attribute emitter and the off-chain manifest builder
+// route through this helper so they agree on the resolved value.
+export function resolveInterconnectGroup(interconnect: SDLGpuAttributes["interconnect"]): string {
+  if (Array.isArray(interconnect)) {
+    return interconnect.length === 0 ? INTERCONNECT_GROUP_AUTO : "";
+  }
+  if (interconnect && typeof interconnect === "object" && "group" in interconnect) {
+    const g = (interconnect as { group?: unknown }).group;
+    return typeof g === "string" ? g : "";
+  }
+  return "";
+}
+
 export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[] {
   const result: Attribute[] = [];
 
@@ -75,15 +99,14 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
       });
   }
 
-  // interconnect + interconnect_group flow into on-chain Resources.GPU.Attributes so the
-  // provider's bid engine can match capability and enforce per-group node
-  // separation. Keep parity with the Go SDL parser in go/sdl/gpu.go — same
-  // key names, same value encoding ("true" for the boolean opt-in).
-  if (attributes.interconnect === true) {
-    result.push({ key: "interconnect", value: "true" });
-  }
-  if (attributes.interconnect_group && attributes.interconnect_group.length > 0) {
-    result.push({ key: "interconnect_group", value: attributes.interconnect_group });
+  // interconnect emits a single on-chain attribute `interconnect/group` —
+  // the group is the entire opt-in signal. Keep parity with the Go parser
+  // in go/sdl/gpu.go: empty sequence `[]` resolves to the reserved literal
+  // `auto`, the explicit mapping form `{ group: <name> }` carries the
+  // tenant-chosen name. See docs/sdl-interconnect-spec.md.
+  const group = resolveInterconnectGroup(attributes.interconnect);
+  if (group !== "") {
+    result.push({ key: "interconnect/group", value: group });
   }
 
   // Go SDL parser canonicalizes the slice via sort.Sort(res) before

@@ -28,22 +28,25 @@ message NodeCapabilities {
 
   // GPU interconnect fabric type. "infiniband" or "roce". Internal /
   // informational — the SDL surface is fabric-agnostic; tenants only
-  // declare `interconnect: true`. Derived from
-  // /sys/class/infiniband/<dev>/ports/1/link_layer on the host node.
+  // declare `interconnect: []` or `interconnect: { group: <name> }`.
+  // Derived from /sys/class/infiniband/<dev>/ports/1/link_layer on the
+  // host node.
   string interconnect_fabric = 3 [
     (gogoproto.customname)   = "InterconnectFabric",
     (gogoproto.jsontag)      = "interconnect_fabric,omitempty",
     (gogoproto.moretags)     = "yaml:\"interconnect_fabric,omitempty\""
   ];
 
-  // NCCL IB HCA prefix - the common device-name prefix under
-  // /sys/class/infiniband (e.g. "mlx5"). Same key for IB and RoCE since
-  // NCCL uses the IB verbs API for both. Injected by the provider as
-  // NCCL_IB_HCA when scheduling GPU interconnect workloads.
-  string nccl_hca_prefix = 4 [
-    (gogoproto.customname)   = "NCCLHCAPrefix",
-    (gogoproto.jsontag)      = "nccl_hca_prefix,omitempty",
-    (gogoproto.moretags)     = "yaml:\"nccl_hca_prefix,omitempty\""
+  // NCCL HCA device-name prefixes present on this node, one per distinct
+  // family (e.g. ["mlx5"], or ["mlx5","bnxt_re"] on a mixed-vendor host).
+  // Same key for IB and RoCE since NCCL uses the IB verbs API for both.
+  // Joined with commas and injected as NCCL_IB_HCA when scheduling GPU
+  // interconnect workloads — NCCL accepts comma-separated device prefixes
+  // natively. Discovered from /sys/class/infiniband/<dev> on the host.
+  repeated string nccl_hca_prefixes = 4 [
+    (gogoproto.customname)   = "NCCLHCAPrefixes",
+    (gogoproto.jsontag)      = "nccl_hca_prefixes,omitempty",
+    (gogoproto.moretags)     = "yaml:\"nccl_hca_prefixes,omitempty\""
   ];
 }
 

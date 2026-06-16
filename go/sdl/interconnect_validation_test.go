@@ -7,10 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// CS-5: parser-level cross-field validations for interconnect.
+// AKT-492: parser-level cross-field validations for interconnect.
 //
 // Each test builds a full SDL via Read() — the same entry point the
 // CLI/provider use — so we exercise the real parse + validate pipeline.
+// See docs/sdl-interconnect-spec.md for the rules being enforced.
 
 const sdlInterconnectFixtureHeader = `---
 version: "2.0"
@@ -63,18 +64,19 @@ deployment:
 `
 }
 
+// Rule 1: any interconnect opt-in requires the placement to require
+// capabilities/gpu-interconnect=true. Tested here with the implicit
+// form; the explicit form goes through the same code path.
 func TestSDL_Interconnect_Rule1_InterconnectRequiresPlacementCapability(t *testing.T) {
-	// Profiles declare gpu.attributes.interconnect: true but placement does NOT
-	// require capabilities/gpu-interconnect=true — rule 1 must reject.
 	body := sdlBody(
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true`,
+            interconnect: []`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true`,
+            interconnect: []`,
 		`        capabilities/gpu: nvidia`,
 	)
 
@@ -90,11 +92,11 @@ func TestSDL_Interconnect_Rule1_PassesWhenPlacementRequiresInterconnect(t *testi
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true`,
+            interconnect: []`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true`,
+            interconnect: []`,
 		`        capabilities/gpu-interconnect: "true"`,
 	)
 
@@ -102,65 +104,68 @@ func TestSDL_Interconnect_Rule1_PassesWhenPlacementRequiresInterconnect(t *testi
 	require.NoError(t, err)
 }
 
-func TestSDL_Interconnect_Rule2_InterconnectGroupRequiresInterconnectOnSameProfile(t *testing.T) {
+// Rule 2: the reserved group name `auto` cannot be written explicitly
+// under `{group: ...}`. The parser rejects this at the per-profile
+// UnmarshalYAML level — verified here through the full Read() pipeline.
+func TestSDL_Interconnect_Rule2_AutoReservedName(t *testing.T) {
 	body := sdlBody(
-		// head: interconnect: true + interconnect_group set (OK)
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true
-            interconnect_group: pair1`,
-		// worker: interconnect_group set but interconnect is NOT true — rule 2 must reject.
+            interconnect:
+              group: auto`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect_group: pair1`,
+            interconnect:
+              group: auto`,
 		`        capabilities/gpu-interconnect: "true"`,
 	)
 
 	_, err := Read([]byte(body))
 	require.Error(t, err)
 	require.True(t,
-		strings.Contains(err.Error(), "interconnect_group") && strings.Contains(err.Error(), "interconnect: true"),
+		strings.Contains(err.Error(), "reserved name"),
 		"unexpected error: %v", err)
 }
 
-func TestSDL_Interconnect_Rule3_NoMixingExplicitAndImplicitGroup(t *testing.T) {
+// Rule 3: within one placement, no mixing of implicit (`interconnect: []`)
+// and explicit (`interconnect: { group: ... }`) opt-in forms.
+func TestSDL_Interconnect_Rule3_NoMixingImplicitAndExplicit(t *testing.T) {
 	body := sdlBody(
-		// head: interconnect: true with no interconnect_group (implicit __default__).
+		// head uses implicit form
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true`,
-		// worker: interconnect: true with interconnect_group explicitly set.
-		// Rule 3: cannot mix; reject.
+            interconnect: []`,
+		// worker uses explicit form — same placement, must reject
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true
-            interconnect_group: pair1`,
+            interconnect:
+              group: pair0`,
 		`        capabilities/gpu-interconnect: "true"`,
 	)
 
 	_, err := Read([]byte(body))
 	require.Error(t, err)
 	require.True(t,
-		strings.Contains(err.Error(), "mixes explicit and implicit interconnect_group"),
+		strings.Contains(err.Error(), "mixes implicit") && strings.Contains(err.Error(), "explicit"),
 		"unexpected error: %v", err)
 }
 
+// Rule 3 (positive): every service uses the implicit form — accepted,
+// both profiles end up in the shared `auto` group.
 func TestSDL_Interconnect_Rule3_AllImplicitOK(t *testing.T) {
-	// Simple head/worker with no interconnect_group on either profile — the implicit
-	// default group is fine.
 	body := sdlBody(
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true`,
+            interconnect: []`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true`,
+            interconnect: []`,
 		`        capabilities/gpu-interconnect: "true"`,
 	)
 
@@ -168,18 +173,42 @@ func TestSDL_Interconnect_Rule3_AllImplicitOK(t *testing.T) {
 	require.NoError(t, err)
 }
 
+// Rule 3 (positive): every service uses the explicit form, sharing one
+// named group — accepted.
 func TestSDL_Interconnect_Rule3_AllExplicitOK(t *testing.T) {
 	body := sdlBody(
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true
-            interconnect_group: pair1`,
+            interconnect:
+              group: pair1`,
 		`          units: 1
           attributes:
             vendor: { nvidia: [{ model: a100 }] }
-            interconnect: true
-            interconnect_group: pair1`,
+            interconnect:
+              group: pair1`,
+		`        capabilities/gpu-interconnect: "true"`,
+	)
+
+	_, err := Read([]byte(body))
+	require.NoError(t, err)
+}
+
+// Rule 3 (positive): two explicit groups in one placement is fine —
+// the no-mixing rule blocks implicit-vs-explicit, not multiple disjoint
+// explicit groups.
+func TestSDL_Interconnect_Rule3_TwoDisjointExplicitGroupsOK(t *testing.T) {
+	body := sdlBody(
+		`          units: 1
+          attributes:
+            vendor: { nvidia: [{ model: a100 }] }
+            interconnect:
+              group: pair0`,
+		`          units: 1
+          attributes:
+            vendor: { nvidia: [{ model: a100 }] }
+            interconnect:
+              group: pair1`,
 		`        capabilities/gpu-interconnect: "true"`,
 	)
 

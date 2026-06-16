@@ -31,12 +31,14 @@ export interface NodeCapabilities {
    */
   interconnectFabric: string;
   /**
-   * NCCL IB HCA prefix - the common device-name prefix under
-   * /sys/class/infiniband (e.g. "mlx5"). Same key for IB and RoCE since
-   * NCCL uses the IB verbs API for both. Injected by the provider as
-   * NCCL_IB_HCA when scheduling GPU interconnect workloads.
+   * NCCL HCA device-name prefixes present on this node, one per distinct
+   * family (e.g. ["mlx5"], or ["mlx5","bnxt_re"] on a mixed-vendor host).
+   * Same key for IB and RoCE since NCCL uses the IB verbs API for both.
+   * Joined with commas and injected as NCCL_IB_HCA when scheduling GPU
+   * interconnect workloads — NCCL accepts comma-separated device prefixes
+   * natively. Discovered from /sys/class/infiniband/<dev> on the host.
    */
-  ncclHcaPrefix: string;
+  ncclHcaPrefixes: string[];
 }
 
 /** Node reports node inventory details */
@@ -47,7 +49,7 @@ export interface Node {
 }
 
 function createBaseNodeCapabilities(): NodeCapabilities {
-  return { storageClasses: [], interconnectResourceName: "", interconnectFabric: "", ncclHcaPrefix: "" };
+  return { storageClasses: [], interconnectResourceName: "", interconnectFabric: "", ncclHcaPrefixes: [] };
 }
 
 export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.NodeCapabilities"> = {
@@ -63,8 +65,8 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     if (message.interconnectFabric !== "") {
       writer.uint32(26).string(message.interconnectFabric);
     }
-    if (message.ncclHcaPrefix !== "") {
-      writer.uint32(34).string(message.ncclHcaPrefix);
+    for (const v of message.ncclHcaPrefixes) {
+      writer.uint32(34).string(v!);
     }
     return writer;
   },
@@ -105,7 +107,7 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
             break;
           }
 
-          message.ncclHcaPrefix = reader.string();
+          message.ncclHcaPrefixes.push(reader.string());
           continue;
         }
       }
@@ -126,7 +128,9 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
         ? globalThis.String(object.interconnect_resource_name)
         : "",
       interconnectFabric: isSet(object.interconnect_fabric) ? globalThis.String(object.interconnect_fabric) : "",
-      ncclHcaPrefix: isSet(object.nccl_hca_prefix) ? globalThis.String(object.nccl_hca_prefix) : "",
+      ncclHcaPrefixes: globalThis.Array.isArray(object?.nccl_hca_prefixes)
+        ? object.nccl_hca_prefixes.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -141,8 +145,8 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     if (message.interconnectFabric !== "") {
       obj.interconnect_fabric = message.interconnectFabric;
     }
-    if (message.ncclHcaPrefix !== "") {
-      obj.nccl_hca_prefix = message.ncclHcaPrefix;
+    if (message.ncclHcaPrefixes?.length) {
+      obj.nccl_hca_prefixes = message.ncclHcaPrefixes;
     }
     return obj;
   },
@@ -151,7 +155,7 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     message.storageClasses = object.storageClasses?.map((e) => e) || [];
     message.interconnectResourceName = object.interconnectResourceName ?? "";
     message.interconnectFabric = object.interconnectFabric ?? "";
-    message.ncclHcaPrefix = object.ncclHcaPrefix ?? "";
+    message.ncclHcaPrefixes = object.ncclHcaPrefixes?.map((e) => e) || [];
     return message;
   },
 };

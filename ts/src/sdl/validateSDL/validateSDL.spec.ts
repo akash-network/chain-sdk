@@ -2226,24 +2226,25 @@ describe(validateSDL.name, () => {
     });
   });
 
-  // Mirrors the Go SDL parser's interconnect cross-field rules (go/sdl/v2.go
-  // validateInterconnect + go/sdl/gpu.go parse-time guards). Without these TS
-  // checks, tenants using @akashnetwork/chain-sdk could broadcast SDLs
-  // that the Go CLI would have rejected outright.
+  // Mirrors the Go SDL parser's interconnect cross-field rules
+  // (go/sdl/v2.go validateInterconnect + go/sdl/gpu.go parse-time
+  // guards). Without these TS checks, tenants using
+  // @akashnetwork/chain-sdk could broadcast SDLs that the Go CLI would
+  // have rejected outright. See docs/sdl-interconnect-spec.md.
   describe("GPU interconnect validation", () => {
+    type InterconnectShape = unknown[] | { group: string };
+
     function interconnectSetup(opts: {
-      interconnect?: boolean;
-      interconnectGroup?: string;
+      interconnect?: InterconnectShape;
       units?: number;
       placementRequiresInterconnect?: boolean;
     } = {}) {
-      const { interconnect, interconnectGroup, units = 1, placementRequiresInterconnect = true } = opts;
+      const { interconnect, units = 1, placementRequiresInterconnect = true } = opts;
       const placementAttrs: Record<string, string> = {};
       if (placementRequiresInterconnect) placementAttrs["capabilities/gpu-interconnect"] = "true";
 
       const gpuAttrs: Record<string, unknown> = { vendor: { nvidia: [{ model: "a100" }] } };
       if (interconnect !== undefined) gpuAttrs.interconnect = interconnect;
-      if (interconnectGroup !== undefined) gpuAttrs.interconnect_group = interconnectGroup;
 
       return setup({
         profiles: {
@@ -2266,46 +2267,61 @@ describe(validateSDL.name, () => {
       });
     }
 
-    it("accepts a valid interconnect profile under an interconnect-capable placement", () => {
-      const { validate } = interconnectSetup({ interconnect: true });
+    it("accepts implicit `interconnect: []` under an interconnect-capable placement", () => {
+      const { validate } = interconnectSetup({ interconnect: [] });
       expect(validate()).toBeUndefined();
     });
 
-    // units==0 + interconnect / interconnect_group is rejected by the schema-level
+    it("accepts explicit `interconnect: { group: <name> }` under an interconnect-capable placement", () => {
+      const { validate } = interconnectSetup({ interconnect: { group: "pair0" } });
+      expect(validate()).toBeUndefined();
+    });
+
+    // units==0 + any interconnect opt-in is rejected by the schema-level
     // gpuAttributesRequireUnitsGt0 rule (any attribute present requires
     // units > 0), so the semantic validator never runs for that case.
     // Pinning the schema's behavior here so a future schema relaxation
     // doesn't silently open a hole.
-    it("rejects gpu.attributes.interconnect=true when gpu.units is 0 (schema-level)", () => {
-      const { validate } = interconnectSetup({ interconnect: true, units: 0 });
+    it("rejects implicit `interconnect: []` when gpu.units is 0 (schema-level)", () => {
+      const { validate } = interconnectSetup({ interconnect: [], units: 0 });
       expect(validate()).toContainEqual(expect.objectContaining({
         schemaPath: expect.stringContaining("gpuAttributesRequireUnitsGt0"),
       }));
     });
 
-    it("rejects gpu.attributes.interconnect_group when gpu.units is 0 (schema-level)", () => {
-      const { validate } = interconnectSetup({ interconnectGroup: "pair0", units: 0 });
+    it("rejects explicit `interconnect: { group }` when gpu.units is 0 (schema-level)", () => {
+      const { validate } = interconnectSetup({ interconnect: { group: "pair0" }, units: 0 });
       expect(validate()).toContainEqual(expect.objectContaining({
         schemaPath: expect.stringContaining("gpuAttributesRequireUnitsGt0"),
       }));
     });
 
-    it("rejects interconnect_group set without interconnect=true", () => {
-      const { validate } = interconnectSetup({ interconnectGroup: "pair0" });
+    it("rejects bare boolean `interconnect: true` (retired rc4 shape) at schema layer", () => {
+      const { validate } = interconnectSetup({ interconnect: true as unknown as InterconnectShape });
+      // The schema's `oneOf` doesn't match a bare boolean, so the
+      // semantic validator never runs.
       expect(validate()).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining(`sets gpu.attributes.interconnect_group="pair0" but does not set gpu.attributes.interconnect: true`),
+        instancePath: expect.stringContaining("interconnect"),
       }));
     });
 
-    it("rejects interconnect=true under a placement that does not require capabilities/gpu-interconnect=true", () => {
-      const { validate } = interconnectSetup({ interconnect: true, placementRequiresInterconnect: false });
+    it("rejects the reserved name `auto` written explicitly", () => {
+      const { validate } = interconnectSetup({ interconnect: { group: "auto" } });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining(`"auto"`),
+      }));
+    });
+
+    it("rejects an interconnect opt-in under a placement that does not require capabilities/gpu-interconnect=true", () => {
+      const { validate } = interconnectSetup({ interconnect: [], placementRequiresInterconnect: false });
       expect(validate()).toContainEqual(expect.objectContaining({
         message: expect.stringContaining(`but placement does not require capabilities/gpu-interconnect=true`),
       }));
     });
 
-    it("rejects implicit + explicit interconnect_group mixing within one placement", () => {
-      // Two profiles, both interconnect, but only one sets interconnect_group.
+    it("rejects mixing implicit and explicit forms within one placement (rule 3)", () => {
+      // Two profiles in one placement: one uses `[]`, the other uses
+      // `{ group: ... }`. Rule 3 must reject.
       const { validate } = setup({
         services: {
           worker: {
@@ -2323,8 +2339,7 @@ describe(validateSDL.name, () => {
                   units: 1,
                   attributes: {
                     vendor: { nvidia: [{ model: "a100" }] },
-                    interconnect: true,
-                    interconnect_group: "pair0",
+                    interconnect: { group: "pair0" },
                   },
                 },
               },
@@ -2338,8 +2353,7 @@ describe(validateSDL.name, () => {
                   units: 1,
                   attributes: {
                     vendor: { nvidia: [{ model: "a100" }] },
-                    interconnect: true,
-                    // interconnect_group intentionally omitted -> rule 3 violation
+                    interconnect: [],
                   },
                 },
               },
@@ -2362,7 +2376,7 @@ describe(validateSDL.name, () => {
       });
 
       expect(validate()).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("mixes explicit and implicit interconnect_group"),
+        message: expect.stringContaining("mixes implicit"),
       }));
     });
   });

@@ -34,11 +34,7 @@
             },
             "attributes": [
               {
-                "key": "interconnect",
-                "value": "true"
-              },
-              {
-                "key": "interconnect_group",
+                "key": "interconnect/group",
                 "value": "pair0"
               },
               {
@@ -112,11 +108,7 @@
             },
             "attributes": [
               {
-                "key": "interconnect",
-                "value": "true"
-              },
-              {
-                "key": "interconnect_group",
+                "key": "interconnect/group",
                 "value": "pair0"
               },
               {

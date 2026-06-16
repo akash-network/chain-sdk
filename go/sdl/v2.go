@@ -541,69 +541,40 @@ func (sdl *v2) validate() error {
 }
 
 // validateInterconnect enforces the parser-level cross-field invariants
-// for GPU interconnect (CS-5 in the implementation spec):
+// for GPU interconnect (see docs/sdl-interconnect-spec.md):
 //
-//  1. Any compute profile with gpu.attributes.interconnect: true must be
-//     used by a deployment whose placement requirements include
-//     capabilities/gpu-interconnect=true.
-//  2. Any compute profile with gpu.attributes.interconnect_group set must
-//     also have gpu.attributes.interconnect: true on the same profile (a
-//     peer group label without an HCA is a misconfiguration).
-//  3. Within one deployment, if any profile sets interconnect_group,
-//     every profile with gpu.attributes.interconnect: true in that
-//     deployment must set interconnect_group. No
-//     implicit-default-plus-explicit mixing within one deployment.
+//  1. Any opt-in (implicit `[]` or explicit `{group: <name>}`) on a
+//     compute profile must be used by a deployment whose placement
+//     requirements include capabilities/gpu-interconnect=true.
+//  2. The reserved name `auto` may not be written explicitly under
+//     `interconnect: { group: ... }`. (Enforced at parse time in
+//     v2GPUAttributes.UnmarshalYAML.)
+//  3. Within one placement, no mixing of implicit (`interconnect: []`,
+//     resolved to the `auto` group) and explicit (named) opt-ins.
+//  4. `gpu.units == 0` with any interconnect opt-in is rejected.
+//     (Enforced at parse time in v2ResourceGPU.UnmarshalYAML.)
 //
-// The provider relies on these guarantees: rule 1 means an
-// interconnect-required workload always reaches an interconnect-capable
-// provider; rule 2 keeps peer-group labels meaningful; rule 3 keeps the
-// per-group anti-affinity rule unambiguous.
+// The provider relies on rule 1 to guarantee that an interconnect-required
+// workload always reaches an interconnect-capable provider, and on rule 3
+// to keep the per-group anti-affinity rule unambiguous (every service in
+// a placement shares one group label vocabulary).
 //
 // Free function (not a method on v2) so v2_1's validate() can call it
 // against the same profile + deployment shape — v2.1 inherits the full
 // GPU interconnect SDL grammar from v2 and must enforce the identical
 // rules.
 func validateInterconnect(profiles v2profiles, deployments v2Deployments) error {
-	// Per-profile rule 2: interconnect_group ⇒ interconnect=true.
-	//
-	// The gpu.Units > 0 guard is defense-in-depth: v2ResourceGPU.UnmarshalYAML
-	// already rejects interconnect / interconnect_group with gpu.units == 0
-	// at parse time, but if that parser path is ever bypassed we'd otherwise
-	// classify a zero-GPU profile as interconnect-enabled here and propagate
-	// InterconnectGroup into downstream manifest builders.
-	for profileName, compute := range profiles.Compute {
-		if compute.Resources == nil || compute.Resources.GPU == nil {
-			continue
-		}
-		gpu := compute.Resources.GPU
-		if gpu.Units == 0 {
-			continue
-		}
-		if gpu.InterconnectGroup != "" && !gpuAttributesHaveInterconnect(gpu.Attributes) {
-			return fmt.Errorf(
-				"%w: compute profile %q sets gpu.attributes.interconnect_group=%q but does not set gpu.attributes.interconnect: true",
-				errSDLInvalid,
-				profileName,
-				gpu.InterconnectGroup,
-			)
-		}
-	}
-
-	// Rules 1 and 3 are scoped to one deployment block. SDL v2 only has one
-	// deployment block (sdl.Deployments) so we treat the whole map as a
-	// single deployment for the purposes of these rules.
-	//
-	// Walk every (service, placement) and remember per service-deployment:
-	//   - which profile it points at,
-	//   - whether that profile has interconnect=true,
-	//   - whether that profile has interconnect_group set.
+	// The parser sets gpu.InterconnectGroup to:
+	//   - ""                  if no opt-in
+	//   - InterconnectGroupAuto ("auto") for `interconnect: []`
+	//   - tenant-chosen name  for `interconnect: { group: <name> }`
+	// Rule 2 (reserved name `auto`) and rule 4 (gpu.units==0) are enforced
+	// at parse time. This function enforces rules 1 and 3.
 	type profUsage struct {
-		profileName    string
-		hasInterconnect bool
-		group          string
+		profileName string
+		group       string // "" if non-interconnect
 	}
 	type placementUsage struct {
-		// indexed by service name
 		usages []profUsage
 	}
 	usagesByPlacement := map[string]*placementUsage{}
@@ -621,12 +592,10 @@ func validateInterconnect(profiles v2profiles, deployments v2Deployments) error 
 			usage := profUsage{
 				profileName: svcdepl.Profile,
 			}
-			// Same defense-in-depth as the rule-2 loop above: an
-			// interconnect attribute or interconnect_group on a zero-GPU
-			// profile would be parser-rejected upstream, but treat it as
-			// "not interconnect" here just in case the parser is bypassed.
+			// Defense-in-depth: zero-GPU profile with an interconnect
+			// attribute is rejected at parse time. Treat as
+			// non-interconnect here if the parser is bypassed.
 			if gpu != nil && gpu.Units > 0 {
-				usage.hasInterconnect = gpuAttributesHaveInterconnect(gpu.Attributes)
 				usage.group = gpu.InterconnectGroup
 			}
 
@@ -637,10 +606,10 @@ func validateInterconnect(profiles v2profiles, deployments v2Deployments) error 
 			}
 			pu.usages = append(pu.usages, usage)
 
-			// Rule 1: per-placement, if this profile has interconnect=true,
-			// the placement's requirements must include
-			// capabilities/gpu-interconnect=true.
-			if usage.hasInterconnect {
+			// Rule 1: any opt-in (group set) under a placement
+			// requires capabilities/gpu-interconnect=true on the
+			// placement's attributes.
+			if usage.group != "" {
 				infra, ok := profiles.Placement[placementName]
 				if !ok {
 					continue // covered by earlier validate() loop
@@ -658,45 +627,37 @@ func validateInterconnect(profiles v2profiles, deployments v2Deployments) error 
 		}
 	}
 
-	// Rule 3: within one deployment block (= one placementUsage), if any
-	// profile sets interconnect_group, every profile with interconnect=true
-	// must set interconnect_group too. The spec's "deployment" scope is
-	// one sdl.Deployments, so we apply this rule per placement (each
-	// placement is what a tenant sees as one bid target / one set of
-	// leased pods).
+	// Rule 3: within one placement, no mixing of implicit (`auto`) and
+	// explicit (named) interconnect opt-ins. Either all opt-ins under a
+	// placement are implicit, or all are explicitly named.
 	for placementName, pu := range usagesByPlacement {
-		anyGrouped := false
+		var firstImplicit, firstExplicit string
 		for _, u := range pu.usages {
-			if u.group != "" {
-				anyGrouped = true
-				break
+			switch {
+			case u.group == "":
+				// non-interconnect — ignore
+			case u.group == InterconnectGroupAuto:
+				if firstImplicit == "" {
+					firstImplicit = u.profileName
+				}
+			default:
+				if firstExplicit == "" {
+					firstExplicit = u.profileName
+				}
 			}
 		}
-		if !anyGrouped {
-			continue
-		}
-		for _, u := range pu.usages {
-			if u.hasInterconnect && u.group == "" {
-				return fmt.Errorf(
-					"%w: placement %q mixes explicit and implicit interconnect_group: profile %q has gpu.attributes.interconnect: true but no interconnect_group, while another profile under the same placement sets interconnect_group",
-					errSDLInvalid,
-					placementName,
-					u.profileName,
-				)
-			}
+		if firstImplicit != "" && firstExplicit != "" {
+			return fmt.Errorf(
+				"%w: placement %q mixes implicit `interconnect: []` (profile %q) and explicit `interconnect: { group: ... }` (profile %q); use one form across the placement",
+				errSDLInvalid,
+				placementName,
+				firstImplicit,
+				firstExplicit,
+			)
 		}
 	}
 
 	return nil
-}
-
-func gpuAttributesHaveInterconnect(attrs v2GPUAttributes) bool {
-	for _, a := range attrs {
-		if a.Key == GPUAttributeInterconnect && a.Value == valueTrue {
-			return true
-		}
-	}
-	return false
 }
 
 func placementRequiresInterconnect(attrs v2PlacementAttributes) bool {

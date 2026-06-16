@@ -5,10 +5,11 @@ func (nd *NodeCapabilities) Dup() NodeCapabilities {
 		StorageClasses:           make([]string, 0, len(nd.StorageClasses)),
 		InterconnectResourceName: nd.InterconnectResourceName,
 		InterconnectFabric:       nd.InterconnectFabric,
-		NCCLHCAPrefix:            nd.NCCLHCAPrefix,
+		NCCLHCAPrefixes:          make([]string, 0, len(nd.NCCLHCAPrefixes)),
 	}
 
 	res.StorageClasses = append(res.StorageClasses, nd.StorageClasses...)
+	res.NCCLHCAPrefixes = append(res.NCCLHCAPrefixes, nd.NCCLHCAPrefixes...)
 
 	return res
 }
