@@ -56,27 +56,27 @@ func (sdl *v2) buildGroups() error {
 			}
 
 			// Validate TEE + GPU consistency
-			if svc.Params != nil && svc.Params.TEE != nil {
-				hasGPU := compute.Resources.GPU != nil && compute.Resources.GPU.Units > 0
-				if err := svc.Params.TEE.validateWithGPU(hasGPU); err != nil {
+			if svc.Params != nil && svc.Params.TEE != "" {
+				teeType, err := parseTEEParam(svc.Params.TEE)
+				if err != nil {
 					return err
 				}
-			}
+				hasGPU := compute.Resources.GPU != nil && compute.Resources.GPU.Units > 0
+				if err := validateTEEWithGPU(teeType, hasGPU); err != nil {
+					return err
+				}
 
-			// Project TEE type as a placement requirement attribute so the bid
-			// engine matches only providers that support this TEE technology.
-			// Only the type is projected; attestation is a deployment-time
-			// decision handled via manifest TEEParams, not a provider capability.
-			if svc.Params != nil && svc.Params.TEE != nil {
-				if group.teeType != "" && group.teeType != svc.Params.TEE.Type {
+				// Project TEE type as a placement requirement attribute so the bid
+				// engine matches only providers that support confidential compute.
+				if group.teeType != "" && group.teeType != teeType {
 					return fmt.Errorf("%w: group %q has %q and %q",
-						errTEETypeMismatch, placementName, group.teeType, svc.Params.TEE.Type)
+						errTEETypeMismatch, placementName, group.teeType, teeType)
 				}
 				if group.teeType == "" {
-					group.teeType = svc.Params.TEE.Type
+					group.teeType = teeType
 					group.dgroup.Requirements.Attributes = append(
 						group.dgroup.Requirements.Attributes,
-						types.Attribute{Key: "tee/type", Value: svc.Params.TEE.Type},
+						types.Attribute{Key: "tee/type", Value: teeType},
 					)
 					sort.Sort(group.dgroup.Requirements.Attributes)
 				}
@@ -152,14 +152,10 @@ func (sdl *v2) buildGroups() error {
 					}
 				}
 
-				if svc.Params.TEE != nil {
-					attestation := true
-					if svc.Params.TEE.Attestation != nil {
-						attestation = *svc.Params.TEE.Attestation
-					}
+				if svc.Params.TEE != "" {
 					params.TEE = &manifest.TEEParams{
-						Type:        svc.Params.TEE.Type,
-						Attestation: attestation,
+						Type:        svc.Params.TEE,
+						Attestation: true,
 					}
 				}
 
