@@ -227,10 +227,10 @@ message AttestationQuoteResponse {
     (gogoproto.moretags) = "yaml:\"cert_chain\""
   ];
 
-  // TEE type identifier: "snp", "tdx", "snp-gpu", "tdx-gpu".
-  string tee_type = 3 [
-    (gogoproto.jsontag)  = "tee_type",
-    (gogoproto.moretags) = "yaml:\"tee_type\""
+  // TEE platform identifier: "snp", "tdx", "snp-gpu", "tdx-gpu".
+  string tee_platform = 3 [
+    (gogoproto.jsontag)  = "tee_platform",
+    (gogoproto.moretags) = "yaml:\"tee_platform\""
   ];
 
   // Base64-encoded auxiliary blob (typically empty).
