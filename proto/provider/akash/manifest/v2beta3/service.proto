@@ -37,6 +37,26 @@ message ServicePermissions {
   ];
 }
 
+// TEEParams configures Trusted Execution Environment for the service.
+// The type field selects the TEE capability and the provider resolves the
+// runtime class based on its detected platform (TDX or SNP).
+// The attestation field controls whether the provider injects an attestation sidecar.
+message TEEParams {
+  // type is the TEE capability: cpu, cpu-gpu
+  string type = 1 [
+    (gogoproto.jsontag)  = "type",
+    (gogoproto.moretags) = "yaml:\"type\""
+  ];
+  // attestation controls whether the provider injects an attestation sidecar.
+  // IMPORTANT: proto3 bool defaults to false, but the intended default is true.
+  // All producers MUST set this field explicitly. The Go SDL builder enforces
+  // this; non-Go clients must set attestation=true when sidecar injection is desired.
+  bool attestation = 2 [
+    (gogoproto.jsontag)  = "attestation",
+    (gogoproto.moretags) = "yaml:\"attestation\""
+  ];
+}
+
 // ServiceParams
 message ServiceParams {
   repeated StorageParams storage = 1 [
@@ -53,6 +73,12 @@ message ServiceParams {
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "permissions,omitempty",
     (gogoproto.moretags) = "yaml:\"permissions,omitempty\""
+  ];
+  TEEParams tee = 12 [
+    (gogoproto.nullable) = true,
+    (gogoproto.customname) = "TEE",
+    (gogoproto.jsontag)  = "tee,omitempty",
+    (gogoproto.moretags) = "yaml:\"tee,omitempty\""
   ];
 }
 

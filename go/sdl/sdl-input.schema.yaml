@@ -501,6 +501,11 @@ properties:
                       - events
                   type: array
               type: object
+            tee:
+              type: string
+              enum:
+                - cpu
+                - cpu-gpu
           type: object
       required:
         - image
