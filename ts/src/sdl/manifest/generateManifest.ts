@@ -26,9 +26,9 @@ import {
   parseMemoryBytes,
   parseServiceProto,
   parseStorageBytes,
+  resolveInterconnectGroup,
   type SDLCompute,
   type SDLService,
-  resolveInterconnectGroup,
   transformGpuAttributes,
 } from "./manifestUtils.ts";
 import { minWindowToDuration } from "./reclamationDuration.ts";
