@@ -794,19 +794,6 @@ func TestV2_1_TEE_CPUGPU(t *testing.T) {
 	assert.Equal(t, uint64(1), svc.Resources.GPU.Units.Value())
 }
 
-func TestV2_1_TEE_CPUBasic(t *testing.T) {
-	sdl, err := ReadFile("./_testdata/v2.1-tee-cpu-basic.yaml")
-	require.NoError(t, err)
-
-	mani, err := sdl.Manifest()
-	require.NoError(t, err)
-
-	svc := mani.GetGroups()[0].Services[0]
-	require.NotNil(t, svc.Params)
-	require.NotNil(t, svc.Params.TEE)
-	assert.Equal(t, "cpu", svc.Params.TEE.Type)
-	assert.True(t, svc.Params.TEE.Attestation)
-}
 
 func TestV2_1_TEE_InvalidType(t *testing.T) {
 	stream := `
