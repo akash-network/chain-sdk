@@ -760,3 +760,128 @@ func TestV2_1_ParseServiceMix2(t *testing.T) {
 		},
 	}, mani.GetGroups()[0])
 }
+
+func TestV2_1_TEE_CPU(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-tee-cpu.yaml")
+	require.NoError(t, err)
+
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+	require.Len(t, mani.GetGroups(), 1)
+
+	svc := mani.GetGroups()[0].Services[0]
+	require.NotNil(t, svc.Params)
+	require.NotNil(t, svc.Params.TEE)
+	assert.Equal(t, "cpu", svc.Params.TEE.Type)
+	assert.True(t, svc.Params.TEE.Attestation)
+}
+
+func TestV2_1_TEE_CPUGPU(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-tee-cpu-gpu.yaml")
+	require.NoError(t, err)
+
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+
+	svc := mani.GetGroups()[0].Services[0]
+	require.NotNil(t, svc.Params)
+	require.NotNil(t, svc.Params.TEE)
+	assert.Equal(t, "cpu-gpu", svc.Params.TEE.Type)
+	assert.True(t, svc.Params.TEE.Attestation)
+
+	// GPU should also be present on resources
+	require.NotNil(t, svc.Resources.GPU)
+	assert.Equal(t, uint64(1), svc.Resources.GPU.Units.Value())
+}
+
+
+func TestV2_1_TEE_InvalidType(t *testing.T) {
+	stream := `
+version: "2.1"
+services:
+  web:
+    image: nginx
+    expose:
+      - port: 80
+        to:
+          - global: true
+    params:
+      tee: invalid-tee
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: "100m"
+        memory:
+          size: "128Mi"
+        storage:
+          size: "1Gi"
+  placement:
+    dc1:
+      pricing:
+        web:
+          denom: uakt
+          amount: 100
+deployment:
+  web:
+    dc1:
+      profile: web
+      count: 1
+`
+	_, err := Read([]byte(stream))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "unsupported tee type")
+}
+
+func TestV2_1_NoTEE(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-simple.yaml")
+	require.NoError(t, err)
+
+	mani, err := sdl.Manifest()
+	require.NoError(t, err)
+
+	svc := mani.GetGroups()[0].Services[0]
+	if svc.Params != nil {
+		assert.Nil(t, svc.Params.TEE)
+	}
+}
+
+func TestV2_1_TEE_GPUTypeWithoutGPU(t *testing.T) {
+	stream := `
+version: "2.1"
+services:
+  web:
+    image: nginx
+    expose:
+      - port: 80
+        to:
+          - global: true
+    params:
+      tee: cpu-gpu
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: "100m"
+        memory:
+          size: "128Mi"
+        storage:
+          size: "1Gi"
+  placement:
+    dc1:
+      pricing:
+        web:
+          denom: uakt
+          amount: 100
+deployment:
+  web:
+    dc1:
+      profile: web
+      count: 1
+`
+	_, err := Read([]byte(stream))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "tee type requires gpu resources")
+}
