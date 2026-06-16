@@ -8,8 +8,7 @@ services:
         to:
           - global: true
     params:
-      tee:
-        type: sev-snp
+      tee: cpu
 profiles:
   compute:
     web:

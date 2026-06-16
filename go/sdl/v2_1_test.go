@@ -761,8 +761,8 @@ func TestV2_1_ParseServiceMix2(t *testing.T) {
 	}, mani.GetGroups()[0])
 }
 
-func TestV2_1_TEE_SEVSNP(t *testing.T) {
-	sdl, err := ReadFile("./_testdata/v2.1-tee-snp.yaml")
+func TestV2_1_TEE_CPU(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-tee-cpu.yaml")
 	require.NoError(t, err)
 
 	mani, err := sdl.Manifest()
@@ -772,12 +772,12 @@ func TestV2_1_TEE_SEVSNP(t *testing.T) {
 	svc := mani.GetGroups()[0].Services[0]
 	require.NotNil(t, svc.Params)
 	require.NotNil(t, svc.Params.TEE)
-	assert.Equal(t, "sev-snp", svc.Params.TEE.Type)
+	assert.Equal(t, "cpu", svc.Params.TEE.Type)
 	assert.True(t, svc.Params.TEE.Attestation)
 }
 
-func TestV2_1_TEE_SNPGPU(t *testing.T) {
-	sdl, err := ReadFile("./_testdata/v2.1-tee-snp-gpu.yaml")
+func TestV2_1_TEE_CPUGPU(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-tee-cpu-gpu.yaml")
 	require.NoError(t, err)
 
 	mani, err := sdl.Manifest()
@@ -786,7 +786,7 @@ func TestV2_1_TEE_SNPGPU(t *testing.T) {
 	svc := mani.GetGroups()[0].Services[0]
 	require.NotNil(t, svc.Params)
 	require.NotNil(t, svc.Params.TEE)
-	assert.Equal(t, "sev-snp-gpu", svc.Params.TEE.Type)
+	assert.Equal(t, "cpu-gpu", svc.Params.TEE.Type)
 	assert.True(t, svc.Params.TEE.Attestation)
 
 	// GPU should also be present on resources
@@ -794,8 +794,8 @@ func TestV2_1_TEE_SNPGPU(t *testing.T) {
 	assert.Equal(t, uint64(1), svc.Resources.GPU.Units.Value())
 }
 
-func TestV2_1_TEE_TDXNoAttestation(t *testing.T) {
-	sdl, err := ReadFile("./_testdata/v2.1-tee-tdx-no-attestation.yaml")
+func TestV2_1_TEE_CPUBasic(t *testing.T) {
+	sdl, err := ReadFile("./_testdata/v2.1-tee-cpu-basic.yaml")
 	require.NoError(t, err)
 
 	mani, err := sdl.Manifest()
@@ -804,8 +804,8 @@ func TestV2_1_TEE_TDXNoAttestation(t *testing.T) {
 	svc := mani.GetGroups()[0].Services[0]
 	require.NotNil(t, svc.Params)
 	require.NotNil(t, svc.Params.TEE)
-	assert.Equal(t, "tdx", svc.Params.TEE.Type)
-	assert.False(t, svc.Params.TEE.Attestation)
+	assert.Equal(t, "cpu", svc.Params.TEE.Type)
+	assert.True(t, svc.Params.TEE.Attestation)
 }
 
 func TestV2_1_TEE_InvalidType(t *testing.T) {
@@ -819,8 +819,7 @@ services:
         to:
           - global: true
     params:
-      tee:
-        type: invalid-tee
+      tee: invalid-tee
 profiles:
   compute:
     web:
@@ -872,8 +871,7 @@ services:
         to:
           - global: true
     params:
-      tee:
-        type: sev-snp-gpu
+      tee: cpu-gpu
 profiles:
   compute:
     web:
