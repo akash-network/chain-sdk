@@ -133,10 +133,11 @@ func (m *ServicePermissions) GetRead() []string {
 }
 
 // TEEParams configures Trusted Execution Environment for the service.
-// The type field selects the TEE technology and maps to a Kata runtime class.
+// The type field selects the TEE capability and the provider resolves the
+// runtime class based on its detected platform (TDX or SNP).
 // The attestation field controls whether the provider injects an attestation sidecar.
 type TEEParams struct {
-	// type is the TEE technology: sev-snp, sev-snp-gpu, tdx, tdx-gpu
+	// type is the TEE capability: cpu, cpu-gpu
 	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type" yaml:"type"`
 	// attestation controls whether the provider injects an attestation sidecar.
 	// IMPORTANT: proto3 bool defaults to false, but the intended default is true.
