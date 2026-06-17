@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -73,7 +74,7 @@ func GetTxEscrowDeposit() *cobra.Command {
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
 			if err != nil {
-				return err
+				return annotateEscrowDepositError(err, cmd.Flags().Changed(cflags.FlagOwner))
 			}
 
 			return cl.PrintMessage(resp)
@@ -85,4 +86,20 @@ func GetTxEscrowDeposit() *cobra.Command {
 	cflags.AddDepositSourcesFlags(cmd.Flags())
 
 	return cmd
+}
+
+// annotateEscrowDepositError enriches the error returned when depositing into a
+// deployment escrow account. When --owner is omitted, the owner defaults to the
+// signer; depositing into another account's deployment then targets a
+// non-existent escrow account and fails with a confusing "account not found".
+// In that case, point the user at the missing --owner flag. Other errors and
+// the success path are left untouched.
+func annotateEscrowDepositError(err error, ownerSet bool) error {
+	if err == nil {
+		return nil
+	}
+	if !ownerSet && strings.Contains(err.Error(), "account not found") {
+		return fmt.Errorf("%w: if depositing into another account's deployment, specify its owner with --%s", err, cflags.FlagOwner)
+	}
+	return err
 }
