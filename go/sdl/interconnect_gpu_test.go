@@ -9,7 +9,7 @@ import (
 
 // AKT-492: `gpu.attributes.interconnect: []` parses as an implicit group
 // named `auto`, surfaced on Resources.GPU.Attributes and lifted to the
-// off-chain v2ResourceGPU.InterconnectGroup field. No separate
+// off-chain v2ResourceGPU.interconnectGroup field. No separate
 // `interconnect=true` marker is emitted — the group key alone is the
 // opt-in signal.
 func TestV2ResourceGPU_InterconnectImplicitAuto(t *testing.T) {
@@ -23,7 +23,7 @@ attributes:
 	var gpu v2ResourceGPU
 	require.NoError(t, yaml.Unmarshal([]byte(yamlSrc), &gpu))
 
-	require.Equal(t, InterconnectGroupAuto, gpu.InterconnectGroup,
+	require.Equal(t, InterconnectGroupAuto, gpu.interconnectGroup,
 		"implicit `interconnect: []` must lift to the literal `auto` group name")
 
 	keys := map[string]string{}
@@ -37,7 +37,7 @@ attributes:
 // AKT-492: `gpu.attributes.interconnect: { group: pair0 }` parses as an
 // explicit named group. The same string appears in the on-chain attribute
 // slice (under the new `interconnect/group` key) and the off-chain
-// v2ResourceGPU.InterconnectGroup field.
+// v2ResourceGPU.interconnectGroup field.
 func TestV2ResourceGPU_InterconnectExplicitGroup(t *testing.T) {
 	yamlSrc := `units: 8
 attributes:
@@ -52,8 +52,8 @@ attributes:
 	var gpu v2ResourceGPU
 	require.NoError(t, yaml.Unmarshal([]byte(yamlSrc), &gpu))
 
-	require.Equal(t, "pair1", gpu.InterconnectGroup,
-		"v2ResourceGPU.InterconnectGroup must hold the explicit group value")
+	require.Equal(t, "pair1", gpu.interconnectGroup,
+		"v2ResourceGPU.interconnectGroup must hold the explicit group value")
 
 	keys := map[string]string{}
 	for _, a := range gpu.Attributes {
@@ -76,7 +76,7 @@ attributes:
 	var gpu v2ResourceGPU
 	require.NoError(t, yaml.Unmarshal([]byte(yamlSrc), &gpu))
 
-	require.Empty(t, gpu.InterconnectGroup)
+	require.Empty(t, gpu.interconnectGroup)
 	for _, a := range gpu.Attributes {
 		require.NotEqual(t, GPUAttributeInterconnectGroup, a.Key,
 			"interconnect/group must not appear when SDL omits it")

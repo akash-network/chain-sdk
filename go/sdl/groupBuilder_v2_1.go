@@ -136,9 +136,9 @@ func (sdl *v2_1) buildGroups() error {
 				Expose:    expose,
 			}
 
-			// CS-3: see groupBuilder_v2.go for rationale.
+			// See groupBuilder_v2.go for rationale.
 			if compute.Resources != nil && compute.Resources.GPU != nil {
-				msvc.InterconnectGroup = compute.Resources.GPU.InterconnectGroup
+				msvc.InterconnectGroup = compute.Resources.GPU.interconnectGroup
 			}
 
 			if svc.Params != nil {

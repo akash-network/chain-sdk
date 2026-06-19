@@ -565,7 +565,7 @@ func (sdl *v2) validate() error {
 // GPU interconnect SDL grammar from v2 and must enforce the identical
 // rules.
 func validateInterconnect(profiles v2profiles, deployments v2Deployments) error {
-	// The parser sets gpu.InterconnectGroup to:
+	// The parser sets gpu.interconnectGroup to:
 	//   - ""                  if no opt-in
 	//   - InterconnectGroupAuto ("auto") for `interconnect: []`
 	//   - tenant-chosen name  for `interconnect: { group: <name> }`
@@ -597,7 +597,7 @@ func validateInterconnect(profiles v2profiles, deployments v2Deployments) error 
 			// attribute is rejected at parse time. Treat as
 			// non-interconnect here if the parser is bypassed.
 			if gpu != nil && gpu.Units > 0 {
-				usage.group = gpu.InterconnectGroup
+				usage.group = gpu.interconnectGroup
 			}
 
 			pu, ok := usagesByPlacement[placementName]

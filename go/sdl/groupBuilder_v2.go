@@ -126,13 +126,13 @@ func (sdl *v2) buildGroups() error {
 				Expose:    expose,
 			}
 
-			// CS-3: gpu.attributes.interconnect_group is captured by the
-			// GPU parser (see go/sdl/gpu.go) into the
-			// v2ResourceGPU.InterconnectGroup field. Surface it onto the
-			// off-chain manifest service so the provider can apply
-			// per-group pod anti-affinity at deploy time.
+			// gpu.attributes.interconnect's group is captured by the GPU
+			// parser (see go/sdl/gpu.go) into the v2ResourceGPU.
+			// interconnectGroup field. Surface it onto the off-chain
+			// manifest service so the provider can apply per-group pod
+			// anti-affinity at deploy time.
 			if compute.Resources != nil && compute.Resources.GPU != nil {
-				msvc.InterconnectGroup = compute.Resources.GPU.InterconnectGroup
+				msvc.InterconnectGroup = compute.Resources.GPU.interconnectGroup
 			}
 
 			if svc.Params != nil {

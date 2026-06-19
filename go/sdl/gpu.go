@@ -58,14 +58,18 @@ type v2ResourceGPU struct {
 	Units      gpuQuantity     `yaml:"units" json:"units"`
 	Attributes v2GPUAttributes `yaml:"attributes,omitempty" json:"attributes,omitempty"`
 
-	// InterconnectGroup carries the parsed group name from
+	// interconnectGroup carries the parsed group name from
 	// gpu.attributes.interconnect (the implicit `[]` form resolves to
 	// the literal "auto", the explicit `{group: <name>}` form carries
 	// the tenant-chosen name). The same value is also present in
 	// Attributes under the GPUAttributeInterconnectGroup key; this
 	// field exists so the higher-level manifest builder can route it to
 	// Service.InterconnectGroup without re-walking the slice.
-	InterconnectGroup string `yaml:"-" json:"-"`
+	//
+	// Lowercase (unexported) because v2ResourceGPU itself is unexported
+	// and this value never crosses a serialization boundary — it's a
+	// parse-time cache used inside the sdl package only.
+	interconnectGroup string
 }
 
 func (sdl *v2ResourceGPU) UnmarshalYAML(node *yaml.Node) error {
@@ -87,14 +91,14 @@ func (sdl *v2ResourceGPU) UnmarshalYAML(node *yaml.Node) error {
 	}
 
 	// Lift the interconnect/group attribute value into the dedicated
-	// InterconnectGroup field for downstream manifest builders, but KEEP
+	// interconnectGroup field for downstream manifest builders, but KEEP
 	// it in the attributes slice — the provider's bid engine consumes the
 	// on-chain Resources.GPU.Attributes and needs the group key present
 	// there to enforce per-group node separation during reservation.
 	if len(res.Attributes) > 0 {
 		for _, a := range res.Attributes {
 			if a.Key == GPUAttributeInterconnectGroup {
-				res.InterconnectGroup = a.Value
+				res.interconnectGroup = a.Value
 				break
 			}
 		}
@@ -119,10 +123,10 @@ func (sdl *v2ResourceGPU) UnmarshalYAML(node *yaml.Node) error {
 	// be classified as interconnect-enabled by downstream validation passes
 	// and the provider's reservation logic, then rejected much later (or,
 	// worse, treated as a misconfiguration). Reject up front. Since the
-	// group key is now the sole opt-in signal, checking InterconnectGroup
+	// group key is now the sole opt-in signal, checking interconnectGroup
 	// alone covers both implicit and explicit forms.
-	if res.Units == 0 && res.InterconnectGroup != "" {
-		return fmt.Errorf("sdl: gpu.attributes.interconnect cannot be set when gpu.units == 0 (group=%q)", res.InterconnectGroup)
+	if res.Units == 0 && res.interconnectGroup != "" {
+		return fmt.Errorf("sdl: gpu.attributes.interconnect cannot be set when gpu.units == 0 (group=%q)", res.interconnectGroup)
 	}
 
 	*sdl = res
@@ -204,7 +208,7 @@ func (sdl *v2GPUAttributes) UnmarshalYAML(node *yaml.Node) error {
 	// separate boolean marker. The provider's bid engine reads this key
 	// during reservation Adjust to enforce per-group node separation; the
 	// parent v2ResourceGPU.UnmarshalYAML lifts the value into
-	// v2ResourceGPU.InterconnectGroup so the manifest builder can route it
+	// v2ResourceGPU.interconnectGroup so the manifest builder can route it
 	// to Service.InterconnectGroup for the off-chain workload builder.
 	if interconnectGroup != "" {
 		res = append(res, types.Attribute{

@@ -35,8 +35,9 @@ type NodeCapabilities struct {
 	InterconnectResourceName string `protobuf:"bytes,2,opt,name=interconnect_resource_name,json=interconnectResourceName,proto3" json:"interconnect_resource_name,omitempty" yaml:"interconnect_resource_name,omitempty"`
 	// GPU interconnect fabric type. "infiniband" or "roce". Internal /
 	// informational — the SDL surface is fabric-agnostic; tenants only
-	// declare `interconnect: true`. Derived from
-	// /sys/class/infiniband/<dev>/ports/1/link_layer on the host node.
+	// declare `interconnect: []` or `interconnect: { group: <name> }`.
+	// Derived from /sys/class/infiniband/<dev>/ports/1/link_layer on the
+	// host node.
 	InterconnectFabric string `protobuf:"bytes,3,opt,name=interconnect_fabric,json=interconnectFabric,proto3" json:"interconnect_fabric,omitempty" yaml:"interconnect_fabric,omitempty"`
 	// NCCL HCA device-name prefixes present on this node, one per distinct
 	// family (e.g. ["mlx5"], or ["mlx5","bnxt_re"] on a mixed-vendor host).
