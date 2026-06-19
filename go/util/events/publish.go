@@ -141,14 +141,34 @@ func (e *events) processBlock(height int64) {
 			continue
 		}
 
-		for _, ev := range tx.Events {
-			if mev, ok := processEvent(ev); ok {
-				if err := e.bus.Publish(mev); err != nil {
-					return
-				}
-			}
+		if !e.publishEvents(tx.Events) {
+			return
 		}
 	}
+
+	// Events emitted from BeginBlock/EndBlock (e.g. a lease closed by escrow
+	// depletion in the escrow module's EndBlocker) are not part of any
+	// transaction and surface in FinalizeBlockEvents. Process them too, or
+	// such closes never reach the bus and the resources are never reclaimed.
+	e.publishEvents(blkResults.FinalizeBlockEvents)
+}
+
+// publishEvents runs each event through processEvent and publishes the ones it
+// recognizes. It returns false if publishing failed, signalling the caller to
+// stop processing the current block.
+func (e *events) publishEvents(evs []abci.Event) bool {
+	for _, ev := range evs {
+		mev, ok := processEvent(ev)
+		if !ok {
+			continue
+		}
+
+		if err := e.bus.Publish(mev); err != nil {
+			return false
+		}
+	}
+
+	return true
 }
 
 func processEvent(bev abci.Event) (interface{}, bool) {
