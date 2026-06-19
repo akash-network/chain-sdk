@@ -8,7 +8,7 @@ import { DeploymentReclamation } from "../../generated/protos/akash/deployment/v
 import { GroupSpec } from "../../generated/protos/akash/deployment/v1beta4/groupspec.ts";
 import { ResourceUnit } from "../../generated/protos/akash/deployment/v1beta4/resourceunit.ts";
 import { Group } from "../../generated/protos/akash/manifest/v2beta3/group.ts";
-import { ImageCredentials, Service, ServiceParams, StorageParams } from "../../generated/protos/akash/manifest/v2beta3/service.ts";
+import { ImageCredentials, Service, ServiceParams, StorageParams, TEEParams } from "../../generated/protos/akash/manifest/v2beta3/service.ts";
 import { ServiceExpose } from "../../generated/protos/akash/manifest/v2beta3/serviceexpose.ts";
 import type { ValidationError } from "../../utils/jsonSchemaValidation.ts";
 import { castArray } from "../utils.ts";
@@ -281,6 +281,13 @@ function buildParams(service: SDLService): ServiceParams | undefined {
   // Permissions are not in the protobuf type but need to be preserved
   if (service.params.permissions) {
     (result as unknown as Record<string, unknown>).permissions = service.params.permissions;
+  }
+
+  // Project TEE onto the manifest, mirroring Go's groupBuilder
+  // (params.TEE = {Type, Attestation: true}). `attestation` is hard-coded true
+  // (not an input knob); the provider injects the attestation sidecar.
+  if (service.params.tee) {
+    result.tee = TEEParams.fromPartial({ type: service.params.tee, attestation: true });
   }
 
   return result;

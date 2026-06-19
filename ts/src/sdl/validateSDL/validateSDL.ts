@@ -75,6 +75,7 @@ class SDLValidator {
       this.#validateServiceStorages(serviceName, deploymentName);
       this.#validateStorages(serviceName, deploymentName);
       this.#validateGPU(serviceName, deploymentName);
+      this.#validateTEE(serviceName, deploymentName);
     });
   }
 
@@ -254,6 +255,31 @@ class SDLValidator {
         keyword: "required",
         params: {
           missingProperty: "vendor",
+        },
+      });
+    }
+  }
+
+  // Mirrors Go `validateTEEWithGPU` (go/sdl/tee.go): the `cpu-gpu` TEE type
+  // requires GPU resources on the resolved compute profile. `cpu` (and absent)
+  // need no GPU. Unsupported tee values are rejected structurally by the input
+  // schema (`tee` enum in validateSDLInput.ts) before this runs.
+  #validateTEE(serviceName: string, deploymentName: string) {
+    const tee = this.#sdl.services?.[serviceName]?.params?.tee;
+    if (tee !== "cpu-gpu") return;
+
+    const profile = this.#sdl.deployment[serviceName]?.[deploymentName]?.profile;
+    const gpu = this.#sdl.profiles?.compute?.[profile]?.resources.gpu;
+    const hasGpu = gpu?.units !== undefined && gpu.units !== 0;
+
+    if (!hasGpu) {
+      this.#errors.push({
+        message: `Service "${serviceName}" tee type requires gpu resources.`,
+        instancePath: `/services/${serviceName}/params/tee`,
+        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee",
+        keyword: "required",
+        params: {
+          missingProperty: "gpu",
         },
       });
     }
