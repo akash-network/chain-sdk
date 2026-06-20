@@ -48,6 +48,8 @@ import (
 
 	v2 "pkg.akt.dev/go/node/oracle/v2"
 
+	verificationv1 "pkg.akt.dev/go/node/verification/v1"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
@@ -1094,6 +1096,26 @@ func (_c *QueryClient_Upgrade_Call) Return(_a0 upgradetypes.QueryClient) *QueryC
 func (_c *QueryClient_Upgrade_Call) RunAndReturn(run func() upgradetypes.QueryClient) *QueryClient_Upgrade_Call {
 	_c.Call.Return(run)
 	return _c
+}
+
+// Verification provides a mock function with no fields
+func (_m *QueryClient) Verification() verificationv1.QueryClient {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Verification")
+	}
+
+	var r0 verificationv1.QueryClient
+	if rf, ok := ret.Get(0).(func() verificationv1.QueryClient); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(verificationv1.QueryClient)
+		}
+	}
+
+	return r0
 }
 
 // Wasm provides a mock function with no fields
