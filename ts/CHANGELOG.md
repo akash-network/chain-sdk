@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0-alpha.36](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.35...ts/v1.0.0-alpha.36) (2026-06-21)
+
+
+### Features
+
+* add confidential compute support to SDL ([#312](https://github.com/akash-network/chain-sdk/issues/312)) ([0c10031](https://github.com/akash-network/chain-sdk/commit/0c10031da815727ece37e30e68d4440290c14a03))
+* **ts:** add confidential compute (tee) support to manifest generation ([#331](https://github.com/akash-network/chain-sdk/issues/331)) ([55ea78a](https://github.com/akash-network/chain-sdk/commit/55ea78acb84df0f303feabc4dc516475d400dbf2))
+
 ## [1.0.0-alpha.35](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.34...ts/v1.0.0-alpha.35) (2026-06-12)
 
 
