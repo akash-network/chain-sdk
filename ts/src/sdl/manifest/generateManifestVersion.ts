@@ -4,7 +4,11 @@ import type { GenerateManifestOkResult, Manifest } from "./generateManifest.ts";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
-const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts"]);
+// Go marshals nil slices as `null`, so empty manifest arrays must serialize to
+// `null` to stay byte-compatible with the Go SDK's manifest. `storage` covers
+// `params.storage` when a service sets other params (e.g. `tee`) but no storage;
+// resource-level storage is schema-required and never empty, so it is unaffected.
+const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts", "storage"]);
 const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 
 export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {

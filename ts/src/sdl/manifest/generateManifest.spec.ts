@@ -210,6 +210,34 @@ describe(generateManifest.name, () => {
     });
   });
 
+  describe("TEE configuration", () => {
+    it("projects tee cpu into service params with attestation true", () => {
+      const sdl = createBasicSdl();
+      sdl.services.web.params = { tee: "cpu" };
+      const { result } = setup({ sdl });
+
+      expect(result.groups[0].services[0].params?.tee).toEqual({ type: "cpu", attestation: true });
+    });
+
+    it("projects tee cpu-gpu into service params with attestation true", () => {
+      const sdl = createBasicSdl({
+        gpu: { units: 1, attributes: { vendor: { nvidia: [{ model: "a100" }] } } },
+      });
+      sdl.services.web.params = { tee: "cpu-gpu" };
+      const { result } = setup({ sdl });
+
+      expect(result.groups[0].services[0].params?.tee).toEqual({ type: "cpu-gpu", attestation: true });
+    });
+
+    it("omits tee from params when not set", () => {
+      const sdl = createBasicSdl();
+      sdl.services.web.params = { permissions: { read: ["logs"] } };
+      const { result } = setup({ sdl });
+
+      expect(result.groups[0].services[0].params?.tee).toBeUndefined();
+    });
+  });
+
   describe("storage configuration", () => {
     it("handles array of storage volumes", () => {
       const sdl = createBasicSdl({

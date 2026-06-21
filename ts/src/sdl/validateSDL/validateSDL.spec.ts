@@ -617,6 +617,76 @@ describe(validateSDL.name, () => {
     });
   });
 
+  describe("TEE validation", () => {
+    it("returns an error when tee is cpu-gpu but no GPU resources are defined", () => {
+      const { validate } = setup({
+        services: { web: { params: { tee: "cpu-gpu" } } },
+      });
+
+      const errors = validate();
+
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("tee type requires gpu resources"),
+        instancePath: "/services/web/params/tee",
+        keyword: "required",
+      }));
+    });
+
+    it("returns an error when tee is cpu-gpu but GPU units is 0", () => {
+      const { validate } = setup({
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+                gpu: { units: 0 },
+              },
+            },
+          },
+        },
+        services: { web: { params: { tee: "cpu-gpu" } } },
+      });
+
+      const errors = validate();
+
+      expect(errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("tee type requires gpu resources"),
+        instancePath: "/services/web/params/tee",
+        keyword: "required",
+      }));
+    });
+
+    it("accepts tee cpu-gpu when GPU resources are defined", () => {
+      const { validate } = setup({
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+                gpu: { units: 1, attributes: { vendor: { nvidia: [] } } },
+              },
+            },
+          },
+        },
+        services: { web: { params: { tee: "cpu-gpu" } } },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+
+    it("accepts tee cpu without GPU resources", () => {
+      const { validate } = setup({
+        services: { web: { params: { tee: "cpu" } } },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+  });
+
   describe("IP lease validation", () => {
     it("returns an error when IP is declared but not global", () => {
       const { validate } = setup({

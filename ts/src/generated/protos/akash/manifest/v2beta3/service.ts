@@ -28,11 +28,30 @@ export interface ServicePermissions {
   read: string[];
 }
 
+/**
+ * TEEParams configures Trusted Execution Environment for the service.
+ * The type field selects the TEE capability and the provider resolves the
+ * runtime class based on its detected platform (TDX or SNP).
+ * The attestation field controls whether the provider injects an attestation sidecar.
+ */
+export interface TEEParams {
+  /** type is the TEE capability: cpu, cpu-gpu */
+  type: string;
+  /**
+   * attestation controls whether the provider injects an attestation sidecar.
+   * IMPORTANT: proto3 bool defaults to false, but the intended default is true.
+   * All producers MUST set this field explicitly. The Go SDL builder enforces
+   * this; non-Go clients must set attestation=true when sidecar injection is desired.
+   */
+  attestation: boolean;
+}
+
 /** ServiceParams */
 export interface ServiceParams {
   storage: StorageParams[];
   credentials: ImageCredentials | undefined;
   permissions: ServicePermissions | undefined;
+  tee: TEEParams | undefined;
 }
 
 /** Credentials to fetch image from registry */
@@ -203,8 +222,82 @@ export const ServicePermissions: MessageFns<ServicePermissions, "akash.manifest.
   },
 };
 
+function createBaseTEEParams(): TEEParams {
+  return { type: "", attestation: false };
+}
+
+export const TEEParams: MessageFns<TEEParams, "akash.manifest.v2beta3.TEEParams"> = {
+  $type: "akash.manifest.v2beta3.TEEParams" as const,
+
+  encode(message: TEEParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.type !== "") {
+      writer.uint32(10).string(message.type);
+    }
+    if (message.attestation !== false) {
+      writer.uint32(16).bool(message.attestation);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): TEEParams {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTEEParams();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.type = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.attestation = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): TEEParams {
+    return {
+      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      attestation: isSet(object.attestation) ? globalThis.Boolean(object.attestation) : false,
+    };
+  },
+
+  toJSON(message: TEEParams): unknown {
+    const obj: any = {};
+    if (message.type !== "") {
+      obj.type = message.type;
+    }
+    if (message.attestation !== false) {
+      obj.attestation = message.attestation;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<TEEParams>): TEEParams {
+    const message = createBaseTEEParams();
+    message.type = object.type ?? "";
+    message.attestation = object.attestation ?? false;
+    return message;
+  },
+};
+
 function createBaseServiceParams(): ServiceParams {
-  return { storage: [], credentials: undefined, permissions: undefined };
+  return { storage: [], credentials: undefined, permissions: undefined, tee: undefined };
 }
 
 export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.ServiceParams"> = {
@@ -219,6 +312,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     }
     if (message.permissions !== undefined) {
       ServicePermissions.encode(message.permissions, writer.uint32(90).fork()).join();
+    }
+    if (message.tee !== undefined) {
+      TEEParams.encode(message.tee, writer.uint32(98).fork()).join();
     }
     return writer;
   },
@@ -254,6 +350,14 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
           message.permissions = ServicePermissions.decode(reader, reader.uint32());
           continue;
         }
+        case 12: {
+          if (tag !== 98) {
+            break;
+          }
+
+          message.tee = TEEParams.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -270,6 +374,7 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
         : [],
       credentials: isSet(object.credentials) ? ImageCredentials.fromJSON(object.credentials) : undefined,
       permissions: isSet(object.permissions) ? ServicePermissions.fromJSON(object.permissions) : undefined,
+      tee: isSet(object.tee) ? TEEParams.fromJSON(object.tee) : undefined,
     };
   },
 
@@ -284,6 +389,9 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     if (message.permissions !== undefined) {
       obj.permissions = ServicePermissions.toJSON(message.permissions);
     }
+    if (message.tee !== undefined) {
+      obj.tee = TEEParams.toJSON(message.tee);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ServiceParams>): ServiceParams {
@@ -295,6 +403,7 @@ export const ServiceParams: MessageFns<ServiceParams, "akash.manifest.v2beta3.Se
     message.permissions = (object.permissions !== undefined && object.permissions !== null)
       ? ServicePermissions.fromPartial(object.permissions)
       : undefined;
+    message.tee = (object.tee !== undefined && object.tee !== null) ? TEEParams.fromPartial(object.tee) : undefined;
     return message;
   },
 };

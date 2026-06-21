@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.1"
+services:
+  tee-gpu-app:
+    image: tensorflow/tensorflow:latest-gpu
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+    params:
+      tee: cpu-gpu
+profiles:
+  compute:
+    tee-gpu-compute:
+      resources:
+        cpu:
+          units: 1000m
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3080
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        tee-gpu-compute:
+          denom: uakt
+          amount: 1000
+deployment:
+  tee-gpu-app:
+    akash:
+      profile: tee-gpu-compute
+      count: 1
