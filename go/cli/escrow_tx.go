@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
@@ -31,8 +30,14 @@ func GetTxEscrowCmd() *cobra.Command {
 
 func GetTxEscrowDeposit() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "deposit [deployment] [amount]",
-		Short:             "deposit funds to escrow account",
+		Use:   "deposit [deployment] [amount]",
+		Short: "deposit funds to escrow account",
+		Long: `Deposit funds to a deployment's escrow account.
+
+The escrow account is derived from --owner (defaulting to the signer) and
+--dseq. To deposit into a deployment owned by another account, pass that
+account's address with --owner; otherwise the deposit targets the signer's
+own (possibly non-existent) escrow account.`,
 		Args:              cobra.ExactArgs(2),
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -74,7 +79,7 @@ func GetTxEscrowDeposit() *cobra.Command {
 
 			resp, err := cl.Tx().BroadcastMsgs(ctx, []sdk.Msg{msg})
 			if err != nil {
-				return annotateEscrowDepositError(err)
+				return err
 			}
 
 			return cl.PrintMessage(resp)
@@ -86,17 +91,4 @@ func GetTxEscrowDeposit() *cobra.Command {
 	cflags.AddDepositSourcesFlags(cmd.Flags())
 
 	return cmd
-}
-
-// annotateEscrowDepositError adds a best-effort hint when the escrow account
-// derived from the deployment flags does not exist. The escrow account ID is
-// built from --owner (defaulting to the signer) and --dseq, so a missing,
-// wrong, or mistyped value all surface as the same opaque "account not found".
-// Matching the registered ErrAccountNotFound keeps this resilient to message
-// rewording and scoped to the escrow module. Other errors are left untouched.
-func annotateEscrowDepositError(err error) error {
-	if errors.Is(err, emodule.ErrAccountNotFound) {
-		return fmt.Errorf("%w: if this is another account's deployment, pass its owner with --%s", err, cflags.FlagOwner)
-	}
-	return err
 }
