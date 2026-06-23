@@ -91,6 +91,7 @@ type BroadcastOptions struct {
 	skipConfirm      *bool
 	confirmFn        ConfirmFn
 	broadcastMode    *string
+	priority         bool
 }
 
 // BroadcastOption is a function that takes as first argument a pointer to BroadcastOptions and returns an error
@@ -200,6 +201,16 @@ func WithGenerateOnly(val bool) BroadcastOption {
 		opts.generateOnly = new(bool)
 		*opts.generateOnly = val
 
+		return nil
+	}
+}
+
+// WithPriority marks the broadcast as priority. Priority requests are drained
+// from a dedicated FIFO queue ahead of the default queue, so time-critical
+// messages are not held up by long runs of non-priority work.
+func WithPriority() BroadcastOption {
+	return func(opts *BroadcastOptions) error {
+		opts.priority = true
 		return nil
 	}
 }
@@ -446,16 +457,30 @@ func (c *serialBroadcaster) BroadcastTx(ctx context.Context, tx sdk.Tx, opts ...
 func (c *serialBroadcaster) run() {
 	defer c.lc.ShutdownCompleted()
 
+	priority := deque.NewDeque[broadcastReq]()
 	pending := deque.NewDeque[broadcastReq]()
+
+	// broadcastCh acts as a busy gate: non-nil = idle (tryBroadcast may dispatch),
+	// nil = in-flight (send case disabled, requests accumulate in the deques).
+	// Flipped to nil on dispatch and back to c.broadcastch on broadcastDoneCh.
 	broadcastCh := c.broadcastch
 	broadcastDoneCh := make(chan error, 1)
 
 	tryBroadcast := func() {
-		if pending.Len() == 0 {
+		var q *deque.Deque[broadcastReq]
+		var qName string
+		switch {
+		case priority.Len() > 0:
+			q = priority
+			qName = "priority"
+		case pending.Len() > 0:
+			q = pending
+			qName = "pending"
+		default:
 			return
 		}
 
-		req := pending.Peek(0)
+		req := q.Peek(0)
 
 		select {
 		case broadcastCh <- broadcast{
@@ -466,7 +491,8 @@ func (c *serialBroadcaster) run() {
 			opts:   req.opts,
 		}:
 			broadcastCh = nil
-			_ = pending.PopFront()
+			_ = q.PopFront()
+			c.log.Debug("broadcaster: dispatch", "queue", qName, "priority", priority.Len(), "pending", pending.Len())
 		default:
 		}
 	}
@@ -478,11 +504,18 @@ loop:
 			c.lc.ShutdownInitiated(err)
 			break loop
 		case req := <-c.reqch:
-			pending.PushBack(req)
+			if req.opts != nil && req.opts.priority {
+				priority.PushBack(req)
+				c.log.Debug("broadcaster: enqueue", "queue", "priority", "priority", priority.Len(), "pending", pending.Len(), "busy", broadcastCh == nil)
+			} else {
+				pending.PushBack(req)
+				c.log.Debug("broadcaster: enqueue", "queue", "pending", "priority", priority.Len(), "pending", pending.Len(), "busy", broadcastCh == nil)
+			}
 
 			tryBroadcast()
 		case err := <-broadcastDoneCh:
 			broadcastCh = c.broadcastch
+			c.log.Debug("broadcaster: done", "err", err, "priority", priority.Len(), "pending", pending.Len())
 
 			if err != nil {
 				c.log.Error("unable to broadcast messages", "error", err)
