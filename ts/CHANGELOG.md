@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.37](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.36...ts/v1.0.0-alpha.37) (2026-06-23)
+
+
+### Bug Fixes
+
+* **ts:** ensure abort signal event handlers are eventually removed ([#332](https://github.com/akash-network/chain-sdk/issues/332)) ([a2ee988](https://github.com/akash-network/chain-sdk/commit/a2ee9888005b5db7301f355734873efc06076fd0))
+
 ## [1.0.0-alpha.36](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.35...ts/v1.0.0-alpha.36) (2026-06-21)
 
 
