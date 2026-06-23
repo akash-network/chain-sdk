@@ -603,7 +603,7 @@ func (c *client) LeaseStatus(ctx context.Context, id mtypes.LeaseID) (LeaseStatu
 	return obj, nil
 }
 
-func (c *client) LeaseEvents(ctx context.Context, id mtypes.LeaseID, _ string, follow bool) (*LeaseKubeEvents, error) {
+func (c *client) LeaseEvents(ctx context.Context, id mtypes.LeaseID, services string, follow bool) (*LeaseKubeEvents, error) {
 	endpoint, err := url.Parse(c.host.String() + "/" + LeaseEventsPath(id))
 	if err != nil {
 		return nil, err
@@ -618,6 +618,10 @@ func (c *client) LeaseEvents(ctx context.Context, id mtypes.LeaseID, _ string, f
 
 	query := url.Values{}
 	query.Set("follow", strconv.FormatBool(follow))
+
+	if services != "" {
+		query.Set("service", services)
+	}
 
 	endpoint.RawQuery = query.Encode()
 	rCl := c.NewReqClient(ctx)
@@ -782,7 +786,7 @@ func (c *client) LeaseLogs(ctx context.Context,
 	id mtypes.LeaseID,
 	services string,
 	follow bool,
-	_ int64,
+	tailLines int64,
 ) (*ServiceLogs, error) {
 	endpoint, err := url.Parse(c.host.String() + "/" + ServiceLogsPath(id))
 	if err != nil {
@@ -801,7 +805,11 @@ func (c *client) LeaseLogs(ctx context.Context,
 	query.Set("follow", strconv.FormatBool(follow))
 
 	if services != "" {
-		query.Set("services", services)
+		query.Set("service", services)
+	}
+
+	if tailLines > 0 {
+		query.Set("tail", strconv.FormatInt(tailLines, 10))
 	}
 
 	endpoint.RawQuery = query.Encode()
