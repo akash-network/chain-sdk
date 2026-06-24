@@ -49,4 +49,17 @@ message ProviderLeaseStats {
     (gogoproto.jsontag)  = "provider_faults",
     (gogoproto.moretags) = "yaml:\"provider_faults\""
   ];
+
+  // TenantClosedLeases is the number of tenant/owner-initiated lease closures.
+  uint64 tenant_closed_leases = 5 [
+    (gogoproto.jsontag)  = "tenant_closed_leases",
+    (gogoproto.moretags) = "yaml:\"tenant_closed_leases\""
+  ];
+
+  // InsufficientFundsLeases is the number of network closures caused by escrow
+  // depletion.
+  uint64 insufficient_funds_leases = 6 [
+    (gogoproto.jsontag)  = "insufficient_funds_leases",
+    (gogoproto.moretags) = "yaml:\"insufficient_funds_leases\""
+  ];
 }

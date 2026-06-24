@@ -89,7 +89,7 @@ impl<'de> serde::Deserialize<'de> for AttestationGpuReport {
                             if device_index__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("deviceIndex"));
                             }
-                            device_index__ =
+                            device_index__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -543,7 +543,7 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
                             if port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("port"));
                             }
-                            port__ =
+                            port__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -551,7 +551,7 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
                             if external_port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("externalPort"));
                             }
-                            external_port__ =
+                            external_port__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -691,7 +691,7 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
                             if port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("port"));
                             }
-                            port__ =
+                            port__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -699,7 +699,7 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
                             if external_port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("externalPort"));
                             }
-                            external_port__ =
+                            external_port__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -883,7 +883,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if available__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("available"));
                             }
-                            available__ =
+                            available__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -891,7 +891,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if total__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("total"));
                             }
-                            total__ =
+                            total__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -905,7 +905,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if observed_generation__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("observedGeneration"));
                             }
-                            observed_generation__ =
+                            observed_generation__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -913,7 +913,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("replicas"));
                             }
-                            replicas__ =
+                            replicas__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -921,7 +921,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if updated_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("updatedReplicas"));
                             }
-                            updated_replicas__ =
+                            updated_replicas__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -929,7 +929,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if ready_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("readyReplicas"));
                             }
-                            ready_replicas__ =
+                            ready_replicas__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -937,7 +937,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if available_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("availableReplicas"));
                             }
-                            available_replicas__ =
+                            available_replicas__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -1235,7 +1235,7 @@ impl<'de> serde::Deserialize<'de> for ServiceLogs {
                             if logs__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("logs"));
                             }
-                            logs__ =
+                            logs__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }

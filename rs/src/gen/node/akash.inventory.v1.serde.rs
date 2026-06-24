@@ -234,7 +234,7 @@ impl<'de> serde::Deserialize<'de> for CpuInfo {
                             if vcores__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("vcores"));
                             }
-                            vcores__ =
+                            vcores__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -727,7 +727,7 @@ impl<'de> serde::Deserialize<'de> for GetCommittedInventorySnapshotRequest {
                             if snapshot_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotHash"));
                             }
-                            snapshot_hash__ =
+                            snapshot_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -869,7 +869,7 @@ impl<'de> serde::Deserialize<'de> for GetCommittedInventorySnapshotResponse {
                             if snapshot_payload__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotPayload"));
                             }
-                            snapshot_payload__ =
+                            snapshot_payload__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -877,7 +877,7 @@ impl<'de> serde::Deserialize<'de> for GetCommittedInventorySnapshotResponse {
                             if signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("signature"));
                             }
-                            signature__ =
+                            signature__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -891,7 +891,7 @@ impl<'de> serde::Deserialize<'de> for GetCommittedInventorySnapshotResponse {
                             if snapshot_hash__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotHash"));
                             }
-                            snapshot_hash__ =
+                            snapshot_hash__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -996,7 +996,7 @@ impl<'de> serde::Deserialize<'de> for GetInventorySnapshotRequest {
                             if nonce__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nonce"));
                             }
-                            nonce__ =
+                            nonce__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -1114,7 +1114,7 @@ impl<'de> serde::Deserialize<'de> for GetInventorySnapshotResponse {
                             if snapshot_payload__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotPayload"));
                             }
-                            snapshot_payload__ =
+                            snapshot_payload__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -1122,7 +1122,7 @@ impl<'de> serde::Deserialize<'de> for GetInventorySnapshotResponse {
                             if signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("signature"));
                             }
-                            signature__ =
+                            signature__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2030,7 +2030,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotEvidenceSection {
                             if payload__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("payload"));
                             }
-                            payload__ =
+                            payload__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2200,7 +2200,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotPayload {
                             if schema_version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("schemaVersion"));
                             }
-                            schema_version__ =
+                            schema_version__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2220,7 +2220,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotPayload {
                             if nonce__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nonce"));
                             }
-                            nonce__ =
+                            nonce__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2428,7 +2428,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_gpus__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalGpus"));
                             }
-                            total_gpus__ =
+                            total_gpus__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2436,7 +2436,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_vcpus__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalVcpus"));
                             }
-                            total_vcpus__ =
+                            total_vcpus__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2444,7 +2444,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_memory_mb__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalMemoryMb"));
                             }
-                            total_memory_mb__ =
+                            total_memory_mb__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2452,7 +2452,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_storage_mb__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalStorageMb"));
                             }
-                            total_storage_mb__ =
+                            total_storage_mb__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2460,7 +2460,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if active_leases__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("activeLeases"));
                             }
-                            active_leases__ =
+                            active_leases__ = 
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2474,7 +2474,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if software_signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("softwareSignature"));
                             }
-                            software_signature__ =
+                            software_signature__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2677,7 +2677,7 @@ impl<'de> serde::Deserialize<'de> for SoftwareIdentity {
                             if digest__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("digest"));
                             }
-                            digest__ =
+                            digest__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2691,7 +2691,7 @@ impl<'de> serde::Deserialize<'de> for SoftwareIdentity {
                             if signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("signature"));
                             }
-                            signature__ =
+                            signature__ = 
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
