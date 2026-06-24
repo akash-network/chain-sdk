@@ -236,6 +236,203 @@ describe(generateManifest.name, () => {
 
       expect(result.groups[0].services[0].params?.tee).toBeUndefined();
     });
+
+    it("projects tee cpu as a sorted tee/type group-spec requirement attribute", () => {
+      const sdl = createBasicSdl({ placementAttributes: { region: "us-west", zone: "z1" } });
+      sdl.services.web.params = { tee: "cpu" };
+      const { result } = setup({ sdl });
+
+      const attributes = result.groupSpecs[0].requirements?.attributes;
+      expect(attributes).toContainEqual({ key: "tee/type", value: "cpu" });
+      // attributes stay sorted by key (canonical on-chain ordering); tee/type
+      // sorts between region and zone.
+      expect(attributes?.map((a) => a.key)).toEqual(["region", "tee/type", "zone"]);
+    });
+
+    it("projects tee cpu-gpu as a tee/type group-spec requirement attribute", () => {
+      const sdl = createBasicSdl({
+        gpu: { units: 1, attributes: { vendor: { nvidia: [{ model: "a100" }] } } },
+      });
+      sdl.services.web.params = { tee: "cpu-gpu" };
+      const { result } = setup({ sdl });
+
+      expect(result.groupSpecs[0].requirements?.attributes).toContainEqual({ key: "tee/type", value: "cpu-gpu" });
+    });
+
+    it("adds no tee/type attribute when tee is not set", () => {
+      const sdl = createBasicSdl({ placementAttributes: { region: "us-west" } });
+      const { result } = setup({ sdl });
+
+      const attributes = result.groupSpecs[0].requirements?.attributes ?? [];
+      expect(attributes.some((a) => a.key === "tee/type")).toBe(false);
+    });
+
+    it("rejects conflicting tee types within the same placement group", () => {
+      const sdl: SDLInput = yaml`
+        version: "2.1"
+        services:
+          alpha:
+            image: nginx
+            expose:
+              - port: 80
+                as: 80
+                to:
+                  - global: true
+            params:
+              tee: cpu
+          beta:
+            image: nginx
+            expose:
+              - port: 81
+                as: 81
+                to:
+                  - global: true
+            params:
+              tee: cpu-gpu
+        profiles:
+          compute:
+            alpha:
+              resources:
+                cpu:
+                  units: 0.5
+                memory:
+                  size: 512Mi
+                storage:
+                  size: 512Mi
+            beta:
+              resources:
+                cpu:
+                  units: 0.5
+                memory:
+                  size: 512Mi
+                storage:
+                  size: 512Mi
+                gpu:
+                  units: 1
+                  attributes:
+                    vendor:
+                      nvidia:
+                        - model: a100
+          placement:
+            dcloud:
+              pricing:
+                alpha:
+                  denom: uakt
+                  amount: 1000
+                beta:
+                  denom: uakt
+                  amount: 1000
+        deployment:
+          alpha:
+            dcloud:
+              profile: alpha
+              count: 1
+          beta:
+            dcloud:
+              profile: beta
+              count: 1
+      `;
+
+      const result = generateManifest(sdl);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.value).toContainEqual(expect.objectContaining({
+          instancePath: "/services/beta/params/tee",
+          keyword: "tee",
+          message: expect.stringContaining("conflicting tee types"),
+        }));
+      }
+    });
+
+    it("emits a single tee/type attribute for two same-tee services sharing a group", () => {
+      const sdl: SDLInput = yaml`
+        version: "2.1"
+        services:
+          alpha:
+            image: nginx
+            expose:
+              - port: 80
+                as: 80
+                to:
+                  - global: true
+            params:
+              tee: cpu
+          beta:
+            image: nginx
+            expose:
+              - port: 81
+                as: 81
+                to:
+                  - global: true
+            params:
+              tee: cpu
+        profiles:
+          compute:
+            alpha:
+              resources:
+                cpu:
+                  units: 0.5
+                memory:
+                  size: 512Mi
+                storage:
+                  size: 512Mi
+            beta:
+              resources:
+                cpu:
+                  units: 0.5
+                memory:
+                  size: 512Mi
+                storage:
+                  size: 512Mi
+          placement:
+            dcloud:
+              pricing:
+                alpha:
+                  denom: uakt
+                  amount: 1000
+                beta:
+                  denom: uakt
+                  amount: 1000
+        deployment:
+          alpha:
+            dcloud:
+              profile: alpha
+              count: 1
+          beta:
+            dcloud:
+              profile: beta
+              count: 1
+      `;
+      const { result } = setup({ sdl });
+
+      const teeAttributes = (result.groupSpecs[0].requirements?.attributes ?? []).filter((a) => a.key === "tee/type");
+      expect(teeAttributes).toEqual([{ key: "tee/type", value: "cpu" }]);
+    });
+
+    // Cross-check the projected group-spec attributes against the Go parser's
+    // golden output for the shared TEE parity fixtures (generated by
+    // `make generate-sdl-fixtures`). This locks bit-for-bit parity with
+    // go/sdl/groupBuilder_v2_1.go's `tee/type` projection.
+    describe("Go parser parity (group-spec attributes)", () => {
+      const TESTDATA_ROOT = path.join(__dirname, "../../../../testdata/sdl");
+
+      it.each([
+        ["tee-cpu", "cpu"],
+        ["tee-cpu-gpu", "cpu-gpu"],
+      ])("matches Go group-spec requirement attributes for the %s fixture", (fixture, teeType) => {
+        const input = fs.readFileSync(path.join(TESTDATA_ROOT, "input/v2.1", fixture, "input.yaml"), "utf8");
+        const sdl = yaml.raw<SDLInput>(input);
+        const { result } = setup({ sdl });
+
+        const golden = JSON.parse(
+          fs.readFileSync(path.join(TESTDATA_ROOT, "output-fixtures/v2.1", fixture, "group-specs.json"), "utf8"),
+        );
+
+        expect(result.groupSpecs).toHaveLength(golden.length);
+        expect(result.groupSpecs[0].requirements?.attributes).toEqual(golden[0].requirements.attributes);
+        expect(result.groupSpecs[0].requirements?.attributes).toContainEqual({ key: "tee/type", value: teeType });
+      });
+    });
   });
 
   describe("storage configuration", () => {
