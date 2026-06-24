@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.38](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.37...ts/v1.0.0-alpha.38) (2026-06-24)
+
+
+### Bug Fixes
+
+* **ts:** automatically adds tee/type attribute to group-spec when params.tee is specified ([#334](https://github.com/akash-network/chain-sdk/issues/334)) ([14170ae](https://github.com/akash-network/chain-sdk/commit/14170aebecdd0fb0d54552726012a4e17b9f9645))
+
 ## [1.0.0-alpha.37](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.36...ts/v1.0.0-alpha.37) (2026-06-23)
 
 
