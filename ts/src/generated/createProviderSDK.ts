@@ -52,12 +52,21 @@ export function createSDK(transport: Transport) {
             return getClient(service).streamCluster(input, options);
           }, { path: [1, "streamCluster"], serviceLoader }),
           /**
-           * getInventorySnapshot returns a provider-signed inventory snapshot.
+           * getInventorySnapshot returns a fresh provider-signed live challenge snapshot.
            */
           getInventorySnapshot: withMetadata(async function getInventorySnapshot(input: DeepPartial<akash_inventory_v1_snapshot.GetInventorySnapshotRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(2);
             return getClient(service).getInventorySnapshot(input, options);
-          }, { path: [2, "getInventorySnapshot"], serviceLoader })
+          }, { path: [2, "getInventorySnapshot"], serviceLoader }),
+          /**
+           * getCommittedInventorySnapshot returns an exact provider-signed committed
+           * snapshot payload by hash, or the latest committed snapshot when no hash is
+           * provided.
+           */
+          getCommittedInventorySnapshot: withMetadata(async function getCommittedInventorySnapshot(input: DeepPartial<akash_inventory_v1_snapshot.GetCommittedInventorySnapshotRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(2);
+            return getClient(service).getCommittedInventorySnapshot(input, options);
+          }, { path: [2, "getCommittedInventorySnapshot"], serviceLoader })
         }
       },
       provider: {

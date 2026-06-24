@@ -234,7 +234,7 @@ impl<'de> serde::Deserialize<'de> for CpuInfo {
                             if vcores__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("vcores"));
                             }
-                            vcores__ = 
+                            vcores__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -645,6 +645,276 @@ impl<'de> serde::Deserialize<'de> for GpuInfo {
         deserializer.deserialize_struct("akash.inventory.v1.GPUInfo", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for GetCommittedInventorySnapshotRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.snapshot_hash.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.inventory.v1.GetCommittedInventorySnapshotRequest", len)?;
+        if !self.snapshot_hash.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("snapshotHash", pbjson::private::base64::encode(&self.snapshot_hash).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetCommittedInventorySnapshotRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "snapshot_hash",
+            "snapshotHash",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            SnapshotHash,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "snapshotHash" | "snapshot_hash" => Ok(GeneratedField::SnapshotHash),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetCommittedInventorySnapshotRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.inventory.v1.GetCommittedInventorySnapshotRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetCommittedInventorySnapshotRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut snapshot_hash__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::SnapshotHash => {
+                            if snapshot_hash__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("snapshotHash"));
+                            }
+                            snapshot_hash__ =
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(GetCommittedInventorySnapshotRequest {
+                    snapshot_hash: snapshot_hash__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.inventory.v1.GetCommittedInventorySnapshotRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GetCommittedInventorySnapshotResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.snapshot_payload.is_empty() {
+            len += 1;
+        }
+        if !self.signature.is_empty() {
+            len += 1;
+        }
+        if !self.provider.is_empty() {
+            len += 1;
+        }
+        if !self.snapshot_hash.is_empty() {
+            len += 1;
+        }
+        if self.posted_at.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.inventory.v1.GetCommittedInventorySnapshotResponse", len)?;
+        if !self.snapshot_payload.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("snapshotPayload", pbjson::private::base64::encode(&self.snapshot_payload).as_str())?;
+        }
+        if !self.signature.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("signature", pbjson::private::base64::encode(&self.signature).as_str())?;
+        }
+        if !self.provider.is_empty() {
+            struct_ser.serialize_field("provider", &self.provider)?;
+        }
+        if !self.snapshot_hash.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("snapshotHash", pbjson::private::base64::encode(&self.snapshot_hash).as_str())?;
+        }
+        if let Some(v) = self.posted_at.as_ref() {
+            struct_ser.serialize_field("postedAt", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetCommittedInventorySnapshotResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "snapshot_payload",
+            "snapshotPayload",
+            "signature",
+            "provider",
+            "snapshot_hash",
+            "snapshotHash",
+            "posted_at",
+            "postedAt",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            SnapshotPayload,
+            Signature,
+            Provider,
+            SnapshotHash,
+            PostedAt,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "snapshotPayload" | "snapshot_payload" => Ok(GeneratedField::SnapshotPayload),
+                            "signature" => Ok(GeneratedField::Signature),
+                            "provider" => Ok(GeneratedField::Provider),
+                            "snapshotHash" | "snapshot_hash" => Ok(GeneratedField::SnapshotHash),
+                            "postedAt" | "posted_at" => Ok(GeneratedField::PostedAt),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetCommittedInventorySnapshotResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.inventory.v1.GetCommittedInventorySnapshotResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetCommittedInventorySnapshotResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut snapshot_payload__ = None;
+                let mut signature__ = None;
+                let mut provider__ = None;
+                let mut snapshot_hash__ = None;
+                let mut posted_at__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::SnapshotPayload => {
+                            if snapshot_payload__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("snapshotPayload"));
+                            }
+                            snapshot_payload__ =
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Signature => {
+                            if signature__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("signature"));
+                            }
+                            signature__ =
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Provider => {
+                            if provider__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("provider"));
+                            }
+                            provider__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SnapshotHash => {
+                            if snapshot_hash__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("snapshotHash"));
+                            }
+                            snapshot_hash__ =
+                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::PostedAt => {
+                            if posted_at__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("postedAt"));
+                            }
+                            posted_at__ = map_.next_value()?;
+                        }
+                    }
+                }
+                Ok(GetCommittedInventorySnapshotResponse {
+                    snapshot_payload: snapshot_payload__.unwrap_or_default(),
+                    signature: signature__.unwrap_or_default(),
+                    provider: provider__.unwrap_or_default(),
+                    snapshot_hash: snapshot_hash__.unwrap_or_default(),
+                    posted_at: posted_at__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.inventory.v1.GetCommittedInventorySnapshotResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GetInventorySnapshotRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -726,7 +996,7 @@ impl<'de> serde::Deserialize<'de> for GetInventorySnapshotRequest {
                             if nonce__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nonce"));
                             }
-                            nonce__ = 
+                            nonce__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -844,7 +1114,7 @@ impl<'de> serde::Deserialize<'de> for GetInventorySnapshotResponse {
                             if snapshot_payload__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("snapshotPayload"));
                             }
-                            snapshot_payload__ = 
+                            snapshot_payload__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -852,7 +1122,7 @@ impl<'de> serde::Deserialize<'de> for GetInventorySnapshotResponse {
                             if signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("signature"));
                             }
-                            signature__ = 
+                            signature__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -1760,7 +2030,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotEvidenceSection {
                             if payload__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("payload"));
                             }
-                            payload__ = 
+                            payload__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -1930,7 +2200,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotPayload {
                             if schema_version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("schemaVersion"));
                             }
-                            schema_version__ = 
+                            schema_version__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -1950,7 +2220,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotPayload {
                             if nonce__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("nonce"));
                             }
-                            nonce__ = 
+                            nonce__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2158,7 +2428,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_gpus__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalGpus"));
                             }
-                            total_gpus__ = 
+                            total_gpus__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2166,7 +2436,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_vcpus__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalVcpus"));
                             }
-                            total_vcpus__ = 
+                            total_vcpus__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2174,7 +2444,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_memory_mb__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalMemoryMb"));
                             }
-                            total_memory_mb__ = 
+                            total_memory_mb__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2182,7 +2452,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if total_storage_mb__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("totalStorageMb"));
                             }
-                            total_storage_mb__ = 
+                            total_storage_mb__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2190,7 +2460,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if active_leases__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("activeLeases"));
                             }
-                            active_leases__ = 
+                            active_leases__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -2204,7 +2474,7 @@ impl<'de> serde::Deserialize<'de> for SnapshotResourceSummary {
                             if software_signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("softwareSignature"));
                             }
-                            software_signature__ = 
+                            software_signature__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2407,7 +2677,7 @@ impl<'de> serde::Deserialize<'de> for SoftwareIdentity {
                             if digest__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("digest"));
                             }
-                            digest__ = 
+                            digest__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }
@@ -2421,7 +2691,7 @@ impl<'de> serde::Deserialize<'de> for SoftwareIdentity {
                             if signature__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("signature"));
                             }
-                            signature__ = 
+                            signature__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }

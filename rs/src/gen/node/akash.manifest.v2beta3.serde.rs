@@ -940,6 +940,9 @@ impl serde::Serialize for ServiceParams {
         if self.permissions.is_some() {
             len += 1;
         }
+        if self.tee.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.ServiceParams", len)?;
         if !self.storage.is_empty() {
             struct_ser.serialize_field("storage", &self.storage)?;
@@ -949,6 +952,9 @@ impl serde::Serialize for ServiceParams {
         }
         if let Some(v) = self.permissions.as_ref() {
             struct_ser.serialize_field("permissions", v)?;
+        }
+        if let Some(v) = self.tee.as_ref() {
+            struct_ser.serialize_field("tee", v)?;
         }
         struct_ser.end()
     }
@@ -963,6 +969,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
             "storage",
             "credentials",
             "permissions",
+            "tee",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -970,6 +977,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
             Storage,
             Credentials,
             Permissions,
+            Tee,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -994,6 +1002,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
                             "storage" => Ok(GeneratedField::Storage),
                             "credentials" => Ok(GeneratedField::Credentials),
                             "permissions" => Ok(GeneratedField::Permissions),
+                            "tee" => Ok(GeneratedField::Tee),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1016,6 +1025,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
                 let mut storage__ = None;
                 let mut credentials__ = None;
                 let mut permissions__ = None;
+                let mut tee__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Storage => {
@@ -1036,12 +1046,19 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
                             }
                             permissions__ = map_.next_value()?;
                         }
+                        GeneratedField::Tee => {
+                            if tee__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tee"));
+                            }
+                            tee__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(ServiceParams {
                     storage: storage__.unwrap_or_default(),
                     credentials: credentials__,
                     permissions: permissions__,
+                    tee: tee__,
                 })
             }
         }
@@ -1263,5 +1280,113 @@ impl<'de> serde::Deserialize<'de> for StorageParams {
             }
         }
         deserializer.deserialize_struct("akash.manifest.v2beta3.StorageParams", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for TeeParams {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.r#type.is_empty() {
+            len += 1;
+        }
+        if self.attestation {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.TEEParams", len)?;
+        if !self.r#type.is_empty() {
+            struct_ser.serialize_field("type", &self.r#type)?;
+        }
+        if self.attestation {
+            struct_ser.serialize_field("attestation", &self.attestation)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for TeeParams {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "type",
+            "attestation",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Type,
+            Attestation,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "type" => Ok(GeneratedField::Type),
+                            "attestation" => Ok(GeneratedField::Attestation),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = TeeParams;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.manifest.v2beta3.TEEParams")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<TeeParams, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut r#type__ = None;
+                let mut attestation__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Type => {
+                            if r#type__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("type"));
+                            }
+                            r#type__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Attestation => {
+                            if attestation__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("attestation"));
+                            }
+                            attestation__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(TeeParams {
+                    r#type: r#type__.unwrap_or_default(),
+                    attestation: attestation__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.manifest.v2beta3.TEEParams", FIELDS, GeneratedVisitor)
     }
 }

@@ -3,67 +3,73 @@
  <a name="top"></a>
 
  ## Table of Contents
- 
+
  - [akash/inventory/v1/resourcepair.proto](#akash/inventory/v1/resourcepair.proto)
      - [ResourcePair](#akash.inventory.v1.ResourcePair)
-   
+
  - [akash/inventory/v1/cpu.proto](#akash/inventory/v1/cpu.proto)
      - [CPU](#akash.inventory.v1.CPU)
      - [CPUInfo](#akash.inventory.v1.CPUInfo)
-   
+
  - [akash/inventory/v1/gpu.proto](#akash/inventory/v1/gpu.proto)
      - [GPU](#akash.inventory.v1.GPU)
      - [GPUInfo](#akash.inventory.v1.GPUInfo)
-   
+
  - [akash/inventory/v1/memory.proto](#akash/inventory/v1/memory.proto)
      - [Memory](#akash.inventory.v1.Memory)
      - [MemoryInfo](#akash.inventory.v1.MemoryInfo)
-   
+
  - [akash/inventory/v1/resources.proto](#akash/inventory/v1/resources.proto)
      - [NodeResources](#akash.inventory.v1.NodeResources)
-   
+
  - [akash/inventory/v1/node.proto](#akash/inventory/v1/node.proto)
      - [Node](#akash.inventory.v1.Node)
      - [NodeCapabilities](#akash.inventory.v1.NodeCapabilities)
-   
+
  - [akash/inventory/v1/storage.proto](#akash/inventory/v1/storage.proto)
      - [Storage](#akash.inventory.v1.Storage)
      - [StorageInfo](#akash.inventory.v1.StorageInfo)
-   
+
  - [akash/inventory/v1/cluster.proto](#akash/inventory/v1/cluster.proto)
      - [Cluster](#akash.inventory.v1.Cluster)
-   
+
  - [akash/inventory/v1/service.proto](#akash/inventory/v1/service.proto)
      - [ClusterRPC](#akash.inventory.v1.ClusterRPC)
      - [NodeRPC](#akash.inventory.v1.NodeRPC)
-   
+
  - [akash/inventory/v1/snapshot.proto](#akash/inventory/v1/snapshot.proto)
+     - [GetCommittedInventorySnapshotRequest](#akash.inventory.v1.GetCommittedInventorySnapshotRequest)
+     - [GetCommittedInventorySnapshotResponse](#akash.inventory.v1.GetCommittedInventorySnapshotResponse)
      - [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest)
      - [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse)
      - [SnapshotEvidenceSection](#akash.inventory.v1.SnapshotEvidenceSection)
      - [SnapshotPayload](#akash.inventory.v1.SnapshotPayload)
      - [SnapshotResourceSummary](#akash.inventory.v1.SnapshotResourceSummary)
      - [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity)
-   
+
      - [InventoryService](#akash.inventory.v1.InventoryService)
-   
+
  - [akash/manifest/v2beta3/httpoptions.proto](#akash/manifest/v2beta3/httpoptions.proto)
      - [ServiceExposeHTTPOptions](#akash.manifest.v2beta3.ServiceExposeHTTPOptions)
-   
+
  - [akash/manifest/v2beta3/serviceexpose.proto](#akash/manifest/v2beta3/serviceexpose.proto)
      - [ServiceExpose](#akash.manifest.v2beta3.ServiceExpose)
-   
+
  - [akash/manifest/v2beta3/service.proto](#akash/manifest/v2beta3/service.proto)
      - [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials)
      - [Service](#akash.manifest.v2beta3.Service)
      - [ServiceParams](#akash.manifest.v2beta3.ServiceParams)
      - [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions)
      - [StorageParams](#akash.manifest.v2beta3.StorageParams)
-   
+     - [TEEParams](#akash.manifest.v2beta3.TEEParams)
+
  - [akash/manifest/v2beta3/group.proto](#akash/manifest/v2beta3/group.proto)
      - [Group](#akash.manifest.v2beta3.Group)
-   
+
  - [akash/provider/lease/v1/service.proto](#akash/provider/lease/v1/service.proto)
+     - [AttestationGPUReport](#akash.provider.lease.v1.AttestationGPUReport)
+     - [AttestationQuoteRequest](#akash.provider.lease.v1.AttestationQuoteRequest)
+     - [AttestationQuoteResponse](#akash.provider.lease.v1.AttestationQuoteResponse)
      - [ForwarderPortStatus](#akash.provider.lease.v1.ForwarderPortStatus)
      - [LeaseIPStatus](#akash.provider.lease.v1.LeaseIPStatus)
      - [LeaseServiceStatus](#akash.provider.lease.v1.LeaseServiceStatus)
@@ -76,9 +82,9 @@
      - [ServiceStatusRequest](#akash.provider.lease.v1.ServiceStatusRequest)
      - [ServiceStatusResponse](#akash.provider.lease.v1.ServiceStatusResponse)
      - [ShellRequest](#akash.provider.lease.v1.ShellRequest)
-   
+
      - [LeaseRPC](#akash.provider.lease.v1.LeaseRPC)
-   
+
  - [akash/provider/v1/status.proto](#akash/provider/v1/status.proto)
      - [BidEngineStatus](#akash.provider.v1.BidEngineStatus)
      - [ClusterStatus](#akash.provider.v1.ClusterStatus)
@@ -90,41 +96,41 @@
      - [ResourcesMetric](#akash.provider.v1.ResourcesMetric)
      - [ResourcesMetric.StorageEntry](#akash.provider.v1.ResourcesMetric.StorageEntry)
      - [Status](#akash.provider.v1.Status)
-   
+
  - [akash/provider/v1/validation.proto](#akash/provider/v1/validation.proto)
      - [BidScreeningRequest](#akash.provider.v1.BidScreeningRequest)
      - [BidScreeningResponse](#akash.provider.v1.BidScreeningResponse)
-   
+
  - [akash/provider/v1/service.proto](#akash/provider/v1/service.proto)
      - [ProviderRPC](#akash.provider.v1.ProviderRPC)
-   
+
  - [Scalar Value Types](#scalar-value-types)
 
- 
- 
+
+
  <a name="akash/inventory/v1/resourcepair.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/resourcepair.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.ResourcePair"></a>
 
  ### ResourcePair
  ResourcePair to extents resource.Quantity to provide total and available units of the resource
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `allocatable` | [k8s.io.apimachinery.pkg.api.resource.Quantity](#k8s.io.apimachinery.pkg.api.resource.Quantity) |  |  |
  | `allocated` | [k8s.io.apimachinery.pkg.api.resource.Quantity](#k8s.io.apimachinery.pkg.api.resource.Quantity) |  |  |
  | `attributes` | [akash.base.attributes.v1.Attribute](#akash.base.attributes.v1.Attribute) | repeated |  |
  | `capacity` | [k8s.io.apimachinery.pkg.api.resource.Quantity](#k8s.io.apimachinery.pkg.api.resource.Quantity) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -134,47 +140,47 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/cpu.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/cpu.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.CPU"></a>
 
  ### CPU
  CPU reports CPU inventory details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `quantity` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `info` | [CPUInfo](#akash.inventory.v1.CPUInfo) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.CPUInfo"></a>
 
  ### CPUInfo
  CPUInfo reports CPU details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [string](#string) |  |  |
  | `vendor` | [string](#string) |  |  |
  | `model` | [string](#string) |  |  |
  | `vcores` | [uint32](#uint32) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -184,37 +190,37 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/gpu.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/gpu.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.GPU"></a>
 
  ### GPU
  GPUInfo reports GPU inventory details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `quantity` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `info` | [GPUInfo](#akash.inventory.v1.GPUInfo) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.GPUInfo"></a>
 
  ### GPUInfo
  GPUInfo reports GPU details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `vendor` | [string](#string) |  |  |
@@ -223,10 +229,10 @@
  | `modelid` | [string](#string) |  |  |
  | `interface` | [string](#string) |  |  |
  | `memory_size` | [string](#string) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -236,47 +242,47 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/memory.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/memory.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.Memory"></a>
 
  ### Memory
  Memory reports Memory inventory details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `quantity` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `info` | [MemoryInfo](#akash.inventory.v1.MemoryInfo) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.MemoryInfo"></a>
 
  ### MemoryInfo
  MemoryInfo reports Memory details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `vendor` | [string](#string) |  |  |
  | `type` | [string](#string) |  |  |
  | `total_size` | [string](#string) |  |  |
  | `speed` | [string](#string) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -286,21 +292,21 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/resources.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/resources.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.NodeResources"></a>
 
  ### NodeResources
  NodeResources reports node inventory details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `cpu` | [CPU](#akash.inventory.v1.CPU) |  |  |
@@ -309,10 +315,10 @@
  | `ephemeral_storage` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `volumes_attached` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `volumes_mounted` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -322,45 +328,45 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/node.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/node.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.Node"></a>
 
  ### Node
  Node reports node inventory details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `name` | [string](#string) |  |  |
  | `resources` | [NodeResources](#akash.inventory.v1.NodeResources) |  |  |
  | `capabilities` | [NodeCapabilities](#akash.inventory.v1.NodeCapabilities) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.NodeCapabilities"></a>
 
  ### NodeCapabilities
  NodeCapabilities extended list of node capabilities
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `storage_classes` | [string](#string) | repeated |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -370,45 +376,45 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/storage.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/storage.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.Storage"></a>
 
  ### Storage
  Storage reports Storage inventory details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `quantity` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `info` | [StorageInfo](#akash.inventory.v1.StorageInfo) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.StorageInfo"></a>
 
  ### StorageInfo
  StorageInfo reports Storage details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `class` | [string](#string) |  |  |
  | `iops` | [string](#string) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -418,29 +424,29 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/cluster.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/cluster.proto
- 
 
- 
+
+
  <a name="akash.inventory.v1.Cluster"></a>
 
  ### Cluster
  Cluster reports inventory across entire cluster.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `nodes` | [Node](#akash.inventory.v1.Node) | repeated |  |
  | `storage` | [Storage](#akash.inventory.v1.Storage) | repeated |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -450,13 +456,13 @@
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/service.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/service.proto
- 
+
 
   <!-- end messages -->
 
@@ -464,7 +470,7 @@
 
   <!-- end HasExtensions -->
 
- 
+
  <a name="akash.inventory.v1.ClusterRPC"></a>
 
  ### ClusterRPC
@@ -474,8 +480,8 @@
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `QueryCluster` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Cluster](#akash.inventory.v1.Cluster) | QueryCluster defines a method to query hardware state of the cluster buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/v1/inventory|
  | `StreamCluster` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Cluster](#akash.inventory.v1.Cluster) stream | StreamCluster defines a method to stream hardware state of the cluster buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
- 
- 
+
+
  <a name="akash.inventory.v1.NodeRPC"></a>
 
  ### NodeRPC
@@ -485,72 +491,108 @@
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `QueryNode` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Node](#akash.inventory.v1.Node) | QueryNode defines a method to query hardware state of the node buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/v1/node|
  | `StreamNode` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Node](#akash.inventory.v1.Node) stream | StreamNode defines a method to stream hardware state of the node buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
- 
+
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/inventory/v1/snapshot.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/inventory/v1/snapshot.proto
- 
 
- 
+
+
+ <a name="akash.inventory.v1.GetCommittedInventorySnapshotRequest"></a>
+
+ ### GetCommittedInventorySnapshotRequest
+ GetCommittedInventorySnapshotRequest is the request type for
+GetCommittedInventorySnapshot.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot_hash` | [bytes](#bytes) |  | snapshot_hash optionally selects a committed snapshot by SHA-256 hash. When omitted, the latest committed snapshot is returned. |
+
+
+
+
+
+
+ <a name="akash.inventory.v1.GetCommittedInventorySnapshotResponse"></a>
+
+ ### GetCommittedInventorySnapshotResponse
+ GetCommittedInventorySnapshotResponse is the response type for
+GetCommittedInventorySnapshot.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot_payload` | [bytes](#bytes) |  | snapshot_payload is the exact committed inventory snapshot payload. |
+ | `signature` | [bytes](#bytes) |  | signature is the provider signature over snapshot_payload. |
+ | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
+ | `snapshot_hash` | [bytes](#bytes) |  | snapshot_hash is the SHA-256 hash of snapshot_payload. |
+ | `posted_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | posted_at is when the provider stored this committed snapshot locally. |
+
+
+
+
+
+
  <a name="akash.inventory.v1.GetInventorySnapshotRequest"></a>
 
  ### GetInventorySnapshotRequest
  GetInventorySnapshotRequest is the request type for GetInventorySnapshot.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `nonce` | [bytes](#bytes) |  | nonce is an optional 32-byte challenge bound into the signed payload. |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.GetInventorySnapshotResponse"></a>
 
  ### GetInventorySnapshotResponse
  GetInventorySnapshotResponse is the response type for GetInventorySnapshot.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `snapshot_payload` | [bytes](#bytes) |  | snapshot_payload is the opaque inventory snapshot payload. |
  | `signature` | [bytes](#bytes) |  | signature is the provider signature over snapshot_payload. |
  | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.SnapshotEvidenceSection"></a>
 
  ### SnapshotEvidenceSection
  SnapshotEvidenceSection carries an opaque payload from one collector.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `name` | [string](#string) |  |  |
  | `payload` | [bytes](#bytes) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.SnapshotPayload"></a>
 
  ### SnapshotPayload
  SnapshotPayload is the deterministic payload signed by a provider.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `schema_version` | [uint32](#uint32) |  | schema_version identifies the payload schema used by snapshot_payload. |
@@ -561,18 +603,18 @@
  | `cluster` | [Cluster](#akash.inventory.v1.Cluster) |  | cluster is the current cluster inventory view. |
  | `resource_summary` | [SnapshotResourceSummary](#akash.inventory.v1.SnapshotResourceSummary) |  | resource_summary is the chain-facing summary derived from the full snapshot. |
  | `evidence_sections` | [SnapshotEvidenceSection](#akash.inventory.v1.SnapshotEvidenceSection) | repeated | evidence_sections carries named collector payloads for auditor evidence. |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.SnapshotResourceSummary"></a>
 
  ### SnapshotResourceSummary
  SnapshotResourceSummary captures the snapshot fields posted on-chain.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `total_gpus` | [uint32](#uint32) |  |  |
@@ -583,12 +625,12 @@
  | `software_version` | [string](#string) |  | software_version is the provider software version string kept for compatibility. |
  | `software_signature` | [bytes](#bytes) |  | software_signature is the provider software signature kept for compatibility. |
  | `software_identity` | [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity) |  | software_identity carries structured release artifact metadata. |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.inventory.v1.SoftwareIdentity"></a>
 
  ### SoftwareIdentity
@@ -596,7 +638,7 @@
 Providers report these fields; auditors verify them off-chain against the
 published Akash release key.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `version` | [string](#string) |  | version is the provider or inventory software version string. |
@@ -607,10 +649,10 @@ published Akash release key.
  | `signature` | [bytes](#bytes) |  | signature is the detached signature bytes when carried inline. |
  | `signature_ref` | [string](#string) |  | signature_ref identifies an external signature or bundle. |
  | `public_key_ref` | [string](#string) |  | public_key_ref identifies the published release public key. |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -618,7 +660,7 @@ published Akash release key.
 
   <!-- end HasExtensions -->
 
- 
+
  <a name="akash.inventory.v1.InventoryService"></a>
 
  ### InventoryService
@@ -626,25 +668,26 @@ published Akash release key.
 
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
- | `GetInventorySnapshot` | [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest) | [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse) | GetInventorySnapshot returns a provider-signed inventory snapshot. | POST|/v1/inventory/snapshot|
- 
+ | `GetInventorySnapshot` | [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest) | [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse) | GetInventorySnapshot returns a fresh provider-signed live challenge snapshot. | POST|/v1/inventory/snapshot|
+ | `GetCommittedInventorySnapshot` | [GetCommittedInventorySnapshotRequest](#akash.inventory.v1.GetCommittedInventorySnapshotRequest) | [GetCommittedInventorySnapshotResponse](#akash.inventory.v1.GetCommittedInventorySnapshotResponse) | GetCommittedInventorySnapshot returns an exact provider-signed committed snapshot payload by hash, or the latest committed snapshot when no hash is provided. | POST|/v1/inventory/snapshot/committed|
+
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/manifest/v2beta3/httpoptions.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/manifest/v2beta3/httpoptions.proto
- 
 
- 
+
+
  <a name="akash.manifest.v2beta3.ServiceExposeHTTPOptions"></a>
 
  ### ServiceExposeHTTPOptions
  ServiceExposeHTTPOptions
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `max_body_size` | [uint32](#uint32) |  |  |
@@ -653,10 +696,10 @@ published Akash release key.
  | `next_tries` | [uint32](#uint32) |  |  |
  | `next_timeout` | [uint32](#uint32) |  |  |
  | `next_cases` | [string](#string) | repeated |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -666,21 +709,21 @@ published Akash release key.
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/manifest/v2beta3/serviceexpose.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/manifest/v2beta3/serviceexpose.proto
- 
 
- 
+
+
  <a name="akash.manifest.v2beta3.ServiceExpose"></a>
 
  ### ServiceExpose
  ServiceExpose stores exposed ports and hosts details
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `port` | [uint32](#uint32) |  | port on the container |
@@ -692,10 +735,10 @@ published Akash release key.
  | `http_options` | [ServiceExposeHTTPOptions](#akash.manifest.v2beta3.ServiceExposeHTTPOptions) |  |  |
  | `ip` | [string](#string) |  | The name of the IP address associated with this, if any |
  | `endpoint_sequence_number` | [uint32](#uint32) |  | The sequence number of the associated endpoint in the on-chain data |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -705,39 +748,39 @@ published Akash release key.
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/manifest/v2beta3/service.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/manifest/v2beta3/service.proto
- 
 
- 
+
+
  <a name="akash.manifest.v2beta3.ImageCredentials"></a>
 
  ### ImageCredentials
  Credentials to fetch image from registry
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `host` | [string](#string) |  |  |
  | `email` | [string](#string) |  |  |
  | `username` | [string](#string) |  |  |
  | `password` | [string](#string) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.manifest.v2beta3.Service"></a>
 
  ### Service
  Service stores name, image, args, env, unit, count and expose list of service
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `name` | [string](#string) |  |  |
@@ -750,29 +793,30 @@ published Akash release key.
  | `expose` | [ServiceExpose](#akash.manifest.v2beta3.ServiceExpose) | repeated |  |
  | `params` | [ServiceParams](#akash.manifest.v2beta3.ServiceParams) |  |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.manifest.v2beta3.ServiceParams"></a>
 
  ### ServiceParams
  ServiceParams
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `storage` | [StorageParams](#akash.manifest.v2beta3.StorageParams) | repeated |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
  | `permissions` | [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions) |  |  |
- 
- 
+ | `tee` | [TEEParams](#akash.manifest.v2beta3.TEEParams) |  |  |
 
- 
 
- 
+
+
+
+
  <a name="akash.manifest.v2beta3.ServicePermissions"></a>
 
  ### ServicePermissions
@@ -780,31 +824,50 @@ published Akash release key.
 Resources map to Kubernetes RBAC permissions:
   - logs
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `read` | [string](#string) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.manifest.v2beta3.StorageParams"></a>
 
  ### StorageParams
  StorageParams
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `name` | [string](#string) |  |  |
  | `mount` | [string](#string) |  |  |
  | `read_only` | [bool](#bool) |  |  |
- 
- 
 
- 
+
+
+
+
+
+ <a name="akash.manifest.v2beta3.TEEParams"></a>
+
+ ### TEEParams
+ TEEParams configures Trusted Execution Environment for the service.
+The type field selects the TEE capability and the provider resolves the
+runtime class based on its detected platform (TDX or SNP).
+The attestation field controls whether the provider injects an attestation sidecar.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `type` | [string](#string) |  | type is the TEE capability: cpu, cpu-gpu |
+ | `attestation` | [bool](#bool) |  | attestation controls whether the provider injects an attestation sidecar. IMPORTANT: proto3 bool defaults to false, but the intended default is true. All producers MUST set this field explicitly. The Go SDL builder enforces this; non-Go clients must set attestation=true when sidecar injection is desired. |
+
+
+
+
 
   <!-- end messages -->
 
@@ -814,29 +877,29 @@ Resources map to Kubernetes RBAC permissions:
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/manifest/v2beta3/group.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/manifest/v2beta3/group.proto
- 
 
- 
+
+
  <a name="akash.manifest.v2beta3.Group"></a>
 
  ### Group
  Group store name and list of services
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `name` | [string](#string) |  |  |
  | `services` | [Service](#akash.manifest.v2beta3.Service) | repeated |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -846,21 +909,78 @@ Resources map to Kubernetes RBAC permissions:
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/provider/lease/v1/service.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/lease/v1/service.proto
- 
 
- 
+
+
+ <a name="akash.provider.lease.v1.AttestationGPUReport"></a>
+
+ ### AttestationGPUReport
+ AttestationGPUReport holds attestation evidence for a single GPU device.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `device_index` | [uint32](#uint32) |  |  |
+ | `report` | [string](#string) |  | Base64-encoded hardware-signed GPU attestation report. |
+
+
+
+
+
+
+ <a name="akash.provider.lease.v1.AttestationQuoteRequest"></a>
+
+ ### AttestationQuoteRequest
+ AttestationQuoteRequest is the request body for the AttestationQuote RPC method.
+The tenant generates a nonce and sends it; the provider forwards it verbatim
+to the attestation sidecar inside the confidential compute pod.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  |  |
+ | `nonce` | [string](#string) |  | Base64-encoded 64-byte nonce generated by the tenant. |
+ | `bind_tls` | [bool](#bool) |  | When true, report_data is computed as SHA-512(tls_pubkey || nonce)[:64] to bind the attestation to the TLS channel. |
+
+
+
+
+
+
+ <a name="akash.provider.lease.v1.AttestationQuoteResponse"></a>
+
+ ### AttestationQuoteResponse
+ AttestationQuoteResponse is the response from the AttestationQuote RPC method.
+Contains raw hardware-signed attestation evidence from the TEE sidecar.
+The provider never inspects or modifies any field.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `report` | [string](#string) |  | Base64-encoded CPU attestation report (SNP ~1184 bytes, TDX ~5243 bytes). |
+ | `cert_chain` | [string](#string) |  | Base64-encoded certificate chain (may be empty). |
+ | `tee_platform` | [string](#string) |  | TEE platform identifier: "snp", "tdx", "snp-gpu", "tdx-gpu". |
+ | `auxblob` | [string](#string) |  | Base64-encoded auxiliary blob (typically empty). |
+ | `gpu_reports` | [AttestationGPUReport](#akash.provider.lease.v1.AttestationGPUReport) | repeated | Per-device GPU attestation reports for all CC-capable GPUs. |
+ | `tls_bound` | [bool](#bool) |  | Whether report_data was computed with TLS channel binding. |
+
+
+
+
+
+
  <a name="akash.provider.lease.v1.ForwarderPortStatus"></a>
 
  ### ForwarderPortStatus
  ForwarderPortStatus
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `host` | [string](#string) |  |  |
@@ -868,36 +988,36 @@ Resources map to Kubernetes RBAC permissions:
  | `external_port` | [uint32](#uint32) |  |  |
  | `proto` | [string](#string) |  |  |
  | `name` | [string](#string) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.LeaseIPStatus"></a>
 
  ### LeaseIPStatus
  LeaseIPStatus
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `port` | [uint32](#uint32) |  |  |
  | `external_port` | [uint32](#uint32) |  |  |
  | `protocol` | [string](#string) |  |  |
  | `ip` | [string](#string) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.LeaseServiceStatus"></a>
 
  ### LeaseServiceStatus
  LeaseServiceStatus
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `available` | [int32](#int32) |  |  |
@@ -908,147 +1028,147 @@ Resources map to Kubernetes RBAC permissions:
  | `updated_replicas` | [int32](#int32) |  |  |
  | `ready_replicas` | [int32](#int32) |  |  |
  | `available_replicas` | [int32](#int32) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.SendManifestRequest"></a>
 
  ### SendManifestRequest
  SendManifestRequest is request type for the SendManifest Providers RPC method
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  |  |
  | `manifest` | [akash.manifest.v2beta3.Group](#akash.manifest.v2beta3.Group) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.SendManifestResponse"></a>
 
  ### SendManifestResponse
  SendManifestResponse is response type for the SendManifest Providers RPC method
 
- 
 
- 
 
- 
+
+
+
  <a name="akash.provider.lease.v1.ServiceLogs"></a>
 
  ### ServiceLogs
  ServiceLogs
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `name` | [string](#string) |  |  |
  | `logs` | [bytes](#bytes) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.ServiceLogsRequest"></a>
 
  ### ServiceLogsRequest
  ServiceLogsRequest
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  |  |
  | `services` | [string](#string) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.ServiceLogsResponse"></a>
 
  ### ServiceLogsResponse
  ServiceLogsResponse
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `services` | [ServiceLogs](#akash.provider.lease.v1.ServiceLogs) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.ServiceStatus"></a>
 
  ### ServiceStatus
  ServiceStatus
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `name` | [string](#string) |  |  |
  | `status` | [LeaseServiceStatus](#akash.provider.lease.v1.LeaseServiceStatus) |  |  |
  | `ports` | [ForwarderPortStatus](#akash.provider.lease.v1.ForwarderPortStatus) | repeated |  |
  | `ips` | [LeaseIPStatus](#akash.provider.lease.v1.LeaseIPStatus) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.ServiceStatusRequest"></a>
 
  ### ServiceStatusRequest
  ServiceStatusRequest
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  |  |
  | `services` | [string](#string) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.ServiceStatusResponse"></a>
 
  ### ServiceStatusResponse
  ServiceStatusResponse
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `services` | [ServiceStatus](#akash.provider.lease.v1.ServiceStatus) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.lease.v1.ShellRequest"></a>
 
  ### ShellRequest
  ShellRequest
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -1056,7 +1176,7 @@ Resources map to Kubernetes RBAC permissions:
 
   <!-- end HasExtensions -->
 
- 
+
  <a name="akash.provider.lease.v1.LeaseRPC"></a>
 
  ### LeaseRPC
@@ -1069,134 +1189,135 @@ Resources map to Kubernetes RBAC permissions:
  | `StreamServiceStatus` | [ServiceStatusRequest](#akash.provider.lease.v1.ServiceStatusRequest) | [ServiceStatusResponse](#akash.provider.lease.v1.ServiceStatusResponse) stream | StreamServiceStatus buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
  | `ServiceLogs` | [ServiceLogsRequest](#akash.provider.lease.v1.ServiceLogsRequest) | [ServiceLogsResponse](#akash.provider.lease.v1.ServiceLogsResponse) | ServiceLogs buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
  | `StreamServiceLogs` | [ServiceLogsRequest](#akash.provider.lease.v1.ServiceLogsRequest) | [ServiceLogsResponse](#akash.provider.lease.v1.ServiceLogsResponse) stream | StreamServiceLogs buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
- 
+ | `AttestationQuote` | [AttestationQuoteRequest](#akash.provider.lease.v1.AttestationQuoteRequest) | [AttestationQuoteResponse](#akash.provider.lease.v1.AttestationQuoteResponse) | AttestationQuote requests hardware-signed attestation evidence from the confidential compute sidecar. The provider forwards the tenant's nonce to the sidecar and returns the hardware-signed quote verbatim. | POST|/v1/lease/attestation/quote|
+
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/provider/v1/status.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/v1/status.proto
- 
 
- 
+
+
  <a name="akash.provider.v1.BidEngineStatus"></a>
 
  ### BidEngineStatus
  BidEngineStatus
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `orders` | [uint32](#uint32) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.ClusterStatus"></a>
 
  ### ClusterStatus
  ClusterStatus
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `leases` | [Leases](#akash.provider.v1.Leases) |  |  |
  | `inventory` | [Inventory](#akash.provider.v1.Inventory) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.Inventory"></a>
 
  ### Inventory
  Inventory
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `cluster` | [akash.inventory.v1.Cluster](#akash.inventory.v1.Cluster) |  |  |
  | `reservations` | [Reservations](#akash.provider.v1.Reservations) |  |  |
  | `leased_ip` | [akash.inventory.v1.ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.Leases"></a>
 
  ### Leases
  Leases
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `active` | [uint32](#uint32) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.ManifestStatus"></a>
 
  ### ManifestStatus
  ManifestStatus
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `deployments` | [uint32](#uint32) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.Reservations"></a>
 
  ### Reservations
  Reservations
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `pending` | [ReservationsMetric](#akash.provider.v1.ReservationsMetric) |  |  |
  | `active` | [ReservationsMetric](#akash.provider.v1.ReservationsMetric) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.ReservationsMetric"></a>
 
  ### ReservationsMetric
  ReservationsMetric
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `count` | [uint32](#uint32) |  |  |
  | `resources` | [ResourcesMetric](#akash.provider.v1.ResourcesMetric) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.ResourcesMetric"></a>
 
  ### ResourcesMetric
  ResourceMetrics
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `cpu` | [k8s.io.apimachinery.pkg.api.resource.Quantity](#k8s.io.apimachinery.pkg.api.resource.Quantity) |  |  |
@@ -1204,34 +1325,34 @@ Resources map to Kubernetes RBAC permissions:
  | `gpu` | [k8s.io.apimachinery.pkg.api.resource.Quantity](#k8s.io.apimachinery.pkg.api.resource.Quantity) |  |  |
  | `ephemeral_storage` | [k8s.io.apimachinery.pkg.api.resource.Quantity](#k8s.io.apimachinery.pkg.api.resource.Quantity) |  |  |
  | `storage` | [ResourcesMetric.StorageEntry](#akash.provider.v1.ResourcesMetric.StorageEntry) | repeated |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.ResourcesMetric.StorageEntry"></a>
 
  ### ResourcesMetric.StorageEntry
- 
 
- 
+
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `key` | [string](#string) |  |  |
  | `value` | [k8s.io.apimachinery.pkg.api.resource.Quantity](#k8s.io.apimachinery.pkg.api.resource.Quantity) |  |  |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.Status"></a>
 
  ### Status
  Status
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `errors` | [string](#string) | repeated |  |
@@ -1241,10 +1362,10 @@ Resources map to Kubernetes RBAC permissions:
  | `public_hostnames` | [string](#string) | repeated |  |
  | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  |  |
  | `reclamation_window` | [google.protobuf.Duration](#google.protobuf.Duration) |  |  |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -1254,49 +1375,49 @@ Resources map to Kubernetes RBAC permissions:
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/provider/v1/validation.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/v1/validation.proto
- 
 
- 
+
+
  <a name="akash.provider.v1.BidScreeningRequest"></a>
 
  ### BidScreeningRequest
  BidScreeningRequest represents a request to screen a deployment group
 specification for bid eligibility against the provider's capabilities.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `group_spec` | [akash.deployment.v1beta4.GroupSpec](#akash.deployment.v1beta4.GroupSpec) |  | GroupSpec is the deployment group specification to screen for bid eligibility. |
  | `hostnames` | [string](#string) | repeated | Hostnames is the list of hostnames requested by the deployment. |
- 
- 
 
- 
 
- 
+
+
+
+
  <a name="akash.provider.v1.BidScreeningResponse"></a>
 
  ### BidScreeningResponse
  BidScreeningResponse represents the result of screening a deployment group
 specification for bid eligibility against the provider's capabilities.
 
- 
+
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `passed` | [bool](#bool) |  | Passed indicates whether the deployment group passed bid screening. |
  | `reasons` | [string](#string) | repeated | Reasons contains explanations when screening fails. |
  | `resource_offers` | [akash.market.v1beta5.ResourceOffer](#akash.market.v1beta5.ResourceOffer) | repeated | ResourceOffers contains the provider's resource offers for the screened group, one per service in the GroupSpec. |
  | `price` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | Price is the minimum bid price for the screened group. |
- 
- 
 
- 
+
+
+
 
   <!-- end messages -->
 
@@ -1306,13 +1427,13 @@ specification for bid eligibility against the provider's capabilities.
 
   <!-- end services -->
 
- 
- 
+
+
  <a name="akash/provider/v1/service.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/v1/service.proto
- 
+
 
   <!-- end messages -->
 
@@ -1320,7 +1441,7 @@ specification for bid eligibility against the provider's capabilities.
 
   <!-- end HasExtensions -->
 
- 
+
  <a name="akash.provider.v1.ProviderRPC"></a>
 
  ### ProviderRPC
@@ -1331,10 +1452,10 @@ specification for bid eligibility against the provider's capabilities.
  | `GetStatus` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Status](#akash.provider.v1.Status) | GetStatus defines a method to query provider state buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | GET|/v1/status|
  | `StreamStatus` | [.google.protobuf.Empty](#google.protobuf.Empty) | [Status](#akash.provider.v1.Status) stream | Status defines a method to stream provider state buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
  | `BidScreening` | [BidScreeningRequest](#akash.provider.v1.BidScreeningRequest) | [BidScreeningResponse](#akash.provider.v1.BidScreeningResponse) | BidScreening screens a deployment group spec for bid eligibility and returns pricing | POST|/v1/bid-screening|
- 
+
   <!-- end services -->
 
- 
+
 
  ## Scalar Value Types
 
@@ -1355,4 +1476,4 @@ specification for bid eligibility against the provider's capabilities.
  | <a name="bool" /> bool |  | bool | boolean | boolean | bool | bool | boolean | TrueClass/FalseClass |
  | <a name="string" /> string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode | string | string | string | String (UTF-8) |
  | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
- 
+

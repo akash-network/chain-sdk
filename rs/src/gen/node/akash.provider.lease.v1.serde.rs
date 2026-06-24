@@ -1,4 +1,422 @@
 // @generated
+impl serde::Serialize for AttestationGpuReport {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.device_index != 0 {
+            len += 1;
+        }
+        if !self.report.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.AttestationGPUReport", len)?;
+        if self.device_index != 0 {
+            struct_ser.serialize_field("deviceIndex", &self.device_index)?;
+        }
+        if !self.report.is_empty() {
+            struct_ser.serialize_field("report", &self.report)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AttestationGpuReport {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "device_index",
+            "deviceIndex",
+            "report",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            DeviceIndex,
+            Report,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "deviceIndex" | "device_index" => Ok(GeneratedField::DeviceIndex),
+                            "report" => Ok(GeneratedField::Report),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AttestationGpuReport;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.lease.v1.AttestationGPUReport")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AttestationGpuReport, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut device_index__ = None;
+                let mut report__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::DeviceIndex => {
+                            if device_index__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("deviceIndex"));
+                            }
+                            device_index__ =
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Report => {
+                            if report__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("report"));
+                            }
+                            report__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(AttestationGpuReport {
+                    device_index: device_index__.unwrap_or_default(),
+                    report: report__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.provider.lease.v1.AttestationGPUReport", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for AttestationQuoteRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.lease_id.is_some() {
+            len += 1;
+        }
+        if !self.nonce.is_empty() {
+            len += 1;
+        }
+        if self.bind_tls {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.AttestationQuoteRequest", len)?;
+        if let Some(v) = self.lease_id.as_ref() {
+            struct_ser.serialize_field("leaseId", v)?;
+        }
+        if !self.nonce.is_empty() {
+            struct_ser.serialize_field("nonce", &self.nonce)?;
+        }
+        if self.bind_tls {
+            struct_ser.serialize_field("bindTls", &self.bind_tls)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AttestationQuoteRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "lease_id",
+            "leaseId",
+            "nonce",
+            "bind_tls",
+            "bindTls",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            LeaseId,
+            Nonce,
+            BindTls,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "leaseId" | "lease_id" => Ok(GeneratedField::LeaseId),
+                            "nonce" => Ok(GeneratedField::Nonce),
+                            "bindTls" | "bind_tls" => Ok(GeneratedField::BindTls),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AttestationQuoteRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.lease.v1.AttestationQuoteRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AttestationQuoteRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut lease_id__ = None;
+                let mut nonce__ = None;
+                let mut bind_tls__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::LeaseId => {
+                            if lease_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("leaseId"));
+                            }
+                            lease_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Nonce => {
+                            if nonce__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nonce"));
+                            }
+                            nonce__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::BindTls => {
+                            if bind_tls__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("bindTls"));
+                            }
+                            bind_tls__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(AttestationQuoteRequest {
+                    lease_id: lease_id__,
+                    nonce: nonce__.unwrap_or_default(),
+                    bind_tls: bind_tls__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.provider.lease.v1.AttestationQuoteRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for AttestationQuoteResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.report.is_empty() {
+            len += 1;
+        }
+        if !self.cert_chain.is_empty() {
+            len += 1;
+        }
+        if !self.tee_platform.is_empty() {
+            len += 1;
+        }
+        if !self.auxblob.is_empty() {
+            len += 1;
+        }
+        if !self.gpu_reports.is_empty() {
+            len += 1;
+        }
+        if self.tls_bound {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.AttestationQuoteResponse", len)?;
+        if !self.report.is_empty() {
+            struct_ser.serialize_field("report", &self.report)?;
+        }
+        if !self.cert_chain.is_empty() {
+            struct_ser.serialize_field("certChain", &self.cert_chain)?;
+        }
+        if !self.tee_platform.is_empty() {
+            struct_ser.serialize_field("teePlatform", &self.tee_platform)?;
+        }
+        if !self.auxblob.is_empty() {
+            struct_ser.serialize_field("auxblob", &self.auxblob)?;
+        }
+        if !self.gpu_reports.is_empty() {
+            struct_ser.serialize_field("gpuReports", &self.gpu_reports)?;
+        }
+        if self.tls_bound {
+            struct_ser.serialize_field("tlsBound", &self.tls_bound)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AttestationQuoteResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "report",
+            "cert_chain",
+            "certChain",
+            "tee_platform",
+            "teePlatform",
+            "auxblob",
+            "gpu_reports",
+            "gpuReports",
+            "tls_bound",
+            "tlsBound",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Report,
+            CertChain,
+            TeePlatform,
+            Auxblob,
+            GpuReports,
+            TlsBound,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "report" => Ok(GeneratedField::Report),
+                            "certChain" | "cert_chain" => Ok(GeneratedField::CertChain),
+                            "teePlatform" | "tee_platform" => Ok(GeneratedField::TeePlatform),
+                            "auxblob" => Ok(GeneratedField::Auxblob),
+                            "gpuReports" | "gpu_reports" => Ok(GeneratedField::GpuReports),
+                            "tlsBound" | "tls_bound" => Ok(GeneratedField::TlsBound),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AttestationQuoteResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.lease.v1.AttestationQuoteResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AttestationQuoteResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut report__ = None;
+                let mut cert_chain__ = None;
+                let mut tee_platform__ = None;
+                let mut auxblob__ = None;
+                let mut gpu_reports__ = None;
+                let mut tls_bound__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Report => {
+                            if report__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("report"));
+                            }
+                            report__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CertChain => {
+                            if cert_chain__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("certChain"));
+                            }
+                            cert_chain__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TeePlatform => {
+                            if tee_platform__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("teePlatform"));
+                            }
+                            tee_platform__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Auxblob => {
+                            if auxblob__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("auxblob"));
+                            }
+                            auxblob__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::GpuReports => {
+                            if gpu_reports__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("gpuReports"));
+                            }
+                            gpu_reports__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TlsBound => {
+                            if tls_bound__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tlsBound"));
+                            }
+                            tls_bound__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(AttestationQuoteResponse {
+                    report: report__.unwrap_or_default(),
+                    cert_chain: cert_chain__.unwrap_or_default(),
+                    tee_platform: tee_platform__.unwrap_or_default(),
+                    auxblob: auxblob__.unwrap_or_default(),
+                    gpu_reports: gpu_reports__.unwrap_or_default(),
+                    tls_bound: tls_bound__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.provider.lease.v1.AttestationQuoteResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for ForwarderPortStatus {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -125,7 +543,7 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
                             if port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("port"));
                             }
-                            port__ = 
+                            port__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -133,7 +551,7 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
                             if external_port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("externalPort"));
                             }
-                            external_port__ = 
+                            external_port__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -273,7 +691,7 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
                             if port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("port"));
                             }
-                            port__ = 
+                            port__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -281,7 +699,7 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
                             if external_port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("externalPort"));
                             }
-                            external_port__ = 
+                            external_port__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -465,7 +883,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if available__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("available"));
                             }
-                            available__ = 
+                            available__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -473,7 +891,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if total__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("total"));
                             }
-                            total__ = 
+                            total__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -487,7 +905,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if observed_generation__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("observedGeneration"));
                             }
-                            observed_generation__ = 
+                            observed_generation__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -495,7 +913,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("replicas"));
                             }
-                            replicas__ = 
+                            replicas__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -503,7 +921,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if updated_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("updatedReplicas"));
                             }
-                            updated_replicas__ = 
+                            updated_replicas__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -511,7 +929,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if ready_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("readyReplicas"));
                             }
-                            ready_replicas__ = 
+                            ready_replicas__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -519,7 +937,7 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if available_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("availableReplicas"));
                             }
-                            available_replicas__ = 
+                            available_replicas__ =
                                 Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
                             ;
                         }
@@ -817,7 +1235,7 @@ impl<'de> serde::Deserialize<'de> for ServiceLogs {
                             if logs__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("logs"));
                             }
-                            logs__ = 
+                            logs__ =
                                 Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
                             ;
                         }

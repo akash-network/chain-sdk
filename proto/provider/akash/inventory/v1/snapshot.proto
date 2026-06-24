@@ -184,10 +184,20 @@ message SnapshotEvidenceSection {
 
 // InventoryService exposes signed provider inventory snapshots.
 service InventoryService {
-  // GetInventorySnapshot returns a provider-signed inventory snapshot.
+  // GetInventorySnapshot returns a fresh provider-signed live challenge snapshot.
   rpc GetInventorySnapshot(GetInventorySnapshotRequest) returns (GetInventorySnapshotResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/snapshot"
+      body: "*"
+    };
+  }
+
+  // GetCommittedInventorySnapshot returns an exact provider-signed committed
+  // snapshot payload by hash, or the latest committed snapshot when no hash is
+  // provided.
+  rpc GetCommittedInventorySnapshot(GetCommittedInventorySnapshotRequest) returns (GetCommittedInventorySnapshotResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/snapshot/committed"
       body: "*"
     };
   }
@@ -209,4 +219,36 @@ message GetInventorySnapshotResponse {
 
   // provider is the provider account address in bech32 form.
   string provider = 3;
+}
+
+// GetCommittedInventorySnapshotRequest is the request type for
+// GetCommittedInventorySnapshot.
+message GetCommittedInventorySnapshotRequest {
+  // snapshot_hash optionally selects a committed snapshot by SHA-256 hash. When
+  // omitted, the latest committed snapshot is returned.
+  bytes snapshot_hash = 1;
+}
+
+// GetCommittedInventorySnapshotResponse is the response type for
+// GetCommittedInventorySnapshot.
+message GetCommittedInventorySnapshotResponse {
+  // snapshot_payload is the exact committed inventory snapshot payload.
+  bytes snapshot_payload = 1;
+
+  // signature is the provider signature over snapshot_payload.
+  bytes signature = 2;
+
+  // provider is the provider account address in bech32 form.
+  string provider = 3;
+
+  // snapshot_hash is the SHA-256 hash of snapshot_payload.
+  bytes snapshot_hash = 4;
+
+  // posted_at is when the provider stored this committed snapshot locally.
+  google.protobuf.Timestamp posted_at = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "posted_at",
+    (gogoproto.moretags) = "yaml:\"posted_at\""
+  ];
 }

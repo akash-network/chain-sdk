@@ -99,6 +99,35 @@ export interface GetInventorySnapshotResponse {
   provider: string;
 }
 
+/**
+ * GetCommittedInventorySnapshotRequest is the request type for
+ * GetCommittedInventorySnapshot.
+ */
+export interface GetCommittedInventorySnapshotRequest {
+  /**
+   * snapshot_hash optionally selects a committed snapshot by SHA-256 hash. When
+   * omitted, the latest committed snapshot is returned.
+   */
+  snapshotHash: Uint8Array;
+}
+
+/**
+ * GetCommittedInventorySnapshotResponse is the response type for
+ * GetCommittedInventorySnapshot.
+ */
+export interface GetCommittedInventorySnapshotResponse {
+  /** snapshot_payload is the exact committed inventory snapshot payload. */
+  snapshotPayload: Uint8Array;
+  /** signature is the provider signature over snapshot_payload. */
+  signature: Uint8Array;
+  /** provider is the provider account address in bech32 form. */
+  provider: string;
+  /** snapshot_hash is the SHA-256 hash of snapshot_payload. */
+  snapshotHash: Uint8Array;
+  /** posted_at is when the provider stored this committed snapshot locally. */
+  postedAt: Date | undefined;
+}
+
 function createBaseSnapshotPayload(): SnapshotPayload {
   return {
     schemaVersion: 0,
@@ -882,6 +911,196 @@ export const GetInventorySnapshotResponse: MessageFns<
     message.snapshotPayload = object.snapshotPayload ?? new Uint8Array(0);
     message.signature = object.signature ?? new Uint8Array(0);
     message.provider = object.provider ?? "";
+    return message;
+  },
+};
+
+function createBaseGetCommittedInventorySnapshotRequest(): GetCommittedInventorySnapshotRequest {
+  return { snapshotHash: new Uint8Array(0) };
+}
+
+export const GetCommittedInventorySnapshotRequest: MessageFns<
+  GetCommittedInventorySnapshotRequest,
+  "akash.inventory.v1.GetCommittedInventorySnapshotRequest"
+> = {
+  $type: "akash.inventory.v1.GetCommittedInventorySnapshotRequest" as const,
+
+  encode(message: GetCommittedInventorySnapshotRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.snapshotHash.length !== 0) {
+      writer.uint32(10).bytes(message.snapshotHash);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCommittedInventorySnapshotRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetCommittedInventorySnapshotRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.snapshotHash = reader.bytes();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetCommittedInventorySnapshotRequest {
+    return { snapshotHash: isSet(object.snapshot_hash) ? bytesFromBase64(object.snapshot_hash) : new Uint8Array(0) };
+  },
+
+  toJSON(message: GetCommittedInventorySnapshotRequest): unknown {
+    const obj: any = {};
+    if (message.snapshotHash.length !== 0) {
+      obj.snapshot_hash = base64FromBytes(message.snapshotHash);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<GetCommittedInventorySnapshotRequest>): GetCommittedInventorySnapshotRequest {
+    const message = createBaseGetCommittedInventorySnapshotRequest();
+    message.snapshotHash = object.snapshotHash ?? new Uint8Array(0);
+    return message;
+  },
+};
+
+function createBaseGetCommittedInventorySnapshotResponse(): GetCommittedInventorySnapshotResponse {
+  return {
+    snapshotPayload: new Uint8Array(0),
+    signature: new Uint8Array(0),
+    provider: "",
+    snapshotHash: new Uint8Array(0),
+    postedAt: undefined,
+  };
+}
+
+export const GetCommittedInventorySnapshotResponse: MessageFns<
+  GetCommittedInventorySnapshotResponse,
+  "akash.inventory.v1.GetCommittedInventorySnapshotResponse"
+> = {
+  $type: "akash.inventory.v1.GetCommittedInventorySnapshotResponse" as const,
+
+  encode(message: GetCommittedInventorySnapshotResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.snapshotPayload.length !== 0) {
+      writer.uint32(10).bytes(message.snapshotPayload);
+    }
+    if (message.signature.length !== 0) {
+      writer.uint32(18).bytes(message.signature);
+    }
+    if (message.provider !== "") {
+      writer.uint32(26).string(message.provider);
+    }
+    if (message.snapshotHash.length !== 0) {
+      writer.uint32(34).bytes(message.snapshotHash);
+    }
+    if (message.postedAt !== undefined) {
+      Timestamp.encode(toTimestamp(message.postedAt), writer.uint32(42).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCommittedInventorySnapshotResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetCommittedInventorySnapshotResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.snapshotPayload = reader.bytes();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.signature = reader.bytes();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.provider = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.snapshotHash = reader.bytes();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.postedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetCommittedInventorySnapshotResponse {
+    return {
+      snapshotPayload: isSet(object.snapshot_payload) ? bytesFromBase64(object.snapshot_payload) : new Uint8Array(0),
+      signature: isSet(object.signature) ? bytesFromBase64(object.signature) : new Uint8Array(0),
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      snapshotHash: isSet(object.snapshot_hash) ? bytesFromBase64(object.snapshot_hash) : new Uint8Array(0),
+      postedAt: isSet(object.posted_at) ? fromJsonTimestamp(object.posted_at) : undefined,
+    };
+  },
+
+  toJSON(message: GetCommittedInventorySnapshotResponse): unknown {
+    const obj: any = {};
+    if (message.snapshotPayload.length !== 0) {
+      obj.snapshot_payload = base64FromBytes(message.snapshotPayload);
+    }
+    if (message.signature.length !== 0) {
+      obj.signature = base64FromBytes(message.signature);
+    }
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    if (message.snapshotHash.length !== 0) {
+      obj.snapshot_hash = base64FromBytes(message.snapshotHash);
+    }
+    if (message.postedAt !== undefined) {
+      obj.posted_at = message.postedAt.toISOString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<GetCommittedInventorySnapshotResponse>): GetCommittedInventorySnapshotResponse {
+    const message = createBaseGetCommittedInventorySnapshotResponse();
+    message.snapshotPayload = object.snapshotPayload ?? new Uint8Array(0);
+    message.signature = object.signature ?? new Uint8Array(0);
+    message.provider = object.provider ?? "";
+    message.snapshotHash = object.snapshotHash ?? new Uint8Array(0);
+    message.postedAt = object.postedAt ?? undefined;
     return message;
   },
 };
