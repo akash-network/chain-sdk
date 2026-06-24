@@ -33,6 +33,11 @@ message CPUInfo {
     (gogoproto.jsontag)      = "vcores",
     (gogoproto.moretags)     = "yaml:\"vcores\""
   ];
+  string arch = 5 [
+    (gogoproto.customname)   = "Arch",
+    (gogoproto.jsontag)      = "arch",
+    (gogoproto.moretags)     = "yaml:\"arch\""
+  ];
 }
 
 // CPU reports CPU inventory details
