@@ -534,7 +534,140 @@ func (sdl *v2) validate() error {
 		}
 	}
 
+	if err := validateInterconnect(sdl.Profiles, sdl.Deployments); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+// validateInterconnect enforces the parser-level cross-field invariants
+// for GPU interconnect (see docs/sdl-interconnect-spec.md):
+//
+//  1. Any opt-in (implicit `[]` or explicit `{group: <name>}`) on a
+//     compute profile must be used by a deployment whose placement
+//     requirements include capabilities/gpu-interconnect=true.
+//  2. The reserved name `auto` may not be written explicitly under
+//     `interconnect: { group: ... }`. (Enforced at parse time in
+//     v2GPUAttributes.UnmarshalYAML.)
+//  3. Within one placement, no mixing of implicit (`interconnect: []`,
+//     resolved to the `auto` group) and explicit (named) opt-ins.
+//  4. `gpu.units == 0` with any interconnect opt-in is rejected.
+//     (Enforced at parse time in v2ResourceGPU.UnmarshalYAML.)
+//
+// The provider relies on rule 1 to guarantee that an interconnect-required
+// workload always reaches an interconnect-capable provider, and on rule 3
+// to keep the per-group anti-affinity rule unambiguous (every service in
+// a placement shares one group label vocabulary).
+//
+// Free function (not a method on v2) so v2_1's validate() can call it
+// against the same profile + deployment shape — v2.1 inherits the full
+// GPU interconnect SDL grammar from v2 and must enforce the identical
+// rules.
+func validateInterconnect(profiles v2profiles, deployments v2Deployments) error {
+	// The parser sets gpu.interconnectGroup to:
+	//   - ""                  if no opt-in
+	//   - InterconnectGroupAuto ("auto") for `interconnect: []`
+	//   - tenant-chosen name  for `interconnect: { group: <name> }`
+	// Rule 2 (reserved name `auto`) and rule 4 (gpu.units==0) are enforced
+	// at parse time. This function enforces rules 1 and 3.
+	type profUsage struct {
+		profileName string
+		group       string // "" if non-interconnect
+	}
+	type placementUsage struct {
+		usages []profUsage
+	}
+	usagesByPlacement := map[string]*placementUsage{}
+
+	for svcName, depl := range deployments {
+		for placementName, svcdepl := range depl {
+			compute, ok := profiles.Compute[svcdepl.Profile]
+			if !ok {
+				continue // covered by earlier validate() loop
+			}
+			gpu := (*v2ResourceGPU)(nil)
+			if compute.Resources != nil {
+				gpu = compute.Resources.GPU
+			}
+			usage := profUsage{
+				profileName: svcdepl.Profile,
+			}
+			// Defense-in-depth: zero-GPU profile with an interconnect
+			// attribute is rejected at parse time. Treat as
+			// non-interconnect here if the parser is bypassed.
+			if gpu != nil && gpu.Units > 0 {
+				usage.group = gpu.interconnectGroup
+			}
+
+			pu, ok := usagesByPlacement[placementName]
+			if !ok {
+				pu = &placementUsage{}
+				usagesByPlacement[placementName] = pu
+			}
+			pu.usages = append(pu.usages, usage)
+
+			// Rule 1: any opt-in (group set) under a placement
+			// requires capabilities/gpu-interconnect=true on the
+			// placement's attributes.
+			if usage.group != "" {
+				infra, ok := profiles.Placement[placementName]
+				if !ok {
+					continue // covered by earlier validate() loop
+				}
+				if !placementRequiresInterconnect(infra.Attributes) {
+					return fmt.Errorf(
+						"%w: service %q uses interconnect profile %q under placement %q but placement does not require capabilities/gpu-interconnect=true",
+						errSDLInvalid,
+						svcName,
+						svcdepl.Profile,
+						placementName,
+					)
+				}
+			}
+		}
+	}
+
+	// Rule 3: within one placement, no mixing of implicit (`auto`) and
+	// explicit (named) interconnect opt-ins. Either all opt-ins under a
+	// placement are implicit, or all are explicitly named.
+	for placementName, pu := range usagesByPlacement {
+		var firstImplicit, firstExplicit string
+		for _, u := range pu.usages {
+			switch {
+			case u.group == "":
+				// non-interconnect — ignore
+			case u.group == InterconnectGroupAuto:
+				if firstImplicit == "" {
+					firstImplicit = u.profileName
+				}
+			default:
+				if firstExplicit == "" {
+					firstExplicit = u.profileName
+				}
+			}
+		}
+		if firstImplicit != "" && firstExplicit != "" {
+			return fmt.Errorf(
+				"%w: placement %q mixes implicit `interconnect: []` (profile %q) and explicit `interconnect: { group: ... }` (profile %q); use one form across the placement",
+				errSDLInvalid,
+				placementName,
+				firstImplicit,
+				firstExplicit,
+			)
+		}
+	}
+
+	return nil
+}
+
+func placementRequiresInterconnect(attrs v2PlacementAttributes) bool {
+	for _, a := range attrs {
+		if a.Key == "capabilities/gpu-interconnect" && a.Value == valueTrue {
+			return true
+		}
+	}
+	return false
 }
 
 func (sdl *v2) computeEndpointSequenceNumbers() map[string]uint32 {

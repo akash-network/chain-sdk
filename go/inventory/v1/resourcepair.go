@@ -47,19 +47,51 @@ func (m *ResourcePair) LT(rhs ResourcePair) bool {
 	return m.Allocatable.Cmp(*rhs.Allocatable) == -1
 }
 
-func (m *ResourcePair) Dup() ResourcePair {
-	capacity := m.Capacity.DeepCopy()
-	allocatable := m.Allocatable.DeepCopy()
-	allocated := m.Allocated.DeepCopy()
+// IsZero reports whether the ResourcePair has been initialized. A
+// zero-valued ResourcePair has nil quantity pointers and is the natural
+// state for, e.g., a node that does not have GPU interconnect capacity
+// (and therefore leaves `NodeResources.GPUInterconnect` untouched).
+func (m *ResourcePair) IsZero() bool {
+	if m == nil {
+		return true
+	}
+	return m.Capacity == nil && m.Allocatable == nil && m.Allocated == nil && len(m.Attributes) == 0
+}
 
-	res := ResourcePair{
-		Capacity:    &capacity,
-		Allocatable: &allocatable,
-		Allocated:   &allocated,
-		Attributes:  m.Attributes.Dup(),
+func (m *ResourcePair) Dup() ResourcePair {
+	// A zero-valued ResourcePair (all quantity pointers nil) must round-trip
+	// through Dup() without panicking. Without this guard, calling Dup()
+	// against e.g. an unpopulated `NodeResources.GPUInterconnect` on a
+	// non-interconnect node nil-derefs Capacity.DeepCopy().
+	if m == nil || m.IsZero() {
+		return ResourcePair{}
 	}
 
-	return res
+	// Preserve the nil/non-nil shape of each quantity pointer. Returning
+	// `&zeroQuantity` for an originally-nil field would change protobuf
+	// field-presence semantics (and the JSON serialization the manifest
+	// version hash is computed from), so a partially-populated source
+	// must Dup to a structurally identical copy.
+	var capacity, allocatable, allocated *resource.Quantity
+	if m.Capacity != nil {
+		c := m.Capacity.DeepCopy()
+		capacity = &c
+	}
+	if m.Allocatable != nil {
+		a := m.Allocatable.DeepCopy()
+		allocatable = &a
+	}
+	if m.Allocated != nil {
+		al := m.Allocated.DeepCopy()
+		allocated = &al
+	}
+
+	return ResourcePair{
+		Capacity:    capacity,
+		Allocatable: allocatable,
+		Allocated:   allocated,
+		Attributes:  m.Attributes.Dup(),
+	}
 }
 
 func (m *ResourcePair) SubMilliNLZ(val types.ResourceValue) bool {

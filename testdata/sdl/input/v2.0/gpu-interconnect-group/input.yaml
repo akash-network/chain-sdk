@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+# Multi-service GPU interconnect peer group fixture. inference-head and inference-worker
+# share the same explicit interconnect group label ("pair0"), which:
+#   - emits an `interconnect/group=pair0` attribute into each service's on-chain
+#     Resources.GPU.Attributes (consumed by the provider's bid-engine
+#     group-aware Adjust, AKT-443)
+#   - lifts to Service.GPU interconnectGroup on the off-chain manifest (consumed by
+#     the provider's workload builder for pod anti-affinity)
+#
+# Each service has its own compute profile because the SDL→manifest
+# resource-ID assignment treats per-profile groupings as one resource
+# unit (this is a separate parity concern; see Go vs TS resource-ID logic
+# in groupBuilder_v2.go and generateManifest.ts). Using distinct profiles
+# keeps that orthogonal so this fixture isolates GPU interconnect group behavior.
+version: "2.0"
+services:
+  inference-head:
+    image: tensorflow/tensorflow:latest-gpu
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+  inference-worker:
+    image: tensorflow/tensorflow:latest-gpu
+    expose:
+      - port: 5000
+        to:
+          - service: inference-head
+profiles:
+  compute:
+    interconnect-head:
+      resources:
+        cpu:
+          units: 1000m
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+        gpu:
+          units: 1
+          attributes:
+            interconnect:
+              group: pair0
+            vendor:
+              nvidia:
+                - model: a100
+                  ram: 80Gi
+                  interface: sxm
+    interconnect-worker:
+      resources:
+        cpu:
+          units: 1000m
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+        gpu:
+          units: 1
+          attributes:
+            interconnect:
+              group: pair0
+            vendor:
+              nvidia:
+                - model: a100
+                  ram: 80Gi
+                  interface: sxm
+  placement:
+    interconnect-cluster:
+      attributes:
+        capabilities/gpu-interconnect: "true"
+        capabilities/gpu-interconnect/fabric/infiniband: "true"
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        interconnect-head:
+          denom: uakt
+          amount: 1000
+        interconnect-worker:
+          denom: uakt
+          amount: 1000
+deployment:
+  inference-head:
+    interconnect-cluster:
+      profile: interconnect-head
+      count: 1
+  inference-worker:
+    interconnect-cluster:
+      profile: interconnect-worker
+      count: 1

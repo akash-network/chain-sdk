@@ -14,6 +14,31 @@ import { NodeResources } from "./resources.ts";
 /** NodeCapabilities extended list of node capabilities */
 export interface NodeCapabilities {
   storageClasses: string[];
+  /**
+   * Kubernetes extended-resource name the cluster's device plugin publishes
+   * for GPU interconnect HCAs (e.g. rdma/rdma_shared_device_ib for an
+   * InfiniBand fabric, rdma/rdma_shared_device_eth for RoCE). The
+   * `rdma/*` prefix is the device-plugin's own convention (Mellanox/NVIDIA)
+   * and stays unchanged here. Empty when the node has no GPU interconnect
+   * capability. Discovered by the inventory operator from k8s allocatable.
+   */
+  interconnectResourceName: string;
+  /**
+   * GPU interconnect fabric type. "infiniband" or "roce". Internal /
+   * informational — the SDL surface is fabric-agnostic; tenants only
+   * declare `interconnect: true`. Derived from
+   * /sys/class/infiniband/<dev>/ports/1/link_layer on the host node.
+   */
+  interconnectFabric: string;
+  /**
+   * NCCL HCA device-name prefixes present on this node, one per distinct
+   * family (e.g. ["mlx5"], or ["mlx5","bnxt_re"] on a mixed-vendor host).
+   * Same key for IB and RoCE since NCCL uses the IB verbs API for both.
+   * Joined with commas and injected as NCCL_IB_HCA when scheduling GPU
+   * interconnect workloads — NCCL accepts comma-separated device prefixes
+   * natively. Discovered from /sys/class/infiniband/<dev> on the host.
+   */
+  ncclHcaPrefixes: string[];
 }
 
 /** Node reports node inventory details */
@@ -24,7 +49,7 @@ export interface Node {
 }
 
 function createBaseNodeCapabilities(): NodeCapabilities {
-  return { storageClasses: [] };
+  return { storageClasses: [], interconnectResourceName: "", interconnectFabric: "", ncclHcaPrefixes: [] };
 }
 
 export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.NodeCapabilities"> = {
@@ -33,6 +58,15 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
   encode(message: NodeCapabilities, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.storageClasses) {
       writer.uint32(10).string(v!);
+    }
+    if (message.interconnectResourceName !== "") {
+      writer.uint32(18).string(message.interconnectResourceName);
+    }
+    if (message.interconnectFabric !== "") {
+      writer.uint32(26).string(message.interconnectFabric);
+    }
+    for (const v of message.ncclHcaPrefixes) {
+      writer.uint32(34).string(v!);
     }
     return writer;
   },
@@ -52,6 +86,30 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
           message.storageClasses.push(reader.string());
           continue;
         }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.interconnectResourceName = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.interconnectFabric = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.ncclHcaPrefixes.push(reader.string());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -66,6 +124,13 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
       storageClasses: globalThis.Array.isArray(object?.storage_classes)
         ? object.storage_classes.map((e: any) => globalThis.String(e))
         : [],
+      interconnectResourceName: isSet(object.interconnect_resource_name)
+        ? globalThis.String(object.interconnect_resource_name)
+        : "",
+      interconnectFabric: isSet(object.interconnect_fabric) ? globalThis.String(object.interconnect_fabric) : "",
+      ncclHcaPrefixes: globalThis.Array.isArray(object?.nccl_hca_prefixes)
+        ? object.nccl_hca_prefixes.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -74,11 +139,23 @@ export const NodeCapabilities: MessageFns<NodeCapabilities, "akash.inventory.v1.
     if (message.storageClasses?.length) {
       obj.storage_classes = message.storageClasses;
     }
+    if (message.interconnectResourceName !== "") {
+      obj.interconnect_resource_name = message.interconnectResourceName;
+    }
+    if (message.interconnectFabric !== "") {
+      obj.interconnect_fabric = message.interconnectFabric;
+    }
+    if (message.ncclHcaPrefixes?.length) {
+      obj.nccl_hca_prefixes = message.ncclHcaPrefixes;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<NodeCapabilities>): NodeCapabilities {
     const message = createBaseNodeCapabilities();
     message.storageClasses = object.storageClasses?.map((e) => e) || [];
+    message.interconnectResourceName = object.interconnectResourceName ?? "";
+    message.interconnectFabric = object.interconnectFabric ?? "";
+    message.ncclHcaPrefixes = object.ncclHcaPrefixes?.map((e) => e) || [];
     return message;
   },
 };

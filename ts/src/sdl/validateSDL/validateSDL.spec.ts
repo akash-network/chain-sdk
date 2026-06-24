@@ -2392,6 +2392,161 @@ describe(validateSDL.name, () => {
     });
   });
 
+  // Mirrors the Go SDL parser's interconnect cross-field rules
+  // (go/sdl/v2.go validateInterconnect + go/sdl/gpu.go parse-time
+  // guards). Without these TS checks, tenants using
+  // @akashnetwork/chain-sdk could broadcast SDLs that the Go CLI would
+  // have rejected outright. See docs/sdl-interconnect-spec.md.
+  describe("GPU interconnect validation", () => {
+    type InterconnectShape = unknown[] | { group: string };
+
+    function interconnectSetup(opts: {
+      interconnect?: InterconnectShape;
+      units?: number;
+      placementRequiresInterconnect?: boolean;
+    } = {}) {
+      const { interconnect, units = 1, placementRequiresInterconnect = true } = opts;
+      const placementAttrs: Record<string, string> = {};
+      if (placementRequiresInterconnect) placementAttrs["capabilities/gpu-interconnect"] = "true";
+
+      const gpuAttrs: Record<string, unknown> = { vendor: { nvidia: [{ model: "a100" }] } };
+      if (interconnect !== undefined) gpuAttrs.interconnect = interconnect;
+
+      return setup({
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+                gpu: { units, attributes: gpuAttrs },
+              },
+            },
+          },
+          placement: {
+            dcloud: {
+              attributes: placementAttrs,
+            },
+          },
+        },
+      });
+    }
+
+    it("accepts implicit `interconnect: []` under an interconnect-capable placement", () => {
+      const { validate } = interconnectSetup({ interconnect: [] });
+      expect(validate()).toBeUndefined();
+    });
+
+    it("accepts explicit `interconnect: { group: <name> }` under an interconnect-capable placement", () => {
+      const { validate } = interconnectSetup({ interconnect: { group: "pair0" } });
+      expect(validate()).toBeUndefined();
+    });
+
+    // units==0 + any interconnect opt-in is rejected by the schema-level
+    // gpuAttributesRequireUnitsGt0 rule (any attribute present requires
+    // units > 0), so the semantic validator never runs for that case.
+    // Pinning the schema's behavior here so a future schema relaxation
+    // doesn't silently open a hole.
+    it("rejects implicit `interconnect: []` when gpu.units is 0 (schema-level)", () => {
+      const { validate } = interconnectSetup({ interconnect: [], units: 0 });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        schemaPath: expect.stringContaining("gpuAttributesRequireUnitsGt0"),
+      }));
+    });
+
+    it("rejects explicit `interconnect: { group }` when gpu.units is 0 (schema-level)", () => {
+      const { validate } = interconnectSetup({ interconnect: { group: "pair0" }, units: 0 });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        schemaPath: expect.stringContaining("gpuAttributesRequireUnitsGt0"),
+      }));
+    });
+
+    it("rejects bare boolean `interconnect: true` (retired rc4 shape) at schema layer", () => {
+      const { validate } = interconnectSetup({ interconnect: true as unknown as InterconnectShape });
+      // The schema's `oneOf` doesn't match a bare boolean, so the
+      // semantic validator never runs.
+      expect(validate()).toContainEqual(expect.objectContaining({
+        instancePath: expect.stringContaining("interconnect"),
+      }));
+    });
+
+    it("rejects the reserved name `auto` written explicitly", () => {
+      const { validate } = interconnectSetup({ interconnect: { group: "auto" } });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining(`"auto"`),
+      }));
+    });
+
+    it("rejects an interconnect opt-in under a placement that does not require capabilities/gpu-interconnect=true", () => {
+      const { validate } = interconnectSetup({ interconnect: [], placementRequiresInterconnect: false });
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining(`but placement does not require capabilities/gpu-interconnect=true`),
+      }));
+    });
+
+    it("rejects mixing implicit and explicit forms within one placement (rule 3)", () => {
+      // Two profiles in one placement: one uses `[]`, the other uses
+      // `{ group: ... }`. Rule 3 must reject.
+      const { validate } = setup({
+        services: {
+          worker: {
+            image: "nginx:latest",
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+                gpu: {
+                  units: 1,
+                  attributes: {
+                    vendor: { nvidia: [{ model: "a100" }] },
+                    interconnect: { group: "pair0" },
+                  },
+                },
+              },
+            },
+            worker: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+                gpu: {
+                  units: 1,
+                  attributes: {
+                    vendor: { nvidia: [{ model: "a100" }] },
+                    interconnect: [],
+                  },
+                },
+              },
+            },
+          },
+          placement: {
+            dcloud: {
+              attributes: { "capabilities/gpu-interconnect": "true" },
+              pricing: {
+                worker: { amount: "1000", denom: AKT_DENOM },
+              },
+            },
+          },
+        },
+        deployment: {
+          worker: {
+            dcloud: { count: 1, profile: "worker" },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("mixes implicit"),
+      }));
+    });
+  });
+
   function setup(overrides: DeepPartial<SDLInput> = {}, networkId: NetworkId = "sandbox") {
     const defaultSDL: SDLInput = {
       version: "2.0",

@@ -1,0 +1,117 @@
+[
+  {
+    "name": "interconnect-cluster",
+    "requirements": {
+      "signed_by": {
+        "all_of": null,
+        "any_of": [
+          "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "capabilities/gpu-interconnect",
+          "value": "true"
+        },
+        {
+          "key": "capabilities/gpu-interconnect/fabric/infiniband",
+          "value": "true"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "1000"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "2147483648"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "10737418240"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "1"
+            },
+            "attributes": [
+              {
+                "key": "interconnect/group",
+                "value": "pair0"
+              },
+              {
+                "key": "vendor/nvidia/model/a100/ram/80Gi/interface/sxm",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            }
+          ]
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "1000.000000000000000000"
+        }
+      },
+      {
+        "resource": {
+          "id": 2,
+          "cpu": {
+            "units": {
+              "val": "1000"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "2147483648"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "10737418240"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "1"
+            },
+            "attributes": [
+              {
+                "key": "interconnect/group",
+                "value": "pair0"
+              },
+              {
+                "key": "vendor/nvidia/model/a100/ram/80Gi/interface/sxm",
+                "value": "true"
+              }
+            ]
+          },
+          "endpoints": []
+        },
+        "count": 1,
+        "price": {
+          "denom": "uakt",
+          "amount": "1000.000000000000000000"
+        }
+      }
+    ]
+  }
+]

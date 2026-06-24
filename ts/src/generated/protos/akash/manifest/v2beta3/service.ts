@@ -73,7 +73,24 @@ export interface Service {
   count: number;
   expose: ServiceExpose[];
   params: ServiceParams | undefined;
-  credentials: ImageCredentials | undefined;
+  credentials:
+    | ImageCredentials
+    | undefined;
+  /**
+   * InterconnectGroup carries the SDL gpu.attributes.interconnect_group
+   * peer-group label. Lifted from Resources.GPU.Attributes by the
+   * manifest builder so the off-chain workload builder can label pods
+   * for per-group anti-affinity. Services sharing the same value form
+   * one NCCL peer group; the provider schedules them on distinct nodes.
+   * Empty when the service is not part of any GPU interconnect group.
+   *
+   * JSON / YAML tags carry `omitempty`: the on-chain manifest `version`
+   * is a SHA hash of the JSON-serialized off-chain manifest, so any
+   * field that always serializes (even at zero value) would shift the
+   * hash for every non-interconnect SDL and break send-manifest
+   * validation on existing leases.
+   */
+  interconnectGroup: string;
 }
 
 function createBaseStorageParams(): StorageParams {
@@ -526,6 +543,7 @@ function createBaseService(): Service {
     expose: [],
     params: undefined,
     credentials: undefined,
+    interconnectGroup: "",
   };
 }
 
@@ -562,6 +580,9 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     }
     if (message.credentials !== undefined) {
       ImageCredentials.encode(message.credentials, writer.uint32(82).fork()).join();
+    }
+    if (message.interconnectGroup !== "") {
+      writer.uint32(90).string(message.interconnectGroup);
     }
     return writer;
   },
@@ -653,6 +674,14 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
           message.credentials = ImageCredentials.decode(reader, reader.uint32());
           continue;
         }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.interconnectGroup = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -674,6 +703,7 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
       expose: globalThis.Array.isArray(object?.expose) ? object.expose.map((e: any) => ServiceExpose.fromJSON(e)) : [],
       params: isSet(object.params) ? ServiceParams.fromJSON(object.params) : undefined,
       credentials: isSet(object.credentials) ? ImageCredentials.fromJSON(object.credentials) : undefined,
+      interconnectGroup: isSet(object.interconnect_group) ? globalThis.String(object.interconnect_group) : "",
     };
   },
 
@@ -709,6 +739,9 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     if (message.credentials !== undefined) {
       obj.credentials = ImageCredentials.toJSON(message.credentials);
     }
+    if (message.interconnectGroup !== "") {
+      obj.interconnect_group = message.interconnectGroup;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<Service>): Service {
@@ -729,6 +762,7 @@ export const Service: MessageFns<Service, "akash.manifest.v2beta3.Service"> = {
     message.credentials = (object.credentials !== undefined && object.credentials !== null)
       ? ImageCredentials.fromPartial(object.credentials)
       : undefined;
+    message.interconnectGroup = object.interconnectGroup ?? "";
     return message;
   },
 };

@@ -268,6 +268,31 @@ properties:
                                     type: object
                                 - type: 'null'
                           type: object
+                        interconnect:
+                          description: |
+                            Opt this resource into GPU interconnect.
+                            Accepts two forms:
+                              - `[]` (empty sequence) — implicit group,
+                                the parser auto-names it `auto` within
+                                the placement. All services that opt in
+                                with `[]` under one placement land in
+                                the same `auto` group.
+                              - `{ group: <name> }` — explicit named
+                                group. The name `auto` is reserved.
+                            The bare boolean `true` is no longer
+                            accepted. Fabric (InfiniBand vs RoCE) is
+                            chosen by the provider, not the SDL.
+                          oneOf:
+                            - type: array
+                              maxItems: 0
+                            - additionalProperties: false
+                              properties:
+                                group:
+                                  type: string
+                                  minLength: 1
+                              required:
+                                - group
+                              type: object
                       type: object
                     units:
                       oneOf:
