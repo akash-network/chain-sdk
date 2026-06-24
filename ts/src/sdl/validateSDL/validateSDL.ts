@@ -36,6 +36,7 @@ export function validateSDL(sdl: SDLInput): undefined | ValidationError[] {
 class SDLValidator {
   readonly #endpointsUsed = new Set<string>();
   readonly #portsUsed = new Map<string, string>();
+  readonly #teeTypeByPlacement = new Map<string, string>();
   readonly #sdl: SDLInput;
   readonly #errors: ValidationError[] = [];
 
@@ -260,27 +261,50 @@ class SDLValidator {
     }
   }
 
-  // Mirrors Go `validateTEEWithGPU` (go/sdl/tee.go): the `cpu-gpu` TEE type
-  // requires GPU resources on the resolved compute profile. `cpu` (and absent)
-  // need no GPU. Unsupported tee values are rejected structurally by the input
-  // schema (`tee` enum in validateSDLInput.ts) before this runs.
+  // Mirrors Go's TEE rules from `buildGroups` (go/sdl/groupBuilder_v2.go:58-83,
+  // groupBuilder_v2_1.go:59-84). Two checks, both on `deploymentName` (the
+  // placement-group name):
+  //   1. `validateTEEWithGPU` — the `cpu-gpu` type requires GPU resources on the
+  //      resolved compute profile (`cpu`/absent need none).
+  //   2. `errTEETypeMismatch` — a placementg diff group may carry only one tee type,
+  //      since `generateManifest` projects it as a single `tee/type` requirement
+  //      attribute. Detecting the conflict here (the validation layer) means
+  //      standalone `validateSDL` callers catch it, and `generateManifest` can
+  //      project unconditionally.
+  // Unsupported tee values are rejected structurally by the input schema (`tee`
+  // enum in validateSDLInput.ts) before this runs.
   #validateTEE(serviceName: string, deploymentName: string) {
     const tee = this.#sdl.services?.[serviceName]?.params?.tee;
-    if (tee !== "cpu-gpu") return;
+    if (!tee) return;
 
-    const profile = this.#sdl.deployment[serviceName]?.[deploymentName]?.profile;
-    const gpu = this.#sdl.profiles?.compute?.[profile]?.resources.gpu;
-    const hasGpu = gpu?.units !== undefined && gpu.units !== 0;
+    if (tee === "cpu-gpu") {
+      const profile = this.#sdl.deployment[serviceName]?.[deploymentName]?.profile;
+      const gpu = this.#sdl.profiles?.compute?.[profile]?.resources.gpu;
+      const hasGpu = gpu?.units !== undefined && gpu.units !== 0;
 
-    if (!hasGpu) {
+      if (!hasGpu) {
+        this.#errors.push({
+          message: `Service "${serviceName}" tee type requires gpu resources.`,
+          instancePath: `/services/${serviceName}/params/tee`,
+          schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee",
+          keyword: "required",
+          params: {
+            missingProperty: "gpu",
+          },
+        });
+      }
+    }
+
+    const existing = this.#teeTypeByPlacement.get(deploymentName);
+    if (existing === undefined) {
+      this.#teeTypeByPlacement.set(deploymentName, tee);
+    } else if (existing !== tee) {
       this.#errors.push({
-        message: `Service "${serviceName}" tee type requires gpu resources.`,
+        message: `conflicting tee types in placement group "${deploymentName}": "${existing}" and "${tee}"`,
         instancePath: `/services/${serviceName}/params/tee`,
         schemaPath: "#/properties/services/additionalProperties/properties/params/properties/tee",
-        keyword: "required",
-        params: {
-          missingProperty: "gpu",
-        },
+        keyword: "tee",
+        params: {},
       });
     }
   }

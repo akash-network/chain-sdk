@@ -685,6 +685,102 @@ describe(validateSDL.name, () => {
 
       expect(validate()).toBeUndefined();
     });
+
+    it("returns an error when two services in the same placement group declare conflicting tee types", () => {
+      const { validate } = setup({
+        services: {
+          web: { params: { tee: "cpu" } },
+          gpuapp: {
+            image: "nginx:latest",
+            expose: [{ port: 81, as: 81, to: [{ global: true }] }],
+            params: { tee: "cpu-gpu" },
+          },
+        },
+        profiles: {
+          compute: {
+            gpuapp: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+                gpu: { units: 1, attributes: { vendor: { nvidia: [] } } },
+              },
+            },
+          },
+          placement: {
+            dcloud: { pricing: { gpuapp: { amount: "1000", denom: AKT_DENOM } } },
+          },
+        },
+        deployment: {
+          gpuapp: { dcloud: { count: 1, profile: "gpuapp" } },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining(`conflicting tee types in placement group "dcloud"`),
+        instancePath: "/services/gpuapp/params/tee",
+        keyword: "tee",
+      }));
+    });
+
+    it("accepts two services in the same placement group sharing a tee type", () => {
+      const { validate } = setup({
+        services: {
+          web: { params: { tee: "cpu" } },
+          worker: {
+            image: "nginx:latest",
+            expose: [{ port: 81, as: 81, to: [{ global: true }] }],
+            params: { tee: "cpu" },
+          },
+        },
+        profiles: {
+          compute: {
+            worker: { resources: { cpu: { units: 1 }, memory: { size: "512Mi" }, storage: { size: "1Gi" } } },
+          },
+          placement: {
+            dcloud: { pricing: { worker: { amount: "1000", denom: AKT_DENOM } } },
+          },
+        },
+        deployment: {
+          worker: { dcloud: { count: 1, profile: "worker" } },
+        },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+
+    it("accepts conflicting tee types across different placement groups", () => {
+      const { validate } = setup({
+        services: {
+          web: { params: { tee: "cpu" } },
+          gpuapp: {
+            image: "nginx:latest",
+            expose: [{ port: 81, as: 81, to: [{ global: true }] }],
+            params: { tee: "cpu-gpu" },
+          },
+        },
+        profiles: {
+          compute: {
+            gpuapp: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { size: "1Gi" },
+                gpu: { units: 1, attributes: { vendor: { nvidia: [] } } },
+              },
+            },
+          },
+          placement: {
+            dcloud2: { pricing: { gpuapp: { amount: "1000", denom: AKT_DENOM } } },
+          },
+        },
+        deployment: {
+          gpuapp: { dcloud2: { count: 1, profile: "gpuapp" } },
+        },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
   });
 
   describe("IP lease validation", () => {

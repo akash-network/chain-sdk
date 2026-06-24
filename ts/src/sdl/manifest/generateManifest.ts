@@ -50,6 +50,7 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
   const groupsMap = new Map<string, {
     dgroup: GroupSpec;
     boundComputes: Record<string, number>;
+    teeType?: string;
   }>();
   const resourceIds = new Map<string, number>();
 
@@ -96,9 +97,17 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
             }),
           }),
           boundComputes: {},
+          teeType: undefined,
         };
 
         groupsMap.set(placementName, group);
+      }
+
+      const teeType = service.params?.tee;
+      if (teeType && !group.teeType) {
+        group.teeType = teeType;
+        group.dgroup.requirements!.attributes.push({ key: "tee/type", value: teeType });
+        group.dgroup.requirements!.attributes.sort((a, b) => a.key.localeCompare(b.key));
       }
 
       const profileKey = `${placementName}:${svcdepl.profile}`;
