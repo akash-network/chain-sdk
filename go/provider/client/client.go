@@ -67,6 +67,7 @@ type Client interface {
 	SubmitManifest(ctx context.Context, dseq uint64, mani manifest.Manifest) error
 	GetManifest(ctx context.Context, id mtypes.LeaseID) (manifest.Manifest, error)
 	LeaseStatus(ctx context.Context, id mtypes.LeaseID) (LeaseStatus, error)
+	AttestationQuote(ctx context.Context, id mtypes.LeaseID, body []byte) ([]byte, error)
 	LeaseEvents(ctx context.Context, id mtypes.LeaseID, services string, follow bool) (*LeaseKubeEvents, error)
 	LeaseLogs(ctx context.Context, id mtypes.LeaseID, services string, follow bool, tailLines int64) (*ServiceLogs, error)
 	ServiceStatus(ctx context.Context, id mtypes.LeaseID, service string) (*ServiceStatus, error)
@@ -603,6 +604,44 @@ func (c *client) LeaseStatus(ctx context.Context, id mtypes.LeaseID) (LeaseStatu
 	return obj, nil
 }
 
+func (c *client) AttestationQuote(ctx context.Context, id mtypes.LeaseID, body []byte) ([]byte, error) {
+	uri, err := MakeURI(c.host, LeaseAttestationQuotePath(id))
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", contentTypeJSON)
+	if err = c.setAuth(req.Header); err != nil {
+		return nil, err
+	}
+
+	rCl := c.NewReqClient(ctx)
+	resp, err := rCl.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	responseBuf := &bytes.Buffer{}
+	_, err = io.Copy(responseBuf, resp.Body)
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+	if err != nil {
+		return nil, err
+	}
+
+	if err = createClientResponseErrorIfNotOK(resp, responseBuf); err != nil {
+		return nil, err
+	}
+
+	return responseBuf.Bytes(), nil
+}
+
 func (c *client) LeaseEvents(ctx context.Context, id mtypes.LeaseID, _ string, follow bool) (*LeaseKubeEvents, error) {
 	endpoint, err := url.Parse(c.host.String() + "/" + LeaseEventsPath(id))
 	if err != nil {
@@ -891,4 +930,3 @@ func parseCloseMessage(msg string) string {
 
 	return ""
 }
-
