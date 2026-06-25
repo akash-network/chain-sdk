@@ -18,16 +18,11 @@ type v2ResourceCPU struct {
 
 func (sdl *v2ResourceCPU) UnmarshalYAML(node *yaml.Node) error {
 	res := v2ResourceCPU{}
-	var arch string
 
 	for i := 0; i < len(node.Content); i += 2 {
 		switch node.Content[i].Value {
 		case "units":
 			if err := node.Content[i+1].Decode(&res.Units); err != nil {
-				return err
-			}
-		case "arch":
-			if err := node.Content[i+1].Decode(&arch); err != nil {
 				return err
 			}
 		case "attributes":
@@ -37,21 +32,6 @@ func (sdl *v2ResourceCPU) UnmarshalYAML(node *yaml.Node) error {
 		default:
 			return fmt.Errorf("sdl: unsupported field (%s) for CPU resource", node.Content[i].Value)
 		}
-	}
-
-	if arch != "" {
-		switch arch {
-		case "amd64", "arm64":
-		default:
-			return fmt.Errorf("sdl: unsupported CPU arch (%s), expected amd64|arm64", arch)
-		}
-		for _, attr := range res.Attributes {
-			if attr.Key == "arch" {
-				return fmt.Errorf("sdl: cpu arch specified at both top-level and in attributes")
-			}
-		}
-		res.Attributes = append(res.Attributes, types.Attribute{Key: "arch", Value: arch})
-		sort.Sort(types.Attributes(res.Attributes))
 	}
 
 	*sdl = res
