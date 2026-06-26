@@ -5,10 +5,8 @@ package v1beta4
 import (
 	context "context"
 
-	grpc "google.golang.org/grpc"
-
 	mock "github.com/stretchr/testify/mock"
-
+	grpc "google.golang.org/grpc"
 	v1beta4 "pkg.akt.dev/go/node/provider/v1beta4"
 )
 
@@ -23,6 +21,80 @@ type QueryClient_Expecter struct {
 
 func (_m *QueryClient) EXPECT() *QueryClient_Expecter {
 	return &QueryClient_Expecter{mock: &_m.Mock}
+}
+
+// Params provides a mock function with given fields: ctx, in, opts
+func (_m *QueryClient) Params(ctx context.Context, in *v1beta4.QueryParamsRequest, opts ...grpc.CallOption) (*v1beta4.QueryParamsResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Params")
+	}
+
+	var r0 *v1beta4.QueryParamsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryParamsRequest, ...grpc.CallOption) (*v1beta4.QueryParamsResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryParamsRequest, ...grpc.CallOption) *v1beta4.QueryParamsResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1beta4.QueryParamsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *v1beta4.QueryParamsRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// QueryClient_Params_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Params'
+type QueryClient_Params_Call struct {
+	*mock.Call
+}
+
+// Params is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *v1beta4.QueryParamsRequest
+//   - opts ...grpc.CallOption
+func (_e *QueryClient_Expecter) Params(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_Params_Call {
+	return &QueryClient_Params_Call{Call: _e.mock.On("Params",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *QueryClient_Params_Call) Run(run func(ctx context.Context, in *v1beta4.QueryParamsRequest, opts ...grpc.CallOption)) *QueryClient_Params_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*v1beta4.QueryParamsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *QueryClient_Params_Call) Return(_a0 *v1beta4.QueryParamsResponse, _a1 error) *QueryClient_Params_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *QueryClient_Params_Call) RunAndReturn(run func(context.Context, *v1beta4.QueryParamsRequest, ...grpc.CallOption) (*v1beta4.QueryParamsResponse, error)) *QueryClient_Params_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Provider provides a mock function with given fields: ctx, in, opts
@@ -99,6 +171,154 @@ func (_c *QueryClient_Provider_Call) RunAndReturn(run func(context.Context, *v1b
 	return _c
 }
 
+// ProviderMaintenance provides a mock function with given fields: ctx, in, opts
+func (_m *QueryClient) ProviderMaintenance(ctx context.Context, in *v1beta4.QueryProviderMaintenanceRequest, opts ...grpc.CallOption) (*v1beta4.QueryProviderMaintenanceResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProviderMaintenance")
+	}
+
+	var r0 *v1beta4.QueryProviderMaintenanceResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryProviderMaintenanceRequest, ...grpc.CallOption) (*v1beta4.QueryProviderMaintenanceResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryProviderMaintenanceRequest, ...grpc.CallOption) *v1beta4.QueryProviderMaintenanceResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1beta4.QueryProviderMaintenanceResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *v1beta4.QueryProviderMaintenanceRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// QueryClient_ProviderMaintenance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ProviderMaintenance'
+type QueryClient_ProviderMaintenance_Call struct {
+	*mock.Call
+}
+
+// ProviderMaintenance is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *v1beta4.QueryProviderMaintenanceRequest
+//   - opts ...grpc.CallOption
+func (_e *QueryClient_Expecter) ProviderMaintenance(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_ProviderMaintenance_Call {
+	return &QueryClient_ProviderMaintenance_Call{Call: _e.mock.On("ProviderMaintenance",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *QueryClient_ProviderMaintenance_Call) Run(run func(ctx context.Context, in *v1beta4.QueryProviderMaintenanceRequest, opts ...grpc.CallOption)) *QueryClient_ProviderMaintenance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*v1beta4.QueryProviderMaintenanceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *QueryClient_ProviderMaintenance_Call) Return(_a0 *v1beta4.QueryProviderMaintenanceResponse, _a1 error) *QueryClient_ProviderMaintenance_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *QueryClient_ProviderMaintenance_Call) RunAndReturn(run func(context.Context, *v1beta4.QueryProviderMaintenanceRequest, ...grpc.CallOption) (*v1beta4.QueryProviderMaintenanceResponse, error)) *QueryClient_ProviderMaintenance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ProviderMaintenances provides a mock function with given fields: ctx, in, opts
+func (_m *QueryClient) ProviderMaintenances(ctx context.Context, in *v1beta4.QueryProviderMaintenancesRequest, opts ...grpc.CallOption) (*v1beta4.QueryProviderMaintenancesResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProviderMaintenances")
+	}
+
+	var r0 *v1beta4.QueryProviderMaintenancesResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryProviderMaintenancesRequest, ...grpc.CallOption) (*v1beta4.QueryProviderMaintenancesResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryProviderMaintenancesRequest, ...grpc.CallOption) *v1beta4.QueryProviderMaintenancesResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1beta4.QueryProviderMaintenancesResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *v1beta4.QueryProviderMaintenancesRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// QueryClient_ProviderMaintenances_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ProviderMaintenances'
+type QueryClient_ProviderMaintenances_Call struct {
+	*mock.Call
+}
+
+// ProviderMaintenances is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *v1beta4.QueryProviderMaintenancesRequest
+//   - opts ...grpc.CallOption
+func (_e *QueryClient_Expecter) ProviderMaintenances(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_ProviderMaintenances_Call {
+	return &QueryClient_ProviderMaintenances_Call{Call: _e.mock.On("ProviderMaintenances",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *QueryClient_ProviderMaintenances_Call) Run(run func(ctx context.Context, in *v1beta4.QueryProviderMaintenancesRequest, opts ...grpc.CallOption)) *QueryClient_ProviderMaintenances_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*v1beta4.QueryProviderMaintenancesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *QueryClient_ProviderMaintenances_Call) Return(_a0 *v1beta4.QueryProviderMaintenancesResponse, _a1 error) *QueryClient_ProviderMaintenances_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *QueryClient_ProviderMaintenances_Call) RunAndReturn(run func(context.Context, *v1beta4.QueryProviderMaintenancesRequest, ...grpc.CallOption) (*v1beta4.QueryProviderMaintenancesResponse, error)) *QueryClient_ProviderMaintenances_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Providers provides a mock function with given fields: ctx, in, opts
 func (_m *QueryClient) Providers(ctx context.Context, in *v1beta4.QueryProvidersRequest, opts ...grpc.CallOption) (*v1beta4.QueryProvidersResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -169,6 +389,80 @@ func (_c *QueryClient_Providers_Call) Return(_a0 *v1beta4.QueryProvidersResponse
 }
 
 func (_c *QueryClient_Providers_Call) RunAndReturn(run func(context.Context, *v1beta4.QueryProvidersRequest, ...grpc.CallOption) (*v1beta4.QueryProvidersResponse, error)) *QueryClient_Providers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Registration provides a mock function with given fields: ctx, in, opts
+func (_m *QueryClient) Registration(ctx context.Context, in *v1beta4.QueryRegistrationRequest, opts ...grpc.CallOption) (*v1beta4.QueryRegistrationResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Registration")
+	}
+
+	var r0 *v1beta4.QueryRegistrationResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryRegistrationRequest, ...grpc.CallOption) (*v1beta4.QueryRegistrationResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *v1beta4.QueryRegistrationRequest, ...grpc.CallOption) *v1beta4.QueryRegistrationResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1beta4.QueryRegistrationResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *v1beta4.QueryRegistrationRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// QueryClient_Registration_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Registration'
+type QueryClient_Registration_Call struct {
+	*mock.Call
+}
+
+// Registration is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *v1beta4.QueryRegistrationRequest
+//   - opts ...grpc.CallOption
+func (_e *QueryClient_Expecter) Registration(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_Registration_Call {
+	return &QueryClient_Registration_Call{Call: _e.mock.On("Registration",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *QueryClient_Registration_Call) Run(run func(ctx context.Context, in *v1beta4.QueryRegistrationRequest, opts ...grpc.CallOption)) *QueryClient_Registration_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*v1beta4.QueryRegistrationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *QueryClient_Registration_Call) Return(_a0 *v1beta4.QueryRegistrationResponse, _a1 error) *QueryClient_Registration_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *QueryClient_Registration_Call) RunAndReturn(run func(context.Context, *v1beta4.QueryRegistrationRequest, ...grpc.CallOption) (*v1beta4.QueryRegistrationResponse, error)) *QueryClient_Registration_Call {
 	_c.Call.Return(run)
 	return _c
 }

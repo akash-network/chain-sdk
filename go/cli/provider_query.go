@@ -22,6 +22,8 @@ func GetQueryProviderCmds() *cobra.Command {
 	cmd.AddCommand(
 		GetQueryProvidersCmd(),
 		GetQueryProviderCmd(),
+		GetQueryProviderMaintenancesCmd(),
+		GetQueryProviderMaintenanceCmd(),
 	)
 
 	return cmd

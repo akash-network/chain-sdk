@@ -10,7 +10,14 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import Long from "long";
 import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
-import { Provider } from "./provider.ts";
+import {
+  ProviderMaintenanceStatus,
+  providerMaintenanceStatusFromJSON,
+  providerMaintenanceStatusToJSON,
+  ProviderMaintenanceWithStatus,
+} from "./maintenance.ts";
+import { ProviderMaintenanceParams } from "./params.ts";
+import { Provider, ProviderRegistration } from "./provider.ts";
 
 /** QueryProvidersRequest is request type for the Query/Providers RPC method */
 export interface QueryProvidersRequest {
@@ -42,6 +49,96 @@ export interface QueryProviderRequest {
 export interface QueryProviderResponse {
   /** Provider holds the representation of a provider on the network. */
   provider: Provider | undefined;
+}
+
+/**
+ * QueryProviderMaintenanceRequest is the request type for the
+ * Query/ProviderMaintenance RPC method.
+ */
+export interface QueryProviderMaintenanceRequest {
+  /**
+   * provider is the bech32 address of the provider whose maintenance record
+   * is being looked up.
+   *
+   * Example:
+   *   "akash1..."
+   */
+  provider: string;
+  /** maintenance_id is the identifier of the maintenance record. */
+  maintenanceId: Long;
+}
+
+/**
+ * QueryProviderMaintenanceResponse is the response type for the
+ * Query/ProviderMaintenance RPC method.
+ */
+export interface QueryProviderMaintenanceResponse {
+  /** maintenance is the requested maintenance record. */
+  maintenance: ProviderMaintenanceWithStatus | undefined;
+}
+
+/**
+ * QueryProviderMaintenancesRequest is the request type for the
+ * Query/ProviderMaintenances RPC method.
+ */
+export interface QueryProviderMaintenancesRequest {
+  /**
+   * provider is the bech32 address of the provider whose maintenance records
+   * are being listed.
+   *
+   * Example:
+   *   "akash1..."
+   */
+  provider: string;
+  /** status_filter optionally restricts the results by status. */
+  statusFilter: ProviderMaintenanceStatus;
+  /** pagination is used to paginate the request. */
+  pagination: PageRequest | undefined;
+}
+
+/**
+ * QueryProviderMaintenancesResponse is the response type for the
+ * Query/ProviderMaintenances RPC method.
+ */
+export interface QueryProviderMaintenancesResponse {
+  /** maintenance is the list of records matching the request. */
+  maintenance: ProviderMaintenanceWithStatus[];
+  /** pagination contains the information about response pagination. */
+  pagination: PageResponse | undefined;
+}
+
+/** QueryParamsRequest is the request type for the Query/Params RPC method. */
+export interface QueryParamsRequest {
+}
+
+/** QueryParamsResponse is the response type for the Query/Params RPC method. */
+export interface QueryParamsResponse {
+  /** params defines the parameters of the x/provider module. */
+  params: ProviderMaintenanceParams | undefined;
+}
+
+/**
+ * QueryRegistrationRequest is the request type for the Query/Registration RPC
+ * method.
+ */
+export interface QueryRegistrationRequest {
+  /**
+   * provider is the bech32 address of the provider whose registration record
+   * is being looked up.
+   *
+   * Example:
+   *   "akash1..."
+   */
+  provider: string;
+}
+
+/**
+ * QueryRegistrationResponse is the response type for the Query/Registration
+ * RPC method.
+ */
+export interface QueryRegistrationResponse {
+  /** registration is the provider registration record. */
+  registration: ProviderRegistration | undefined;
 }
 
 function createBaseQueryProvidersRequest(): QueryProvidersRequest {
@@ -298,6 +395,545 @@ export const QueryProviderResponse: MessageFns<QueryProviderResponse, "akash.pro
       return message;
     },
   };
+
+function createBaseQueryProviderMaintenanceRequest(): QueryProviderMaintenanceRequest {
+  return { provider: "", maintenanceId: Long.UZERO };
+}
+
+export const QueryProviderMaintenanceRequest: MessageFns<
+  QueryProviderMaintenanceRequest,
+  "akash.provider.v1beta4.QueryProviderMaintenanceRequest"
+> = {
+  $type: "akash.provider.v1beta4.QueryProviderMaintenanceRequest" as const,
+
+  encode(message: QueryProviderMaintenanceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.provider !== "") {
+      writer.uint32(10).string(message.provider);
+    }
+    if (!message.maintenanceId.equals(Long.UZERO)) {
+      writer.uint32(16).uint64(message.maintenanceId.toString());
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryProviderMaintenanceRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryProviderMaintenanceRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.provider = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.maintenanceId = Long.fromString(reader.uint64().toString(), true);
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryProviderMaintenanceRequest {
+    return {
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      maintenanceId: isSet(object.maintenance_id) ? Long.fromValue(object.maintenance_id) : Long.UZERO,
+    };
+  },
+
+  toJSON(message: QueryProviderMaintenanceRequest): unknown {
+    const obj: any = {};
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    if (!message.maintenanceId.equals(Long.UZERO)) {
+      obj.maintenance_id = (message.maintenanceId || Long.UZERO).toString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryProviderMaintenanceRequest>): QueryProviderMaintenanceRequest {
+    const message = createBaseQueryProviderMaintenanceRequest();
+    message.provider = object.provider ?? "";
+    message.maintenanceId = (object.maintenanceId !== undefined && object.maintenanceId !== null)
+      ? Long.fromValue(object.maintenanceId)
+      : Long.UZERO;
+    return message;
+  },
+};
+
+function createBaseQueryProviderMaintenanceResponse(): QueryProviderMaintenanceResponse {
+  return { maintenance: undefined };
+}
+
+export const QueryProviderMaintenanceResponse: MessageFns<
+  QueryProviderMaintenanceResponse,
+  "akash.provider.v1beta4.QueryProviderMaintenanceResponse"
+> = {
+  $type: "akash.provider.v1beta4.QueryProviderMaintenanceResponse" as const,
+
+  encode(message: QueryProviderMaintenanceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.maintenance !== undefined) {
+      ProviderMaintenanceWithStatus.encode(message.maintenance, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryProviderMaintenanceResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryProviderMaintenanceResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.maintenance = ProviderMaintenanceWithStatus.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryProviderMaintenanceResponse {
+    return {
+      maintenance: isSet(object.maintenance) ? ProviderMaintenanceWithStatus.fromJSON(object.maintenance) : undefined,
+    };
+  },
+
+  toJSON(message: QueryProviderMaintenanceResponse): unknown {
+    const obj: any = {};
+    if (message.maintenance !== undefined) {
+      obj.maintenance = ProviderMaintenanceWithStatus.toJSON(message.maintenance);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryProviderMaintenanceResponse>): QueryProviderMaintenanceResponse {
+    const message = createBaseQueryProviderMaintenanceResponse();
+    message.maintenance = (object.maintenance !== undefined && object.maintenance !== null)
+      ? ProviderMaintenanceWithStatus.fromPartial(object.maintenance)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryProviderMaintenancesRequest(): QueryProviderMaintenancesRequest {
+  return { provider: "", statusFilter: 0, pagination: undefined };
+}
+
+export const QueryProviderMaintenancesRequest: MessageFns<
+  QueryProviderMaintenancesRequest,
+  "akash.provider.v1beta4.QueryProviderMaintenancesRequest"
+> = {
+  $type: "akash.provider.v1beta4.QueryProviderMaintenancesRequest" as const,
+
+  encode(message: QueryProviderMaintenancesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.provider !== "") {
+      writer.uint32(10).string(message.provider);
+    }
+    if (message.statusFilter !== 0) {
+      writer.uint32(16).int32(message.statusFilter);
+    }
+    if (message.pagination !== undefined) {
+      PageRequest.encode(message.pagination, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryProviderMaintenancesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryProviderMaintenancesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.provider = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.statusFilter = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.pagination = PageRequest.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryProviderMaintenancesRequest {
+    return {
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      statusFilter: isSet(object.status_filter) ? providerMaintenanceStatusFromJSON(object.status_filter) : 0,
+      pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryProviderMaintenancesRequest): unknown {
+    const obj: any = {};
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    if (message.statusFilter !== 0) {
+      obj.status_filter = providerMaintenanceStatusToJSON(message.statusFilter);
+    }
+    if (message.pagination !== undefined) {
+      obj.pagination = PageRequest.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryProviderMaintenancesRequest>): QueryProviderMaintenancesRequest {
+    const message = createBaseQueryProviderMaintenancesRequest();
+    message.provider = object.provider ?? "";
+    message.statusFilter = object.statusFilter ?? 0;
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageRequest.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryProviderMaintenancesResponse(): QueryProviderMaintenancesResponse {
+  return { maintenance: [], pagination: undefined };
+}
+
+export const QueryProviderMaintenancesResponse: MessageFns<
+  QueryProviderMaintenancesResponse,
+  "akash.provider.v1beta4.QueryProviderMaintenancesResponse"
+> = {
+  $type: "akash.provider.v1beta4.QueryProviderMaintenancesResponse" as const,
+
+  encode(message: QueryProviderMaintenancesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.maintenance) {
+      ProviderMaintenanceWithStatus.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryProviderMaintenancesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryProviderMaintenancesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.maintenance.push(ProviderMaintenanceWithStatus.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.pagination = PageResponse.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryProviderMaintenancesResponse {
+    return {
+      maintenance: globalThis.Array.isArray(object?.maintenance)
+        ? object.maintenance.map((e: any) => ProviderMaintenanceWithStatus.fromJSON(e))
+        : [],
+      pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryProviderMaintenancesResponse): unknown {
+    const obj: any = {};
+    if (message.maintenance?.length) {
+      obj.maintenance = message.maintenance.map((e) => ProviderMaintenanceWithStatus.toJSON(e));
+    }
+    if (message.pagination !== undefined) {
+      obj.pagination = PageResponse.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryProviderMaintenancesResponse>): QueryProviderMaintenancesResponse {
+    const message = createBaseQueryProviderMaintenancesResponse();
+    message.maintenance = object.maintenance?.map((e) => ProviderMaintenanceWithStatus.fromPartial(e)) || [];
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageResponse.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryParamsRequest(): QueryParamsRequest {
+  return {};
+}
+
+export const QueryParamsRequest: MessageFns<QueryParamsRequest, "akash.provider.v1beta4.QueryParamsRequest"> = {
+  $type: "akash.provider.v1beta4.QueryParamsRequest" as const,
+
+  encode(_: QueryParamsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryParamsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryParamsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): QueryParamsRequest {
+    return {};
+  },
+
+  toJSON(_: QueryParamsRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+  fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
+    const message = createBaseQueryParamsRequest();
+    return message;
+  },
+};
+
+function createBaseQueryParamsResponse(): QueryParamsResponse {
+  return { params: undefined };
+}
+
+export const QueryParamsResponse: MessageFns<QueryParamsResponse, "akash.provider.v1beta4.QueryParamsResponse"> = {
+  $type: "akash.provider.v1beta4.QueryParamsResponse" as const,
+
+  encode(message: QueryParamsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.params !== undefined) {
+      ProviderMaintenanceParams.encode(message.params, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryParamsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryParamsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.params = ProviderMaintenanceParams.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryParamsResponse {
+    return { params: isSet(object.params) ? ProviderMaintenanceParams.fromJSON(object.params) : undefined };
+  },
+
+  toJSON(message: QueryParamsResponse): unknown {
+    const obj: any = {};
+    if (message.params !== undefined) {
+      obj.params = ProviderMaintenanceParams.toJSON(message.params);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
+    const message = createBaseQueryParamsResponse();
+    message.params = (object.params !== undefined && object.params !== null)
+      ? ProviderMaintenanceParams.fromPartial(object.params)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryRegistrationRequest(): QueryRegistrationRequest {
+  return { provider: "" };
+}
+
+export const QueryRegistrationRequest: MessageFns<
+  QueryRegistrationRequest,
+  "akash.provider.v1beta4.QueryRegistrationRequest"
+> = {
+  $type: "akash.provider.v1beta4.QueryRegistrationRequest" as const,
+
+  encode(message: QueryRegistrationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.provider !== "") {
+      writer.uint32(10).string(message.provider);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryRegistrationRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryRegistrationRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.provider = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryRegistrationRequest {
+    return { provider: isSet(object.provider) ? globalThis.String(object.provider) : "" };
+  },
+
+  toJSON(message: QueryRegistrationRequest): unknown {
+    const obj: any = {};
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryRegistrationRequest>): QueryRegistrationRequest {
+    const message = createBaseQueryRegistrationRequest();
+    message.provider = object.provider ?? "";
+    return message;
+  },
+};
+
+function createBaseQueryRegistrationResponse(): QueryRegistrationResponse {
+  return { registration: undefined };
+}
+
+export const QueryRegistrationResponse: MessageFns<
+  QueryRegistrationResponse,
+  "akash.provider.v1beta4.QueryRegistrationResponse"
+> = {
+  $type: "akash.provider.v1beta4.QueryRegistrationResponse" as const,
+
+  encode(message: QueryRegistrationResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.registration !== undefined) {
+      ProviderRegistration.encode(message.registration, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryRegistrationResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryRegistrationResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.registration = ProviderRegistration.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryRegistrationResponse {
+    return {
+      registration: isSet(object.registration) ? ProviderRegistration.fromJSON(object.registration) : undefined,
+    };
+  },
+
+  toJSON(message: QueryRegistrationResponse): unknown {
+    const obj: any = {};
+    if (message.registration !== undefined) {
+      obj.registration = ProviderRegistration.toJSON(message.registration);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryRegistrationResponse>): QueryRegistrationResponse {
+    const message = createBaseQueryRegistrationResponse();
+    message.registration = (object.registration !== undefined && object.registration !== null)
+      ? ProviderRegistration.fromPartial(object.registration)
+      : undefined;
+    return message;
+  },
+};
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 

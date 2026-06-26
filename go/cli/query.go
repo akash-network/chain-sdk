@@ -75,6 +75,7 @@ func QueryCmd() *cobra.Command {
 		GetQueryMarketCmds(),
 		GetQueryEscrowCmd(),
 		GetQueryProviderCmds(),
+		GetQueryVerificationCmd(),
 		GetQueryWasmCmd(),
 		GetQueryOracleCmd(),
 		GetQueryBMECmd(),
