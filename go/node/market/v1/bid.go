@@ -69,11 +69,5 @@ func (id BidID) Validate() error {
 		return sdkerrors.ErrConflict.Wrap("BidID: self-bid")
 	}
 
-	// BSeq is hardcoded to 0 for now. This will be lifted
-	// once multiple bids support enable
-	if id.BSeq != 0 {
-		return sdkerrors.ErrConflict.Wrap("BidID: invalid bseq")
-	}
-
 	return nil
 }

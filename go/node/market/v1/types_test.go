@@ -1,9 +1,13 @@
 package v1
 
 import (
+	"bytes"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	dtypes "pkg.akt.dev/go/node/deployment/v1"
 )
 
 func TestLeaseClosedReasonRanges(t *testing.T) {
@@ -62,4 +66,17 @@ func TestLeaseClosedReasonRanges(t *testing.T) {
 			require.Equal(t, tc.expectedNetwork, isNetwork, "network range check for %d", tc.reason)
 		})
 	}
+}
+
+func TestBidIDValidateAllowsNonzeroBSeq(t *testing.T) {
+	owner := sdk.AccAddress(bytes.Repeat([]byte{1}, 20))
+	provider := sdk.AccAddress(bytes.Repeat([]byte{2}, 20))
+	orderID := MakeOrderID(dtypes.MakeGroupID(dtypes.DeploymentID{
+		Owner: owner.String(),
+		DSeq:  1,
+	}, 1), 1)
+	bidID := MakeBidID(orderID, provider)
+	bidID.BSeq = 2
+
+	require.NoError(t, bidID.Validate())
 }
