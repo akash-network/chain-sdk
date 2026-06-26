@@ -22,3 +22,15 @@ attributes:
 	require.Equal(t, "arch", p.Attributes[0].Key)
 	require.Equal(t, "amd64", p.Attributes[0].Value)
 }
+
+func TestV2ResourceCPU_NoArch(t *testing.T) {
+	var stream = `
+units: 0.1
+`
+	var p v2ResourceCPU
+
+	err := yaml.Unmarshal([]byte(stream), &p)
+	require.NoError(t, err)
+	require.Equal(t, cpuQuantity(100), p.Units)
+	require.Equal(t, 0, len(p.Attributes))
+}
