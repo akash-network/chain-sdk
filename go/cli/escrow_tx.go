@@ -30,8 +30,14 @@ func GetTxEscrowCmd() *cobra.Command {
 
 func GetTxEscrowDeposit() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "deposit [deployment] [amount]",
-		Short:             "deposit funds to escrow account",
+		Use:   "deposit [deployment] [amount]",
+		Short: "deposit funds to escrow account",
+		Long: `Deposit funds to a deployment's escrow account.
+
+The escrow account is derived from --owner (defaulting to the signer) and
+--dseq. To deposit into a deployment owned by another account, pass that
+account's address with --owner; otherwise the deposit targets the signer's
+own (possibly non-existent) escrow account.`,
 		Args:              cobra.ExactArgs(2),
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
