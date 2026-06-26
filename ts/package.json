@@ -40,7 +40,7 @@
     "test:functional": "vitest run --project functional",
     "test:unit": "vitest run --project unit",
     "test:sdk-compatibility": "vitest run --project functional sdl-parity.spec.ts",
-    "compile:validators": "node --experimental-strip-types --no-warnings ./script/compile-json-schema-to-ts.ts",
+    "compile:validators": "node ./script/compile-json-schema-to-ts.ts",
     "release": "npm run build && npm test && npm publish --tag alpha"
   },
   "lint-staged": {
@@ -100,7 +100,7 @@
     "typescript-eslint": "~8.59.4"
   },
   "engines": {
-    "node": ">=22.14.0 <25"
+    "node": ">=22.18.0 <25"
   },
   "volta": {
     "node": "24.14.1",
