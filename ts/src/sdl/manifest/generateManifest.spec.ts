@@ -686,6 +686,7 @@ describe(generateManifest.name, () => {
       expect(httpOptions?.nextTries).toBe(24);
       expect(httpOptions?.nextTimeout).toBe(48);
       expect(httpOptions?.nextCases).toEqual(["500"]);
+      expect(httpOptions?.proxyBufferSize).toBe(16384);
     });
 
     it("handles accept hosts", () => {
