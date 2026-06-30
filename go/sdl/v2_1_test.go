@@ -119,21 +119,23 @@ func TestV2_1_ParseSimpleGPU(t *testing.T) {
 				Expose: []manifest.ServiceExpose{
 					{Port: 80, Global: true, Proto: manifest.TCP, Hosts: expectedHosts,
 						HTTPOptions: manifest.ServiceExposeHTTPOptions{
-							MaxBodySize: 1048576,
-							ReadTimeout: 60000,
-							SendTimeout: 60000,
-							NextTries:   3,
-							NextTimeout: 0,
-							NextCases:   []string{"error", "timeout"},
+							MaxBodySize:     1048576,
+							ProxyBufferSize: 16384,
+							ReadTimeout:     60000,
+							SendTimeout:     60000,
+							NextTries:       3,
+							NextTimeout:     0,
+							NextCases:       []string{"error", "timeout"},
 						}},
 					{Port: 12345, Global: true, Proto: manifest.UDP,
 						HTTPOptions: manifest.ServiceExposeHTTPOptions{
-							MaxBodySize: 1048576,
-							ReadTimeout: 60000,
-							SendTimeout: 60000,
-							NextTries:   3,
-							NextTimeout: 0,
-							NextCases:   []string{"error", "timeout"},
+							MaxBodySize:     1048576,
+							ProxyBufferSize: 16384,
+							ReadTimeout:     60000,
+							SendTimeout:     60000,
+							NextTries:       3,
+							NextTimeout:     0,
+							NextCases:       []string{"error", "timeout"},
 						}},
 				},
 			},
@@ -312,21 +314,23 @@ func Test_V2_1_Parse_simple(t *testing.T) {
 				Expose: []manifest.ServiceExpose{
 					{Port: 80, Global: true, Proto: manifest.TCP, Hosts: expectedHosts,
 						HTTPOptions: manifest.ServiceExposeHTTPOptions{
-							MaxBodySize: 1048576,
-							ReadTimeout: 60000,
-							SendTimeout: 60000,
-							NextTries:   3,
-							NextTimeout: 0,
-							NextCases:   []string{"error", "timeout"},
+							MaxBodySize:     1048576,
+							ProxyBufferSize: 16384,
+							ReadTimeout:     60000,
+							SendTimeout:     60000,
+							NextTries:       3,
+							NextTimeout:     0,
+							NextCases:       []string{"error", "timeout"},
 						}},
 					{Port: 12345, Global: true, Proto: manifest.UDP,
 						HTTPOptions: manifest.ServiceExposeHTTPOptions{
-							MaxBodySize: 1048576,
-							ReadTimeout: 60000,
-							SendTimeout: 60000,
-							NextTries:   3,
-							NextTimeout: 0,
-							NextCases:   []string{"error", "timeout"},
+							MaxBodySize:     1048576,
+							ProxyBufferSize: 16384,
+							ReadTimeout:     60000,
+							SendTimeout:     60000,
+							NextTries:       3,
+							NextTimeout:     0,
+							NextCases:       []string{"error", "timeout"},
 						}},
 				},
 			},
@@ -793,7 +797,6 @@ func TestV2_1_TEE_CPUGPU(t *testing.T) {
 	require.NotNil(t, svc.Resources.GPU)
 	assert.Equal(t, uint64(1), svc.Resources.GPU.Units.Value())
 }
-
 
 func TestV2_1_TEE_InvalidType(t *testing.T) {
 	stream := `

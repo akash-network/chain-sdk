@@ -409,6 +409,11 @@ properties:
                       next_tries:
                         type: integer
                         minimum: 0
+                      proxy_buffer_size:
+                        type: integer
+                        minimum: 0
+                        maximum: 1048576
+                        description: NGINX upstream response header buffer size in bytes (max 1 MB)
                       read_timeout:
                         type: integer
                         minimum: 0
