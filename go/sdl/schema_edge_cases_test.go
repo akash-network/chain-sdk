@@ -46,6 +46,38 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 			reason:    "Should reject > 100 MB",
 		},
 		{
+			name: "proxy_buffer_size_within_limit",
+			builder: sdlTestBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          proxy_buffer_size: 16384
+        to:
+          - global: true`},
+			shouldErr: false,
+		},
+		{
+			name: "proxy_buffer_size_at_upper_limit",
+			builder: sdlTestBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          proxy_buffer_size: 1048576
+        to:
+          - global: true`},
+			shouldErr: false,
+			reason:    "1 MB should be accepted",
+		},
+		{
+			name: "proxy_buffer_size_exceeds_limit",
+			builder: sdlTestBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          proxy_buffer_size: 1048577
+        to:
+          - global: true`},
+			shouldErr: true,
+			reason:    "Should reject > 1 MB",
+		},
+		{
 			name: "read_timeout_within_limit",
 			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
@@ -104,6 +136,17 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
       - port: 80
         http_options:
           read_timeout: -1
+        to:
+          - global: true`},
+			shouldErr: true,
+			reason:    "Negative values should be rejected",
+		},
+		{
+			name: "negative_proxy_buffer_size",
+			builder: sdlTestBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          proxy_buffer_size: -1
         to:
           - global: true`},
 			shouldErr: true,

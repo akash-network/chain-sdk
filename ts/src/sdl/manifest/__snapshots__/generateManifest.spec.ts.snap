@@ -140,7 +140,8 @@ exports[`generateManifest > fixture file tests > GPU basic > generates manifest 
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           },
           {
@@ -155,7 +156,8 @@ exports[`generateManifest > fixture file tests > GPU basic > generates manifest 
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ]
@@ -305,7 +307,8 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM > generates 
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           },
           {
@@ -320,7 +323,8 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM > generates 
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ]
@@ -470,7 +474,8 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM and interfac
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           },
           {
@@ -485,7 +490,8 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM and interfac
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ]
@@ -623,7 +629,8 @@ exports[`generateManifest > fixture file tests > GPU without GPU (units=0) > gen
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           },
           {
@@ -638,7 +645,8 @@ exports[`generateManifest > fixture file tests > GPU without GPU (units=0) > gen
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ]
@@ -788,7 +796,8 @@ exports[`generateManifest > fixture file tests > GPU without model > generates m
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           },
           {
@@ -803,7 +812,8 @@ exports[`generateManifest > fixture file tests > GPU without model > generates m
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ]
@@ -922,7 +932,8 @@ exports[`generateManifest > fixture file tests > IP lease > generates manifest (
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             },
             "ip": "myendpoint",
             "endpoint_sequence_number": 1
@@ -1187,7 +1198,8 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           },
           {
@@ -1202,7 +1214,8 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ],
@@ -1287,7 +1300,8 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ],
@@ -1494,7 +1508,8 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           },
           {
@@ -1509,7 +1524,8 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ],
@@ -1590,7 +1606,8 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
               "next_cases": [
                 "error",
                 "timeout"
-              ]
+              ],
+              "proxy_buffer_size": 16384
             }
           }
         ],

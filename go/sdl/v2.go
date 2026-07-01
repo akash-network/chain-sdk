@@ -18,24 +18,26 @@ import (
 )
 
 const (
-	nextCaseError         = "error"
-	nextCaseTimeout       = "timeout"
-	nextCase500           = "500"
-	nextCase502           = "502"
-	nextCase503           = "503"
-	nextCase504           = "504"
-	nextCase403           = "403"
-	nextCase404           = "404"
-	nextCase400           = "429"
-	nextCaseOff           = "off"
-	defaultMaxBodySize    = uint32(1048576)
-	upperLimitBodySize    = uint32(104857600)
-	defaultReadTimeout    = uint32(60000)
-	upperLimitReadTimeout = defaultReadTimeout
-	defaultSendTimeout    = uint32(60000)
-	upperLimitSendTimeout = defaultSendTimeout
-	defaultNextTries      = uint32(3)
-	endpointKindIP        = "ip"
+	nextCaseError             = "error"
+	nextCaseTimeout           = "timeout"
+	nextCase500               = "500"
+	nextCase502               = "502"
+	nextCase503               = "503"
+	nextCase504               = "504"
+	nextCase403               = "403"
+	nextCase404               = "404"
+	nextCase400               = "429"
+	nextCaseOff               = "off"
+	defaultMaxBodySize        = uint32(1048576)
+	upperLimitBodySize        = uint32(104857600)
+	defaultProxyBufferSize    = uint32(16384)
+	upperLimitProxyBufferSize = uint32(1048576)
+	defaultReadTimeout        = uint32(60000)
+	upperLimitReadTimeout     = defaultReadTimeout
+	defaultSendTimeout        = uint32(60000)
+	upperLimitSendTimeout     = defaultSendTimeout
+	defaultNextTries          = uint32(3)
+	endpointKindIP            = "ip"
 )
 
 var (
@@ -81,12 +83,13 @@ type v2ExposeTo struct {
 }
 
 type v2HTTPOptions struct {
-	MaxBodySize uint32   `yaml:"max_body_size"`
-	ReadTimeout uint32   `yaml:"read_timeout"`
-	SendTimeout uint32   `yaml:"send_timeout"`
-	NextTries   uint32   `yaml:"next_tries"`
-	NextTimeout uint32   `yaml:"next_timeout"`
-	NextCases   []string `yaml:"next_cases"`
+	MaxBodySize     uint32   `yaml:"max_body_size"`
+	ProxyBufferSize uint32   `yaml:"proxy_buffer_size"`
+	ReadTimeout     uint32   `yaml:"read_timeout"`
+	SendTimeout     uint32   `yaml:"send_timeout"`
+	NextTries       uint32   `yaml:"next_tries"`
+	NextTimeout     uint32   `yaml:"next_timeout"`
+	NextCases       []string `yaml:"next_cases"`
 }
 
 func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) {
@@ -96,6 +99,13 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		maxBodySize = defaultMaxBodySize
 	} else if maxBodySize > upperLimitBodySize {
 		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: body size cannot be greater than %d bytes", errHTTPOptionNotAllowed, upperLimitBodySize)
+	}
+
+	proxyBufferSize := ho.ProxyBufferSize
+	if proxyBufferSize == 0 {
+		proxyBufferSize = defaultProxyBufferSize
+	} else if proxyBufferSize > upperLimitProxyBufferSize {
+		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: proxy buffer size cannot be greater than %d bytes", errHTTPOptionNotAllowed, upperLimitProxyBufferSize)
 	}
 
 	readTimeout := ho.ReadTimeout
@@ -143,12 +153,13 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 	}
 
 	return manifest.ServiceExposeHTTPOptions{
-		MaxBodySize: maxBodySize,
-		ReadTimeout: readTimeout,
-		SendTimeout: sendTimeout,
-		NextTries:   nextTries,
-		NextTimeout: ho.NextTimeout,
-		NextCases:   nextCases,
+		MaxBodySize:     maxBodySize,
+		ProxyBufferSize: proxyBufferSize,
+		ReadTimeout:     readTimeout,
+		SendTimeout:     sendTimeout,
+		NextTries:       nextTries,
+		NextTimeout:     ho.NextTimeout,
+		NextCases:       nextCases,
 	}, nil
 }
 

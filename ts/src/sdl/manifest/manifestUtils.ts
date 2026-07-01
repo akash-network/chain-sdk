@@ -82,6 +82,7 @@ export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTT
     nextTries: httpOptions?.next_tries ?? 3,
     nextTimeout: httpOptions?.next_timeout ?? 0,
     nextCases: httpOptions?.next_cases ?? ["error", "timeout"],
+    proxyBufferSize: httpOptions?.proxy_buffer_size ?? 16384,
   });
 }
 

@@ -55,6 +55,7 @@ export type v2ServiceExposeHttpOptions = {
   NextTries: number;
   NextTimeout: number;
   NextCases: string[];
+  ProxyBufferSize: number;
 };
 
 /** @deprecated Use `Manifest[number]['services'][number]['expose'][number]['httpOptions']` type instead. */
@@ -65,6 +66,7 @@ export type v3ServiceExposeHttpOptions = {
   nextTries: number;
   nextTimeout: number;
   nextCases: string[];
+  proxyBufferSize: number;
 };
 
 /** @deprecated will be removed in favor of `Manifest` type. */
@@ -152,6 +154,7 @@ export type v2HTTPOptions = {
   next_tries: number;
   next_timeout: number;
   next_cases: string[];
+  proxy_buffer_size: number;
 };
 
 /** @deprecated will be removed in favor of `SDLInput` and `Manifest` types. */
