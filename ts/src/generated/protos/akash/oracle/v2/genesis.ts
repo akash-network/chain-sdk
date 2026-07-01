@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Params } from "./params.ts";
 import { PriceData, PriceDataID, PriceLatestDataState } from "./prices.ts";
 
@@ -43,7 +42,7 @@ export interface GenesisState {
   /** source_ids is the list of oracle source address-to-ID mappings */
   sourceIds: GenesisSourceID[];
   /** source_seq is the next available source identifier sequence number */
-  sourceSeq: Long;
+  sourceSeq: bigint;
 }
 
 function createBaseGenesisSourceID(): GenesisSourceID {
@@ -197,7 +196,7 @@ export const GenesisLatestPricesIDs: MessageFns<GenesisLatestPricesIDs, "akash.o
 };
 
 function createBaseGenesisState(): GenesisState {
-  return { params: undefined, prices: [], latestPricesIds: [], sourceIds: [], sourceSeq: Long.UZERO };
+  return { params: undefined, prices: [], latestPricesIds: [], sourceIds: [], sourceSeq: 0n };
 }
 
 export const GenesisState: MessageFns<GenesisState, "akash.oracle.v2.GenesisState"> = {
@@ -216,8 +215,11 @@ export const GenesisState: MessageFns<GenesisState, "akash.oracle.v2.GenesisStat
     for (const v of message.sourceIds) {
       GenesisSourceID.encode(v!, writer.uint32(34).fork()).join();
     }
-    if (!message.sourceSeq.equals(Long.UZERO)) {
-      writer.uint32(40).uint64(message.sourceSeq.toString());
+    if (message.sourceSeq !== 0n) {
+      if (BigInt.asUintN(64, message.sourceSeq) !== message.sourceSeq) {
+        throw new globalThis.Error("value provided for field message.sourceSeq of type uint64 too large");
+      }
+      writer.uint32(40).uint64(message.sourceSeq);
     }
     return writer;
   },
@@ -266,7 +268,7 @@ export const GenesisState: MessageFns<GenesisState, "akash.oracle.v2.GenesisStat
             break;
           }
 
-          message.sourceSeq = Long.fromString(reader.uint64().toString(), true);
+          message.sourceSeq = reader.uint64() as bigint;
           continue;
         }
       }
@@ -288,7 +290,7 @@ export const GenesisState: MessageFns<GenesisState, "akash.oracle.v2.GenesisStat
       sourceIds: globalThis.Array.isArray(object?.source_ids)
         ? object.source_ids.map((e: any) => GenesisSourceID.fromJSON(e))
         : [],
-      sourceSeq: isSet(object.source_seq) ? Long.fromValue(object.source_seq) : Long.UZERO,
+      sourceSeq: isSet(object.source_seq) ? BigInt(object.source_seq) : 0n,
     };
   },
 
@@ -306,8 +308,8 @@ export const GenesisState: MessageFns<GenesisState, "akash.oracle.v2.GenesisStat
     if (message.sourceIds?.length) {
       obj.source_ids = message.sourceIds.map((e) => GenesisSourceID.toJSON(e));
     }
-    if (!message.sourceSeq.equals(Long.UZERO)) {
-      obj.source_seq = (message.sourceSeq || Long.UZERO).toString();
+    if (message.sourceSeq !== 0n) {
+      obj.source_seq = message.sourceSeq.toString();
     }
     return obj;
   },
@@ -319,17 +321,15 @@ export const GenesisState: MessageFns<GenesisState, "akash.oracle.v2.GenesisStat
     message.prices = object.prices?.map((e) => PriceData.fromPartial(e)) || [];
     message.latestPricesIds = object.latestPricesIds?.map((e) => GenesisLatestPricesIDs.fromPartial(e)) || [];
     message.sourceIds = object.sourceIds?.map((e) => GenesisSourceID.fromPartial(e)) || [];
-    message.sourceSeq = (object.sourceSeq !== undefined && object.sourceSeq !== null)
-      ? Long.fromValue(object.sourceSeq)
-      : Long.UZERO;
+    message.sourceSeq = (object.sourceSeq !== undefined && object.sourceSeq !== null) ? BigInt(object.sourceSeq) : 0n;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

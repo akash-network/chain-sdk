@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { RequestFinalizeBlock, ResponseCommit, ResponseFinalizeBlock } from "../../../../tendermint/abci/types.ts";
 import { StoreKVPair } from "../../v1beta1/listening.ts";
 
@@ -25,7 +24,7 @@ export interface ListenFinalizeBlockResponse {
 /** ListenCommitRequest is the request type for the ListenCommit RPC method */
 export interface ListenCommitRequest {
   /** explicitly pass in block height as ResponseCommit does not contain this info */
-  blockHeight: Long;
+  blockHeight: bigint;
   res: ResponseCommit | undefined;
   changeSet: StoreKVPair[];
 }
@@ -160,15 +159,18 @@ export const ListenFinalizeBlockResponse: MessageFns<
 };
 
 function createBaseListenCommitRequest(): ListenCommitRequest {
-  return { blockHeight: Long.ZERO, res: undefined, changeSet: [] };
+  return { blockHeight: 0n, res: undefined, changeSet: [] };
 }
 
 export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.streaming.abci.ListenCommitRequest"> = {
   $type: "cosmos.store.streaming.abci.ListenCommitRequest" as const,
 
   encode(message: ListenCommitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.blockHeight.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.blockHeight.toString());
+    if (message.blockHeight !== 0n) {
+      if (BigInt.asIntN(64, message.blockHeight) !== message.blockHeight) {
+        throw new globalThis.Error("value provided for field message.blockHeight of type int64 too large");
+      }
+      writer.uint32(8).int64(message.blockHeight);
     }
     if (message.res !== undefined) {
       ResponseCommit.encode(message.res, writer.uint32(18).fork()).join();
@@ -191,7 +193,7 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
             break;
           }
 
-          message.blockHeight = Long.fromString(reader.int64().toString());
+          message.blockHeight = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -221,7 +223,7 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
 
   fromJSON(object: any): ListenCommitRequest {
     return {
-      blockHeight: isSet(object.block_height) ? Long.fromValue(object.block_height) : Long.ZERO,
+      blockHeight: isSet(object.block_height) ? BigInt(object.block_height) : 0n,
       res: isSet(object.res) ? ResponseCommit.fromJSON(object.res) : undefined,
       changeSet: globalThis.Array.isArray(object?.change_set)
         ? object.change_set.map((e: any) => StoreKVPair.fromJSON(e))
@@ -231,8 +233,8 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
 
   toJSON(message: ListenCommitRequest): unknown {
     const obj: any = {};
-    if (!message.blockHeight.equals(Long.ZERO)) {
-      obj.block_height = (message.blockHeight || Long.ZERO).toString();
+    if (message.blockHeight !== 0n) {
+      obj.block_height = message.blockHeight.toString();
     }
     if (message.res !== undefined) {
       obj.res = ResponseCommit.toJSON(message.res);
@@ -244,9 +246,7 @@ export const ListenCommitRequest: MessageFns<ListenCommitRequest, "cosmos.store.
   },
   fromPartial(object: DeepPartial<ListenCommitRequest>): ListenCommitRequest {
     const message = createBaseListenCommitRequest();
-    message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null)
-      ? Long.fromValue(object.blockHeight)
-      : Long.ZERO;
+    message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null) ? BigInt(object.blockHeight) : 0n;
     message.res = (object.res !== undefined && object.res !== null)
       ? ResponseCommit.fromPartial(object.res)
       : undefined;
@@ -299,10 +299,10 @@ export const ListenCommitResponse: MessageFns<
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

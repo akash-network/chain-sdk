@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { GroupID } from "../v1/group.ts";
 import { GroupSpec } from "./groupspec.ts";
 
@@ -25,7 +24,7 @@ export interface Group {
     | GroupSpec
     | undefined;
   /** CreatedAt is the block height at which the deployment was created. */
-  createdAt: Long;
+  createdAt: bigint;
 }
 
 /** State is an enum which refers to state of group. */
@@ -86,7 +85,7 @@ export function group_StateToJSON(object: Group_State): string {
 }
 
 function createBaseGroup(): Group {
-  return { id: undefined, state: 0, groupSpec: undefined, createdAt: Long.ZERO };
+  return { id: undefined, state: 0, groupSpec: undefined, createdAt: 0n };
 }
 
 export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
@@ -102,8 +101,11 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     if (message.groupSpec !== undefined) {
       GroupSpec.encode(message.groupSpec, writer.uint32(26).fork()).join();
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.createdAt.toString());
+    if (message.createdAt !== 0n) {
+      if (BigInt.asIntN(64, message.createdAt) !== message.createdAt) {
+        throw new globalThis.Error("value provided for field message.createdAt of type int64 too large");
+      }
+      writer.uint32(32).int64(message.createdAt);
     }
     return writer;
   },
@@ -144,7 +146,7 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
             break;
           }
 
-          message.createdAt = Long.fromString(reader.int64().toString());
+          message.createdAt = reader.int64() as bigint;
           continue;
         }
       }
@@ -161,7 +163,7 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
       id: isSet(object.id) ? GroupID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? group_StateFromJSON(object.state) : 0,
       groupSpec: isSet(object.group_spec) ? GroupSpec.fromJSON(object.group_spec) : undefined,
-      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? BigInt(object.created_at) : 0n,
     };
   },
 
@@ -176,8 +178,8 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     if (message.groupSpec !== undefined) {
       obj.group_spec = GroupSpec.toJSON(message.groupSpec);
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      obj.created_at = (message.createdAt || Long.ZERO).toString();
+    if (message.createdAt !== 0n) {
+      obj.created_at = message.createdAt.toString();
     }
     return obj;
   },
@@ -188,17 +190,15 @@ export const Group: MessageFns<Group, "akash.deployment.v1beta4.Group"> = {
     message.groupSpec = (object.groupSpec !== undefined && object.groupSpec !== null)
       ? GroupSpec.fromPartial(object.groupSpec)
       : undefined;
-    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
-      ? Long.fromValue(object.createdAt)
-      : Long.ZERO;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null) ? BigInt(object.createdAt) : 0n;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

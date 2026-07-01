@@ -28,6 +28,7 @@ for await (const path of fs.glob(`${ROOT_DIR}/generated/protos/**/*.ts`)) {
 
   // Remove the `create` method from message objects
   newSource = newSource.replace(/^\s*create\(base\?:\s*DeepPartial<\w+>\):\s*\w+\s*\{\s*return\s*\w+\.fromPartial\(base \?\? \{\}\);\s*\},?\n?/gm, "");
+  newSource = coerceBigIntFromPartial(newSource);
   newSource = injectOwnHelpers(newSource, path);
 
   newSource = applyPatching(newSource, path, typesToPatch);
@@ -35,6 +36,40 @@ for await (const path of fs.glob(`${ROOT_DIR}/generated/protos/**/*.ts`)) {
   if (newSource !== source) {
     await fs.writeFile(path, newSource);
   }
+}
+
+// ts-proto's fromPartial assigns bigint fields verbatim (`x ?? 0n` for scalars,
+// `.map((e) => e)` for repeated), so a caller passing a string or number would be
+// stored uncoerced. Wrap those assignments with BigInt(...) so fromPartial actually
+// accepts `string | number | bigint`, matching the DeepPartial<bigint> contract.
+function coerceBigIntFromPartial(source: string) {
+  // Scalar fields: `message.x = object.x ?? 0n;`
+  // `?? 0n` only appears for bigint scalars in fromPartial, so this is unambiguous.
+  let result = source.replace(
+    /(message\.[A-Za-z0-9_]+ = )(object\.[A-Za-z0-9_]+) \?\? 0n;/g,
+    "$1($2 !== undefined && $2 !== null) ? BigInt($2) : 0n;",
+  );
+
+  // Repeated fields: `message.x = object.x?.map((e) => e) || [];`
+  // This shape is shared by all scalar arrays, so restrict to fields the file
+  // declares as `bigint[]`, skipping any name also used as a non-bigint array.
+  const bigintArrays = new Set<string>();
+  for (const [, name] of source.matchAll(/^\s*([A-Za-z0-9_]+): bigint\[\];/gm)) {
+    bigintArrays.add(name);
+  }
+  for (const [, name] of source.matchAll(/^\s*([A-Za-z0-9_]+): (?:string|number|boolean|Uint8Array)\[\];/gm)) {
+    if (bigintArrays.delete(name)) {
+      console.warn(`fix-ts-proto: array field "${name}" is bigint[] and non-bigint[] in the same file; skipping BigInt coercion`);
+    }
+  }
+  for (const name of bigintArrays) {
+    result = result.replace(
+      new RegExp(`(message\\.${name} = object\\.[A-Za-z0-9_]+\\?\\.map\\(\\(e\\) => )e(\\) \\|\\| \\[\\];)`, "g"),
+      "$1BigInt(e)$2",
+    );
+  }
+
+  return result;
 }
 
 function injectOwnHelpers(source: string, path: string) {

@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { DeploymentReclamation } from "../../deployment/v1/deployment.ts";
 import { GroupSpec } from "../../deployment/v1beta4/groupspec.ts";
 import { OrderID } from "../v1/order.ts";
@@ -19,7 +18,7 @@ export interface Order {
   id: OrderID | undefined;
   state: Order_State;
   spec: GroupSpec | undefined;
-  createdAt: Long;
+  createdAt: bigint;
   /**
    * reclamation is the deployment-level reclamation requirement, propagated to the order.
    * Nil means the deployment does not require reclamation.
@@ -78,7 +77,7 @@ export function order_StateToJSON(object: Order_State): string {
 }
 
 function createBaseOrder(): Order {
-  return { id: undefined, state: 0, spec: undefined, createdAt: Long.ZERO, reclamation: undefined };
+  return { id: undefined, state: 0, spec: undefined, createdAt: 0n, reclamation: undefined };
 }
 
 export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
@@ -94,8 +93,11 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
     if (message.spec !== undefined) {
       GroupSpec.encode(message.spec, writer.uint32(26).fork()).join();
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.createdAt.toString());
+    if (message.createdAt !== 0n) {
+      if (BigInt.asIntN(64, message.createdAt) !== message.createdAt) {
+        throw new globalThis.Error("value provided for field message.createdAt of type int64 too large");
+      }
+      writer.uint32(32).int64(message.createdAt);
     }
     if (message.reclamation !== undefined) {
       DeploymentReclamation.encode(message.reclamation, writer.uint32(42).fork()).join();
@@ -139,7 +141,7 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
             break;
           }
 
-          message.createdAt = Long.fromString(reader.int64().toString());
+          message.createdAt = reader.int64() as bigint;
           continue;
         }
         case 5: {
@@ -164,7 +166,7 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
       id: isSet(object.id) ? OrderID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? order_StateFromJSON(object.state) : 0,
       spec: isSet(object.spec) ? GroupSpec.fromJSON(object.spec) : undefined,
-      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? BigInt(object.created_at) : 0n,
       reclamation: isSet(object.reclamation) ? DeploymentReclamation.fromJSON(object.reclamation) : undefined,
     };
   },
@@ -180,8 +182,8 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
     if (message.spec !== undefined) {
       obj.spec = GroupSpec.toJSON(message.spec);
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      obj.created_at = (message.createdAt || Long.ZERO).toString();
+    if (message.createdAt !== 0n) {
+      obj.created_at = message.createdAt.toString();
     }
     if (message.reclamation !== undefined) {
       obj.reclamation = DeploymentReclamation.toJSON(message.reclamation);
@@ -193,9 +195,7 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
     message.id = (object.id !== undefined && object.id !== null) ? OrderID.fromPartial(object.id) : undefined;
     message.state = object.state ?? 0;
     message.spec = (object.spec !== undefined && object.spec !== null) ? GroupSpec.fromPartial(object.spec) : undefined;
-    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
-      ? Long.fromValue(object.createdAt)
-      : Long.ZERO;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null) ? BigInt(object.createdAt) : 0n;
     message.reclamation = (object.reclamation !== undefined && object.reclamation !== null)
       ? DeploymentReclamation.fromPartial(object.reclamation)
       : undefined;
@@ -203,10 +203,10 @@ export const Order: MessageFns<Order, "akash.market.v1beta5.Order"> = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

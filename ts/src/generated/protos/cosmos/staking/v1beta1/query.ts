@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import {
   DelegationResponse,
@@ -240,7 +239,7 @@ export interface QueryDelegatorValidatorResponse {
  */
 export interface QueryHistoricalInfoRequest {
   /** height defines at which height to query the historical info. */
-  height: Long;
+  height: bigint;
 }
 
 /**
@@ -1969,7 +1968,7 @@ export const QueryDelegatorValidatorResponse: MessageFns<
 };
 
 function createBaseQueryHistoricalInfoRequest(): QueryHistoricalInfoRequest {
-  return { height: Long.ZERO };
+  return { height: 0n };
 }
 
 export const QueryHistoricalInfoRequest: MessageFns<
@@ -1979,8 +1978,11 @@ export const QueryHistoricalInfoRequest: MessageFns<
   $type: "cosmos.staking.v1beta1.QueryHistoricalInfoRequest" as const,
 
   encode(message: QueryHistoricalInfoRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(8).int64(message.height);
     }
     return writer;
   },
@@ -1997,7 +1999,7 @@ export const QueryHistoricalInfoRequest: MessageFns<
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
       }
@@ -2010,21 +2012,19 @@ export const QueryHistoricalInfoRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryHistoricalInfoRequest {
-    return { height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO };
+    return { height: isSet(object.height) ? BigInt(object.height) : 0n };
   },
 
   toJSON(message: QueryHistoricalInfoRequest): unknown {
     const obj: any = {};
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryHistoricalInfoRequest>): QueryHistoricalInfoRequest {
     const message = createBaseQueryHistoricalInfoRequest();
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     return message;
   },
 };
@@ -2286,10 +2286,10 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.stakin
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { PageRequest, PageResponse } from "../../../../cosmos/base/query/v1beta1/pagination.ts";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { Height, IdentifiedClientState } from "../../client/v1/client.ts";
@@ -115,8 +114,8 @@ export interface QueryConnectionClientStateResponse {
 export interface QueryConnectionConsensusStateRequest {
   /** connection identifier */
   connectionId: string;
-  revisionNumber: Long;
-  revisionHeight: Long;
+  revisionNumber: bigint;
+  revisionHeight: bigint;
 }
 
 /**
@@ -778,7 +777,7 @@ export const QueryConnectionClientStateResponse: MessageFns<
 };
 
 function createBaseQueryConnectionConsensusStateRequest(): QueryConnectionConsensusStateRequest {
-  return { connectionId: "", revisionNumber: Long.UZERO, revisionHeight: Long.UZERO };
+  return { connectionId: "", revisionNumber: 0n, revisionHeight: 0n };
 }
 
 export const QueryConnectionConsensusStateRequest: MessageFns<
@@ -791,11 +790,17 @@ export const QueryConnectionConsensusStateRequest: MessageFns<
     if (message.connectionId !== "") {
       writer.uint32(10).string(message.connectionId);
     }
-    if (!message.revisionNumber.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.revisionNumber.toString());
+    if (message.revisionNumber !== 0n) {
+      if (BigInt.asUintN(64, message.revisionNumber) !== message.revisionNumber) {
+        throw new globalThis.Error("value provided for field message.revisionNumber of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.revisionNumber);
     }
-    if (!message.revisionHeight.equals(Long.UZERO)) {
-      writer.uint32(24).uint64(message.revisionHeight.toString());
+    if (message.revisionHeight !== 0n) {
+      if (BigInt.asUintN(64, message.revisionHeight) !== message.revisionHeight) {
+        throw new globalThis.Error("value provided for field message.revisionHeight of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.revisionHeight);
     }
     return writer;
   },
@@ -820,7 +825,7 @@ export const QueryConnectionConsensusStateRequest: MessageFns<
             break;
           }
 
-          message.revisionNumber = Long.fromString(reader.uint64().toString(), true);
+          message.revisionNumber = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -828,7 +833,7 @@ export const QueryConnectionConsensusStateRequest: MessageFns<
             break;
           }
 
-          message.revisionHeight = Long.fromString(reader.uint64().toString(), true);
+          message.revisionHeight = reader.uint64() as bigint;
           continue;
         }
       }
@@ -843,8 +848,8 @@ export const QueryConnectionConsensusStateRequest: MessageFns<
   fromJSON(object: any): QueryConnectionConsensusStateRequest {
     return {
       connectionId: isSet(object.connection_id) ? globalThis.String(object.connection_id) : "",
-      revisionNumber: isSet(object.revision_number) ? Long.fromValue(object.revision_number) : Long.UZERO,
-      revisionHeight: isSet(object.revision_height) ? Long.fromValue(object.revision_height) : Long.UZERO,
+      revisionNumber: isSet(object.revision_number) ? BigInt(object.revision_number) : 0n,
+      revisionHeight: isSet(object.revision_height) ? BigInt(object.revision_height) : 0n,
     };
   },
 
@@ -853,23 +858,19 @@ export const QueryConnectionConsensusStateRequest: MessageFns<
     if (message.connectionId !== "") {
       obj.connection_id = message.connectionId;
     }
-    if (!message.revisionNumber.equals(Long.UZERO)) {
-      obj.revision_number = (message.revisionNumber || Long.UZERO).toString();
+    if (message.revisionNumber !== 0n) {
+      obj.revision_number = message.revisionNumber.toString();
     }
-    if (!message.revisionHeight.equals(Long.UZERO)) {
-      obj.revision_height = (message.revisionHeight || Long.UZERO).toString();
+    if (message.revisionHeight !== 0n) {
+      obj.revision_height = message.revisionHeight.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryConnectionConsensusStateRequest>): QueryConnectionConsensusStateRequest {
     const message = createBaseQueryConnectionConsensusStateRequest();
     message.connectionId = object.connectionId ?? "";
-    message.revisionNumber = (object.revisionNumber !== undefined && object.revisionNumber !== null)
-      ? Long.fromValue(object.revisionNumber)
-      : Long.UZERO;
-    message.revisionHeight = (object.revisionHeight !== undefined && object.revisionHeight !== null)
-      ? Long.fromValue(object.revisionHeight)
-      : Long.UZERO;
+    message.revisionNumber = (object.revisionNumber !== undefined && object.revisionNumber !== null) ? BigInt(object.revisionNumber) : 0n;
+    message.revisionHeight = (object.revisionHeight !== undefined && object.revisionHeight !== null) ? BigInt(object.revisionHeight) : 0n;
     return message;
   },
 };
@@ -1117,10 +1118,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

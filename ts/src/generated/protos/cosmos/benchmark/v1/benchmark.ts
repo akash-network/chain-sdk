@@ -8,46 +8,46 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /** Op is a message describing a benchmark operation. */
 export interface Op {
-  seed: Long;
+  seed: bigint;
   actor: string;
-  keyLength: Long;
-  valueLength: Long;
+  keyLength: bigint;
+  valueLength: bigint;
   iterations: number;
   delete: boolean;
   exists: boolean;
 }
 
 function createBaseOp(): Op {
-  return {
-    seed: Long.UZERO,
-    actor: "",
-    keyLength: Long.UZERO,
-    valueLength: Long.UZERO,
-    iterations: 0,
-    delete: false,
-    exists: false,
-  };
+  return { seed: 0n, actor: "", keyLength: 0n, valueLength: 0n, iterations: 0, delete: false, exists: false };
 }
 
 export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
   $type: "cosmos.benchmark.v1.Op" as const,
 
   encode(message: Op, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.seed.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.seed.toString());
+    if (message.seed !== 0n) {
+      if (BigInt.asUintN(64, message.seed) !== message.seed) {
+        throw new globalThis.Error("value provided for field message.seed of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.seed);
     }
     if (message.actor !== "") {
       writer.uint32(18).string(message.actor);
     }
-    if (!message.keyLength.equals(Long.UZERO)) {
-      writer.uint32(24).uint64(message.keyLength.toString());
+    if (message.keyLength !== 0n) {
+      if (BigInt.asUintN(64, message.keyLength) !== message.keyLength) {
+        throw new globalThis.Error("value provided for field message.keyLength of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.keyLength);
     }
-    if (!message.valueLength.equals(Long.UZERO)) {
-      writer.uint32(32).uint64(message.valueLength.toString());
+    if (message.valueLength !== 0n) {
+      if (BigInt.asUintN(64, message.valueLength) !== message.valueLength) {
+        throw new globalThis.Error("value provided for field message.valueLength of type uint64 too large");
+      }
+      writer.uint32(32).uint64(message.valueLength);
     }
     if (message.iterations !== 0) {
       writer.uint32(40).uint32(message.iterations);
@@ -73,7 +73,7 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
             break;
           }
 
-          message.seed = Long.fromString(reader.uint64().toString(), true);
+          message.seed = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -89,7 +89,7 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
             break;
           }
 
-          message.keyLength = Long.fromString(reader.uint64().toString(), true);
+          message.keyLength = reader.uint64() as bigint;
           continue;
         }
         case 4: {
@@ -97,7 +97,7 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
             break;
           }
 
-          message.valueLength = Long.fromString(reader.uint64().toString(), true);
+          message.valueLength = reader.uint64() as bigint;
           continue;
         }
         case 5: {
@@ -135,10 +135,10 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
 
   fromJSON(object: any): Op {
     return {
-      seed: isSet(object.seed) ? Long.fromValue(object.seed) : Long.UZERO,
+      seed: isSet(object.seed) ? BigInt(object.seed) : 0n,
       actor: isSet(object.actor) ? globalThis.String(object.actor) : "",
-      keyLength: isSet(object.key_length) ? Long.fromValue(object.key_length) : Long.UZERO,
-      valueLength: isSet(object.value_length) ? Long.fromValue(object.value_length) : Long.UZERO,
+      keyLength: isSet(object.key_length) ? BigInt(object.key_length) : 0n,
+      valueLength: isSet(object.value_length) ? BigInt(object.value_length) : 0n,
       iterations: isSet(object.iterations) ? globalThis.Number(object.iterations) : 0,
       delete: isSet(object.delete) ? globalThis.Boolean(object.delete) : false,
       exists: isSet(object.exists) ? globalThis.Boolean(object.exists) : false,
@@ -147,17 +147,17 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
 
   toJSON(message: Op): unknown {
     const obj: any = {};
-    if (!message.seed.equals(Long.UZERO)) {
-      obj.seed = (message.seed || Long.UZERO).toString();
+    if (message.seed !== 0n) {
+      obj.seed = message.seed.toString();
     }
     if (message.actor !== "") {
       obj.actor = message.actor;
     }
-    if (!message.keyLength.equals(Long.UZERO)) {
-      obj.key_length = (message.keyLength || Long.UZERO).toString();
+    if (message.keyLength !== 0n) {
+      obj.key_length = message.keyLength.toString();
     }
-    if (!message.valueLength.equals(Long.UZERO)) {
-      obj.value_length = (message.valueLength || Long.UZERO).toString();
+    if (message.valueLength !== 0n) {
+      obj.value_length = message.valueLength.toString();
     }
     if (message.iterations !== 0) {
       obj.iterations = Math.round(message.iterations);
@@ -172,14 +172,10 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
   },
   fromPartial(object: DeepPartial<Op>): Op {
     const message = createBaseOp();
-    message.seed = (object.seed !== undefined && object.seed !== null) ? Long.fromValue(object.seed) : Long.UZERO;
+    message.seed = (object.seed !== undefined && object.seed !== null) ? BigInt(object.seed) : 0n;
     message.actor = object.actor ?? "";
-    message.keyLength = (object.keyLength !== undefined && object.keyLength !== null)
-      ? Long.fromValue(object.keyLength)
-      : Long.UZERO;
-    message.valueLength = (object.valueLength !== undefined && object.valueLength !== null)
-      ? Long.fromValue(object.valueLength)
-      : Long.UZERO;
+    message.keyLength = (object.keyLength !== undefined && object.keyLength !== null) ? BigInt(object.keyLength) : 0n;
+    message.valueLength = (object.valueLength !== undefined && object.valueLength !== null) ? BigInt(object.valueLength) : 0n;
     message.iterations = object.iterations ?? 0;
     message.delete = object.delete ?? false;
     message.exists = object.exists ?? false;
@@ -187,10 +183,10 @@ export const Op: MessageFns<Op, "cosmos.benchmark.v1.Op"> = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

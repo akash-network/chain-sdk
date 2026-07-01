@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { AggregatedPrice, DataID, PriceDataState } from "./prices.ts";
 
 /** EventPriceData is emitted when new price data is added to the oracle */
@@ -32,9 +31,9 @@ export interface EventPriceStaleWarning {
     | DataID
     | undefined;
   /** last_height is the block height when the price was last updated */
-  lastHeight: Long;
+  lastHeight: bigint;
   /** blocks_to_stall is the number of blocks until the price becomes stale */
-  blocksToStall: Long;
+  blocksToStall: bigint;
 }
 
 /** EventPriceStaled is emitted when a price has become stale */
@@ -44,7 +43,7 @@ export interface EventPriceStaled {
     | DataID
     | undefined;
   /** last_height is the block height when the price was last updated before becoming stale */
-  lastHeight: Long;
+  lastHeight: bigint;
 }
 
 /** EventPriceRecovered is emitted when a stale price has started receiving updates again */
@@ -54,7 +53,7 @@ export interface EventPriceRecovered {
     | DataID
     | undefined;
   /** height is the block height when the price recovery was detected */
-  height: Long;
+  height: bigint;
 }
 
 /** EventAggregatedPrice is emitted when aggregated price has an update */
@@ -155,7 +154,7 @@ export const EventPriceData: MessageFns<EventPriceData, "akash.oracle.v1.EventPr
 };
 
 function createBaseEventPriceStaleWarning(): EventPriceStaleWarning {
-  return { source: "", id: undefined, lastHeight: Long.ZERO, blocksToStall: Long.ZERO };
+  return { source: "", id: undefined, lastHeight: 0n, blocksToStall: 0n };
 }
 
 export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.oracle.v1.EventPriceStaleWarning"> = {
@@ -168,11 +167,17 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
     if (message.id !== undefined) {
       DataID.encode(message.id, writer.uint32(18).fork()).join();
     }
-    if (!message.lastHeight.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.lastHeight.toString());
+    if (message.lastHeight !== 0n) {
+      if (BigInt.asIntN(64, message.lastHeight) !== message.lastHeight) {
+        throw new globalThis.Error("value provided for field message.lastHeight of type int64 too large");
+      }
+      writer.uint32(24).int64(message.lastHeight);
     }
-    if (!message.blocksToStall.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.blocksToStall.toString());
+    if (message.blocksToStall !== 0n) {
+      if (BigInt.asIntN(64, message.blocksToStall) !== message.blocksToStall) {
+        throw new globalThis.Error("value provided for field message.blocksToStall of type int64 too large");
+      }
+      writer.uint32(32).int64(message.blocksToStall);
     }
     return writer;
   },
@@ -205,7 +210,7 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
             break;
           }
 
-          message.lastHeight = Long.fromString(reader.int64().toString());
+          message.lastHeight = reader.int64() as bigint;
           continue;
         }
         case 4: {
@@ -213,7 +218,7 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
             break;
           }
 
-          message.blocksToStall = Long.fromString(reader.int64().toString());
+          message.blocksToStall = reader.int64() as bigint;
           continue;
         }
       }
@@ -229,8 +234,8 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
     return {
       source: isSet(object.source) ? globalThis.String(object.source) : "",
       id: isSet(object.id) ? DataID.fromJSON(object.id) : undefined,
-      lastHeight: isSet(object.last_height) ? Long.fromValue(object.last_height) : Long.ZERO,
-      blocksToStall: isSet(object.blocks_to_stall) ? Long.fromValue(object.blocks_to_stall) : Long.ZERO,
+      lastHeight: isSet(object.last_height) ? BigInt(object.last_height) : 0n,
+      blocksToStall: isSet(object.blocks_to_stall) ? BigInt(object.blocks_to_stall) : 0n,
     };
   },
 
@@ -242,11 +247,11 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
     if (message.id !== undefined) {
       obj.id = DataID.toJSON(message.id);
     }
-    if (!message.lastHeight.equals(Long.ZERO)) {
-      obj.last_height = (message.lastHeight || Long.ZERO).toString();
+    if (message.lastHeight !== 0n) {
+      obj.last_height = message.lastHeight.toString();
     }
-    if (!message.blocksToStall.equals(Long.ZERO)) {
-      obj.blocks_to_stall = (message.blocksToStall || Long.ZERO).toString();
+    if (message.blocksToStall !== 0n) {
+      obj.blocks_to_stall = message.blocksToStall.toString();
     }
     return obj;
   },
@@ -254,18 +259,14 @@ export const EventPriceStaleWarning: MessageFns<EventPriceStaleWarning, "akash.o
     const message = createBaseEventPriceStaleWarning();
     message.source = object.source ?? "";
     message.id = (object.id !== undefined && object.id !== null) ? DataID.fromPartial(object.id) : undefined;
-    message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null)
-      ? Long.fromValue(object.lastHeight)
-      : Long.ZERO;
-    message.blocksToStall = (object.blocksToStall !== undefined && object.blocksToStall !== null)
-      ? Long.fromValue(object.blocksToStall)
-      : Long.ZERO;
+    message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null) ? BigInt(object.lastHeight) : 0n;
+    message.blocksToStall = (object.blocksToStall !== undefined && object.blocksToStall !== null) ? BigInt(object.blocksToStall) : 0n;
     return message;
   },
 };
 
 function createBaseEventPriceStaled(): EventPriceStaled {
-  return { id: undefined, lastHeight: Long.ZERO };
+  return { id: undefined, lastHeight: 0n };
 }
 
 export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.EventPriceStaled"> = {
@@ -275,8 +276,11 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
     if (message.id !== undefined) {
       DataID.encode(message.id, writer.uint32(10).fork()).join();
     }
-    if (!message.lastHeight.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.lastHeight.toString());
+    if (message.lastHeight !== 0n) {
+      if (BigInt.asIntN(64, message.lastHeight) !== message.lastHeight) {
+        throw new globalThis.Error("value provided for field message.lastHeight of type int64 too large");
+      }
+      writer.uint32(16).int64(message.lastHeight);
     }
     return writer;
   },
@@ -301,7 +305,7 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
             break;
           }
 
-          message.lastHeight = Long.fromString(reader.int64().toString());
+          message.lastHeight = reader.int64() as bigint;
           continue;
         }
       }
@@ -316,7 +320,7 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
   fromJSON(object: any): EventPriceStaled {
     return {
       id: isSet(object.id) ? DataID.fromJSON(object.id) : undefined,
-      lastHeight: isSet(object.last_height) ? Long.fromValue(object.last_height) : Long.ZERO,
+      lastHeight: isSet(object.last_height) ? BigInt(object.last_height) : 0n,
     };
   },
 
@@ -325,23 +329,21 @@ export const EventPriceStaled: MessageFns<EventPriceStaled, "akash.oracle.v1.Eve
     if (message.id !== undefined) {
       obj.id = DataID.toJSON(message.id);
     }
-    if (!message.lastHeight.equals(Long.ZERO)) {
-      obj.last_height = (message.lastHeight || Long.ZERO).toString();
+    if (message.lastHeight !== 0n) {
+      obj.last_height = message.lastHeight.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventPriceStaled>): EventPriceStaled {
     const message = createBaseEventPriceStaled();
     message.id = (object.id !== undefined && object.id !== null) ? DataID.fromPartial(object.id) : undefined;
-    message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null)
-      ? Long.fromValue(object.lastHeight)
-      : Long.ZERO;
+    message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null) ? BigInt(object.lastHeight) : 0n;
     return message;
   },
 };
 
 function createBaseEventPriceRecovered(): EventPriceRecovered {
-  return { id: undefined, height: Long.ZERO };
+  return { id: undefined, height: 0n };
 }
 
 export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.v1.EventPriceRecovered"> = {
@@ -351,8 +353,11 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
     if (message.id !== undefined) {
       DataID.encode(message.id, writer.uint32(10).fork()).join();
     }
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(16).int64(message.height);
     }
     return writer;
   },
@@ -377,7 +382,7 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
       }
@@ -392,7 +397,7 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
   fromJSON(object: any): EventPriceRecovered {
     return {
       id: isSet(object.id) ? DataID.fromJSON(object.id) : undefined,
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
     };
   },
 
@@ -401,17 +406,15 @@ export const EventPriceRecovered: MessageFns<EventPriceRecovered, "akash.oracle.
     if (message.id !== undefined) {
       obj.id = DataID.toJSON(message.id);
     }
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventPriceRecovered>): EventPriceRecovered {
     const message = createBaseEventPriceRecovered();
     message.id = (object.id !== undefined && object.id !== null) ? DataID.fromPartial(object.id) : undefined;
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     return message;
   },
 };
@@ -474,10 +477,10 @@ export const EventAggregatedPrice: MessageFns<EventAggregatedPrice, "akash.oracl
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

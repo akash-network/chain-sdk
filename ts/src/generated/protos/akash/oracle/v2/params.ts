@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Any } from "../../../google/protobuf/any.ts";
 import { Duration } from "../../../google/protobuf/duration.ts";
 
@@ -30,7 +29,7 @@ export interface Params {
     | Duration
     | undefined;
   /** Maximum price deviation in basis points (default: 150 = 1.5%) */
-  maxPriceDeviationBps: Long;
+  maxPriceDeviationBps: bigint;
   /** feed_contracts_params contains the configuration for the price feed contracts */
   feedContractsParams: Any[];
   /** price_retention is how long to keep price records (default: 24h) */
@@ -40,7 +39,7 @@ export interface Params {
   /** prune_epoch is the epoch identifier that triggers pruning (default: "hour") */
   pruneEpoch: string;
   /** max_prune_per_epoch is the max records to delete per epoch pruning pass (default: 1000) */
-  maxPrunePerEpoch: Long;
+  maxPrunePerEpoch: bigint;
   /**
    * max_future_time_drift is the maximum amount of time a price timestamp
    * may exceed the current block time (default: 1m)
@@ -54,11 +53,11 @@ function createBaseParams(): Params {
     minPriceSources: 0,
     maxPriceStalenessPeriod: undefined,
     twapWindow: undefined,
-    maxPriceDeviationBps: Long.UZERO,
+    maxPriceDeviationBps: 0n,
     feedContractsParams: [],
     priceRetention: undefined,
     pruneEpoch: "",
-    maxPrunePerEpoch: Long.ZERO,
+    maxPrunePerEpoch: 0n,
     maxFutureTimeDrift: undefined,
   };
 }
@@ -79,8 +78,11 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     if (message.twapWindow !== undefined) {
       Duration.encode(message.twapWindow, writer.uint32(34).fork()).join();
     }
-    if (!message.maxPriceDeviationBps.equals(Long.UZERO)) {
-      writer.uint32(40).uint64(message.maxPriceDeviationBps.toString());
+    if (message.maxPriceDeviationBps !== 0n) {
+      if (BigInt.asUintN(64, message.maxPriceDeviationBps) !== message.maxPriceDeviationBps) {
+        throw new globalThis.Error("value provided for field message.maxPriceDeviationBps of type uint64 too large");
+      }
+      writer.uint32(40).uint64(message.maxPriceDeviationBps);
     }
     for (const v of message.feedContractsParams) {
       Any.encode(v!, writer.uint32(50).fork()).join();
@@ -91,8 +93,11 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     if (message.pruneEpoch !== "") {
       writer.uint32(66).string(message.pruneEpoch);
     }
-    if (!message.maxPrunePerEpoch.equals(Long.ZERO)) {
-      writer.uint32(72).int64(message.maxPrunePerEpoch.toString());
+    if (message.maxPrunePerEpoch !== 0n) {
+      if (BigInt.asIntN(64, message.maxPrunePerEpoch) !== message.maxPrunePerEpoch) {
+        throw new globalThis.Error("value provided for field message.maxPrunePerEpoch of type int64 too large");
+      }
+      writer.uint32(72).int64(message.maxPrunePerEpoch);
     }
     if (message.maxFutureTimeDrift !== undefined) {
       Duration.encode(message.maxFutureTimeDrift, writer.uint32(82).fork()).join();
@@ -144,7 +149,7 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
             break;
           }
 
-          message.maxPriceDeviationBps = Long.fromString(reader.uint64().toString(), true);
+          message.maxPriceDeviationBps = reader.uint64() as bigint;
           continue;
         }
         case 6: {
@@ -176,7 +181,7 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
             break;
           }
 
-          message.maxPrunePerEpoch = Long.fromString(reader.int64().toString());
+          message.maxPrunePerEpoch = reader.int64() as bigint;
           continue;
         }
         case 10: {
@@ -204,15 +209,13 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
         ? Duration.fromJSON(object.max_price_staleness_period)
         : undefined,
       twapWindow: isSet(object.twap_window) ? Duration.fromJSON(object.twap_window) : undefined,
-      maxPriceDeviationBps: isSet(object.max_price_deviation_bps)
-        ? Long.fromValue(object.max_price_deviation_bps)
-        : Long.UZERO,
+      maxPriceDeviationBps: isSet(object.max_price_deviation_bps) ? BigInt(object.max_price_deviation_bps) : 0n,
       feedContractsParams: globalThis.Array.isArray(object?.feed_contracts_params)
         ? object.feed_contracts_params.map((e: any) => Any.fromJSON(e))
         : [],
       priceRetention: isSet(object.price_retention) ? Duration.fromJSON(object.price_retention) : undefined,
       pruneEpoch: isSet(object.prune_epoch) ? globalThis.String(object.prune_epoch) : "",
-      maxPrunePerEpoch: isSet(object.max_prune_per_epoch) ? Long.fromValue(object.max_prune_per_epoch) : Long.ZERO,
+      maxPrunePerEpoch: isSet(object.max_prune_per_epoch) ? BigInt(object.max_prune_per_epoch) : 0n,
       maxFutureTimeDrift: isSet(object.max_future_time_drift)
         ? Duration.fromJSON(object.max_future_time_drift)
         : undefined,
@@ -233,8 +236,8 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     if (message.twapWindow !== undefined) {
       obj.twap_window = Duration.toJSON(message.twapWindow);
     }
-    if (!message.maxPriceDeviationBps.equals(Long.UZERO)) {
-      obj.max_price_deviation_bps = (message.maxPriceDeviationBps || Long.UZERO).toString();
+    if (message.maxPriceDeviationBps !== 0n) {
+      obj.max_price_deviation_bps = message.maxPriceDeviationBps.toString();
     }
     if (message.feedContractsParams?.length) {
       obj.feed_contracts_params = message.feedContractsParams.map((e) => Any.toJSON(e));
@@ -245,8 +248,8 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     if (message.pruneEpoch !== "") {
       obj.prune_epoch = message.pruneEpoch;
     }
-    if (!message.maxPrunePerEpoch.equals(Long.ZERO)) {
-      obj.max_prune_per_epoch = (message.maxPrunePerEpoch || Long.ZERO).toString();
+    if (message.maxPrunePerEpoch !== 0n) {
+      obj.max_prune_per_epoch = message.maxPrunePerEpoch.toString();
     }
     if (message.maxFutureTimeDrift !== undefined) {
       obj.max_future_time_drift = Duration.toJSON(message.maxFutureTimeDrift);
@@ -264,17 +267,13 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
     message.twapWindow = (object.twapWindow !== undefined && object.twapWindow !== null)
       ? Duration.fromPartial(object.twapWindow)
       : undefined;
-    message.maxPriceDeviationBps = (object.maxPriceDeviationBps !== undefined && object.maxPriceDeviationBps !== null)
-      ? Long.fromValue(object.maxPriceDeviationBps)
-      : Long.UZERO;
+    message.maxPriceDeviationBps = (object.maxPriceDeviationBps !== undefined && object.maxPriceDeviationBps !== null) ? BigInt(object.maxPriceDeviationBps) : 0n;
     message.feedContractsParams = object.feedContractsParams?.map((e) => Any.fromPartial(e)) || [];
     message.priceRetention = (object.priceRetention !== undefined && object.priceRetention !== null)
       ? Duration.fromPartial(object.priceRetention)
       : undefined;
     message.pruneEpoch = object.pruneEpoch ?? "";
-    message.maxPrunePerEpoch = (object.maxPrunePerEpoch !== undefined && object.maxPrunePerEpoch !== null)
-      ? Long.fromValue(object.maxPrunePerEpoch)
-      : Long.ZERO;
+    message.maxPrunePerEpoch = (object.maxPrunePerEpoch !== undefined && object.maxPrunePerEpoch !== null) ? BigInt(object.maxPrunePerEpoch) : 0n;
     message.maxFutureTimeDrift = (object.maxFutureTimeDrift !== undefined && object.maxFutureTimeDrift !== null)
       ? Duration.fromPartial(object.maxFutureTimeDrift)
       : undefined;
@@ -282,10 +281,10 @@ export const Params: MessageFns<Params, "akash.oracle.v2.Params"> = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

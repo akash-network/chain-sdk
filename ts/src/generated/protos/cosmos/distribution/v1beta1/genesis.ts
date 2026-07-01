@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { DecCoin } from "../../base/v1beta1/coin.ts";
 import {
   DelegatorStartingInfo,
@@ -59,7 +58,7 @@ export interface ValidatorHistoricalRewardsRecord {
   /** validator_address is the address of the validator. */
   validatorAddress: string;
   /** period defines the period the historical rewards apply to. */
-  period: Long;
+  period: bigint;
   /** rewards defines the historical rewards of a validator. */
   rewards: ValidatorHistoricalRewards | undefined;
 }
@@ -87,9 +86,9 @@ export interface ValidatorSlashEventRecord {
   /** validator_address is the address of the validator. */
   validatorAddress: string;
   /** height defines the block height at which the slash event occurred. */
-  height: Long;
+  height: bigint;
   /** period is the period of the slash event. */
-  period: Long;
+  period: bigint;
   /** validator_slash_event describes the slash event. */
   validatorSlashEvent: ValidatorSlashEvent | undefined;
 }
@@ -358,7 +357,7 @@ export const ValidatorAccumulatedCommissionRecord: MessageFns<
 };
 
 function createBaseValidatorHistoricalRewardsRecord(): ValidatorHistoricalRewardsRecord {
-  return { validatorAddress: "", period: Long.UZERO, rewards: undefined };
+  return { validatorAddress: "", period: 0n, rewards: undefined };
 }
 
 export const ValidatorHistoricalRewardsRecord: MessageFns<
@@ -371,8 +370,11 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
     if (message.validatorAddress !== "") {
       writer.uint32(10).string(message.validatorAddress);
     }
-    if (!message.period.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.period.toString());
+    if (message.period !== 0n) {
+      if (BigInt.asUintN(64, message.period) !== message.period) {
+        throw new globalThis.Error("value provided for field message.period of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.period);
     }
     if (message.rewards !== undefined) {
       ValidatorHistoricalRewards.encode(message.rewards, writer.uint32(26).fork()).join();
@@ -400,7 +402,7 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
             break;
           }
 
-          message.period = Long.fromString(reader.uint64().toString(), true);
+          message.period = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -423,7 +425,7 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
   fromJSON(object: any): ValidatorHistoricalRewardsRecord {
     return {
       validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
-      period: isSet(object.period) ? Long.fromValue(object.period) : Long.UZERO,
+      period: isSet(object.period) ? BigInt(object.period) : 0n,
       rewards: isSet(object.rewards) ? ValidatorHistoricalRewards.fromJSON(object.rewards) : undefined,
     };
   },
@@ -433,8 +435,8 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
     if (message.validatorAddress !== "") {
       obj.validator_address = message.validatorAddress;
     }
-    if (!message.period.equals(Long.UZERO)) {
-      obj.period = (message.period || Long.UZERO).toString();
+    if (message.period !== 0n) {
+      obj.period = message.period.toString();
     }
     if (message.rewards !== undefined) {
       obj.rewards = ValidatorHistoricalRewards.toJSON(message.rewards);
@@ -444,9 +446,7 @@ export const ValidatorHistoricalRewardsRecord: MessageFns<
   fromPartial(object: DeepPartial<ValidatorHistoricalRewardsRecord>): ValidatorHistoricalRewardsRecord {
     const message = createBaseValidatorHistoricalRewardsRecord();
     message.validatorAddress = object.validatorAddress ?? "";
-    message.period = (object.period !== undefined && object.period !== null)
-      ? Long.fromValue(object.period)
-      : Long.UZERO;
+    message.period = (object.period !== undefined && object.period !== null) ? BigInt(object.period) : 0n;
     message.rewards = (object.rewards !== undefined && object.rewards !== null)
       ? ValidatorHistoricalRewards.fromPartial(object.rewards)
       : undefined;
@@ -629,7 +629,7 @@ export const DelegatorStartingInfoRecord: MessageFns<
 };
 
 function createBaseValidatorSlashEventRecord(): ValidatorSlashEventRecord {
-  return { validatorAddress: "", height: Long.UZERO, period: Long.UZERO, validatorSlashEvent: undefined };
+  return { validatorAddress: "", height: 0n, period: 0n, validatorSlashEvent: undefined };
 }
 
 export const ValidatorSlashEventRecord: MessageFns<
@@ -642,11 +642,17 @@ export const ValidatorSlashEventRecord: MessageFns<
     if (message.validatorAddress !== "") {
       writer.uint32(10).string(message.validatorAddress);
     }
-    if (!message.height.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asUintN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.height);
     }
-    if (!message.period.equals(Long.UZERO)) {
-      writer.uint32(24).uint64(message.period.toString());
+    if (message.period !== 0n) {
+      if (BigInt.asUintN(64, message.period) !== message.period) {
+        throw new globalThis.Error("value provided for field message.period of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.period);
     }
     if (message.validatorSlashEvent !== undefined) {
       ValidatorSlashEvent.encode(message.validatorSlashEvent, writer.uint32(34).fork()).join();
@@ -674,7 +680,7 @@ export const ValidatorSlashEventRecord: MessageFns<
             break;
           }
 
-          message.height = Long.fromString(reader.uint64().toString(), true);
+          message.height = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -682,7 +688,7 @@ export const ValidatorSlashEventRecord: MessageFns<
             break;
           }
 
-          message.period = Long.fromString(reader.uint64().toString(), true);
+          message.period = reader.uint64() as bigint;
           continue;
         }
         case 4: {
@@ -705,8 +711,8 @@ export const ValidatorSlashEventRecord: MessageFns<
   fromJSON(object: any): ValidatorSlashEventRecord {
     return {
       validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.UZERO,
-      period: isSet(object.period) ? Long.fromValue(object.period) : Long.UZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
+      period: isSet(object.period) ? BigInt(object.period) : 0n,
       validatorSlashEvent: isSet(object.validator_slash_event)
         ? ValidatorSlashEvent.fromJSON(object.validator_slash_event)
         : undefined,
@@ -718,11 +724,11 @@ export const ValidatorSlashEventRecord: MessageFns<
     if (message.validatorAddress !== "") {
       obj.validator_address = message.validatorAddress;
     }
-    if (!message.height.equals(Long.UZERO)) {
-      obj.height = (message.height || Long.UZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
-    if (!message.period.equals(Long.UZERO)) {
-      obj.period = (message.period || Long.UZERO).toString();
+    if (message.period !== 0n) {
+      obj.period = message.period.toString();
     }
     if (message.validatorSlashEvent !== undefined) {
       obj.validator_slash_event = ValidatorSlashEvent.toJSON(message.validatorSlashEvent);
@@ -732,12 +738,8 @@ export const ValidatorSlashEventRecord: MessageFns<
   fromPartial(object: DeepPartial<ValidatorSlashEventRecord>): ValidatorSlashEventRecord {
     const message = createBaseValidatorSlashEventRecord();
     message.validatorAddress = object.validatorAddress ?? "";
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.UZERO;
-    message.period = (object.period !== undefined && object.period !== null)
-      ? Long.fromValue(object.period)
-      : Long.UZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
+    message.period = (object.period !== undefined && object.period !== null) ? BigInt(object.period) : 0n;
     message.validatorSlashEvent = (object.validatorSlashEvent !== undefined && object.validatorSlashEvent !== null)
       ? ValidatorSlashEvent.fromPartial(object.validatorSlashEvent)
       : undefined;
@@ -991,10 +993,10 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.distribution.v1beta1
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

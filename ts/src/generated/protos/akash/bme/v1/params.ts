@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 
 /** Params defines the parameters for the BME module */
@@ -24,7 +23,7 @@ export interface Params {
    */
   circuitBreakerHaltThreshold: number;
   /** min_epoch_blocks is the minimum amount of blocks required for ACT mints */
-  minEpochBlocks: Long;
+  minEpochBlocks: bigint;
   /**
    * epoch_blocks_backoff increase of runway_blocks in % during warn threshold
    * for drop in 1 basis point of circuit_breaker_warn_threshold
@@ -66,7 +65,7 @@ function createBaseParams(): Params {
   return {
     circuitBreakerWarnThreshold: 0,
     circuitBreakerHaltThreshold: 0,
-    minEpochBlocks: Long.ZERO,
+    minEpochBlocks: 0n,
     epochBlocksBackoffPercent: 0,
     mintSpreadBps: 0,
     settleSpreadBps: 0,
@@ -86,8 +85,11 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     if (message.circuitBreakerHaltThreshold !== 0) {
       writer.uint32(16).uint32(message.circuitBreakerHaltThreshold);
     }
-    if (!message.minEpochBlocks.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.minEpochBlocks.toString());
+    if (message.minEpochBlocks !== 0n) {
+      if (BigInt.asIntN(64, message.minEpochBlocks) !== message.minEpochBlocks) {
+        throw new globalThis.Error("value provided for field message.minEpochBlocks of type int64 too large");
+      }
+      writer.uint32(24).int64(message.minEpochBlocks);
     }
     if (message.epochBlocksBackoffPercent !== 0) {
       writer.uint32(32).uint32(message.epochBlocksBackoffPercent);
@@ -138,7 +140,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
             break;
           }
 
-          message.minEpochBlocks = Long.fromString(reader.int64().toString());
+          message.minEpochBlocks = reader.int64() as bigint;
           continue;
         }
         case 4: {
@@ -206,7 +208,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
       circuitBreakerHaltThreshold: isSet(object.circuit_breaker_halt_threshold)
         ? globalThis.Number(object.circuit_breaker_halt_threshold)
         : 0,
-      minEpochBlocks: isSet(object.min_epoch_blocks) ? Long.fromValue(object.min_epoch_blocks) : Long.ZERO,
+      minEpochBlocks: isSet(object.min_epoch_blocks) ? BigInt(object.min_epoch_blocks) : 0n,
       epochBlocksBackoffPercent: isSet(object.epoch_blocks_backoff_percent)
         ? globalThis.Number(object.epoch_blocks_backoff_percent)
         : 0,
@@ -226,8 +228,8 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     if (message.circuitBreakerHaltThreshold !== 0) {
       obj.circuit_breaker_halt_threshold = Math.round(message.circuitBreakerHaltThreshold);
     }
-    if (!message.minEpochBlocks.equals(Long.ZERO)) {
-      obj.min_epoch_blocks = (message.minEpochBlocks || Long.ZERO).toString();
+    if (message.minEpochBlocks !== 0n) {
+      obj.min_epoch_blocks = message.minEpochBlocks.toString();
     }
     if (message.epochBlocksBackoffPercent !== 0) {
       obj.epoch_blocks_backoff_percent = Math.round(message.epochBlocksBackoffPercent);
@@ -253,9 +255,7 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
     const message = createBaseParams();
     message.circuitBreakerWarnThreshold = object.circuitBreakerWarnThreshold ?? 0;
     message.circuitBreakerHaltThreshold = object.circuitBreakerHaltThreshold ?? 0;
-    message.minEpochBlocks = (object.minEpochBlocks !== undefined && object.minEpochBlocks !== null)
-      ? Long.fromValue(object.minEpochBlocks)
-      : Long.ZERO;
+    message.minEpochBlocks = (object.minEpochBlocks !== undefined && object.minEpochBlocks !== null) ? BigInt(object.minEpochBlocks) : 0n;
     message.epochBlocksBackoffPercent = object.epochBlocksBackoffPercent ?? 0;
     message.mintSpreadBps = object.mintSpreadBps ?? 0;
     message.settleSpreadBps = object.settleSpreadBps ?? 0;
@@ -266,10 +266,10 @@ export const Params: MessageFns<Params, "akash.bme.v1.Params"> = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

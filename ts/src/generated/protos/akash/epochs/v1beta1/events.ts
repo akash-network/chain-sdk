@@ -8,29 +8,31 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /** EventEpochEnd is an event emitted when an epoch end. */
 export interface EventEpochEnd {
-  epochNumber: Long;
+  epochNumber: bigint;
 }
 
 /** EventEpochStart is an event emitted when an epoch start. */
 export interface EventEpochStart {
-  epochNumber: Long;
-  epochStartTime: Long;
+  epochNumber: bigint;
+  epochStartTime: bigint;
 }
 
 function createBaseEventEpochEnd(): EventEpochEnd {
-  return { epochNumber: Long.ZERO };
+  return { epochNumber: 0n };
 }
 
 export const EventEpochEnd: MessageFns<EventEpochEnd, "akash.epochs.v1beta1.EventEpochEnd"> = {
   $type: "akash.epochs.v1beta1.EventEpochEnd" as const,
 
   encode(message: EventEpochEnd, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.epochNumber.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.epochNumber.toString());
+    if (message.epochNumber !== 0n) {
+      if (BigInt.asIntN(64, message.epochNumber) !== message.epochNumber) {
+        throw new globalThis.Error("value provided for field message.epochNumber of type int64 too large");
+      }
+      writer.uint32(8).int64(message.epochNumber);
     }
     return writer;
   },
@@ -47,7 +49,7 @@ export const EventEpochEnd: MessageFns<EventEpochEnd, "akash.epochs.v1beta1.Even
             break;
           }
 
-          message.epochNumber = Long.fromString(reader.int64().toString());
+          message.epochNumber = reader.int64() as bigint;
           continue;
         }
       }
@@ -60,38 +62,42 @@ export const EventEpochEnd: MessageFns<EventEpochEnd, "akash.epochs.v1beta1.Even
   },
 
   fromJSON(object: any): EventEpochEnd {
-    return { epochNumber: isSet(object.epoch_number) ? Long.fromValue(object.epoch_number) : Long.ZERO };
+    return { epochNumber: isSet(object.epoch_number) ? BigInt(object.epoch_number) : 0n };
   },
 
   toJSON(message: EventEpochEnd): unknown {
     const obj: any = {};
-    if (!message.epochNumber.equals(Long.ZERO)) {
-      obj.epoch_number = (message.epochNumber || Long.ZERO).toString();
+    if (message.epochNumber !== 0n) {
+      obj.epoch_number = message.epochNumber.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventEpochEnd>): EventEpochEnd {
     const message = createBaseEventEpochEnd();
-    message.epochNumber = (object.epochNumber !== undefined && object.epochNumber !== null)
-      ? Long.fromValue(object.epochNumber)
-      : Long.ZERO;
+    message.epochNumber = (object.epochNumber !== undefined && object.epochNumber !== null) ? BigInt(object.epochNumber) : 0n;
     return message;
   },
 };
 
 function createBaseEventEpochStart(): EventEpochStart {
-  return { epochNumber: Long.ZERO, epochStartTime: Long.ZERO };
+  return { epochNumber: 0n, epochStartTime: 0n };
 }
 
 export const EventEpochStart: MessageFns<EventEpochStart, "akash.epochs.v1beta1.EventEpochStart"> = {
   $type: "akash.epochs.v1beta1.EventEpochStart" as const,
 
   encode(message: EventEpochStart, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.epochNumber.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.epochNumber.toString());
+    if (message.epochNumber !== 0n) {
+      if (BigInt.asIntN(64, message.epochNumber) !== message.epochNumber) {
+        throw new globalThis.Error("value provided for field message.epochNumber of type int64 too large");
+      }
+      writer.uint32(8).int64(message.epochNumber);
     }
-    if (!message.epochStartTime.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.epochStartTime.toString());
+    if (message.epochStartTime !== 0n) {
+      if (BigInt.asIntN(64, message.epochStartTime) !== message.epochStartTime) {
+        throw new globalThis.Error("value provided for field message.epochStartTime of type int64 too large");
+      }
+      writer.uint32(16).int64(message.epochStartTime);
     }
     return writer;
   },
@@ -108,7 +114,7 @@ export const EventEpochStart: MessageFns<EventEpochStart, "akash.epochs.v1beta1.
             break;
           }
 
-          message.epochNumber = Long.fromString(reader.int64().toString());
+          message.epochNumber = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -116,7 +122,7 @@ export const EventEpochStart: MessageFns<EventEpochStart, "akash.epochs.v1beta1.
             break;
           }
 
-          message.epochStartTime = Long.fromString(reader.int64().toString());
+          message.epochStartTime = reader.int64() as bigint;
           continue;
         }
       }
@@ -130,37 +136,33 @@ export const EventEpochStart: MessageFns<EventEpochStart, "akash.epochs.v1beta1.
 
   fromJSON(object: any): EventEpochStart {
     return {
-      epochNumber: isSet(object.epoch_number) ? Long.fromValue(object.epoch_number) : Long.ZERO,
-      epochStartTime: isSet(object.epoch_start_time) ? Long.fromValue(object.epoch_start_time) : Long.ZERO,
+      epochNumber: isSet(object.epoch_number) ? BigInt(object.epoch_number) : 0n,
+      epochStartTime: isSet(object.epoch_start_time) ? BigInt(object.epoch_start_time) : 0n,
     };
   },
 
   toJSON(message: EventEpochStart): unknown {
     const obj: any = {};
-    if (!message.epochNumber.equals(Long.ZERO)) {
-      obj.epoch_number = (message.epochNumber || Long.ZERO).toString();
+    if (message.epochNumber !== 0n) {
+      obj.epoch_number = message.epochNumber.toString();
     }
-    if (!message.epochStartTime.equals(Long.ZERO)) {
-      obj.epoch_start_time = (message.epochStartTime || Long.ZERO).toString();
+    if (message.epochStartTime !== 0n) {
+      obj.epoch_start_time = message.epochStartTime.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventEpochStart>): EventEpochStart {
     const message = createBaseEventEpochStart();
-    message.epochNumber = (object.epochNumber !== undefined && object.epochNumber !== null)
-      ? Long.fromValue(object.epochNumber)
-      : Long.ZERO;
-    message.epochStartTime = (object.epochStartTime !== undefined && object.epochStartTime !== null)
-      ? Long.fromValue(object.epochStartTime)
-      : Long.ZERO;
+    message.epochNumber = (object.epochNumber !== undefined && object.epochNumber !== null) ? BigInt(object.epochNumber) : 0n;
+    message.epochStartTime = (object.epochStartTime !== undefined && object.epochStartTime !== null) ? BigInt(object.epochStartTime) : 0n;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

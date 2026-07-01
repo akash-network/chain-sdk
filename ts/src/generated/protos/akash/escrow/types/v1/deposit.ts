@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { DecCoin } from "../../../../cosmos/base/v1beta1/coin.ts";
 import { Source, sourceFromJSON, sourceToJSON } from "../../../base/deposit/v1/deposit.ts";
 
@@ -25,7 +24,7 @@ export interface Depositor {
    */
   owner: string;
   /** Height blockchain height at which deposit was created */
-  height: Long;
+  height: bigint;
   /** Source indicated origination of the funds */
   source: Source;
   /** Balance amount of funds available to spend in this deposit. */
@@ -33,7 +32,7 @@ export interface Depositor {
 }
 
 function createBaseDepositor(): Depositor {
-  return { owner: "", height: Long.ZERO, source: 0, balance: undefined };
+  return { owner: "", height: 0n, source: 0, balance: undefined };
 }
 
 export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor"> = {
@@ -43,8 +42,11 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(16).int64(message.height);
     }
     if (message.source !== 0) {
       writer.uint32(24).int32(message.source);
@@ -75,7 +77,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
         case 3: {
@@ -106,7 +108,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
   fromJSON(object: any): Depositor {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
       source: isSet(object.source) ? sourceFromJSON(object.source) : 0,
       balance: isSet(object.balance) ? DecCoin.fromJSON(object.balance) : undefined,
     };
@@ -117,8 +119,8 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     if (message.source !== 0) {
       obj.source = sourceToJSON(message.source);
@@ -131,9 +133,7 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
   fromPartial(object: DeepPartial<Depositor>): Depositor {
     const message = createBaseDepositor();
     message.owner = object.owner ?? "";
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     message.source = object.source ?? 0;
     message.balance = (object.balance !== undefined && object.balance !== null)
       ? DecCoin.fromPartial(object.balance)
@@ -142,10 +142,10 @@ export const Depositor: MessageFns<Depositor, "akash.escrow.types.v1.Depositor">
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

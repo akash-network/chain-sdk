@@ -8,11 +8,10 @@ import type { DeepPartial, MessageFns } from "../../../../encoding/typeEncodingH
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 export interface Proof {
-  total: Long;
-  index: Long;
+  total: bigint;
+  index: bigint;
   leafHash: Uint8Array;
   aunts: Uint8Array[];
 }
@@ -47,18 +46,24 @@ export interface ProofOps {
 }
 
 function createBaseProof(): Proof {
-  return { total: Long.ZERO, index: Long.ZERO, leafHash: new Uint8Array(0), aunts: [] };
+  return { total: 0n, index: 0n, leafHash: new Uint8Array(0), aunts: [] };
 }
 
 export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
   $type: "tendermint.crypto.Proof" as const,
 
   encode(message: Proof, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.total.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.total.toString());
+    if (message.total !== 0n) {
+      if (BigInt.asIntN(64, message.total) !== message.total) {
+        throw new globalThis.Error("value provided for field message.total of type int64 too large");
+      }
+      writer.uint32(8).int64(message.total);
     }
-    if (!message.index.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.index.toString());
+    if (message.index !== 0n) {
+      if (BigInt.asIntN(64, message.index) !== message.index) {
+        throw new globalThis.Error("value provided for field message.index of type int64 too large");
+      }
+      writer.uint32(16).int64(message.index);
     }
     if (message.leafHash.length !== 0) {
       writer.uint32(26).bytes(message.leafHash);
@@ -81,7 +86,7 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
             break;
           }
 
-          message.total = Long.fromString(reader.int64().toString());
+          message.total = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -89,7 +94,7 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
             break;
           }
 
-          message.index = Long.fromString(reader.int64().toString());
+          message.index = reader.int64() as bigint;
           continue;
         }
         case 3: {
@@ -119,8 +124,8 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
 
   fromJSON(object: any): Proof {
     return {
-      total: isSet(object.total) ? Long.fromValue(object.total) : Long.ZERO,
-      index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
+      total: isSet(object.total) ? BigInt(object.total) : 0n,
+      index: isSet(object.index) ? BigInt(object.index) : 0n,
       leafHash: isSet(object.leaf_hash) ? bytesFromBase64(object.leaf_hash) : new Uint8Array(0),
       aunts: globalThis.Array.isArray(object?.aunts) ? object.aunts.map((e: any) => bytesFromBase64(e)) : [],
     };
@@ -128,11 +133,11 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
 
   toJSON(message: Proof): unknown {
     const obj: any = {};
-    if (!message.total.equals(Long.ZERO)) {
-      obj.total = (message.total || Long.ZERO).toString();
+    if (message.total !== 0n) {
+      obj.total = message.total.toString();
     }
-    if (!message.index.equals(Long.ZERO)) {
-      obj.index = (message.index || Long.ZERO).toString();
+    if (message.index !== 0n) {
+      obj.index = message.index.toString();
     }
     if (message.leafHash.length !== 0) {
       obj.leaf_hash = base64FromBytes(message.leafHash);
@@ -144,8 +149,8 @@ export const Proof: MessageFns<Proof, "tendermint.crypto.Proof"> = {
   },
   fromPartial(object: DeepPartial<Proof>): Proof {
     const message = createBaseProof();
-    message.total = (object.total !== undefined && object.total !== null) ? Long.fromValue(object.total) : Long.ZERO;
-    message.index = (object.index !== undefined && object.index !== null) ? Long.fromValue(object.index) : Long.ZERO;
+    message.total = (object.total !== undefined && object.total !== null) ? BigInt(object.total) : 0n;
+    message.index = (object.index !== undefined && object.index !== null) ? BigInt(object.index) : 0n;
     message.leafHash = object.leafHash ?? new Uint8Array(0);
     message.aunts = object.aunts?.map((e) => e) || [];
     return message;
@@ -487,10 +492,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
