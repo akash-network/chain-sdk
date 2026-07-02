@@ -82,7 +82,11 @@ export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTT
     nextTries: httpOptions?.next_tries ?? 3,
     nextTimeout: httpOptions?.next_timeout ?? 0,
     nextCases: httpOptions?.next_cases ?? ["error", "timeout"],
-    proxyBufferSize: httpOptions?.proxy_buffer_size ?? 16384,
+    // Not defaulted here: a non-zero manifest-level default would enter the
+    // manifest version hash and break submission to providers that predate this
+    // field. Left at 0 (omitted from the manifest JSON) so the provider applies
+    // its own default. Keep in sync with the Go SDL parser (go/sdl/v2.go).
+    proxyBufferSize: httpOptions?.proxy_buffer_size ?? 0,
   });
 }
 

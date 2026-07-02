@@ -65,8 +65,7 @@
               "nextCases": [
                 "error",
                 "timeout"
-              ],
-              "proxyBufferSize": 16384
+              ]
             },
             "ip": "",
             "endpointSequenceNumber": 0
@@ -87,8 +86,7 @@
               "nextCases": [
                 "error",
                 "timeout"
-              ],
-              "proxyBufferSize": 16384
+              ]
             },
             "ip": "",
             "endpointSequenceNumber": 0
@@ -109,8 +107,7 @@
               "nextCases": [
                 "error",
                 "timeout"
-              ],
-              "proxyBufferSize": 16384
+              ]
             },
             "ip": "",
             "endpointSequenceNumber": 0

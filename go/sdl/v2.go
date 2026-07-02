@@ -30,7 +30,6 @@ const (
 	nextCaseOff               = "off"
 	defaultMaxBodySize        = uint32(1048576)
 	upperLimitBodySize        = uint32(104857600)
-	defaultProxyBufferSize    = uint32(16384)
 	upperLimitProxyBufferSize = uint32(1048576)
 	defaultReadTimeout        = uint32(60000)
 	upperLimitReadTimeout     = defaultReadTimeout
@@ -101,10 +100,14 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: body size cannot be greater than %d bytes", errHTTPOptionNotAllowed, upperLimitBodySize)
 	}
 
+	// proxy_buffer_size is intentionally NOT defaulted at the manifest level.
+	// A non-zero default would enter the manifest version hash and break
+	// submission to providers that predate this field (they compute a version
+	// without it). Left at 0 (and omitted from JSON via omitempty), an unset
+	// value keeps the manifest byte-identical to older manifests. The provider
+	// applies its own default when the value is 0.
 	proxyBufferSize := ho.ProxyBufferSize
-	if proxyBufferSize == 0 {
-		proxyBufferSize = defaultProxyBufferSize
-	} else if proxyBufferSize > upperLimitProxyBufferSize {
+	if proxyBufferSize > upperLimitProxyBufferSize {
 		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: proxy buffer size cannot be greater than %d bytes", errHTTPOptionNotAllowed, upperLimitProxyBufferSize)
 	}
 

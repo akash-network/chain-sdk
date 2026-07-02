@@ -64,8 +64,7 @@
               "nextCases": [
                 "error",
                 "timeout"
-              ],
-              "proxyBufferSize": 16384
+              ]
             },
             "ip": "meow",
             "endpointSequenceNumber": 2
@@ -134,8 +133,7 @@
               "nextCases": [
                 "error",
                 "timeout"
-              ],
-              "proxyBufferSize": 16384
+              ]
             },
             "ip": "meow",
             "endpointSequenceNumber": 2
