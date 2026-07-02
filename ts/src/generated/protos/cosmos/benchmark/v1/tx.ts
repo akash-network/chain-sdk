@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Op } from "./benchmark.ts";
 
 /** MsgLoadTestOps defines a message containing a sequence of load test operations. */
@@ -19,8 +18,8 @@ export interface MsgLoadTest {
 
 /** MsgLoadTestResponse defines a message containing the results of a load test operation. */
 export interface MsgLoadTestResponse {
-  totalTime: Long;
-  totalErrors: Long;
+  totalTime: bigint;
+  totalErrors: bigint;
 }
 
 function createBaseMsgLoadTest(): MsgLoadTest {
@@ -98,18 +97,24 @@ export const MsgLoadTest: MessageFns<MsgLoadTest, "cosmos.benchmark.v1.MsgLoadTe
 };
 
 function createBaseMsgLoadTestResponse(): MsgLoadTestResponse {
-  return { totalTime: Long.UZERO, totalErrors: Long.UZERO };
+  return { totalTime: 0n, totalErrors: 0n };
 }
 
 export const MsgLoadTestResponse: MessageFns<MsgLoadTestResponse, "cosmos.benchmark.v1.MsgLoadTestResponse"> = {
   $type: "cosmos.benchmark.v1.MsgLoadTestResponse" as const,
 
   encode(message: MsgLoadTestResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.totalTime.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.totalTime.toString());
+    if (message.totalTime !== 0n) {
+      if (BigInt.asUintN(64, message.totalTime) !== message.totalTime) {
+        throw new globalThis.Error("value provided for field message.totalTime of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.totalTime);
     }
-    if (!message.totalErrors.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.totalErrors.toString());
+    if (message.totalErrors !== 0n) {
+      if (BigInt.asUintN(64, message.totalErrors) !== message.totalErrors) {
+        throw new globalThis.Error("value provided for field message.totalErrors of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.totalErrors);
     }
     return writer;
   },
@@ -126,7 +131,7 @@ export const MsgLoadTestResponse: MessageFns<MsgLoadTestResponse, "cosmos.benchm
             break;
           }
 
-          message.totalTime = Long.fromString(reader.uint64().toString(), true);
+          message.totalTime = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -134,7 +139,7 @@ export const MsgLoadTestResponse: MessageFns<MsgLoadTestResponse, "cosmos.benchm
             break;
           }
 
-          message.totalErrors = Long.fromString(reader.uint64().toString(), true);
+          message.totalErrors = reader.uint64() as bigint;
           continue;
         }
       }
@@ -148,29 +153,25 @@ export const MsgLoadTestResponse: MessageFns<MsgLoadTestResponse, "cosmos.benchm
 
   fromJSON(object: any): MsgLoadTestResponse {
     return {
-      totalTime: isSet(object.total_time) ? Long.fromValue(object.total_time) : Long.UZERO,
-      totalErrors: isSet(object.total_errors) ? Long.fromValue(object.total_errors) : Long.UZERO,
+      totalTime: isSet(object.total_time) ? BigInt(object.total_time) : 0n,
+      totalErrors: isSet(object.total_errors) ? BigInt(object.total_errors) : 0n,
     };
   },
 
   toJSON(message: MsgLoadTestResponse): unknown {
     const obj: any = {};
-    if (!message.totalTime.equals(Long.UZERO)) {
-      obj.total_time = (message.totalTime || Long.UZERO).toString();
+    if (message.totalTime !== 0n) {
+      obj.total_time = message.totalTime.toString();
     }
-    if (!message.totalErrors.equals(Long.UZERO)) {
-      obj.total_errors = (message.totalErrors || Long.UZERO).toString();
+    if (message.totalErrors !== 0n) {
+      obj.total_errors = message.totalErrors.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<MsgLoadTestResponse>): MsgLoadTestResponse {
     const message = createBaseMsgLoadTestResponse();
-    message.totalTime = (object.totalTime !== undefined && object.totalTime !== null)
-      ? Long.fromValue(object.totalTime)
-      : Long.UZERO;
-    message.totalErrors = (object.totalErrors !== undefined && object.totalErrors !== null)
-      ? Long.fromValue(object.totalErrors)
-      : Long.UZERO;
+    message.totalTime = (object.totalTime !== undefined && object.totalTime !== null) ? BigInt(object.totalTime) : 0n;
+    message.totalErrors = (object.totalErrors !== undefined && object.totalErrors !== null) ? BigInt(object.totalErrors) : 0n;
     return message;
   },
 };
@@ -200,10 +201,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { ModuleVersion, Plan } from "./upgrade.ts";
 
 /**
@@ -42,7 +41,7 @@ export interface QueryAppliedPlanRequest {
  */
 export interface QueryAppliedPlanResponse {
   /** height is the block height at which the plan was applied. */
-  height: Long;
+  height: bigint;
 }
 
 /**
@@ -56,7 +55,7 @@ export interface QueryUpgradedConsensusStateRequest {
    * last height of the current chain must be sent in request
    * as this is the height under which next consensus state is stored
    */
-  lastHeight: Long;
+  lastHeight: bigint;
 }
 
 /**
@@ -263,7 +262,7 @@ export const QueryAppliedPlanRequest: MessageFns<
 };
 
 function createBaseQueryAppliedPlanResponse(): QueryAppliedPlanResponse {
-  return { height: Long.ZERO };
+  return { height: 0n };
 }
 
 export const QueryAppliedPlanResponse: MessageFns<
@@ -273,8 +272,11 @@ export const QueryAppliedPlanResponse: MessageFns<
   $type: "cosmos.upgrade.v1beta1.QueryAppliedPlanResponse" as const,
 
   encode(message: QueryAppliedPlanResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(8).int64(message.height);
     }
     return writer;
   },
@@ -291,7 +293,7 @@ export const QueryAppliedPlanResponse: MessageFns<
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
       }
@@ -304,27 +306,25 @@ export const QueryAppliedPlanResponse: MessageFns<
   },
 
   fromJSON(object: any): QueryAppliedPlanResponse {
-    return { height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO };
+    return { height: isSet(object.height) ? BigInt(object.height) : 0n };
   },
 
   toJSON(message: QueryAppliedPlanResponse): unknown {
     const obj: any = {};
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryAppliedPlanResponse>): QueryAppliedPlanResponse {
     const message = createBaseQueryAppliedPlanResponse();
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     return message;
   },
 };
 
 function createBaseQueryUpgradedConsensusStateRequest(): QueryUpgradedConsensusStateRequest {
-  return { lastHeight: Long.ZERO };
+  return { lastHeight: 0n };
 }
 
 export const QueryUpgradedConsensusStateRequest: MessageFns<
@@ -334,8 +334,11 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
   $type: "cosmos.upgrade.v1beta1.QueryUpgradedConsensusStateRequest" as const,
 
   encode(message: QueryUpgradedConsensusStateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.lastHeight.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.lastHeight.toString());
+    if (message.lastHeight !== 0n) {
+      if (BigInt.asIntN(64, message.lastHeight) !== message.lastHeight) {
+        throw new globalThis.Error("value provided for field message.lastHeight of type int64 too large");
+      }
+      writer.uint32(8).int64(message.lastHeight);
     }
     return writer;
   },
@@ -352,7 +355,7 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
             break;
           }
 
-          message.lastHeight = Long.fromString(reader.int64().toString());
+          message.lastHeight = reader.int64() as bigint;
           continue;
         }
       }
@@ -365,21 +368,19 @@ export const QueryUpgradedConsensusStateRequest: MessageFns<
   },
 
   fromJSON(object: any): QueryUpgradedConsensusStateRequest {
-    return { lastHeight: isSet(object.last_height) ? Long.fromValue(object.last_height) : Long.ZERO };
+    return { lastHeight: isSet(object.last_height) ? BigInt(object.last_height) : 0n };
   },
 
   toJSON(message: QueryUpgradedConsensusStateRequest): unknown {
     const obj: any = {};
-    if (!message.lastHeight.equals(Long.ZERO)) {
-      obj.last_height = (message.lastHeight || Long.ZERO).toString();
+    if (message.lastHeight !== 0n) {
+      obj.last_height = message.lastHeight.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryUpgradedConsensusStateRequest>): QueryUpgradedConsensusStateRequest {
     const message = createBaseQueryUpgradedConsensusStateRequest();
-    message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null)
-      ? Long.fromValue(object.lastHeight)
-      : Long.ZERO;
+    message.lastHeight = (object.lastHeight !== undefined && object.lastHeight !== null) ? BigInt(object.lastHeight) : 0n;
     return message;
   },
 };
@@ -695,10 +696,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

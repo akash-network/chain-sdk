@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Duration } from "../../../google/protobuf/duration.ts";
 import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "./types.ts";
 
@@ -22,18 +21,18 @@ export interface Reclamation {
    * started_at is the block height at which reclamation was initiated.
    * Zero means reclamation has not been started yet.
    */
-  startedAt: Long;
+  startedAt: bigint;
   /**
    * deadline is the unix timestamp at which the reclamation window expires.
    * Zero means reclamation has not been started yet.
    */
-  deadline: Long;
+  deadline: bigint;
   /** reason is the provider's stated reason for reclamation. */
   reason: LeaseClosedReason;
 }
 
 function createBaseReclamation(): Reclamation {
-  return { window: undefined, startedAt: Long.ZERO, deadline: Long.ZERO, reason: 0 };
+  return { window: undefined, startedAt: 0n, deadline: 0n, reason: 0 };
 }
 
 export const Reclamation: MessageFns<Reclamation, "akash.market.v1.Reclamation"> = {
@@ -43,11 +42,17 @@ export const Reclamation: MessageFns<Reclamation, "akash.market.v1.Reclamation">
     if (message.window !== undefined) {
       Duration.encode(message.window, writer.uint32(10).fork()).join();
     }
-    if (!message.startedAt.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.startedAt.toString());
+    if (message.startedAt !== 0n) {
+      if (BigInt.asIntN(64, message.startedAt) !== message.startedAt) {
+        throw new globalThis.Error("value provided for field message.startedAt of type int64 too large");
+      }
+      writer.uint32(16).int64(message.startedAt);
     }
-    if (!message.deadline.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.deadline.toString());
+    if (message.deadline !== 0n) {
+      if (BigInt.asIntN(64, message.deadline) !== message.deadline) {
+        throw new globalThis.Error("value provided for field message.deadline of type int64 too large");
+      }
+      writer.uint32(24).int64(message.deadline);
     }
     if (message.reason !== 0) {
       writer.uint32(32).int32(message.reason);
@@ -75,7 +80,7 @@ export const Reclamation: MessageFns<Reclamation, "akash.market.v1.Reclamation">
             break;
           }
 
-          message.startedAt = Long.fromString(reader.int64().toString());
+          message.startedAt = reader.int64() as bigint;
           continue;
         }
         case 3: {
@@ -83,7 +88,7 @@ export const Reclamation: MessageFns<Reclamation, "akash.market.v1.Reclamation">
             break;
           }
 
-          message.deadline = Long.fromString(reader.int64().toString());
+          message.deadline = reader.int64() as bigint;
           continue;
         }
         case 4: {
@@ -106,8 +111,8 @@ export const Reclamation: MessageFns<Reclamation, "akash.market.v1.Reclamation">
   fromJSON(object: any): Reclamation {
     return {
       window: isSet(object.window) ? Duration.fromJSON(object.window) : undefined,
-      startedAt: isSet(object.started_at) ? Long.fromValue(object.started_at) : Long.ZERO,
-      deadline: isSet(object.deadline) ? Long.fromValue(object.deadline) : Long.ZERO,
+      startedAt: isSet(object.started_at) ? BigInt(object.started_at) : 0n,
+      deadline: isSet(object.deadline) ? BigInt(object.deadline) : 0n,
       reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
     };
   },
@@ -117,11 +122,11 @@ export const Reclamation: MessageFns<Reclamation, "akash.market.v1.Reclamation">
     if (message.window !== undefined) {
       obj.window = Duration.toJSON(message.window);
     }
-    if (!message.startedAt.equals(Long.ZERO)) {
-      obj.started_at = (message.startedAt || Long.ZERO).toString();
+    if (message.startedAt !== 0n) {
+      obj.started_at = message.startedAt.toString();
     }
-    if (!message.deadline.equals(Long.ZERO)) {
-      obj.deadline = (message.deadline || Long.ZERO).toString();
+    if (message.deadline !== 0n) {
+      obj.deadline = message.deadline.toString();
     }
     if (message.reason !== 0) {
       obj.reason = leaseClosedReasonToJSON(message.reason);
@@ -133,21 +138,17 @@ export const Reclamation: MessageFns<Reclamation, "akash.market.v1.Reclamation">
     message.window = (object.window !== undefined && object.window !== null)
       ? Duration.fromPartial(object.window)
       : undefined;
-    message.startedAt = (object.startedAt !== undefined && object.startedAt !== null)
-      ? Long.fromValue(object.startedAt)
-      : Long.ZERO;
-    message.deadline = (object.deadline !== undefined && object.deadline !== null)
-      ? Long.fromValue(object.deadline)
-      : Long.ZERO;
+    message.startedAt = (object.startedAt !== undefined && object.startedAt !== null) ? BigInt(object.startedAt) : 0n;
+    message.deadline = (object.deadline !== undefined && object.deadline !== null) ? BigInt(object.deadline) : 0n;
     message.reason = object.reason ?? 0;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /** DeploymentFilters defines filters used to filter deployments. */
 export interface DeploymentFilters {
@@ -24,7 +23,7 @@ export interface DeploymentFilters {
    * Dseq (deployment sequence number) is a unique numeric identifier for the deployment.
    * It is used to differentiate deployments created by the same owner.
    */
-  dseq: Long;
+  dseq: bigint;
   /** State defines the sate of the deployment. A deployment can be either active or inactive. */
   state: string;
 }
@@ -43,18 +42,18 @@ export interface GroupFilters {
    * Dseq (deployment sequence number) is a unique numeric identifier for the deployment.
    * It is used to differentiate deployments created by the same owner.
    */
-  dseq: Long;
+  dseq: bigint;
   /**
    * Gseq (group sequence number) is a unique numeric identifier for the group.
    * It is used to differentiate groups created by the same owner in a deployment.
    */
-  gseq: Long;
+  gseq: bigint;
   /** State defines the sate of the deployment. A deployment can be either active or inactive. */
   state: string;
 }
 
 function createBaseDeploymentFilters(): DeploymentFilters {
-  return { owner: "", dseq: Long.UZERO, state: "" };
+  return { owner: "", dseq: 0n, state: "" };
 }
 
 export const DeploymentFilters: MessageFns<DeploymentFilters, "akash.deployment.v1beta4.DeploymentFilters"> = {
@@ -64,8 +63,11 @@ export const DeploymentFilters: MessageFns<DeploymentFilters, "akash.deployment.
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.dseq.toString());
+    if (message.dseq !== 0n) {
+      if (BigInt.asUintN(64, message.dseq) !== message.dseq) {
+        throw new globalThis.Error("value provided for field message.dseq of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.dseq);
     }
     if (message.state !== "") {
       writer.uint32(26).string(message.state);
@@ -93,7 +95,7 @@ export const DeploymentFilters: MessageFns<DeploymentFilters, "akash.deployment.
             break;
           }
 
-          message.dseq = Long.fromString(reader.uint64().toString(), true);
+          message.dseq = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -116,7 +118,7 @@ export const DeploymentFilters: MessageFns<DeploymentFilters, "akash.deployment.
   fromJSON(object: any): DeploymentFilters {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      dseq: isSet(object.dseq) ? Long.fromValue(object.dseq) : Long.UZERO,
+      dseq: isSet(object.dseq) ? BigInt(object.dseq) : 0n,
       state: isSet(object.state) ? globalThis.String(object.state) : "",
     };
   },
@@ -126,8 +128,8 @@ export const DeploymentFilters: MessageFns<DeploymentFilters, "akash.deployment.
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      obj.dseq = (message.dseq || Long.UZERO).toString();
+    if (message.dseq !== 0n) {
+      obj.dseq = message.dseq.toString();
     }
     if (message.state !== "") {
       obj.state = message.state;
@@ -137,14 +139,14 @@ export const DeploymentFilters: MessageFns<DeploymentFilters, "akash.deployment.
   fromPartial(object: DeepPartial<DeploymentFilters>): DeploymentFilters {
     const message = createBaseDeploymentFilters();
     message.owner = object.owner ?? "";
-    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? Long.fromValue(object.dseq) : Long.UZERO;
+    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? BigInt(object.dseq) : 0n;
     message.state = object.state ?? "";
     return message;
   },
 };
 
 function createBaseGroupFilters(): GroupFilters {
-  return { owner: "", dseq: Long.UZERO, gseq: Long.UZERO, state: "" };
+  return { owner: "", dseq: 0n, gseq: 0n, state: "" };
 }
 
 export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.GroupFilters"> = {
@@ -154,11 +156,17 @@ export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.Gr
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.dseq.toString());
+    if (message.dseq !== 0n) {
+      if (BigInt.asUintN(64, message.dseq) !== message.dseq) {
+        throw new globalThis.Error("value provided for field message.dseq of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.dseq);
     }
-    if (!message.gseq.equals(Long.UZERO)) {
-      writer.uint32(24).uint64(message.gseq.toString());
+    if (message.gseq !== 0n) {
+      if (BigInt.asUintN(64, message.gseq) !== message.gseq) {
+        throw new globalThis.Error("value provided for field message.gseq of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.gseq);
     }
     if (message.state !== "") {
       writer.uint32(34).string(message.state);
@@ -186,7 +194,7 @@ export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.Gr
             break;
           }
 
-          message.dseq = Long.fromString(reader.uint64().toString(), true);
+          message.dseq = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -194,7 +202,7 @@ export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.Gr
             break;
           }
 
-          message.gseq = Long.fromString(reader.uint64().toString(), true);
+          message.gseq = reader.uint64() as bigint;
           continue;
         }
         case 4: {
@@ -217,8 +225,8 @@ export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.Gr
   fromJSON(object: any): GroupFilters {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      dseq: isSet(object.dseq) ? Long.fromValue(object.dseq) : Long.UZERO,
-      gseq: isSet(object.gseq) ? Long.fromValue(object.gseq) : Long.UZERO,
+      dseq: isSet(object.dseq) ? BigInt(object.dseq) : 0n,
+      gseq: isSet(object.gseq) ? BigInt(object.gseq) : 0n,
       state: isSet(object.state) ? globalThis.String(object.state) : "",
     };
   },
@@ -228,11 +236,11 @@ export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.Gr
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      obj.dseq = (message.dseq || Long.UZERO).toString();
+    if (message.dseq !== 0n) {
+      obj.dseq = message.dseq.toString();
     }
-    if (!message.gseq.equals(Long.UZERO)) {
-      obj.gseq = (message.gseq || Long.UZERO).toString();
+    if (message.gseq !== 0n) {
+      obj.gseq = message.gseq.toString();
     }
     if (message.state !== "") {
       obj.state = message.state;
@@ -242,17 +250,17 @@ export const GroupFilters: MessageFns<GroupFilters, "akash.deployment.v1beta4.Gr
   fromPartial(object: DeepPartial<GroupFilters>): GroupFilters {
     const message = createBaseGroupFilters();
     message.owner = object.owner ?? "";
-    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? Long.fromValue(object.dseq) : Long.UZERO;
-    message.gseq = (object.gseq !== undefined && object.gseq !== null) ? Long.fromValue(object.gseq) : Long.UZERO;
+    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? BigInt(object.dseq) : 0n;
+    message.gseq = (object.gseq !== undefined && object.gseq !== null) ? BigInt(object.gseq) : 0n;
     message.state = object.state ?? "";
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

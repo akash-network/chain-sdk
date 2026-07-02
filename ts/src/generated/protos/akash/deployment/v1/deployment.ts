@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Duration } from "../../../google/protobuf/duration.ts";
 
 /**
@@ -28,7 +27,7 @@ export interface DeploymentID {
    * Dseq (deployment sequence number) is a unique numeric identifier for the deployment.
    * It is used to differentiate deployments created by the same owner.
    */
-  dseq: Long;
+  dseq: bigint;
 }
 
 /** Deployment stores deploymentID, state and checksum details. */
@@ -45,7 +44,7 @@ export interface Deployment {
   /** Hash is an hashed representation of the deployment. */
   hash: Uint8Array;
   /** CreatedAt indicates when the deployment was created as a block height value. */
-  createdAt: Long;
+  createdAt: bigint;
   /**
    * reclamation stores the deployment's reclamation requirements for persistence.
    * Needed so that StartGroup can propagate reclamation to newly created orders.
@@ -106,7 +105,7 @@ export interface DeploymentReclamation {
 }
 
 function createBaseDeploymentID(): DeploymentID {
-  return { owner: "", dseq: Long.UZERO };
+  return { owner: "", dseq: 0n };
 }
 
 export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.DeploymentID"> = {
@@ -116,8 +115,11 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.dseq.toString());
+    if (message.dseq !== 0n) {
+      if (BigInt.asUintN(64, message.dseq) !== message.dseq) {
+        throw new globalThis.Error("value provided for field message.dseq of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.dseq);
     }
     return writer;
   },
@@ -142,7 +144,7 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
             break;
           }
 
-          message.dseq = Long.fromString(reader.uint64().toString(), true);
+          message.dseq = reader.uint64() as bigint;
           continue;
         }
       }
@@ -157,7 +159,7 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
   fromJSON(object: any): DeploymentID {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      dseq: isSet(object.dseq) ? Long.fromValue(object.dseq) : Long.UZERO,
+      dseq: isSet(object.dseq) ? BigInt(object.dseq) : 0n,
     };
   },
 
@@ -166,21 +168,21 @@ export const DeploymentID: MessageFns<DeploymentID, "akash.deployment.v1.Deploym
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      obj.dseq = (message.dseq || Long.UZERO).toString();
+    if (message.dseq !== 0n) {
+      obj.dseq = message.dseq.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<DeploymentID>): DeploymentID {
     const message = createBaseDeploymentID();
     message.owner = object.owner ?? "";
-    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? Long.fromValue(object.dseq) : Long.UZERO;
+    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? BigInt(object.dseq) : 0n;
     return message;
   },
 };
 
 function createBaseDeployment(): Deployment {
-  return { id: undefined, state: 0, hash: new Uint8Array(0), createdAt: Long.ZERO, reclamation: undefined };
+  return { id: undefined, state: 0, hash: new Uint8Array(0), createdAt: 0n, reclamation: undefined };
 }
 
 export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"> = {
@@ -196,8 +198,11 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     if (message.hash.length !== 0) {
       writer.uint32(26).bytes(message.hash);
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.createdAt.toString());
+    if (message.createdAt !== 0n) {
+      if (BigInt.asIntN(64, message.createdAt) !== message.createdAt) {
+        throw new globalThis.Error("value provided for field message.createdAt of type int64 too large");
+      }
+      writer.uint32(32).int64(message.createdAt);
     }
     if (message.reclamation !== undefined) {
       DeploymentReclamation.encode(message.reclamation, writer.uint32(42).fork()).join();
@@ -241,7 +246,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
             break;
           }
 
-          message.createdAt = Long.fromString(reader.int64().toString());
+          message.createdAt = reader.int64() as bigint;
           continue;
         }
         case 5: {
@@ -266,7 +271,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
       id: isSet(object.id) ? DeploymentID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? deployment_StateFromJSON(object.state) : 0,
       hash: isSet(object.hash) ? bytesFromBase64(object.hash) : new Uint8Array(0),
-      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? BigInt(object.created_at) : 0n,
       reclamation: isSet(object.reclamation) ? DeploymentReclamation.fromJSON(object.reclamation) : undefined,
     };
   },
@@ -282,8 +287,8 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     if (message.hash.length !== 0) {
       obj.hash = base64FromBytes(message.hash);
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      obj.created_at = (message.createdAt || Long.ZERO).toString();
+    if (message.createdAt !== 0n) {
+      obj.created_at = message.createdAt.toString();
     }
     if (message.reclamation !== undefined) {
       obj.reclamation = DeploymentReclamation.toJSON(message.reclamation);
@@ -295,9 +300,7 @@ export const Deployment: MessageFns<Deployment, "akash.deployment.v1.Deployment"
     message.id = (object.id !== undefined && object.id !== null) ? DeploymentID.fromPartial(object.id) : undefined;
     message.state = object.state ?? 0;
     message.hash = object.hash ?? new Uint8Array(0);
-    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
-      ? Long.fromValue(object.createdAt)
-      : Long.ZERO;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null) ? BigInt(object.createdAt) : 0n;
     message.reclamation = (object.reclamation !== undefined && object.reclamation !== null)
       ? DeploymentReclamation.fromPartial(object.reclamation)
       : undefined;
@@ -388,10 +391,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

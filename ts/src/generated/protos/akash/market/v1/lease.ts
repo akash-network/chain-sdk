@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Reclamation } from "./reclamation.ts";
 import { LeaseClosedReason, leaseClosedReasonFromJSON, leaseClosedReasonToJSON } from "./types.ts";
@@ -27,7 +26,7 @@ export interface LeaseID {
    * Dseq (deployment sequence number) is a unique numeric identifier for the deployment.
    * It is used to differentiate deployments created by the same owner.
    */
-  dseq: Long;
+  dseq: bigint;
   /**
    * Gseq (group sequence number) is a unique numeric identifier for the group.
    * It is used to differentiate groups created by the same owner in a deployment.
@@ -68,9 +67,9 @@ export interface Lease {
     | DecCoin
     | undefined;
   /** CreatedAt is the block height at which the Lease was created. */
-  createdAt: Long;
+  createdAt: bigint;
   /** ClosedOn is the block height at which the Lease was closed. */
-  closedOn: Long;
+  closedOn: bigint;
   reason: LeaseClosedReason;
   /**
    * Reclamation holds reclamation configuration and state, if applicable.
@@ -137,7 +136,7 @@ export function lease_StateToJSON(object: Lease_State): string {
 }
 
 function createBaseLeaseID(): LeaseID {
-  return { owner: "", dseq: Long.UZERO, gseq: 0, oseq: 0, provider: "", bseq: 0 };
+  return { owner: "", dseq: 0n, gseq: 0, oseq: 0, provider: "", bseq: 0 };
 }
 
 export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
@@ -147,8 +146,11 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.dseq.toString());
+    if (message.dseq !== 0n) {
+      if (BigInt.asUintN(64, message.dseq) !== message.dseq) {
+        throw new globalThis.Error("value provided for field message.dseq of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.dseq);
     }
     if (message.gseq !== 0) {
       writer.uint32(24).uint32(message.gseq);
@@ -185,7 +187,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
             break;
           }
 
-          message.dseq = Long.fromString(reader.uint64().toString(), true);
+          message.dseq = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -232,7 +234,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
   fromJSON(object: any): LeaseID {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      dseq: isSet(object.dseq) ? Long.fromValue(object.dseq) : Long.UZERO,
+      dseq: isSet(object.dseq) ? BigInt(object.dseq) : 0n,
       gseq: isSet(object.gseq) ? globalThis.Number(object.gseq) : 0,
       oseq: isSet(object.oseq) ? globalThis.Number(object.oseq) : 0,
       provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
@@ -245,8 +247,8 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      obj.dseq = (message.dseq || Long.UZERO).toString();
+    if (message.dseq !== 0n) {
+      obj.dseq = message.dseq.toString();
     }
     if (message.gseq !== 0) {
       obj.gseq = Math.round(message.gseq);
@@ -265,7 +267,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
   fromPartial(object: DeepPartial<LeaseID>): LeaseID {
     const message = createBaseLeaseID();
     message.owner = object.owner ?? "";
-    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? Long.fromValue(object.dseq) : Long.UZERO;
+    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? BigInt(object.dseq) : 0n;
     message.gseq = object.gseq ?? 0;
     message.oseq = object.oseq ?? 0;
     message.provider = object.provider ?? "";
@@ -275,15 +277,7 @@ export const LeaseID: MessageFns<LeaseID, "akash.market.v1.LeaseID"> = {
 };
 
 function createBaseLease(): Lease {
-  return {
-    id: undefined,
-    state: 0,
-    price: undefined,
-    createdAt: Long.ZERO,
-    closedOn: Long.ZERO,
-    reason: 0,
-    reclamation: undefined,
-  };
+  return { id: undefined, state: 0, price: undefined, createdAt: 0n, closedOn: 0n, reason: 0, reclamation: undefined };
 }
 
 export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
@@ -299,11 +293,17 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     if (message.price !== undefined) {
       DecCoin.encode(message.price, writer.uint32(26).fork()).join();
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.createdAt.toString());
+    if (message.createdAt !== 0n) {
+      if (BigInt.asIntN(64, message.createdAt) !== message.createdAt) {
+        throw new globalThis.Error("value provided for field message.createdAt of type int64 too large");
+      }
+      writer.uint32(32).int64(message.createdAt);
     }
-    if (!message.closedOn.equals(Long.ZERO)) {
-      writer.uint32(40).int64(message.closedOn.toString());
+    if (message.closedOn !== 0n) {
+      if (BigInt.asIntN(64, message.closedOn) !== message.closedOn) {
+        throw new globalThis.Error("value provided for field message.closedOn of type int64 too large");
+      }
+      writer.uint32(40).int64(message.closedOn);
     }
     if (message.reason !== 0) {
       writer.uint32(48).int32(message.reason);
@@ -350,7 +350,7 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
             break;
           }
 
-          message.createdAt = Long.fromString(reader.int64().toString());
+          message.createdAt = reader.int64() as bigint;
           continue;
         }
         case 5: {
@@ -358,7 +358,7 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
             break;
           }
 
-          message.closedOn = Long.fromString(reader.int64().toString());
+          message.closedOn = reader.int64() as bigint;
           continue;
         }
         case 6: {
@@ -391,8 +391,8 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
       id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? lease_StateFromJSON(object.state) : 0,
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
-      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
-      closedOn: isSet(object.closed_on) ? Long.fromValue(object.closed_on) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? BigInt(object.created_at) : 0n,
+      closedOn: isSet(object.closed_on) ? BigInt(object.closed_on) : 0n,
       reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
       reclamation: isSet(object.reclamation) ? Reclamation.fromJSON(object.reclamation) : undefined,
     };
@@ -409,11 +409,11 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     if (message.price !== undefined) {
       obj.price = DecCoin.toJSON(message.price);
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      obj.created_at = (message.createdAt || Long.ZERO).toString();
+    if (message.createdAt !== 0n) {
+      obj.created_at = message.createdAt.toString();
     }
-    if (!message.closedOn.equals(Long.ZERO)) {
-      obj.closed_on = (message.closedOn || Long.ZERO).toString();
+    if (message.closedOn !== 0n) {
+      obj.closed_on = message.closedOn.toString();
     }
     if (message.reason !== 0) {
       obj.reason = leaseClosedReasonToJSON(message.reason);
@@ -430,12 +430,8 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
     message.price = (object.price !== undefined && object.price !== null)
       ? DecCoin.fromPartial(object.price)
       : undefined;
-    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
-      ? Long.fromValue(object.createdAt)
-      : Long.ZERO;
-    message.closedOn = (object.closedOn !== undefined && object.closedOn !== null)
-      ? Long.fromValue(object.closedOn)
-      : Long.ZERO;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null) ? BigInt(object.createdAt) : 0n;
+    message.closedOn = (object.closedOn !== undefined && object.closedOn !== null) ? BigInt(object.closedOn) : 0n;
     message.reason = object.reason ?? 0;
     message.reclamation = (object.reclamation !== undefined && object.reclamation !== null)
       ? Reclamation.fromPartial(object.reclamation)
@@ -444,10 +440,10 @@ export const Lease: MessageFns<Lease, "akash.market.v1.Lease"> = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

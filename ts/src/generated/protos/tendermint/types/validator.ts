@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../encoding/typeEncodingH
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { PublicKey } from "../crypto/keys.ts";
 
 /** BlockIdFlag indicates which BlockID the signature is for */
@@ -64,23 +63,23 @@ export function blockIDFlagToJSON(object: BlockIDFlag): string {
 export interface ValidatorSet {
   validators: Validator[];
   proposer: Validator | undefined;
-  totalVotingPower: Long;
+  totalVotingPower: bigint;
 }
 
 export interface Validator {
   address: Uint8Array;
   pubKey: PublicKey | undefined;
-  votingPower: Long;
-  proposerPriority: Long;
+  votingPower: bigint;
+  proposerPriority: bigint;
 }
 
 export interface SimpleValidator {
   pubKey: PublicKey | undefined;
-  votingPower: Long;
+  votingPower: bigint;
 }
 
 function createBaseValidatorSet(): ValidatorSet {
-  return { validators: [], proposer: undefined, totalVotingPower: Long.ZERO };
+  return { validators: [], proposer: undefined, totalVotingPower: 0n };
 }
 
 export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorSet"> = {
@@ -93,8 +92,11 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
     if (message.proposer !== undefined) {
       Validator.encode(message.proposer, writer.uint32(18).fork()).join();
     }
-    if (!message.totalVotingPower.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.totalVotingPower.toString());
+    if (message.totalVotingPower !== 0n) {
+      if (BigInt.asIntN(64, message.totalVotingPower) !== message.totalVotingPower) {
+        throw new globalThis.Error("value provided for field message.totalVotingPower of type int64 too large");
+      }
+      writer.uint32(24).int64(message.totalVotingPower);
     }
     return writer;
   },
@@ -127,7 +129,7 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
             break;
           }
 
-          message.totalVotingPower = Long.fromString(reader.int64().toString());
+          message.totalVotingPower = reader.int64() as bigint;
           continue;
         }
       }
@@ -145,7 +147,7 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
         ? object.validators.map((e: any) => Validator.fromJSON(e))
         : [],
       proposer: isSet(object.proposer) ? Validator.fromJSON(object.proposer) : undefined,
-      totalVotingPower: isSet(object.total_voting_power) ? Long.fromValue(object.total_voting_power) : Long.ZERO,
+      totalVotingPower: isSet(object.total_voting_power) ? BigInt(object.total_voting_power) : 0n,
     };
   },
 
@@ -157,8 +159,8 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
     if (message.proposer !== undefined) {
       obj.proposer = Validator.toJSON(message.proposer);
     }
-    if (!message.totalVotingPower.equals(Long.ZERO)) {
-      obj.total_voting_power = (message.totalVotingPower || Long.ZERO).toString();
+    if (message.totalVotingPower !== 0n) {
+      obj.total_voting_power = message.totalVotingPower.toString();
     }
     return obj;
   },
@@ -168,15 +170,13 @@ export const ValidatorSet: MessageFns<ValidatorSet, "tendermint.types.ValidatorS
     message.proposer = (object.proposer !== undefined && object.proposer !== null)
       ? Validator.fromPartial(object.proposer)
       : undefined;
-    message.totalVotingPower = (object.totalVotingPower !== undefined && object.totalVotingPower !== null)
-      ? Long.fromValue(object.totalVotingPower)
-      : Long.ZERO;
+    message.totalVotingPower = (object.totalVotingPower !== undefined && object.totalVotingPower !== null) ? BigInt(object.totalVotingPower) : 0n;
     return message;
   },
 };
 
 function createBaseValidator(): Validator {
-  return { address: new Uint8Array(0), pubKey: undefined, votingPower: Long.ZERO, proposerPriority: Long.ZERO };
+  return { address: new Uint8Array(0), pubKey: undefined, votingPower: 0n, proposerPriority: 0n };
 }
 
 export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
@@ -189,11 +189,17 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     if (message.pubKey !== undefined) {
       PublicKey.encode(message.pubKey, writer.uint32(18).fork()).join();
     }
-    if (!message.votingPower.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.votingPower.toString());
+    if (message.votingPower !== 0n) {
+      if (BigInt.asIntN(64, message.votingPower) !== message.votingPower) {
+        throw new globalThis.Error("value provided for field message.votingPower of type int64 too large");
+      }
+      writer.uint32(24).int64(message.votingPower);
     }
-    if (!message.proposerPriority.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.proposerPriority.toString());
+    if (message.proposerPriority !== 0n) {
+      if (BigInt.asIntN(64, message.proposerPriority) !== message.proposerPriority) {
+        throw new globalThis.Error("value provided for field message.proposerPriority of type int64 too large");
+      }
+      writer.uint32(32).int64(message.proposerPriority);
     }
     return writer;
   },
@@ -226,7 +232,7 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
             break;
           }
 
-          message.votingPower = Long.fromString(reader.int64().toString());
+          message.votingPower = reader.int64() as bigint;
           continue;
         }
         case 4: {
@@ -234,7 +240,7 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
             break;
           }
 
-          message.proposerPriority = Long.fromString(reader.int64().toString());
+          message.proposerPriority = reader.int64() as bigint;
           continue;
         }
       }
@@ -250,8 +256,8 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     return {
       address: isSet(object.address) ? bytesFromBase64(object.address) : new Uint8Array(0),
       pubKey: isSet(object.pub_key) ? PublicKey.fromJSON(object.pub_key) : undefined,
-      votingPower: isSet(object.voting_power) ? Long.fromValue(object.voting_power) : Long.ZERO,
-      proposerPriority: isSet(object.proposer_priority) ? Long.fromValue(object.proposer_priority) : Long.ZERO,
+      votingPower: isSet(object.voting_power) ? BigInt(object.voting_power) : 0n,
+      proposerPriority: isSet(object.proposer_priority) ? BigInt(object.proposer_priority) : 0n,
     };
   },
 
@@ -263,11 +269,11 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     if (message.pubKey !== undefined) {
       obj.pub_key = PublicKey.toJSON(message.pubKey);
     }
-    if (!message.votingPower.equals(Long.ZERO)) {
-      obj.voting_power = (message.votingPower || Long.ZERO).toString();
+    if (message.votingPower !== 0n) {
+      obj.voting_power = message.votingPower.toString();
     }
-    if (!message.proposerPriority.equals(Long.ZERO)) {
-      obj.proposer_priority = (message.proposerPriority || Long.ZERO).toString();
+    if (message.proposerPriority !== 0n) {
+      obj.proposer_priority = message.proposerPriority.toString();
     }
     return obj;
   },
@@ -277,18 +283,14 @@ export const Validator: MessageFns<Validator, "tendermint.types.Validator"> = {
     message.pubKey = (object.pubKey !== undefined && object.pubKey !== null)
       ? PublicKey.fromPartial(object.pubKey)
       : undefined;
-    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null)
-      ? Long.fromValue(object.votingPower)
-      : Long.ZERO;
-    message.proposerPriority = (object.proposerPriority !== undefined && object.proposerPriority !== null)
-      ? Long.fromValue(object.proposerPriority)
-      : Long.ZERO;
+    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null) ? BigInt(object.votingPower) : 0n;
+    message.proposerPriority = (object.proposerPriority !== undefined && object.proposerPriority !== null) ? BigInt(object.proposerPriority) : 0n;
     return message;
   },
 };
 
 function createBaseSimpleValidator(): SimpleValidator {
-  return { pubKey: undefined, votingPower: Long.ZERO };
+  return { pubKey: undefined, votingPower: 0n };
 }
 
 export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.SimpleValidator"> = {
@@ -298,8 +300,11 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
     if (message.pubKey !== undefined) {
       PublicKey.encode(message.pubKey, writer.uint32(10).fork()).join();
     }
-    if (!message.votingPower.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.votingPower.toString());
+    if (message.votingPower !== 0n) {
+      if (BigInt.asIntN(64, message.votingPower) !== message.votingPower) {
+        throw new globalThis.Error("value provided for field message.votingPower of type int64 too large");
+      }
+      writer.uint32(16).int64(message.votingPower);
     }
     return writer;
   },
@@ -324,7 +329,7 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
             break;
           }
 
-          message.votingPower = Long.fromString(reader.int64().toString());
+          message.votingPower = reader.int64() as bigint;
           continue;
         }
       }
@@ -339,7 +344,7 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
   fromJSON(object: any): SimpleValidator {
     return {
       pubKey: isSet(object.pub_key) ? PublicKey.fromJSON(object.pub_key) : undefined,
-      votingPower: isSet(object.voting_power) ? Long.fromValue(object.voting_power) : Long.ZERO,
+      votingPower: isSet(object.voting_power) ? BigInt(object.voting_power) : 0n,
     };
   },
 
@@ -348,8 +353,8 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
     if (message.pubKey !== undefined) {
       obj.pub_key = PublicKey.toJSON(message.pubKey);
     }
-    if (!message.votingPower.equals(Long.ZERO)) {
-      obj.voting_power = (message.votingPower || Long.ZERO).toString();
+    if (message.votingPower !== 0n) {
+      obj.voting_power = message.votingPower.toString();
     }
     return obj;
   },
@@ -358,9 +363,7 @@ export const SimpleValidator: MessageFns<SimpleValidator, "tendermint.types.Simp
     message.pubKey = (object.pubKey !== undefined && object.pubKey !== null)
       ? PublicKey.fromPartial(object.pubKey)
       : undefined;
-    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null)
-      ? Long.fromValue(object.votingPower)
-      : Long.ZERO;
+    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null) ? BigInt(object.votingPower) : 0n;
     return message;
   },
 };
@@ -390,10 +393,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

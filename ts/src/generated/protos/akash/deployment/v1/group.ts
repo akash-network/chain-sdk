@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /**
  * GroupID uniquely identifies a group within a deployment on the network.
@@ -29,7 +28,7 @@ export interface GroupID {
    * Dseq (deployment sequence number) is a unique numeric identifier for the deployment.
    * It is used to differentiate deployments created by the same owner.
    */
-  dseq: Long;
+  dseq: bigint;
   /**
    * Gseq (group sequence number) is a unique numeric identifier for the group.
    * It is used to differentiate groups created by the same owner in a deployment.
@@ -38,7 +37,7 @@ export interface GroupID {
 }
 
 function createBaseGroupID(): GroupID {
-  return { owner: "", dseq: Long.UZERO, gseq: 0 };
+  return { owner: "", dseq: 0n, gseq: 0 };
 }
 
 export const GroupID: MessageFns<GroupID, "akash.deployment.v1.GroupID"> = {
@@ -48,8 +47,11 @@ export const GroupID: MessageFns<GroupID, "akash.deployment.v1.GroupID"> = {
     if (message.owner !== "") {
       writer.uint32(10).string(message.owner);
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.dseq.toString());
+    if (message.dseq !== 0n) {
+      if (BigInt.asUintN(64, message.dseq) !== message.dseq) {
+        throw new globalThis.Error("value provided for field message.dseq of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.dseq);
     }
     if (message.gseq !== 0) {
       writer.uint32(24).uint32(message.gseq);
@@ -77,7 +79,7 @@ export const GroupID: MessageFns<GroupID, "akash.deployment.v1.GroupID"> = {
             break;
           }
 
-          message.dseq = Long.fromString(reader.uint64().toString(), true);
+          message.dseq = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -100,7 +102,7 @@ export const GroupID: MessageFns<GroupID, "akash.deployment.v1.GroupID"> = {
   fromJSON(object: any): GroupID {
     return {
       owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
-      dseq: isSet(object.dseq) ? Long.fromValue(object.dseq) : Long.UZERO,
+      dseq: isSet(object.dseq) ? BigInt(object.dseq) : 0n,
       gseq: isSet(object.gseq) ? globalThis.Number(object.gseq) : 0,
     };
   },
@@ -110,8 +112,8 @@ export const GroupID: MessageFns<GroupID, "akash.deployment.v1.GroupID"> = {
     if (message.owner !== "") {
       obj.owner = message.owner;
     }
-    if (!message.dseq.equals(Long.UZERO)) {
-      obj.dseq = (message.dseq || Long.UZERO).toString();
+    if (message.dseq !== 0n) {
+      obj.dseq = message.dseq.toString();
     }
     if (message.gseq !== 0) {
       obj.gseq = Math.round(message.gseq);
@@ -121,16 +123,16 @@ export const GroupID: MessageFns<GroupID, "akash.deployment.v1.GroupID"> = {
   fromPartial(object: DeepPartial<GroupID>): GroupID {
     const message = createBaseGroupID();
     message.owner = object.owner ?? "";
-    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? Long.fromValue(object.dseq) : Long.UZERO;
+    message.dseq = (object.dseq !== undefined && object.dseq !== null) ? BigInt(object.dseq) : 0n;
     message.gseq = object.gseq ?? 0;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

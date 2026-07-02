@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /** Module is the config object of the gov module. */
 export interface Module {
@@ -16,21 +15,24 @@ export interface Module {
    * max_metadata_len defines the maximum proposal metadata length.
    * Defaults to 255 if not explicitly set.
    */
-  maxMetadataLen: Long;
+  maxMetadataLen: bigint;
   /** authority defines the custom module authority. If not set, defaults to the governance module. */
   authority: string;
 }
 
 function createBaseModule(): Module {
-  return { maxMetadataLen: Long.UZERO, authority: "" };
+  return { maxMetadataLen: 0n, authority: "" };
 }
 
 export const Module: MessageFns<Module, "cosmos.gov.module.v1.Module"> = {
   $type: "cosmos.gov.module.v1.Module" as const,
 
   encode(message: Module, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.maxMetadataLen.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.maxMetadataLen.toString());
+    if (message.maxMetadataLen !== 0n) {
+      if (BigInt.asUintN(64, message.maxMetadataLen) !== message.maxMetadataLen) {
+        throw new globalThis.Error("value provided for field message.maxMetadataLen of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.maxMetadataLen);
     }
     if (message.authority !== "") {
       writer.uint32(18).string(message.authority);
@@ -50,7 +52,7 @@ export const Module: MessageFns<Module, "cosmos.gov.module.v1.Module"> = {
             break;
           }
 
-          message.maxMetadataLen = Long.fromString(reader.uint64().toString(), true);
+          message.maxMetadataLen = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -72,15 +74,15 @@ export const Module: MessageFns<Module, "cosmos.gov.module.v1.Module"> = {
 
   fromJSON(object: any): Module {
     return {
-      maxMetadataLen: isSet(object.max_metadata_len) ? Long.fromValue(object.max_metadata_len) : Long.UZERO,
+      maxMetadataLen: isSet(object.max_metadata_len) ? BigInt(object.max_metadata_len) : 0n,
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
     };
   },
 
   toJSON(message: Module): unknown {
     const obj: any = {};
-    if (!message.maxMetadataLen.equals(Long.UZERO)) {
-      obj.max_metadata_len = (message.maxMetadataLen || Long.UZERO).toString();
+    if (message.maxMetadataLen !== 0n) {
+      obj.max_metadata_len = message.maxMetadataLen.toString();
     }
     if (message.authority !== "") {
       obj.authority = message.authority;
@@ -89,18 +91,16 @@ export const Module: MessageFns<Module, "cosmos.gov.module.v1.Module"> = {
   },
   fromPartial(object: DeepPartial<Module>): Module {
     const message = createBaseModule();
-    message.maxMetadataLen = (object.maxMetadataLen !== undefined && object.maxMetadataLen !== null)
-      ? Long.fromValue(object.maxMetadataLen)
-      : Long.UZERO;
+    message.maxMetadataLen = (object.maxMetadataLen !== undefined && object.maxMetadataLen !== null) ? BigInt(object.maxMetadataLen) : 0n;
     message.authority = object.authority ?? "";
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
