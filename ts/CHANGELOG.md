@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.0-alpha.39](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.38...ts/v1.0.0-alpha.39) (2026-07-02)
+
+
+### Features
+
+* add proxy_buffer_size support to http options ([#340](https://github.com/akash-network/chain-sdk/issues/340)) ([2223ff2](https://github.com/akash-network/chain-sdk/commit/2223ff2292c8de4376a5a9611dd1601bd3d66227))
+
+
+### Bug Fixes
+
+* proxy_buffer_size backward compatibility ([#343](https://github.com/akash-network/chain-sdk/issues/343)) ([55f1c68](https://github.com/akash-network/chain-sdk/commit/55f1c6837f99b17f103c4e8701f24305bd1eef9a))
+* **ts:** upgrades valnerable packages ([#338](https://github.com/akash-network/chain-sdk/issues/338)) ([fb96484](https://github.com/akash-network/chain-sdk/commit/fb964847214707699205c8aa7ed38cdc1c53ea03))
+
+
+### Code Refactoring
+
+* **ts:** replaces jsrsasign with custom logic to parse/create X509 cert ([#341](https://github.com/akash-network/chain-sdk/issues/341)) ([bbd1c5a](https://github.com/akash-network/chain-sdk/commit/bbd1c5aece8caa634654e2942d8341ab7b7c096e))
+
 ## [1.0.0-alpha.38](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.37...ts/v1.0.0-alpha.38) (2026-06-24)
 
 
