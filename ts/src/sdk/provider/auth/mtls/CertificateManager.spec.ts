@@ -1,7 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { describe, expect, it } from "vitest";
 
-import { CertificateManager, dateToStr, strToDate } from "./CertificateManager.ts";
+import { CertificateManager } from "./CertificateManager.ts";
+import { dateToStr, strToDate } from "./x509.ts";
 
 describe(CertificateManager.name, () => {
   const generateAddress = () => `akash1${faker.string.alpha({ length: 38 })}`;
