@@ -9,7 +9,11 @@ const encoder = new TextEncoder();
 // `params.storage` when a service sets other params (e.g. `tee`) but no storage;
 // resource-level storage is schema-required and never empty, so it is unaffected.
 const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts", "storage"]);
-const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
+// proxyBufferSize is omitted when 0 to mirror the Go manifest proto's
+// `omitempty` (go/manifest/v2beta3/httpoptions.pb.go). This keeps the manifest
+// version hash identical to older manifests when proxy_buffer_size is unset, so
+// deployments created via the TS SDK stay compatible with older providers.
+const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes", "proxyBufferSize"]);
 
 export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {
   const jsonStr = manifestToSortedJSON(manifest);
