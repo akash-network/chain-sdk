@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Height } from "../../client/v1/client.ts";
 import { Acknowledgement, Packet, Payload } from "./packet.ts";
 
@@ -65,14 +64,14 @@ export function responseResultTypeToJSON(object: ResponseResultType): string {
 /** MsgSendPacket sends an outgoing IBC packet. */
 export interface MsgSendPacket {
   sourceClient: string;
-  timeoutTimestamp: Long;
+  timeoutTimestamp: bigint;
   payloads: Payload[];
   signer: string;
 }
 
 /** MsgSendPacketResponse defines the Msg/SendPacket response type. */
 export interface MsgSendPacketResponse {
-  sequence: Long;
+  sequence: bigint;
 }
 
 /** MsgRecvPacket receives an incoming IBC packet. */
@@ -116,7 +115,7 @@ export interface MsgAcknowledgementResponse {
 }
 
 function createBaseMsgSendPacket(): MsgSendPacket {
-  return { sourceClient: "", timeoutTimestamp: Long.UZERO, payloads: [], signer: "" };
+  return { sourceClient: "", timeoutTimestamp: 0n, payloads: [], signer: "" };
 }
 
 export const MsgSendPacket: MessageFns<MsgSendPacket, "ibc.core.channel.v2.MsgSendPacket"> = {
@@ -126,8 +125,11 @@ export const MsgSendPacket: MessageFns<MsgSendPacket, "ibc.core.channel.v2.MsgSe
     if (message.sourceClient !== "") {
       writer.uint32(10).string(message.sourceClient);
     }
-    if (!message.timeoutTimestamp.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.timeoutTimestamp.toString());
+    if (message.timeoutTimestamp !== 0n) {
+      if (BigInt.asUintN(64, message.timeoutTimestamp) !== message.timeoutTimestamp) {
+        throw new globalThis.Error("value provided for field message.timeoutTimestamp of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.timeoutTimestamp);
     }
     for (const v of message.payloads) {
       Payload.encode(v!, writer.uint32(26).fork()).join();
@@ -158,7 +160,7 @@ export const MsgSendPacket: MessageFns<MsgSendPacket, "ibc.core.channel.v2.MsgSe
             break;
           }
 
-          message.timeoutTimestamp = Long.fromString(reader.uint64().toString(), true);
+          message.timeoutTimestamp = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -189,7 +191,7 @@ export const MsgSendPacket: MessageFns<MsgSendPacket, "ibc.core.channel.v2.MsgSe
   fromJSON(object: any): MsgSendPacket {
     return {
       sourceClient: isSet(object.source_client) ? globalThis.String(object.source_client) : "",
-      timeoutTimestamp: isSet(object.timeout_timestamp) ? Long.fromValue(object.timeout_timestamp) : Long.UZERO,
+      timeoutTimestamp: isSet(object.timeout_timestamp) ? BigInt(object.timeout_timestamp) : 0n,
       payloads: globalThis.Array.isArray(object?.payloads) ? object.payloads.map((e: any) => Payload.fromJSON(e)) : [],
       signer: isSet(object.signer) ? globalThis.String(object.signer) : "",
     };
@@ -200,8 +202,8 @@ export const MsgSendPacket: MessageFns<MsgSendPacket, "ibc.core.channel.v2.MsgSe
     if (message.sourceClient !== "") {
       obj.source_client = message.sourceClient;
     }
-    if (!message.timeoutTimestamp.equals(Long.UZERO)) {
-      obj.timeout_timestamp = (message.timeoutTimestamp || Long.UZERO).toString();
+    if (message.timeoutTimestamp !== 0n) {
+      obj.timeout_timestamp = message.timeoutTimestamp.toString();
     }
     if (message.payloads?.length) {
       obj.payloads = message.payloads.map((e) => Payload.toJSON(e));
@@ -214,9 +216,7 @@ export const MsgSendPacket: MessageFns<MsgSendPacket, "ibc.core.channel.v2.MsgSe
   fromPartial(object: DeepPartial<MsgSendPacket>): MsgSendPacket {
     const message = createBaseMsgSendPacket();
     message.sourceClient = object.sourceClient ?? "";
-    message.timeoutTimestamp = (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null)
-      ? Long.fromValue(object.timeoutTimestamp)
-      : Long.UZERO;
+    message.timeoutTimestamp = (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) ? BigInt(object.timeoutTimestamp) : 0n;
     message.payloads = object.payloads?.map((e) => Payload.fromPartial(e)) || [];
     message.signer = object.signer ?? "";
     return message;
@@ -224,15 +224,18 @@ export const MsgSendPacket: MessageFns<MsgSendPacket, "ibc.core.channel.v2.MsgSe
 };
 
 function createBaseMsgSendPacketResponse(): MsgSendPacketResponse {
-  return { sequence: Long.UZERO };
+  return { sequence: 0n };
 }
 
 export const MsgSendPacketResponse: MessageFns<MsgSendPacketResponse, "ibc.core.channel.v2.MsgSendPacketResponse"> = {
   $type: "ibc.core.channel.v2.MsgSendPacketResponse" as const,
 
   encode(message: MsgSendPacketResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.sequence.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.sequence.toString());
+    if (message.sequence !== 0n) {
+      if (BigInt.asUintN(64, message.sequence) !== message.sequence) {
+        throw new globalThis.Error("value provided for field message.sequence of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.sequence);
     }
     return writer;
   },
@@ -249,7 +252,7 @@ export const MsgSendPacketResponse: MessageFns<MsgSendPacketResponse, "ibc.core.
             break;
           }
 
-          message.sequence = Long.fromString(reader.uint64().toString(), true);
+          message.sequence = reader.uint64() as bigint;
           continue;
         }
       }
@@ -262,21 +265,19 @@ export const MsgSendPacketResponse: MessageFns<MsgSendPacketResponse, "ibc.core.
   },
 
   fromJSON(object: any): MsgSendPacketResponse {
-    return { sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.UZERO };
+    return { sequence: isSet(object.sequence) ? BigInt(object.sequence) : 0n };
   },
 
   toJSON(message: MsgSendPacketResponse): unknown {
     const obj: any = {};
-    if (!message.sequence.equals(Long.UZERO)) {
-      obj.sequence = (message.sequence || Long.UZERO).toString();
+    if (message.sequence !== 0n) {
+      obj.sequence = message.sequence.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<MsgSendPacketResponse>): MsgSendPacketResponse {
     const message = createBaseMsgSendPacketResponse();
-    message.sequence = (object.sequence !== undefined && object.sequence !== null)
-      ? Long.fromValue(object.sequence)
-      : Long.UZERO;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null) ? BigInt(object.sequence) : 0n;
     return message;
   },
 };
@@ -831,10 +832,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

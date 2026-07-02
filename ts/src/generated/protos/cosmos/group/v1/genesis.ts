@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { GroupInfo, GroupMember, GroupPolicyInfo, Proposal, Vote } from "./types.ts";
 
 /** GenesisState defines the group module's genesis state. */
@@ -17,7 +16,7 @@ export interface GenesisState {
    * group_seq is the group table orm.Sequence,
    * it is used to get the next group ID.
    */
-  groupSeq: Long;
+  groupSeq: bigint;
   /** groups is the list of groups info. */
   groups: GroupInfo[];
   /** group_members is the list of groups members. */
@@ -26,14 +25,14 @@ export interface GenesisState {
    * group_policy_seq is the group policy table orm.Sequence,
    * it is used to generate the next group policy account address.
    */
-  groupPolicySeq: Long;
+  groupPolicySeq: bigint;
   /** group_policies is the list of group policies info. */
   groupPolicies: GroupPolicyInfo[];
   /**
    * proposal_seq is the proposal table orm.Sequence,
    * it is used to get the next proposal ID.
    */
-  proposalSeq: Long;
+  proposalSeq: bigint;
   /** proposals is the list of proposals. */
   proposals: Proposal[];
   /** votes is the list of votes. */
@@ -42,12 +41,12 @@ export interface GenesisState {
 
 function createBaseGenesisState(): GenesisState {
   return {
-    groupSeq: Long.UZERO,
+    groupSeq: 0n,
     groups: [],
     groupMembers: [],
-    groupPolicySeq: Long.UZERO,
+    groupPolicySeq: 0n,
     groupPolicies: [],
-    proposalSeq: Long.UZERO,
+    proposalSeq: 0n,
     proposals: [],
     votes: [],
   };
@@ -57,8 +56,11 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
   $type: "cosmos.group.v1.GenesisState" as const,
 
   encode(message: GenesisState, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.groupSeq.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.groupSeq.toString());
+    if (message.groupSeq !== 0n) {
+      if (BigInt.asUintN(64, message.groupSeq) !== message.groupSeq) {
+        throw new globalThis.Error("value provided for field message.groupSeq of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.groupSeq);
     }
     for (const v of message.groups) {
       GroupInfo.encode(v!, writer.uint32(18).fork()).join();
@@ -66,14 +68,20 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
     for (const v of message.groupMembers) {
       GroupMember.encode(v!, writer.uint32(26).fork()).join();
     }
-    if (!message.groupPolicySeq.equals(Long.UZERO)) {
-      writer.uint32(32).uint64(message.groupPolicySeq.toString());
+    if (message.groupPolicySeq !== 0n) {
+      if (BigInt.asUintN(64, message.groupPolicySeq) !== message.groupPolicySeq) {
+        throw new globalThis.Error("value provided for field message.groupPolicySeq of type uint64 too large");
+      }
+      writer.uint32(32).uint64(message.groupPolicySeq);
     }
     for (const v of message.groupPolicies) {
       GroupPolicyInfo.encode(v!, writer.uint32(42).fork()).join();
     }
-    if (!message.proposalSeq.equals(Long.UZERO)) {
-      writer.uint32(48).uint64(message.proposalSeq.toString());
+    if (message.proposalSeq !== 0n) {
+      if (BigInt.asUintN(64, message.proposalSeq) !== message.proposalSeq) {
+        throw new globalThis.Error("value provided for field message.proposalSeq of type uint64 too large");
+      }
+      writer.uint32(48).uint64(message.proposalSeq);
     }
     for (const v of message.proposals) {
       Proposal.encode(v!, writer.uint32(58).fork()).join();
@@ -96,7 +104,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
             break;
           }
 
-          message.groupSeq = Long.fromString(reader.uint64().toString(), true);
+          message.groupSeq = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -120,7 +128,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
             break;
           }
 
-          message.groupPolicySeq = Long.fromString(reader.uint64().toString(), true);
+          message.groupPolicySeq = reader.uint64() as bigint;
           continue;
         }
         case 5: {
@@ -136,7 +144,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
             break;
           }
 
-          message.proposalSeq = Long.fromString(reader.uint64().toString(), true);
+          message.proposalSeq = reader.uint64() as bigint;
           continue;
         }
         case 7: {
@@ -166,16 +174,16 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
 
   fromJSON(object: any): GenesisState {
     return {
-      groupSeq: isSet(object.group_seq) ? Long.fromValue(object.group_seq) : Long.UZERO,
+      groupSeq: isSet(object.group_seq) ? BigInt(object.group_seq) : 0n,
       groups: globalThis.Array.isArray(object?.groups) ? object.groups.map((e: any) => GroupInfo.fromJSON(e)) : [],
       groupMembers: globalThis.Array.isArray(object?.group_members)
         ? object.group_members.map((e: any) => GroupMember.fromJSON(e))
         : [],
-      groupPolicySeq: isSet(object.group_policy_seq) ? Long.fromValue(object.group_policy_seq) : Long.UZERO,
+      groupPolicySeq: isSet(object.group_policy_seq) ? BigInt(object.group_policy_seq) : 0n,
       groupPolicies: globalThis.Array.isArray(object?.group_policies)
         ? object.group_policies.map((e: any) => GroupPolicyInfo.fromJSON(e))
         : [],
-      proposalSeq: isSet(object.proposal_seq) ? Long.fromValue(object.proposal_seq) : Long.UZERO,
+      proposalSeq: isSet(object.proposal_seq) ? BigInt(object.proposal_seq) : 0n,
       proposals: globalThis.Array.isArray(object?.proposals)
         ? object.proposals.map((e: any) => Proposal.fromJSON(e))
         : [],
@@ -185,8 +193,8 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
 
   toJSON(message: GenesisState): unknown {
     const obj: any = {};
-    if (!message.groupSeq.equals(Long.UZERO)) {
-      obj.group_seq = (message.groupSeq || Long.UZERO).toString();
+    if (message.groupSeq !== 0n) {
+      obj.group_seq = message.groupSeq.toString();
     }
     if (message.groups?.length) {
       obj.groups = message.groups.map((e) => GroupInfo.toJSON(e));
@@ -194,14 +202,14 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
     if (message.groupMembers?.length) {
       obj.group_members = message.groupMembers.map((e) => GroupMember.toJSON(e));
     }
-    if (!message.groupPolicySeq.equals(Long.UZERO)) {
-      obj.group_policy_seq = (message.groupPolicySeq || Long.UZERO).toString();
+    if (message.groupPolicySeq !== 0n) {
+      obj.group_policy_seq = message.groupPolicySeq.toString();
     }
     if (message.groupPolicies?.length) {
       obj.group_policies = message.groupPolicies.map((e) => GroupPolicyInfo.toJSON(e));
     }
-    if (!message.proposalSeq.equals(Long.UZERO)) {
-      obj.proposal_seq = (message.proposalSeq || Long.UZERO).toString();
+    if (message.proposalSeq !== 0n) {
+      obj.proposal_seq = message.proposalSeq.toString();
     }
     if (message.proposals?.length) {
       obj.proposals = message.proposals.map((e) => Proposal.toJSON(e));
@@ -213,28 +221,22 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.group.v1.GenesisStat
   },
   fromPartial(object: DeepPartial<GenesisState>): GenesisState {
     const message = createBaseGenesisState();
-    message.groupSeq = (object.groupSeq !== undefined && object.groupSeq !== null)
-      ? Long.fromValue(object.groupSeq)
-      : Long.UZERO;
+    message.groupSeq = (object.groupSeq !== undefined && object.groupSeq !== null) ? BigInt(object.groupSeq) : 0n;
     message.groups = object.groups?.map((e) => GroupInfo.fromPartial(e)) || [];
     message.groupMembers = object.groupMembers?.map((e) => GroupMember.fromPartial(e)) || [];
-    message.groupPolicySeq = (object.groupPolicySeq !== undefined && object.groupPolicySeq !== null)
-      ? Long.fromValue(object.groupPolicySeq)
-      : Long.UZERO;
+    message.groupPolicySeq = (object.groupPolicySeq !== undefined && object.groupPolicySeq !== null) ? BigInt(object.groupPolicySeq) : 0n;
     message.groupPolicies = object.groupPolicies?.map((e) => GroupPolicyInfo.fromPartial(e)) || [];
-    message.proposalSeq = (object.proposalSeq !== undefined && object.proposalSeq !== null)
-      ? Long.fromValue(object.proposalSeq)
-      : Long.UZERO;
+    message.proposalSeq = (object.proposalSeq !== undefined && object.proposalSeq !== null) ? BigInt(object.proposalSeq) : 0n;
     message.proposals = object.proposals?.map((e) => Proposal.fromPartial(e)) || [];
     message.votes = object.votes?.map((e) => Vote.fromPartial(e)) || [];
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

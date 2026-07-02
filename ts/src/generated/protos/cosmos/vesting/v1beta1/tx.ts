@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Coin } from "../../base/v1beta1/coin.ts";
 import { Period } from "./vesting.ts";
 
@@ -21,7 +20,7 @@ export interface MsgCreateVestingAccount {
   toAddress: string;
   amount: Coin[];
   /** end of vesting as unix time (in seconds). */
-  endTime: Long;
+  endTime: bigint;
   delayed: boolean;
 }
 
@@ -51,7 +50,7 @@ export interface MsgCreatePeriodicVestingAccount {
   fromAddress: string;
   toAddress: string;
   /** start of vesting as unix time (in seconds). */
-  startTime: Long;
+  startTime: bigint;
   vestingPeriods: Period[];
 }
 
@@ -63,7 +62,7 @@ export interface MsgCreatePeriodicVestingAccountResponse {
 }
 
 function createBaseMsgCreateVestingAccount(): MsgCreateVestingAccount {
-  return { fromAddress: "", toAddress: "", amount: [], endTime: Long.ZERO, delayed: false };
+  return { fromAddress: "", toAddress: "", amount: [], endTime: 0n, delayed: false };
 }
 
 export const MsgCreateVestingAccount: MessageFns<
@@ -82,8 +81,11 @@ export const MsgCreateVestingAccount: MessageFns<
     for (const v of message.amount) {
       Coin.encode(v!, writer.uint32(26).fork()).join();
     }
-    if (!message.endTime.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.endTime.toString());
+    if (message.endTime !== 0n) {
+      if (BigInt.asIntN(64, message.endTime) !== message.endTime) {
+        throw new globalThis.Error("value provided for field message.endTime of type int64 too large");
+      }
+      writer.uint32(32).int64(message.endTime);
     }
     if (message.delayed !== false) {
       writer.uint32(40).bool(message.delayed);
@@ -127,7 +129,7 @@ export const MsgCreateVestingAccount: MessageFns<
             break;
           }
 
-          message.endTime = Long.fromString(reader.int64().toString());
+          message.endTime = reader.int64() as bigint;
           continue;
         }
         case 5: {
@@ -152,7 +154,7 @@ export const MsgCreateVestingAccount: MessageFns<
       fromAddress: isSet(object.from_address) ? globalThis.String(object.from_address) : "",
       toAddress: isSet(object.to_address) ? globalThis.String(object.to_address) : "",
       amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Coin.fromJSON(e)) : [],
-      endTime: isSet(object.end_time) ? Long.fromValue(object.end_time) : Long.ZERO,
+      endTime: isSet(object.end_time) ? BigInt(object.end_time) : 0n,
       delayed: isSet(object.delayed) ? globalThis.Boolean(object.delayed) : false,
     };
   },
@@ -168,8 +170,8 @@ export const MsgCreateVestingAccount: MessageFns<
     if (message.amount?.length) {
       obj.amount = message.amount.map((e) => Coin.toJSON(e));
     }
-    if (!message.endTime.equals(Long.ZERO)) {
-      obj.end_time = (message.endTime || Long.ZERO).toString();
+    if (message.endTime !== 0n) {
+      obj.end_time = message.endTime.toString();
     }
     if (message.delayed !== false) {
       obj.delayed = message.delayed;
@@ -181,9 +183,7 @@ export const MsgCreateVestingAccount: MessageFns<
     message.fromAddress = object.fromAddress ?? "";
     message.toAddress = object.toAddress ?? "";
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
-    message.endTime = (object.endTime !== undefined && object.endTime !== null)
-      ? Long.fromValue(object.endTime)
-      : Long.ZERO;
+    message.endTime = (object.endTime !== undefined && object.endTime !== null) ? BigInt(object.endTime) : 0n;
     message.delayed = object.delayed ?? false;
     return message;
   },
@@ -371,7 +371,7 @@ export const MsgCreatePermanentLockedAccountResponse: MessageFns<
 };
 
 function createBaseMsgCreatePeriodicVestingAccount(): MsgCreatePeriodicVestingAccount {
-  return { fromAddress: "", toAddress: "", startTime: Long.ZERO, vestingPeriods: [] };
+  return { fromAddress: "", toAddress: "", startTime: 0n, vestingPeriods: [] };
 }
 
 export const MsgCreatePeriodicVestingAccount: MessageFns<
@@ -387,8 +387,11 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
     if (message.toAddress !== "") {
       writer.uint32(18).string(message.toAddress);
     }
-    if (!message.startTime.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.startTime.toString());
+    if (message.startTime !== 0n) {
+      if (BigInt.asIntN(64, message.startTime) !== message.startTime) {
+        throw new globalThis.Error("value provided for field message.startTime of type int64 too large");
+      }
+      writer.uint32(24).int64(message.startTime);
     }
     for (const v of message.vestingPeriods) {
       Period.encode(v!, writer.uint32(34).fork()).join();
@@ -424,7 +427,7 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
             break;
           }
 
-          message.startTime = Long.fromString(reader.int64().toString());
+          message.startTime = reader.int64() as bigint;
           continue;
         }
         case 4: {
@@ -448,7 +451,7 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
     return {
       fromAddress: isSet(object.from_address) ? globalThis.String(object.from_address) : "",
       toAddress: isSet(object.to_address) ? globalThis.String(object.to_address) : "",
-      startTime: isSet(object.start_time) ? Long.fromValue(object.start_time) : Long.ZERO,
+      startTime: isSet(object.start_time) ? BigInt(object.start_time) : 0n,
       vestingPeriods: globalThis.Array.isArray(object?.vesting_periods)
         ? object.vesting_periods.map((e: any) => Period.fromJSON(e))
         : [],
@@ -463,8 +466,8 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
     if (message.toAddress !== "") {
       obj.to_address = message.toAddress;
     }
-    if (!message.startTime.equals(Long.ZERO)) {
-      obj.start_time = (message.startTime || Long.ZERO).toString();
+    if (message.startTime !== 0n) {
+      obj.start_time = message.startTime.toString();
     }
     if (message.vestingPeriods?.length) {
       obj.vesting_periods = message.vestingPeriods.map((e) => Period.toJSON(e));
@@ -475,9 +478,7 @@ export const MsgCreatePeriodicVestingAccount: MessageFns<
     const message = createBaseMsgCreatePeriodicVestingAccount();
     message.fromAddress = object.fromAddress ?? "";
     message.toAddress = object.toAddress ?? "";
-    message.startTime = (object.startTime !== undefined && object.startTime !== null)
-      ? Long.fromValue(object.startTime)
-      : Long.ZERO;
+    message.startTime = (object.startTime !== undefined && object.startTime !== null) ? BigInt(object.startTime) : 0n;
     message.vestingPeriods = object.vestingPeriods?.map((e) => Period.fromPartial(e)) || [];
     return message;
   },
@@ -527,10 +528,10 @@ export const MsgCreatePeriodicVestingAccountResponse: MessageFns<
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

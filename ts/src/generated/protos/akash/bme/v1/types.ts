@@ -9,7 +9,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 
 /** MintStatus indicates the current state of mint */
@@ -134,9 +133,9 @@ export function ledgerRecordStatusToJSON(object: LedgerRecordStatus): string {
 /** LedgerID uniquely identifies a ledger entry by block height and sequence number */
 export interface LedgerID {
   /** height is the block height when the ledger entry was created */
-  height: Long;
+  height: bigint;
   /** sequence is the sequence number within the block (for ordering) */
-  sequence: Long;
+  sequence: bigint;
 }
 
 /** CollateralRatio represents the current collateral ratio */
@@ -191,8 +190,8 @@ export interface LedgerRecordID {
   /** to_denom is what denom swap to */
   toDenom: string;
   source: string;
-  height: Long;
-  sequence: Long;
+  height: bigint;
+  sequence: bigint;
 }
 
 /** LedgerPendingRecord */
@@ -350,22 +349,28 @@ export interface LedgerRecord {
 export interface Status {
   status: MintStatus;
   previousStatus: MintStatus;
-  epochHeightDiff: Long;
+  epochHeightDiff: bigint;
 }
 
 function createBaseLedgerID(): LedgerID {
-  return { height: Long.ZERO, sequence: Long.ZERO };
+  return { height: 0n, sequence: 0n };
 }
 
 export const LedgerID: MessageFns<LedgerID, "akash.bme.v1.LedgerID"> = {
   $type: "akash.bme.v1.LedgerID" as const,
 
   encode(message: LedgerID, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(8).int64(message.height);
     }
-    if (!message.sequence.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.sequence.toString());
+    if (message.sequence !== 0n) {
+      if (BigInt.asIntN(64, message.sequence) !== message.sequence) {
+        throw new globalThis.Error("value provided for field message.sequence of type int64 too large");
+      }
+      writer.uint32(16).int64(message.sequence);
     }
     return writer;
   },
@@ -382,7 +387,7 @@ export const LedgerID: MessageFns<LedgerID, "akash.bme.v1.LedgerID"> = {
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -390,7 +395,7 @@ export const LedgerID: MessageFns<LedgerID, "akash.bme.v1.LedgerID"> = {
             break;
           }
 
-          message.sequence = Long.fromString(reader.int64().toString());
+          message.sequence = reader.int64() as bigint;
           continue;
         }
       }
@@ -404,29 +409,25 @@ export const LedgerID: MessageFns<LedgerID, "akash.bme.v1.LedgerID"> = {
 
   fromJSON(object: any): LedgerID {
     return {
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
-      sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.ZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
+      sequence: isSet(object.sequence) ? BigInt(object.sequence) : 0n,
     };
   },
 
   toJSON(message: LedgerID): unknown {
     const obj: any = {};
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
-    if (!message.sequence.equals(Long.ZERO)) {
-      obj.sequence = (message.sequence || Long.ZERO).toString();
+    if (message.sequence !== 0n) {
+      obj.sequence = message.sequence.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<LedgerID>): LedgerID {
     const message = createBaseLedgerID();
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
-    message.sequence = (object.sequence !== undefined && object.sequence !== null)
-      ? Long.fromValue(object.sequence)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null) ? BigInt(object.sequence) : 0n;
     return message;
   },
 };
@@ -786,7 +787,7 @@ export const BurnMintPair: MessageFns<BurnMintPair, "akash.bme.v1.BurnMintPair">
 };
 
 function createBaseLedgerRecordID(): LedgerRecordID {
-  return { denom: "", toDenom: "", source: "", height: Long.ZERO, sequence: Long.ZERO };
+  return { denom: "", toDenom: "", source: "", height: 0n, sequence: 0n };
 }
 
 export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerRecordID"> = {
@@ -802,11 +803,17 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
     if (message.source !== "") {
       writer.uint32(26).string(message.source);
     }
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(32).int64(message.height);
     }
-    if (!message.sequence.equals(Long.ZERO)) {
-      writer.uint32(40).int64(message.sequence.toString());
+    if (message.sequence !== 0n) {
+      if (BigInt.asIntN(64, message.sequence) !== message.sequence) {
+        throw new globalThis.Error("value provided for field message.sequence of type int64 too large");
+      }
+      writer.uint32(40).int64(message.sequence);
     }
     return writer;
   },
@@ -847,7 +854,7 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
         case 5: {
@@ -855,7 +862,7 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
             break;
           }
 
-          message.sequence = Long.fromString(reader.int64().toString());
+          message.sequence = reader.int64() as bigint;
           continue;
         }
       }
@@ -872,8 +879,8 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
       denom: isSet(object.denom) ? globalThis.String(object.denom) : "",
       toDenom: isSet(object.to_denom) ? globalThis.String(object.to_denom) : "",
       source: isSet(object.source) ? globalThis.String(object.source) : "",
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
-      sequence: isSet(object.sequence) ? Long.fromValue(object.sequence) : Long.ZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
+      sequence: isSet(object.sequence) ? BigInt(object.sequence) : 0n,
     };
   },
 
@@ -888,11 +895,11 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
     if (message.source !== "") {
       obj.source = message.source;
     }
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
-    if (!message.sequence.equals(Long.ZERO)) {
-      obj.sequence = (message.sequence || Long.ZERO).toString();
+    if (message.sequence !== 0n) {
+      obj.sequence = message.sequence.toString();
     }
     return obj;
   },
@@ -901,12 +908,8 @@ export const LedgerRecordID: MessageFns<LedgerRecordID, "akash.bme.v1.LedgerReco
     message.denom = object.denom ?? "";
     message.toDenom = object.toDenom ?? "";
     message.source = object.source ?? "";
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
-    message.sequence = (object.sequence !== undefined && object.sequence !== null)
-      ? Long.fromValue(object.sequence)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null) ? BigInt(object.sequence) : 0n;
     return message;
   },
 };
@@ -1370,7 +1373,7 @@ export const LedgerRecord: MessageFns<LedgerRecord, "akash.bme.v1.LedgerRecord">
 };
 
 function createBaseStatus(): Status {
-  return { status: 0, previousStatus: 0, epochHeightDiff: Long.ZERO };
+  return { status: 0, previousStatus: 0, epochHeightDiff: 0n };
 }
 
 export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
@@ -1383,8 +1386,11 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
     if (message.previousStatus !== 0) {
       writer.uint32(16).int32(message.previousStatus);
     }
-    if (!message.epochHeightDiff.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.epochHeightDiff.toString());
+    if (message.epochHeightDiff !== 0n) {
+      if (BigInt.asIntN(64, message.epochHeightDiff) !== message.epochHeightDiff) {
+        throw new globalThis.Error("value provided for field message.epochHeightDiff of type int64 too large");
+      }
+      writer.uint32(24).int64(message.epochHeightDiff);
     }
     return writer;
   },
@@ -1417,7 +1423,7 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
             break;
           }
 
-          message.epochHeightDiff = Long.fromString(reader.int64().toString());
+          message.epochHeightDiff = reader.int64() as bigint;
           continue;
         }
       }
@@ -1433,7 +1439,7 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
     return {
       status: isSet(object.status) ? mintStatusFromJSON(object.status) : 0,
       previousStatus: isSet(object.previous_status) ? mintStatusFromJSON(object.previous_status) : 0,
-      epochHeightDiff: isSet(object.epoch_height_diff) ? Long.fromValue(object.epoch_height_diff) : Long.ZERO,
+      epochHeightDiff: isSet(object.epoch_height_diff) ? BigInt(object.epoch_height_diff) : 0n,
     };
   },
 
@@ -1445,8 +1451,8 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
     if (message.previousStatus !== 0) {
       obj.previous_status = mintStatusToJSON(message.previousStatus);
     }
-    if (!message.epochHeightDiff.equals(Long.ZERO)) {
-      obj.epoch_height_diff = (message.epochHeightDiff || Long.ZERO).toString();
+    if (message.epochHeightDiff !== 0n) {
+      obj.epoch_height_diff = message.epochHeightDiff.toString();
     }
     return obj;
   },
@@ -1454,17 +1460,15 @@ export const Status: MessageFns<Status, "akash.bme.v1.Status"> = {
     const message = createBaseStatus();
     message.status = object.status ?? 0;
     message.previousStatus = object.previousStatus ?? 0;
-    message.epochHeightDiff = (object.epochHeightDiff !== undefined && object.epochHeightDiff !== null)
-      ? Long.fromValue(object.epochHeightDiff)
-      : Long.ZERO;
+    message.epochHeightDiff = (object.epochHeightDiff !== undefined && object.epochHeightDiff !== null) ? BigInt(object.epochHeightDiff) : 0n;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

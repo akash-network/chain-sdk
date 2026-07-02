@@ -9,7 +9,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /** Minter represents the minting state. */
 export interface Minter {
@@ -32,7 +31,7 @@ export interface Params {
   /** goal of percent bonded atoms */
   goalBonded: string;
   /** expected blocks per year */
-  blocksPerYear: Long;
+  blocksPerYear: bigint;
 }
 
 function createBaseMinter(): Minter {
@@ -116,7 +115,7 @@ function createBaseParams(): Params {
     inflationMax: "",
     inflationMin: "",
     goalBonded: "",
-    blocksPerYear: Long.UZERO,
+    blocksPerYear: 0n,
   };
 }
 
@@ -139,8 +138,11 @@ const _Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
     if (message.goalBonded !== "") {
       writer.uint32(42).string(message.goalBonded);
     }
-    if (!message.blocksPerYear.equals(Long.UZERO)) {
-      writer.uint32(48).uint64(message.blocksPerYear.toString());
+    if (message.blocksPerYear !== 0n) {
+      if (BigInt.asUintN(64, message.blocksPerYear) !== message.blocksPerYear) {
+        throw new globalThis.Error("value provided for field message.blocksPerYear of type uint64 too large");
+      }
+      writer.uint32(48).uint64(message.blocksPerYear);
     }
     return writer;
   },
@@ -197,7 +199,7 @@ const _Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
             break;
           }
 
-          message.blocksPerYear = Long.fromString(reader.uint64().toString(), true);
+          message.blocksPerYear = reader.uint64() as bigint;
           continue;
         }
       }
@@ -216,7 +218,7 @@ const _Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
       inflationMax: isSet(object.inflation_max) ? globalThis.String(object.inflation_max) : "",
       inflationMin: isSet(object.inflation_min) ? globalThis.String(object.inflation_min) : "",
       goalBonded: isSet(object.goal_bonded) ? globalThis.String(object.goal_bonded) : "",
-      blocksPerYear: isSet(object.blocks_per_year) ? Long.fromValue(object.blocks_per_year) : Long.UZERO,
+      blocksPerYear: isSet(object.blocks_per_year) ? BigInt(object.blocks_per_year) : 0n,
     };
   },
 
@@ -237,8 +239,8 @@ const _Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
     if (message.goalBonded !== "") {
       obj.goal_bonded = message.goalBonded;
     }
-    if (!message.blocksPerYear.equals(Long.UZERO)) {
-      obj.blocks_per_year = (message.blocksPerYear || Long.UZERO).toString();
+    if (message.blocksPerYear !== 0n) {
+      obj.blocks_per_year = message.blocksPerYear.toString();
     }
     return obj;
   },
@@ -249,17 +251,15 @@ const _Params: MessageFns<Params, "cosmos.mint.v1beta1.Params"> = {
     message.inflationMax = object.inflationMax ?? "";
     message.inflationMin = object.inflationMin ?? "";
     message.goalBonded = object.goalBonded ?? "";
-    message.blocksPerYear = (object.blocksPerYear !== undefined && object.blocksPerYear !== null)
-      ? Long.fromValue(object.blocksPerYear)
-      : Long.UZERO;
+    message.blocksPerYear = (object.blocksPerYear !== undefined && object.blocksPerYear !== null) ? BigInt(object.blocksPerYear) : 0n;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

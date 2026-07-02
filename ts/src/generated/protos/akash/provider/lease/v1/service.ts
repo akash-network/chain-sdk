@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Group } from "../../../manifest/v2beta3/group.ts";
 import { LeaseID } from "../../../market/v1/lease.ts";
 
@@ -17,7 +16,7 @@ export interface LeaseServiceStatus {
   available: number;
   total: number;
   uris: string[];
-  observedGeneration: Long;
+  observedGeneration: bigint;
   replicas: number;
   updatedReplicas: number;
   readyReplicas: number;
@@ -142,7 +141,7 @@ function createBaseLeaseServiceStatus(): LeaseServiceStatus {
     available: 0,
     total: 0,
     uris: [],
-    observedGeneration: Long.ZERO,
+    observedGeneration: 0n,
     replicas: 0,
     updatedReplicas: 0,
     readyReplicas: 0,
@@ -163,8 +162,11 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
     for (const v of message.uris) {
       writer.uint32(26).string(v!);
     }
-    if (!message.observedGeneration.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.observedGeneration.toString());
+    if (message.observedGeneration !== 0n) {
+      if (BigInt.asIntN(64, message.observedGeneration) !== message.observedGeneration) {
+        throw new globalThis.Error("value provided for field message.observedGeneration of type int64 too large");
+      }
+      writer.uint32(32).int64(message.observedGeneration);
     }
     if (message.replicas !== 0) {
       writer.uint32(40).int32(message.replicas);
@@ -217,7 +219,7 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
             break;
           }
 
-          message.observedGeneration = Long.fromString(reader.int64().toString());
+          message.observedGeneration = reader.int64() as bigint;
           continue;
         }
         case 5: {
@@ -266,7 +268,7 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
       available: isSet(object.available) ? globalThis.Number(object.available) : 0,
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
       uris: globalThis.Array.isArray(object?.uris) ? object.uris.map((e: any) => globalThis.String(e)) : [],
-      observedGeneration: isSet(object.observed_generation) ? Long.fromValue(object.observed_generation) : Long.ZERO,
+      observedGeneration: isSet(object.observed_generation) ? BigInt(object.observed_generation) : 0n,
       replicas: isSet(object.replicas) ? globalThis.Number(object.replicas) : 0,
       updatedReplicas: isSet(object.updated_replicas) ? globalThis.Number(object.updated_replicas) : 0,
       readyReplicas: isSet(object.ready_replicas) ? globalThis.Number(object.ready_replicas) : 0,
@@ -285,8 +287,8 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
     if (message.uris?.length) {
       obj.uris = message.uris;
     }
-    if (!message.observedGeneration.equals(Long.ZERO)) {
-      obj.observed_generation = (message.observedGeneration || Long.ZERO).toString();
+    if (message.observedGeneration !== 0n) {
+      obj.observed_generation = message.observedGeneration.toString();
     }
     if (message.replicas !== 0) {
       obj.replicas = Math.round(message.replicas);
@@ -307,9 +309,7 @@ export const LeaseServiceStatus: MessageFns<LeaseServiceStatus, "akash.provider.
     message.available = object.available ?? 0;
     message.total = object.total ?? 0;
     message.uris = object.uris?.map((e) => e) || [];
-    message.observedGeneration = (object.observedGeneration !== undefined && object.observedGeneration !== null)
-      ? Long.fromValue(object.observedGeneration)
-      : Long.ZERO;
+    message.observedGeneration = (object.observedGeneration !== undefined && object.observedGeneration !== null) ? BigInt(object.observedGeneration) : 0n;
     message.replicas = object.replicas ?? 0;
     message.updatedReplicas = object.updatedReplicas ?? 0;
     message.readyReplicas = object.readyReplicas ?? 0;
@@ -1515,10 +1515,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

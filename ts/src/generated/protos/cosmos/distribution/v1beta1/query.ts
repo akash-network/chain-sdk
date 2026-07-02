@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { DecCoin } from "../../base/v1beta1/coin.ts";
 import {
@@ -88,9 +87,9 @@ export interface QueryValidatorSlashesRequest {
   /** validator_address defines the validator address to query for. */
   validatorAddress: string;
   /** starting_height defines the optional starting height to query the slashes. */
-  startingHeight: Long;
+  startingHeight: bigint;
   /** starting_height defines the optional ending height to query the slashes. */
-  endingHeight: Long;
+  endingHeight: bigint;
   /** pagination defines an optional pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -696,7 +695,7 @@ export const QueryValidatorCommissionResponse: MessageFns<
 };
 
 function createBaseQueryValidatorSlashesRequest(): QueryValidatorSlashesRequest {
-  return { validatorAddress: "", startingHeight: Long.UZERO, endingHeight: Long.UZERO, pagination: undefined };
+  return { validatorAddress: "", startingHeight: 0n, endingHeight: 0n, pagination: undefined };
 }
 
 export const QueryValidatorSlashesRequest: MessageFns<
@@ -709,11 +708,17 @@ export const QueryValidatorSlashesRequest: MessageFns<
     if (message.validatorAddress !== "") {
       writer.uint32(10).string(message.validatorAddress);
     }
-    if (!message.startingHeight.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.startingHeight.toString());
+    if (message.startingHeight !== 0n) {
+      if (BigInt.asUintN(64, message.startingHeight) !== message.startingHeight) {
+        throw new globalThis.Error("value provided for field message.startingHeight of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.startingHeight);
     }
-    if (!message.endingHeight.equals(Long.UZERO)) {
-      writer.uint32(24).uint64(message.endingHeight.toString());
+    if (message.endingHeight !== 0n) {
+      if (BigInt.asUintN(64, message.endingHeight) !== message.endingHeight) {
+        throw new globalThis.Error("value provided for field message.endingHeight of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.endingHeight);
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(34).fork()).join();
@@ -741,7 +746,7 @@ export const QueryValidatorSlashesRequest: MessageFns<
             break;
           }
 
-          message.startingHeight = Long.fromString(reader.uint64().toString(), true);
+          message.startingHeight = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -749,7 +754,7 @@ export const QueryValidatorSlashesRequest: MessageFns<
             break;
           }
 
-          message.endingHeight = Long.fromString(reader.uint64().toString(), true);
+          message.endingHeight = reader.uint64() as bigint;
           continue;
         }
         case 4: {
@@ -772,8 +777,8 @@ export const QueryValidatorSlashesRequest: MessageFns<
   fromJSON(object: any): QueryValidatorSlashesRequest {
     return {
       validatorAddress: isSet(object.validator_address) ? globalThis.String(object.validator_address) : "",
-      startingHeight: isSet(object.starting_height) ? Long.fromValue(object.starting_height) : Long.UZERO,
-      endingHeight: isSet(object.ending_height) ? Long.fromValue(object.ending_height) : Long.UZERO,
+      startingHeight: isSet(object.starting_height) ? BigInt(object.starting_height) : 0n,
+      endingHeight: isSet(object.ending_height) ? BigInt(object.ending_height) : 0n,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
@@ -783,11 +788,11 @@ export const QueryValidatorSlashesRequest: MessageFns<
     if (message.validatorAddress !== "") {
       obj.validator_address = message.validatorAddress;
     }
-    if (!message.startingHeight.equals(Long.UZERO)) {
-      obj.starting_height = (message.startingHeight || Long.UZERO).toString();
+    if (message.startingHeight !== 0n) {
+      obj.starting_height = message.startingHeight.toString();
     }
-    if (!message.endingHeight.equals(Long.UZERO)) {
-      obj.ending_height = (message.endingHeight || Long.UZERO).toString();
+    if (message.endingHeight !== 0n) {
+      obj.ending_height = message.endingHeight.toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -797,12 +802,8 @@ export const QueryValidatorSlashesRequest: MessageFns<
   fromPartial(object: DeepPartial<QueryValidatorSlashesRequest>): QueryValidatorSlashesRequest {
     const message = createBaseQueryValidatorSlashesRequest();
     message.validatorAddress = object.validatorAddress ?? "";
-    message.startingHeight = (object.startingHeight !== undefined && object.startingHeight !== null)
-      ? Long.fromValue(object.startingHeight)
-      : Long.UZERO;
-    message.endingHeight = (object.endingHeight !== undefined && object.endingHeight !== null)
-      ? Long.fromValue(object.endingHeight)
-      : Long.UZERO;
+    message.startingHeight = (object.startingHeight !== undefined && object.startingHeight !== null) ? BigInt(object.startingHeight) : 0n;
+    message.endingHeight = (object.endingHeight !== undefined && object.endingHeight !== null) ? BigInt(object.endingHeight) : 0n;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -1510,10 +1511,10 @@ export const QueryCommunityPoolResponse: MessageFns<
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
