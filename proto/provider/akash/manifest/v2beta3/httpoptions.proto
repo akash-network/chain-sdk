@@ -36,7 +36,7 @@ message ServiceExposeHTTPOptions {
     (gogoproto.moretags) = "yaml:\"nextCases,omitempty\""
   ];
   uint32 proxy_buffer_size = 7 [
-    (gogoproto.jsontag)  = "proxyBufferSize",
-    (gogoproto.moretags) = "yaml:\"proxyBufferSize\""
+    (gogoproto.jsontag)  = "proxyBufferSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxyBufferSize,omitempty\""
   ];
 }
