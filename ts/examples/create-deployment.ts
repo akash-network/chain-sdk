@@ -1,6 +1,9 @@
+import fs from "node:fs";
+import https from "node:https";
+import os from "node:os";
 import { setTimeout as wait } from "node:timers/promises";
 
-import { createChainNodeSDK, createStargateClient, generateManifest, generateManifestVersion, type QueryInput, type TxInput, yaml } from "@akashnetwork/chain-sdk";
+import { certificateManager, createChainNodeSDK, createStargateClient, generateManifest, generateManifestVersion, manifestToSortedJSON, type QueryInput, type TxInput, yaml } from "@akashnetwork/chain-sdk";
 import { type DeploymentID, Source } from "@akashnetwork/chain-sdk/private-types/akash.v1";
 import type { MsgCreateDeployment } from "@akashnetwork/chain-sdk/private-types/akash.v1beta4";
 import type { MsgCreateLease } from "@akashnetwork/chain-sdk/private-types/akash.v1beta5";
@@ -16,11 +19,10 @@ const [account] = await wallet.getAccounts();
 
 console.log(`Test Account Address: ${account.address}`);
 
-// Defaults to sandbox-2.aksh.pw
 const QUERY_GRPC_URL = process.env.QUERY_GRPC_URL || "http://grpc.sandbox-2.aksh.pw:9090";
 const TX_RPC_URL = process.env.TX_RPC_URL || "https://rpc.sandbox-2.aksh.pw:443";
 
-const sdk = createChainNodeSDK({
+await using sdk = createChainNodeSDK({
   query: {
     baseUrl: QUERY_GRPC_URL,
   },
@@ -31,6 +33,23 @@ const sdk = createChainNodeSDK({
     }),
   },
 });
+
+const balance = await sdk.cosmos.bank.v1beta1.getBalance({ address: account.address, denom: "uact" });
+
+if (!balance || !Number(balance.balance?.amount)) {
+  console.log("Step 0: Mint ACT tokens for the test account...");
+  await sdk.akash.bme.v1.mintACT({
+    owner: account.address,
+    to: account.address,
+    coinsToBurn: {
+      denom: "uakt",
+      amount: String(5 * 1e6),
+    },
+  });
+  console.log("Minted 5 ACT tokens for the test account.");
+  console.log("Minting is not instantant. Please wait a few seconds for the balance to update before proceeding.");
+  await wait(5000);
+}
 
 console.log("Step 1: Creating deployment...");
 const manifest = generateManifest(yaml`
@@ -57,6 +76,8 @@ services:
         as: 80
         to:
           - global: true
+        # http_options:
+        #   proxy_buffer_size: 0
 
 # The profiles section contains named compute and placement profiles to be used in the deployment.
 # https://akash.network/docs/getting-started/stack-definition-language/#profiles
@@ -81,7 +102,7 @@ profiles:
       pricing:
         # The name of the service
         web:
-          denom: uakt
+          denom: uact
           amount: 10000
 
 # The deployment section defines how to deploy the services. It is a mapping of service name to deployment configuration.
@@ -92,29 +113,29 @@ deployment:
     dcloud:
       profile: web
       count: 1
-`, "sandbox");
+`);
 if (!manifest.ok) {
   throw new Error(`Failed to generate manifest: ${manifest.value}`);
 }
 
-const latestBlockResponse = await sdk.cosmos.base.tendermint.v1beta1.getLatestBlock();
 const deploymentMessage: TxInput<MsgCreateDeployment> = {
   id: {
     owner: account.address,
-    dseq: latestBlockResponse.block?.header?.height!,
+    dseq: Date.now(),
   },
   groups: manifest.value.groupSpecs,
   hash: await generateManifestVersion(manifest.value.groups),
   deposit: {
     amount: {
-      denom: "uakt",
-      amount: "500000",
+      denom: "uact",
+      amount: String(0.5 * 1e6),
     },
     sources: [Source.balance],
   },
+  reclamation: undefined,
 };
 
-console.log(`Creating deployment with dseq: ${latestBlockResponse.block?.header?.height}`);
+console.log(`Creating deployment with dseq: ${deploymentMessage.id!.dseq}`);
 await sdk.akash.deployment.v1beta4.createDeployment(deploymentMessage, {
   memo: "Test deployment for lease creation - Akash Chain SDK",
 });
@@ -202,3 +223,97 @@ console.log("Lease verification completed successfully!");
 console.log(`Lease ID: ${createdLease.id?.owner}/${createdLease.id?.dseq}/${createdLease.id?.gseq}/${createdLease.id?.oseq}/${createdLease.id?.provider}`);
 console.log(`Lease State: ${createdLease.state}`);
 console.log(`Lease Price: ${createdLease.price?.amount}${createdLease.price?.denom}`);
+
+// Akash provider supports mTLS and JWT authentication.
+// For this example, we will use mTLS to authenticate the client (our SDK) to the provider.
+// The provider will verify the client's certificate against blockchain.
+console.log("Step 7: Create self-signed certificate for mTLS authentication on provider...");
+const CERT_DIR = `${os.tmpdir()}/akash-sdk-test-certs`;
+fs.mkdirSync(CERT_DIR, { recursive: true });
+
+if (!fs.existsSync(`${CERT_DIR}/client-cert.pem`) || !fs.existsSync(`${CERT_DIR}/client-key.pem`)) {
+  console.log("No existing certificate found. Generating a new self-signed certificate...");
+  const newCert = await certificateManager.generatePEM(account.address);
+  await sdk.akash.cert.v1.createCertificate({
+    owner: account.address,
+    pubkey: Buffer.from(newCert.publicKey, "utf-8"),
+    cert: Buffer.from(newCert.cert, "utf-8"),
+  });
+  fs.writeFileSync(`${CERT_DIR}/client-cert.pem`, newCert.cert);
+  fs.writeFileSync(`${CERT_DIR}/client-key.pem`, newCert.privateKey);
+  console.log("Self-signed certificate generated and saved successfully!");
+} else {
+  console.log("Existing certificate found. Using the existing self-signed certificate.");
+}
+
+const clientCert = {
+  cert: fs.readFileSync(`${CERT_DIR}/client-cert.pem`, "utf-8"),
+  privateKey: fs.readFileSync(`${CERT_DIR}/client-key.pem`, "utf-8"),
+};
+
+console.log("Step 8: Send deployment manifest to provider...");
+const provider = await sdk.akash.provider.v1beta4.getProvider({ owner: leaseMessage.bidId!.provider });
+
+const versionResponse = await fetch(`${provider.provider?.hostUri}/version`);
+const version = await versionResponse.json();
+console.log(`Provider version: ${version.akash.version}`);
+
+await new Promise<void>((resolve, reject) => {
+  const url = `/deployment/${createdLease.id!.dseq}/manifest`;
+  const req = https.request(provider.provider?.hostUri + url, {
+    // SECURITY ALERT!!! Always validate the provider's certificate in production. This is disabled here for testing purposes only.
+    rejectUnauthorized: false, // Accept self-signed certificates for testing purposes
+    cert: Buffer.from(clientCert.cert, "utf-8"),
+    key: Buffer.from(clientCert.privateKey, "utf-8"),
+    servername: "", // enforce SNI to establish mTLS connection
+    method: "PUT",
+  }, (res) => {
+    Array.fromAsync(res)
+      .then((chunks) => {
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+          console.log(`Manifest sent successfully to provider ${leaseMessage.bidId!.provider}`);
+          resolve();
+        } else {
+          const response = Buffer.concat(chunks).toString();
+          console.log(`Response: ${response}`);
+          reject(new Error(`Failed to send manifest to provider. Status code: ${res.statusCode}`));
+        }
+      })
+      .catch(reject);
+  });
+
+  req.setHeader("Content-Type", "application/json");
+  const serializedManifest = manifestToSortedJSON(manifest.value.groups);
+  req.write(serializedManifest);
+  req.end();
+});
+
+await wait(5000); // Wait for a few seconds to ensure the provider has processed the manifest
+
+console.log("Step 9: Verifying lease status after sending manifest...");
+const leaseStatus = await new Promise<void>((resolve, reject) => {
+  const url = `/lease/${createdLease.id!.dseq}/${createdLease.id!.gseq}/${createdLease.id!.oseq}/status`;
+  const req = https.request(provider.provider?.hostUri + url, {
+    // SECURITY ALERT!!! Always validate the provider's certificate in production. This is disabled here for testing purposes only.
+    rejectUnauthorized: false, // Accept self-signed certificates for testing purposes
+    cert: Buffer.from(clientCert.cert, "utf-8"),
+    key: Buffer.from(clientCert.privateKey, "utf-8"),
+    servername: "", // enforce SNI to establish mTLS connection
+    method: "GET",
+  }, (res) => {
+    if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+      Array.fromAsync(res)
+        .then((chunks) => {
+          const response = Buffer.concat(chunks).toString();
+          resolve(JSON.parse(response));
+        }).catch(reject);
+    } else {
+      reject(new Error(`Failed to send manifest to provider. Status code: ${res.statusCode}`));
+    }
+  });
+
+  req.setHeader("Accept", "application/json");
+  req.end();
+});
+
+console.dir(leaseStatus, { depth: null });
