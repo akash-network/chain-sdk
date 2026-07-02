@@ -51,25 +51,49 @@ function coerceBigIntFromPartial(source: string) {
   );
 
   // Repeated fields: `message.x = object.x?.map((e) => e) || [];`
-  // This shape is shared by all scalar arrays, so restrict to fields the file
-  // declares as `bigint[]`, skipping any name also used as a non-bigint array.
-  const bigintArrays = new Set<string>();
-  for (const [, name] of source.matchAll(/^\s*([A-Za-z0-9_]+): bigint\[\];/gm)) {
-    bigintArrays.add(name);
-  }
-  for (const [, name] of source.matchAll(/^\s*([A-Za-z0-9_]+): (?:string|number|boolean|Uint8Array)\[\];/gm)) {
-    if (bigintArrays.delete(name)) {
-      console.warn(`fix-ts-proto: array field "${name}" is bigint[] and non-bigint[] in the same file; skipping BigInt coercion`);
+  // This shape is identical for every scalar array (string/number/bigint/...),
+  // so field name alone is ambiguous: the same name can be `bigint[]` in one
+  // message and a non-bigint array in another. Resolve per message — collect
+  // each message's `bigint[]` fields from its interface, then rewrite only
+  // within that message's own fromPartial block.
+  const bigintArraysByMessage = new Map<string, Set<string>>();
+  for (const [, messageName, body] of source.matchAll(/^export interface (\w+) \{\n([\s\S]*?)\n\}/gm)) {
+    const fields = new Set<string>();
+    for (const [, name] of body.matchAll(/^\s*([A-Za-z0-9_]+): bigint\[\];/gm)) {
+      fields.add(name);
     }
-  }
-  for (const name of bigintArrays) {
-    result = result.replace(
-      new RegExp(`(message\\.${name} = object\\.[A-Za-z0-9_]+\\?\\.map\\(\\(e\\) => )e(\\) \\|\\| \\[\\];)`, "g"),
-      "$1BigInt(e)$2",
-    );
+    if (fields.size) bigintArraysByMessage.set(messageName, fields);
   }
 
-  return result;
+  if (!bigintArraysByMessage.size) return result;
+
+  // fromPartial is the last method emitted for a message, and this `.map((e) => e)`
+  // assignment shape only appears inside fromPartial, so the span from one
+  // fromPartial header to the next contains exactly one message's assignments.
+  const headerRegex = /fromPartial\(object: DeepPartial<(\w+)>\): \w+ \{/g;
+  const headers: { name: string; index: number }[] = [];
+  for (let match; (match = headerRegex.exec(result)); ) {
+    headers.push({ name: match[1], index: match.index });
+  }
+
+  let rewritten = "";
+  let cursor = 0;
+  headers.forEach(({ name, index }, i) => {
+    const end = i + 1 < headers.length ? headers[i + 1].index : result.length;
+    rewritten += result.slice(cursor, index);
+    let region = result.slice(index, end);
+    for (const field of bigintArraysByMessage.get(name) ?? []) {
+      region = region.replace(
+        new RegExp(`(message\\.${field} = object\\.[A-Za-z0-9_]+\\?\\.map\\(\\(e\\) => )e(\\) \\|\\| \\[\\];)`, "g"),
+        "$1BigInt(e)$2",
+      );
+    }
+    rewritten += region;
+    cursor = end;
+  });
+  rewritten += result.slice(cursor);
+
+  return rewritten;
 }
 
 function injectOwnHelpers(source: string, path: string) {

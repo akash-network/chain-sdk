@@ -74,8 +74,9 @@ export const base64FromBytes = (globalThis as any).Buffer
     };
 
 export function toTimestamp(date: Date): Timestamp {
-  const seconds = BigInt(Math.trunc(date.getTime() / 1_000));
-  const nanos = (date.getTime() % 1_000) * 1_000_000;
+  const millis = date.getTime();
+  const seconds = BigInt(Math.floor(millis / 1_000));
+  const nanos = (millis - Number(seconds) * 1_000) * 1_000_000;
   return { seconds, nanos };
 }
 
