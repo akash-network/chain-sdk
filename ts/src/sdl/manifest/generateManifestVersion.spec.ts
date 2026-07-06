@@ -617,8 +617,7 @@ describe(generateManifestVersion.name, () => {
         nextTries: 24,
         nextTimeout: 48,
         nextCases: ["500"],
-        // proxy_buffer_size is unset in this SDL, so it is omitted from the
-        // sorted manifest JSON (0 => omitted) — matching pre-feature manifests.
+        proxyBufferSize: 16384,
       });
     });
   });
