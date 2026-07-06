@@ -26,6 +26,7 @@ import {
   parseMemoryBytes,
   parseServiceProto,
   parseStorageBytes,
+  resolveInterconnectGroup,
   type SDLCompute,
   type SDLService,
   transformGpuAttributes,
@@ -257,6 +258,15 @@ function buildManifestService(
 
   const params = buildParams(service);
 
+  // The interconnect group lives under gpu.attributes.interconnect (either
+  // `[]` for the implicit `auto` group or `{ group: <name> }` for an
+  // explicit name) and propagates to the off-chain manifest's
+  // Service.interconnectGroup field so the provider's workload builder
+  // can label pods for per-group anti-affinity. The same value is also
+  // emitted into Resources.GPU.Attributes by transformGpuAttributes —
+  // both consumers (bid engine vs. workload builder) see it.
+  const interconnectGroup = resolveInterconnectGroup(compute.resources.gpu?.attributes?.interconnect);
+
   return Service.fromPartial({
     name,
     image: service.image,
@@ -268,6 +278,7 @@ function buildManifestService(
     expose: buildManifestExpose(service, endpointSequenceNumbers),
     params,
     credentials,
+    interconnectGroup,
   });
 }
 
