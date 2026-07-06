@@ -53,6 +53,10 @@ describe("SDL Parity Tests", () => {
         instancePath: "/reclamation/min_window",
         messageIncludes: "whole number followed by s, m, or h",
       },
+      "v2.1-tee-cpu-gpu-no-gpu.yaml": {
+        instancePath: "/services/web/params/tee",
+        messageIncludes: "tee type requires gpu resources",
+      },
     };
 
     fs.globSync("*.yaml", { cwd: invalidDir }).forEach((filename) => {

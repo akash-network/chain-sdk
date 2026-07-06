@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Duration } from "../../../../google/protobuf/duration.ts";
 
 /** Module is the config object of the group module. */
@@ -24,11 +23,11 @@ export interface Module {
    * max_metadata_len defines the max length of the metadata bytes field for various entities within the group module.
    * Defaults to 255 if not explicitly set.
    */
-  maxMetadataLen: Long;
+  maxMetadataLen: bigint;
 }
 
 function createBaseModule(): Module {
-  return { maxExecutionPeriod: undefined, maxMetadataLen: Long.UZERO };
+  return { maxExecutionPeriod: undefined, maxMetadataLen: 0n };
 }
 
 export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
@@ -38,8 +37,11 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
     if (message.maxExecutionPeriod !== undefined) {
       Duration.encode(message.maxExecutionPeriod, writer.uint32(10).fork()).join();
     }
-    if (!message.maxMetadataLen.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.maxMetadataLen.toString());
+    if (message.maxMetadataLen !== 0n) {
+      if (BigInt.asUintN(64, message.maxMetadataLen) !== message.maxMetadataLen) {
+        throw new globalThis.Error("value provided for field message.maxMetadataLen of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.maxMetadataLen);
     }
     return writer;
   },
@@ -64,7 +66,7 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
             break;
           }
 
-          message.maxMetadataLen = Long.fromString(reader.uint64().toString(), true);
+          message.maxMetadataLen = reader.uint64() as bigint;
           continue;
         }
       }
@@ -81,7 +83,7 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
       maxExecutionPeriod: isSet(object.max_execution_period)
         ? Duration.fromJSON(object.max_execution_period)
         : undefined,
-      maxMetadataLen: isSet(object.max_metadata_len) ? Long.fromValue(object.max_metadata_len) : Long.UZERO,
+      maxMetadataLen: isSet(object.max_metadata_len) ? BigInt(object.max_metadata_len) : 0n,
     };
   },
 
@@ -90,8 +92,8 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
     if (message.maxExecutionPeriod !== undefined) {
       obj.max_execution_period = Duration.toJSON(message.maxExecutionPeriod);
     }
-    if (!message.maxMetadataLen.equals(Long.UZERO)) {
-      obj.max_metadata_len = (message.maxMetadataLen || Long.UZERO).toString();
+    if (message.maxMetadataLen !== 0n) {
+      obj.max_metadata_len = message.maxMetadataLen.toString();
     }
     return obj;
   },
@@ -100,17 +102,15 @@ export const Module: MessageFns<Module, "cosmos.group.module.v1.Module"> = {
     message.maxExecutionPeriod = (object.maxExecutionPeriod !== undefined && object.maxExecutionPeriod !== null)
       ? Duration.fromPartial(object.maxExecutionPeriod)
       : undefined;
-    message.maxMetadataLen = (object.maxMetadataLen !== undefined && object.maxMetadataLen !== null)
-      ? Long.fromValue(object.maxMetadataLen)
-      : Long.UZERO;
+    message.maxMetadataLen = (object.maxMetadataLen !== undefined && object.maxMetadataLen !== null) ? BigInt(object.maxMetadataLen) : 0n;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

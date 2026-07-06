@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Params, ValidatorSigningInfo } from "./slashing.ts";
 
 /** GenesisState defines the slashing module's genesis state. */
@@ -51,7 +50,7 @@ export interface ValidatorMissedBlocks {
 /** MissedBlock contains height and missed status as boolean. */
 export interface MissedBlock {
   /** index is the height at which the block was missed. */
-  index: Long;
+  index: bigint;
   /** missed is the missed status. */
   missed: boolean;
 }
@@ -308,15 +307,18 @@ export const ValidatorMissedBlocks: MessageFns<ValidatorMissedBlocks, "cosmos.sl
   };
 
 function createBaseMissedBlock(): MissedBlock {
-  return { index: Long.ZERO, missed: false };
+  return { index: 0n, missed: false };
 }
 
 export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.MissedBlock"> = {
   $type: "cosmos.slashing.v1beta1.MissedBlock" as const,
 
   encode(message: MissedBlock, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.index.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.index.toString());
+    if (message.index !== 0n) {
+      if (BigInt.asIntN(64, message.index) !== message.index) {
+        throw new globalThis.Error("value provided for field message.index of type int64 too large");
+      }
+      writer.uint32(8).int64(message.index);
     }
     if (message.missed !== false) {
       writer.uint32(16).bool(message.missed);
@@ -336,7 +338,7 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
             break;
           }
 
-          message.index = Long.fromString(reader.int64().toString());
+          message.index = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -358,15 +360,15 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
 
   fromJSON(object: any): MissedBlock {
     return {
-      index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
+      index: isSet(object.index) ? BigInt(object.index) : 0n,
       missed: isSet(object.missed) ? globalThis.Boolean(object.missed) : false,
     };
   },
 
   toJSON(message: MissedBlock): unknown {
     const obj: any = {};
-    if (!message.index.equals(Long.ZERO)) {
-      obj.index = (message.index || Long.ZERO).toString();
+    if (message.index !== 0n) {
+      obj.index = message.index.toString();
     }
     if (message.missed !== false) {
       obj.missed = message.missed;
@@ -375,16 +377,16 @@ export const MissedBlock: MessageFns<MissedBlock, "cosmos.slashing.v1beta1.Misse
   },
   fromPartial(object: DeepPartial<MissedBlock>): MissedBlock {
     const message = createBaseMissedBlock();
-    message.index = (object.index !== undefined && object.index !== null) ? Long.fromValue(object.index) : Long.ZERO;
+    message.index = (object.index !== undefined && object.index !== null) ? BigInt(object.index) : 0n;
     message.missed = object.missed ?? false;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

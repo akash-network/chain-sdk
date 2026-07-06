@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { ConnectionPaths, IdentifiedConnection, Params } from "./connection.ts";
 
 /** GenesisState defines the ibc connection submodule's genesis state. */
@@ -16,12 +15,12 @@ export interface GenesisState {
   connections: IdentifiedConnection[];
   clientConnectionPaths: ConnectionPaths[];
   /** the sequence for the next generated connection identifier */
-  nextConnectionSequence: Long;
+  nextConnectionSequence: bigint;
   params: Params | undefined;
 }
 
 function createBaseGenesisState(): GenesisState {
-  return { connections: [], clientConnectionPaths: [], nextConnectionSequence: Long.UZERO, params: undefined };
+  return { connections: [], clientConnectionPaths: [], nextConnectionSequence: 0n, params: undefined };
 }
 
 export const GenesisState: MessageFns<GenesisState, "ibc.core.connection.v1.GenesisState"> = {
@@ -34,8 +33,11 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.connection.v1.Gene
     for (const v of message.clientConnectionPaths) {
       ConnectionPaths.encode(v!, writer.uint32(18).fork()).join();
     }
-    if (!message.nextConnectionSequence.equals(Long.UZERO)) {
-      writer.uint32(24).uint64(message.nextConnectionSequence.toString());
+    if (message.nextConnectionSequence !== 0n) {
+      if (BigInt.asUintN(64, message.nextConnectionSequence) !== message.nextConnectionSequence) {
+        throw new globalThis.Error("value provided for field message.nextConnectionSequence of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.nextConnectionSequence);
     }
     if (message.params !== undefined) {
       Params.encode(message.params, writer.uint32(34).fork()).join();
@@ -71,7 +73,7 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.connection.v1.Gene
             break;
           }
 
-          message.nextConnectionSequence = Long.fromString(reader.uint64().toString(), true);
+          message.nextConnectionSequence = reader.uint64() as bigint;
           continue;
         }
         case 4: {
@@ -99,9 +101,7 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.connection.v1.Gene
       clientConnectionPaths: globalThis.Array.isArray(object?.client_connection_paths)
         ? object.client_connection_paths.map((e: any) => ConnectionPaths.fromJSON(e))
         : [],
-      nextConnectionSequence: isSet(object.next_connection_sequence)
-        ? Long.fromValue(object.next_connection_sequence)
-        : Long.UZERO,
+      nextConnectionSequence: isSet(object.next_connection_sequence) ? BigInt(object.next_connection_sequence) : 0n,
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
     };
   },
@@ -114,8 +114,8 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.connection.v1.Gene
     if (message.clientConnectionPaths?.length) {
       obj.client_connection_paths = message.clientConnectionPaths.map((e) => ConnectionPaths.toJSON(e));
     }
-    if (!message.nextConnectionSequence.equals(Long.UZERO)) {
-      obj.next_connection_sequence = (message.nextConnectionSequence || Long.UZERO).toString();
+    if (message.nextConnectionSequence !== 0n) {
+      obj.next_connection_sequence = message.nextConnectionSequence.toString();
     }
     if (message.params !== undefined) {
       obj.params = Params.toJSON(message.params);
@@ -126,10 +126,7 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.connection.v1.Gene
     const message = createBaseGenesisState();
     message.connections = object.connections?.map((e) => IdentifiedConnection.fromPartial(e)) || [];
     message.clientConnectionPaths = object.clientConnectionPaths?.map((e) => ConnectionPaths.fromPartial(e)) || [];
-    message.nextConnectionSequence =
-      (object.nextConnectionSequence !== undefined && object.nextConnectionSequence !== null)
-        ? Long.fromValue(object.nextConnectionSequence)
-        : Long.UZERO;
+    message.nextConnectionSequence = (object.nextConnectionSequence !== undefined && object.nextConnectionSequence !== null) ? BigInt(object.nextConnectionSequence) : 0n;
     message.params = (object.params !== undefined && object.params !== null)
       ? Params.fromPartial(object.params)
       : undefined;
@@ -137,10 +134,10 @@ export const GenesisState: MessageFns<GenesisState, "ibc.core.connection.v1.Gene
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

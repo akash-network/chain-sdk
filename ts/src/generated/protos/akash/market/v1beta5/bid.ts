@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Duration } from "../../../google/protobuf/duration.ts";
 import { BidID } from "../v1/bid.ts";
@@ -30,7 +29,7 @@ export interface Bid {
     | DecCoin
     | undefined;
   /** CreatedAt is the block height at which the Bid was created. */
-  createdAt: Long;
+  createdAt: bigint;
   /** ResourceOffer is a list of offers. */
   resourcesOffer: ResourceOffer[];
   /** reclamation_window is the reclamation window offered by this provider. */
@@ -95,14 +94,7 @@ export function bid_StateToJSON(object: Bid_State): string {
 }
 
 function createBaseBid(): Bid {
-  return {
-    id: undefined,
-    state: 0,
-    price: undefined,
-    createdAt: Long.ZERO,
-    resourcesOffer: [],
-    reclamationWindow: undefined,
-  };
+  return { id: undefined, state: 0, price: undefined, createdAt: 0n, resourcesOffer: [], reclamationWindow: undefined };
 }
 
 export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
@@ -118,8 +110,11 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     if (message.price !== undefined) {
       DecCoin.encode(message.price, writer.uint32(26).fork()).join();
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.createdAt.toString());
+    if (message.createdAt !== 0n) {
+      if (BigInt.asIntN(64, message.createdAt) !== message.createdAt) {
+        throw new globalThis.Error("value provided for field message.createdAt of type int64 too large");
+      }
+      writer.uint32(32).int64(message.createdAt);
     }
     for (const v of message.resourcesOffer) {
       ResourceOffer.encode(v!, writer.uint32(42).fork()).join();
@@ -166,7 +161,7 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
             break;
           }
 
-          message.createdAt = Long.fromString(reader.int64().toString());
+          message.createdAt = reader.int64() as bigint;
           continue;
         }
         case 5: {
@@ -199,7 +194,7 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
       id: isSet(object.id) ? BidID.fromJSON(object.id) : undefined,
       state: isSet(object.state) ? bid_StateFromJSON(object.state) : 0,
       price: isSet(object.price) ? DecCoin.fromJSON(object.price) : undefined,
-      createdAt: isSet(object.created_at) ? Long.fromValue(object.created_at) : Long.ZERO,
+      createdAt: isSet(object.created_at) ? BigInt(object.created_at) : 0n,
       resourcesOffer: globalThis.Array.isArray(object?.resources_offer)
         ? object.resources_offer.map((e: any) => ResourceOffer.fromJSON(e))
         : [],
@@ -218,8 +213,8 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     if (message.price !== undefined) {
       obj.price = DecCoin.toJSON(message.price);
     }
-    if (!message.createdAt.equals(Long.ZERO)) {
-      obj.created_at = (message.createdAt || Long.ZERO).toString();
+    if (message.createdAt !== 0n) {
+      obj.created_at = message.createdAt.toString();
     }
     if (message.resourcesOffer?.length) {
       obj.resources_offer = message.resourcesOffer.map((e) => ResourceOffer.toJSON(e));
@@ -236,9 +231,7 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
     message.price = (object.price !== undefined && object.price !== null)
       ? DecCoin.fromPartial(object.price)
       : undefined;
-    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null)
-      ? Long.fromValue(object.createdAt)
-      : Long.ZERO;
+    message.createdAt = (object.createdAt !== undefined && object.createdAt !== null) ? BigInt(object.createdAt) : 0n;
     message.resourcesOffer = object.resourcesOffer?.map((e) => ResourceOffer.fromPartial(e)) || [];
     message.reclamationWindow = (object.reclamationWindow !== undefined && object.reclamationWindow !== null)
       ? Duration.fromPartial(object.reclamationWindow)
@@ -247,10 +240,10 @@ export const Bid: MessageFns<Bid, "akash.market.v1beta5.Bid"> = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

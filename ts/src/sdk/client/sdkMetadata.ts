@@ -1,7 +1,7 @@
 import type { ServiceLoader } from "./createServiceLoader.ts";
 import type { ServiceDesc } from "./types.ts";
 
-const SDK_METHOD_METADATA = new Map<SDKMethod, SDKMethodMetadata>();
+const SDK_METHOD_METADATA = new WeakMap<SDKMethod, SDKMethodMetadata>();
 export function withMetadata<T extends SDKMethod>(fn: T, metadata: SDKMethodMetadata): T {
   SDK_METHOD_METADATA.set(fn, metadata);
   return fn;

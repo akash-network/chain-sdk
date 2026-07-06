@@ -85,12 +85,12 @@ export function runStreamingCall<
   // Call return on the request iterable to indicate
   // that we will no longer consume it and it should
   // cleanup any allocated resources.
-  signal.addEventListener("abort", function () {
+  const onAbort = () => {
     const it = options.req.message[Symbol.asyncIterator]();
     // If the signal is aborted due to an error, we want to throw
     // the error to the request iterator.
     if (!doneCalled) {
-      it.throw?.(this.reason).catch(() => {
+      it.throw?.(signal.reason).catch(() => {
         // throw returns a promise, which we don't care about.
         //
         // Uncaught promises are thrown at sometime/somewhere by the event loop,
@@ -103,7 +103,18 @@ export function runStreamingCall<
       // Uncaught promises are thrown at sometime/somewhere by the event loop,
       // this is to ensure error is caught and ignored.
     });
-  });
+  };
+  // `signal` is a composite AbortSignal produced by AbortSignal.any(). Node keeps
+  // such signals reachable (via its internal `gcPersistentSignals` set) for as long
+  // as they have an "abort" listener, so they can still fire. Registering with
+  // `{ once: true }` lets Node drop this listener automatically once the signal
+  // aborts; on every non-aborting terminal path we remove it explicitly via
+  // `removeAbortListener()`. Without this, the listener closure keeps the entire
+  // request graph reachable forever - for every stream that ends without aborting -
+  // which leaks memory unboundedly on long-running processes.
+  signal.addEventListener("abort", onAbort, { once: true });
+  const removeAbortListener = () => signal.removeEventListener("abort", onAbort);
+
   return next(req).then((res) => {
     return {
       ...res,
@@ -113,13 +124,29 @@ export function runStreamingCall<
           return {
             next() {
               return it.next().then((r) => {
-                if (r.done == true) {
+                if (r.done === true) {
                   doneCalled = true;
+                  // The stream completed normally, so the composite signal will
+                  // never abort and the abort listener would otherwise linger
+                  // forever. Remove it so the signal - and the request graph its
+                  // closure captures - becomes collectable.
+                  removeAbortListener();
                 }
                 return r;
               }, abort);
             },
-            // We deliberately omit throw/return.
+            // If a consumer abandons the stream early (e.g. `break`s out of a
+            // `for await`), the runtime calls throw()/return() rather than draining
+            // to completion. Drop the abort listener on those paths too, and forward
+            // to the underlying iterator so it can release its own resources.
+            throw(e: unknown) {
+              removeAbortListener();
+              return it.throw ? it.throw(e) : Promise.reject(e);
+            },
+            return(value?: unknown) {
+              removeAbortListener();
+              return it.return ? it.return(value) : Promise.resolve({ done: true, value } as IteratorResult<MessageShape<O>>);
+            },
           };
         },
       },

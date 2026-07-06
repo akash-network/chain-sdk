@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+---
+version: "2.1"
+services:
+  tee-app:
+    image: nginx:latest
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+    params:
+      tee: cpu
+profiles:
+  compute:
+    tee-compute:
+      resources:
+        cpu:
+          units: 500m
+        memory:
+          size: 1Gi
+        storage:
+          size: 5Gi
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        tee-compute:
+          denom: uakt
+          amount: 250
+deployment:
+  tee-app:
+    akash:
+      profile: tee-compute
+      count: 1

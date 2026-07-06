@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /** ServiceExposeHTTPOptions */
 export interface ServiceExposeHTTPOptions {
@@ -18,10 +17,19 @@ export interface ServiceExposeHTTPOptions {
   nextTries: number;
   nextTimeout: number;
   nextCases: string[];
+  proxyBufferSize: number;
 }
 
 function createBaseServiceExposeHTTPOptions(): ServiceExposeHTTPOptions {
-  return { maxBodySize: 0, readTimeout: 0, sendTimeout: 0, nextTries: 0, nextTimeout: 0, nextCases: [] };
+  return {
+    maxBodySize: 0,
+    readTimeout: 0,
+    sendTimeout: 0,
+    nextTries: 0,
+    nextTimeout: 0,
+    nextCases: [],
+    proxyBufferSize: 0,
+  };
 }
 
 export const ServiceExposeHTTPOptions: MessageFns<
@@ -48,6 +56,9 @@ export const ServiceExposeHTTPOptions: MessageFns<
     }
     for (const v of message.nextCases) {
       writer.uint32(50).string(v!);
+    }
+    if (message.proxyBufferSize !== 0) {
+      writer.uint32(56).uint32(message.proxyBufferSize);
     }
     return writer;
   },
@@ -107,6 +118,14 @@ export const ServiceExposeHTTPOptions: MessageFns<
           message.nextCases.push(reader.string());
           continue;
         }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.proxyBufferSize = reader.uint32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -126,6 +145,7 @@ export const ServiceExposeHTTPOptions: MessageFns<
       nextCases: globalThis.Array.isArray(object?.next_cases)
         ? object.next_cases.map((e: any) => globalThis.String(e))
         : [],
+      proxyBufferSize: isSet(object.proxy_buffer_size) ? globalThis.Number(object.proxy_buffer_size) : 0,
     };
   },
 
@@ -149,6 +169,9 @@ export const ServiceExposeHTTPOptions: MessageFns<
     if (message.nextCases?.length) {
       obj.next_cases = message.nextCases;
     }
+    if (message.proxyBufferSize !== 0) {
+      obj.proxy_buffer_size = Math.round(message.proxyBufferSize);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ServiceExposeHTTPOptions>): ServiceExposeHTTPOptions {
@@ -159,14 +182,15 @@ export const ServiceExposeHTTPOptions: MessageFns<
     message.nextTries = object.nextTries ?? 0;
     message.nextTimeout = object.nextTimeout ?? 0;
     message.nextCases = object.nextCases?.map((e) => e) || [];
+    message.proxyBufferSize = object.proxyBufferSize ?? 0;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

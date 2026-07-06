@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import { Class, NFT } from "./nft.ts";
 
@@ -23,7 +22,7 @@ export interface QueryBalanceRequest {
 /** QueryBalanceResponse is the response type for the Query/Balance RPC method */
 export interface QueryBalanceResponse {
   /** amount is the number of all NFTs of a given class owned by the owner */
-  amount: Long;
+  amount: bigint;
 }
 
 /** QueryOwnerRequest is the request type for the Query/Owner RPC method */
@@ -49,7 +48,7 @@ export interface QuerySupplyRequest {
 /** QuerySupplyResponse is the response type for the Query/Supply RPC method */
 export interface QuerySupplyResponse {
   /** amount is the number of all NFTs from the given class */
-  amount: Long;
+  amount: bigint;
 }
 
 /** QueryNFTstRequest is the request type for the Query/NFTs RPC method */
@@ -185,15 +184,18 @@ export const QueryBalanceRequest: MessageFns<QueryBalanceRequest, "cosmos.nft.v1
 };
 
 function createBaseQueryBalanceResponse(): QueryBalanceResponse {
-  return { amount: Long.UZERO };
+  return { amount: 0n };
 }
 
 export const QueryBalanceResponse: MessageFns<QueryBalanceResponse, "cosmos.nft.v1beta1.QueryBalanceResponse"> = {
   $type: "cosmos.nft.v1beta1.QueryBalanceResponse" as const,
 
   encode(message: QueryBalanceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.amount.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.amount.toString());
+    if (message.amount !== 0n) {
+      if (BigInt.asUintN(64, message.amount) !== message.amount) {
+        throw new globalThis.Error("value provided for field message.amount of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.amount);
     }
     return writer;
   },
@@ -210,7 +212,7 @@ export const QueryBalanceResponse: MessageFns<QueryBalanceResponse, "cosmos.nft.
             break;
           }
 
-          message.amount = Long.fromString(reader.uint64().toString(), true);
+          message.amount = reader.uint64() as bigint;
           continue;
         }
       }
@@ -223,21 +225,19 @@ export const QueryBalanceResponse: MessageFns<QueryBalanceResponse, "cosmos.nft.
   },
 
   fromJSON(object: any): QueryBalanceResponse {
-    return { amount: isSet(object.amount) ? Long.fromValue(object.amount) : Long.UZERO };
+    return { amount: isSet(object.amount) ? BigInt(object.amount) : 0n };
   },
 
   toJSON(message: QueryBalanceResponse): unknown {
     const obj: any = {};
-    if (!message.amount.equals(Long.UZERO)) {
-      obj.amount = (message.amount || Long.UZERO).toString();
+    if (message.amount !== 0n) {
+      obj.amount = message.amount.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryBalanceResponse>): QueryBalanceResponse {
     const message = createBaseQueryBalanceResponse();
-    message.amount = (object.amount !== undefined && object.amount !== null)
-      ? Long.fromValue(object.amount)
-      : Long.UZERO;
+    message.amount = (object.amount !== undefined && object.amount !== null) ? BigInt(object.amount) : 0n;
     return message;
   },
 };
@@ -429,15 +429,18 @@ export const QuerySupplyRequest: MessageFns<QuerySupplyRequest, "cosmos.nft.v1be
 };
 
 function createBaseQuerySupplyResponse(): QuerySupplyResponse {
-  return { amount: Long.UZERO };
+  return { amount: 0n };
 }
 
 export const QuerySupplyResponse: MessageFns<QuerySupplyResponse, "cosmos.nft.v1beta1.QuerySupplyResponse"> = {
   $type: "cosmos.nft.v1beta1.QuerySupplyResponse" as const,
 
   encode(message: QuerySupplyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.amount.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.amount.toString());
+    if (message.amount !== 0n) {
+      if (BigInt.asUintN(64, message.amount) !== message.amount) {
+        throw new globalThis.Error("value provided for field message.amount of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.amount);
     }
     return writer;
   },
@@ -454,7 +457,7 @@ export const QuerySupplyResponse: MessageFns<QuerySupplyResponse, "cosmos.nft.v1
             break;
           }
 
-          message.amount = Long.fromString(reader.uint64().toString(), true);
+          message.amount = reader.uint64() as bigint;
           continue;
         }
       }
@@ -467,21 +470,19 @@ export const QuerySupplyResponse: MessageFns<QuerySupplyResponse, "cosmos.nft.v1
   },
 
   fromJSON(object: any): QuerySupplyResponse {
-    return { amount: isSet(object.amount) ? Long.fromValue(object.amount) : Long.UZERO };
+    return { amount: isSet(object.amount) ? BigInt(object.amount) : 0n };
   },
 
   toJSON(message: QuerySupplyResponse): unknown {
     const obj: any = {};
-    if (!message.amount.equals(Long.UZERO)) {
-      obj.amount = (message.amount || Long.UZERO).toString();
+    if (message.amount !== 0n) {
+      obj.amount = message.amount.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QuerySupplyResponse>): QuerySupplyResponse {
     const message = createBaseQuerySupplyResponse();
-    message.amount = (object.amount !== undefined && object.amount !== null)
-      ? Long.fromValue(object.amount)
-      : Long.UZERO;
+    message.amount = (object.amount !== undefined && object.amount !== null) ? BigInt(object.amount) : 0n;
     return message;
   },
 };
@@ -1030,10 +1031,10 @@ export const QueryClassesResponse: MessageFns<QueryClassesResponse, "cosmos.nft.
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

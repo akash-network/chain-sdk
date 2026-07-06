@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 
 /**
  * PageRequest is to be embedded in gRPC request messages for efficient
@@ -31,12 +30,12 @@ export interface PageRequest {
    * It is less efficient than using key. Only one of offset or key should
    * be set.
    */
-  offset: Long;
+  offset: bigint;
   /**
    * limit is the total number of results to be returned in the result page.
    * If left empty it will default to a value to be set by each app.
    */
-  limit: Long;
+  limit: bigint;
   /**
    * count_total is set to true  to indicate that the result set should include
    * a count of the total number of items available for pagination in UIs.
@@ -68,11 +67,11 @@ export interface PageResponse {
    * total is total number of results available if PageRequest.count_total
    * was set, its value is undefined otherwise
    */
-  total: Long;
+  total: bigint;
 }
 
 function createBasePageRequest(): PageRequest {
-  return { key: new Uint8Array(0), offset: Long.UZERO, limit: Long.UZERO, countTotal: false, reverse: false };
+  return { key: new Uint8Array(0), offset: 0n, limit: 0n, countTotal: false, reverse: false };
 }
 
 export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.PageRequest"> = {
@@ -82,11 +81,17 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
     if (message.key.length !== 0) {
       writer.uint32(10).bytes(message.key);
     }
-    if (!message.offset.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.offset.toString());
+    if (message.offset !== 0n) {
+      if (BigInt.asUintN(64, message.offset) !== message.offset) {
+        throw new globalThis.Error("value provided for field message.offset of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.offset);
     }
-    if (!message.limit.equals(Long.UZERO)) {
-      writer.uint32(24).uint64(message.limit.toString());
+    if (message.limit !== 0n) {
+      if (BigInt.asUintN(64, message.limit) !== message.limit) {
+        throw new globalThis.Error("value provided for field message.limit of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.limit);
     }
     if (message.countTotal !== false) {
       writer.uint32(32).bool(message.countTotal);
@@ -117,7 +122,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
             break;
           }
 
-          message.offset = Long.fromString(reader.uint64().toString(), true);
+          message.offset = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -125,7 +130,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
             break;
           }
 
-          message.limit = Long.fromString(reader.uint64().toString(), true);
+          message.limit = reader.uint64() as bigint;
           continue;
         }
         case 4: {
@@ -156,8 +161,8 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
   fromJSON(object: any): PageRequest {
     return {
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
-      offset: isSet(object.offset) ? Long.fromValue(object.offset) : Long.UZERO,
-      limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
+      offset: isSet(object.offset) ? BigInt(object.offset) : 0n,
+      limit: isSet(object.limit) ? BigInt(object.limit) : 0n,
       countTotal: isSet(object.count_total) ? globalThis.Boolean(object.count_total) : false,
       reverse: isSet(object.reverse) ? globalThis.Boolean(object.reverse) : false,
     };
@@ -168,11 +173,11 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
     if (message.key.length !== 0) {
       obj.key = base64FromBytes(message.key);
     }
-    if (!message.offset.equals(Long.UZERO)) {
-      obj.offset = (message.offset || Long.UZERO).toString();
+    if (message.offset !== 0n) {
+      obj.offset = message.offset.toString();
     }
-    if (!message.limit.equals(Long.UZERO)) {
-      obj.limit = (message.limit || Long.UZERO).toString();
+    if (message.limit !== 0n) {
+      obj.limit = message.limit.toString();
     }
     if (message.countTotal !== false) {
       obj.count_total = message.countTotal;
@@ -185,10 +190,8 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
   fromPartial(object: DeepPartial<PageRequest>): PageRequest {
     const message = createBasePageRequest();
     message.key = object.key ?? new Uint8Array(0);
-    message.offset = (object.offset !== undefined && object.offset !== null)
-      ? Long.fromValue(object.offset)
-      : Long.UZERO;
-    message.limit = (object.limit !== undefined && object.limit !== null) ? Long.fromValue(object.limit) : Long.UZERO;
+    message.offset = (object.offset !== undefined && object.offset !== null) ? BigInt(object.offset) : 0n;
+    message.limit = (object.limit !== undefined && object.limit !== null) ? BigInt(object.limit) : 0n;
     message.countTotal = object.countTotal ?? false;
     message.reverse = object.reverse ?? false;
     return message;
@@ -196,7 +199,7 @@ export const PageRequest: MessageFns<PageRequest, "cosmos.base.query.v1beta1.Pag
 };
 
 function createBasePageResponse(): PageResponse {
-  return { nextKey: new Uint8Array(0), total: Long.UZERO };
+  return { nextKey: new Uint8Array(0), total: 0n };
 }
 
 export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.PageResponse"> = {
@@ -206,8 +209,11 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
     if (message.nextKey.length !== 0) {
       writer.uint32(10).bytes(message.nextKey);
     }
-    if (!message.total.equals(Long.UZERO)) {
-      writer.uint32(16).uint64(message.total.toString());
+    if (message.total !== 0n) {
+      if (BigInt.asUintN(64, message.total) !== message.total) {
+        throw new globalThis.Error("value provided for field message.total of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.total);
     }
     return writer;
   },
@@ -232,7 +238,7 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
             break;
           }
 
-          message.total = Long.fromString(reader.uint64().toString(), true);
+          message.total = reader.uint64() as bigint;
           continue;
         }
       }
@@ -247,7 +253,7 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
   fromJSON(object: any): PageResponse {
     return {
       nextKey: isSet(object.next_key) ? bytesFromBase64(object.next_key) : new Uint8Array(0),
-      total: isSet(object.total) ? Long.fromValue(object.total) : Long.UZERO,
+      total: isSet(object.total) ? BigInt(object.total) : 0n,
     };
   },
 
@@ -256,15 +262,15 @@ export const PageResponse: MessageFns<PageResponse, "cosmos.base.query.v1beta1.P
     if (message.nextKey.length !== 0) {
       obj.next_key = base64FromBytes(message.nextKey);
     }
-    if (!message.total.equals(Long.UZERO)) {
-      obj.total = (message.total || Long.UZERO).toString();
+    if (message.total !== 0n) {
+      obj.total = message.total.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<PageResponse>): PageResponse {
     const message = createBasePageResponse();
     message.nextKey = object.nextKey ?? new Uint8Array(0);
-    message.total = (object.total !== undefined && object.total !== null) ? Long.fromValue(object.total) : Long.UZERO;
+    message.total = (object.total !== undefined && object.total !== null) ? BigInt(object.total) : 0n;
     return message;
   },
 };
@@ -294,10 +300,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

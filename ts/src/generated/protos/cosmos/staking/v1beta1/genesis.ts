@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Delegation, Params, Redelegation, UnbondingDelegation, Validator } from "./staking.ts";
 
 /** GenesisState defines the staking module's genesis state. */
@@ -44,7 +43,7 @@ export interface LastValidatorPower {
   /** address is the address of the validator. */
   address: string;
   /** power defines the power of the validator. */
-  power: Long;
+  power: bigint;
 }
 
 function createBaseGenesisState(): GenesisState {
@@ -239,7 +238,7 @@ export const GenesisState: MessageFns<GenesisState, "cosmos.staking.v1beta1.Gene
 };
 
 function createBaseLastValidatorPower(): LastValidatorPower {
-  return { address: "", power: Long.ZERO };
+  return { address: "", power: 0n };
 }
 
 export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.v1beta1.LastValidatorPower"> = {
@@ -249,8 +248,11 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
     if (message.address !== "") {
       writer.uint32(10).string(message.address);
     }
-    if (!message.power.equals(Long.ZERO)) {
-      writer.uint32(16).int64(message.power.toString());
+    if (message.power !== 0n) {
+      if (BigInt.asIntN(64, message.power) !== message.power) {
+        throw new globalThis.Error("value provided for field message.power of type int64 too large");
+      }
+      writer.uint32(16).int64(message.power);
     }
     return writer;
   },
@@ -275,7 +277,7 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
             break;
           }
 
-          message.power = Long.fromString(reader.int64().toString());
+          message.power = reader.int64() as bigint;
           continue;
         }
       }
@@ -290,7 +292,7 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
   fromJSON(object: any): LastValidatorPower {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      power: isSet(object.power) ? Long.fromValue(object.power) : Long.ZERO,
+      power: isSet(object.power) ? BigInt(object.power) : 0n,
     };
   },
 
@@ -299,15 +301,15 @@ export const LastValidatorPower: MessageFns<LastValidatorPower, "cosmos.staking.
     if (message.address !== "") {
       obj.address = message.address;
     }
-    if (!message.power.equals(Long.ZERO)) {
-      obj.power = (message.power || Long.ZERO).toString();
+    if (message.power !== 0n) {
+      obj.power = message.power.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<LastValidatorPower>): LastValidatorPower {
     const message = createBaseLastValidatorPower();
     message.address = object.address ?? "";
-    message.power = (object.power !== undefined && object.power !== null) ? Long.fromValue(object.power) : Long.ZERO;
+    message.power = (object.power !== undefined && object.power !== null) ? BigInt(object.power) : 0n;
     return message;
   },
 };
@@ -337,10 +339,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

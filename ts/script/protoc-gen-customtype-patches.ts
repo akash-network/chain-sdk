@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --experimental-strip-types --no-warnings
+#!/usr/bin/env -S node
 
 import { type DescField, type DescMessage, ScalarType } from "@bufbuild/protobuf";
 import {

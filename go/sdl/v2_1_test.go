@@ -794,7 +794,6 @@ func TestV2_1_TEE_CPUGPU(t *testing.T) {
 	assert.Equal(t, uint64(1), svc.Resources.GPU.Units.Value())
 }
 
-
 func TestV2_1_TEE_InvalidType(t *testing.T) {
 	stream := `
 version: "2.1"

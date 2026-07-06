@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { PageRequest, PageResponse } from "../../base/query/v1beta1/pagination.ts";
 import {
   Deposit,
@@ -36,7 +35,7 @@ export interface QueryConstitutionResponse {
 /** QueryProposalRequest is the request type for the Query/Proposal RPC method. */
 export interface QueryProposalRequest {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
 }
 
 /** QueryProposalResponse is the response type for the Query/Proposal RPC method. */
@@ -71,7 +70,7 @@ export interface QueryProposalsResponse {
 /** QueryVoteRequest is the request type for the Query/Vote RPC method. */
 export interface QueryVoteRequest {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
   /** voter defines the voter address for the proposals. */
   voter: string;
 }
@@ -85,7 +84,7 @@ export interface QueryVoteResponse {
 /** QueryVotesRequest is the request type for the Query/Votes RPC method. */
 export interface QueryVotesRequest {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
   /** pagination defines an optional pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -143,7 +142,7 @@ export interface QueryParamsResponse {
 /** QueryDepositRequest is the request type for the Query/Deposit RPC method. */
 export interface QueryDepositRequest {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
   /** depositor defines the deposit addresses from the proposals. */
   depositor: string;
 }
@@ -157,7 +156,7 @@ export interface QueryDepositResponse {
 /** QueryDepositsRequest is the request type for the Query/Deposits RPC method. */
 export interface QueryDepositsRequest {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
   /** pagination defines an optional pagination for the request. */
   pagination: PageRequest | undefined;
 }
@@ -173,7 +172,7 @@ export interface QueryDepositsResponse {
 /** QueryTallyResultRequest is the request type for the Query/Tally RPC method. */
 export interface QueryTallyResultRequest {
   /** proposal_id defines the unique id of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
 }
 
 /** QueryTallyResultResponse is the response type for the Query/Tally RPC method. */
@@ -284,15 +283,18 @@ export const QueryConstitutionResponse: MessageFns<
 };
 
 function createBaseQueryProposalRequest(): QueryProposalRequest {
-  return { proposalId: Long.UZERO };
+  return { proposalId: 0n };
 }
 
 export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.gov.v1.QueryProposalRequest"> = {
   $type: "cosmos.gov.v1.QueryProposalRequest" as const,
 
   encode(message: QueryProposalRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     return writer;
   },
@@ -309,7 +311,7 @@ export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.gov.
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
       }
@@ -322,21 +324,19 @@ export const QueryProposalRequest: MessageFns<QueryProposalRequest, "cosmos.gov.
   },
 
   fromJSON(object: any): QueryProposalRequest {
-    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n };
   },
 
   toJSON(message: QueryProposalRequest): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryProposalRequest>): QueryProposalRequest {
     const message = createBaseQueryProposalRequest();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     return message;
   },
 };
@@ -586,15 +586,18 @@ export const QueryProposalsResponse: MessageFns<QueryProposalsResponse, "cosmos.
 };
 
 function createBaseQueryVoteRequest(): QueryVoteRequest {
-  return { proposalId: Long.UZERO, voter: "" };
+  return { proposalId: 0n, voter: "" };
 }
 
 export const QueryVoteRequest: MessageFns<QueryVoteRequest, "cosmos.gov.v1.QueryVoteRequest"> = {
   $type: "cosmos.gov.v1.QueryVoteRequest" as const,
 
   encode(message: QueryVoteRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     if (message.voter !== "") {
       writer.uint32(18).string(message.voter);
@@ -614,7 +617,7 @@ export const QueryVoteRequest: MessageFns<QueryVoteRequest, "cosmos.gov.v1.Query
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -636,15 +639,15 @@ export const QueryVoteRequest: MessageFns<QueryVoteRequest, "cosmos.gov.v1.Query
 
   fromJSON(object: any): QueryVoteRequest {
     return {
-      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n,
       voter: isSet(object.voter) ? globalThis.String(object.voter) : "",
     };
   },
 
   toJSON(message: QueryVoteRequest): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     if (message.voter !== "") {
       obj.voter = message.voter;
@@ -653,9 +656,7 @@ export const QueryVoteRequest: MessageFns<QueryVoteRequest, "cosmos.gov.v1.Query
   },
   fromPartial(object: DeepPartial<QueryVoteRequest>): QueryVoteRequest {
     const message = createBaseQueryVoteRequest();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     message.voter = object.voter ?? "";
     return message;
   },
@@ -718,15 +719,18 @@ export const QueryVoteResponse: MessageFns<QueryVoteResponse, "cosmos.gov.v1.Que
 };
 
 function createBaseQueryVotesRequest(): QueryVotesRequest {
-  return { proposalId: Long.UZERO, pagination: undefined };
+  return { proposalId: 0n, pagination: undefined };
 }
 
 export const QueryVotesRequest: MessageFns<QueryVotesRequest, "cosmos.gov.v1.QueryVotesRequest"> = {
   $type: "cosmos.gov.v1.QueryVotesRequest" as const,
 
   encode(message: QueryVotesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
@@ -746,7 +750,7 @@ export const QueryVotesRequest: MessageFns<QueryVotesRequest, "cosmos.gov.v1.Que
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -768,15 +772,15 @@ export const QueryVotesRequest: MessageFns<QueryVotesRequest, "cosmos.gov.v1.Que
 
   fromJSON(object: any): QueryVotesRequest {
     return {
-      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
 
   toJSON(message: QueryVotesRequest): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -785,9 +789,7 @@ export const QueryVotesRequest: MessageFns<QueryVotesRequest, "cosmos.gov.v1.Que
   },
   fromPartial(object: DeepPartial<QueryVotesRequest>): QueryVotesRequest {
     const message = createBaseQueryVotesRequest();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -1042,15 +1044,18 @@ export const QueryParamsResponse: MessageFns<QueryParamsResponse, "cosmos.gov.v1
 };
 
 function createBaseQueryDepositRequest(): QueryDepositRequest {
-  return { proposalId: Long.UZERO, depositor: "" };
+  return { proposalId: 0n, depositor: "" };
 }
 
 export const QueryDepositRequest: MessageFns<QueryDepositRequest, "cosmos.gov.v1.QueryDepositRequest"> = {
   $type: "cosmos.gov.v1.QueryDepositRequest" as const,
 
   encode(message: QueryDepositRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     if (message.depositor !== "") {
       writer.uint32(18).string(message.depositor);
@@ -1070,7 +1075,7 @@ export const QueryDepositRequest: MessageFns<QueryDepositRequest, "cosmos.gov.v1
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -1092,15 +1097,15 @@ export const QueryDepositRequest: MessageFns<QueryDepositRequest, "cosmos.gov.v1
 
   fromJSON(object: any): QueryDepositRequest {
     return {
-      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n,
       depositor: isSet(object.depositor) ? globalThis.String(object.depositor) : "",
     };
   },
 
   toJSON(message: QueryDepositRequest): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     if (message.depositor !== "") {
       obj.depositor = message.depositor;
@@ -1109,9 +1114,7 @@ export const QueryDepositRequest: MessageFns<QueryDepositRequest, "cosmos.gov.v1
   },
   fromPartial(object: DeepPartial<QueryDepositRequest>): QueryDepositRequest {
     const message = createBaseQueryDepositRequest();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     message.depositor = object.depositor ?? "";
     return message;
   },
@@ -1176,15 +1179,18 @@ export const QueryDepositResponse: MessageFns<QueryDepositResponse, "cosmos.gov.
 };
 
 function createBaseQueryDepositsRequest(): QueryDepositsRequest {
-  return { proposalId: Long.UZERO, pagination: undefined };
+  return { proposalId: 0n, pagination: undefined };
 }
 
 export const QueryDepositsRequest: MessageFns<QueryDepositsRequest, "cosmos.gov.v1.QueryDepositsRequest"> = {
   $type: "cosmos.gov.v1.QueryDepositsRequest" as const,
 
   encode(message: QueryDepositsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
@@ -1204,7 +1210,7 @@ export const QueryDepositsRequest: MessageFns<QueryDepositsRequest, "cosmos.gov.
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -1226,15 +1232,15 @@ export const QueryDepositsRequest: MessageFns<QueryDepositsRequest, "cosmos.gov.
 
   fromJSON(object: any): QueryDepositsRequest {
     return {
-      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
 
   toJSON(message: QueryDepositsRequest): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -1243,9 +1249,7 @@ export const QueryDepositsRequest: MessageFns<QueryDepositsRequest, "cosmos.gov.
   },
   fromPartial(object: DeepPartial<QueryDepositsRequest>): QueryDepositsRequest {
     const message = createBaseQueryDepositsRequest();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -1330,15 +1334,18 @@ export const QueryDepositsResponse: MessageFns<QueryDepositsResponse, "cosmos.go
 };
 
 function createBaseQueryTallyResultRequest(): QueryTallyResultRequest {
-  return { proposalId: Long.UZERO };
+  return { proposalId: 0n };
 }
 
 export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmos.gov.v1.QueryTallyResultRequest"> = {
   $type: "cosmos.gov.v1.QueryTallyResultRequest" as const,
 
   encode(message: QueryTallyResultRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     return writer;
   },
@@ -1355,7 +1362,7 @@ export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmo
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
       }
@@ -1368,21 +1375,19 @@ export const QueryTallyResultRequest: MessageFns<QueryTallyResultRequest, "cosmo
   },
 
   fromJSON(object: any): QueryTallyResultRequest {
-    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n };
   },
 
   toJSON(message: QueryTallyResultRequest): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryTallyResultRequest>): QueryTallyResultRequest {
     const message = createBaseQueryTallyResultRequest();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     return message;
   },
 };
@@ -1446,10 +1451,10 @@ export const QueryTallyResultResponse: MessageFns<QueryTallyResultResponse, "cos
     },
   };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

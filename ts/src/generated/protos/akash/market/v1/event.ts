@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { DecCoin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { BidID } from "./bid.ts";
 import { LeaseID } from "./lease.ts";
@@ -87,7 +86,7 @@ export interface EventLeaseReclaimStarted {
   /** reason is the provider's stated reason for reclamation. */
   reason: LeaseClosedReason;
   /** deadline is the unix timestamp when the reclamation window expires. */
-  deadline: Long;
+  deadline: bigint;
 }
 
 function createBaseEventOrderCreated(): EventOrderCreated {
@@ -485,7 +484,7 @@ export const EventLeaseClosed: MessageFns<EventLeaseClosed, "akash.market.v1.Eve
 };
 
 function createBaseEventLeaseReclaimStarted(): EventLeaseReclaimStarted {
-  return { id: undefined, reason: 0, deadline: Long.ZERO };
+  return { id: undefined, reason: 0, deadline: 0n };
 }
 
 export const EventLeaseReclaimStarted: MessageFns<
@@ -501,8 +500,11 @@ export const EventLeaseReclaimStarted: MessageFns<
     if (message.reason !== 0) {
       writer.uint32(16).int32(message.reason);
     }
-    if (!message.deadline.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.deadline.toString());
+    if (message.deadline !== 0n) {
+      if (BigInt.asIntN(64, message.deadline) !== message.deadline) {
+        throw new globalThis.Error("value provided for field message.deadline of type int64 too large");
+      }
+      writer.uint32(24).int64(message.deadline);
     }
     return writer;
   },
@@ -535,7 +537,7 @@ export const EventLeaseReclaimStarted: MessageFns<
             break;
           }
 
-          message.deadline = Long.fromString(reader.int64().toString());
+          message.deadline = reader.int64() as bigint;
           continue;
         }
       }
@@ -551,7 +553,7 @@ export const EventLeaseReclaimStarted: MessageFns<
     return {
       id: isSet(object.id) ? LeaseID.fromJSON(object.id) : undefined,
       reason: isSet(object.reason) ? leaseClosedReasonFromJSON(object.reason) : 0,
-      deadline: isSet(object.deadline) ? Long.fromValue(object.deadline) : Long.ZERO,
+      deadline: isSet(object.deadline) ? BigInt(object.deadline) : 0n,
     };
   },
 
@@ -563,8 +565,8 @@ export const EventLeaseReclaimStarted: MessageFns<
     if (message.reason !== 0) {
       obj.reason = leaseClosedReasonToJSON(message.reason);
     }
-    if (!message.deadline.equals(Long.ZERO)) {
-      obj.deadline = (message.deadline || Long.ZERO).toString();
+    if (message.deadline !== 0n) {
+      obj.deadline = message.deadline.toString();
     }
     return obj;
   },
@@ -572,17 +574,15 @@ export const EventLeaseReclaimStarted: MessageFns<
     const message = createBaseEventLeaseReclaimStarted();
     message.id = (object.id !== undefined && object.id !== null) ? LeaseID.fromPartial(object.id) : undefined;
     message.reason = object.reason ?? 0;
-    message.deadline = (object.deadline !== undefined && object.deadline !== null)
-      ? Long.fromValue(object.deadline)
-      : Long.ZERO;
+    message.deadline = (object.deadline !== undefined && object.deadline !== null) ? BigInt(object.deadline) : 0n;
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

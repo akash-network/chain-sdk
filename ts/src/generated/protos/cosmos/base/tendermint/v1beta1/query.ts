@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Any } from "../../../../google/protobuf/any.ts";
 import { DefaultNodeInfo } from "../../../../tendermint/p2p/types.ts";
 import { Block } from "../../../../tendermint/types/block.ts";
@@ -18,14 +17,14 @@ import { Block as Block1 } from "./types.ts";
 
 /** GetValidatorSetByHeightRequest is the request type for the Query/GetValidatorSetByHeight RPC method. */
 export interface GetValidatorSetByHeightRequest {
-  height: Long;
+  height: bigint;
   /** pagination defines an pagination for the request. */
   pagination: PageRequest | undefined;
 }
 
 /** GetValidatorSetByHeightResponse is the response type for the Query/GetValidatorSetByHeight RPC method. */
 export interface GetValidatorSetByHeightResponse {
-  blockHeight: Long;
+  blockHeight: bigint;
   validators: Validator[];
   /** pagination defines an pagination for the response. */
   pagination: PageResponse | undefined;
@@ -39,7 +38,7 @@ export interface GetLatestValidatorSetRequest {
 
 /** GetLatestValidatorSetResponse is the response type for the Query/GetValidatorSetByHeight RPC method. */
 export interface GetLatestValidatorSetResponse {
-  blockHeight: Long;
+  blockHeight: bigint;
   validators: Validator[];
   /** pagination defines an pagination for the response. */
   pagination: PageResponse | undefined;
@@ -49,13 +48,13 @@ export interface GetLatestValidatorSetResponse {
 export interface Validator {
   address: string;
   pubKey: Any | undefined;
-  votingPower: Long;
-  proposerPriority: Long;
+  votingPower: bigint;
+  proposerPriority: bigint;
 }
 
 /** GetBlockByHeightRequest is the request type for the Query/GetBlockByHeight RPC method. */
 export interface GetBlockByHeightRequest {
-  height: Long;
+  height: bigint;
 }
 
 /** GetBlockByHeightResponse is the response type for the Query/GetBlockByHeight RPC method. */
@@ -127,7 +126,7 @@ export interface Module {
 export interface ABCIQueryRequest {
   data: Uint8Array;
   path: string;
-  height: Long;
+  height: bigint;
   prove: boolean;
 }
 
@@ -143,11 +142,11 @@ export interface ABCIQueryResponse {
   log: string;
   /** nondeterministic */
   info: string;
-  index: Long;
+  index: bigint;
   key: Uint8Array;
   value: Uint8Array;
   proofOps: ProofOps | undefined;
-  height: Long;
+  height: bigint;
   codespace: string;
 }
 
@@ -174,7 +173,7 @@ export interface ProofOps {
 }
 
 function createBaseGetValidatorSetByHeightRequest(): GetValidatorSetByHeightRequest {
-  return { height: Long.ZERO, pagination: undefined };
+  return { height: 0n, pagination: undefined };
 }
 
 export const GetValidatorSetByHeightRequest: MessageFns<
@@ -184,8 +183,11 @@ export const GetValidatorSetByHeightRequest: MessageFns<
   $type: "cosmos.base.tendermint.v1beta1.GetValidatorSetByHeightRequest" as const,
 
   encode(message: GetValidatorSetByHeightRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(8).int64(message.height);
     }
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(18).fork()).join();
@@ -205,7 +207,7 @@ export const GetValidatorSetByHeightRequest: MessageFns<
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -227,15 +229,15 @@ export const GetValidatorSetByHeightRequest: MessageFns<
 
   fromJSON(object: any): GetValidatorSetByHeightRequest {
     return {
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
       pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
     };
   },
 
   toJSON(message: GetValidatorSetByHeightRequest): unknown {
     const obj: any = {};
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     if (message.pagination !== undefined) {
       obj.pagination = PageRequest.toJSON(message.pagination);
@@ -244,9 +246,7 @@ export const GetValidatorSetByHeightRequest: MessageFns<
   },
   fromPartial(object: DeepPartial<GetValidatorSetByHeightRequest>): GetValidatorSetByHeightRequest {
     const message = createBaseGetValidatorSetByHeightRequest();
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageRequest.fromPartial(object.pagination)
       : undefined;
@@ -255,7 +255,7 @@ export const GetValidatorSetByHeightRequest: MessageFns<
 };
 
 function createBaseGetValidatorSetByHeightResponse(): GetValidatorSetByHeightResponse {
-  return { blockHeight: Long.ZERO, validators: [], pagination: undefined };
+  return { blockHeight: 0n, validators: [], pagination: undefined };
 }
 
 export const GetValidatorSetByHeightResponse: MessageFns<
@@ -265,8 +265,11 @@ export const GetValidatorSetByHeightResponse: MessageFns<
   $type: "cosmos.base.tendermint.v1beta1.GetValidatorSetByHeightResponse" as const,
 
   encode(message: GetValidatorSetByHeightResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.blockHeight.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.blockHeight.toString());
+    if (message.blockHeight !== 0n) {
+      if (BigInt.asIntN(64, message.blockHeight) !== message.blockHeight) {
+        throw new globalThis.Error("value provided for field message.blockHeight of type int64 too large");
+      }
+      writer.uint32(8).int64(message.blockHeight);
     }
     for (const v of message.validators) {
       Validator.encode(v!, writer.uint32(18).fork()).join();
@@ -289,7 +292,7 @@ export const GetValidatorSetByHeightResponse: MessageFns<
             break;
           }
 
-          message.blockHeight = Long.fromString(reader.int64().toString());
+          message.blockHeight = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -319,7 +322,7 @@ export const GetValidatorSetByHeightResponse: MessageFns<
 
   fromJSON(object: any): GetValidatorSetByHeightResponse {
     return {
-      blockHeight: isSet(object.block_height) ? Long.fromValue(object.block_height) : Long.ZERO,
+      blockHeight: isSet(object.block_height) ? BigInt(object.block_height) : 0n,
       validators: globalThis.Array.isArray(object?.validators)
         ? object.validators.map((e: any) => Validator.fromJSON(e))
         : [],
@@ -329,8 +332,8 @@ export const GetValidatorSetByHeightResponse: MessageFns<
 
   toJSON(message: GetValidatorSetByHeightResponse): unknown {
     const obj: any = {};
-    if (!message.blockHeight.equals(Long.ZERO)) {
-      obj.block_height = (message.blockHeight || Long.ZERO).toString();
+    if (message.blockHeight !== 0n) {
+      obj.block_height = message.blockHeight.toString();
     }
     if (message.validators?.length) {
       obj.validators = message.validators.map((e) => Validator.toJSON(e));
@@ -342,9 +345,7 @@ export const GetValidatorSetByHeightResponse: MessageFns<
   },
   fromPartial(object: DeepPartial<GetValidatorSetByHeightResponse>): GetValidatorSetByHeightResponse {
     const message = createBaseGetValidatorSetByHeightResponse();
-    message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null)
-      ? Long.fromValue(object.blockHeight)
-      : Long.ZERO;
+    message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null) ? BigInt(object.blockHeight) : 0n;
     message.validators = object.validators?.map((e) => Validator.fromPartial(e)) || [];
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageResponse.fromPartial(object.pagination)
@@ -415,7 +416,7 @@ export const GetLatestValidatorSetRequest: MessageFns<
 };
 
 function createBaseGetLatestValidatorSetResponse(): GetLatestValidatorSetResponse {
-  return { blockHeight: Long.ZERO, validators: [], pagination: undefined };
+  return { blockHeight: 0n, validators: [], pagination: undefined };
 }
 
 export const GetLatestValidatorSetResponse: MessageFns<
@@ -425,8 +426,11 @@ export const GetLatestValidatorSetResponse: MessageFns<
   $type: "cosmos.base.tendermint.v1beta1.GetLatestValidatorSetResponse" as const,
 
   encode(message: GetLatestValidatorSetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.blockHeight.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.blockHeight.toString());
+    if (message.blockHeight !== 0n) {
+      if (BigInt.asIntN(64, message.blockHeight) !== message.blockHeight) {
+        throw new globalThis.Error("value provided for field message.blockHeight of type int64 too large");
+      }
+      writer.uint32(8).int64(message.blockHeight);
     }
     for (const v of message.validators) {
       Validator.encode(v!, writer.uint32(18).fork()).join();
@@ -449,7 +453,7 @@ export const GetLatestValidatorSetResponse: MessageFns<
             break;
           }
 
-          message.blockHeight = Long.fromString(reader.int64().toString());
+          message.blockHeight = reader.int64() as bigint;
           continue;
         }
         case 2: {
@@ -479,7 +483,7 @@ export const GetLatestValidatorSetResponse: MessageFns<
 
   fromJSON(object: any): GetLatestValidatorSetResponse {
     return {
-      blockHeight: isSet(object.block_height) ? Long.fromValue(object.block_height) : Long.ZERO,
+      blockHeight: isSet(object.block_height) ? BigInt(object.block_height) : 0n,
       validators: globalThis.Array.isArray(object?.validators)
         ? object.validators.map((e: any) => Validator.fromJSON(e))
         : [],
@@ -489,8 +493,8 @@ export const GetLatestValidatorSetResponse: MessageFns<
 
   toJSON(message: GetLatestValidatorSetResponse): unknown {
     const obj: any = {};
-    if (!message.blockHeight.equals(Long.ZERO)) {
-      obj.block_height = (message.blockHeight || Long.ZERO).toString();
+    if (message.blockHeight !== 0n) {
+      obj.block_height = message.blockHeight.toString();
     }
     if (message.validators?.length) {
       obj.validators = message.validators.map((e) => Validator.toJSON(e));
@@ -502,9 +506,7 @@ export const GetLatestValidatorSetResponse: MessageFns<
   },
   fromPartial(object: DeepPartial<GetLatestValidatorSetResponse>): GetLatestValidatorSetResponse {
     const message = createBaseGetLatestValidatorSetResponse();
-    message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null)
-      ? Long.fromValue(object.blockHeight)
-      : Long.ZERO;
+    message.blockHeight = (object.blockHeight !== undefined && object.blockHeight !== null) ? BigInt(object.blockHeight) : 0n;
     message.validators = object.validators?.map((e) => Validator.fromPartial(e)) || [];
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageResponse.fromPartial(object.pagination)
@@ -514,7 +516,7 @@ export const GetLatestValidatorSetResponse: MessageFns<
 };
 
 function createBaseValidator(): Validator {
-  return { address: "", pubKey: undefined, votingPower: Long.ZERO, proposerPriority: Long.ZERO };
+  return { address: "", pubKey: undefined, votingPower: 0n, proposerPriority: 0n };
 }
 
 export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Validator"> = {
@@ -527,11 +529,17 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
     if (message.pubKey !== undefined) {
       Any.encode(message.pubKey, writer.uint32(18).fork()).join();
     }
-    if (!message.votingPower.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.votingPower.toString());
+    if (message.votingPower !== 0n) {
+      if (BigInt.asIntN(64, message.votingPower) !== message.votingPower) {
+        throw new globalThis.Error("value provided for field message.votingPower of type int64 too large");
+      }
+      writer.uint32(24).int64(message.votingPower);
     }
-    if (!message.proposerPriority.equals(Long.ZERO)) {
-      writer.uint32(32).int64(message.proposerPriority.toString());
+    if (message.proposerPriority !== 0n) {
+      if (BigInt.asIntN(64, message.proposerPriority) !== message.proposerPriority) {
+        throw new globalThis.Error("value provided for field message.proposerPriority of type int64 too large");
+      }
+      writer.uint32(32).int64(message.proposerPriority);
     }
     return writer;
   },
@@ -564,7 +572,7 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
             break;
           }
 
-          message.votingPower = Long.fromString(reader.int64().toString());
+          message.votingPower = reader.int64() as bigint;
           continue;
         }
         case 4: {
@@ -572,7 +580,7 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
             break;
           }
 
-          message.proposerPriority = Long.fromString(reader.int64().toString());
+          message.proposerPriority = reader.int64() as bigint;
           continue;
         }
       }
@@ -588,8 +596,8 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
       pubKey: isSet(object.pub_key) ? Any.fromJSON(object.pub_key) : undefined,
-      votingPower: isSet(object.voting_power) ? Long.fromValue(object.voting_power) : Long.ZERO,
-      proposerPriority: isSet(object.proposer_priority) ? Long.fromValue(object.proposer_priority) : Long.ZERO,
+      votingPower: isSet(object.voting_power) ? BigInt(object.voting_power) : 0n,
+      proposerPriority: isSet(object.proposer_priority) ? BigInt(object.proposer_priority) : 0n,
     };
   },
 
@@ -601,11 +609,11 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
     if (message.pubKey !== undefined) {
       obj.pub_key = Any.toJSON(message.pubKey);
     }
-    if (!message.votingPower.equals(Long.ZERO)) {
-      obj.voting_power = (message.votingPower || Long.ZERO).toString();
+    if (message.votingPower !== 0n) {
+      obj.voting_power = message.votingPower.toString();
     }
-    if (!message.proposerPriority.equals(Long.ZERO)) {
-      obj.proposer_priority = (message.proposerPriority || Long.ZERO).toString();
+    if (message.proposerPriority !== 0n) {
+      obj.proposer_priority = message.proposerPriority.toString();
     }
     return obj;
   },
@@ -615,18 +623,14 @@ export const Validator: MessageFns<Validator, "cosmos.base.tendermint.v1beta1.Va
     message.pubKey = (object.pubKey !== undefined && object.pubKey !== null)
       ? Any.fromPartial(object.pubKey)
       : undefined;
-    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null)
-      ? Long.fromValue(object.votingPower)
-      : Long.ZERO;
-    message.proposerPriority = (object.proposerPriority !== undefined && object.proposerPriority !== null)
-      ? Long.fromValue(object.proposerPriority)
-      : Long.ZERO;
+    message.votingPower = (object.votingPower !== undefined && object.votingPower !== null) ? BigInt(object.votingPower) : 0n;
+    message.proposerPriority = (object.proposerPriority !== undefined && object.proposerPriority !== null) ? BigInt(object.proposerPriority) : 0n;
     return message;
   },
 };
 
 function createBaseGetBlockByHeightRequest(): GetBlockByHeightRequest {
-  return { height: Long.ZERO };
+  return { height: 0n };
 }
 
 export const GetBlockByHeightRequest: MessageFns<
@@ -636,8 +640,11 @@ export const GetBlockByHeightRequest: MessageFns<
   $type: "cosmos.base.tendermint.v1beta1.GetBlockByHeightRequest" as const,
 
   encode(message: GetBlockByHeightRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(8).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(8).int64(message.height);
     }
     return writer;
   },
@@ -654,7 +661,7 @@ export const GetBlockByHeightRequest: MessageFns<
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
       }
@@ -667,21 +674,19 @@ export const GetBlockByHeightRequest: MessageFns<
   },
 
   fromJSON(object: any): GetBlockByHeightRequest {
-    return { height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO };
+    return { height: isSet(object.height) ? BigInt(object.height) : 0n };
   },
 
   toJSON(message: GetBlockByHeightRequest): unknown {
     const obj: any = {};
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<GetBlockByHeightRequest>): GetBlockByHeightRequest {
     const message = createBaseGetBlockByHeightRequest();
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     return message;
   },
 };
@@ -1417,7 +1422,7 @@ export const Module: MessageFns<Module, "cosmos.base.tendermint.v1beta1.Module">
 };
 
 function createBaseABCIQueryRequest(): ABCIQueryRequest {
-  return { data: new Uint8Array(0), path: "", height: Long.ZERO, prove: false };
+  return { data: new Uint8Array(0), path: "", height: 0n, prove: false };
 }
 
 export const ABCIQueryRequest: MessageFns<ABCIQueryRequest, "cosmos.base.tendermint.v1beta1.ABCIQueryRequest"> = {
@@ -1430,8 +1435,11 @@ export const ABCIQueryRequest: MessageFns<ABCIQueryRequest, "cosmos.base.tenderm
     if (message.path !== "") {
       writer.uint32(18).string(message.path);
     }
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(24).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(24).int64(message.height);
     }
     if (message.prove !== false) {
       writer.uint32(32).bool(message.prove);
@@ -1467,7 +1475,7 @@ export const ABCIQueryRequest: MessageFns<ABCIQueryRequest, "cosmos.base.tenderm
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
         case 4: {
@@ -1491,7 +1499,7 @@ export const ABCIQueryRequest: MessageFns<ABCIQueryRequest, "cosmos.base.tenderm
     return {
       data: isSet(object.data) ? bytesFromBase64(object.data) : new Uint8Array(0),
       path: isSet(object.path) ? globalThis.String(object.path) : "",
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
       prove: isSet(object.prove) ? globalThis.Boolean(object.prove) : false,
     };
   },
@@ -1504,8 +1512,8 @@ export const ABCIQueryRequest: MessageFns<ABCIQueryRequest, "cosmos.base.tenderm
     if (message.path !== "") {
       obj.path = message.path;
     }
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     if (message.prove !== false) {
       obj.prove = message.prove;
@@ -1516,9 +1524,7 @@ export const ABCIQueryRequest: MessageFns<ABCIQueryRequest, "cosmos.base.tenderm
     const message = createBaseABCIQueryRequest();
     message.data = object.data ?? new Uint8Array(0);
     message.path = object.path ?? "";
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     message.prove = object.prove ?? false;
     return message;
   },
@@ -1529,11 +1535,11 @@ function createBaseABCIQueryResponse(): ABCIQueryResponse {
     code: 0,
     log: "",
     info: "",
-    index: Long.ZERO,
+    index: 0n,
     key: new Uint8Array(0),
     value: new Uint8Array(0),
     proofOps: undefined,
-    height: Long.ZERO,
+    height: 0n,
     codespace: "",
   };
 }
@@ -1551,8 +1557,11 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
     if (message.info !== "") {
       writer.uint32(34).string(message.info);
     }
-    if (!message.index.equals(Long.ZERO)) {
-      writer.uint32(40).int64(message.index.toString());
+    if (message.index !== 0n) {
+      if (BigInt.asIntN(64, message.index) !== message.index) {
+        throw new globalThis.Error("value provided for field message.index of type int64 too large");
+      }
+      writer.uint32(40).int64(message.index);
     }
     if (message.key.length !== 0) {
       writer.uint32(50).bytes(message.key);
@@ -1563,8 +1572,11 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
     if (message.proofOps !== undefined) {
       ProofOps.encode(message.proofOps, writer.uint32(66).fork()).join();
     }
-    if (!message.height.equals(Long.ZERO)) {
-      writer.uint32(72).int64(message.height.toString());
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(72).int64(message.height);
     }
     if (message.codespace !== "") {
       writer.uint32(82).string(message.codespace);
@@ -1608,7 +1620,7 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
             break;
           }
 
-          message.index = Long.fromString(reader.int64().toString());
+          message.index = reader.int64() as bigint;
           continue;
         }
         case 6: {
@@ -1640,7 +1652,7 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
             break;
           }
 
-          message.height = Long.fromString(reader.int64().toString());
+          message.height = reader.int64() as bigint;
           continue;
         }
         case 10: {
@@ -1665,11 +1677,11 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
       code: isSet(object.code) ? globalThis.Number(object.code) : 0,
       log: isSet(object.log) ? globalThis.String(object.log) : "",
       info: isSet(object.info) ? globalThis.String(object.info) : "",
-      index: isSet(object.index) ? Long.fromValue(object.index) : Long.ZERO,
+      index: isSet(object.index) ? BigInt(object.index) : 0n,
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
       value: isSet(object.value) ? bytesFromBase64(object.value) : new Uint8Array(0),
       proofOps: isSet(object.proof_ops) ? ProofOps.fromJSON(object.proof_ops) : undefined,
-      height: isSet(object.height) ? Long.fromValue(object.height) : Long.ZERO,
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
       codespace: isSet(object.codespace) ? globalThis.String(object.codespace) : "",
     };
   },
@@ -1685,8 +1697,8 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
     if (message.info !== "") {
       obj.info = message.info;
     }
-    if (!message.index.equals(Long.ZERO)) {
-      obj.index = (message.index || Long.ZERO).toString();
+    if (message.index !== 0n) {
+      obj.index = message.index.toString();
     }
     if (message.key.length !== 0) {
       obj.key = base64FromBytes(message.key);
@@ -1697,8 +1709,8 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
     if (message.proofOps !== undefined) {
       obj.proof_ops = ProofOps.toJSON(message.proofOps);
     }
-    if (!message.height.equals(Long.ZERO)) {
-      obj.height = (message.height || Long.ZERO).toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
     if (message.codespace !== "") {
       obj.codespace = message.codespace;
@@ -1710,15 +1722,13 @@ export const ABCIQueryResponse: MessageFns<ABCIQueryResponse, "cosmos.base.tende
     message.code = object.code ?? 0;
     message.log = object.log ?? "";
     message.info = object.info ?? "";
-    message.index = (object.index !== undefined && object.index !== null) ? Long.fromValue(object.index) : Long.ZERO;
+    message.index = (object.index !== undefined && object.index !== null) ? BigInt(object.index) : 0n;
     message.key = object.key ?? new Uint8Array(0);
     message.value = object.value ?? new Uint8Array(0);
     message.proofOps = (object.proofOps !== undefined && object.proofOps !== null)
       ? ProofOps.fromPartial(object.proofOps)
       : undefined;
-    message.height = (object.height !== undefined && object.height !== null)
-      ? Long.fromValue(object.height)
-      : Long.ZERO;
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
     message.codespace = object.codespace ?? "";
     return message;
   },
@@ -1895,10 +1905,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

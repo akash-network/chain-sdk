@@ -4,8 +4,16 @@ import type { GenerateManifestOkResult, Manifest } from "./generateManifest.ts";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
-const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts"]);
-const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
+// Go marshals nil slices as `null`, so empty manifest arrays must serialize to
+// `null` to stay byte-compatible with the Go SDK's manifest. `storage` covers
+// `params.storage` when a service sets other params (e.g. `tee`) but no storage;
+// resource-level storage is schema-required and never empty, so it is unaffected.
+const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts", "storage"]);
+// proxyBufferSize is omitted when 0 to mirror the Go manifest proto's
+// `omitempty` (go/manifest/v2beta3/httpoptions.pb.go). This keeps the manifest
+// version hash identical to older manifests when proxy_buffer_size is unset, so
+// deployments created via the TS SDK stay compatible with older providers.
+const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes", "proxyBufferSize"]);
 
 // Manifest fields that on the Go side use `omitempty` for string values —
 // the field must NOT appear in the JSON when its value is the empty

@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../../encoding/typeEnc
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import { Height } from "../../client/v1/client.ts";
 import { Channel, Packet } from "./channel.ts";
 
@@ -193,7 +192,7 @@ export interface MsgTimeout {
   packet: Packet | undefined;
   proofUnreceived: Uint8Array;
   proofHeight: Height | undefined;
-  nextSequenceRecv: Long;
+  nextSequenceRecv: bigint;
   signer: string;
 }
 
@@ -208,7 +207,7 @@ export interface MsgTimeoutOnClose {
   proofUnreceived: Uint8Array;
   proofClose: Uint8Array;
   proofHeight: Height | undefined;
-  nextSequenceRecv: Long;
+  nextSequenceRecv: bigint;
   signer: string;
 }
 
@@ -1495,7 +1494,7 @@ function createBaseMsgTimeout(): MsgTimeout {
     packet: undefined,
     proofUnreceived: new Uint8Array(0),
     proofHeight: undefined,
-    nextSequenceRecv: Long.UZERO,
+    nextSequenceRecv: 0n,
     signer: "",
   };
 }
@@ -1513,8 +1512,11 @@ export const MsgTimeout: MessageFns<MsgTimeout, "ibc.core.channel.v1.MsgTimeout"
     if (message.proofHeight !== undefined) {
       Height.encode(message.proofHeight, writer.uint32(26).fork()).join();
     }
-    if (!message.nextSequenceRecv.equals(Long.UZERO)) {
-      writer.uint32(32).uint64(message.nextSequenceRecv.toString());
+    if (message.nextSequenceRecv !== 0n) {
+      if (BigInt.asUintN(64, message.nextSequenceRecv) !== message.nextSequenceRecv) {
+        throw new globalThis.Error("value provided for field message.nextSequenceRecv of type uint64 too large");
+      }
+      writer.uint32(32).uint64(message.nextSequenceRecv);
     }
     if (message.signer !== "") {
       writer.uint32(42).string(message.signer);
@@ -1558,7 +1560,7 @@ export const MsgTimeout: MessageFns<MsgTimeout, "ibc.core.channel.v1.MsgTimeout"
             break;
           }
 
-          message.nextSequenceRecv = Long.fromString(reader.uint64().toString(), true);
+          message.nextSequenceRecv = reader.uint64() as bigint;
           continue;
         }
         case 5: {
@@ -1583,7 +1585,7 @@ export const MsgTimeout: MessageFns<MsgTimeout, "ibc.core.channel.v1.MsgTimeout"
       packet: isSet(object.packet) ? Packet.fromJSON(object.packet) : undefined,
       proofUnreceived: isSet(object.proof_unreceived) ? bytesFromBase64(object.proof_unreceived) : new Uint8Array(0),
       proofHeight: isSet(object.proof_height) ? Height.fromJSON(object.proof_height) : undefined,
-      nextSequenceRecv: isSet(object.next_sequence_recv) ? Long.fromValue(object.next_sequence_recv) : Long.UZERO,
+      nextSequenceRecv: isSet(object.next_sequence_recv) ? BigInt(object.next_sequence_recv) : 0n,
       signer: isSet(object.signer) ? globalThis.String(object.signer) : "",
     };
   },
@@ -1599,8 +1601,8 @@ export const MsgTimeout: MessageFns<MsgTimeout, "ibc.core.channel.v1.MsgTimeout"
     if (message.proofHeight !== undefined) {
       obj.proof_height = Height.toJSON(message.proofHeight);
     }
-    if (!message.nextSequenceRecv.equals(Long.UZERO)) {
-      obj.next_sequence_recv = (message.nextSequenceRecv || Long.UZERO).toString();
+    if (message.nextSequenceRecv !== 0n) {
+      obj.next_sequence_recv = message.nextSequenceRecv.toString();
     }
     if (message.signer !== "") {
       obj.signer = message.signer;
@@ -1616,9 +1618,7 @@ export const MsgTimeout: MessageFns<MsgTimeout, "ibc.core.channel.v1.MsgTimeout"
     message.proofHeight = (object.proofHeight !== undefined && object.proofHeight !== null)
       ? Height.fromPartial(object.proofHeight)
       : undefined;
-    message.nextSequenceRecv = (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null)
-      ? Long.fromValue(object.nextSequenceRecv)
-      : Long.UZERO;
+    message.nextSequenceRecv = (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null) ? BigInt(object.nextSequenceRecv) : 0n;
     message.signer = object.signer ?? "";
     return message;
   },
@@ -1686,7 +1686,7 @@ function createBaseMsgTimeoutOnClose(): MsgTimeoutOnClose {
     proofUnreceived: new Uint8Array(0),
     proofClose: new Uint8Array(0),
     proofHeight: undefined,
-    nextSequenceRecv: Long.UZERO,
+    nextSequenceRecv: 0n,
     signer: "",
   };
 }
@@ -1707,8 +1707,11 @@ export const MsgTimeoutOnClose: MessageFns<MsgTimeoutOnClose, "ibc.core.channel.
     if (message.proofHeight !== undefined) {
       Height.encode(message.proofHeight, writer.uint32(34).fork()).join();
     }
-    if (!message.nextSequenceRecv.equals(Long.UZERO)) {
-      writer.uint32(40).uint64(message.nextSequenceRecv.toString());
+    if (message.nextSequenceRecv !== 0n) {
+      if (BigInt.asUintN(64, message.nextSequenceRecv) !== message.nextSequenceRecv) {
+        throw new globalThis.Error("value provided for field message.nextSequenceRecv of type uint64 too large");
+      }
+      writer.uint32(40).uint64(message.nextSequenceRecv);
     }
     if (message.signer !== "") {
       writer.uint32(50).string(message.signer);
@@ -1760,7 +1763,7 @@ export const MsgTimeoutOnClose: MessageFns<MsgTimeoutOnClose, "ibc.core.channel.
             break;
           }
 
-          message.nextSequenceRecv = Long.fromString(reader.uint64().toString(), true);
+          message.nextSequenceRecv = reader.uint64() as bigint;
           continue;
         }
         case 6: {
@@ -1786,7 +1789,7 @@ export const MsgTimeoutOnClose: MessageFns<MsgTimeoutOnClose, "ibc.core.channel.
       proofUnreceived: isSet(object.proof_unreceived) ? bytesFromBase64(object.proof_unreceived) : new Uint8Array(0),
       proofClose: isSet(object.proof_close) ? bytesFromBase64(object.proof_close) : new Uint8Array(0),
       proofHeight: isSet(object.proof_height) ? Height.fromJSON(object.proof_height) : undefined,
-      nextSequenceRecv: isSet(object.next_sequence_recv) ? Long.fromValue(object.next_sequence_recv) : Long.UZERO,
+      nextSequenceRecv: isSet(object.next_sequence_recv) ? BigInt(object.next_sequence_recv) : 0n,
       signer: isSet(object.signer) ? globalThis.String(object.signer) : "",
     };
   },
@@ -1805,8 +1808,8 @@ export const MsgTimeoutOnClose: MessageFns<MsgTimeoutOnClose, "ibc.core.channel.
     if (message.proofHeight !== undefined) {
       obj.proof_height = Height.toJSON(message.proofHeight);
     }
-    if (!message.nextSequenceRecv.equals(Long.UZERO)) {
-      obj.next_sequence_recv = (message.nextSequenceRecv || Long.UZERO).toString();
+    if (message.nextSequenceRecv !== 0n) {
+      obj.next_sequence_recv = message.nextSequenceRecv.toString();
     }
     if (message.signer !== "") {
       obj.signer = message.signer;
@@ -1823,9 +1826,7 @@ export const MsgTimeoutOnClose: MessageFns<MsgTimeoutOnClose, "ibc.core.channel.
     message.proofHeight = (object.proofHeight !== undefined && object.proofHeight !== null)
       ? Height.fromPartial(object.proofHeight)
       : undefined;
-    message.nextSequenceRecv = (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null)
-      ? Long.fromValue(object.nextSequenceRecv)
-      : Long.UZERO;
+    message.nextSequenceRecv = (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null) ? BigInt(object.nextSequenceRecv) : 0n;
     message.signer = object.signer ?? "";
     return message;
   },
@@ -2106,10 +2107,10 @@ function _unused_base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;

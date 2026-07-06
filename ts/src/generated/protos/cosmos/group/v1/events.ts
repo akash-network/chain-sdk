@@ -8,7 +8,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import Long from "long";
 import {
   ProposalExecutorResult,
   proposalExecutorResultFromJSON,
@@ -22,13 +21,13 @@ import {
 /** EventCreateGroup is an event emitted when a group is created. */
 export interface EventCreateGroup {
   /** group_id is the unique ID of the group. */
-  groupId: Long;
+  groupId: bigint;
 }
 
 /** EventUpdateGroup is an event emitted when a group is updated. */
 export interface EventUpdateGroup {
   /** group_id is the unique ID of the group. */
-  groupId: Long;
+  groupId: bigint;
 }
 
 /** EventCreateGroupPolicy is an event emitted when a group policy is created. */
@@ -46,25 +45,25 @@ export interface EventUpdateGroupPolicy {
 /** EventSubmitProposal is an event emitted when a proposal is created. */
 export interface EventSubmitProposal {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
 }
 
 /** EventWithdrawProposal is an event emitted when a proposal is withdrawn. */
 export interface EventWithdrawProposal {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
 }
 
 /** EventVote is an event emitted when a voter votes on a proposal. */
 export interface EventVote {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
 }
 
 /** EventExec is an event emitted when a proposal is executed. */
 export interface EventExec {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
   /** result is the proposal execution result. */
   result: ProposalExecutorResult;
   /** logs contains error logs in case the execution result is FAILURE. */
@@ -74,7 +73,7 @@ export interface EventExec {
 /** EventLeaveGroup is an event emitted when group member leaves the group. */
 export interface EventLeaveGroup {
   /** group_id is the unique ID of the group. */
-  groupId: Long;
+  groupId: bigint;
   /** address is the account address of the group member. */
   address: string;
 }
@@ -82,7 +81,7 @@ export interface EventLeaveGroup {
 /** EventProposalPruned is an event emitted when a proposal is pruned. */
 export interface EventProposalPruned {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
   /** status is the proposal status (UNSPECIFIED, SUBMITTED, ACCEPTED, REJECTED, ABORTED, WITHDRAWN). */
   status: ProposalStatus;
   /** tally_result is the proposal tally result (when applicable). */
@@ -92,21 +91,24 @@ export interface EventProposalPruned {
 /** EventTallyError is an event emitted when a proposal tally failed with an error. */
 export interface EventTallyError {
   /** proposal_id is the unique ID of the proposal. */
-  proposalId: Long;
+  proposalId: bigint;
   /** error_message is the raw error output */
   errorMessage: string;
 }
 
 function createBaseEventCreateGroup(): EventCreateGroup {
-  return { groupId: Long.UZERO };
+  return { groupId: 0n };
 }
 
 export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.EventCreateGroup"> = {
   $type: "cosmos.group.v1.EventCreateGroup" as const,
 
   encode(message: EventCreateGroup, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.groupId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.groupId.toString());
+    if (message.groupId !== 0n) {
+      if (BigInt.asUintN(64, message.groupId) !== message.groupId) {
+        throw new globalThis.Error("value provided for field message.groupId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.groupId);
     }
     return writer;
   },
@@ -123,7 +125,7 @@ export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.Eve
             break;
           }
 
-          message.groupId = Long.fromString(reader.uint64().toString(), true);
+          message.groupId = reader.uint64() as bigint;
           continue;
         }
       }
@@ -136,35 +138,36 @@ export const EventCreateGroup: MessageFns<EventCreateGroup, "cosmos.group.v1.Eve
   },
 
   fromJSON(object: any): EventCreateGroup {
-    return { groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO };
+    return { groupId: isSet(object.group_id) ? BigInt(object.group_id) : 0n };
   },
 
   toJSON(message: EventCreateGroup): unknown {
     const obj: any = {};
-    if (!message.groupId.equals(Long.UZERO)) {
-      obj.group_id = (message.groupId || Long.UZERO).toString();
+    if (message.groupId !== 0n) {
+      obj.group_id = message.groupId.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventCreateGroup>): EventCreateGroup {
     const message = createBaseEventCreateGroup();
-    message.groupId = (object.groupId !== undefined && object.groupId !== null)
-      ? Long.fromValue(object.groupId)
-      : Long.UZERO;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null) ? BigInt(object.groupId) : 0n;
     return message;
   },
 };
 
 function createBaseEventUpdateGroup(): EventUpdateGroup {
-  return { groupId: Long.UZERO };
+  return { groupId: 0n };
 }
 
 export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.EventUpdateGroup"> = {
   $type: "cosmos.group.v1.EventUpdateGroup" as const,
 
   encode(message: EventUpdateGroup, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.groupId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.groupId.toString());
+    if (message.groupId !== 0n) {
+      if (BigInt.asUintN(64, message.groupId) !== message.groupId) {
+        throw new globalThis.Error("value provided for field message.groupId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.groupId);
     }
     return writer;
   },
@@ -181,7 +184,7 @@ export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.Eve
             break;
           }
 
-          message.groupId = Long.fromString(reader.uint64().toString(), true);
+          message.groupId = reader.uint64() as bigint;
           continue;
         }
       }
@@ -194,21 +197,19 @@ export const EventUpdateGroup: MessageFns<EventUpdateGroup, "cosmos.group.v1.Eve
   },
 
   fromJSON(object: any): EventUpdateGroup {
-    return { groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO };
+    return { groupId: isSet(object.group_id) ? BigInt(object.group_id) : 0n };
   },
 
   toJSON(message: EventUpdateGroup): unknown {
     const obj: any = {};
-    if (!message.groupId.equals(Long.UZERO)) {
-      obj.group_id = (message.groupId || Long.UZERO).toString();
+    if (message.groupId !== 0n) {
+      obj.group_id = message.groupId.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventUpdateGroup>): EventUpdateGroup {
     const message = createBaseEventUpdateGroup();
-    message.groupId = (object.groupId !== undefined && object.groupId !== null)
-      ? Long.fromValue(object.groupId)
-      : Long.UZERO;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null) ? BigInt(object.groupId) : 0n;
     return message;
   },
 };
@@ -326,15 +327,18 @@ export const EventUpdateGroupPolicy: MessageFns<EventUpdateGroupPolicy, "cosmos.
 };
 
 function createBaseEventSubmitProposal(): EventSubmitProposal {
-  return { proposalId: Long.UZERO };
+  return { proposalId: 0n };
 }
 
 export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.v1.EventSubmitProposal"> = {
   $type: "cosmos.group.v1.EventSubmitProposal" as const,
 
   encode(message: EventSubmitProposal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     return writer;
   },
@@ -351,7 +355,7 @@ export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
       }
@@ -364,35 +368,36 @@ export const EventSubmitProposal: MessageFns<EventSubmitProposal, "cosmos.group.
   },
 
   fromJSON(object: any): EventSubmitProposal {
-    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n };
   },
 
   toJSON(message: EventSubmitProposal): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventSubmitProposal>): EventSubmitProposal {
     const message = createBaseEventSubmitProposal();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     return message;
   },
 };
 
 function createBaseEventWithdrawProposal(): EventWithdrawProposal {
-  return { proposalId: Long.UZERO };
+  return { proposalId: 0n };
 }
 
 export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.group.v1.EventWithdrawProposal"> = {
   $type: "cosmos.group.v1.EventWithdrawProposal" as const,
 
   encode(message: EventWithdrawProposal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     return writer;
   },
@@ -409,7 +414,7 @@ export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.gr
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
       }
@@ -422,35 +427,36 @@ export const EventWithdrawProposal: MessageFns<EventWithdrawProposal, "cosmos.gr
   },
 
   fromJSON(object: any): EventWithdrawProposal {
-    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n };
   },
 
   toJSON(message: EventWithdrawProposal): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventWithdrawProposal>): EventWithdrawProposal {
     const message = createBaseEventWithdrawProposal();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     return message;
   },
 };
 
 function createBaseEventVote(): EventVote {
-  return { proposalId: Long.UZERO };
+  return { proposalId: 0n };
 }
 
 export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
   $type: "cosmos.group.v1.EventVote" as const,
 
   encode(message: EventVote, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     return writer;
   },
@@ -467,7 +473,7 @@ export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
       }
@@ -480,35 +486,36 @@ export const EventVote: MessageFns<EventVote, "cosmos.group.v1.EventVote"> = {
   },
 
   fromJSON(object: any): EventVote {
-    return { proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO };
+    return { proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n };
   },
 
   toJSON(message: EventVote): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventVote>): EventVote {
     const message = createBaseEventVote();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     return message;
   },
 };
 
 function createBaseEventExec(): EventExec {
-  return { proposalId: Long.UZERO, result: 0, logs: "" };
+  return { proposalId: 0n, result: 0, logs: "" };
 }
 
 export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
   $type: "cosmos.group.v1.EventExec" as const,
 
   encode(message: EventExec, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     if (message.result !== 0) {
       writer.uint32(16).int32(message.result);
@@ -531,7 +538,7 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -561,7 +568,7 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
 
   fromJSON(object: any): EventExec {
     return {
-      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n,
       result: isSet(object.result) ? proposalExecutorResultFromJSON(object.result) : 0,
       logs: isSet(object.logs) ? globalThis.String(object.logs) : "",
     };
@@ -569,8 +576,8 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
 
   toJSON(message: EventExec): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     if (message.result !== 0) {
       obj.result = proposalExecutorResultToJSON(message.result);
@@ -582,9 +589,7 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
   },
   fromPartial(object: DeepPartial<EventExec>): EventExec {
     const message = createBaseEventExec();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     message.result = object.result ?? 0;
     message.logs = object.logs ?? "";
     return message;
@@ -592,15 +597,18 @@ export const EventExec: MessageFns<EventExec, "cosmos.group.v1.EventExec"> = {
 };
 
 function createBaseEventLeaveGroup(): EventLeaveGroup {
-  return { groupId: Long.UZERO, address: "" };
+  return { groupId: 0n, address: "" };
 }
 
 export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.EventLeaveGroup"> = {
   $type: "cosmos.group.v1.EventLeaveGroup" as const,
 
   encode(message: EventLeaveGroup, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.groupId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.groupId.toString());
+    if (message.groupId !== 0n) {
+      if (BigInt.asUintN(64, message.groupId) !== message.groupId) {
+        throw new globalThis.Error("value provided for field message.groupId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.groupId);
     }
     if (message.address !== "") {
       writer.uint32(18).string(message.address);
@@ -620,7 +628,7 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
             break;
           }
 
-          message.groupId = Long.fromString(reader.uint64().toString(), true);
+          message.groupId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -642,15 +650,15 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
 
   fromJSON(object: any): EventLeaveGroup {
     return {
-      groupId: isSet(object.group_id) ? Long.fromValue(object.group_id) : Long.UZERO,
+      groupId: isSet(object.group_id) ? BigInt(object.group_id) : 0n,
       address: isSet(object.address) ? globalThis.String(object.address) : "",
     };
   },
 
   toJSON(message: EventLeaveGroup): unknown {
     const obj: any = {};
-    if (!message.groupId.equals(Long.UZERO)) {
-      obj.group_id = (message.groupId || Long.UZERO).toString();
+    if (message.groupId !== 0n) {
+      obj.group_id = message.groupId.toString();
     }
     if (message.address !== "") {
       obj.address = message.address;
@@ -659,24 +667,25 @@ export const EventLeaveGroup: MessageFns<EventLeaveGroup, "cosmos.group.v1.Event
   },
   fromPartial(object: DeepPartial<EventLeaveGroup>): EventLeaveGroup {
     const message = createBaseEventLeaveGroup();
-    message.groupId = (object.groupId !== undefined && object.groupId !== null)
-      ? Long.fromValue(object.groupId)
-      : Long.UZERO;
+    message.groupId = (object.groupId !== undefined && object.groupId !== null) ? BigInt(object.groupId) : 0n;
     message.address = object.address ?? "";
     return message;
   },
 };
 
 function createBaseEventProposalPruned(): EventProposalPruned {
-  return { proposalId: Long.UZERO, status: 0, tallyResult: undefined };
+  return { proposalId: 0n, status: 0, tallyResult: undefined };
 }
 
 export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.v1.EventProposalPruned"> = {
   $type: "cosmos.group.v1.EventProposalPruned" as const,
 
   encode(message: EventProposalPruned, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     if (message.status !== 0) {
       writer.uint32(16).int32(message.status);
@@ -699,7 +708,7 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -729,7 +738,7 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
 
   fromJSON(object: any): EventProposalPruned {
     return {
-      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n,
       status: isSet(object.status) ? proposalStatusFromJSON(object.status) : 0,
       tallyResult: isSet(object.tally_result) ? TallyResult.fromJSON(object.tally_result) : undefined,
     };
@@ -737,8 +746,8 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
 
   toJSON(message: EventProposalPruned): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     if (message.status !== 0) {
       obj.status = proposalStatusToJSON(message.status);
@@ -750,9 +759,7 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
   },
   fromPartial(object: DeepPartial<EventProposalPruned>): EventProposalPruned {
     const message = createBaseEventProposalPruned();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     message.status = object.status ?? 0;
     message.tallyResult = (object.tallyResult !== undefined && object.tallyResult !== null)
       ? TallyResult.fromPartial(object.tallyResult)
@@ -762,15 +769,18 @@ export const EventProposalPruned: MessageFns<EventProposalPruned, "cosmos.group.
 };
 
 function createBaseEventTallyError(): EventTallyError {
-  return { proposalId: Long.UZERO, errorMessage: "" };
+  return { proposalId: 0n, errorMessage: "" };
 }
 
 export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.EventTallyError"> = {
   $type: "cosmos.group.v1.EventTallyError" as const,
 
   encode(message: EventTallyError, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (!message.proposalId.equals(Long.UZERO)) {
-      writer.uint32(8).uint64(message.proposalId.toString());
+    if (message.proposalId !== 0n) {
+      if (BigInt.asUintN(64, message.proposalId) !== message.proposalId) {
+        throw new globalThis.Error("value provided for field message.proposalId of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.proposalId);
     }
     if (message.errorMessage !== "") {
       writer.uint32(18).string(message.errorMessage);
@@ -790,7 +800,7 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
             break;
           }
 
-          message.proposalId = Long.fromString(reader.uint64().toString(), true);
+          message.proposalId = reader.uint64() as bigint;
           continue;
         }
         case 2: {
@@ -812,15 +822,15 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
 
   fromJSON(object: any): EventTallyError {
     return {
-      proposalId: isSet(object.proposal_id) ? Long.fromValue(object.proposal_id) : Long.UZERO,
+      proposalId: isSet(object.proposal_id) ? BigInt(object.proposal_id) : 0n,
       errorMessage: isSet(object.error_message) ? globalThis.String(object.error_message) : "",
     };
   },
 
   toJSON(message: EventTallyError): unknown {
     const obj: any = {};
-    if (!message.proposalId.equals(Long.UZERO)) {
-      obj.proposal_id = (message.proposalId || Long.UZERO).toString();
+    if (message.proposalId !== 0n) {
+      obj.proposal_id = message.proposalId.toString();
     }
     if (message.errorMessage !== "") {
       obj.error_message = message.errorMessage;
@@ -829,18 +839,16 @@ export const EventTallyError: MessageFns<EventTallyError, "cosmos.group.v1.Event
   },
   fromPartial(object: DeepPartial<EventTallyError>): EventTallyError {
     const message = createBaseEventTallyError();
-    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null)
-      ? Long.fromValue(object.proposalId)
-      : Long.UZERO;
+    message.proposalId = (object.proposalId !== undefined && object.proposalId !== null) ? BigInt(object.proposalId) : 0n;
     message.errorMessage = object.errorMessage ?? "";
     return message;
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
 type _unused_DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
