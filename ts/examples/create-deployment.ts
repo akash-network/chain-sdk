@@ -76,8 +76,6 @@ services:
         as: 80
         to:
           - global: true
-        # http_options:
-        #   proxy_buffer_size: 0
 
 # The profiles section contains named compute and placement profiles to be used in the deployment.
 # https://akash.network/docs/getting-started/stack-definition-language/#profiles
