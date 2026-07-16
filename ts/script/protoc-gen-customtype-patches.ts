@@ -10,6 +10,7 @@ import {
 } from "@bufbuild/protoplugin";
 import { basename, normalize as normalizePath } from "path";
 
+import type { CustomType } from "../src/encoding/customTypes/CustomType.ts";
 import { findPathsToCustomField, getCustomType } from "../src/encoding/customTypes/utils.ts";
 
 export interface PluginOptions {
@@ -72,11 +73,20 @@ function generateTs(schema: Schema<PluginOptions>): void {
 
   const patches: string[] = [];
   const imports: Record<string, Set<string>> = {};
+  // Per-message field-type overrides for representation-changing custom types
+  // (e.g. `{ "…ResourceValue": { val: "bigint" } }`), consumed by
+  // fix-ts-proto-generated-types.ts to overlay the public field type.
+  const typeOverrides: Record<string, Record<string, string>> = {};
   const fileName = getOutputFileName(schema);
   const patchesFile = schema.generateFile(fileName);
 
   Array.from(messageToCustomFields.entries()).forEach(([descMessage, fields]) => {
     const encoded: string[] = [];
+    // JSON / fromPartial field overrides, emitted only for representation-changing
+    // fields. Dec-only messages leave these empty and keep the plain function form.
+    const jsonReadLines: string[] = [];
+    const jsonWriteLines: string[] = [];
+    const partialLines: string[] = [];
 
     fields.forEach((field) => {
       const customType = getCustomType(field);
@@ -90,11 +100,23 @@ function generateTs(schema: Schema<PluginOptions>): void {
           imports[`../../encoding/binaryEncoding`] ??= new Set(["encodeBinary", "decodeBinary"]);
         }
 
-        encoded.push(generateFieldTransformation(field, {
-          fn: `${customType.shortName}[transformType]`,
+        encoded.push(generateFieldTransformation(field, customType, {
           value: "value",
           newValue: "newValue",
         }));
+
+        if (customType.jsType) {
+          // Representation-changing field: its JS type differs from the wire
+          // bytes, so JSON and fromPartial need dedicated normalizers on top of
+          // the generated (inner) impl, and the public field type is overridden.
+          imports[pathToCustomType].add("bigIntFromJSON");
+          imports[pathToCustomType].add("bigIntFromPartial");
+          const local = field.localName;
+          jsonReadLines.push(`newValue.${local} = bigIntFromJSON(object.${local});`);
+          jsonWriteLines.push(`if (value.${local} != null) newValue.${local} = value.${local}.toString();`);
+          partialLines.push(`if (newValue.${local} != null) newValue.${local} = bigIntFromPartial(newValue.${local});`);
+          (typeOverrides[descMessage.typeName] ??= {})[local] = customType.jsType;
+        }
       } else {
         encoded.push(generateNestedFieldUpdate(field, {
           fn: `p["${field.message!.typeName}"]`,
@@ -107,15 +129,33 @@ function generateTs(schema: Schema<PluginOptions>): void {
     const parent = fields.values().next().value!.parent;
     const path = normalizePath(`${PROTO_PATH}/${parent.file.name}`);
     imports[path] ??= new Set(["type *"]);
+    const typeRef = `${dirnameToVar(path)}.${parent.name}`;
 
-    patches.push([
-      `"${descMessage.typeName}"(value: ${dirnameToVar(path)}.${parent.name} | undefined | null, transformType: 'encode' | 'decode') {\n${
-        indent(`if (value == null) return;`) + "\n"
-        + indent(`const newValue = { ...value };`) + "\n"
-        + indent(encoded.join("\n")) + "\n"
-        + indent("return newValue;")
-      }\n}`,
-    ].join("\n"));
+    // The `transform` callable (encode/decode) is shared by both forms. For
+    // representation-changing messages its param straddles the public JS type
+    // (on encode) and the wire type (on decode), so it is typed `any`.
+    const transformFn = `function(value: ${jsonReadLines.length ? "any" : `${typeRef} | undefined | null`}, transformType: 'encode' | 'decode') {\n${
+      indent(`if (value == null) return;`) + "\n"
+      + indent(`const newValue = { ...value };`) + "\n"
+      + indent(encoded.join("\n")) + "\n"
+      + indent("return newValue;")
+    }\n}`;
+
+    if (jsonReadLines.length) {
+      // Object form: a callable augmented with JSON / fromPartial normalizers
+      // that patched() layers over the generated impl.
+      patches.push(
+        `"${descMessage.typeName}": Object.assign(${transformFn}, {\n${
+          indent(`fromJSON(object: any) {\n${indent(`const newValue: any = {};`) + "\n" + indent(jsonReadLines.join("\n")) + "\n" + indent("return newValue;")}\n},`) + "\n"
+          + indent(`toJSON(value: any) {\n${indent(`const newValue: any = {};`) + "\n" + indent(jsonWriteLines.join("\n")) + "\n" + indent("return newValue;")}\n},`) + "\n"
+          + indent(`fromPartial(newValue: any) {\n${indent(partialLines.join("\n")) + "\n" + indent("return newValue;")}\n},`)
+        }\n})`,
+      );
+    } else {
+      // Plain function form (unchanged) — representation-preserving messages
+      // (Dec) and nested-tree wrappers.
+      patches.push(`"${descMessage.typeName}"${transformFn.replace(/^function/, "")}`);
+    }
   });
 
   const importExtension = schema.options.importExtension ? `.${schema.options.importExtension}` : "";
@@ -125,6 +165,8 @@ function generateTs(schema: Schema<PluginOptions>): void {
   patchesFile.print("");
   patchesFile.print(`const p = {\n${indent(patches.join(",\n"))}\n};\n`);
   patchesFile.print(`export const patches = p;`);
+  patchesFile.print("");
+  patchesFile.print(`export const typeOverrides = ${JSON.stringify(typeOverrides, null, 2)} as const;`);
 
   const patchesTypeFileName = fileName.replace("CustomTypePatches", "PatchMessage");
   const patchTypeFile = schema.generateFile(patchesTypeFileName);
@@ -133,7 +175,7 @@ function generateTs(schema: Schema<PluginOptions>): void {
   patchTypeFile.print(`export const patched = <T extends MessageDesc>(messageDesc: T): T => {`);
   patchTypeFile.print(`  const patchMessage = patches[messageDesc.$type as keyof typeof patches] as any;`);
   patchTypeFile.print(`  if (!patchMessage) return messageDesc;`);
-  patchTypeFile.print(`  return {`);
+  patchTypeFile.print(`  const wrapped: T = {`);
   patchTypeFile.print(`    ...messageDesc,`);
   patchTypeFile.print(`    encode(message, writer) {`);
   patchTypeFile.print(`      return messageDesc.encode(patchMessage(message, 'encode'), writer);`);
@@ -142,6 +184,28 @@ function generateTs(schema: Schema<PluginOptions>): void {
   patchTypeFile.print(`      return patchMessage(messageDesc.decode(input, length), 'decode');`);
   patchTypeFile.print(`    },`);
   patchTypeFile.print(`  };`);
+  patchTypeFile.print(`  // fromJSON / toJSON / fromPartial are overridden only for representation-`);
+  patchTypeFile.print(`  // changing messages, whose patch entry carries these normalizers. Plain`);
+  patchTypeFile.print(`  // function patch entries (Dec/DecCoin) leave the generated behavior intact.`);
+  patchTypeFile.print(`  // (assigned through an \`any\` view since \`wrapped\` has the generic type \`T\`.)`);
+  patchTypeFile.print(`  const overrides = wrapped as any;`);
+  patchTypeFile.print(`  if (patchMessage.fromJSON) {`);
+  patchTypeFile.print(`    overrides.fromJSON = (object: any) => {`);
+  patchTypeFile.print(`      // patchMessage.fromJSON normalizes any accepted input (base64, decimal`);
+  patchTypeFile.print(`      // string, number, bigint) to the JS value. The generated fromJSON only`);
+  patchTypeFile.print(`      // groks the wire-JSON (base64) form, so feed it a sanitized clone (custom`);
+  patchTypeFile.print(`      // fields re-serialized) to fill non-custom fields, then overlay the JS values.`);
+  patchTypeFile.print(`      const patchedFields = patchMessage.fromJSON(object);`);
+  patchTypeFile.print(`      return { ...(messageDesc.fromJSON({ ...object, ...patchMessage.toJSON(patchedFields) }) as object), ...patchedFields };`);
+  patchTypeFile.print(`    };`);
+  patchTypeFile.print(`  }`);
+  patchTypeFile.print(`  if (patchMessage.toJSON) {`);
+  patchTypeFile.print(`    overrides.toJSON = (message: any) => ({ ...(messageDesc.toJSON(patchMessage(message, 'encode')) as object), ...patchMessage.toJSON(message) });`);
+  patchTypeFile.print(`  }`);
+  patchTypeFile.print(`  if (patchMessage.fromPartial) {`);
+  patchTypeFile.print(`    overrides.fromPartial = (object: any) => patchMessage.fromPartial(messageDesc.fromPartial(object));`);
+  patchTypeFile.print(`  }`);
+  patchTypeFile.print(`  return wrapped;`);
   patchTypeFile.print(`};`);
 
   const testsFile = schema.generateFile(fileName.replace(/\.ts$/, ".spec.ts"));
@@ -201,15 +265,26 @@ function generateNestedFieldUpdate(field: DescField, vars: VarNames) {
   return `if (${fieldRef} != null) ${newValueRef} = ${vars.fn}(${fieldRef}, transformType);`;
 }
 
-function generateFieldTransformation(field: DescField, vars: VarNames) {
+function generateFieldTransformation(field: DescField, customType: CustomType<unknown, unknown>, vars: Omit<VarNames, "fn">) {
   const valueRef = `${vars.value}.${field.localName}`;
   const newValueRef = `${vars.newValue}.${field.localName}`;
+  const fn = `${customType.shortName}[transformType]`;
 
   if (field.scalar !== ScalarType.BYTES) {
-    return `if (${valueRef} != null) ${newValueRef} = ${vars.fn}(${valueRef});`;
+    return `if (${valueRef} != null) ${newValueRef} = ${fn}(${valueRef});`;
   }
 
-  return `if (${valueRef} != null) ${newValueRef} = encodeBinary(${vars.fn}(decodeBinary(${valueRef})));`;
+  // Representation-changing bytes types (e.g. Int: wire bytes <-> bigint) need
+  // asymmetric handling: on encode the JS value (bigint) is stringified then
+  // written as bytes; on decode the bytes are read as a string then parsed.
+  if (customType.jsType) {
+    return `if (${valueRef} != null) ${newValueRef} = transformType === 'encode'`
+      + ` ? encodeBinary(${customType.shortName}.encode(${valueRef}))`
+      + ` : ${customType.shortName}.decode(decodeBinary(${valueRef}));`;
+  }
+
+  // Representation-preserving bytes types (e.g. Dec) round-trip bytes<->bytes.
+  return `if (${valueRef} != null) ${newValueRef} = encodeBinary(${fn}(decodeBinary(${valueRef})));`;
 }
 
 interface VarNames {

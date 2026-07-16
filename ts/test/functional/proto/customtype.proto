@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 
 message PetOwner {
   bytes id = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"
+    (gogoproto.customtype) = "cosmossdk.io/math.Int"
   ];
   Pet pet = 2;
 }

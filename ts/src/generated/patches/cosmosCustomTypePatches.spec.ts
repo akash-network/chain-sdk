@@ -7,6 +7,7 @@ import { ContinuousFund } from "../protos/cosmos/protocolpool/v1/types.ts";
 import { MsgCreateContinuousFund } from "../protos/cosmos/protocolpool/v1/tx.ts";
 import { Params as Params$2 } from "../protos/cosmos/slashing/v1beta1/slashing.ts";
 import { CommissionRates, Delegation, Params as Params$3, RedelegationEntry, Validator } from "../protos/cosmos/staking/v1beta1/staking.ts";
+import { GenesisState } from "../protos/cosmos/staking/v1beta1/genesis.ts";
 import { MsgEditValidator } from "../protos/cosmos/staking/v1beta1/tx.ts";
 
 import { expect, describe, it } from "vitest";
@@ -90,6 +91,10 @@ const messageTypes: Record<string, MessageSchema> = {
   "cosmos.staking.v1beta1.Params": {
     type: Params$3,
     fields: [{name: "minCommissionRate",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "cosmos.staking.v1beta1.GenesisState": {
+    type: GenesisState,
+    fields: [{name: "lastTotalPower",kind: "scalar",scalarType: 12,customType: "Int",},],
   },
   "cosmos.staking.v1beta1.MsgEditValidator": {
     type: MsgEditValidator,
