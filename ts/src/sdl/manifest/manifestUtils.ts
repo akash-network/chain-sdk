@@ -176,24 +176,24 @@ export function buildServiceEndpoints(
   );
 }
 
-export function parseCpuUnits(cpu: SDLCompute["resources"]["cpu"]): number {
+export function parseCpuUnits(cpu: SDLCompute["resources"]["cpu"]): bigint {
   return typeof cpu.units === "string"
     ? convertCpuResourceString(cpu.units)
-    : cpu.units * 1000;
+    : convertCpuResourceString(String(cpu.units));
 }
 
-export function parseMemoryBytes(memory: SDLCompute["resources"]["memory"]): number {
+export function parseMemoryBytes(memory: SDLCompute["resources"]["memory"]): bigint {
   return convertResourceString(memory.size);
 }
 
-export function parseStorageBytes(size: string): number {
+export function parseStorageBytes(size: string): bigint {
   return convertResourceString(size);
 }
 
-export function parseGpuUnits(gpu?: SDLCompute["resources"]["gpu"]): number {
+export function parseGpuUnits(gpu?: SDLCompute["resources"]["gpu"]): bigint {
   const value = gpu?.units;
-  if (value === undefined || value === null) return 0;
-  return typeof value === "string" ? parseInt(value, 10) : value;
+  if (value === undefined || value === null) return 0n;
+  return BigInt(value);
 }
 
 export function buildResourceAttributes(attributes?: Record<string, unknown>): Attribute[] | undefined {

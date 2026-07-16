@@ -61,13 +61,13 @@ function generateField(field: Field, messageToFields: Record<string, MessageSche
 function generateScalar(field: Field, scalarType: ScalarType) {
   switch (scalarType) {
     case ScalarType.STRING:
-      return guessFakeValue(field);
+      return guessFakeValue(field, ScalarType.STRING);
     case ScalarType.BYTES: {
       // Representation-changing custom types (e.g. Int) surface a non-bytes JS
       // value (bigint) even though the wire type is bytes; return it directly.
       // Plain bytes and representation-preserving types (LegacyDec -> decimal
       // string) are stored as a Uint8Array.
-      const fake = guessFakeValue(field);
+      const fake = guessFakeValue(field, ScalarType.BYTES);
       return typeof fake === "bigint" ? fake : encodeBinary(String(fake));
     }
     case ScalarType.SFIXED32:
@@ -93,12 +93,19 @@ function generateScalar(field: Field, scalarType: ScalarType) {
   }
 }
 
-function guessFakeValue(field: Field): unknown {
+function guessFakeValue(field: Field, scalarType: ScalarType): unknown {
   const lowerName = field.name.toLowerCase();
 
   if (field.customType) {
     const value = guessFakeValueForCustomType(field.customType);
-    if (value !== null) return value;
+    if (value !== null) {
+      // Int surfaces as a bigint for bytes-backed fields, but string-backed
+      // fields need it as a decimal string.
+      if (typeof value === "bigint" && scalarType === ScalarType.STRING) {
+        return value.toString();
+      }
+      return value;
+    }
   }
   if (lowerName.includes("name")) return faker.person.fullName();
   if (lowerName.includes("first")) return faker.person.firstName();
