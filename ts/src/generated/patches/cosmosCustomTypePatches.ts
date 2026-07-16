@@ -9,6 +9,8 @@ import type * as _protos_cosmos_protocolpool_v1_types from "../protos/cosmos/pro
 import type * as _protos_cosmos_protocolpool_v1_tx from "../protos/cosmos/protocolpool/v1/tx.ts";
 import type * as _protos_cosmos_slashing_v1beta1_slashing from "../protos/cosmos/slashing/v1beta1/slashing.ts";
 import type * as _protos_cosmos_staking_v1beta1_staking from "../protos/cosmos/staking/v1beta1/staking.ts";
+import { Int, bigIntFromJSON, bigIntFromPartial } from "../../encoding/customTypes/Int.ts";
+import type * as _protos_cosmos_staking_v1beta1_genesis from "../protos/cosmos/staking/v1beta1/genesis.ts";
 import type * as _protos_cosmos_staking_v1beta1_tx from "../protos/cosmos/staking/v1beta1/tx.ts";
 
 const p = {
@@ -138,6 +140,27 @@ const p = {
     if (value.minCommissionRate != null) newValue.minCommissionRate = LegacyDec[transformType](value.minCommissionRate);
     return newValue;
   },
+  "cosmos.staking.v1beta1.GenesisState": Object.assign(function(value: any, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.lastTotalPower != null) newValue.lastTotalPower = transformType === 'encode' ? encodeBinary(Int.encode(value.lastTotalPower)) : Int.decode(decodeBinary(value.lastTotalPower));
+    return newValue;
+  }, {
+    fromJSON(object: any) {
+      const newValue: any = {};
+      newValue.lastTotalPower = bigIntFromJSON(object.lastTotalPower);
+      return newValue;
+    },
+    toJSON(value: any) {
+      const newValue: any = {};
+      if (value.lastTotalPower != null) newValue.lastTotalPower = value.lastTotalPower.toString();
+      return newValue;
+    },
+    fromPartial(newValue: any) {
+      if (newValue.lastTotalPower != null) newValue.lastTotalPower = bigIntFromPartial(newValue.lastTotalPower);
+      return newValue;
+    },
+  }),
   "cosmos.staking.v1beta1.MsgEditValidator"(value: _protos_cosmos_staking_v1beta1_tx.MsgEditValidator | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
@@ -147,3 +170,9 @@ const p = {
 };
 
 export const patches = p;
+
+export const typeOverrides = {
+  "cosmos.staking.v1beta1.GenesisState": {
+    "lastTotalPower": "bigint"
+  }
+} as const;

@@ -1,3 +1,4 @@
+import { ResourceValue } from "../protos/akash/base/resources/v1beta4/resourcevalue.ts";
 import { CoinPrice, CollateralRatio } from "../protos/akash/bme/v1/types.ts";
 import { EventMintStatusChange } from "../protos/akash/bme/v1/events.ts";
 import { QueryStatusResponse } from "../protos/akash/bme/v1/query.ts";
@@ -14,6 +15,10 @@ import { generateMessage, type MessageSchema } from "@test/helpers/generateMessa
 import type { TypePatches } from "../../sdk/client/types.ts";
 
 const messageTypes: Record<string, MessageSchema> = {
+  "akash.base.resources.v1beta4.ResourceValue": {
+    type: ResourceValue,
+    fields: [{name: "val",kind: "scalar",scalarType: 12,customType: "Int",},],
+  },
   "akash.bme.v1.CollateralRatio": {
     type: CollateralRatio,
     fields: [{name: "ratio",kind: "scalar",scalarType: 9,customType: "LegacyDec",},{name: "referencePrice",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],

@@ -21,12 +21,6 @@ type SDLGpuAttributes = NonNullable<NonNullable<SDLCompute["resources"]["gpu"]>[
 
 export type { SDLCompute, SDLExpose, SDLExposeTo, SDLGpuAttributes, SDLHttpOptions, SDLService, SDLStorage, SDLStorageVolume };
 
-const encoder = new TextEncoder();
-
-export function encodeResourceValue(value: number): Uint8Array {
-  return encoder.encode(value.toString());
-}
-
 export function computeEndpointSequenceNumbers(services: SDLInput["services"]): Record<string, number> {
   const endpointNames: string[] = [];
 

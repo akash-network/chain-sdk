@@ -1,3 +1,4 @@
+import { ResourceValue } from "../protos/akash/base/resources/v1beta4/resourcevalue.ts";
 import { DecCoin } from "../protos/cosmos/base/v1beta1/coin.ts";
 
 import { expect, describe, it } from "vitest";
@@ -6,6 +7,10 @@ import { generateMessage, type MessageSchema } from "@test/helpers/generateMessa
 import type { TypePatches } from "../../sdk/client/types.ts";
 
 const messageTypes: Record<string, MessageSchema> = {
+  "akash.base.resources.v1beta4.ResourceValue": {
+    type: ResourceValue,
+    fields: [{name: "val",kind: "scalar",scalarType: 12,customType: "Int",},],
+  },
   "cosmos.base.v1beta1.DecCoin": {
     type: DecCoin,
     fields: [{name: "amount",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],

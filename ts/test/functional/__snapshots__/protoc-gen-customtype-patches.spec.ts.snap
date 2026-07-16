@@ -1,10 +1,33 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`protoc-gen-customtype-patches plugin > when patch_whole_tree is false > generates \`Set\` instance with all the leaf types that have reference to fields with custom type option 1`] = `
-"import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
+"import { Int, bigIntFromJSON, bigIntFromPartial } from "../../encoding/customTypes/Int.ts";
+import { encodeBinary, decodeBinary } from "../../encoding/binaryEncoding.ts";
 import type * as _protos_customtype from "../protos/customtype.ts";
+import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 
 const p = {
+  "akash.test.functional.PetOwner": Object.assign(function(value: any, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.id != null) newValue.id = transformType === 'encode' ? encodeBinary(Int.encode(value.id)) : Int.decode(decodeBinary(value.id));
+    return newValue;
+  }, {
+    fromJSON(object: any) {
+      const newValue: any = {};
+      newValue.id = bigIntFromJSON(object.id);
+      return newValue;
+    },
+    toJSON(value: any) {
+      const newValue: any = {};
+      if (value.id != null) newValue.id = value.id.toString();
+      return newValue;
+    },
+    fromPartial(newValue: any) {
+      if (newValue.id != null) newValue.id = bigIntFromPartial(newValue.id);
+      return newValue;
+    },
+  }),
   "akash.test.functional.Dog"(value: _protos_customtype.Dog | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
@@ -20,20 +43,44 @@ const p = {
 };
 
 export const patches = p;
+
+export const typeOverrides = {
+  "akash.test.functional.PetOwner": {
+    "id": "bigint"
+  }
+} as const;
 "
 `;
 
 exports[`protoc-gen-customtype-patches plugin > when patch_whole_tree is true > generates \`Set\` instance with all the types that have reference to fields with custom type option 1`] = `
-"import type * as _protos_customtype from "../protos/customtype.ts";
+"import { Int, bigIntFromJSON, bigIntFromPartial } from "../../encoding/customTypes/Int.ts";
+import { encodeBinary, decodeBinary } from "../../encoding/binaryEncoding.ts";
+import type * as _protos_customtype from "../protos/customtype.ts";
 import { LegacyDec } from "../../encoding/customTypes/LegacyDec.ts";
 
 const p = {
-  "akash.test.functional.PetOwner"(value: _protos_customtype.PetOwner | undefined | null, transformType: 'encode' | 'decode') {
+  "akash.test.functional.PetOwner": Object.assign(function(value: any, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
+    if (value.id != null) newValue.id = transformType === 'encode' ? encodeBinary(Int.encode(value.id)) : Int.decode(decodeBinary(value.id));
     if (value.pet != null) newValue.pet = p["akash.test.functional.Pet"](value.pet, transformType);
     return newValue;
-  },
+  }, {
+    fromJSON(object: any) {
+      const newValue: any = {};
+      newValue.id = bigIntFromJSON(object.id);
+      return newValue;
+    },
+    toJSON(value: any) {
+      const newValue: any = {};
+      if (value.id != null) newValue.id = value.id.toString();
+      return newValue;
+    },
+    fromPartial(newValue: any) {
+      if (newValue.id != null) newValue.id = bigIntFromPartial(newValue.id);
+      return newValue;
+    },
+  }),
   "akash.test.functional.Pet"(value: _protos_customtype.Pet | undefined | null, transformType: 'encode' | 'decode') {
     if (value == null) return;
     const newValue = { ...value };
@@ -77,5 +124,11 @@ const p = {
 };
 
 export const patches = p;
+
+export const typeOverrides = {
+  "akash.test.functional.PetOwner": {
+    "id": "bigint"
+  }
+} as const;
 "
 `;

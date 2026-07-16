@@ -40,7 +40,7 @@ describe(generateManifest.name, () => {
       const { result } = setup({ sdl });
 
       const cpuVal = result.groups[0].services[0].resources?.cpu?.units?.val;
-      expect(new TextDecoder().decode(cpuVal)).toBe("500");
+      expect(cpuVal).toBe(500n);
     });
 
     it("parses CPU units from string format", () => {
@@ -48,7 +48,7 @@ describe(generateManifest.name, () => {
       const { result } = setup({ sdl });
 
       const cpuVal = result.groups[0].services[0].resources?.cpu?.units?.val;
-      expect(new TextDecoder().decode(cpuVal)).toBe("100");
+      expect(cpuVal).toBe(100n);
     });
 
     it("parses memory size correctly", () => {
@@ -56,7 +56,7 @@ describe(generateManifest.name, () => {
       const { result } = setup({ sdl });
 
       const memVal = result.groups[0].services[0].resources?.memory?.quantity?.val;
-      expect(new TextDecoder().decode(memVal)).toBe("536870912");
+      expect(memVal).toBe(536870912n);
     });
 
     it("parses storage correctly", () => {
@@ -67,7 +67,7 @@ describe(generateManifest.name, () => {
       expect(storage).toHaveLength(1);
       expect(storage?.[0].name).toBe("default");
       const storageVal = storage?.[0].quantity?.val;
-      expect(new TextDecoder().decode(storageVal)).toBe("1073741824");
+      expect(storageVal).toBe(1073741824n);
     });
 
     it("parses storage params in ASC order", () => {
@@ -166,7 +166,7 @@ describe(generateManifest.name, () => {
       const { result } = setup({ sdl });
 
       const gpuVal = result.groups[0].services[0].resources?.gpu?.units?.val;
-      expect(new TextDecoder().decode(gpuVal)).toBe("0");
+      expect(gpuVal).toBe(0n);
     });
 
     it("handles GPU with units and vendor attributes", () => {
@@ -183,7 +183,7 @@ describe(generateManifest.name, () => {
       const { result } = setup({ sdl });
 
       const gpuVal = result.groups[0].services[0].resources?.gpu?.units?.val;
-      expect(new TextDecoder().decode(gpuVal)).toBe("1");
+      expect(gpuVal).toBe(1n);
       expect(result.groups[0].services[0].resources?.gpu?.attributes).toContainEqual({
         key: "vendor/nvidia/model/rtxa6000",
         value: "true",

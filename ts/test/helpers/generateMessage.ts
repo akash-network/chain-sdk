@@ -62,8 +62,14 @@ function generateScalar(field: Field, scalarType: ScalarType) {
   switch (scalarType) {
     case ScalarType.STRING:
       return guessFakeValue(field);
-    case ScalarType.BYTES:
-      return encodeBinary(String(guessFakeValue(field)));
+    case ScalarType.BYTES: {
+      // Representation-changing custom types (e.g. Int) surface a non-bytes JS
+      // value (bigint) even though the wire type is bytes; return it directly.
+      // Plain bytes and representation-preserving types (LegacyDec -> decimal
+      // string) are stored as a Uint8Array.
+      const fake = guessFakeValue(field);
+      return typeof fake === "bigint" ? fake : encodeBinary(String(fake));
+    }
     case ScalarType.SFIXED32:
     case ScalarType.SINT32:
     case ScalarType.INT32:
@@ -120,6 +126,8 @@ function guessFakeValueForCustomType(shortName: string | undefined) {
   switch (shortName) {
     case "LegacyDec":
       return faker.number.float({ min: 0, max: 1000000 }).toString();
+    case "Int":
+      return faker.number.bigInt({ min: 0n, max: 1000000n });
     default:
       return null;
   }

@@ -20,7 +20,6 @@ import {
   buildServiceEndpoints,
   buildStorageAttributes,
   computeEndpointSequenceNumbers,
-  encodeResourceValue,
   parseCpuUnits,
   parseGpuUnits,
   parseMemoryBytes,
@@ -218,21 +217,21 @@ function buildResources(
   return Resources.fromPartial({
     id,
     cpu: CPU.fromPartial({
-      units: { val: encodeResourceValue(parseCpuUnits(res.cpu)) },
+      units: { val: parseCpuUnits(res.cpu) },
       attributes: cpuAttributes,
     }),
     memory: Memory.fromPartial({
-      quantity: { val: encodeResourceValue(parseMemoryBytes(res.memory)) },
+      quantity: { val: parseMemoryBytes(res.memory) },
     }),
     storage: castArray(res.storage).map((s) =>
       Storage.fromPartial({
         name: s.name || "default",
-        quantity: { val: encodeResourceValue(parseStorageBytes(s.size)) },
+        quantity: { val: parseStorageBytes(s.size) },
         attributes: buildStorageAttributes(s.attributes),
       }),
     ),
     gpu: GPU.fromPartial({
-      units: { val: encodeResourceValue(parseGpuUnits(res.gpu)) },
+      units: { val: parseGpuUnits(res.gpu) },
       attributes: gpuAttributes,
     }),
     endpoints: buildServiceEndpoints(service, endpointSequenceNumbers),

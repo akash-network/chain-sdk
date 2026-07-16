@@ -1,4 +1,4 @@
-import type { DescField, DescMessage } from "@bufbuild/protobuf";
+import { type DescField, type DescMessage, ScalarType } from "@bufbuild/protobuf";
 import { BinaryReader } from "@bufbuild/protobuf/wire";
 
 import type { CustomType } from "./CustomType.ts";
@@ -15,9 +15,17 @@ export function getCustomType(field: DescField): CustomType<unknown, unknown> | 
   if (!customTypeOfFieldCache.has(field)) {
     const option = field.proto.options?.$unknown?.find((o) => o.no === CUSTOM_TYPE_FIELD_NUMBER);
     const optionValue = option ? parseCustomTypeValue(option.data) : null;
-    const result = optionValue && optionValue in customTypes ? customTypes[optionValue as keyof typeof customTypes] : null;
-    customTypeOfFieldCache.set(field, result || null);
-    return result;
+    let type = optionValue && optionValue in customTypes ? customTypes[optionValue as keyof typeof customTypes] : null;
+    // Representation-changing custom types (those with a `jsType`, e.g. Int:
+    // bytes<->bigint) are only supported on `bytes` fields. The same customtype
+    // name (e.g. `cosmossdk.io/math.Int`) is also declared on plenty of string
+    // fields (Coin.amount, staking tokens, …); those must be left as generated
+    // strings, so we treat them as having no custom type here.
+    if (type?.jsType && field.scalar !== ScalarType.BYTES) {
+      type = null;
+    }
+    customTypeOfFieldCache.set(field, type || null);
+    return type;
   }
 
   return customTypeOfFieldCache.get(field) || null;

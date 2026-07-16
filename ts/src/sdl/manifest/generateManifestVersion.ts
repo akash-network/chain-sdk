@@ -35,6 +35,10 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
     return decoder.decode(value);
   }
 
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
   if (typeof key !== "string") {
     return value;
   }
