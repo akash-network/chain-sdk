@@ -617,7 +617,6 @@ describe(generateManifestVersion.name, () => {
         nextTries: 24,
         nextTimeout: 48,
         nextCases: ["500"],
-        proxyBufferSize: 16384,
       });
     });
   });

@@ -60,8 +60,7 @@
                 "500",
                 "502",
                 "503"
-              ],
-              "proxyBufferSize": 16384
+              ]
             },
             "ip": "",
             "endpointSequenceNumber": 0
