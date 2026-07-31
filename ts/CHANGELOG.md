@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.0-alpha.40](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.39...ts/v1.0.0-alpha.40) (2026-07-29)
+
+
+### Features
+
+* GPU interconnect multinode support ([#315](https://github.com/akash-network/chain-sdk/issues/315)) ([2c2aaf5](https://github.com/akash-network/chain-sdk/commit/2c2aaf557ea0ef739590c8ef4fd9ab108a42756a))
+* **ts:** properly decodes cosmos/math.Int custom type ([#347](https://github.com/akash-network/chain-sdk/issues/347)) ([474ba7f](https://github.com/akash-network/chain-sdk/commit/474ba7f6fe6ce6c164bd09800b3c2956671f8f30))
+
+
+### Code Refactoring
+
+* upgrades ts-proto and removes custom bigint coercion patching ([#346](https://github.com/akash-network/chain-sdk/issues/346)) ([968ad5f](https://github.com/akash-network/chain-sdk/commit/968ad5fe583874f04bebf2a5b2c294d9e28fd201))
+
 ## [1.0.0-alpha.39](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.38...ts/v1.0.0-alpha.39) (2026-07-02)
 
 
