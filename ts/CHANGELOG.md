@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.41](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.40...ts/v1.0.0-alpha.41) (2026-07-31)
+
+
+### Bug Fixes
+
+* **ts:** regenerate protos with ts-proto 2.12.0 + guard against codegen drift ([#349](https://github.com/akash-network/chain-sdk/issues/349)) ([f42001e](https://github.com/akash-network/chain-sdk/commit/f42001e273a06b8a729f01298f7b6781dc98fa67))
+
 ## [1.0.0-alpha.40](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.39...ts/v1.0.0-alpha.40) (2026-07-29)
 
 
