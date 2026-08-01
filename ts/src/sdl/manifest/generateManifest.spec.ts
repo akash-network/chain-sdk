@@ -4,11 +4,14 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { GroupSpec } from "../../generated/protos/index.akash.v1beta4.ts";
-import { Group } from "../../generated/protos/index.provider.akash.v2beta3.ts";
+import { Group, StorageParams } from "../../generated/protos/index.provider.akash.v2beta3.ts";
 import { yaml } from "../../utils/yaml.ts";
 import type { SDLInput } from "../validateSDL/validateSDL.ts";
 import type { GenerateManifestResult } from "./generateManifest.ts";
 import { generateManifest } from "./generateManifest.ts";
+import { manifestToSortedJSON } from "./generateManifestVersion.ts";
+
+const STORAGE_KEY_REF = "sealed.eyJhbGciOiJFUzI1NiJ9.eyJ2ZXJzaW9uIjoiMC4xLjAifQ.c2lnbmF0dXJl";
 
 describe(generateManifest.name, () => {
   describe("basic manifest generation", () => {
@@ -113,6 +116,7 @@ describe(generateManifest.name, () => {
         expect.objectContaining({ name: "cache" }),
         expect.objectContaining({ name: "data" }),
       ]);
+      expect(result.groups[0].services[0].params?.storage[0]).not.toHaveProperty("keyRef");
     });
   });
 
@@ -497,6 +501,60 @@ describe(generateManifest.name, () => {
       const storage = result.groups[0].services[0].resources?.storage;
       expect(storage?.[0].attributes).toContainEqual({ key: "persistent", value: "true" });
       expect(storage?.[0].attributes).toContainEqual({ key: "class", value: "beta2" });
+    });
+
+    it("carries a sealed storage keyRef through protobuf encoding", () => {
+      const sdl: SDLInput = yaml`
+        version: "2.0"
+        services:
+          web:
+            image: nginx
+            expose:
+              - port: 80
+                to:
+                  - global: true
+            params:
+              storage:
+                data:
+                  mount: /mnt/data
+                  keyRef: ${STORAGE_KEY_REF}
+        profiles:
+          compute:
+            web:
+              resources:
+                cpu:
+                  units: 0.5
+                memory:
+                  size: 512Mi
+                storage:
+                  - name: data
+                    size: 1Gi
+                    attributes:
+                      persistent: true
+                      class: default
+          placement:
+            dcloud:
+              pricing:
+                web:
+                  denom: uakt
+                  amount: 1000
+        deployment:
+          web:
+            dcloud:
+              profile: web
+              count: 1
+      `;
+      const { result } = setup({ sdl });
+      const storage = result.groups[0].services[0].params?.storage[0];
+
+      expect(storage?.keyRef).toBe(STORAGE_KEY_REF);
+      if (!storage) throw new Error("Expected storage params");
+      const wire = StorageParams.encode(storage).finish();
+      expect(StorageParams.decode(wire).keyRef).toBe(STORAGE_KEY_REF);
+
+      const manifestJSON = manifestToSortedJSON(result.groups);
+      expect(manifestJSON).toContain(`"keyRef":"${STORAGE_KEY_REF}"`);
+      expect(manifestJSON).not.toContain(`"key_ref"`);
     });
   });
 

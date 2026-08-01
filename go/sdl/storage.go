@@ -3,6 +3,7 @@ package sdl
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"sort"
 
 	"gopkg.in/yaml.v3"
@@ -27,13 +28,42 @@ var (
 	errStorageDuplicatedVolumeName  = errors.New("sdl: duplicated volume name")
 	errStorageEphemeralClass        = errors.New("sdl: ephemeral storage should not set attribute class")
 	errStorageRAMClass              = errors.New("sdl: ram storage class cannot be persistent")
+	errStorageKeyRefFormat          = errors.New("sdl: storage keyRef must use sealed.<JWS> format")
+	errStorageKeyRefNotPersistent   = errors.New("sdl: storage keyRef requires persistent storage")
 )
+
+var storageKeyRefPattern = regexp.MustCompile(`^sealed\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$`)
 
 type v2StorageAttributes types.Attributes
 
 type v2ServiceStorageParams struct {
 	Mount    string `yaml:"mount"`
 	ReadOnly bool   `yaml:"readOnly"`
+	KeyRef   string `yaml:"keyRef,omitempty"`
+}
+
+func validateStorageKeyRef(keyRef string, attributes v2StorageAttributes) error {
+	if keyRef == "" {
+		return nil
+	}
+
+	persistent := false
+	for _, attribute := range types.Attributes(attributes) {
+		if attribute.Key == StorageAttributePersistent {
+			persistent = attribute.Value == valueTrue
+			break
+		}
+	}
+
+	if !persistent {
+		return errStorageKeyRefNotPersistent
+	}
+
+	if !storageKeyRefPattern.MatchString(keyRef) {
+		return errStorageKeyRefFormat
+	}
+
+	return nil
 }
 
 type v2ResourceStorage struct {

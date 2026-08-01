@@ -482,6 +482,15 @@ func (sdl *v2) validate() error {
 						)
 					}
 
+					if err := validateStorageKeyRef(params.KeyRef, volumes[name].Attributes); err != nil {
+						return fmt.Errorf(
+							"%w: services.%s.params.storage.%s.keyRef",
+							err,
+							svcName,
+							name,
+						)
+					}
+
 					attr[StorageAttributeMount] = params.Mount
 					attr[StorageAttributeReadOnly] = strconv.FormatBool(params.ReadOnly)
 

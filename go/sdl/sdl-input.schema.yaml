@@ -487,6 +487,10 @@ properties:
                     $ref: '#/definitions/absolutePath'
                   readOnly:
                     type: boolean
+                  keyRef:
+                    description: Opaque tenant-signed CoCo sealed-secret reference
+                    type: string
+                    pattern: '^$|^sealed\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$'
                 type: object
               type: object
             permissions:

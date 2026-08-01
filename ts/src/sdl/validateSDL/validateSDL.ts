@@ -7,6 +7,20 @@ import { schema as validationSDLSchema, type SDLInput, validate as validateSDLIn
 export { validationSDLSchema };
 export type { SDLInput };
 
+function isPersistentStorage(value: boolean | string | undefined): boolean {
+  if (value === true) return true;
+  if (typeof value !== "string") return false;
+
+  switch (value) {
+    case "true":
+    case "on":
+    case "yes":
+      return true;
+    default:
+      return false;
+  }
+}
+
 const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/storageRamClassMustNotBePersistent"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
@@ -19,6 +33,9 @@ const ERROR_MESSAGES: ErrorMessages = {
   // `time.ParseDuration`), so this is a sanctioned schema-only-stricter rule.
   "#/properties/reclamation/properties/min_window/pattern"() {
     return `Reclamation min_window must be a whole number followed by s, m, or h (e.g. "24h", "30m").`;
+  },
+  "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef/pattern"() {
+    return `Storage keyRef must use sealed.<JWS> format.`;
   },
 };
 
@@ -160,6 +177,20 @@ class SDLValidator {
           },
         });
         return;
+      }
+
+      if (storage.keyRef) {
+        const computeStorage = storages.find(({ name }) => name === storageName);
+        const persistent = isPersistentStorage(computeStorage?.attributes?.persistent);
+        if (!persistent) {
+          this.#errors.push({
+            message: `Storage "${storageName}" keyRef requires persistent storage.`,
+            instancePath: `/services/${serviceName}/params/storage/${storageName}/keyRef`,
+            schemaPath: "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef",
+            keyword: "persistent",
+            params: {},
+          });
+        }
       }
 
       const mount = String(storage.mount);

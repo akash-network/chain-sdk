@@ -157,6 +157,7 @@ func (sdl *v2_1) buildGroups() error {
 							Name:     volName,
 							Mount:    volParams.Mount,
 							ReadOnly: volParams.ReadOnly,
+							KeyRef:   volParams.KeyRef,
 						})
 					}
 				}

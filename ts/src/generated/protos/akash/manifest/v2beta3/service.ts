@@ -16,6 +16,11 @@ export interface StorageParams {
   name: string;
   mount: string;
   readOnly: boolean;
+  /**
+   * key_ref is an opaque, tenant-signed CoCo sealed-secret reference.
+   * Verification and unsealing happen inside the confidential guest.
+   */
+  keyRef?: string;
 }
 
 /**
@@ -109,6 +114,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     if (message.readOnly !== false) {
       writer.uint32(24).bool(message.readOnly);
     }
+    if (message.keyRef !== undefined && message.keyRef !== "") {
+      writer.uint32(34).string(message.keyRef);
+    }
     return writer;
   },
 
@@ -143,6 +151,14 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
           message.readOnly = reader.bool();
           continue;
         }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.keyRef = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -157,6 +173,7 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       mount: isSet(object.mount) ? globalThis.String(object.mount) : "",
       readOnly: isSet(object.read_only) ? globalThis.Boolean(object.read_only) : false,
+      ...(isSet(object.key_ref) ? { keyRef: globalThis.String(object.key_ref) } : {}),
     };
   },
 
@@ -171,6 +188,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     if (message.readOnly !== false) {
       obj.read_only = message.readOnly;
     }
+    if (message.keyRef !== undefined && message.keyRef !== "") {
+      obj.key_ref = message.keyRef;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<StorageParams>): StorageParams {
@@ -178,6 +198,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     message.name = object.name ?? "";
     message.mount = object.mount ?? "";
     message.readOnly = object.readOnly ?? false;
+    if (object.keyRef !== undefined) {
+      message.keyRef = object.keyRef;
+    }
     return message;
   },
 };

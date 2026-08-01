@@ -25,6 +25,12 @@ message StorageParams {
       (gogoproto.jsontag)  = "readOnly",
       (gogoproto.moretags) = "yaml:\"readOnly\""
     ];
+    // key_ref is an opaque, tenant-signed CoCo sealed-secret reference.
+    // Verification and unsealing happen inside the confidential guest.
+    string key_ref = 4 [
+      (gogoproto.jsontag)  = "keyRef,omitempty",
+      (gogoproto.moretags) = "yaml:\"keyRef,omitempty\""
+    ];
 }
 
 // ServicePermissions defines resource access permissions for the service.

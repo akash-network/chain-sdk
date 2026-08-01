@@ -280,6 +280,15 @@ func (sdl *v2_1) validate() error {
 						)
 					}
 
+					if err := validateStorageKeyRef(params.KeyRef, volume.Attributes); err != nil {
+						return fmt.Errorf(
+							"%w: services.%s.params.storage.%s.keyRef",
+							err,
+							svcName,
+							name,
+						)
+					}
+
 					if vlname, exists := mounts[params.Mount]; exists {
 						if params.Mount == "" {
 							return errStorageMultipleRootEphemeral

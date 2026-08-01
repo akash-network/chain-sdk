@@ -6,6 +6,8 @@ import type { NetworkId } from "../../network/index.ts";
 import { AKT_DENOM } from "../../network/index.ts";
 import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
+const STORAGE_KEY_REF = "sealed.eyJhbGciOiJFUzI1NiJ9.eyJ2ZXJzaW9uIjoiMC4xLjAifQ.c2lnbmF0dXJl";
+
 describe(validateSDL.name, () => {
   describe("valid SDL", () => {
     it("returns undefined for a valid SDL", () => {
@@ -420,6 +422,74 @@ describe(validateSDL.name, () => {
       });
 
       expect(validate()).toBeUndefined();
+    });
+
+    it("rejects a malformed storage keyRef", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: "kbs:///default/storage-dek/example" },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: {
+                  name: "data",
+                  size: "1Gi",
+                  attributes: { class: "default", persistent: true },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage keyRef must use sealed.<JWS> format.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "pattern",
+      }));
+    });
+
+    it("rejects a storage keyRef on ephemeral storage", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: STORAGE_KEY_REF },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { name: "data", size: "1Gi" },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage \"data\" keyRef requires persistent storage.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "persistent",
+      }));
     });
   });
 

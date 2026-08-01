@@ -293,6 +293,7 @@ function buildParams(service: SDLService): ServiceParams | undefined {
         name,
         mount: config.mount || "",
         readOnly: config.readOnly || false,
+        keyRef: config.keyRef || undefined,
       });
     }),
   });
