@@ -204,10 +204,31 @@ message AttestationGPUReport {
     (gogoproto.moretags) = "yaml:\"device_index\""
   ];
 
-  // Base64-encoded hardware-signed GPU attestation report.
+  // Legacy base64 aggregate of attestation_report, cec_report, and
+  // certificate_chain. New clients should use the explicitly framed fields.
   string report = 2 [
     (gogoproto.jsontag)  = "report",
     (gogoproto.moretags) = "yaml:\"report\""
+  ];
+
+  // Base64-encoded hardware-signed GPU attestation report. This maps to the
+  // Trustee device evidence field without any trailing CEC or certificate data.
+  string attestation_report = 3 [
+    (gogoproto.jsontag)  = "attestation_report",
+    (gogoproto.moretags) = "yaml:\"attestation_report\""
+  ];
+
+  // Base64-encoded CEC attestation report, when present.
+  string cec_report = 4 [
+    (gogoproto.jsontag)  = "cec_report",
+    (gogoproto.moretags) = "yaml:\"cec_report\""
+  ];
+
+  // Base64-encoded PEM device certificate chain. This maps to the Trustee
+  // device certificate field.
+  string certificate_chain = 5 [
+    (gogoproto.jsontag)  = "certificate_chain",
+    (gogoproto.moretags) = "yaml:\"certificate_chain\""
   ];
 }
 
