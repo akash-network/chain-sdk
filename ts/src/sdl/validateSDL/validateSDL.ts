@@ -37,6 +37,9 @@ const ERROR_MESSAGES: ErrorMessages = {
   "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef/pattern"() {
     return `Storage keyRef must use sealed.<JWS> format.`;
   },
+  "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef/maxLength"() {
+    return `Storage keyRef must be at most 65536 characters.`;
+  },
 };
 
 export function validateSDL(sdl: SDLInput): undefined | ValidationError[] {

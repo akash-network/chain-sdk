@@ -2,6 +2,7 @@ package sdl
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -54,6 +55,13 @@ func TestStorageKeyRefValidation(t *testing.T) {
 			wantErr:    "storage keyRef must use sealed.<JWS> format",
 		},
 		{
+			name:       "oversized sealed reference",
+			keyRef:     "sealed." + strings.Repeat("a", StorageKeyRefMaxBytes) + ".payload.signature",
+			includeRef: true,
+			persistent: true,
+			wantErr:    "storage keyRef exceeds 65536 bytes",
+		},
+		{
 			name:       "sealed reference on ephemeral storage",
 			keyRef:     testStorageKeyRef,
 			includeRef: true,
@@ -90,6 +98,7 @@ func TestStorageKeyRefSchema(t *testing.T) {
 		{name: "explicit empty value", keyRef: ""},
 		{name: "plain KBS URI", keyRef: "kbs:///default/storage-dek/example", wantErr: true},
 		{name: "incomplete compact JWS", keyRef: "sealed.header.payload", wantErr: true},
+		{name: "oversized sealed reference", keyRef: "sealed." + strings.Repeat("a", StorageKeyRefMaxBytes) + ".payload.signature", wantErr: true},
 	}
 
 	for _, version := range testSDLVersions {

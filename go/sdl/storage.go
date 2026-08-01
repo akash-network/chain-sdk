@@ -19,6 +19,10 @@ const (
 	StorageAttributeReadOnly   = "readOnly" // we might not need it at this point of time
 	StorageClassDefault        = "default"
 	StorageClassRAM            = "ram"
+	// StorageKeyRefMaxBytes bounds the opaque signed reference carried through
+	// chain manifests and Kubernetes annotations. Verification still happens in
+	// the confidential guest.
+	StorageKeyRefMaxBytes = 64 * 1024
 )
 
 var (
@@ -30,6 +34,7 @@ var (
 	errStorageRAMClass              = errors.New("sdl: ram storage class cannot be persistent")
 	errStorageKeyRefFormat          = errors.New("sdl: storage keyRef must use sealed.<JWS> format")
 	errStorageKeyRefNotPersistent   = errors.New("sdl: storage keyRef requires persistent storage")
+	errStorageKeyRefTooLong         = errors.New("sdl: storage keyRef exceeds 65536 bytes")
 )
 
 var storageKeyRefPattern = regexp.MustCompile(`^sealed\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$`)
@@ -45,6 +50,9 @@ type v2ServiceStorageParams struct {
 func validateStorageKeyRef(keyRef string, attributes v2StorageAttributes) error {
 	if keyRef == "" {
 		return nil
+	}
+	if len(keyRef) > StorageKeyRefMaxBytes {
+		return errStorageKeyRefTooLong
 	}
 
 	persistent := false

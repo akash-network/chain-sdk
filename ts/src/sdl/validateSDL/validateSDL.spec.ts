@@ -460,6 +460,43 @@ describe(validateSDL.name, () => {
       }));
     });
 
+    it("rejects an oversized storage keyRef", () => {
+      const oversizedKeyRef = `sealed.${"a".repeat(65536)}.payload.signature`;
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: oversizedKeyRef },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: {
+                  name: "data",
+                  size: "1Gi",
+                  attributes: { class: "default", persistent: true },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage keyRef must be at most 65536 characters.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "maxLength",
+      }));
+    });
+
     it("rejects a storage keyRef on ephemeral storage", () => {
       const { validate } = setup({
         services: {
