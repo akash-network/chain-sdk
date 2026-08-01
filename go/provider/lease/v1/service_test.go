@@ -51,6 +51,14 @@ func TestAttestationGPUReportJSONRoundTrip(t *testing.T) {
 	require.NotContains(t, fields, "cecReport")
 	require.NotContains(t, fields, "certificateChain")
 
+	var camelCase AttestationGPUReport
+	require.NoError(t, json.Unmarshal([]byte(
+		`{"attestationReport":"gpu","cecReport":"cec","certificateChain":"chain"}`,
+	), &camelCase))
+	require.Empty(t, camelCase.AttestationReport)
+	require.Empty(t, camelCase.CecReport)
+	require.Empty(t, camelCase.CertificateChain)
+
 	var actual AttestationGPUReport
 	require.NoError(t, json.Unmarshal(data, &actual))
 	require.Equal(t, expected, actual)
