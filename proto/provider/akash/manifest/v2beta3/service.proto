@@ -106,6 +106,13 @@ message ImageCredentials {
     (gogoproto.jsontag)  = "password",
     (gogoproto.moretags) = "yaml:\"password\""
   ];
+  // uri references a complete Docker auth document released by KBS after
+  // attestation. It is mutually exclusive with host/email/username/password.
+  string uri = 5 [
+    (gogoproto.customname) = "URI",
+    (gogoproto.jsontag)    = "uri,omitempty",
+    (gogoproto.moretags)   = "yaml:\"uri,omitempty\""
+  ];
 }
 
 // Service stores name, image, args, env, unit, count and expose list of service

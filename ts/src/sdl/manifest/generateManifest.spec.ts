@@ -145,6 +145,21 @@ describe(generateManifest.name, () => {
       expect(result.groups[0].services[0].credentials).toBeUndefined();
     });
 
+    it("includes a confidential KBS credential reference without inline fields", () => {
+      const sdl = createBasicSdl({
+        credentials: { uri: "kbs:///lease-scope/registry/auth" },
+        params: { tee: "cpu" },
+      });
+      const { result } = setup({ sdl });
+
+      expect(result.groups[0].services[0].credentials).toMatchObject({
+        uri: "kbs:///lease-scope/registry/auth",
+        host: "",
+        username: "",
+        password: "",
+      });
+    });
+
     it("includes environment variables", () => {
       const env = ["ENV1=value1", "ENV2=value2"];
       const sdl = createBasicSdl({ env });
@@ -1157,6 +1172,7 @@ describe(generateManifest.name, () => {
     command?: SDLInput["services"][string]["command"];
     args?: SDLInput["services"][string]["args"];
     credentials?: SDLInput["services"][string]["credentials"];
+    params?: SDLInput["services"][string]["params"];
     expose?: SDLInput["services"][string]["expose"];
     endpoints?: SDLInput["endpoints"];
     reclamation?: SDLInput["reclamation"];
@@ -1180,6 +1196,7 @@ describe(generateManifest.name, () => {
           command: ${input.command}
           args: ${input.args}
           credentials: ${input.credentials}
+          params: ${input.params}
           expose: ${input.expose ?? [{ port, as: port, to: [{ global: true }] }]}
       profiles:
         compute:

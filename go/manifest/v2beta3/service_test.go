@@ -13,6 +13,16 @@ import (
 
 const testStorageKeyRef = "sealed.eyJhbGciOiJFUzI1NiJ9.eyJ2ZXJzaW9uIjoiMC4xLjAifQ.c2lnbmF0dXJl"
 
+func TestImageCredentialsURIWireRoundTrip(t *testing.T) {
+	want := &manifest.ImageCredentials{URI: "kbs:///lease-scope/registry/auth"}
+	wire, err := proto.Marshal(want)
+	require.NoError(t, err)
+
+	got := &manifest.ImageCredentials{}
+	require.NoError(t, proto.Unmarshal(wire, got))
+	require.Equal(t, want, got)
+}
+
 func TestStorageParamsKeyRefRoundTrip(t *testing.T) {
 	want := &manifest.StorageParams{
 		Name:     "data",

@@ -578,6 +578,7 @@
  | `email` | [string](#string) |  |  |
  | `username` | [string](#string) |  |  |
  | `password` | [string](#string) |  |  |
+ | `uri` | [string](#string) |  | uri references a complete Docker auth document released by KBS after attestation. It is mutually exclusive with host/email/username/password. |
  
  
 

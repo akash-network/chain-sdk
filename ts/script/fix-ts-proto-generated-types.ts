@@ -15,7 +15,7 @@ const helperTypeRegex = new RegExp(
 );
 
 const ROOT_DIR = resolvePath(import.meta.dirname, "..", "src");
-const STORAGE_SERVICE_PATH = resolvePath(ROOT_DIR, "generated/protos/akash/manifest/v2beta3/service.ts");
+const MANIFEST_SERVICE_PATH = resolvePath(ROOT_DIR, "generated/protos/akash/manifest/v2beta3/service.ts");
 
 const typesToPatch = new Set<string>();
 // Per-message field-type overlays for representation-changing custom types,
@@ -35,7 +35,7 @@ for await (const path of fs.glob(`${ROOT_DIR}/generated/protos/**/*.ts`)) {
   // Remove the `create` method from message objects
   newSource = newSource.replace(/^\s*create\(base\?:\s*DeepPartial<\w+>\):\s*\w+\s*\{\s*return\s*\w+\.fromPartial\(base \?\? \{\}\);\s*\},?\n?/gm, "");
   newSource = injectOwnHelpers(newSource, path);
-  newSource = preserveOptionalStorageKeyRef(newSource, path);
+  newSource = preserveOptionalManifestScalars(newSource, path);
 
   newSource = applyPatching(newSource, path, typesToPatch, typeOverrides);
 
@@ -44,30 +44,36 @@ for await (const path of fs.glob(`${ROOT_DIR}/generated/protos/**/*.ts`)) {
   }
 }
 
-function preserveOptionalStorageKeyRef(source: string, path: string): string {
-  if (resolvePath(path) !== STORAGE_SERVICE_PATH) return source;
+function preserveOptionalManifestScalars(source: string, path: string): string {
+  if (resolvePath(path) !== MANIFEST_SERVICE_PATH) return source;
 
-  // A proto3 scalar has no wire-level presence, but keyRef is optional SDL
-  // input. Leaving ts-proto's empty-string default in place would add
-  // `keyRef: ""` to every existing manifest object. Keep the public TS shape
-  // aligned with Go's `omitempty` JSON/YAML contract.
-  source = replaceGeneratedText(source, "  keyRef: string;", "  keyRef?: string;");
-  source = replaceGeneratedText(source, `, keyRef: ""`, "");
+  // Proto3 scalars have no wire-level presence, but these fields are optional
+  // SDL input. Leaving ts-proto's empty-string defaults in place would add
+  // empty fields to existing manifest objects and change their version hashes.
+  source = preserveOptionalStringField(source, "keyRef", "key_ref");
+  source = preserveOptionalStringField(source, "uri", "uri");
+
+  return source;
+}
+
+function preserveOptionalStringField(source: string, field: string, jsonField: string): string {
+  source = replaceGeneratedText(source, `  ${field}: string;`, `  ${field}?: string;`);
+  source = replaceGeneratedText(source, `, ${field}: ""`, "");
   source = replaceGeneratedText(
     source,
-    `if (message.keyRef !== "") {`,
-    `if (message.keyRef !== undefined && message.keyRef !== "") {`,
+    `if (message.${field} !== "") {`,
+    `if (message.${field} !== undefined && message.${field} !== "") {`,
     2,
   );
   source = replaceGeneratedText(
     source,
-    `      keyRef: isSet(object.key_ref) ? globalThis.String(object.key_ref) : "",`,
-    `      ...(isSet(object.key_ref) ? { keyRef: globalThis.String(object.key_ref) } : {}),`,
+    `      ${field}: isSet(object.${jsonField}) ? globalThis.String(object.${jsonField}) : "",`,
+    `      ...(isSet(object.${jsonField}) ? { ${field}: globalThis.String(object.${jsonField}) } : {}),`,
   );
   source = replaceGeneratedText(
     source,
-    `    message.keyRef = object.keyRef ?? "";`,
-    `    if (object.keyRef !== undefined) {\n      message.keyRef = object.keyRef;\n    }`,
+    `    message.${field} = object.${field} ?? "";`,
+    `    if (object.${field} !== undefined) {\n      message.${field} = object.${field};\n    }`,
   );
 
   return source;

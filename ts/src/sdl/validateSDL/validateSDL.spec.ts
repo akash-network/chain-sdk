@@ -1489,6 +1489,57 @@ describe(validateSDL.name, () => {
 
       expect(validate()).toBeUndefined();
     });
+
+    it("accepts a KBS credential reference for a confidential service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: { tee: "cpu" },
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+
+    it("rejects a KBS credential reference for an ordinary service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("requires a confidential TEE"),
+        keyword: "runtime",
+      }));
+    });
+
+    it("rejects inline credentials for a confidential service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: { tee: "cpu" },
+            credentials: {
+              host: "registry.example.com",
+              username: "user",
+              password: "password123",
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("require a KBS resource URI"),
+        keyword: "runtime",
+      }));
+    });
   });
 
   describe("schema validation: http_options", () => {

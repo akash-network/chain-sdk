@@ -189,12 +189,21 @@ export type v2ServiceParams = {
 };
 
 /** @deprecated will be removed in favor of `SDLInput` and `Manifest` types. */
-export type v2ServiceImageCredentials = {
-  host: string;
-  email?: string;
-  username: string;
-  password: string;
-};
+export type v2ServiceImageCredentials =
+  | {
+    host: string;
+    email?: string;
+    username: string;
+    password: string;
+    uri?: never;
+  }
+  | {
+    host?: never;
+    email?: never;
+    username?: never;
+    password?: never;
+    uri: string;
+  };
 
 /** @deprecated will be removed in favor of `SDLInput` and `Manifest` types. */
 export type v2Service = {

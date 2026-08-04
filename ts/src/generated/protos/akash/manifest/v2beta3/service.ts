@@ -64,6 +64,11 @@ export interface ImageCredentials {
   email: string;
   username: string;
   password: string;
+  /**
+   * uri references a complete Docker auth document released by KBS after
+   * attestation. It is mutually exclusive with host/email/username/password.
+   */
+  uri?: string;
 }
 
 /** Service stores name, image, args, env, unit, count and expose list of service */
@@ -467,6 +472,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     if (message.password !== "") {
       writer.uint32(34).string(message.password);
     }
+    if (message.uri !== undefined && message.uri !== "") {
+      writer.uint32(42).string(message.uri);
+    }
     return writer;
   },
 
@@ -509,6 +517,14 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
           message.password = reader.string();
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.uri = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -524,6 +540,7 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
       email: isSet(object.email) ? globalThis.String(object.email) : "",
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       password: isSet(object.password) ? globalThis.String(object.password) : "",
+      ...(isSet(object.uri) ? { uri: globalThis.String(object.uri) } : {}),
     };
   },
 
@@ -541,6 +558,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     if (message.password !== "") {
       obj.password = message.password;
     }
+    if (message.uri !== undefined && message.uri !== "") {
+      obj.uri = message.uri;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ImageCredentials>): ImageCredentials {
@@ -549,6 +569,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     message.email = object.email ?? "";
     message.username = object.username ?? "";
     message.password = object.password ?? "";
+    if (object.uri !== undefined) {
+      message.uri = object.uri;
+    }
     return message;
   },
 };

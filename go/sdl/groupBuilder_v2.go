@@ -177,6 +177,7 @@ func (sdl *v2) buildGroups() error {
 					Host:     svc.Credentials.Host,
 					Username: svc.Credentials.Username,
 					Password: svc.Credentials.Password,
+					URI:      svc.Credentials.URI,
 				}
 			}
 

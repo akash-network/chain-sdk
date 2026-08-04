@@ -8,17 +8,7 @@ export { validationSDLSchema };
 export type { SDLInput };
 
 function isPersistentStorage(value: boolean | string | undefined): boolean {
-  if (value === true) return true;
-  if (typeof value !== "string") return false;
-
-  switch (value) {
-    case "true":
-    case "on":
-    case "yes":
-      return true;
-    default:
-      return false;
-  }
+  return stringToBoolean(value ?? false);
 }
 
 const ERROR_MESSAGES: ErrorMessages = {
@@ -70,12 +60,33 @@ class SDLValidator {
       Object.keys(this.#sdl.services).forEach((serviceName) => {
         this.#validateDeploymentWithRelations(serviceName);
         this.#validateLeaseIP(serviceName);
+        this.#validateCredentials(serviceName);
       });
     }
 
     this.#validateInterconnect();
     this.#validateEndpoints();
     return this.#errors;
+  }
+
+  #validateCredentials(serviceName: string) {
+    const service = this.#sdl.services?.[serviceName];
+    const credentials = service?.credentials;
+    if (!credentials) return;
+
+    const confidential = Boolean(service.params?.tee);
+    const referenced = "uri" in credentials;
+    if (confidential === referenced) return;
+
+    this.#errors.push({
+      message: confidential
+        ? `Confidential service "${serviceName}" credentials require a KBS resource URI.`
+        : `Service "${serviceName}" KBS credential URI requires a confidential TEE.`,
+      instancePath: `/services/${serviceName}/credentials`,
+      schemaPath: "#/properties/services/additionalProperties/properties/credentials",
+      keyword: "runtime",
+      params: {},
+    });
   }
 
   #validateDeploymentWithRelations(serviceName: string) {
@@ -233,7 +244,7 @@ class SDLValidator {
     const storages = castArray(compute?.resources.storage);
 
     storages.forEach((storage) => {
-      const persistent = stringToBoolean(storage.attributes?.persistent as string | boolean || false);
+      const persistent = isPersistentStorage(storage.attributes?.persistent);
 
       if (persistent && !service?.params?.storage?.[storage.name || ""]?.mount) {
         this.#errors.push({
