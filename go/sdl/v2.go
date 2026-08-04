@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -30,10 +31,10 @@ const (
 	nextCaseOff           = "off"
 	defaultMaxBodySize    = uint32(1048576)
 	upperLimitBodySize    = uint32(104857600)
-	defaultReadTimeout    = uint32(60000)
-	upperLimitReadTimeout = defaultReadTimeout
-	defaultSendTimeout    = uint32(60000)
-	upperLimitSendTimeout = defaultSendTimeout
+	defaultReadTimeout    = 60_000
+	upperLimitReadTimeout = 4_294_967_295
+	defaultSendTimeout    = 60_000
+	upperLimitSendTimeout = upperLimitReadTimeout
 	defaultNextTries      = uint32(3)
 	endpointKindIP        = "ip"
 )
@@ -49,7 +50,10 @@ var (
 	errCredentialNoPassword          = errors.New("service Credentials missing Password")
 )
 
-var endpointNameValidationRegex = regexp.MustCompile(`^[[:lower:]]+[[:lower:]-_\d]+$`)
+var (
+	endpointNameValidationRegex = regexp.MustCompile(`^[[:lower:]]+[[:lower:]-_\d]+$`)
+	httpTimeoutValidationRegex  = regexp.MustCompile(`^[0-9]+(ms|s|m|h)?$`)
+)
 
 var _ SDL = (*v2)(nil)
 
@@ -80,13 +84,44 @@ type v2ExposeTo struct {
 	IP          string        `yaml:"ip"`
 }
 
+type v2HTTPTimeout uint64
+
+func (timeout *v2HTTPTimeout) UnmarshalYAML(node *yaml.Node) error {
+	if node.Tag == "!!int" {
+		var value uint64
+		if err := node.Decode(&value); err != nil {
+			return fmt.Errorf("invalid HTTP timeout: %w", err)
+		}
+
+		*timeout = v2HTTPTimeout(value)
+		return nil
+	}
+
+	if node.Tag != "!!str" || !httpTimeoutValidationRegex.MatchString(node.Value) {
+		return fmt.Errorf("invalid HTTP timeout %q: expected milliseconds or a whole-number duration using ms, s, m, or h", node.Value)
+	}
+
+	value := node.Value
+	if _, err := strconv.ParseUint(value, 10, 64); err == nil {
+		value += "ms"
+	}
+
+	duration, err := time.ParseDuration(value)
+	if err != nil {
+		return fmt.Errorf("invalid HTTP timeout %q: %w", node.Value, err)
+	}
+
+	*timeout = v2HTTPTimeout(duration.Milliseconds())
+	return nil
+}
+
 type v2HTTPOptions struct {
-	MaxBodySize uint32   `yaml:"max_body_size"`
-	ReadTimeout uint32   `yaml:"read_timeout"`
-	SendTimeout uint32   `yaml:"send_timeout"`
-	NextTries   uint32   `yaml:"next_tries"`
-	NextTimeout uint32   `yaml:"next_timeout"`
-	NextCases   []string `yaml:"next_cases"`
+	MaxBodySize uint32        `yaml:"max_body_size"`
+	ReadTimeout v2HTTPTimeout `yaml:"read_timeout"`
+	SendTimeout v2HTTPTimeout `yaml:"send_timeout"`
+	NextTries   uint32        `yaml:"next_tries"`
+	NextTimeout uint32        `yaml:"next_timeout"`
+	NextCases   []string      `yaml:"next_cases"`
 }
 
 func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) {
@@ -144,8 +179,8 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 
 	return manifest.ServiceExposeHTTPOptions{
 		MaxBodySize: maxBodySize,
-		ReadTimeout: readTimeout,
-		SendTimeout: sendTimeout,
+		ReadTimeout: uint32(readTimeout),
+		SendTimeout: uint32(sendTimeout),
 		NextTries:   nextTries,
 		NextTimeout: ho.NextTimeout,
 		NextCases:   nextCases,

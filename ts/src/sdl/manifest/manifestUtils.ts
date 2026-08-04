@@ -6,6 +6,7 @@ import {
 import {
   ServiceExposeHTTPOptions,
 } from "../../generated/protos/index.provider.akash.v2beta3.ts";
+import { parseHTTPTimeout } from "../httpTimeout.ts";
 import { convertCpuResourceString, convertResourceString } from "../sizes.ts";
 import type { SDLInput } from "../validateSDL/validateSDL.ts";
 import type { StorageAttributesValidation } from "../validateSDL/validateSDLInput.ts";
@@ -114,12 +115,21 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
 export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTTPOptions {
   return ServiceExposeHTTPOptions.fromPartial({
     maxBodySize: httpOptions?.max_body_size ?? 1048576,
-    readTimeout: httpOptions?.read_timeout ?? 60000,
-    sendTimeout: httpOptions?.send_timeout ?? 60000,
+    readTimeout: normalizedHTTPTimeout(httpOptions?.read_timeout),
+    sendTimeout: normalizedHTTPTimeout(httpOptions?.send_timeout),
     nextTries: httpOptions?.next_tries ?? 3,
     nextTimeout: httpOptions?.next_timeout ?? 0,
     nextCases: httpOptions?.next_cases ?? ["error", "timeout"],
   });
+}
+
+function normalizedHTTPTimeout(value: number | string | undefined): number {
+  const result = parseHTTPTimeout(value ?? 60_000);
+  if (!result.ok) {
+    throw new Error(`Invalid HTTP timeout: ${result.message}`);
+  }
+
+  return result.milliseconds;
 }
 
 export function buildStorageAttributes(attributes?: StorageAttributesValidation): Attribute[] {
