@@ -36,6 +36,7 @@ proto-check-breaking: $(BUF)
 	@git worktree remove --force $(PROTO_AGAINST_DIR) 2>/dev/null || true
 	@git worktree prune
 	@git worktree add $(PROTO_AGAINST_DIR) main
+	@cp buf.yaml buf.lock $(PROTO_AGAINST_DIR)/
 	@cp -r go/vendor $(PROTO_AGAINST_DIR)/go/
 	$(BUF) breaking --against '$(PROTO_AGAINST_DIR)'
 	@git worktree remove --force $(PROTO_AGAINST_DIR)
