@@ -230,6 +230,21 @@ message AttestationGPUReport {
     (gogoproto.jsontag)  = "certificate_chain",
     (gogoproto.moretags) = "yaml:\"certificate_chain\""
   ];
+
+  // NVIDIA architecture reported by NVML alongside this evidence. Currently
+  // HOPPER or BLACKWELL. It must not be supplied from tenant metadata.
+  string architecture = 6 [
+    (gogoproto.jsontag)  = "architecture",
+    (gogoproto.moretags) = "yaml:\"architecture\""
+  ];
+
+  // Physical GPU UUID reported by NVML alongside this evidence. It must not be
+  // supplied from tenant metadata.
+  string uuid = 7 [
+    (gogoproto.customname) = "UUID",
+    (gogoproto.jsontag)    = "uuid",
+    (gogoproto.moretags)   = "yaml:\"uuid\""
+  ];
 }
 
 // AttestationQuoteResponse is the response from the AttestationQuote RPC method.

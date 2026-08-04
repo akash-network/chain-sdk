@@ -129,6 +129,16 @@ export interface AttestationGPUReport {
    * device certificate field.
    */
   certificateChain: string;
+  /**
+   * NVIDIA architecture reported by NVML alongside this evidence. Currently
+   * HOPPER or BLACKWELL. It must not be supplied from tenant metadata.
+   */
+  architecture: string;
+  /**
+   * Physical GPU UUID reported by NVML alongside this evidence. It must not be
+   * supplied from tenant metadata.
+   */
+  uuid: string;
 }
 
 /**
@@ -1291,7 +1301,15 @@ export const AttestationQuoteRequest: MessageFns<
 };
 
 function createBaseAttestationGPUReport(): AttestationGPUReport {
-  return { deviceIndex: 0, report: "", attestationReport: "", cecReport: "", certificateChain: "" };
+  return {
+    deviceIndex: 0,
+    report: "",
+    attestationReport: "",
+    cecReport: "",
+    certificateChain: "",
+    architecture: "",
+    uuid: "",
+  };
 }
 
 export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provider.lease.v1.AttestationGPUReport"> = {
@@ -1312,6 +1330,12 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
     }
     if (message.certificateChain !== "") {
       writer.uint32(42).string(message.certificateChain);
+    }
+    if (message.architecture !== "") {
+      writer.uint32(50).string(message.architecture);
+    }
+    if (message.uuid !== "") {
+      writer.uint32(58).string(message.uuid);
     }
     return writer;
   },
@@ -1363,6 +1387,22 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
           message.certificateChain = reader.string();
           continue;
         }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.architecture = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.uuid = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1379,6 +1419,8 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
       attestationReport: isSet(object.attestation_report) ? globalThis.String(object.attestation_report) : "",
       cecReport: isSet(object.cec_report) ? globalThis.String(object.cec_report) : "",
       certificateChain: isSet(object.certificate_chain) ? globalThis.String(object.certificate_chain) : "",
+      architecture: isSet(object.architecture) ? globalThis.String(object.architecture) : "",
+      uuid: isSet(object.uuid) ? globalThis.String(object.uuid) : "",
     };
   },
 
@@ -1399,6 +1441,12 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
     if (message.certificateChain !== "") {
       obj.certificate_chain = message.certificateChain;
     }
+    if (message.architecture !== "") {
+      obj.architecture = message.architecture;
+    }
+    if (message.uuid !== "") {
+      obj.uuid = message.uuid;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<AttestationGPUReport>): AttestationGPUReport {
@@ -1408,6 +1456,8 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
     message.attestationReport = object.attestationReport ?? "";
     message.cecReport = object.cecReport ?? "";
     message.certificateChain = object.certificateChain ?? "";
+    message.architecture = object.architecture ?? "";
+    message.uuid = object.uuid ?? "";
     return message;
   },
 };

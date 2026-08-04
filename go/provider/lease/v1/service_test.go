@@ -16,13 +16,15 @@ func TestAttestationGPUReportBinaryRoundTrip(t *testing.T) {
 		AttestationReport: "gpu-attestation-report",
 		CecReport:         "cec-attestation-report",
 		CertificateChain:  "device-certificate-chain",
+		Architecture:      "BLACKWELL",
+		UUID:              "GPU-11111111-2222-3333-4444-555555555555",
 	}
 
 	data, err := proto.Marshal(&expected)
 	require.NoError(t, err)
 
 	fields := protobufFieldNumbers(t, data)
-	require.ElementsMatch(t, []protowire.Number{1, 2, 3, 4, 5}, fields)
+	require.ElementsMatch(t, []protowire.Number{1, 2, 3, 4, 5, 6, 7}, fields)
 
 	var actual AttestationGPUReport
 	require.NoError(t, proto.Unmarshal(data, &actual))
@@ -36,6 +38,8 @@ func TestAttestationGPUReportJSONRoundTrip(t *testing.T) {
 		AttestationReport: "gpu-attestation-report",
 		CecReport:         "cec-attestation-report",
 		CertificateChain:  "device-certificate-chain",
+		Architecture:      "BLACKWELL",
+		UUID:              "GPU-11111111-2222-3333-4444-555555555555",
 	}
 
 	data, err := json.Marshal(&expected)
@@ -47,6 +51,8 @@ func TestAttestationGPUReportJSONRoundTrip(t *testing.T) {
 	require.Contains(t, fields, "attestation_report")
 	require.Contains(t, fields, "cec_report")
 	require.Contains(t, fields, "certificate_chain")
+	require.Contains(t, fields, "architecture")
+	require.Contains(t, fields, "uuid")
 	require.NotContains(t, fields, "attestationReport")
 	require.NotContains(t, fields, "cecReport")
 	require.NotContains(t, fields, "certificateChain")
