@@ -6,6 +6,8 @@ import type { NetworkId } from "../../network/index.ts";
 import { AKT_DENOM } from "../../network/index.ts";
 import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
+const STORAGE_KEY_REF = "sealed.eyJhbGciOiJFUzI1NiJ9.eyJ2ZXJzaW9uIjoiMC4xLjAifQ.c2lnbmF0dXJl";
+
 describe(validateSDL.name, () => {
   describe("valid SDL", () => {
     it("returns undefined for a valid SDL", () => {
@@ -420,6 +422,111 @@ describe(validateSDL.name, () => {
       });
 
       expect(validate()).toBeUndefined();
+    });
+
+    it("rejects a malformed storage keyRef", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: "kbs:///default/storage-dek/example" },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: {
+                  name: "data",
+                  size: "1Gi",
+                  attributes: { class: "default", persistent: true },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage keyRef must use sealed.<JWS> format.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "pattern",
+      }));
+    });
+
+    it("rejects an oversized storage keyRef", () => {
+      const oversizedKeyRef = `sealed.${"a".repeat(65536)}.payload.signature`;
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: oversizedKeyRef },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: {
+                  name: "data",
+                  size: "1Gi",
+                  attributes: { class: "default", persistent: true },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage keyRef must be at most 65536 characters.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "maxLength",
+      }));
+    });
+
+    it("rejects a storage keyRef on ephemeral storage", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: STORAGE_KEY_REF },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { name: "data", size: "1Gi" },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage \"data\" keyRef requires persistent storage.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "persistent",
+      }));
     });
   });
 
@@ -1381,6 +1488,57 @@ describe(validateSDL.name, () => {
       });
 
       expect(validate()).toBeUndefined();
+    });
+
+    it("accepts a KBS credential reference for a confidential service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: { tee: "cpu" },
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+
+    it("rejects a KBS credential reference for an ordinary service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("requires a confidential TEE"),
+        keyword: "runtime",
+      }));
+    });
+
+    it("rejects inline credentials for a confidential service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: { tee: "cpu" },
+            credentials: {
+              host: "registry.example.com",
+              username: "user",
+              password: "password123",
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("require a KBS resource URI"),
+        keyword: "runtime",
+      }));
     });
   });
 

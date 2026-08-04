@@ -247,12 +247,14 @@ function buildManifestService(
   endpointSequenceNumbers: Record<string, number>,
 ): Service {
   const credentials = service.credentials
-    ? ImageCredentials.fromPartial({
-        host: service.credentials.host,
-        email: service.credentials.email || "",
-        username: service.credentials.username,
-        password: service.credentials.password,
-      })
+    ? "uri" in service.credentials
+      ? ImageCredentials.fromPartial({ uri: service.credentials.uri })
+      : ImageCredentials.fromPartial({
+          host: service.credentials.host,
+          email: service.credentials.email || "",
+          username: service.credentials.username,
+          password: service.credentials.password,
+        })
     : undefined;
 
   const params = buildParams(service);
@@ -293,6 +295,7 @@ function buildParams(service: SDLService): ServiceParams | undefined {
         name,
         mount: config.mount || "",
         readOnly: config.readOnly || false,
+        keyRef: config.keyRef || undefined,
       });
     }),
   });

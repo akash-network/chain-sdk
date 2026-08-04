@@ -25,6 +25,28 @@ func TestSchemaValidation_Credentials(t *testing.T) {
 			shouldErr: false,
 		},
 		{
+			name: "valid_confidential_credentials_reference",
+			builder: sdlTestBuilder{
+				version: `version: "2.1"`,
+				serviceBlock: `    image: nginx
+    credentials:
+      uri: kbs:///lease-scope/registry/auth`},
+			shouldErr: false,
+		},
+		{
+			name: "mixed_credentials_modes",
+			builder: sdlTestBuilder{
+				version: `version: "2.1"`,
+				serviceBlock: `    image: nginx
+    credentials:
+      host: docker.io
+      username: user123
+      password: secret123
+      uri: kbs:///lease-scope/registry/auth`},
+			shouldErr: true,
+			reason:    "inline credentials and uri are mutually exclusive",
+		},
+		{
 			name: "email_too_short",
 			builder: sdlTestBuilder{
 				version: `version: "2.1"`,

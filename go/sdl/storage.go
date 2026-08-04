@@ -3,6 +3,7 @@ package sdl
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"sort"
 
 	"gopkg.in/yaml.v3"
@@ -18,6 +19,10 @@ const (
 	StorageAttributeReadOnly   = "readOnly" // we might not need it at this point of time
 	StorageClassDefault        = "default"
 	StorageClassRAM            = "ram"
+	// StorageKeyRefMaxBytes bounds the opaque signed reference carried through
+	// chain manifests and Kubernetes annotations. Verification still happens in
+	// the confidential guest.
+	StorageKeyRefMaxBytes = 64 * 1024
 )
 
 var (
@@ -27,13 +32,46 @@ var (
 	errStorageDuplicatedVolumeName  = errors.New("sdl: duplicated volume name")
 	errStorageEphemeralClass        = errors.New("sdl: ephemeral storage should not set attribute class")
 	errStorageRAMClass              = errors.New("sdl: ram storage class cannot be persistent")
+	errStorageKeyRefFormat          = errors.New("sdl: storage keyRef must use sealed.<JWS> format")
+	errStorageKeyRefNotPersistent   = errors.New("sdl: storage keyRef requires persistent storage")
+	errStorageKeyRefTooLong         = errors.New("sdl: storage keyRef exceeds 65536 bytes")
 )
+
+var storageKeyRefPattern = regexp.MustCompile(`^sealed\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$`)
 
 type v2StorageAttributes types.Attributes
 
 type v2ServiceStorageParams struct {
 	Mount    string `yaml:"mount"`
 	ReadOnly bool   `yaml:"readOnly"`
+	KeyRef   string `yaml:"keyRef,omitempty"`
+}
+
+func validateStorageKeyRef(keyRef string, attributes v2StorageAttributes) error {
+	if keyRef == "" {
+		return nil
+	}
+	if len(keyRef) > StorageKeyRefMaxBytes {
+		return errStorageKeyRefTooLong
+	}
+
+	persistent := false
+	for _, attribute := range types.Attributes(attributes) {
+		if attribute.Key == StorageAttributePersistent {
+			persistent = attribute.Value == valueTrue
+			break
+		}
+	}
+
+	if !persistent {
+		return errStorageKeyRefNotPersistent
+	}
+
+	if !storageKeyRefPattern.MatchString(keyRef) {
+		return errStorageKeyRefFormat
+	}
+
+	return nil
 }
 
 type v2ResourceStorage struct {

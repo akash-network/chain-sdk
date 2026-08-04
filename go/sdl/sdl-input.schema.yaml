@@ -364,25 +364,35 @@ properties:
         command:
           $ref: '#/definitions/stringArrayOrNull'
         credentials:
-          additionalProperties: false
-          properties:
-            email:
-              type: string
-              minLength: 5
-            host:
-              type: string
-              minLength: 1
-            password:
-              type: string
-              minLength: 6
-            username:
-              type: string
-              minLength: 1
-          required:
-            - host
-            - username
-            - password
-          type: object
+          oneOf:
+            - additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  minLength: 5
+                host:
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 6
+                username:
+                  type: string
+                  minLength: 1
+              required:
+                - host
+                - username
+                - password
+              type: object
+            - additionalProperties: false
+              properties:
+                uri:
+                  type: string
+                  maxLength: 2048
+                  pattern: '^kbs:///[A-Za-z0-9_-][A-Za-z0-9._-]*/[A-Za-z0-9_-][A-Za-z0-9._-]*/[A-Za-z0-9_-][A-Za-z0-9._-]*$'
+              required:
+                - uri
+              type: object
         dependencies:
           items:
             additionalProperties: false
@@ -487,6 +497,11 @@ properties:
                     $ref: '#/definitions/absolutePath'
                   readOnly:
                     type: boolean
+                  keyRef:
+                    description: Opaque tenant-signed CoCo sealed-secret reference
+                    type: string
+                    maxLength: 65536
+                    pattern: '^$|^sealed\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$'
                 type: object
               type: object
             permissions:

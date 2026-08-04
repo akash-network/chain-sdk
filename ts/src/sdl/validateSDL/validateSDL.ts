@@ -7,6 +7,10 @@ import { schema as validationSDLSchema, type SDLInput, validate as validateSDLIn
 export { validationSDLSchema };
 export type { SDLInput };
 
+function isPersistentStorage(value: boolean | string | undefined): boolean {
+  return stringToBoolean(value ?? false);
+}
+
 const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/storageRamClassMustNotBePersistent"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
@@ -19,6 +23,12 @@ const ERROR_MESSAGES: ErrorMessages = {
   // `time.ParseDuration`), so this is a sanctioned schema-only-stricter rule.
   "#/properties/reclamation/properties/min_window/pattern"() {
     return `Reclamation min_window must be a whole number followed by s, m, or h (e.g. "24h", "30m").`;
+  },
+  "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef/pattern"() {
+    return `Storage keyRef must use sealed.<JWS> format.`;
+  },
+  "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef/maxLength"() {
+    return `Storage keyRef must be at most 65536 characters.`;
   },
 };
 
@@ -50,12 +60,33 @@ class SDLValidator {
       Object.keys(this.#sdl.services).forEach((serviceName) => {
         this.#validateDeploymentWithRelations(serviceName);
         this.#validateLeaseIP(serviceName);
+        this.#validateCredentials(serviceName);
       });
     }
 
     this.#validateInterconnect();
     this.#validateEndpoints();
     return this.#errors;
+  }
+
+  #validateCredentials(serviceName: string) {
+    const service = this.#sdl.services?.[serviceName];
+    const credentials = service?.credentials;
+    if (!credentials) return;
+
+    const confidential = Boolean(service.params?.tee);
+    const referenced = "uri" in credentials;
+    if (confidential === referenced) return;
+
+    this.#errors.push({
+      message: confidential
+        ? `Confidential service "${serviceName}" credentials require a KBS resource URI.`
+        : `Service "${serviceName}" KBS credential URI requires a confidential TEE.`,
+      instancePath: `/services/${serviceName}/credentials`,
+      schemaPath: "#/properties/services/additionalProperties/properties/credentials",
+      keyword: "runtime",
+      params: {},
+    });
   }
 
   #validateDeploymentWithRelations(serviceName: string) {
@@ -162,6 +193,20 @@ class SDLValidator {
         return;
       }
 
+      if (storage.keyRef) {
+        const computeStorage = storages.find(({ name }) => name === storageName);
+        const persistent = isPersistentStorage(computeStorage?.attributes?.persistent);
+        if (!persistent) {
+          this.#errors.push({
+            message: `Storage "${storageName}" keyRef requires persistent storage.`,
+            instancePath: `/services/${serviceName}/params/storage/${storageName}/keyRef`,
+            schemaPath: "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef",
+            keyword: "persistent",
+            params: {},
+          });
+        }
+      }
+
       const mount = String(storage.mount);
       const volumeName = mounts[mount];
 
@@ -199,7 +244,7 @@ class SDLValidator {
     const storages = castArray(compute?.resources.storage);
 
     storages.forEach((storage) => {
-      const persistent = stringToBoolean(storage.attributes?.persistent as string | boolean || false);
+      const persistent = isPersistentStorage(storage.attributes?.persistent);
 
       if (persistent && !service?.params?.storage?.[storage.name || ""]?.mount) {
         this.#errors.push({

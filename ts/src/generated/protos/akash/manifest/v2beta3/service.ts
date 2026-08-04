@@ -16,6 +16,11 @@ export interface StorageParams {
   name: string;
   mount: string;
   readOnly: boolean;
+  /**
+   * key_ref is an opaque, tenant-signed CoCo sealed-secret reference.
+   * Verification and unsealing happen inside the confidential guest.
+   */
+  keyRef?: string;
 }
 
 /**
@@ -59,6 +64,11 @@ export interface ImageCredentials {
   email: string;
   username: string;
   password: string;
+  /**
+   * uri references a complete Docker auth document released by KBS after
+   * attestation. It is mutually exclusive with host/email/username/password.
+   */
+  uri?: string;
 }
 
 /** Service stores name, image, args, env, unit, count and expose list of service */
@@ -109,6 +119,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     if (message.readOnly !== false) {
       writer.uint32(24).bool(message.readOnly);
     }
+    if (message.keyRef !== undefined && message.keyRef !== "") {
+      writer.uint32(34).string(message.keyRef);
+    }
     return writer;
   },
 
@@ -143,6 +156,14 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
           message.readOnly = reader.bool();
           continue;
         }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.keyRef = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -157,6 +178,7 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       mount: isSet(object.mount) ? globalThis.String(object.mount) : "",
       readOnly: isSet(object.read_only) ? globalThis.Boolean(object.read_only) : false,
+      ...(isSet(object.key_ref) ? { keyRef: globalThis.String(object.key_ref) } : {}),
     };
   },
 
@@ -171,6 +193,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     if (message.readOnly !== false) {
       obj.read_only = message.readOnly;
     }
+    if (message.keyRef !== undefined && message.keyRef !== "") {
+      obj.key_ref = message.keyRef;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<StorageParams>): StorageParams {
@@ -178,6 +203,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     message.name = object.name ?? "";
     message.mount = object.mount ?? "";
     message.readOnly = object.readOnly ?? false;
+    if (object.keyRef !== undefined) {
+      message.keyRef = object.keyRef;
+    }
     return message;
   },
 };
@@ -444,6 +472,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     if (message.password !== "") {
       writer.uint32(34).string(message.password);
     }
+    if (message.uri !== undefined && message.uri !== "") {
+      writer.uint32(42).string(message.uri);
+    }
     return writer;
   },
 
@@ -486,6 +517,14 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
           message.password = reader.string();
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.uri = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -501,6 +540,7 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
       email: isSet(object.email) ? globalThis.String(object.email) : "",
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       password: isSet(object.password) ? globalThis.String(object.password) : "",
+      ...(isSet(object.uri) ? { uri: globalThis.String(object.uri) } : {}),
     };
   },
 
@@ -518,6 +558,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     if (message.password !== "") {
       obj.password = message.password;
     }
+    if (message.uri !== undefined && message.uri !== "") {
+      obj.uri = message.uri;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ImageCredentials>): ImageCredentials {
@@ -526,6 +569,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     message.email = object.email ?? "";
     message.username = object.username ?? "";
     message.password = object.password ?? "";
+    if (object.uri !== undefined) {
+      message.uri = object.uri;
+    }
     return message;
   },
 };

@@ -25,6 +25,12 @@ message StorageParams {
       (gogoproto.jsontag)  = "readOnly",
       (gogoproto.moretags) = "yaml:\"readOnly\""
     ];
+    // key_ref is an opaque, tenant-signed CoCo sealed-secret reference.
+    // Verification and unsealing happen inside the confidential guest.
+    string key_ref = 4 [
+      (gogoproto.jsontag)  = "keyRef,omitempty",
+      (gogoproto.moretags) = "yaml:\"keyRef,omitempty\""
+    ];
 }
 
 // ServicePermissions defines resource access permissions for the service.
@@ -99,6 +105,13 @@ message ImageCredentials {
   string password = 4 [
     (gogoproto.jsontag)  = "password",
     (gogoproto.moretags) = "yaml:\"password\""
+  ];
+  // uri references a complete Docker auth document released by KBS after
+  // attestation. It is mutually exclusive with host/email/username/password.
+  string uri = 5 [
+    (gogoproto.customname) = "URI",
+    (gogoproto.jsontag)    = "uri,omitempty",
+    (gogoproto.moretags)   = "yaml:\"uri,omitempty\""
   ];
 }
 

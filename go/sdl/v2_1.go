@@ -171,7 +171,8 @@ func (sdl *v2_1) validate() error {
 			}
 
 			if svc.Credentials != nil {
-				if err := svc.Credentials.validate(); err != nil {
+				confidential := svc.Params != nil && svc.Params.TEE != ""
+				if err := svc.Credentials.validate(confidential); err != nil {
 					return fmt.Errorf(
 						"%w: %v.%v: %v",
 						errSDLInvalid,
@@ -275,6 +276,15 @@ func (sdl *v2_1) validate() error {
 						return fmt.Errorf(
 							"%w: invalid value for \"service.%s.params.%s.mount\" parameter. expected absolute path",
 							errSDLInvalid,
+							svcName,
+							name,
+						)
+					}
+
+					if err := validateStorageKeyRef(params.KeyRef, volume.Attributes); err != nil {
+						return fmt.Errorf(
+							"%w: services.%s.params.storage.%s.keyRef",
+							err,
 							svcName,
 							name,
 						)
