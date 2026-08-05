@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 )
 
 func TestHTTPTimeoutDurations(t *testing.T) {
@@ -70,10 +71,21 @@ func TestHTTPTimeoutDurations(t *testing.T) {
 	}
 }
 
-func TestHTTPTimeoutRejectsValuesAboveManifestMaximum(t *testing.T) {
+func TestHTTPTimeoutRejectsUint32Overflow(t *testing.T) {
 	_, err := Read(httpTimeoutSDL("2.0", "1194h", "60s"))
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "read timeout cannot be greater than 4294967295 ms")
+	assert.ErrorContains(t, err, "overflows uint32 milliseconds")
+}
+
+func TestHTTPTimeoutUnmarshalRejectsUint32Overflow(t *testing.T) {
+	for _, value := range []string{"4294967296", `"4294967296"`} {
+		t.Run(value, func(t *testing.T) {
+			var timeout v2HTTPTimeout
+			err := yaml.Unmarshal([]byte(value), &timeout)
+			require.Error(t, err)
+			assert.ErrorContains(t, err, "overflows uint32 milliseconds")
+		})
+	}
 }
 
 func httpTimeoutSDL(version, readTimeout, sendTimeout string) []byte {

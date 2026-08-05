@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { DeepPartial } from "../../encoding/typeEncodingHelpers.ts";
 import type { NetworkId } from "../../network/index.ts";
 import { AKT_DENOM } from "../../network/index.ts";
+import { MAX_HTTP_TIMEOUT_MILLISECONDS } from "../httpTimeout.ts";
 import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
 describe(validateSDL.name, () => {
@@ -1422,7 +1423,7 @@ describe(validateSDL.name, () => {
               as: 80,
               to: [{ global: true }],
               http_options: {
-                read_timeout: 4_294_967_296,
+                read_timeout: MAX_HTTP_TIMEOUT_MILLISECONDS + 1,
               },
             }],
           },

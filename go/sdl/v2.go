@@ -3,6 +3,7 @@ package sdl
 import (
 	"errors"
 	"fmt"
+	"math"
 	"path"
 	"regexp"
 	"sort"
@@ -19,24 +20,22 @@ import (
 )
 
 const (
-	nextCaseError         = "error"
-	nextCaseTimeout       = "timeout"
-	nextCase500           = "500"
-	nextCase502           = "502"
-	nextCase503           = "503"
-	nextCase504           = "504"
-	nextCase403           = "403"
-	nextCase404           = "404"
-	nextCase400           = "429"
-	nextCaseOff           = "off"
-	defaultMaxBodySize    = uint32(1048576)
-	upperLimitBodySize    = uint32(104857600)
-	defaultReadTimeout    = 60_000
-	upperLimitReadTimeout = 4_294_967_295
-	defaultSendTimeout    = 60_000
-	upperLimitSendTimeout = upperLimitReadTimeout
-	defaultNextTries      = uint32(3)
-	endpointKindIP        = "ip"
+	nextCaseError      = "error"
+	nextCaseTimeout    = "timeout"
+	nextCase500        = "500"
+	nextCase502        = "502"
+	nextCase503        = "503"
+	nextCase504        = "504"
+	nextCase403        = "403"
+	nextCase404        = "404"
+	nextCase400        = "429"
+	nextCaseOff        = "off"
+	defaultMaxBodySize = uint32(1048576)
+	upperLimitBodySize = uint32(104857600)
+	defaultReadTimeout = uint32(60_000)
+	defaultSendTimeout = uint32(60_000)
+	defaultNextTries   = uint32(3)
+	endpointKindIP     = "ip"
 )
 
 var (
@@ -84,25 +83,26 @@ type v2ExposeTo struct {
 	IP          string        `yaml:"ip"`
 }
 
-type v2HTTPTimeout uint64
+type v2HTTPTimeout uint32
 
 func (timeout *v2HTTPTimeout) UnmarshalYAML(node *yaml.Node) error {
 	if node.Tag == "!!int" {
-		var value uint64
+		var value uint32
 		if err := node.Decode(&value); err != nil {
-			return fmt.Errorf("invalid HTTP timeout: %w", err)
+			return fmt.Errorf("invalid HTTP timeout %q: overflows uint32 milliseconds: %w", node.Value, err)
 		}
 
 		*timeout = v2HTTPTimeout(value)
 		return nil
 	}
 
-	if node.Tag != "!!str" || !httpTimeoutValidationRegex.MatchString(node.Value) {
+	matches := httpTimeoutValidationRegex.FindStringSubmatch(node.Value)
+	if node.Tag != "!!str" || matches == nil {
 		return fmt.Errorf("invalid HTTP timeout %q: expected milliseconds or a whole-number duration using ms, s, m, or h", node.Value)
 	}
 
 	value := node.Value
-	if _, err := strconv.ParseUint(value, 10, 64); err == nil {
+	if matches[1] == "" {
 		value += "ms"
 	}
 
@@ -111,7 +111,12 @@ func (timeout *v2HTTPTimeout) UnmarshalYAML(node *yaml.Node) error {
 		return fmt.Errorf("invalid HTTP timeout %q: %w", node.Value, err)
 	}
 
-	*timeout = v2HTTPTimeout(duration.Milliseconds())
+	milliseconds := duration.Milliseconds()
+	if milliseconds > math.MaxUint32 {
+		return fmt.Errorf("invalid HTTP timeout %q: overflows uint32 milliseconds", node.Value)
+	}
+
+	*timeout = v2HTTPTimeout(milliseconds) //nolint:gosec // overflow checked above
 	return nil
 }
 
@@ -133,18 +138,14 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: body size cannot be greater than %d bytes", errHTTPOptionNotAllowed, upperLimitBodySize)
 	}
 
-	readTimeout := ho.ReadTimeout
+	readTimeout := uint32(ho.ReadTimeout)
 	if readTimeout == 0 {
 		readTimeout = defaultReadTimeout
-	} else if readTimeout > upperLimitReadTimeout {
-		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: read timeout cannot be greater than %d ms", errHTTPOptionNotAllowed, upperLimitReadTimeout)
 	}
 
-	sendTimeout := ho.SendTimeout
+	sendTimeout := uint32(ho.SendTimeout)
 	if sendTimeout == 0 {
 		sendTimeout = defaultSendTimeout
-	} else if sendTimeout > upperLimitSendTimeout {
-		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: send timeout cannot be greater than %d ms", errHTTPOptionNotAllowed, upperLimitSendTimeout)
 	}
 
 	nextTries := ho.NextTries
@@ -179,8 +180,8 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 
 	return manifest.ServiceExposeHTTPOptions{
 		MaxBodySize: maxBodySize,
-		ReadTimeout: uint32(readTimeout),
-		SendTimeout: uint32(sendTimeout),
+		ReadTimeout: readTimeout,
+		SendTimeout: sendTimeout,
 		NextTries:   nextTries,
 		NextTimeout: ho.NextTimeout,
 		NextCases:   nextCases,
