@@ -118,8 +118,15 @@ func TestStorageKeyRefSchema(t *testing.T) {
 
 func storageKeyRefSDL(version, keyRef string, includeKeyRef, persistent bool) []byte {
 	keyRefLine := ""
+	kbsBlock := ""
 	if includeKeyRef {
 		keyRefLine = fmt.Sprintf("\n          keyRef: %q", keyRef)
+		if keyRef != "" {
+			kbsBlock = `
+      tee: cpu
+      kbs:
+        mode: provider`
+		}
 	}
 
 	attributes := ""
@@ -141,7 +148,7 @@ services:
     params:
       storage:
         data:
-          mount: /data%s
+          mount: /data%s%s
 profiles:
   compute:
     web:
@@ -164,5 +171,5 @@ deployment:
     dc:
       profile: web
       count: 1
-`, version, keyRefLine, attributes))
+`, version, keyRefLine, kbsBlock, attributes))
 }

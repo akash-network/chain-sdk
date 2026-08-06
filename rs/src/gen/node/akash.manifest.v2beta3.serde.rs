@@ -266,6 +266,186 @@ impl<'de> serde::Deserialize<'de> for ImageCredentials {
         deserializer.deserialize_struct("akash.manifest.v2beta3.ImageCredentials", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for KbsParams {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.source.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.KBSParams", len)?;
+        if let Some(v) = self.source.as_ref() {
+            match v {
+                kbs_params::Source::Provider(v) => {
+                    struct_ser.serialize_field("provider", v)?;
+                }
+                kbs_params::Source::Tenant(v) => {
+                    struct_ser.serialize_field("tenant", v)?;
+                }
+            }
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for KbsParams {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "provider",
+            "tenant",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Provider,
+            Tenant,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "provider" => Ok(GeneratedField::Provider),
+                            "tenant" => Ok(GeneratedField::Tenant),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = KbsParams;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.manifest.v2beta3.KBSParams")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<KbsParams, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut source__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Provider => {
+                            if source__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("provider"));
+                            }
+                            source__ = map_.next_value::<::std::option::Option<_>>()?.map(kbs_params::Source::Provider)
+;
+                        }
+                        GeneratedField::Tenant => {
+                            if source__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tenant"));
+                            }
+                            source__ = map_.next_value::<::std::option::Option<_>>()?.map(kbs_params::Source::Tenant)
+;
+                        }
+                    }
+                }
+                Ok(KbsParams {
+                    source: source__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.manifest.v2beta3.KBSParams", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ProviderKbsParams {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let len = 0;
+        let struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.ProviderKBSParams", len)?;
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ProviderKbsParams {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                            Err(serde::de::Error::unknown_field(value, FIELDS))
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ProviderKbsParams;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.manifest.v2beta3.ProviderKBSParams")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProviderKbsParams, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                while map_.next_key::<GeneratedField>()?.is_some() {
+                    let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                }
+                Ok(ProviderKbsParams {
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.manifest.v2beta3.ProviderKBSParams", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for Service {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -1349,12 +1529,18 @@ impl serde::Serialize for TeeParams {
         if self.attestation {
             len += 1;
         }
+        if self.kbs.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.TEEParams", len)?;
         if !self.r#type.is_empty() {
             struct_ser.serialize_field("type", &self.r#type)?;
         }
         if self.attestation {
             struct_ser.serialize_field("attestation", &self.attestation)?;
+        }
+        if let Some(v) = self.kbs.as_ref() {
+            struct_ser.serialize_field("kbs", v)?;
         }
         struct_ser.end()
     }
@@ -1368,12 +1554,14 @@ impl<'de> serde::Deserialize<'de> for TeeParams {
         const FIELDS: &[&str] = &[
             "type",
             "attestation",
+            "kbs",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Type,
             Attestation,
+            Kbs,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1397,6 +1585,7 @@ impl<'de> serde::Deserialize<'de> for TeeParams {
                         match value {
                             "type" => Ok(GeneratedField::Type),
                             "attestation" => Ok(GeneratedField::Attestation),
+                            "kbs" => Ok(GeneratedField::Kbs),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1418,6 +1607,7 @@ impl<'de> serde::Deserialize<'de> for TeeParams {
             {
                 let mut r#type__ = None;
                 let mut attestation__ = None;
+                let mut kbs__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Type => {
@@ -1432,14 +1622,165 @@ impl<'de> serde::Deserialize<'de> for TeeParams {
                             }
                             attestation__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Kbs => {
+                            if kbs__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("kbs"));
+                            }
+                            kbs__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(TeeParams {
                     r#type: r#type__.unwrap_or_default(),
                     attestation: attestation__.unwrap_or_default(),
+                    kbs: kbs__,
                 })
             }
         }
         deserializer.deserialize_struct("akash.manifest.v2beta3.TEEParams", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for TenantKbsParams {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.url.is_empty() {
+            len += 1;
+        }
+        if !self.certificate.is_empty() {
+            len += 1;
+        }
+        if !self.image_security_policy_uri.is_empty() {
+            len += 1;
+        }
+        if !self.agent_policy.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.TenantKBSParams", len)?;
+        if !self.url.is_empty() {
+            struct_ser.serialize_field("url", &self.url)?;
+        }
+        if !self.certificate.is_empty() {
+            struct_ser.serialize_field("certificate", &self.certificate)?;
+        }
+        if !self.image_security_policy_uri.is_empty() {
+            struct_ser.serialize_field("imageSecurityPolicyUri", &self.image_security_policy_uri)?;
+        }
+        if !self.agent_policy.is_empty() {
+            struct_ser.serialize_field("agentPolicy", &self.agent_policy)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for TenantKbsParams {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "url",
+            "certificate",
+            "image_security_policy_uri",
+            "imageSecurityPolicyUri",
+            "agent_policy",
+            "agentPolicy",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Url,
+            Certificate,
+            ImageSecurityPolicyUri,
+            AgentPolicy,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "url" => Ok(GeneratedField::Url),
+                            "certificate" => Ok(GeneratedField::Certificate),
+                            "imageSecurityPolicyUri" | "image_security_policy_uri" => Ok(GeneratedField::ImageSecurityPolicyUri),
+                            "agentPolicy" | "agent_policy" => Ok(GeneratedField::AgentPolicy),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = TenantKbsParams;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.manifest.v2beta3.TenantKBSParams")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<TenantKbsParams, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut url__ = None;
+                let mut certificate__ = None;
+                let mut image_security_policy_uri__ = None;
+                let mut agent_policy__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Url => {
+                            if url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("url"));
+                            }
+                            url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Certificate => {
+                            if certificate__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("certificate"));
+                            }
+                            certificate__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ImageSecurityPolicyUri => {
+                            if image_security_policy_uri__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("imageSecurityPolicyUri"));
+                            }
+                            image_security_policy_uri__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::AgentPolicy => {
+                            if agent_policy__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("agentPolicy"));
+                            }
+                            agent_policy__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(TenantKbsParams {
+                    url: url__.unwrap_or_default(),
+                    certificate: certificate__.unwrap_or_default(),
+                    image_security_policy_uri: image_security_policy_uri__.unwrap_or_default(),
+                    agent_policy: agent_policy__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.manifest.v2beta3.TenantKBSParams", FIELDS, GeneratedVisitor)
     }
 }

@@ -182,6 +182,15 @@ func (sdl *v2_1) validate() error {
 					)
 				}
 			}
+			if err := svc.validateKBS(); err != nil {
+				return fmt.Errorf(
+					"%w: %v.%v: %v",
+					errSDLInvalid,
+					svcName,
+					placementName,
+					err,
+				)
+			}
 
 			for _, serviceExpose := range svc.Expose {
 				for _, to := range serviceExpose.To {

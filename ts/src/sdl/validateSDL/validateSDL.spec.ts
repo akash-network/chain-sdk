@@ -725,6 +725,117 @@ describe(validateSDL.name, () => {
   });
 
   describe("TEE validation", () => {
+    it("requires a TEE when KBS configuration is present", () => {
+      const { validate } = setup({
+        services: { web: { params: { kbs: { mode: "provider" } } } },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("KBS configuration requires a confidential TEE"),
+        instancePath: "/services/web/params/kbs",
+        keyword: "runtime",
+      }));
+    });
+
+    it("requires an explicit KBS selection for referenced credentials", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: { tee: "cpu" },
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("explicit params.kbs selection"),
+        instancePath: "/services/web/params/kbs",
+        keyword: "required",
+      }));
+    });
+
+    it("rejects incomplete tenant-managed KBS configuration", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: { mode: "tenant", url: "https://kbs.tenant.example" },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toEqual(expect.arrayContaining([
+        expect.objectContaining({ keyword: "required" }),
+      ]));
+    });
+
+    it("rejects tenant fields in provider-managed KBS mode", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: { mode: "provider", url: "https://kbs.tenant.example" },
+            },
+          },
+        },
+      } as DeepPartial<SDLInput>);
+
+      expect(validate()).toEqual(expect.arrayContaining([
+        expect.objectContaining({ keyword: "additionalProperties" }),
+      ]));
+    });
+
+    it("rejects a tenant KBS URL that is not an HTTPS origin", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: {
+                mode: "tenant",
+                url: "https://kbs.tenant.example/admin",
+                certificate: "tenant public certificate",
+                imageSecurityPolicyURI: `kbs:///tenant/security-policy/sha256-${"a".repeat(64)}`,
+                agentPolicy: "package agent_policy\n\ndefault allow = false\n",
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toEqual(expect.arrayContaining([
+        expect.objectContaining({ keyword: "pattern" }),
+      ]));
+    });
+
+    it("rejects malformed tenant KBS origins before manifest generation", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: {
+                mode: "tenant",
+                url: "https://kbs.tenant.example:not-a-port",
+                certificate: "tenant public certificate",
+                imageSecurityPolicyURI: `kbs:///tenant/security-policy/sha256-${"a".repeat(64)}`,
+                agentPolicy: "package agent_policy\n\ndefault allow = false\n",
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("canonical HTTPS origin"),
+        instancePath: "/services/web/params/kbs/url",
+        keyword: "format",
+      }));
+    });
+
     it("returns an error when tee is cpu-gpu but no GPU resources are defined", () => {
       const { validate } = setup({
         services: { web: { params: { tee: "cpu-gpu" } } },
@@ -1495,7 +1606,7 @@ describe(validateSDL.name, () => {
         services: {
           web: {
             image: "nginx:latest",
-            params: { tee: "cpu" },
+            params: { tee: "cpu", kbs: { mode: "provider" } },
             credentials: { uri: "kbs:///lease-scope/registry/auth" },
           },
         },

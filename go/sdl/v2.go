@@ -181,6 +181,7 @@ type v2ServiceParams struct {
 	Storage     map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
 	Permissions *v2ServicePermissions             `yaml:"permissions,omitempty"`
 	TEE         string                            `yaml:"tee,omitempty"`
+	KBS         *v2ServiceKBSParams               `yaml:"kbs,omitempty"`
 }
 
 type v2Service struct {
@@ -435,6 +436,15 @@ func (sdl *v2) validate() error {
 						err,
 					)
 				}
+			}
+			if err := svc.validateKBS(); err != nil {
+				return fmt.Errorf(
+					"%w: %v.%v: %v",
+					errSDLInvalid,
+					svcName,
+					placementName,
+					err,
+				)
 			}
 
 			for _, serviceExpose := range svc.Expose {

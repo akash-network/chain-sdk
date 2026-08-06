@@ -43,6 +43,46 @@ message ServicePermissions {
   ];
 }
 
+// ProviderKBSParams explicitly selects the provider-managed KBS configuration.
+// The configuration itself is operator supplied and is not copied into the
+// tenant manifest.
+message ProviderKBSParams {}
+
+// TenantKBSParams contains the public, tenant-controlled inputs needed to
+// connect a confidential guest to the tenant's KBS. Secret resources and KBS
+// administrator credentials are never carried in this message.
+message TenantKBSParams {
+  string url = 1 [
+    (gogoproto.customname) = "URL",
+    (gogoproto.jsontag)    = "url",
+    (gogoproto.moretags)   = "yaml:\"url\""
+  ];
+  string certificate = 2 [
+    (gogoproto.jsontag)  = "certificate",
+    (gogoproto.moretags) = "yaml:\"certificate\""
+  ];
+  string image_security_policy_uri = 3 [
+    (gogoproto.customname) = "ImageSecurityPolicyURI",
+    (gogoproto.jsontag)    = "image_security_policy_uri",
+    (gogoproto.moretags)   = "yaml:\"image_security_policy_uri\""
+  ];
+  string agent_policy = 4 [
+    (gogoproto.jsontag)  = "agent_policy",
+    (gogoproto.moretags) = "yaml:\"agent_policy\""
+  ];
+}
+
+// KBSParams selects exactly one source for the guest's public KBS connection
+// and measured policy configuration.
+message KBSParams {
+  // source selects either the provider's configured KBS defaults or a
+  // tenant-supplied public KBS connection and policy bundle.
+  oneof source {
+    ProviderKBSParams provider = 1;
+    TenantKBSParams tenant = 2;
+  }
+}
+
 // TEEParams configures Trusted Execution Environment for the service.
 // The type field selects the TEE capability and the provider resolves the
 // runtime class based on its detected platform (TDX or SNP).
@@ -60,6 +100,13 @@ message TEEParams {
   bool attestation = 2 [
     (gogoproto.jsontag)  = "attestation",
     (gogoproto.moretags) = "yaml:\"attestation\""
+  ];
+  // kbs selects provider-managed or tenant-managed KBS configuration.
+  KBSParams kbs = 3 [
+    (gogoproto.nullable) = true,
+    (gogoproto.customname) = "KBS",
+    (gogoproto.jsontag)  = "kbs,omitempty",
+    (gogoproto.moretags) = "yaml:\"kbs,omitempty\""
   ];
 }
 

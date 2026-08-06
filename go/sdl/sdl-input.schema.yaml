@@ -521,6 +521,42 @@ properties:
               enum:
                 - cpu
                 - cpu-gpu
+            kbs:
+              oneOf:
+                - additionalProperties: false
+                  properties:
+                    mode:
+                      const: provider
+                  required:
+                    - mode
+                  type: object
+                - additionalProperties: false
+                  properties:
+                    mode:
+                      const: tenant
+                    url:
+                      maxLength: 2048
+                      pattern: '^https://[^/?#@\s]+$'
+                      type: string
+                    certificate:
+                      maxLength: 65536
+                      minLength: 1
+                      type: string
+                    imageSecurityPolicyURI:
+                      maxLength: 1024
+                      pattern: '^kbs:///[A-Za-z0-9._-]+/security-policy/sha256-[0-9a-f]{64}$'
+                      type: string
+                    agentPolicy:
+                      maxLength: 1048576
+                      minLength: 1
+                      type: string
+                  required:
+                    - mode
+                    - url
+                    - certificate
+                    - imageSecurityPolicyURI
+                    - agentPolicy
+                  type: object
           type: object
       required:
         - image

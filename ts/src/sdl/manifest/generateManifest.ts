@@ -8,7 +8,16 @@ import { DeploymentReclamation } from "../../generated/protos/akash/deployment/v
 import { GroupSpec } from "../../generated/protos/akash/deployment/v1beta4/groupspec.ts";
 import { ResourceUnit } from "../../generated/protos/akash/deployment/v1beta4/resourceunit.ts";
 import { Group } from "../../generated/protos/akash/manifest/v2beta3/group.ts";
-import { ImageCredentials, Service, ServiceParams, StorageParams, TEEParams } from "../../generated/protos/akash/manifest/v2beta3/service.ts";
+import {
+  ImageCredentials,
+  KBSParams,
+  ProviderKBSParams,
+  Service,
+  ServiceParams,
+  StorageParams,
+  TEEParams,
+  TenantKBSParams,
+} from "../../generated/protos/akash/manifest/v2beta3/service.ts";
 import { ServiceExpose } from "../../generated/protos/akash/manifest/v2beta3/serviceexpose.ts";
 import type { ValidationError } from "../../utils/jsonSchemaValidation.ts";
 import { castArray } from "../utils.ts";
@@ -309,7 +318,19 @@ function buildParams(service: SDLService): ServiceParams | undefined {
   // (params.TEE = {Type, Attestation: true}). `attestation` is hard-coded true
   // (not an input knob); the provider injects the attestation sidecar.
   if (service.params.tee) {
-    result.tee = TEEParams.fromPartial({ type: service.params.tee, attestation: true });
+    const kbs = service.params.kbs?.mode === "provider"
+      ? KBSParams.fromPartial({ provider: ProviderKBSParams.fromPartial({}) })
+      : service.params.kbs?.mode === "tenant"
+        ? KBSParams.fromPartial({
+            tenant: TenantKBSParams.fromPartial({
+              url: service.params.kbs.url,
+              certificate: service.params.kbs.certificate,
+              imageSecurityPolicyUri: service.params.kbs.imageSecurityPolicyURI,
+              agentPolicy: service.params.kbs.agentPolicy,
+            }),
+          })
+        : undefined;
+    result.tee = TEEParams.fromPartial({ type: service.params.tee, attestation: true, kbs });
   }
 
   return result;

@@ -148,7 +148,7 @@ describe(generateManifest.name, () => {
     it("includes a confidential KBS credential reference without inline fields", () => {
       const sdl = createBasicSdl({
         credentials: { uri: "kbs:///lease-scope/registry/auth" },
-        params: { tee: "cpu" },
+        params: { tee: "cpu", kbs: { mode: "provider" } },
       });
       const { result } = setup({ sdl });
 
@@ -246,6 +246,37 @@ describe(generateManifest.name, () => {
       const { result } = setup({ sdl });
 
       expect(result.groups[0].services[0].params?.tee).toEqual({ type: "cpu-gpu", attestation: true });
+    });
+
+    it("projects an explicit provider-managed KBS selection", () => {
+      const sdl = createBasicSdl();
+      sdl.services.web.params = { tee: "cpu", kbs: { mode: "provider" } };
+      const { result } = setup({ sdl });
+
+      expect(result.groups[0].services[0].params?.tee?.kbs).toEqual({ provider: {}, tenant: undefined });
+    });
+
+    it("projects a complete tenant-managed KBS configuration", () => {
+      const sdl = createBasicSdl();
+      sdl.services.web.params = {
+        tee: "cpu",
+        kbs: {
+          mode: "tenant",
+          url: "https://kbs.tenant.example:8443",
+          certificate: "tenant public certificate",
+          imageSecurityPolicyURI: "kbs:///tenant/security-policy/sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          agentPolicy: "package agent_policy\n\ndefault allow = false\n",
+        },
+      };
+      const { result } = setup({ sdl });
+
+      expect(result.groups[0].services[0].params?.tee?.kbs?.tenant).toEqual({
+        url: "https://kbs.tenant.example:8443",
+        certificate: "tenant public certificate",
+        imageSecurityPolicyUri: "kbs:///tenant/security-policy/sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        agentPolicy: "package agent_policy\n\ndefault allow = false\n",
+      });
+      expect(result.groups[0].services[0].params?.tee?.kbs?.provider).toBeUndefined();
     });
 
     it("omits tee from params when not set", () => {
@@ -529,6 +560,9 @@ describe(generateManifest.name, () => {
                 to:
                   - global: true
             params:
+              tee: cpu
+              kbs:
+                mode: provider
               storage:
                 data:
                   mount: /mnt/data

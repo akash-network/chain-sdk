@@ -172,6 +172,7 @@ func (sdl *v2_1) buildGroups() error {
 					params.TEE = &manifest.TEEParams{
 						Type:        svc.Params.TEE,
 						Attestation: true,
+						KBS:         svc.Params.KBS.toManifest(),
 					}
 				}
 

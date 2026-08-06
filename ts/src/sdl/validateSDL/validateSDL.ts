@@ -11,6 +11,21 @@ function isPersistentStorage(value: boolean | string | undefined): boolean {
   return stringToBoolean(value ?? false);
 }
 
+function isHTTPSOrigin(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:"
+      && parsed.hostname !== ""
+      && parsed.username === ""
+      && parsed.password === ""
+      && parsed.pathname === "/"
+      && parsed.search === ""
+      && parsed.hash === "";
+  } catch {
+    return false;
+  }
+}
+
 const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/storageRamClassMustNotBePersistent"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
@@ -61,6 +76,7 @@ class SDLValidator {
         this.#validateDeploymentWithRelations(serviceName);
         this.#validateLeaseIP(serviceName);
         this.#validateCredentials(serviceName);
+        this.#validateKBS(serviceName);
       });
     }
 
@@ -84,6 +100,49 @@ class SDLValidator {
         : `Service "${serviceName}" KBS credential URI requires a confidential TEE.`,
       instancePath: `/services/${serviceName}/credentials`,
       schemaPath: "#/properties/services/additionalProperties/properties/credentials",
+      keyword: "runtime",
+      params: {},
+    });
+  }
+
+  #validateKBS(serviceName: string) {
+    const service = this.#sdl.services?.[serviceName];
+    if (!service) return;
+
+    const requiresKBS = ("uri" in (service.credentials ?? {}))
+      || service.env?.some((entry) => entry.includes("=") && entry.split("=", 2)[1].startsWith("sealed."))
+      || Object.values(service.params?.storage ?? {}).some((storage) => Boolean(storage?.keyRef));
+
+    if (requiresKBS && !service.params?.kbs) {
+      this.#errors.push({
+        message: `Service "${serviceName}" KBS-backed workload data requires an explicit params.kbs selection.`,
+        instancePath: `/services/${serviceName}/params/kbs`,
+        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+        keyword: "required",
+        params: { missingProperty: "kbs" },
+      });
+      return;
+    }
+
+    const kbs = service.params?.kbs;
+    if (!kbs) return;
+
+    if (kbs.mode === "tenant" && !isHTTPSOrigin(kbs.url)) {
+      this.#errors.push({
+        message: `Service "${serviceName}" tenant KBS URL must be a canonical HTTPS origin.`,
+        instancePath: `/services/${serviceName}/params/kbs/url`,
+        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+        keyword: "format",
+        params: {},
+      });
+    }
+
+    if (service.params?.tee) return;
+
+    this.#errors.push({
+      message: `Service "${serviceName}" KBS configuration requires a confidential TEE.`,
+      instancePath: `/services/${serviceName}/params/kbs`,
+      schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
       keyword: "runtime",
       params: {},
     });
