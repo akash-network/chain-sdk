@@ -3,11 +3,13 @@ package sdl
 import (
 	"errors"
 	"fmt"
+	"math"
 	"path"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -18,24 +20,22 @@ import (
 )
 
 const (
-	nextCaseError         = "error"
-	nextCaseTimeout       = "timeout"
-	nextCase500           = "500"
-	nextCase502           = "502"
-	nextCase503           = "503"
-	nextCase504           = "504"
-	nextCase403           = "403"
-	nextCase404           = "404"
-	nextCase400           = "429"
-	nextCaseOff           = "off"
-	defaultMaxBodySize    = uint32(1048576)
-	upperLimitBodySize    = uint32(104857600)
-	defaultReadTimeout    = uint32(60000)
-	upperLimitReadTimeout = defaultReadTimeout
-	defaultSendTimeout    = uint32(60000)
-	upperLimitSendTimeout = defaultSendTimeout
-	defaultNextTries      = uint32(3)
-	endpointKindIP        = "ip"
+	nextCaseError      = "error"
+	nextCaseTimeout    = "timeout"
+	nextCase500        = "500"
+	nextCase502        = "502"
+	nextCase503        = "503"
+	nextCase504        = "504"
+	nextCase403        = "403"
+	nextCase404        = "404"
+	nextCase400        = "429"
+	nextCaseOff        = "off"
+	defaultMaxBodySize = uint32(1048576)
+	upperLimitBodySize = uint32(104857600)
+	defaultReadTimeout = uint32(60_000)
+	defaultSendTimeout = uint32(60_000)
+	defaultNextTries   = uint32(3)
+	endpointKindIP     = "ip"
 )
 
 var (
@@ -49,7 +49,10 @@ var (
 	errCredentialNoPassword          = errors.New("service Credentials missing Password")
 )
 
-var endpointNameValidationRegex = regexp.MustCompile(`^[[:lower:]]+[[:lower:]-_\d]+$`)
+var (
+	endpointNameValidationRegex = regexp.MustCompile(`^[[:lower:]]+[[:lower:]-_\d]+$`)
+	httpTimeoutValidationRegex  = regexp.MustCompile(`^[0-9]+(ms|s|m|h)?$`)
+)
 
 var _ SDL = (*v2)(nil)
 
@@ -80,13 +83,50 @@ type v2ExposeTo struct {
 	IP          string        `yaml:"ip"`
 }
 
+type v2HTTPTimeout uint32
+
+func (timeout *v2HTTPTimeout) UnmarshalYAML(node *yaml.Node) error {
+	if node.Tag == "!!int" {
+		var value uint32
+		if err := node.Decode(&value); err != nil {
+			return fmt.Errorf("invalid HTTP timeout %q: overflows uint32 milliseconds: %w", node.Value, err)
+		}
+
+		*timeout = v2HTTPTimeout(value)
+		return nil
+	}
+
+	matches := httpTimeoutValidationRegex.FindStringSubmatch(node.Value)
+	if node.Tag != "!!str" || matches == nil {
+		return fmt.Errorf("invalid HTTP timeout %q: expected milliseconds or a whole-number duration using ms, s, m, or h", node.Value)
+	}
+
+	value := node.Value
+	if matches[1] == "" {
+		value += "ms"
+	}
+
+	duration, err := time.ParseDuration(value)
+	if err != nil {
+		return fmt.Errorf("invalid HTTP timeout %q: %w", node.Value, err)
+	}
+
+	milliseconds := duration.Milliseconds()
+	if milliseconds > math.MaxUint32 {
+		return fmt.Errorf("invalid HTTP timeout %q: overflows uint32 milliseconds", node.Value)
+	}
+
+	*timeout = v2HTTPTimeout(milliseconds) //nolint:gosec // overflow checked above
+	return nil
+}
+
 type v2HTTPOptions struct {
-	MaxBodySize uint32   `yaml:"max_body_size"`
-	ReadTimeout uint32   `yaml:"read_timeout"`
-	SendTimeout uint32   `yaml:"send_timeout"`
-	NextTries   uint32   `yaml:"next_tries"`
-	NextTimeout uint32   `yaml:"next_timeout"`
-	NextCases   []string `yaml:"next_cases"`
+	MaxBodySize uint32        `yaml:"max_body_size"`
+	ReadTimeout v2HTTPTimeout `yaml:"read_timeout"`
+	SendTimeout v2HTTPTimeout `yaml:"send_timeout"`
+	NextTries   uint32        `yaml:"next_tries"`
+	NextTimeout uint32        `yaml:"next_timeout"`
+	NextCases   []string      `yaml:"next_cases"`
 }
 
 func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) {
@@ -98,18 +138,14 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: body size cannot be greater than %d bytes", errHTTPOptionNotAllowed, upperLimitBodySize)
 	}
 
-	readTimeout := ho.ReadTimeout
+	readTimeout := uint32(ho.ReadTimeout)
 	if readTimeout == 0 {
 		readTimeout = defaultReadTimeout
-	} else if readTimeout > upperLimitReadTimeout {
-		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: read timeout cannot be greater than %d ms", errHTTPOptionNotAllowed, upperLimitReadTimeout)
 	}
 
-	sendTimeout := ho.SendTimeout
+	sendTimeout := uint32(ho.SendTimeout)
 	if sendTimeout == 0 {
 		sendTimeout = defaultSendTimeout
-	} else if sendTimeout > upperLimitSendTimeout {
-		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: send timeout cannot be greater than %d ms", errHTTPOptionNotAllowed, upperLimitSendTimeout)
 	}
 
 	nextTries := ho.NextTries

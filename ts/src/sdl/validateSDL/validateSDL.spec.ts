@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { DeepPartial } from "../../encoding/typeEncodingHelpers.ts";
 import type { NetworkId } from "../../network/index.ts";
 import { AKT_DENOM } from "../../network/index.ts";
+import { MAX_HTTP_TIMEOUT_MILLISECONDS } from "../httpTimeout.ts";
 import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
 describe(validateSDL.name, () => {
@@ -1412,7 +1413,7 @@ describe(validateSDL.name, () => {
       }));
     });
 
-    it("returns an error when read_timeout exceeds 60000ms", () => {
+    it("returns an error when read_timeout exceeds the manifest maximum in milliseconds", () => {
       const { validate } = setup({
         services: {
           web: {
@@ -1422,7 +1423,7 @@ describe(validateSDL.name, () => {
               as: 80,
               to: [{ global: true }],
               http_options: {
-                read_timeout: 60001,
+                read_timeout: MAX_HTTP_TIMEOUT_MILLISECONDS + 1,
               },
             }],
           },
@@ -1435,11 +1436,11 @@ describe(validateSDL.name, () => {
         message: expect.stringContaining("\"read_timeout\""),
       }));
       expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("60000"),
+        message: expect.stringContaining("4294967295"),
       }));
     });
 
-    it("returns an error when send_timeout exceeds 60000ms", () => {
+    it("returns an error when a duration exceeds the manifest maximum", () => {
       const { validate } = setup({
         services: {
           web: {
@@ -1449,7 +1450,7 @@ describe(validateSDL.name, () => {
               as: 80,
               to: [{ global: true }],
               http_options: {
-                send_timeout: 60001,
+                send_timeout: "1194h",
               },
             }],
           },
@@ -1459,10 +1460,8 @@ describe(validateSDL.name, () => {
       const errors = validate();
 
       expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("\"send_timeout\""),
-      }));
-      expect(errors).toContainEqual(expect.objectContaining({
-        message: expect.stringContaining("60000"),
+        message: expect.stringContaining("4294967295"),
+        instancePath: "/services/web/expose/0/http_options/send_timeout",
       }));
     });
 
@@ -1477,8 +1476,8 @@ describe(validateSDL.name, () => {
               to: [{ global: true }],
               http_options: {
                 max_body_size: 104857600,
-                read_timeout: 60000,
-                send_timeout: 60000,
+                read_timeout: "60s",
+                send_timeout: "1h",
                 next_tries: 3,
                 next_timeout: 0,
                 next_cases: ["error", "timeout"],

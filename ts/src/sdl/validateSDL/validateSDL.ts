@@ -1,5 +1,6 @@
 import type { ErrorMessages, ValidationError, ValidationFunction } from "../../utils/jsonSchemaValidation.ts";
 import { dirname, getErrorLocation, humanizeErrors } from "../../utils/jsonSchemaValidation.ts";
+import { MAX_HTTP_TIMEOUT_MILLISECONDS, parseHTTPTimeout } from "../httpTimeout.ts";
 import { INTERCONNECT_GROUP_AUTO, resolveInterconnectGroup } from "../manifest/manifestUtils.ts";
 import { castArray, stringToBoolean } from "../utils.ts";
 import { schema as validationSDLSchema, type SDLInput, validate as validateSDLInput } from "./validateSDLInput.ts";
@@ -50,12 +51,42 @@ class SDLValidator {
       Object.keys(this.#sdl.services).forEach((serviceName) => {
         this.#validateDeploymentWithRelations(serviceName);
         this.#validateLeaseIP(serviceName);
+        this.#validateHTTPTimeoutRanges(serviceName);
       });
     }
 
     this.#validateInterconnect();
     this.#validateEndpoints();
     return this.#errors;
+  }
+
+  // JSON Schema caps numeric values, but its string pattern cannot enforce the
+  // maximum after unit conversion. For example, "1194h" matches the pattern.
+  #validateHTTPTimeoutRanges(serviceName: string) {
+    const exposes = this.#sdl.services[serviceName]?.expose ?? [];
+    for (const [exposeIndex, expose] of exposes.entries()) {
+      const options = expose.http_options;
+      if (!options) continue;
+
+      for (const field of ["read_timeout", "send_timeout"] as const) {
+        const value = options[field];
+        if (value === undefined) continue;
+
+        const result = parseHTTPTimeout(value);
+        if (result.ok) continue;
+
+        this.#errors.push({
+          message: `HTTP ${field.replace("_", " ")} ${result.message}.`,
+          instancePath: `/services/${serviceName}/expose/${exposeIndex}/http_options/${field}`,
+          schemaPath: "#/definitions/httpTimeout/maximum",
+          keyword: "maximum",
+          params: {
+            comparison: "<=",
+            limit: MAX_HTTP_TIMEOUT_MILLISECONDS,
+          },
+        });
+      }
+    }
   }
 
   #validateDeploymentWithRelations(serviceName: string) {

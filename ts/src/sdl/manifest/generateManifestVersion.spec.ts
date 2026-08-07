@@ -572,8 +572,8 @@ describe(generateManifestVersion.name, () => {
               - port: 80
                 http_options:
                   max_body_size: 104857600
-                  read_timeout: 50
-                  send_timeout: 100
+                  read_timeout: 60s
+                  send_timeout: 1h
                   next_tries: 24
                   next_timeout: 48
                   next_cases:
@@ -612,8 +612,8 @@ describe(generateManifestVersion.name, () => {
 
       expect(parsed[0].services[0].expose[0].httpOptions).toEqual({
         maxBodySize: 104857600,
-        readTimeout: 50,
-        sendTimeout: 100,
+        readTimeout: 60000,
+        sendTimeout: 3600000,
         nextTries: 24,
         nextTimeout: 48,
         nextCases: ["500"],
