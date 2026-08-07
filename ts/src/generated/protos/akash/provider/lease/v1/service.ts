@@ -112,8 +112,33 @@ export interface AttestationQuoteRequest {
 /** AttestationGPUReport holds attestation evidence for a single GPU device. */
 export interface AttestationGPUReport {
   deviceIndex: number;
-  /** Base64-encoded hardware-signed GPU attestation report. */
+  /**
+   * Legacy base64 aggregate of attestation_report, cec_report, and
+   * certificate_chain. New clients should use the explicitly framed fields.
+   */
   report: string;
+  /**
+   * Base64-encoded hardware-signed GPU attestation report. This maps to the
+   * Trustee device evidence field without any trailing CEC or certificate data.
+   */
+  attestationReport: string;
+  /** Base64-encoded CEC attestation report, when present. */
+  cecReport: string;
+  /**
+   * Base64-encoded PEM device certificate chain. This maps to the Trustee
+   * device certificate field.
+   */
+  certificateChain: string;
+  /**
+   * NVIDIA architecture reported by NVML alongside this evidence. Currently
+   * HOPPER or BLACKWELL. It must not be supplied from tenant metadata.
+   */
+  architecture: string;
+  /**
+   * Physical GPU UUID reported by NVML alongside this evidence. It must not be
+   * supplied from tenant metadata.
+   */
+  uuid: string;
 }
 
 /**
@@ -1276,7 +1301,15 @@ export const AttestationQuoteRequest: MessageFns<
 };
 
 function createBaseAttestationGPUReport(): AttestationGPUReport {
-  return { deviceIndex: 0, report: "" };
+  return {
+    deviceIndex: 0,
+    report: "",
+    attestationReport: "",
+    cecReport: "",
+    certificateChain: "",
+    architecture: "",
+    uuid: "",
+  };
 }
 
 export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provider.lease.v1.AttestationGPUReport"> = {
@@ -1288,6 +1321,21 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
     }
     if (message.report !== "") {
       writer.uint32(18).string(message.report);
+    }
+    if (message.attestationReport !== "") {
+      writer.uint32(26).string(message.attestationReport);
+    }
+    if (message.cecReport !== "") {
+      writer.uint32(34).string(message.cecReport);
+    }
+    if (message.certificateChain !== "") {
+      writer.uint32(42).string(message.certificateChain);
+    }
+    if (message.architecture !== "") {
+      writer.uint32(50).string(message.architecture);
+    }
+    if (message.uuid !== "") {
+      writer.uint32(58).string(message.uuid);
     }
     return writer;
   },
@@ -1315,6 +1363,46 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
           message.report = reader.string();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.attestationReport = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.cecReport = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.certificateChain = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.architecture = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.uuid = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1328,6 +1416,11 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
     return {
       deviceIndex: isSet(object.device_index) ? globalThis.Number(object.device_index) : 0,
       report: isSet(object.report) ? globalThis.String(object.report) : "",
+      attestationReport: isSet(object.attestation_report) ? globalThis.String(object.attestation_report) : "",
+      cecReport: isSet(object.cec_report) ? globalThis.String(object.cec_report) : "",
+      certificateChain: isSet(object.certificate_chain) ? globalThis.String(object.certificate_chain) : "",
+      architecture: isSet(object.architecture) ? globalThis.String(object.architecture) : "",
+      uuid: isSet(object.uuid) ? globalThis.String(object.uuid) : "",
     };
   },
 
@@ -1339,12 +1432,32 @@ export const AttestationGPUReport: MessageFns<AttestationGPUReport, "akash.provi
     if (message.report !== "") {
       obj.report = message.report;
     }
+    if (message.attestationReport !== "") {
+      obj.attestation_report = message.attestationReport;
+    }
+    if (message.cecReport !== "") {
+      obj.cec_report = message.cecReport;
+    }
+    if (message.certificateChain !== "") {
+      obj.certificate_chain = message.certificateChain;
+    }
+    if (message.architecture !== "") {
+      obj.architecture = message.architecture;
+    }
+    if (message.uuid !== "") {
+      obj.uuid = message.uuid;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<AttestationGPUReport>): AttestationGPUReport {
     const message = createBaseAttestationGPUReport();
     message.deviceIndex = object.deviceIndex ?? 0;
     message.report = object.report ?? "";
+    message.attestationReport = object.attestationReport ?? "";
+    message.cecReport = object.cecReport ?? "";
+    message.certificateChain = object.certificateChain ?? "";
+    message.architecture = object.architecture ?? "";
+    message.uuid = object.uuid ?? "";
     return message;
   },
 };
