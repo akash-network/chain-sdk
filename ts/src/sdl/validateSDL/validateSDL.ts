@@ -7,6 +7,9 @@ import { schema as validationSDLSchema, type SDLInput, validate as validateSDLIn
 export { validationSDLSchema };
 export type { SDLInput };
 
+const AGENT_POLICY_MAX_BYTES = 1024 * 1024;
+const textEncoder = new TextEncoder();
+
 function isPersistentStorage(value: boolean | string | undefined): boolean {
   return stringToBoolean(value ?? false);
 }
@@ -24,6 +27,13 @@ function isHTTPSOrigin(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+function isValidAgentPolicy(value: string): boolean {
+  return textEncoder.encode(value).byteLength <= AGENT_POLICY_MAX_BYTES
+    && value.includes("package agent_policy")
+    && !value.includes("\0")
+    && !value.includes("\r");
 }
 
 const ERROR_MESSAGES: ErrorMessages = {
@@ -127,14 +137,25 @@ class SDLValidator {
     const kbs = service.params?.kbs;
     if (!kbs) return;
 
-    if (kbs.mode === "tenant" && !isHTTPSOrigin(kbs.url)) {
-      this.#errors.push({
-        message: `Service "${serviceName}" tenant KBS URL must be a canonical HTTPS origin.`,
-        instancePath: `/services/${serviceName}/params/kbs/url`,
-        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
-        keyword: "format",
-        params: {},
-      });
+    if (kbs.mode === "tenant") {
+      if (!isHTTPSOrigin(kbs.url)) {
+        this.#errors.push({
+          message: `Service "${serviceName}" tenant KBS URL must be a canonical HTTPS origin.`,
+          instancePath: `/services/${serviceName}/params/kbs/url`,
+          schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+          keyword: "format",
+          params: {},
+        });
+      }
+      if (!isValidAgentPolicy(kbs.agentPolicy)) {
+        this.#errors.push({
+          message: `Service "${serviceName}" tenant agent policy must be a bounded agent_policy document.`,
+          instancePath: `/services/${serviceName}/params/kbs/agentPolicy`,
+          schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+          keyword: "format",
+          params: {},
+        });
+      }
     }
 
     if (service.params?.tee) return;

@@ -836,6 +836,36 @@ describe(validateSDL.name, () => {
       }));
     });
 
+    it.each([
+      ["a missing package declaration", "allow = true\n"],
+      ["a NUL character", "package agent_policy\n\ndefault allow = false\x00\n"],
+      ["a carriage return", "package agent_policy\r\n\ndefault allow = false\n"],
+      ["more than one MiB of UTF-8 data", `package agent_policy\n#${"é".repeat(524_288)}`],
+    ])("rejects a tenant agent policy with %s", (_reason, agentPolicy) => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: {
+                mode: "tenant",
+                url: "https://kbs.tenant.example",
+                certificate: "tenant public certificate",
+                imageSecurityPolicyURI: `kbs:///tenant/security-policy/sha256-${"a".repeat(64)}`,
+                agentPolicy,
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("bounded agent_policy document"),
+        instancePath: "/services/web/params/kbs/agentPolicy",
+        keyword: "format",
+      }));
+    });
+
     it("returns an error when tee is cpu-gpu but no GPU resources are defined", () => {
       const { validate } = setup({
         services: { web: { params: { tee: "cpu-gpu" } } },

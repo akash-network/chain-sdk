@@ -1,6 +1,7 @@
 package sdl
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -106,6 +107,36 @@ func TestV2ServiceKBSParamsRejectsInvalidCombinations(t *testing.T) {
 			}(),
 			hasTEE:    true,
 			wantError: "content addressed",
+		},
+		{
+			name: "tenant policy requires package",
+			params: func() v2ServiceKBSParams {
+				params := validTenant
+				params.AgentPolicy = "allow = true\n"
+				return params
+			}(),
+			hasTEE:    true,
+			wantError: "bounded agent_policy document",
+		},
+		{
+			name: "tenant policy rejects control characters",
+			params: func() v2ServiceKBSParams {
+				params := validTenant
+				params.AgentPolicy += "\x00"
+				return params
+			}(),
+			hasTEE:    true,
+			wantError: "bounded agent_policy document",
+		},
+		{
+			name: "tenant policy uses byte limit",
+			params: func() v2ServiceKBSParams {
+				params := validTenant
+				params.AgentPolicy += strings.Repeat("é", 512*1024)
+				return params
+			}(),
+			hasTEE:    true,
+			wantError: "bounded agent_policy document",
 		},
 	}
 
