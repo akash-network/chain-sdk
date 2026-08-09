@@ -151,6 +151,7 @@ func (sdl *v2) buildGroups() error {
 							Name:     volName,
 							Mount:    volParams.Mount,
 							ReadOnly: volParams.ReadOnly,
+							KeyRef:   volParams.KeyRef,
 						})
 					}
 				}
@@ -165,6 +166,7 @@ func (sdl *v2) buildGroups() error {
 					params.TEE = &manifest.TEEParams{
 						Type:        svc.Params.TEE,
 						Attestation: true,
+						KBS:         svc.Params.KBS.toManifest(),
 					}
 				}
 
@@ -176,6 +178,7 @@ func (sdl *v2) buildGroups() error {
 					Host:     svc.Credentials.Host,
 					Username: svc.Credentials.Username,
 					Password: svc.Credentials.Password,
+					URI:      svc.Credentials.URI,
 				}
 			}
 

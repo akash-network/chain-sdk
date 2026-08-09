@@ -25,6 +25,12 @@ message StorageParams {
       (gogoproto.jsontag)  = "readOnly",
       (gogoproto.moretags) = "yaml:\"readOnly\""
     ];
+    // key_ref is an opaque, tenant-signed CoCo sealed-secret reference.
+    // Verification and unsealing happen inside the confidential guest.
+    string key_ref = 4 [
+      (gogoproto.jsontag)  = "keyRef,omitempty",
+      (gogoproto.moretags) = "yaml:\"keyRef,omitempty\""
+    ];
 }
 
 // ServicePermissions defines resource access permissions for the service.
@@ -35,6 +41,46 @@ message ServicePermissions {
     (gogoproto.jsontag)  = "read,omitempty",
     (gogoproto.moretags) = "yaml:\"read,omitempty\""
   ];
+}
+
+// ProviderKBSParams explicitly selects the provider-managed KBS configuration.
+// The configuration itself is operator supplied and is not copied into the
+// tenant manifest.
+message ProviderKBSParams {}
+
+// TenantKBSParams contains the public, tenant-controlled inputs needed to
+// connect a confidential guest to the tenant's KBS. Secret resources and KBS
+// administrator credentials are never carried in this message.
+message TenantKBSParams {
+  string url = 1 [
+    (gogoproto.customname) = "URL",
+    (gogoproto.jsontag)    = "url",
+    (gogoproto.moretags)   = "yaml:\"url\""
+  ];
+  string certificate = 2 [
+    (gogoproto.jsontag)  = "certificate",
+    (gogoproto.moretags) = "yaml:\"certificate\""
+  ];
+  string image_security_policy_uri = 3 [
+    (gogoproto.customname) = "ImageSecurityPolicyURI",
+    (gogoproto.jsontag)    = "image_security_policy_uri",
+    (gogoproto.moretags)   = "yaml:\"image_security_policy_uri\""
+  ];
+  string agent_policy = 4 [
+    (gogoproto.jsontag)  = "agent_policy",
+    (gogoproto.moretags) = "yaml:\"agent_policy\""
+  ];
+}
+
+// KBSParams selects exactly one source for the guest's public KBS connection
+// and measured policy configuration.
+message KBSParams {
+  // source selects either the provider's configured KBS defaults or a
+  // tenant-supplied public KBS connection and policy bundle.
+  oneof source {
+    ProviderKBSParams provider = 1;
+    TenantKBSParams tenant = 2;
+  }
 }
 
 // TEEParams configures Trusted Execution Environment for the service.
@@ -54,6 +100,13 @@ message TEEParams {
   bool attestation = 2 [
     (gogoproto.jsontag)  = "attestation",
     (gogoproto.moretags) = "yaml:\"attestation\""
+  ];
+  // kbs selects provider-managed or tenant-managed KBS configuration.
+  KBSParams kbs = 3 [
+    (gogoproto.nullable) = true,
+    (gogoproto.customname) = "KBS",
+    (gogoproto.jsontag)  = "kbs,omitempty",
+    (gogoproto.moretags) = "yaml:\"kbs,omitempty\""
   ];
 }
 
@@ -99,6 +152,13 @@ message ImageCredentials {
   string password = 4 [
     (gogoproto.jsontag)  = "password",
     (gogoproto.moretags) = "yaml:\"password\""
+  ];
+  // uri references a complete Docker auth document released by KBS after
+  // attestation. It is mutually exclusive with host/email/username/password.
+  string uri = 5 [
+    (gogoproto.customname) = "URI",
+    (gogoproto.jsontag)    = "uri,omitempty",
+    (gogoproto.moretags)   = "yaml:\"uri,omitempty\""
   ];
 }
 

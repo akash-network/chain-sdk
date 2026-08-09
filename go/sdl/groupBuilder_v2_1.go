@@ -157,6 +157,7 @@ func (sdl *v2_1) buildGroups() error {
 							Name:     volName,
 							Mount:    volParams.Mount,
 							ReadOnly: volParams.ReadOnly,
+							KeyRef:   volParams.KeyRef,
 						})
 					}
 				}
@@ -171,6 +172,7 @@ func (sdl *v2_1) buildGroups() error {
 					params.TEE = &manifest.TEEParams{
 						Type:        svc.Params.TEE,
 						Attestation: true,
+						KBS:         svc.Params.KBS.toManifest(),
 					}
 				}
 
@@ -183,6 +185,7 @@ func (sdl *v2_1) buildGroups() error {
 					Email:    strings.TrimSpace(svc.Credentials.Email),
 					Username: strings.TrimSpace(svc.Credentials.Username),
 					Password: strings.TrimSpace(svc.Credentials.Password),
+					URI:      strings.TrimSpace(svc.Credentials.URI),
 				}
 			}
 

@@ -45,10 +45,14 @@
    
  - [akash/manifest/v2beta3/service.proto](#akash/manifest/v2beta3/service.proto)
      - [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials)
+     - [KBSParams](#akash.manifest.v2beta3.KBSParams)
+     - [ProviderKBSParams](#akash.manifest.v2beta3.ProviderKBSParams)
      - [Service](#akash.manifest.v2beta3.Service)
      - [ServiceParams](#akash.manifest.v2beta3.ServiceParams)
      - [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions)
      - [StorageParams](#akash.manifest.v2beta3.StorageParams)
+     - [TEEParams](#akash.manifest.v2beta3.TEEParams)
+     - [TenantKBSParams](#akash.manifest.v2beta3.TenantKBSParams)
    
  - [akash/manifest/v2beta3/group.proto](#akash/manifest/v2beta3/group.proto)
      - [Group](#akash.manifest.v2beta3.Group)
@@ -578,12 +582,34 @@
  | `email` | [string](#string) |  |  |
  | `username` | [string](#string) |  |  |
  | `password` | [string](#string) |  |  |
+ | `uri` | [string](#string) |  | uri references a complete Docker auth document released by KBS after attestation. It is mutually exclusive with host/email/username/password. |
  
  
 
  
-
  
+
+
+ <a name="akash.manifest.v2beta3.KBSParams"></a>
+
+ ### KBSParams
+ KBSParams selects exactly one source for the guest's public KBS connection
+and measured policy configuration.
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `provider` | [ProviderKBSParams](#akash.manifest.v2beta3.ProviderKBSParams) |  |  |
+ | `tenant` | [TenantKBSParams](#akash.manifest.v2beta3.TenantKBSParams) |  |  |
+
+
+ <a name="akash.manifest.v2beta3.ProviderKBSParams"></a>
+
+ ### ProviderKBSParams
+ ProviderKBSParams explicitly selects the provider-managed KBS configuration.
+The configuration itself is operator supplied and is not copied into the
+tenant manifest.
+
+
  <a name="akash.manifest.v2beta3.Service"></a>
 
  ### Service
@@ -622,6 +648,7 @@ JSON / YAML tags carry `omitempty`: the on-chain manifest `version` is a SHA has
  | `storage` | [StorageParams](#akash.manifest.v2beta3.StorageParams) | repeated |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
  | `permissions` | [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions) |  |  |
+ | `tee` | [TEEParams](#akash.manifest.v2beta3.TEEParams) |  |  |
  
  
 
@@ -656,10 +683,41 @@ Resources map to Kubernetes RBAC permissions:
  | `name` | [string](#string) |  |  |
  | `mount` | [string](#string) |  |  |
  | `read_only` | [bool](#bool) |  |  |
+ | `key_ref` | [string](#string) |  | key_ref is an opaque, tenant-signed CoCo sealed-secret reference. Verification and unsealing happen inside the confidential guest. |
  
  
 
- 
+
+ <a name="akash.manifest.v2beta3.TEEParams"></a>
+
+ ### TEEParams
+ TEEParams configures Trusted Execution Environment for the service.
+The type field selects the TEE capability and the provider resolves the
+runtime class based on its detected platform (TDX or SNP).
+The attestation field controls whether the provider injects an attestation sidecar.
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `type` | [string](#string) |  | type is the TEE capability: cpu, cpu-gpu |
+ | `attestation` | [bool](#bool) |  | attestation controls whether the provider injects an attestation sidecar. IMPORTANT: proto3 bool defaults to false, but the intended default is true. All producers MUST set this field explicitly. The Go SDL builder enforces this; non-Go clients must set attestation=true when sidecar injection is desired. |
+ | `kbs` | [KBSParams](#akash.manifest.v2beta3.KBSParams) |  | kbs selects provider-managed or tenant-managed KBS configuration. |
+
+
+ <a name="akash.manifest.v2beta3.TenantKBSParams"></a>
+
+ ### TenantKBSParams
+ TenantKBSParams contains the public, tenant-controlled inputs needed to
+connect a confidential guest to the tenant's KBS. Secret resources and KBS
+administrator credentials are never carried in this message.
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `url` | [string](#string) |  |  |
+ | `certificate` | [string](#string) |  |  |
+ | `image_security_policy_uri` | [string](#string) |  |  |
+ | `agent_policy` | [string](#string) |  |  |
+
+
 
   <!-- end messages -->
 

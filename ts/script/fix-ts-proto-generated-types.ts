@@ -15,6 +15,7 @@ const helperTypeRegex = new RegExp(
 );
 
 const ROOT_DIR = resolvePath(import.meta.dirname, "..", "src");
+const MANIFEST_SERVICE_PATH = resolvePath(ROOT_DIR, "generated/protos/akash/manifest/v2beta3/service.ts");
 
 const typesToPatch = new Set<string>();
 // Per-message field-type overlays for representation-changing custom types,
@@ -34,12 +35,58 @@ for await (const path of fs.glob(`${ROOT_DIR}/generated/protos/**/*.ts`)) {
   // Remove the `create` method from message objects
   newSource = newSource.replace(/^\s*create\(base\?:\s*DeepPartial<\w+>\):\s*\w+\s*\{\s*return\s*\w+\.fromPartial\(base \?\? \{\}\);\s*\},?\n?/gm, "");
   newSource = injectOwnHelpers(newSource, path);
+  newSource = preserveOptionalManifestScalars(newSource, path);
 
   newSource = applyPatching(newSource, path, typesToPatch, typeOverrides);
 
   if (newSource !== source) {
     await fs.writeFile(path, newSource);
   }
+}
+
+function preserveOptionalManifestScalars(source: string, path: string): string {
+  if (resolvePath(path) !== MANIFEST_SERVICE_PATH) return source;
+
+  // Proto3 scalars have no wire-level presence, but these fields are optional
+  // SDL input. Leaving ts-proto's empty-string defaults in place would add
+  // empty fields to existing manifest objects and change their version hashes.
+  source = preserveOptionalStringField(source, "keyRef", "key_ref");
+  source = preserveOptionalStringField(source, "uri", "uri");
+
+  return source;
+}
+
+function preserveOptionalStringField(source: string, field: string, jsonField: string): string {
+  source = replaceGeneratedText(source, `  ${field}: string;`, `  ${field}?: string;`);
+  source = replaceGeneratedText(source, `, ${field}: ""`, "");
+  source = replaceGeneratedText(
+    source,
+    `if (message.${field} !== "") {`,
+    `if (message.${field} !== undefined && message.${field} !== "") {`,
+    2,
+  );
+  source = replaceGeneratedText(
+    source,
+    `      ${field}: isSet(object.${jsonField}) ? globalThis.String(object.${jsonField}) : "",`,
+    `      ...(isSet(object.${jsonField}) ? { ${field}: globalThis.String(object.${jsonField}) } : {}),`,
+  );
+  source = replaceGeneratedText(
+    source,
+    `    message.${field} = object.${field} ?? "";`,
+    `    if (object.${field} !== undefined) {\n      message.${field} = object.${field};\n    }`,
+  );
+
+  return source;
+}
+
+function replaceGeneratedText(source: string, before: string, after: string, expectedCount = 1): string {
+  const chunks = source.split(before);
+  const count = chunks.length - 1;
+  if (count !== expectedCount) {
+    throw new Error(`Expected ${expectedCount} generated occurrence(s) of ${JSON.stringify(before)}, found ${count}`);
+  }
+
+  return chunks.join(after);
 }
 
 function injectOwnHelpers(source: string, path: string) {

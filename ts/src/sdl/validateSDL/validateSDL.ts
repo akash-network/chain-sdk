@@ -8,6 +8,35 @@ import { schema as validationSDLSchema, type SDLInput, validate as validateSDLIn
 export { validationSDLSchema };
 export type { SDLInput };
 
+const AGENT_POLICY_MAX_BYTES = 1024 * 1024;
+const textEncoder = new TextEncoder();
+
+function isPersistentStorage(value: boolean | string | undefined): boolean {
+  return stringToBoolean(value ?? false);
+}
+
+function isHTTPSOrigin(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:"
+      && parsed.hostname !== ""
+      && parsed.username === ""
+      && parsed.password === ""
+      && parsed.pathname === "/"
+      && parsed.search === ""
+      && parsed.hash === "";
+  } catch {
+    return false;
+  }
+}
+
+function isValidAgentPolicy(value: string): boolean {
+  return textEncoder.encode(value).byteLength <= AGENT_POLICY_MAX_BYTES
+    && value.includes("package agent_policy")
+    && !value.includes("\0")
+    && !value.includes("\r");
+}
+
 const ERROR_MESSAGES: ErrorMessages = {
   "#/definitions/storageRamClassMustNotBePersistent"(error) {
     return `"ram" storage${getErrorLocation(dirname(error.instancePath))} cannot be persistent`;
@@ -20,6 +49,12 @@ const ERROR_MESSAGES: ErrorMessages = {
   // `time.ParseDuration`), so this is a sanctioned schema-only-stricter rule.
   "#/properties/reclamation/properties/min_window/pattern"() {
     return `Reclamation min_window must be a whole number followed by s, m, or h (e.g. "24h", "30m").`;
+  },
+  "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef/pattern"() {
+    return `Storage keyRef must use sealed.<JWS> format.`;
+  },
+  "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef/maxLength"() {
+    return `Storage keyRef must be at most 65536 characters.`;
   },
 };
 
@@ -52,6 +87,8 @@ class SDLValidator {
         this.#validateDeploymentWithRelations(serviceName);
         this.#validateLeaseIP(serviceName);
         this.#validateHTTPTimeoutRanges(serviceName);
+        this.#validateCredentials(serviceName);
+        this.#validateKBS(serviceName);
       });
     }
 
@@ -87,6 +124,80 @@ class SDLValidator {
         });
       }
     }
+  }
+
+  #validateCredentials(serviceName: string) {
+    const service = this.#sdl.services?.[serviceName];
+    const credentials = service?.credentials;
+    if (!credentials) return;
+
+    const confidential = Boolean(service.params?.tee);
+    const referenced = "uri" in credentials;
+    if (confidential === referenced) return;
+
+    this.#errors.push({
+      message: confidential
+        ? `Confidential service "${serviceName}" credentials require a KBS resource URI.`
+        : `Service "${serviceName}" KBS credential URI requires a confidential TEE.`,
+      instancePath: `/services/${serviceName}/credentials`,
+      schemaPath: "#/properties/services/additionalProperties/properties/credentials",
+      keyword: "runtime",
+      params: {},
+    });
+  }
+
+  #validateKBS(serviceName: string) {
+    const service = this.#sdl.services?.[serviceName];
+    if (!service) return;
+
+    const requiresKBS = ("uri" in (service.credentials ?? {}))
+      || service.env?.some((entry) => entry.includes("=") && entry.split("=", 2)[1].startsWith("sealed."))
+      || Object.values(service.params?.storage ?? {}).some((storage) => Boolean(storage?.keyRef));
+
+    if (requiresKBS && !service.params?.kbs) {
+      this.#errors.push({
+        message: `Service "${serviceName}" KBS-backed workload data requires an explicit params.kbs selection.`,
+        instancePath: `/services/${serviceName}/params/kbs`,
+        schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+        keyword: "required",
+        params: { missingProperty: "kbs" },
+      });
+      return;
+    }
+
+    const kbs = service.params?.kbs;
+    if (!kbs) return;
+
+    if (kbs.mode === "tenant") {
+      if (!isHTTPSOrigin(kbs.url)) {
+        this.#errors.push({
+          message: `Service "${serviceName}" tenant KBS URL must be a canonical HTTPS origin.`,
+          instancePath: `/services/${serviceName}/params/kbs/url`,
+          schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+          keyword: "format",
+          params: {},
+        });
+      }
+      if (!isValidAgentPolicy(kbs.agentPolicy)) {
+        this.#errors.push({
+          message: `Service "${serviceName}" tenant agent policy must be a bounded agent_policy document.`,
+          instancePath: `/services/${serviceName}/params/kbs/agentPolicy`,
+          schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+          keyword: "format",
+          params: {},
+        });
+      }
+    }
+
+    if (service.params?.tee) return;
+
+    this.#errors.push({
+      message: `Service "${serviceName}" KBS configuration requires a confidential TEE.`,
+      instancePath: `/services/${serviceName}/params/kbs`,
+      schemaPath: "#/properties/services/additionalProperties/properties/params/properties/kbs",
+      keyword: "runtime",
+      params: {},
+    });
   }
 
   #validateDeploymentWithRelations(serviceName: string) {
@@ -193,6 +304,20 @@ class SDLValidator {
         return;
       }
 
+      if (storage.keyRef) {
+        const computeStorage = storages.find(({ name }) => name === storageName);
+        const persistent = isPersistentStorage(computeStorage?.attributes?.persistent);
+        if (!persistent) {
+          this.#errors.push({
+            message: `Storage "${storageName}" keyRef requires persistent storage.`,
+            instancePath: `/services/${serviceName}/params/storage/${storageName}/keyRef`,
+            schemaPath: "#/properties/services/additionalProperties/properties/params/properties/storage/additionalProperties/properties/keyRef",
+            keyword: "persistent",
+            params: {},
+          });
+        }
+      }
+
       const mount = String(storage.mount);
       const volumeName = mounts[mount];
 
@@ -230,7 +355,7 @@ class SDLValidator {
     const storages = castArray(compute?.resources.storage);
 
     storages.forEach((storage) => {
-      const persistent = stringToBoolean(storage.attributes?.persistent as string | boolean || false);
+      const persistent = isPersistentStorage(storage.attributes?.persistent);
 
       if (persistent && !service?.params?.storage?.[storage.name || ""]?.mount) {
         this.#errors.push({

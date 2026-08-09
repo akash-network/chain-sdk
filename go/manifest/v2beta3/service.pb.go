@@ -31,6 +31,9 @@ type StorageParams struct {
 	Name     string `protobuf:"bytes,1,opt,name=name,proto3" json:"name" yaml:"name"`
 	Mount    string `protobuf:"bytes,2,opt,name=mount,proto3" json:"mount" yaml:"mount"`
 	ReadOnly bool   `protobuf:"varint,3,opt,name=read_only,json=readOnly,proto3" json:"readOnly" yaml:"readOnly"`
+	// key_ref is an opaque, tenant-signed CoCo sealed-secret reference.
+	// Verification and unsealing happen inside the confidential guest.
+	KeyRef string `protobuf:"bytes,4,opt,name=key_ref,json=keyRef,proto3" json:"keyRef,omitempty" yaml:"keyRef,omitempty"`
 }
 
 func (m *StorageParams) Reset()      { *m = StorageParams{} }
@@ -86,6 +89,13 @@ func (m *StorageParams) GetReadOnly() bool {
 	return false
 }
 
+func (m *StorageParams) GetKeyRef() string {
+	if m != nil {
+		return m.KeyRef
+	}
+	return ""
+}
+
 // ServicePermissions defines resource access permissions for the service.
 // Resources map to Kubernetes RBAC permissions:
 //   - logs
@@ -132,6 +142,203 @@ func (m *ServicePermissions) GetRead() []string {
 	return nil
 }
 
+// ProviderKBSParams explicitly selects the provider-managed KBS configuration.
+// The configuration itself is operator supplied and is not copied into the
+// tenant manifest.
+type ProviderKBSParams struct {
+}
+
+func (m *ProviderKBSParams) Reset()      { *m = ProviderKBSParams{} }
+func (*ProviderKBSParams) ProtoMessage() {}
+func (*ProviderKBSParams) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6d5964c4976d68e5, []int{2}
+}
+func (m *ProviderKBSParams) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ProviderKBSParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ProviderKBSParams.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ProviderKBSParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProviderKBSParams.Merge(m, src)
+}
+func (m *ProviderKBSParams) XXX_Size() int {
+	return m.Size()
+}
+func (m *ProviderKBSParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProviderKBSParams.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProviderKBSParams proto.InternalMessageInfo
+
+// TenantKBSParams contains the public, tenant-controlled inputs needed to
+// connect a confidential guest to the tenant's KBS. Secret resources and KBS
+// administrator credentials are never carried in this message.
+type TenantKBSParams struct {
+	URL                    string `protobuf:"bytes,1,opt,name=url,proto3" json:"url" yaml:"url"`
+	Certificate            string `protobuf:"bytes,2,opt,name=certificate,proto3" json:"certificate" yaml:"certificate"`
+	ImageSecurityPolicyURI string `protobuf:"bytes,3,opt,name=image_security_policy_uri,json=imageSecurityPolicyUri,proto3" json:"image_security_policy_uri" yaml:"image_security_policy_uri"`
+	AgentPolicy            string `protobuf:"bytes,4,opt,name=agent_policy,json=agentPolicy,proto3" json:"agent_policy" yaml:"agent_policy"`
+}
+
+func (m *TenantKBSParams) Reset()      { *m = TenantKBSParams{} }
+func (*TenantKBSParams) ProtoMessage() {}
+func (*TenantKBSParams) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6d5964c4976d68e5, []int{3}
+}
+func (m *TenantKBSParams) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *TenantKBSParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_TenantKBSParams.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *TenantKBSParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TenantKBSParams.Merge(m, src)
+}
+func (m *TenantKBSParams) XXX_Size() int {
+	return m.Size()
+}
+func (m *TenantKBSParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_TenantKBSParams.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TenantKBSParams proto.InternalMessageInfo
+
+func (m *TenantKBSParams) GetURL() string {
+	if m != nil {
+		return m.URL
+	}
+	return ""
+}
+
+func (m *TenantKBSParams) GetCertificate() string {
+	if m != nil {
+		return m.Certificate
+	}
+	return ""
+}
+
+func (m *TenantKBSParams) GetImageSecurityPolicyURI() string {
+	if m != nil {
+		return m.ImageSecurityPolicyURI
+	}
+	return ""
+}
+
+func (m *TenantKBSParams) GetAgentPolicy() string {
+	if m != nil {
+		return m.AgentPolicy
+	}
+	return ""
+}
+
+// KBSParams selects exactly one source for the guest's public KBS connection
+// and measured policy configuration.
+type KBSParams struct {
+	// source selects either the provider's configured KBS defaults or a
+	// tenant-supplied public KBS connection and policy bundle.
+	//
+	// Types that are valid to be assigned to Source:
+	//	*KBSParams_Provider
+	//	*KBSParams_Tenant
+	Source isKBSParams_Source `protobuf_oneof:"source"`
+}
+
+func (m *KBSParams) Reset()      { *m = KBSParams{} }
+func (*KBSParams) ProtoMessage() {}
+func (*KBSParams) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6d5964c4976d68e5, []int{4}
+}
+func (m *KBSParams) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *KBSParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_KBSParams.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *KBSParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_KBSParams.Merge(m, src)
+}
+func (m *KBSParams) XXX_Size() int {
+	return m.Size()
+}
+func (m *KBSParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_KBSParams.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_KBSParams proto.InternalMessageInfo
+
+type isKBSParams_Source interface {
+	isKBSParams_Source()
+	MarshalTo([]byte) (int, error)
+	Size() int
+}
+
+type KBSParams_Provider struct {
+	Provider *ProviderKBSParams `protobuf:"bytes,1,opt,name=provider,proto3,oneof" json:"provider,omitempty"`
+}
+type KBSParams_Tenant struct {
+	Tenant *TenantKBSParams `protobuf:"bytes,2,opt,name=tenant,proto3,oneof" json:"tenant,omitempty"`
+}
+
+func (*KBSParams_Provider) isKBSParams_Source() {}
+func (*KBSParams_Tenant) isKBSParams_Source()   {}
+
+func (m *KBSParams) GetSource() isKBSParams_Source {
+	if m != nil {
+		return m.Source
+	}
+	return nil
+}
+
+func (m *KBSParams) GetProvider() *ProviderKBSParams {
+	if x, ok := m.GetSource().(*KBSParams_Provider); ok {
+		return x.Provider
+	}
+	return nil
+}
+
+func (m *KBSParams) GetTenant() *TenantKBSParams {
+	if x, ok := m.GetSource().(*KBSParams_Tenant); ok {
+		return x.Tenant
+	}
+	return nil
+}
+
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*KBSParams) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*KBSParams_Provider)(nil),
+		(*KBSParams_Tenant)(nil),
+	}
+}
+
 // TEEParams configures Trusted Execution Environment for the service.
 // The type field selects the TEE capability and the provider resolves the
 // runtime class based on its detected platform (TDX or SNP).
@@ -144,12 +351,14 @@ type TEEParams struct {
 	// All producers MUST set this field explicitly. The Go SDL builder enforces
 	// this; non-Go clients must set attestation=true when sidecar injection is desired.
 	Attestation bool `protobuf:"varint,2,opt,name=attestation,proto3" json:"attestation" yaml:"attestation"`
+	// kbs selects provider-managed or tenant-managed KBS configuration.
+	KBS *KBSParams `protobuf:"bytes,3,opt,name=kbs,proto3" json:"kbs,omitempty" yaml:"kbs,omitempty"`
 }
 
 func (m *TEEParams) Reset()      { *m = TEEParams{} }
 func (*TEEParams) ProtoMessage() {}
 func (*TEEParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6d5964c4976d68e5, []int{2}
+	return fileDescriptor_6d5964c4976d68e5, []int{5}
 }
 func (m *TEEParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -192,6 +401,13 @@ func (m *TEEParams) GetAttestation() bool {
 	return false
 }
 
+func (m *TEEParams) GetKBS() *KBSParams {
+	if m != nil {
+		return m.KBS
+	}
+	return nil
+}
+
 // ServiceParams
 type ServiceParams struct {
 	Storage     []StorageParams     `protobuf:"bytes,1,rep,name=storage,proto3" json:"storage" yaml:"storage"`
@@ -203,7 +419,7 @@ type ServiceParams struct {
 func (m *ServiceParams) Reset()      { *m = ServiceParams{} }
 func (*ServiceParams) ProtoMessage() {}
 func (*ServiceParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6d5964c4976d68e5, []int{3}
+	return fileDescriptor_6d5964c4976d68e5, []int{6}
 }
 func (m *ServiceParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -266,12 +482,15 @@ type ImageCredentials struct {
 	Email    string `protobuf:"bytes,2,opt,name=email,proto3" json:"email" yaml:"email"`
 	Username string `protobuf:"bytes,3,opt,name=username,proto3" json:"username" yaml:"username"`
 	Password string `protobuf:"bytes,4,opt,name=password,proto3" json:"password" yaml:"password"`
+	// uri references a complete Docker auth document released by KBS after
+	// attestation. It is mutually exclusive with host/email/username/password.
+	URI string `protobuf:"bytes,5,opt,name=uri,proto3" json:"uri,omitempty" yaml:"uri,omitempty"`
 }
 
 func (m *ImageCredentials) Reset()      { *m = ImageCredentials{} }
 func (*ImageCredentials) ProtoMessage() {}
 func (*ImageCredentials) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6d5964c4976d68e5, []int{4}
+	return fileDescriptor_6d5964c4976d68e5, []int{7}
 }
 func (m *ImageCredentials) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -328,6 +547,13 @@ func (m *ImageCredentials) GetPassword() string {
 	return ""
 }
 
+func (m *ImageCredentials) GetURI() string {
+	if m != nil {
+		return m.URI
+	}
+	return ""
+}
+
 // Service stores name, image, args, env, unit, count and expose list of service
 type Service struct {
 	Name        string            `protobuf:"bytes,1,opt,name=name,proto3" json:"name" yaml:"name"`
@@ -358,7 +584,7 @@ type Service struct {
 func (m *Service) Reset()      { *m = Service{} }
 func (*Service) ProtoMessage() {}
 func (*Service) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6d5964c4976d68e5, []int{5}
+	return fileDescriptor_6d5964c4976d68e5, []int{8}
 }
 func (m *Service) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -467,6 +693,9 @@ func (m *Service) GetInterconnectGroup() string {
 func init() {
 	proto.RegisterType((*StorageParams)(nil), "akash.manifest.v2beta3.StorageParams")
 	proto.RegisterType((*ServicePermissions)(nil), "akash.manifest.v2beta3.ServicePermissions")
+	proto.RegisterType((*ProviderKBSParams)(nil), "akash.manifest.v2beta3.ProviderKBSParams")
+	proto.RegisterType((*TenantKBSParams)(nil), "akash.manifest.v2beta3.TenantKBSParams")
+	proto.RegisterType((*KBSParams)(nil), "akash.manifest.v2beta3.KBSParams")
 	proto.RegisterType((*TEEParams)(nil), "akash.manifest.v2beta3.TEEParams")
 	proto.RegisterType((*ServiceParams)(nil), "akash.manifest.v2beta3.ServiceParams")
 	proto.RegisterType((*ImageCredentials)(nil), "akash.manifest.v2beta3.ImageCredentials")
@@ -478,67 +707,86 @@ func init() {
 }
 
 var fileDescriptor_6d5964c4976d68e5 = []byte{
-	// 956 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0x4d, 0x6f, 0x1b, 0x37,
-	0x13, 0xd6, 0xbe, 0x72, 0x2c, 0x89, 0x8a, 0xfc, 0x3a, 0x44, 0xd2, 0x6c, 0xdc, 0x56, 0x54, 0x88,
-	0x1a, 0x55, 0xe3, 0x40, 0x42, 0xec, 0x00, 0x05, 0xfa, 0x81, 0xa2, 0x5b, 0x08, 0x41, 0x4e, 0x0d,
-	0x98, 0xf4, 0x92, 0x4b, 0x40, 0x4b, 0xac, 0xb2, 0xb0, 0x76, 0xb9, 0x58, 0x52, 0x6a, 0x7d, 0x6b,
-	0x7b, 0x0b, 0x7a, 0xe9, 0xef, 0x68, 0xff, 0x88, 0x8f, 0x39, 0xe6, 0xc4, 0xb6, 0xf2, 0x6d, 0x8f,
-	0x3a, 0xf5, 0x58, 0xf0, 0x63, 0xcd, 0x95, 0x3f, 0x1a, 0x14, 0x3d, 0xd9, 0xf3, 0xcc, 0x33, 0x9c,
-	0xe1, 0x70, 0xe6, 0xd1, 0x82, 0x0f, 0xe8, 0x11, 0x15, 0x2f, 0x87, 0x09, 0x4d, 0xe3, 0x6f, 0x99,
-	0x90, 0xc3, 0xc5, 0xfe, 0x21, 0x93, 0xf4, 0x60, 0x28, 0x58, 0xbe, 0x88, 0xc7, 0x6c, 0x90, 0xe5,
-	0x5c, 0x72, 0xf8, 0x8e, 0x61, 0x0d, 0x4a, 0xd6, 0xc0, 0xb1, 0x76, 0x6e, 0x4e, 0xf9, 0x94, 0x1b,
-	0xca, 0x50, 0xff, 0x67, 0xd9, 0x3b, 0xf7, 0xfe, 0xf9, 0x4c, 0xf6, 0x7d, 0xc6, 0x85, 0x3b, 0x79,
-	0xe7, 0xbe, 0xe5, 0x1e, 0x52, 0xc1, 0x86, 0x39, 0x13, 0x7c, 0x9e, 0x8f, 0x99, 0x18, 0x2e, 0x1e,
-	0xe8, 0x88, 0x87, 0x1e, 0xb1, 0x6c, 0xfc, 0x5b, 0x00, 0x3a, 0x4f, 0x25, 0xcf, 0xe9, 0x94, 0x3d,
-	0xa1, 0x39, 0x4d, 0x04, 0xdc, 0x03, 0x1b, 0x29, 0x4d, 0x58, 0x18, 0xf4, 0x82, 0x7e, 0x2b, 0xba,
-	0x5d, 0x28, 0x64, 0xec, 0x95, 0x42, 0xed, 0x63, 0x9a, 0xcc, 0x3e, 0xc1, 0xda, 0xc2, 0xc4, 0x80,
-	0x70, 0x08, 0xae, 0x25, 0x7c, 0x9e, 0xca, 0xf0, 0x7f, 0x86, 0x7d, 0xa7, 0x50, 0xc8, 0x02, 0x2b,
-	0x85, 0xae, 0x5b, 0xba, 0x31, 0x31, 0xb1, 0x30, 0xfc, 0x0c, 0xb4, 0x72, 0x46, 0x27, 0x2f, 0x78,
-	0x3a, 0x3b, 0x0e, 0xeb, 0xbd, 0xa0, 0xdf, 0x8c, 0x50, 0xa1, 0x50, 0x53, 0x83, 0x5f, 0xa7, 0xb3,
-	0xe3, 0x95, 0x42, 0xff, 0xb7, 0x71, 0x25, 0x82, 0xc9, 0x99, 0x13, 0x7f, 0x03, 0xe0, 0x53, 0x7b,
-	0xe5, 0x27, 0x2c, 0x4f, 0x62, 0x21, 0x62, 0x9e, 0x0a, 0xf8, 0x05, 0xd8, 0xd0, 0x8c, 0x30, 0xe8,
-	0xd5, 0xfb, 0xad, 0x68, 0xaf, 0x50, 0x68, 0x4b, 0xdb, 0xf7, 0x79, 0x12, 0x4b, 0x96, 0x64, 0x52,
-	0x1f, 0x7a, 0xcb, 0x1f, 0xea, 0x71, 0x4c, 0x4c, 0x20, 0xfe, 0x31, 0x00, 0xad, 0x67, 0xa3, 0x91,
-	0x6f, 0x80, 0x3c, 0xce, 0xd6, 0x1a, 0xa0, 0x6d, 0xdf, 0x00, 0x6d, 0x61, 0x62, 0x40, 0xf8, 0x08,
-	0xb4, 0xa9, 0x94, 0x4c, 0x48, 0x2a, 0x63, 0x9e, 0x9a, 0x36, 0x34, 0xa3, 0xdd, 0x42, 0xa1, 0x2a,
-	0xbc, 0x52, 0x08, 0xda, 0xd0, 0x0a, 0x88, 0x49, 0x95, 0x82, 0xff, 0xaa, 0x83, 0x4e, 0x79, 0x37,
-	0x5b, 0xc7, 0x21, 0x68, 0x08, 0xfb, 0x32, 0xe6, 0x66, 0xed, 0xfd, 0xdd, 0xc1, 0xe5, 0x43, 0x33,
-	0x58, 0x7b, 0xc0, 0xe8, 0xee, 0x89, 0x42, 0xb5, 0x42, 0xa1, 0x32, 0x7a, 0xa5, 0xd0, 0x96, 0xcd,
-	0xee, 0x00, 0x4c, 0x4a, 0x17, 0x7c, 0x15, 0x80, 0xf6, 0x38, 0x67, 0x13, 0x96, 0xca, 0x98, 0xce,
-	0x44, 0x08, 0x7a, 0x41, 0xbf, 0xbd, 0xdf, 0xbf, 0x2a, 0xd1, 0xe3, 0x84, 0x4e, 0xd9, 0x57, 0x9e,
-	0x1f, 0x7d, 0x7e, 0xa2, 0x50, 0x50, 0x28, 0x74, 0xab, 0x72, 0xc8, 0x5a, 0xdf, 0xdf, 0xb3, 0x99,
-	0x2f, 0x75, 0x63, 0x52, 0xcd, 0x0d, 0x7f, 0x0e, 0x40, 0x3b, 0xf3, 0xcf, 0x1a, 0xb6, 0x4d, 0x2d,
-	0xf7, 0xae, 0xbc, 0xf4, 0x85, 0x41, 0xf0, 0xd5, 0x54, 0x8e, 0xb9, 0xac, 0x9a, 0x4b, 0xdd, 0x98,
-	0x54, 0xb3, 0xc3, 0x18, 0xd4, 0x25, 0x63, 0xe1, 0x75, 0x53, 0xc4, 0xdd, 0xab, 0x8a, 0x38, 0x9b,
-	0x9a, 0xe8, 0xa1, 0xce, 0xbd, 0x54, 0xa8, 0xfe, 0x6c, 0x34, 0x2a, 0x14, 0xea, 0x48, 0xc6, 0xd6,
-	0x52, 0xdf, 0x74, 0xb3, 0x53, 0x85, 0x31, 0xd1, 0x39, 0x70, 0x11, 0x80, 0xed, 0xf3, 0x9d, 0xd5,
-	0x53, 0xf8, 0x92, 0x0b, 0x59, 0x9d, 0x42, 0x6d, 0xfb, 0x29, 0xd4, 0x16, 0x26, 0x06, 0xd4, 0x6b,
-	0xc8, 0x12, 0x1a, 0xcf, 0xaa, 0x6b, 0x68, 0x00, 0xbf, 0x86, 0xc6, 0xc4, 0xc4, 0xc2, 0xf0, 0x53,
-	0xd0, 0x9c, 0x0b, 0x96, 0x9b, 0x45, 0xaf, 0x9b, 0x18, 0xb3, 0x85, 0x25, 0xe6, 0xb7, 0xb0, 0x44,
-	0x30, 0x39, 0x73, 0xea, 0xe0, 0x8c, 0x0a, 0xf1, 0x1d, 0xcf, 0x27, 0xe1, 0x86, 0x0f, 0x2e, 0x31,
-	0x1f, 0x5c, 0x22, 0x98, 0x9c, 0x39, 0xf1, 0x4f, 0x0d, 0xd0, 0x70, 0x4f, 0xf7, 0xaf, 0xa5, 0x26,
-	0xd6, 0x4d, 0xaa, 0xde, 0xd1, 0x00, 0xfe, 0x8e, 0xc6, 0xc4, 0xc4, 0xc2, 0xf0, 0x63, 0xd0, 0x18,
-	0xf3, 0x24, 0xa1, 0xe9, 0x24, 0xac, 0x1b, 0x65, 0x78, 0x5f, 0x2f, 0x85, 0x83, 0xfc, 0x52, 0x38,
-	0x00, 0x93, 0xd2, 0xa5, 0xcb, 0xa2, 0xf9, 0x54, 0x84, 0x1b, 0x26, 0xca, 0x94, 0xa5, 0x6d, 0x5f,
-	0x96, 0xb6, 0x30, 0x31, 0x20, 0xdc, 0x03, 0x75, 0x96, 0x2e, 0xc2, 0x6b, 0x86, 0x7b, 0xc7, 0x0d,
-	0xa0, 0x86, 0x56, 0x0a, 0x01, 0xd7, 0xfa, 0x74, 0x81, 0x89, 0x86, 0xe0, 0x4c, 0xab, 0x9f, 0x13,
-	0xe0, 0x70, 0xd3, 0x8c, 0xd6, 0x87, 0x6e, 0xb4, 0xb4, 0x5e, 0x0f, 0xbc, 0x3a, 0x3b, 0xbd, 0x1e,
-	0x90, 0x12, 0x89, 0x76, 0xdd, 0x5a, 0xfb, 0x13, 0x56, 0x0a, 0x6d, 0x97, 0xb2, 0xe6, 0x20, 0x4c,
-	0xbc, 0x5b, 0x77, 0x6c, 0x6c, 0xc4, 0xb9, 0xd1, 0x0b, 0xfa, 0x1d, 0xdb, 0xb1, 0xf1, 0xba, 0x38,
-	0x8f, 0x9d, 0x38, 0x9b, 0xbf, 0x30, 0x03, 0x9b, 0xf6, 0xa7, 0x24, 0x6c, 0xbe, 0x45, 0x70, 0xec,
-	0x03, 0x8e, 0x0c, 0x39, 0x7a, 0xe0, 0x2a, 0x73, 0xc1, 0x2b, 0x85, 0x3a, 0xee, 0xe2, 0xc6, 0xc6,
-	0xbf, 0xfe, 0x8e, 0xb6, 0xd6, 0x22, 0x04, 0x71, 0x54, 0x98, 0x83, 0xcd, 0xcc, 0xec, 0x4f, 0xd8,
-	0x32, 0xdd, 0x78, 0x5b, 0x46, 0xb7, 0x6c, 0x07, 0xae, 0xcf, 0xdb, 0x36, 0x78, 0x6d, 0xd1, 0x6e,
-	0x97, 0xb3, 0xb7, 0xee, 0xc1, 0xc4, 0x65, 0x82, 0xf3, 0xff, 0x26, 0x79, 0x1f, 0xb9, 0xdc, 0xd5,
-	0x43, 0xbc, 0xc0, 0x57, 0xc0, 0x73, 0xf2, 0xf6, 0x2a, 0x00, 0x30, 0x4e, 0x25, 0xcb, 0xc7, 0x3c,
-	0x4d, 0xd9, 0x58, 0xbe, 0x98, 0xe6, 0x7c, 0x9e, 0x19, 0x95, 0x6b, 0x45, 0xcf, 0x97, 0x0a, 0xdd,
-	0x78, 0x5c, 0xf1, 0x3e, 0xd2, 0xce, 0x42, 0xa1, 0x77, 0xe3, 0xf3, 0xe0, 0xda, 0x65, 0xb1, 0x1b,
-	0xfc, 0xab, 0x49, 0x98, 0xdc, 0xb8, 0xe0, 0x8d, 0xbe, 0x7c, 0xf3, 0x67, 0xb7, 0xf6, 0xc3, 0xb2,
-	0x1b, 0x9c, 0x2c, 0xbb, 0xc1, 0xeb, 0x65, 0x37, 0xf8, 0x63, 0xd9, 0x0d, 0x7e, 0x39, 0xed, 0xd6,
-	0x5e, 0x9f, 0x76, 0x6b, 0x6f, 0x4e, 0xbb, 0xb5, 0xe7, 0x28, 0x3b, 0x9a, 0x0e, 0xe8, 0x91, 0x1c,
-	0x4c, 0xd8, 0x62, 0x38, 0xe5, 0x17, 0x3e, 0x3d, 0x0e, 0x37, 0xcd, 0xf7, 0xc3, 0xc1, 0xdf, 0x01,
-	0x00, 0x00, 0xff, 0xff, 0xb1, 0x80, 0x5a, 0xca, 0xef, 0x08, 0x00, 0x00,
+	// 1258 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0xcb, 0x6f, 0x13, 0xc7,
+	0x1f, 0xf7, 0xe2, 0xe0, 0xd8, 0x63, 0x02, 0x61, 0x78, 0x2d, 0xfc, 0xf8, 0x79, 0xc2, 0xa8, 0x88,
+	0xf0, 0x90, 0x5d, 0x02, 0x52, 0xa5, 0x3e, 0x54, 0xb1, 0x55, 0x04, 0x94, 0x4a, 0x8d, 0x26, 0x70,
+	0xa1, 0x87, 0x68, 0xb3, 0x99, 0x98, 0x95, 0xed, 0xdd, 0xd5, 0xec, 0xd8, 0xad, 0x6f, 0x55, 0x6f,
+	0xa8, 0x97, 0x9e, 0x7a, 0xef, 0xb5, 0x87, 0xfe, 0x1d, 0x1c, 0x39, 0x72, 0x9a, 0xb6, 0xce, 0x6d,
+	0x55, 0xa9, 0x92, 0xa5, 0x4a, 0x3d, 0x56, 0xf3, 0x58, 0xcf, 0xae, 0x63, 0x83, 0xaa, 0x9e, 0x76,
+	0xbf, 0x9f, 0xef, 0x6b, 0xe6, 0xfb, 0x9a, 0x2f, 0x78, 0xcf, 0xef, 0xf9, 0xe9, 0x8b, 0xce, 0xc0,
+	0x8f, 0xc2, 0x43, 0x9a, 0xf2, 0xce, 0x68, 0x6b, 0x9f, 0x72, 0xff, 0x5e, 0x27, 0xa5, 0x6c, 0x14,
+	0x06, 0xb4, 0x9d, 0xb0, 0x98, 0xc7, 0xf0, 0xa2, 0x92, 0x6a, 0xe7, 0x52, 0x6d, 0x23, 0x75, 0xe5,
+	0x7c, 0x37, 0xee, 0xc6, 0x4a, 0xa4, 0x23, 0xff, 0xb4, 0xf4, 0x95, 0x5b, 0x6f, 0xb7, 0x49, 0xbf,
+	0x49, 0xe2, 0xd4, 0x58, 0xbe, 0x72, 0x47, 0xcb, 0xee, 0xfb, 0x29, 0xed, 0x30, 0x9a, 0xc6, 0x43,
+	0x16, 0xd0, 0xb4, 0x33, 0xba, 0x2b, 0x35, 0xee, 0x5b, 0x44, 0x4b, 0xe3, 0xbf, 0x1c, 0xb0, 0xb6,
+	0xcb, 0x63, 0xe6, 0x77, 0xe9, 0x8e, 0xcf, 0xfc, 0x41, 0x0a, 0x6f, 0x83, 0x95, 0xc8, 0x1f, 0x50,
+	0xd7, 0xd9, 0x70, 0x36, 0x1b, 0xde, 0xa5, 0x4c, 0x20, 0x45, 0x4f, 0x05, 0x6a, 0x8e, 0xfd, 0x41,
+	0xff, 0x43, 0x2c, 0x29, 0x4c, 0x14, 0x08, 0x3b, 0xe0, 0xe4, 0x20, 0x1e, 0x46, 0xdc, 0x3d, 0xa1,
+	0xa4, 0x2f, 0x67, 0x02, 0x69, 0x60, 0x2a, 0xd0, 0x29, 0x2d, 0xae, 0x48, 0x4c, 0x34, 0x0c, 0x3f,
+	0x06, 0x0d, 0x46, 0xfd, 0x83, 0xbd, 0x38, 0xea, 0x8f, 0xdd, 0xea, 0x86, 0xb3, 0x59, 0xf7, 0x50,
+	0x26, 0x50, 0x5d, 0x82, 0x5f, 0x46, 0xfd, 0xf1, 0x54, 0xa0, 0x33, 0x5a, 0x2f, 0x47, 0x30, 0x99,
+	0x31, 0xe1, 0x23, 0xb0, 0xda, 0xa3, 0xe3, 0x3d, 0x46, 0x0f, 0xdd, 0x15, 0xe5, 0xb0, 0x93, 0x09,
+	0xb4, 0xde, 0xa3, 0x63, 0x42, 0x0f, 0xef, 0xc4, 0x83, 0x90, 0xd3, 0x41, 0xc2, 0xa5, 0x8d, 0x4b,
+	0xda, 0xc6, 0x3c, 0x07, 0x93, 0x9a, 0x86, 0xf0, 0x33, 0x00, 0x77, 0x75, 0xf0, 0x76, 0x28, 0x1b,
+	0x84, 0x69, 0x1a, 0xc6, 0x51, 0x0a, 0x3f, 0x05, 0x2b, 0xd2, 0x97, 0xeb, 0x6c, 0x54, 0x37, 0x1b,
+	0xde, 0xed, 0x4c, 0xa0, 0xd3, 0x92, 0x2e, 0x99, 0xbe, 0x60, 0x8f, 0x57, 0x34, 0xac, 0x14, 0xf1,
+	0x39, 0x70, 0x76, 0x87, 0xc5, 0xa3, 0xf0, 0x80, 0xb2, 0x27, 0xde, 0xae, 0x8e, 0x28, 0xfe, 0xf3,
+	0x04, 0x38, 0xf3, 0x94, 0x46, 0x7e, 0xc4, 0x67, 0x18, 0x6c, 0x83, 0xea, 0x90, 0xf5, 0x4d, 0x90,
+	0xaf, 0x4e, 0x04, 0xaa, 0x3e, 0x23, 0x5f, 0x64, 0x02, 0x49, 0x74, 0x2a, 0x10, 0xd0, 0x4e, 0x86,
+	0xac, 0x8f, 0x89, 0x84, 0xe0, 0x43, 0xd0, 0x0c, 0x28, 0xe3, 0xe1, 0x61, 0x18, 0xf8, 0x9c, 0x9a,
+	0x70, 0x5f, 0xcf, 0x04, 0x2a, 0xc2, 0x53, 0x81, 0xa0, 0x56, 0x2c, 0x80, 0x98, 0x14, 0x45, 0xe0,
+	0x8f, 0x0e, 0xb8, 0x1c, 0x0e, 0xfc, 0x2e, 0xdd, 0x4b, 0x69, 0x30, 0x64, 0x21, 0x1f, 0xef, 0x25,
+	0x71, 0x3f, 0x0c, 0xc6, 0x7b, 0x43, 0x16, 0xaa, 0x8c, 0x34, 0xbc, 0xaf, 0x26, 0x02, 0x5d, 0x7c,
+	0x2c, 0x85, 0x76, 0x8d, 0xcc, 0x8e, 0x12, 0x79, 0x46, 0x1e, 0x67, 0x02, 0x2d, 0x57, 0x9f, 0x0a,
+	0xb4, 0xa1, 0xfd, 0x2f, 0x15, 0xc1, 0xe4, 0x62, 0xb8, 0xc0, 0x30, 0x0b, 0xe1, 0xe7, 0xe0, 0x94,
+	0xdf, 0xa5, 0x11, 0x37, 0xc2, 0x26, 0xc1, 0x37, 0x32, 0x81, 0x4a, 0xf8, 0x54, 0xa0, 0x73, 0xda,
+	0x47, 0x11, 0xc5, 0xa4, 0xa9, 0x48, 0x6d, 0x0e, 0xff, 0xe4, 0x80, 0x86, 0x8d, 0xf5, 0x43, 0x50,
+	0x4f, 0x4c, 0x52, 0x54, 0xc0, 0x9b, 0x5b, 0x37, 0xdb, 0x8b, 0xdb, 0xaf, 0x7d, 0x2c, 0x79, 0x8f,
+	0x2a, 0x64, 0xa6, 0x0c, 0x1f, 0x80, 0x1a, 0x57, 0x79, 0x54, 0xf1, 0x6f, 0x6e, 0xdd, 0x58, 0x66,
+	0x66, 0x2e, 0xdb, 0x8f, 0x2a, 0xc4, 0x28, 0x7a, 0x75, 0x50, 0xd3, 0x0d, 0x88, 0xff, 0x70, 0x40,
+	0xe3, 0xe9, 0xf6, 0xb6, 0xed, 0x3a, 0x3e, 0x4e, 0x4a, 0x5d, 0x27, 0x69, 0xdb, 0x75, 0x92, 0xc2,
+	0x44, 0x81, 0xb2, 0x18, 0x7c, 0xce, 0x69, 0xca, 0x7d, 0x1e, 0xc6, 0x91, 0x3a, 0x4c, 0x5d, 0x17,
+	0x43, 0x01, 0xb6, 0xc5, 0x50, 0x00, 0x65, 0x9c, 0x2c, 0x05, 0x43, 0x50, 0xed, 0xed, 0xa7, 0x2a,
+	0xeb, 0xcd, 0xad, 0x6b, 0xcb, 0x6e, 0x33, 0xbb, 0x87, 0x77, 0xff, 0x95, 0x40, 0x8e, 0x2c, 0xd6,
+	0x27, 0xde, 0x6e, 0x26, 0xd0, 0x5a, 0x6f, 0x3f, 0x2d, 0xf5, 0xc6, 0x79, 0xd3, 0x76, 0x45, 0x18,
+	0x13, 0xe9, 0x03, 0xff, 0x5d, 0x05, 0x6b, 0x79, 0xc7, 0xe9, 0x2b, 0xef, 0x83, 0xd5, 0x54, 0x4f,
+	0x1e, 0xd5, 0x6f, 0xcd, 0xad, 0xeb, 0xcb, 0x0e, 0x50, 0x1a, 0x50, 0xde, 0xb5, 0x57, 0x02, 0x55,
+	0x32, 0x81, 0x72, 0xed, 0xa9, 0x40, 0xa7, 0xb5, 0x5f, 0x03, 0x60, 0x92, 0xb3, 0xe0, 0x4b, 0x07,
+	0x34, 0x03, 0x46, 0x0f, 0x68, 0xc4, 0x43, 0xbf, 0x9f, 0xba, 0x40, 0xdd, 0x74, 0x73, 0x99, 0x23,
+	0x55, 0xf3, 0x9f, 0x59, 0x79, 0xef, 0x13, 0x79, 0xe1, 0x4c, 0xa0, 0x0b, 0x05, 0x23, 0xa5, 0x1b,
+	0x5f, 0x35, 0xfd, 0xb6, 0x88, 0x2d, 0x3b, 0xcf, 0xe2, 0xf0, 0x7b, 0x07, 0x34, 0x13, 0x3b, 0x6c,
+	0xdc, 0xa6, 0x3a, 0xcb, 0xad, 0xa5, 0x97, 0x3e, 0x36, 0x9e, 0xec, 0x69, 0x0a, 0x66, 0x16, 0x9d,
+	0x66, 0x21, 0x1b, 0x93, 0xa2, 0x77, 0x99, 0x7a, 0x4e, 0xa9, 0x7b, 0xea, 0xed, 0xa9, 0x9f, 0x15,
+	0xa8, 0x4d, 0xfd, 0xd3, 0xed, 0x6d, 0x99, 0x7a, 0x4e, 0xe9, 0xa2, 0xd4, 0x97, 0x60, 0x4c, 0xa4,
+	0x0f, 0xfc, 0xcb, 0x09, 0xb0, 0x3e, 0x1f, 0x59, 0x59, 0xf0, 0x2f, 0xe2, 0x94, 0x17, 0x0b, 0x5e,
+	0xd2, 0xb6, 0xe0, 0x25, 0x85, 0x89, 0x02, 0xe5, 0x33, 0x43, 0x07, 0x7e, 0xd8, 0x2f, 0x3e, 0x33,
+	0x0a, 0xb0, 0xcf, 0x8c, 0x22, 0x31, 0xd1, 0x30, 0xfc, 0x08, 0xd4, 0x87, 0x29, 0x65, 0xea, 0x21,
+	0xd3, 0x33, 0x4d, 0xbd, 0x32, 0x39, 0x66, 0x5f, 0x99, 0x1c, 0xc1, 0x64, 0xc6, 0x94, 0xca, 0x89,
+	0x9f, 0xa6, 0x5f, 0xc7, 0xec, 0xc0, 0x4c, 0x21, 0xa5, 0x9c, 0x63, 0x56, 0x39, 0x47, 0x30, 0x99,
+	0x31, 0xa1, 0x27, 0x07, 0x7b, 0xe8, 0x9e, 0x54, 0x7a, 0xef, 0xeb, 0xc1, 0x2e, 0xa7, 0xe6, 0xda,
+	0x90, 0x85, 0x8b, 0x02, 0x56, 0x82, 0xd5, 0xb0, 0x0f, 0xf1, 0x77, 0xab, 0x60, 0xd5, 0xa4, 0xff,
+	0x5f, 0x3f, 0xc7, 0x6a, 0xba, 0x16, 0xe3, 0xa4, 0x00, 0x1b, 0x27, 0x45, 0x62, 0xa2, 0x61, 0xf8,
+	0x01, 0x58, 0x0d, 0xe2, 0xc1, 0xc0, 0x8f, 0x0e, 0xdc, 0xaa, 0x7a, 0xf3, 0xfe, 0x2f, 0x1b, 0xcb,
+	0x40, 0xb6, 0xb1, 0x0c, 0x80, 0x49, 0xce, 0x92, 0xc7, 0xf2, 0x59, 0x37, 0x75, 0x57, 0x94, 0x96,
+	0x3a, 0x96, 0xa4, 0xed, 0xb1, 0x24, 0x85, 0x89, 0x02, 0xe1, 0x6d, 0x50, 0xa5, 0xd1, 0xc8, 0x3d,
+	0xa9, 0x64, 0x2f, 0x9b, 0x22, 0x96, 0x90, 0x7d, 0xe9, 0x68, 0x34, 0xc2, 0x44, 0x42, 0xb0, 0x2f,
+	0x37, 0x04, 0xb3, 0xa4, 0xb8, 0xb5, 0xd2, 0x9c, 0x95, 0x3b, 0x4d, 0xdb, 0x6e, 0x30, 0x66, 0xa7,
+	0x69, 0x93, 0x1c, 0xf1, 0xae, 0x9b, 0xd1, 0x60, 0x2d, 0x4c, 0x05, 0x5a, 0xcf, 0x1f, 0x6c, 0x03,
+	0x61, 0x62, 0xd9, 0x32, 0x62, 0x81, 0x5a, 0x60, 0x56, 0x37, 0x9c, 0xcd, 0x35, 0x1d, 0xb1, 0xa0,
+	0xbc, 0xc0, 0x04, 0x66, 0x81, 0x51, 0x5f, 0x98, 0x80, 0x9a, 0x5e, 0xb7, 0xdc, 0xfa, 0x3b, 0x86,
+	0x96, 0x4e, 0xe0, 0xb6, 0x12, 0xf6, 0xee, 0x9a, 0x93, 0x19, 0xe5, 0xa9, 0x40, 0x6b, 0xe6, 0xe2,
+	0x8a, 0xc6, 0x3f, 0xff, 0x8a, 0x4e, 0x97, 0x34, 0x52, 0x62, 0x44, 0x21, 0x03, 0xb5, 0x44, 0xf5,
+	0xa0, 0xdb, 0x50, 0xd1, 0x78, 0x97, 0x47, 0xd3, 0xb0, 0xf7, 0x4c, 0x9c, 0xd7, 0xb5, 0xf2, 0xa2,
+	0xf5, 0x68, 0x9e, 0x83, 0x89, 0xf1, 0x04, 0x87, 0xff, 0x6d, 0x6c, 0xde, 0x34, 0xbe, 0x8b, 0x46,
+	0x0a, 0xcb, 0x89, 0x05, 0xe7, 0x46, 0xe4, 0x4b, 0x07, 0xc0, 0x30, 0xe2, 0x94, 0x05, 0x71, 0x14,
+	0xd1, 0x80, 0xef, 0x75, 0x59, 0x3c, 0x4c, 0xd4, 0xa4, 0x6c, 0x78, 0xcf, 0x27, 0x02, 0x9d, 0x7d,
+	0x5c, 0xe0, 0x3e, 0x94, 0xcc, 0x4c, 0xa0, 0xff, 0x85, 0xf3, 0x60, 0xe9, 0xb2, 0xd8, 0x14, 0xfe,
+	0x72, 0x21, 0x4c, 0xce, 0x1e, 0xe3, 0x7a, 0x0f, 0xde, 0xfc, 0xde, 0xaa, 0x7c, 0x3b, 0x69, 0x39,
+	0xaf, 0x26, 0x2d, 0xe7, 0xf5, 0xa4, 0xe5, 0xfc, 0x36, 0x69, 0x39, 0x3f, 0x1c, 0xb5, 0x2a, 0xaf,
+	0x8f, 0x5a, 0x95, 0x37, 0x47, 0xad, 0xca, 0x73, 0x94, 0xf4, 0xba, 0x6d, 0xbf, 0xc7, 0xdb, 0x07,
+	0x74, 0xd4, 0xe9, 0xc6, 0xc7, 0xd6, 0xf3, 0xfd, 0x9a, 0xda, 0xb1, 0xef, 0xfd, 0x13, 0x00, 0x00,
+	0xff, 0xff, 0x6a, 0xa4, 0x0c, 0xf4, 0x13, 0x0c, 0x00, 0x00,
 }
 
 func (m *StorageParams) Marshal() (dAtA []byte, err error) {
@@ -561,6 +809,13 @@ func (m *StorageParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.KeyRef) > 0 {
+		i -= len(m.KeyRef)
+		copy(dAtA[i:], m.KeyRef)
+		i = encodeVarintService(dAtA, i, uint64(len(m.KeyRef)))
+		i--
+		dAtA[i] = 0x22
+	}
 	if m.ReadOnly {
 		i--
 		if m.ReadOnly {
@@ -620,6 +875,154 @@ func (m *ServicePermissions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *ProviderKBSParams) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ProviderKBSParams) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ProviderKBSParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *TenantKBSParams) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *TenantKBSParams) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TenantKBSParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.AgentPolicy) > 0 {
+		i -= len(m.AgentPolicy)
+		copy(dAtA[i:], m.AgentPolicy)
+		i = encodeVarintService(dAtA, i, uint64(len(m.AgentPolicy)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.ImageSecurityPolicyURI) > 0 {
+		i -= len(m.ImageSecurityPolicyURI)
+		copy(dAtA[i:], m.ImageSecurityPolicyURI)
+		i = encodeVarintService(dAtA, i, uint64(len(m.ImageSecurityPolicyURI)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Certificate) > 0 {
+		i -= len(m.Certificate)
+		copy(dAtA[i:], m.Certificate)
+		i = encodeVarintService(dAtA, i, uint64(len(m.Certificate)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.URL) > 0 {
+		i -= len(m.URL)
+		copy(dAtA[i:], m.URL)
+		i = encodeVarintService(dAtA, i, uint64(len(m.URL)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *KBSParams) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *KBSParams) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *KBSParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Source != nil {
+		{
+			size := m.Source.Size()
+			i -= size
+			if _, err := m.Source.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *KBSParams_Provider) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *KBSParams_Provider) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.Provider != nil {
+		{
+			size, err := m.Provider.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintService(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+func (m *KBSParams_Tenant) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *KBSParams_Tenant) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.Tenant != nil {
+		{
+			size, err := m.Tenant.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintService(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	return len(dAtA) - i, nil
+}
 func (m *TEEParams) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -640,6 +1043,18 @@ func (m *TEEParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.KBS != nil {
+		{
+			size, err := m.KBS.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintService(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
 	if m.Attestation {
 		i--
 		if m.Attestation {
@@ -753,6 +1168,13 @@ func (m *ImageCredentials) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.URI) > 0 {
+		i -= len(m.URI)
+		copy(dAtA[i:], m.URI)
+		i = encodeVarintService(dAtA, i, uint64(len(m.URI)))
+		i--
+		dAtA[i] = 0x2a
+	}
 	if len(m.Password) > 0 {
 		i -= len(m.Password)
 		copy(dAtA[i:], m.Password)
@@ -936,6 +1358,10 @@ func (m *StorageParams) Size() (n int) {
 	if m.ReadOnly {
 		n += 2
 	}
+	l = len(m.KeyRef)
+	if l > 0 {
+		n += 1 + l + sovService(uint64(l))
+	}
 	return n
 }
 
@@ -954,6 +1380,76 @@ func (m *ServicePermissions) Size() (n int) {
 	return n
 }
 
+func (m *ProviderKBSParams) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *TenantKBSParams) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.URL)
+	if l > 0 {
+		n += 1 + l + sovService(uint64(l))
+	}
+	l = len(m.Certificate)
+	if l > 0 {
+		n += 1 + l + sovService(uint64(l))
+	}
+	l = len(m.ImageSecurityPolicyURI)
+	if l > 0 {
+		n += 1 + l + sovService(uint64(l))
+	}
+	l = len(m.AgentPolicy)
+	if l > 0 {
+		n += 1 + l + sovService(uint64(l))
+	}
+	return n
+}
+
+func (m *KBSParams) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Source != nil {
+		n += m.Source.Size()
+	}
+	return n
+}
+
+func (m *KBSParams_Provider) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Provider != nil {
+		l = m.Provider.Size()
+		n += 1 + l + sovService(uint64(l))
+	}
+	return n
+}
+func (m *KBSParams_Tenant) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Tenant != nil {
+		l = m.Tenant.Size()
+		n += 1 + l + sovService(uint64(l))
+	}
+	return n
+}
 func (m *TEEParams) Size() (n int) {
 	if m == nil {
 		return 0
@@ -966,6 +1462,10 @@ func (m *TEEParams) Size() (n int) {
 	}
 	if m.Attestation {
 		n += 2
+	}
+	if m.KBS != nil {
+		l = m.KBS.Size()
+		n += 1 + l + sovService(uint64(l))
 	}
 	return n
 }
@@ -1016,6 +1516,10 @@ func (m *ImageCredentials) Size() (n int) {
 		n += 1 + l + sovService(uint64(l))
 	}
 	l = len(m.Password)
+	if l > 0 {
+		n += 1 + l + sovService(uint64(l))
+	}
+	l = len(m.URI)
 	if l > 0 {
 		n += 1 + l + sovService(uint64(l))
 	}
@@ -1094,6 +1598,7 @@ func (this *StorageParams) String() string {
 		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
 		`Mount:` + fmt.Sprintf("%v", this.Mount) + `,`,
 		`ReadOnly:` + fmt.Sprintf("%v", this.ReadOnly) + `,`,
+		`KeyRef:` + fmt.Sprintf("%v", this.KeyRef) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1108,6 +1613,58 @@ func (this *ServicePermissions) String() string {
 	}, "")
 	return s
 }
+func (this *ProviderKBSParams) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ProviderKBSParams{`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *TenantKBSParams) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&TenantKBSParams{`,
+		`URL:` + fmt.Sprintf("%v", this.URL) + `,`,
+		`Certificate:` + fmt.Sprintf("%v", this.Certificate) + `,`,
+		`ImageSecurityPolicyURI:` + fmt.Sprintf("%v", this.ImageSecurityPolicyURI) + `,`,
+		`AgentPolicy:` + fmt.Sprintf("%v", this.AgentPolicy) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *KBSParams) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&KBSParams{`,
+		`Source:` + fmt.Sprintf("%v", this.Source) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *KBSParams_Provider) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&KBSParams_Provider{`,
+		`Provider:` + strings.Replace(fmt.Sprintf("%v", this.Provider), "ProviderKBSParams", "ProviderKBSParams", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *KBSParams_Tenant) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&KBSParams_Tenant{`,
+		`Tenant:` + strings.Replace(fmt.Sprintf("%v", this.Tenant), "TenantKBSParams", "TenantKBSParams", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
 func (this *TEEParams) String() string {
 	if this == nil {
 		return "nil"
@@ -1115,6 +1672,7 @@ func (this *TEEParams) String() string {
 	s := strings.Join([]string{`&TEEParams{`,
 		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
 		`Attestation:` + fmt.Sprintf("%v", this.Attestation) + `,`,
+		`KBS:` + strings.Replace(this.KBS.String(), "KBSParams", "KBSParams", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1146,6 +1704,7 @@ func (this *ImageCredentials) String() string {
 		`Email:` + fmt.Sprintf("%v", this.Email) + `,`,
 		`Username:` + fmt.Sprintf("%v", this.Username) + `,`,
 		`Password:` + fmt.Sprintf("%v", this.Password) + `,`,
+		`URI:` + fmt.Sprintf("%v", this.URI) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1296,6 +1855,38 @@ func (m *StorageParams) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.ReadOnly = bool(v != 0)
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field KeyRef", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.KeyRef = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipService(dAtA[iNdEx:])
@@ -1399,6 +1990,354 @@ func (m *ServicePermissions) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *ProviderKBSParams) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProviderKBSParams: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProviderKBSParams: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *TenantKBSParams) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: TenantKBSParams: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: TenantKBSParams: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field URL", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.URL = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Certificate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Certificate = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ImageSecurityPolicyURI", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ImageSecurityPolicyURI = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AgentPolicy", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AgentPolicy = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *KBSParams) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: KBSParams: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: KBSParams: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Provider", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ProviderKBSParams{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Source = &KBSParams_Provider{v}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Tenant", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &TenantKBSParams{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Source = &KBSParams_Tenant{v}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *TEEParams) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1480,6 +2419,42 @@ func (m *TEEParams) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.Attestation = bool(v != 0)
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field KBS", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.KBS == nil {
+				m.KBS = &KBSParams{}
+			}
+			if err := m.KBS.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipService(dAtA[iNdEx:])
@@ -1849,6 +2824,38 @@ func (m *ImageCredentials) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Password = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field URI", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.URI = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

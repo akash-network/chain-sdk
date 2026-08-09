@@ -373,25 +373,35 @@ properties:
         command:
           $ref: '#/definitions/stringArrayOrNull'
         credentials:
-          additionalProperties: false
-          properties:
-            email:
-              type: string
-              minLength: 5
-            host:
-              type: string
-              minLength: 1
-            password:
-              type: string
-              minLength: 6
-            username:
-              type: string
-              minLength: 1
-          required:
-            - host
-            - username
-            - password
-          type: object
+          oneOf:
+            - additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  minLength: 5
+                host:
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 6
+                username:
+                  type: string
+                  minLength: 1
+              required:
+                - host
+                - username
+                - password
+              type: object
+            - additionalProperties: false
+              properties:
+                uri:
+                  type: string
+                  maxLength: 2048
+                  pattern: '^kbs:///[A-Za-z0-9_-][A-Za-z0-9._-]*/[A-Za-z0-9_-][A-Za-z0-9._-]*/[A-Za-z0-9_-][A-Za-z0-9._-]*$'
+              required:
+                - uri
+              type: object
         dependencies:
           items:
             additionalProperties: false
@@ -490,6 +500,11 @@ properties:
                     $ref: '#/definitions/absolutePath'
                   readOnly:
                     type: boolean
+                  keyRef:
+                    description: Opaque tenant-signed CoCo sealed-secret reference
+                    type: string
+                    maxLength: 65536
+                    pattern: '^$|^sealed\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$'
                 type: object
               type: object
             permissions:
@@ -509,6 +524,42 @@ properties:
               enum:
                 - cpu
                 - cpu-gpu
+            kbs:
+              oneOf:
+                - additionalProperties: false
+                  properties:
+                    mode:
+                      const: provider
+                  required:
+                    - mode
+                  type: object
+                - additionalProperties: false
+                  properties:
+                    mode:
+                      const: tenant
+                    url:
+                      maxLength: 2048
+                      pattern: '^https://[^/?#@\s]+$'
+                      type: string
+                    certificate:
+                      maxLength: 65536
+                      minLength: 1
+                      type: string
+                    imageSecurityPolicyURI:
+                      maxLength: 1024
+                      pattern: '^kbs:///[A-Za-z0-9._-]+/security-policy/sha256-[0-9a-f]{64}$'
+                      type: string
+                    agentPolicy:
+                      maxLength: 1048576
+                      minLength: 1
+                      type: string
+                  required:
+                    - mode
+                    - url
+                    - certificate
+                    - imageSecurityPolicyURI
+                    - agentPolicy
+                  type: object
           type: object
       required:
         - image

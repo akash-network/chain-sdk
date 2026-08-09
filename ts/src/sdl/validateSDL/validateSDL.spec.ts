@@ -7,6 +7,8 @@ import { AKT_DENOM } from "../../network/index.ts";
 import { MAX_HTTP_TIMEOUT_MILLISECONDS } from "../httpTimeout.ts";
 import { type SDLInput, validateSDL } from "./validateSDL.ts";
 
+const STORAGE_KEY_REF = "sealed.eyJhbGciOiJFUzI1NiJ9.eyJ2ZXJzaW9uIjoiMC4xLjAifQ.c2lnbmF0dXJl";
+
 describe(validateSDL.name, () => {
   describe("valid SDL", () => {
     it("returns undefined for a valid SDL", () => {
@@ -422,6 +424,111 @@ describe(validateSDL.name, () => {
 
       expect(validate()).toBeUndefined();
     });
+
+    it("rejects a malformed storage keyRef", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: "kbs:///default/storage-dek/example" },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: {
+                  name: "data",
+                  size: "1Gi",
+                  attributes: { class: "default", persistent: true },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage keyRef must use sealed.<JWS> format.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "pattern",
+      }));
+    });
+
+    it("rejects an oversized storage keyRef", () => {
+      const oversizedKeyRef = `sealed.${"a".repeat(65536)}.payload.signature`;
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: oversizedKeyRef },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: {
+                  name: "data",
+                  size: "1Gi",
+                  attributes: { class: "default", persistent: true },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage keyRef must be at most 65536 characters.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "maxLength",
+      }));
+    });
+
+    it("rejects a storage keyRef on ephemeral storage", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: {
+              storage: {
+                data: { mount: "/data", keyRef: STORAGE_KEY_REF },
+              },
+            },
+          },
+        },
+        profiles: {
+          compute: {
+            web: {
+              resources: {
+                cpu: { units: 1 },
+                memory: { size: "512Mi" },
+                storage: { name: "data", size: "1Gi" },
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: "Storage \"data\" keyRef requires persistent storage.",
+        instancePath: "/services/web/params/storage/data/keyRef",
+        keyword: "persistent",
+      }));
+    });
   });
 
   describe("permissions validation", () => {
@@ -619,6 +726,147 @@ describe(validateSDL.name, () => {
   });
 
   describe("TEE validation", () => {
+    it("requires a TEE when KBS configuration is present", () => {
+      const { validate } = setup({
+        services: { web: { params: { kbs: { mode: "provider" } } } },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("KBS configuration requires a confidential TEE"),
+        instancePath: "/services/web/params/kbs",
+        keyword: "runtime",
+      }));
+    });
+
+    it("requires an explicit KBS selection for referenced credentials", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: { tee: "cpu" },
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("explicit params.kbs selection"),
+        instancePath: "/services/web/params/kbs",
+        keyword: "required",
+      }));
+    });
+
+    it("rejects incomplete tenant-managed KBS configuration", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: { mode: "tenant", url: "https://kbs.tenant.example" },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toEqual(expect.arrayContaining([
+        expect.objectContaining({ keyword: "required" }),
+      ]));
+    });
+
+    it("rejects tenant fields in provider-managed KBS mode", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: { mode: "provider", url: "https://kbs.tenant.example" },
+            },
+          },
+        },
+      } as DeepPartial<SDLInput>);
+
+      expect(validate()).toEqual(expect.arrayContaining([
+        expect.objectContaining({ keyword: "additionalProperties" }),
+      ]));
+    });
+
+    it("rejects a tenant KBS URL that is not an HTTPS origin", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: {
+                mode: "tenant",
+                url: "https://kbs.tenant.example/admin",
+                certificate: "tenant public certificate",
+                imageSecurityPolicyURI: `kbs:///tenant/security-policy/sha256-${"a".repeat(64)}`,
+                agentPolicy: "package agent_policy\n\ndefault allow = false\n",
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toEqual(expect.arrayContaining([
+        expect.objectContaining({ keyword: "pattern" }),
+      ]));
+    });
+
+    it("rejects malformed tenant KBS origins before manifest generation", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: {
+                mode: "tenant",
+                url: "https://kbs.tenant.example:not-a-port",
+                certificate: "tenant public certificate",
+                imageSecurityPolicyURI: `kbs:///tenant/security-policy/sha256-${"a".repeat(64)}`,
+                agentPolicy: "package agent_policy\n\ndefault allow = false\n",
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("canonical HTTPS origin"),
+        instancePath: "/services/web/params/kbs/url",
+        keyword: "format",
+      }));
+    });
+
+    it.each([
+      ["a missing package declaration", "allow = true\n"],
+      ["a NUL character", "package agent_policy\n\ndefault allow = false\x00\n"],
+      ["a carriage return", "package agent_policy\r\n\ndefault allow = false\n"],
+      ["more than one MiB of UTF-8 data", `package agent_policy\n#${"é".repeat(524_288)}`],
+    ])("rejects a tenant agent policy with %s", (_reason, agentPolicy) => {
+      const { validate } = setup({
+        services: {
+          web: {
+            params: {
+              tee: "cpu",
+              kbs: {
+                mode: "tenant",
+                url: "https://kbs.tenant.example",
+                certificate: "tenant public certificate",
+                imageSecurityPolicyURI: `kbs:///tenant/security-policy/sha256-${"a".repeat(64)}`,
+                agentPolicy,
+              },
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("bounded agent_policy document"),
+        instancePath: "/services/web/params/kbs/agentPolicy",
+        keyword: "format",
+      }));
+    });
+
     it("returns an error when tee is cpu-gpu but no GPU resources are defined", () => {
       const { validate } = setup({
         services: { web: { params: { tee: "cpu-gpu" } } },
@@ -1382,6 +1630,57 @@ describe(validateSDL.name, () => {
       });
 
       expect(validate()).toBeUndefined();
+    });
+
+    it("accepts a KBS credential reference for a confidential service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: { tee: "cpu", kbs: { mode: "provider" } },
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+
+    it("rejects a KBS credential reference for an ordinary service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            credentials: { uri: "kbs:///lease-scope/registry/auth" },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("requires a confidential TEE"),
+        keyword: "runtime",
+      }));
+    });
+
+    it("rejects inline credentials for a confidential service", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            params: { tee: "cpu" },
+            credentials: {
+              host: "registry.example.com",
+              username: "user",
+              password: "password123",
+            },
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("require a KBS resource URI"),
+        keyword: "runtime",
+      }));
     });
   });
 

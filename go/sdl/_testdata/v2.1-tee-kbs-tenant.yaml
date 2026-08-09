@@ -1,0 +1,44 @@
+---
+version: "2.1"
+services:
+  web:
+    image: nginx
+    expose:
+      - port: 80
+        to:
+          - global: true
+    params:
+      tee: cpu
+      kbs:
+        mode: tenant
+        url: https://kbs.tenant.example:8443
+        certificate: |
+          -----BEGIN CERTIFICATE-----
+          tenant-public-ca-fixture
+          -----END CERTIFICATE-----
+        imageSecurityPolicyURI: kbs:///tenant/security-policy/sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        agentPolicy: |
+          package agent_policy
+
+          default allow = false
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: "100m"
+        memory:
+          size: "128Mi"
+        storage:
+          size: "1Gi"
+  placement:
+    westcoast:
+      pricing:
+        web:
+          denom: uact
+          amount: 50
+deployment:
+  web:
+    westcoast:
+      profile: web
+      count: 1

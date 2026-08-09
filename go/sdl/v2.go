@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net/url"
 	"path"
 	"regexp"
 	"sort"
@@ -52,7 +53,10 @@ var (
 var (
 	endpointNameValidationRegex = regexp.MustCompile(`^[[:lower:]]+[[:lower:]-_\d]+$`)
 	httpTimeoutValidationRegex  = regexp.MustCompile(`^[0-9]+(ms|s|m|h)?$`)
+	kbsResourceSegmentRegex     = regexp.MustCompile(`^[A-Za-z0-9_-][A-Za-z0-9._-]*$`)
 )
+
+const kbsResourceURIMaxBytes = 2048
 
 var _ SDL = (*v2)(nil)
 
@@ -211,6 +215,7 @@ type v2ServiceParams struct {
 	Storage     map[string]v2ServiceStorageParams `yaml:"storage,omitempty"`
 	Permissions *v2ServicePermissions             `yaml:"permissions,omitempty"`
 	TEE         string                            `yaml:"tee,omitempty"`
+	KBS         *v2ServiceKBSParams               `yaml:"kbs,omitempty"`
 }
 
 type v2Service struct {
@@ -229,9 +234,25 @@ type v2ServiceCredentials struct {
 	Email    string `yaml:",omitempty"`
 	Username string `yaml:",omitempty"`
 	Password string `yaml:",omitempty"`
+	URI      string `yaml:",omitempty"`
 }
 
-func (c v2ServiceCredentials) validate() error {
+func (c v2ServiceCredentials) validate(confidential bool) error {
+	uri := strings.TrimSpace(c.URI)
+	hasInline := strings.TrimSpace(c.Host) != "" || strings.TrimSpace(c.Email) != "" ||
+		strings.TrimSpace(c.Username) != "" || strings.TrimSpace(c.Password) != ""
+	if uri != "" && hasInline {
+		return errors.New("service credentials cannot mix inline fields with uri")
+	}
+	if confidential {
+		if uri == "" {
+			return errors.New("confidential service credentials require a KBS resource URI")
+		}
+		return validateKBSResourceURI(c.URI)
+	}
+	if uri != "" {
+		return errors.New("service credentials KBS resource URI requires a confidential service")
+	}
 	if strings.TrimSpace(c.Host) == "" {
 		return errCredentialNoHost
 	}
@@ -241,6 +262,34 @@ func (c v2ServiceCredentials) validate() error {
 	if strings.TrimSpace(c.Password) == "" {
 		return errCredentialNoPassword
 	}
+	return nil
+}
+
+func validateKBSResourceURI(value string) error {
+	if value == "" || len(value) > kbsResourceURIMaxBytes || value != strings.TrimSpace(value) {
+		return errors.New("registry credential URI must be a bounded canonical kbs:///repo/type/tag URI")
+	}
+
+	parsed, err := url.Parse(value)
+	if err != nil || parsed.Scheme != "kbs" || parsed.Host != "" || parsed.User != nil ||
+		parsed.Opaque != "" || parsed.RawPath != "" || parsed.RawQuery != "" || parsed.ForceQuery ||
+		parsed.Fragment != "" {
+		return errors.New("registry credential URI must be a canonical kbs:///repo/type/tag URI")
+	}
+
+	parts := strings.Split(strings.TrimPrefix(parsed.Path, "/"), "/")
+	if len(parts) != 3 {
+		return errors.New("registry credential URI must be a canonical kbs:///repo/type/tag URI")
+	}
+	for _, part := range parts {
+		if !kbsResourceSegmentRegex.MatchString(part) {
+			return errors.New("registry credential URI must be a canonical kbs:///repo/type/tag URI")
+		}
+	}
+	if value != "kbs:///"+strings.Join(parts, "/") {
+		return errors.New("registry credential URI must be a canonical kbs:///repo/type/tag URI")
+	}
+
 	return nil
 }
 
@@ -411,7 +460,8 @@ func (sdl *v2) validate() error {
 			}
 
 			if svc.Credentials != nil {
-				if err := svc.Credentials.validate(); err != nil {
+				confidential := svc.Params != nil && svc.Params.TEE != ""
+				if err := svc.Credentials.validate(confidential); err != nil {
 					return fmt.Errorf(
 						"%w: %v.%v: %v",
 						errSDLInvalid,
@@ -420,6 +470,15 @@ func (sdl *v2) validate() error {
 						err,
 					)
 				}
+			}
+			if err := svc.validateKBS(); err != nil {
+				return fmt.Errorf(
+					"%w: %v.%v: %v",
+					errSDLInvalid,
+					svcName,
+					placementName,
+					err,
+				)
 			}
 
 			for _, serviceExpose := range svc.Expose {
@@ -513,6 +572,15 @@ func (sdl *v2) validate() error {
 						return fmt.Errorf(
 							"%w: invalid value for \"service.%s.params.%s.mount\" parameter. expected absolute path",
 							errSDLInvalid,
+							svcName,
+							name,
+						)
+					}
+
+					if err := validateStorageKeyRef(params.KeyRef, volumes[name].Attributes); err != nil {
+						return fmt.Errorf(
+							"%w: services.%s.params.storage.%s.keyRef",
+							err,
 							svcName,
 							name,
 						)

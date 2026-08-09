@@ -16,6 +16,11 @@ export interface StorageParams {
   name: string;
   mount: string;
   readOnly: boolean;
+  /**
+   * key_ref is an opaque, tenant-signed CoCo sealed-secret reference.
+   * Verification and unsealing happen inside the confidential guest.
+   */
+  keyRef?: string;
 }
 
 /**
@@ -25,6 +30,35 @@ export interface StorageParams {
  */
 export interface ServicePermissions {
   read: string[];
+}
+
+/**
+ * ProviderKBSParams explicitly selects the provider-managed KBS configuration.
+ * The configuration itself is operator supplied and is not copied into the
+ * tenant manifest.
+ */
+export interface ProviderKBSParams {
+}
+
+/**
+ * TenantKBSParams contains the public, tenant-controlled inputs needed to
+ * connect a confidential guest to the tenant's KBS. Secret resources and KBS
+ * administrator credentials are never carried in this message.
+ */
+export interface TenantKBSParams {
+  url: string;
+  certificate: string;
+  imageSecurityPolicyUri: string;
+  agentPolicy: string;
+}
+
+/**
+ * KBSParams selects exactly one source for the guest's public KBS connection
+ * and measured policy configuration.
+ */
+export interface KBSParams {
+  provider?: ProviderKBSParams | undefined;
+  tenant?: TenantKBSParams | undefined;
 }
 
 /**
@@ -43,6 +77,8 @@ export interface TEEParams {
    * this; non-Go clients must set attestation=true when sidecar injection is desired.
    */
   attestation: boolean;
+  /** kbs selects provider-managed or tenant-managed KBS configuration. */
+  kbs: KBSParams | undefined;
 }
 
 /** ServiceParams */
@@ -59,6 +95,11 @@ export interface ImageCredentials {
   email: string;
   username: string;
   password: string;
+  /**
+   * uri references a complete Docker auth document released by KBS after
+   * attestation. It is mutually exclusive with host/email/username/password.
+   */
+  uri?: string;
 }
 
 /** Service stores name, image, args, env, unit, count and expose list of service */
@@ -109,6 +150,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     if (message.readOnly !== false) {
       writer.uint32(24).bool(message.readOnly);
     }
+    if (message.keyRef !== undefined && message.keyRef !== "") {
+      writer.uint32(34).string(message.keyRef);
+    }
     return writer;
   },
 
@@ -143,6 +187,14 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
           message.readOnly = reader.bool();
           continue;
         }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.keyRef = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -157,6 +209,7 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       mount: isSet(object.mount) ? globalThis.String(object.mount) : "",
       readOnly: isSet(object.read_only) ? globalThis.Boolean(object.read_only) : false,
+      ...(isSet(object.key_ref) ? { keyRef: globalThis.String(object.key_ref) } : {}),
     };
   },
 
@@ -171,6 +224,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     if (message.readOnly !== false) {
       obj.read_only = message.readOnly;
     }
+    if (message.keyRef !== undefined && message.keyRef !== "") {
+      obj.key_ref = message.keyRef;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<StorageParams>): StorageParams {
@@ -178,6 +234,9 @@ export const StorageParams: MessageFns<StorageParams, "akash.manifest.v2beta3.St
     message.name = object.name ?? "";
     message.mount = object.mount ?? "";
     message.readOnly = object.readOnly ?? false;
+    if (object.keyRef !== undefined) {
+      message.keyRef = object.keyRef;
+    }
     return message;
   },
 };
@@ -238,8 +297,235 @@ export const ServicePermissions: MessageFns<ServicePermissions, "akash.manifest.
   },
 };
 
+function createBaseProviderKBSParams(): ProviderKBSParams {
+  return {};
+}
+
+export const ProviderKBSParams: MessageFns<ProviderKBSParams, "akash.manifest.v2beta3.ProviderKBSParams"> = {
+  $type: "akash.manifest.v2beta3.ProviderKBSParams" as const,
+
+  encode(_: ProviderKBSParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProviderKBSParams {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProviderKBSParams();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): ProviderKBSParams {
+    return {};
+  },
+
+  toJSON(_: ProviderKBSParams): unknown {
+    const obj: any = {};
+    return obj;
+  },
+  fromPartial(_: DeepPartial<ProviderKBSParams>): ProviderKBSParams {
+    const message = createBaseProviderKBSParams();
+    return message;
+  },
+};
+
+function createBaseTenantKBSParams(): TenantKBSParams {
+  return { url: "", certificate: "", imageSecurityPolicyUri: "", agentPolicy: "" };
+}
+
+export const TenantKBSParams: MessageFns<TenantKBSParams, "akash.manifest.v2beta3.TenantKBSParams"> = {
+  $type: "akash.manifest.v2beta3.TenantKBSParams" as const,
+
+  encode(message: TenantKBSParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.url !== "") {
+      writer.uint32(10).string(message.url);
+    }
+    if (message.certificate !== "") {
+      writer.uint32(18).string(message.certificate);
+    }
+    if (message.imageSecurityPolicyUri !== "") {
+      writer.uint32(26).string(message.imageSecurityPolicyUri);
+    }
+    if (message.agentPolicy !== "") {
+      writer.uint32(34).string(message.agentPolicy);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): TenantKBSParams {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTenantKBSParams();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.url = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.certificate = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.imageSecurityPolicyUri = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.agentPolicy = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): TenantKBSParams {
+    return {
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
+      certificate: isSet(object.certificate) ? globalThis.String(object.certificate) : "",
+      imageSecurityPolicyUri: isSet(object.image_security_policy_uri)
+        ? globalThis.String(object.image_security_policy_uri)
+        : "",
+      agentPolicy: isSet(object.agent_policy) ? globalThis.String(object.agent_policy) : "",
+    };
+  },
+
+  toJSON(message: TenantKBSParams): unknown {
+    const obj: any = {};
+    if (message.url !== "") {
+      obj.url = message.url;
+    }
+    if (message.certificate !== "") {
+      obj.certificate = message.certificate;
+    }
+    if (message.imageSecurityPolicyUri !== "") {
+      obj.image_security_policy_uri = message.imageSecurityPolicyUri;
+    }
+    if (message.agentPolicy !== "") {
+      obj.agent_policy = message.agentPolicy;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<TenantKBSParams>): TenantKBSParams {
+    const message = createBaseTenantKBSParams();
+    message.url = object.url ?? "";
+    message.certificate = object.certificate ?? "";
+    message.imageSecurityPolicyUri = object.imageSecurityPolicyUri ?? "";
+    message.agentPolicy = object.agentPolicy ?? "";
+    return message;
+  },
+};
+
+function createBaseKBSParams(): KBSParams {
+  return { provider: undefined, tenant: undefined };
+}
+
+export const KBSParams: MessageFns<KBSParams, "akash.manifest.v2beta3.KBSParams"> = {
+  $type: "akash.manifest.v2beta3.KBSParams" as const,
+
+  encode(message: KBSParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.provider !== undefined) {
+      ProviderKBSParams.encode(message.provider, writer.uint32(10).fork()).join();
+    }
+    if (message.tenant !== undefined) {
+      TenantKBSParams.encode(message.tenant, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): KBSParams {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseKBSParams();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.provider = ProviderKBSParams.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.tenant = TenantKBSParams.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): KBSParams {
+    return {
+      provider: isSet(object.provider) ? ProviderKBSParams.fromJSON(object.provider) : undefined,
+      tenant: isSet(object.tenant) ? TenantKBSParams.fromJSON(object.tenant) : undefined,
+    };
+  },
+
+  toJSON(message: KBSParams): unknown {
+    const obj: any = {};
+    if (message.provider !== undefined) {
+      obj.provider = ProviderKBSParams.toJSON(message.provider);
+    }
+    if (message.tenant !== undefined) {
+      obj.tenant = TenantKBSParams.toJSON(message.tenant);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<KBSParams>): KBSParams {
+    const message = createBaseKBSParams();
+    message.provider = (object.provider !== undefined && object.provider !== null)
+      ? ProviderKBSParams.fromPartial(object.provider)
+      : undefined;
+    message.tenant = (object.tenant !== undefined && object.tenant !== null)
+      ? TenantKBSParams.fromPartial(object.tenant)
+      : undefined;
+    return message;
+  },
+};
+
 function createBaseTEEParams(): TEEParams {
-  return { type: "", attestation: false };
+  return { type: "", attestation: false, kbs: undefined };
 }
 
 export const TEEParams: MessageFns<TEEParams, "akash.manifest.v2beta3.TEEParams"> = {
@@ -251,6 +537,9 @@ export const TEEParams: MessageFns<TEEParams, "akash.manifest.v2beta3.TEEParams"
     }
     if (message.attestation !== false) {
       writer.uint32(16).bool(message.attestation);
+    }
+    if (message.kbs !== undefined) {
+      KBSParams.encode(message.kbs, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -278,6 +567,14 @@ export const TEEParams: MessageFns<TEEParams, "akash.manifest.v2beta3.TEEParams"
           message.attestation = reader.bool();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.kbs = KBSParams.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -291,6 +588,7 @@ export const TEEParams: MessageFns<TEEParams, "akash.manifest.v2beta3.TEEParams"
     return {
       type: isSet(object.type) ? globalThis.String(object.type) : "",
       attestation: isSet(object.attestation) ? globalThis.Boolean(object.attestation) : false,
+      kbs: isSet(object.kbs) ? KBSParams.fromJSON(object.kbs) : undefined,
     };
   },
 
@@ -302,12 +600,16 @@ export const TEEParams: MessageFns<TEEParams, "akash.manifest.v2beta3.TEEParams"
     if (message.attestation !== false) {
       obj.attestation = message.attestation;
     }
+    if (message.kbs !== undefined) {
+      obj.kbs = KBSParams.toJSON(message.kbs);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<TEEParams>): TEEParams {
     const message = createBaseTEEParams();
     message.type = object.type ?? "";
     message.attestation = object.attestation ?? false;
+    message.kbs = (object.kbs !== undefined && object.kbs !== null) ? KBSParams.fromPartial(object.kbs) : undefined;
     return message;
   },
 };
@@ -444,6 +746,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     if (message.password !== "") {
       writer.uint32(34).string(message.password);
     }
+    if (message.uri !== undefined && message.uri !== "") {
+      writer.uint32(42).string(message.uri);
+    }
     return writer;
   },
 
@@ -486,6 +791,14 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
           message.password = reader.string();
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.uri = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -501,6 +814,7 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
       email: isSet(object.email) ? globalThis.String(object.email) : "",
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       password: isSet(object.password) ? globalThis.String(object.password) : "",
+      ...(isSet(object.uri) ? { uri: globalThis.String(object.uri) } : {}),
     };
   },
 
@@ -518,6 +832,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     if (message.password !== "") {
       obj.password = message.password;
     }
+    if (message.uri !== undefined && message.uri !== "") {
+      obj.uri = message.uri;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ImageCredentials>): ImageCredentials {
@@ -526,6 +843,9 @@ export const ImageCredentials: MessageFns<ImageCredentials, "akash.manifest.v2be
     message.email = object.email ?? "";
     message.username = object.username ?? "";
     message.password = object.password ?? "";
+    if (object.uri !== undefined) {
+      message.uri = object.uri;
+    }
     return message;
   },
 };
