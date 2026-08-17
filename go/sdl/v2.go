@@ -127,6 +127,15 @@ type v2HTTPOptions struct {
 	NextTries   uint32        `yaml:"next_tries"`
 	NextTimeout uint32        `yaml:"next_timeout"`
 	NextCases   []string      `yaml:"next_cases"`
+	// New nginx proxy options. Pointer/zero == unset so they are omitted from the
+	// manifest (and its version hash) when the tenant does not set them. Defaults
+	// are applied by the provider gateway at use-time, never injected here.
+	ProxyBuffering       *bool  `yaml:"proxy_buffering,omitempty"`
+	ProxyBufferSize      uint32 `yaml:"proxy_buffer_size,omitempty"`
+	ProxyBuffersNumber   uint32 `yaml:"proxy_buffers_number,omitempty"`
+	ProxyBuffersSize     uint32 `yaml:"proxy_buffers_size,omitempty"`
+	ProxyBusyBuffersSize uint32 `yaml:"proxy_busy_buffers_size,omitempty"`
+	ProxyConnectTimeout  uint32 `yaml:"proxy_connect_timeout,omitempty"`
 }
 
 func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) {
@@ -178,6 +187,22 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		}
 	}
 
+	// proxy_buffering is a tri-state: unset (nil) -> Unspecified so the provider
+	// applies the gateway default; explicit true/false -> On/Off.
+	buffering := manifest.ProxyBufferingUnspecified
+	if ho.ProxyBuffering != nil {
+		if *ho.ProxyBuffering {
+			buffering = manifest.ProxyBufferingOn
+		} else {
+			buffering = manifest.ProxyBufferingOff
+		}
+	}
+
+	// proxy_buffers is an nginx "<number> <size>" pair; require both or neither.
+	if (ho.ProxyBuffersNumber == 0) != (ho.ProxyBuffersSize == 0) {
+		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: proxy_buffers requires both proxy_buffers_number and proxy_buffers_size", errHTTPOptionNotAllowed)
+	}
+
 	return manifest.ServiceExposeHTTPOptions{
 		MaxBodySize: maxBodySize,
 		ReadTimeout: readTimeout,
@@ -185,6 +210,14 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		NextTries:   nextTries,
 		NextTimeout: ho.NextTimeout,
 		NextCases:   nextCases,
+		// New options: passed through with no defaults so a zero value stays zero
+		// and is dropped by omitempty (backward-compatible version hash).
+		ProxyBuffering:       buffering,
+		ProxyBufferSize:      ho.ProxyBufferSize,
+		ProxyBuffersNumber:   ho.ProxyBuffersNumber,
+		ProxyBuffersSize:     ho.ProxyBuffersSize,
+		ProxyBusyBuffersSize: ho.ProxyBusyBuffersSize,
+		ProxyConnectTimeout:  ho.ProxyConnectTimeout,
 	}, nil
 }
 

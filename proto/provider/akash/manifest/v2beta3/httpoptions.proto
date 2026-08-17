@@ -8,6 +8,21 @@ option (gogoproto.goproto_stringer_all) = false;
 option (gogoproto.stringer_all)         = true;
 option go_package                       = "pkg.akt.dev/go/manifest/v2beta3";
 
+// ProxyBuffering is a tri-state for expose.http_options.proxy_buffering.
+// PROXY_BUFFERING_UNSPECIFIED (0) means the tenant did not set it and the
+// provider applies the gateway default (nginx: on). It is omitempty so it never
+// affects the manifest version hash of deployments that do not set it.
+enum ProxyBuffering {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // PROXY_BUFFERING_UNSPECIFIED: tenant did not set proxy_buffering; the provider applies the gateway default.
+  PROXY_BUFFERING_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ProxyBufferingUnspecified"];
+  // PROXY_BUFFERING_ON: buffer responses from the upstream (nginx proxy_buffering on).
+  PROXY_BUFFERING_ON          = 1 [(gogoproto.enumvalue_customname) = "ProxyBufferingOn"];
+  // PROXY_BUFFERING_OFF: stream responses from the upstream (nginx proxy_buffering off).
+  PROXY_BUFFERING_OFF         = 2 [(gogoproto.enumvalue_customname) = "ProxyBufferingOff"];
+}
+
 // ServiceExposeHTTPOptions
 message ServiceExposeHTTPOptions {
   uint32 max_body_size = 1 [
@@ -34,5 +49,32 @@ message ServiceExposeHTTPOptions {
     (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "nextCases,omitempty",
     (gogoproto.moretags) = "yaml:\"nextCases,omitempty\""
+  ];
+  // New nginx proxy options (fields 7-12). All are omitempty so a manifest that
+  // does not set them serializes identically to a pre-change manifest (unchanged
+  // version hash / backward compatible with older providers). zero == unset.
+  ProxyBuffering proxy_buffering = 7 [
+    (gogoproto.jsontag)  = "proxyBuffering,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxyBuffering,omitempty\""
+  ];
+  uint32 proxy_buffer_size = 8 [
+    (gogoproto.jsontag)  = "proxyBufferSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxyBufferSize,omitempty\""
+  ];
+  uint32 proxy_buffers_number = 9 [
+    (gogoproto.jsontag)  = "proxyBuffersNumber,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxyBuffersNumber,omitempty\""
+  ];
+  uint32 proxy_buffers_size = 10 [
+    (gogoproto.jsontag)  = "proxyBuffersSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxyBuffersSize,omitempty\""
+  ];
+  uint32 proxy_busy_buffers_size = 11 [
+    (gogoproto.jsontag)  = "proxyBusyBuffersSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxyBusyBuffersSize,omitempty\""
+  ];
+  uint32 proxy_connect_timeout = 12 [
+    (gogoproto.jsontag)  = "proxyConnectTimeout,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxyConnectTimeout,omitempty\""
   ];
 }
