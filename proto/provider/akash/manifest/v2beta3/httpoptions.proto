@@ -8,7 +8,7 @@ option (gogoproto.goproto_stringer_all) = false;
 option (gogoproto.stringer_all)         = true;
 option go_package                       = "pkg.akt.dev/go/manifest/v2beta3";
 
-// ProxyBuffering is a tri-state for expose.http_options.proxy_buffering.
+// ProxyBuffering is a tri-state for expose.http_options.proxy.buffering.
 // PROXY_BUFFERING_UNSPECIFIED (0) means the tenant did not set it and the
 // provider applies the gateway default (nginx: on). It is omitempty so it never
 // affects the manifest version hash of deployments that do not set it.
@@ -50,31 +50,50 @@ message ServiceExposeHTTPOptions {
     (gogoproto.jsontag)  = "nextCases,omitempty",
     (gogoproto.moretags) = "yaml:\"nextCases,omitempty\""
   ];
-  // New nginx proxy options (fields 7-12). All are omitempty so a manifest that
-  // does not set them serializes identically to a pre-change manifest (unchanged
-  // version hash / backward compatible with older providers). zero == unset.
-  ProxyBuffering proxy_buffering = 7 [
-    (gogoproto.jsontag)  = "proxyBuffering,omitempty",
-    (gogoproto.moretags) = "yaml:\"proxyBuffering,omitempty\""
+  // proxy groups the optional nginx proxy tuning for this route. It is nullable
+  // and omitempty, so a manifest that does not set it serializes identically to a
+  // pre-change manifest: the version hash is unchanged and older providers stay
+  // compatible. A nil proxy means the provider applies gateway defaults.
+  ProxyOptions proxy = 7 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "proxy,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxy,omitempty\""
   ];
-  uint32 proxy_buffer_size = 8 [
-    (gogoproto.jsontag)  = "proxyBufferSize,omitempty",
-    (gogoproto.moretags) = "yaml:\"proxyBufferSize,omitempty\""
+}
+
+// ProxyOptions carries nginx proxy tuning applied to a route's location block.
+// Every field is omitempty (0 / Unspecified == unset) so unset values are dropped
+// from the manifest and never affect the version hash. Defaults are applied by the
+// provider gateway at use-time, never injected here.
+message ProxyOptions {
+  // buffering toggles nginx proxy_buffering; Unspecified leaves the gateway default.
+  ProxyBuffering buffering = 1 [
+    (gogoproto.jsontag)  = "buffering,omitempty",
+    (gogoproto.moretags) = "yaml:\"buffering,omitempty\""
   ];
-  uint32 proxy_buffers_number = 9 [
-    (gogoproto.jsontag)  = "proxyBuffersNumber,omitempty",
-    (gogoproto.moretags) = "yaml:\"proxyBuffersNumber,omitempty\""
+  // buffer_size maps to nginx proxy_buffer_size (bytes).
+  uint32 buffer_size = 2 [
+    (gogoproto.jsontag)  = "bufferSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"bufferSize,omitempty\""
   ];
-  uint32 proxy_buffers_size = 10 [
-    (gogoproto.jsontag)  = "proxyBuffersSize,omitempty",
-    (gogoproto.moretags) = "yaml:\"proxyBuffersSize,omitempty\""
+  // buffers_number maps to the count in nginx proxy_buffers <number> <size>.
+  uint32 buffers_number = 3 [
+    (gogoproto.jsontag)  = "buffersNumber,omitempty",
+    (gogoproto.moretags) = "yaml:\"buffersNumber,omitempty\""
   ];
-  uint32 proxy_busy_buffers_size = 11 [
-    (gogoproto.jsontag)  = "proxyBusyBuffersSize,omitempty",
-    (gogoproto.moretags) = "yaml:\"proxyBusyBuffersSize,omitempty\""
+  // buffers_size maps to the size in nginx proxy_buffers <number> <size> (bytes).
+  uint32 buffers_size = 4 [
+    (gogoproto.jsontag)  = "buffersSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"buffersSize,omitempty\""
   ];
-  uint32 proxy_connect_timeout = 12 [
-    (gogoproto.jsontag)  = "proxyConnectTimeout,omitempty",
-    (gogoproto.moretags) = "yaml:\"proxyConnectTimeout,omitempty\""
+  // busy_buffers_size maps to nginx proxy_busy_buffers_size (bytes).
+  uint32 busy_buffers_size = 5 [
+    (gogoproto.jsontag)  = "busyBuffersSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"busyBuffersSize,omitempty\""
+  ];
+  // connect_timeout maps to nginx proxy_connect_timeout (milliseconds).
+  uint32 connect_timeout = 6 [
+    (gogoproto.jsontag)  = "connectTimeout,omitempty",
+    (gogoproto.moretags) = "yaml:\"connectTimeout,omitempty\""
   ];
 }

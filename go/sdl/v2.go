@@ -127,15 +127,19 @@ type v2HTTPOptions struct {
 	NextTries   uint32        `yaml:"next_tries"`
 	NextTimeout uint32        `yaml:"next_timeout"`
 	NextCases   []string      `yaml:"next_cases"`
-	// New nginx proxy options. Pointer/zero == unset so they are omitted from the
-	// manifest (and its version hash) when the tenant does not set them. Defaults
-	// are applied by the provider gateway at use-time, never injected here.
-	ProxyBuffering       *bool  `yaml:"proxy_buffering,omitempty"`
-	ProxyBufferSize      uint32 `yaml:"proxy_buffer_size,omitempty"`
-	ProxyBuffersNumber   uint32 `yaml:"proxy_buffers_number,omitempty"`
-	ProxyBuffersSize     uint32 `yaml:"proxy_buffers_size,omitempty"`
-	ProxyBusyBuffersSize uint32 `yaml:"proxy_busy_buffers_size,omitempty"`
-	ProxyConnectTimeout  uint32 `yaml:"proxy_connect_timeout,omitempty"`
+	// Proxy groups the optional nginx proxy tuning. nil (no `proxy:` block) == unset,
+	// so it is omitted from the manifest and its version hash. Defaults are applied by
+	// the provider gateway at use-time, never injected here.
+	Proxy *v2HTTPProxyOptions `yaml:"proxy,omitempty"`
+}
+
+type v2HTTPProxyOptions struct {
+	Buffering       *bool  `yaml:"buffering,omitempty"`
+	BufferSize      uint32 `yaml:"buffer_size,omitempty"`
+	BuffersNumber   uint32 `yaml:"buffers_number,omitempty"`
+	BuffersSize     uint32 `yaml:"buffers_size,omitempty"`
+	BusyBuffersSize uint32 `yaml:"busy_buffers_size,omitempty"`
+	ConnectTimeout  uint32 `yaml:"connect_timeout,omitempty"`
 }
 
 func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) {
@@ -187,20 +191,9 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		}
 	}
 
-	// proxy_buffering is a tri-state: unset (nil) -> Unspecified so the provider
-	// applies the gateway default; explicit true/false -> On/Off.
-	buffering := manifest.ProxyBufferingUnspecified
-	if ho.ProxyBuffering != nil {
-		if *ho.ProxyBuffering {
-			buffering = manifest.ProxyBufferingOn
-		} else {
-			buffering = manifest.ProxyBufferingOff
-		}
-	}
-
-	// proxy_buffers is an nginx "<number> <size>" pair; require both or neither.
-	if (ho.ProxyBuffersNumber == 0) != (ho.ProxyBuffersSize == 0) {
-		return manifest.ServiceExposeHTTPOptions{}, fmt.Errorf("%w: proxy_buffers requires both proxy_buffers_number and proxy_buffers_size", errHTTPOptionNotAllowed)
+	proxy, err := ho.Proxy.asManifest()
+	if err != nil {
+		return manifest.ServiceExposeHTTPOptions{}, err
 	}
 
 	return manifest.ServiceExposeHTTPOptions{
@@ -210,14 +203,50 @@ func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) 
 		NextTries:   nextTries,
 		NextTimeout: ho.NextTimeout,
 		NextCases:   nextCases,
-		// New options: passed through with no defaults so a zero value stays zero
-		// and is dropped by omitempty (backward-compatible version hash).
-		ProxyBuffering:       buffering,
-		ProxyBufferSize:      ho.ProxyBufferSize,
-		ProxyBuffersNumber:   ho.ProxyBuffersNumber,
-		ProxyBuffersSize:     ho.ProxyBuffersSize,
-		ProxyBusyBuffersSize: ho.ProxyBusyBuffersSize,
-		ProxyConnectTimeout:  ho.ProxyConnectTimeout,
+		Proxy:       proxy,
+	}, nil
+}
+
+// asManifest maps the SDL proxy block to the manifest ProxyOptions. It returns nil
+// when there is no proxy block or the block sets nothing meaningful, so the manifest
+// (and its version hash) stays identical to one without proxy options. Defaults are
+// applied by the provider gateway at use-time, never injected here.
+func (p *v2HTTPProxyOptions) asManifest() (*manifest.ProxyOptions, error) {
+	if p == nil {
+		return nil, nil
+	}
+
+	// proxy buffers are an nginx "<number> <size>" pair; require both or neither.
+	if (p.BuffersNumber == 0) != (p.BuffersSize == 0) {
+		return nil, fmt.Errorf("%w: proxy.buffers_number and proxy.buffers_size must be set together", errHTTPOptionNotAllowed)
+	}
+
+	// buffering is a tri-state: unset (nil) -> Unspecified (gateway default);
+	// explicit true/false -> On/Off.
+	buffering := manifest.ProxyBufferingUnspecified
+	if p.Buffering != nil {
+		if *p.Buffering {
+			buffering = manifest.ProxyBufferingOn
+		} else {
+			buffering = manifest.ProxyBufferingOff
+		}
+	}
+
+	// Nothing meaningful was set (e.g. an empty `proxy:` block) -> omit the whole
+	// object so the manifest hashes identically to one without proxy options.
+	if buffering == manifest.ProxyBufferingUnspecified &&
+		p.BufferSize == 0 && p.BuffersNumber == 0 && p.BuffersSize == 0 &&
+		p.BusyBuffersSize == 0 && p.ConnectTimeout == 0 {
+		return nil, nil
+	}
+
+	return &manifest.ProxyOptions{
+		Buffering:       buffering,
+		BufferSize:      p.BufferSize,
+		BuffersNumber:   p.BuffersNumber,
+		BuffersSize:     p.BuffersSize,
+		BusyBuffersSize: p.BusyBuffersSize,
+		ConnectTimeout:  p.ConnectTimeout,
 	}, nil
 }
 
