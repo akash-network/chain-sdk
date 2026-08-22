@@ -9,6 +9,54 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
+/**
+ * ProxyBuffering is a tri-state for expose.http_options.proxy.buffering.
+ * PROXY_BUFFERING_UNSPECIFIED (0) means the tenant did not set it and the
+ * provider applies the gateway default (nginx: on). It is omitempty so it never
+ * affects the manifest version hash of deployments that do not set it.
+ */
+export enum ProxyBuffering {
+  /** PROXY_BUFFERING_UNSPECIFIED - PROXY_BUFFERING_UNSPECIFIED: tenant did not set proxy_buffering; the provider applies the gateway default. */
+  PROXY_BUFFERING_UNSPECIFIED = 0,
+  /** PROXY_BUFFERING_ON - PROXY_BUFFERING_ON: buffer responses from the upstream (nginx proxy_buffering on). */
+  PROXY_BUFFERING_ON = 1,
+  /** PROXY_BUFFERING_OFF - PROXY_BUFFERING_OFF: stream responses from the upstream (nginx proxy_buffering off). */
+  PROXY_BUFFERING_OFF = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function proxyBufferingFromJSON(object: any): ProxyBuffering {
+  switch (object) {
+    case 0:
+    case "PROXY_BUFFERING_UNSPECIFIED":
+      return ProxyBuffering.PROXY_BUFFERING_UNSPECIFIED;
+    case 1:
+    case "PROXY_BUFFERING_ON":
+      return ProxyBuffering.PROXY_BUFFERING_ON;
+    case 2:
+    case "PROXY_BUFFERING_OFF":
+      return ProxyBuffering.PROXY_BUFFERING_OFF;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ProxyBuffering.UNRECOGNIZED;
+  }
+}
+
+export function proxyBufferingToJSON(object: ProxyBuffering): string {
+  switch (object) {
+    case ProxyBuffering.PROXY_BUFFERING_UNSPECIFIED:
+      return "PROXY_BUFFERING_UNSPECIFIED";
+    case ProxyBuffering.PROXY_BUFFERING_ON:
+      return "PROXY_BUFFERING_ON";
+    case ProxyBuffering.PROXY_BUFFERING_OFF:
+      return "PROXY_BUFFERING_OFF";
+    case ProxyBuffering.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** ServiceExposeHTTPOptions */
 export interface ServiceExposeHTTPOptions {
   maxBodySize: number;
@@ -17,10 +65,46 @@ export interface ServiceExposeHTTPOptions {
   nextTries: number;
   nextTimeout: number;
   nextCases: string[];
+  /**
+   * proxy groups the optional nginx proxy tuning for this route. It is nullable
+   * and omitempty, so a manifest that does not set it serializes identically to a
+   * pre-change manifest: the version hash is unchanged and older providers stay
+   * compatible. A nil proxy means the provider applies gateway defaults.
+   */
+  proxy: ProxyOptions | undefined;
+}
+
+/**
+ * ProxyOptions carries nginx proxy tuning applied to a route's location block.
+ * Every field is omitempty (0 / Unspecified == unset) so unset values are dropped
+ * from the manifest and never affect the version hash. Defaults are applied by the
+ * provider gateway at use-time, never injected here.
+ */
+export interface ProxyOptions {
+  /** buffering toggles nginx proxy_buffering; Unspecified leaves the gateway default. */
+  buffering: ProxyBuffering;
+  /** buffer_size maps to nginx proxy_buffer_size (bytes). */
+  bufferSize: number;
+  /** buffers_number maps to the count in nginx proxy_buffers <number> <size>. */
+  buffersNumber: number;
+  /** buffers_size maps to the size in nginx proxy_buffers <number> <size> (bytes). */
+  buffersSize: number;
+  /** busy_buffers_size maps to nginx proxy_busy_buffers_size (bytes). */
+  busyBuffersSize: number;
+  /** connect_timeout maps to nginx proxy_connect_timeout (milliseconds). */
+  connectTimeout: number;
 }
 
 function createBaseServiceExposeHTTPOptions(): ServiceExposeHTTPOptions {
-  return { maxBodySize: 0, readTimeout: 0, sendTimeout: 0, nextTries: 0, nextTimeout: 0, nextCases: [] };
+  return {
+    maxBodySize: 0,
+    readTimeout: 0,
+    sendTimeout: 0,
+    nextTries: 0,
+    nextTimeout: 0,
+    nextCases: [],
+    proxy: undefined,
+  };
 }
 
 export const ServiceExposeHTTPOptions: MessageFns<
@@ -47,6 +131,9 @@ export const ServiceExposeHTTPOptions: MessageFns<
     }
     for (const v of message.nextCases) {
       writer.uint32(50).string(v!);
+    }
+    if (message.proxy !== undefined) {
+      ProxyOptions.encode(message.proxy, writer.uint32(58).fork()).join();
     }
     return writer;
   },
@@ -106,6 +193,14 @@ export const ServiceExposeHTTPOptions: MessageFns<
           message.nextCases.push(reader.string());
           continue;
         }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.proxy = ProxyOptions.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -125,6 +220,7 @@ export const ServiceExposeHTTPOptions: MessageFns<
       nextCases: globalThis.Array.isArray(object?.next_cases)
         ? object.next_cases.map((e: any) => globalThis.String(e))
         : [],
+      proxy: isSet(object.proxy) ? ProxyOptions.fromJSON(object.proxy) : undefined,
     };
   },
 
@@ -148,6 +244,9 @@ export const ServiceExposeHTTPOptions: MessageFns<
     if (message.nextCases?.length) {
       obj.next_cases = message.nextCases;
     }
+    if (message.proxy !== undefined) {
+      obj.proxy = ProxyOptions.toJSON(message.proxy);
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<ServiceExposeHTTPOptions>): ServiceExposeHTTPOptions {
@@ -158,6 +257,147 @@ export const ServiceExposeHTTPOptions: MessageFns<
     message.nextTries = object.nextTries ?? 0;
     message.nextTimeout = object.nextTimeout ?? 0;
     message.nextCases = object.nextCases?.map((e) => e) || [];
+    message.proxy = (object.proxy !== undefined && object.proxy !== null)
+      ? ProxyOptions.fromPartial(object.proxy)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseProxyOptions(): ProxyOptions {
+  return { buffering: 0, bufferSize: 0, buffersNumber: 0, buffersSize: 0, busyBuffersSize: 0, connectTimeout: 0 };
+}
+
+export const ProxyOptions: MessageFns<ProxyOptions, "akash.manifest.v2beta3.ProxyOptions"> = {
+  $type: "akash.manifest.v2beta3.ProxyOptions" as const,
+
+  encode(message: ProxyOptions, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.buffering !== 0) {
+      writer.uint32(8).int32(message.buffering);
+    }
+    if (message.bufferSize !== 0) {
+      writer.uint32(16).uint32(message.bufferSize);
+    }
+    if (message.buffersNumber !== 0) {
+      writer.uint32(24).uint32(message.buffersNumber);
+    }
+    if (message.buffersSize !== 0) {
+      writer.uint32(32).uint32(message.buffersSize);
+    }
+    if (message.busyBuffersSize !== 0) {
+      writer.uint32(40).uint32(message.busyBuffersSize);
+    }
+    if (message.connectTimeout !== 0) {
+      writer.uint32(48).uint32(message.connectTimeout);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProxyOptions {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProxyOptions();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.buffering = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.bufferSize = reader.uint32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.buffersNumber = reader.uint32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.buffersSize = reader.uint32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.busyBuffersSize = reader.uint32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.connectTimeout = reader.uint32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ProxyOptions {
+    return {
+      buffering: isSet(object.buffering) ? proxyBufferingFromJSON(object.buffering) : 0,
+      bufferSize: isSet(object.buffer_size) ? globalThis.Number(object.buffer_size) : 0,
+      buffersNumber: isSet(object.buffers_number) ? globalThis.Number(object.buffers_number) : 0,
+      buffersSize: isSet(object.buffers_size) ? globalThis.Number(object.buffers_size) : 0,
+      busyBuffersSize: isSet(object.busy_buffers_size) ? globalThis.Number(object.busy_buffers_size) : 0,
+      connectTimeout: isSet(object.connect_timeout) ? globalThis.Number(object.connect_timeout) : 0,
+    };
+  },
+
+  toJSON(message: ProxyOptions): unknown {
+    const obj: any = {};
+    if (message.buffering !== 0) {
+      obj.buffering = proxyBufferingToJSON(message.buffering);
+    }
+    if (message.bufferSize !== 0) {
+      obj.buffer_size = Math.round(message.bufferSize);
+    }
+    if (message.buffersNumber !== 0) {
+      obj.buffers_number = Math.round(message.buffersNumber);
+    }
+    if (message.buffersSize !== 0) {
+      obj.buffers_size = Math.round(message.buffersSize);
+    }
+    if (message.busyBuffersSize !== 0) {
+      obj.busy_buffers_size = Math.round(message.busyBuffersSize);
+    }
+    if (message.connectTimeout !== 0) {
+      obj.connect_timeout = Math.round(message.connectTimeout);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<ProxyOptions>): ProxyOptions {
+    const message = createBaseProxyOptions();
+    message.buffering = object.buffering ?? 0;
+    message.bufferSize = object.bufferSize ?? 0;
+    message.buffersNumber = object.buffersNumber ?? 0;
+    message.buffersSize = object.buffersSize ?? 0;
+    message.busyBuffersSize = object.busyBuffersSize ?? 0;
+    message.connectTimeout = object.connectTimeout ?? 0;
     return message;
   },
 };
