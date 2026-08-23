@@ -9,54 +9,6 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-/**
- * ProxyBuffering is a tri-state for expose.http_options.proxy.buffering.
- * PROXY_BUFFERING_UNSPECIFIED (0) means the tenant did not set it and the
- * provider applies the gateway default (nginx: on). It is omitempty so it never
- * affects the manifest version hash of deployments that do not set it.
- */
-export enum ProxyBuffering {
-  /** PROXY_BUFFERING_UNSPECIFIED - PROXY_BUFFERING_UNSPECIFIED: tenant did not set proxy_buffering; the provider applies the gateway default. */
-  PROXY_BUFFERING_UNSPECIFIED = 0,
-  /** PROXY_BUFFERING_ON - PROXY_BUFFERING_ON: buffer responses from the upstream (nginx proxy_buffering on). */
-  PROXY_BUFFERING_ON = 1,
-  /** PROXY_BUFFERING_OFF - PROXY_BUFFERING_OFF: stream responses from the upstream (nginx proxy_buffering off). */
-  PROXY_BUFFERING_OFF = 2,
-  UNRECOGNIZED = -1,
-}
-
-export function proxyBufferingFromJSON(object: any): ProxyBuffering {
-  switch (object) {
-    case 0:
-    case "PROXY_BUFFERING_UNSPECIFIED":
-      return ProxyBuffering.PROXY_BUFFERING_UNSPECIFIED;
-    case 1:
-    case "PROXY_BUFFERING_ON":
-      return ProxyBuffering.PROXY_BUFFERING_ON;
-    case 2:
-    case "PROXY_BUFFERING_OFF":
-      return ProxyBuffering.PROXY_BUFFERING_OFF;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return ProxyBuffering.UNRECOGNIZED;
-  }
-}
-
-export function proxyBufferingToJSON(object: ProxyBuffering): string {
-  switch (object) {
-    case ProxyBuffering.PROXY_BUFFERING_UNSPECIFIED:
-      return "PROXY_BUFFERING_UNSPECIFIED";
-    case ProxyBuffering.PROXY_BUFFERING_ON:
-      return "PROXY_BUFFERING_ON";
-    case ProxyBuffering.PROXY_BUFFERING_OFF:
-      return "PROXY_BUFFERING_OFF";
-    case ProxyBuffering.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
 /** ServiceExposeHTTPOptions */
 export interface ServiceExposeHTTPOptions {
   maxBodySize: number;
@@ -81,8 +33,14 @@ export interface ServiceExposeHTTPOptions {
  * provider gateway at use-time, never injected here.
  */
 export interface ProxyOptions {
-  /** buffering toggles nginx proxy_buffering; Unspecified leaves the gateway default. */
-  buffering: ProxyBuffering;
+  /**
+   * buffering toggles nginx proxy_buffering. A nil message leaves the gateway
+   * default; a present message with enabled true/false turns it on/off. nil is
+   * omitempty so an unset value never affects the manifest version hash.
+   */
+  buffering:
+    | ProxyBuffering
+    | undefined;
   /** buffer_size maps to nginx proxy_buffer_size (bytes). */
   bufferSize: number;
   /** buffers_number maps to the count in nginx proxy_buffers <number> <size>. */
@@ -93,6 +51,16 @@ export interface ProxyOptions {
   busyBuffersSize: number;
   /** connect_timeout maps to nginx proxy_connect_timeout (milliseconds). */
   connectTimeout: number;
+}
+
+/**
+ * ProxyBuffering is the presence-based tri-state for proxy.buffering: a nil
+ * message means unset (the provider applies the gateway default), while a present
+ * message carries the explicit on/off in enabled.
+ */
+export interface ProxyBuffering {
+  /** enabled true maps to nginx proxy_buffering on, false to proxy_buffering off. */
+  enabled: boolean;
 }
 
 function createBaseServiceExposeHTTPOptions(): ServiceExposeHTTPOptions {
@@ -265,15 +233,22 @@ export const ServiceExposeHTTPOptions: MessageFns<
 };
 
 function createBaseProxyOptions(): ProxyOptions {
-  return { buffering: 0, bufferSize: 0, buffersNumber: 0, buffersSize: 0, busyBuffersSize: 0, connectTimeout: 0 };
+  return {
+    buffering: undefined,
+    bufferSize: 0,
+    buffersNumber: 0,
+    buffersSize: 0,
+    busyBuffersSize: 0,
+    connectTimeout: 0,
+  };
 }
 
 export const ProxyOptions: MessageFns<ProxyOptions, "akash.manifest.v2beta3.ProxyOptions"> = {
   $type: "akash.manifest.v2beta3.ProxyOptions" as const,
 
   encode(message: ProxyOptions, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.buffering !== 0) {
-      writer.uint32(8).int32(message.buffering);
+    if (message.buffering !== undefined) {
+      ProxyBuffering.encode(message.buffering, writer.uint32(10).fork()).join();
     }
     if (message.bufferSize !== 0) {
       writer.uint32(16).uint32(message.bufferSize);
@@ -301,11 +276,11 @@ export const ProxyOptions: MessageFns<ProxyOptions, "akash.manifest.v2beta3.Prox
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 8) {
+          if (tag !== 10) {
             break;
           }
 
-          message.buffering = reader.int32() as any;
+          message.buffering = ProxyBuffering.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -359,7 +334,7 @@ export const ProxyOptions: MessageFns<ProxyOptions, "akash.manifest.v2beta3.Prox
 
   fromJSON(object: any): ProxyOptions {
     return {
-      buffering: isSet(object.buffering) ? proxyBufferingFromJSON(object.buffering) : 0,
+      buffering: isSet(object.buffering) ? ProxyBuffering.fromJSON(object.buffering) : undefined,
       bufferSize: isSet(object.buffer_size) ? globalThis.Number(object.buffer_size) : 0,
       buffersNumber: isSet(object.buffers_number) ? globalThis.Number(object.buffers_number) : 0,
       buffersSize: isSet(object.buffers_size) ? globalThis.Number(object.buffers_size) : 0,
@@ -370,8 +345,8 @@ export const ProxyOptions: MessageFns<ProxyOptions, "akash.manifest.v2beta3.Prox
 
   toJSON(message: ProxyOptions): unknown {
     const obj: any = {};
-    if (message.buffering !== 0) {
-      obj.buffering = proxyBufferingToJSON(message.buffering);
+    if (message.buffering !== undefined) {
+      obj.buffering = ProxyBuffering.toJSON(message.buffering);
     }
     if (message.bufferSize !== 0) {
       obj.buffer_size = Math.round(message.bufferSize);
@@ -392,12 +367,70 @@ export const ProxyOptions: MessageFns<ProxyOptions, "akash.manifest.v2beta3.Prox
   },
   fromPartial(object: DeepPartial<ProxyOptions>): ProxyOptions {
     const message = createBaseProxyOptions();
-    message.buffering = object.buffering ?? 0;
+    message.buffering = (object.buffering !== undefined && object.buffering !== null)
+      ? ProxyBuffering.fromPartial(object.buffering)
+      : undefined;
     message.bufferSize = object.bufferSize ?? 0;
     message.buffersNumber = object.buffersNumber ?? 0;
     message.buffersSize = object.buffersSize ?? 0;
     message.busyBuffersSize = object.busyBuffersSize ?? 0;
     message.connectTimeout = object.connectTimeout ?? 0;
+    return message;
+  },
+};
+
+function createBaseProxyBuffering(): ProxyBuffering {
+  return { enabled: false };
+}
+
+export const ProxyBuffering: MessageFns<ProxyBuffering, "akash.manifest.v2beta3.ProxyBuffering"> = {
+  $type: "akash.manifest.v2beta3.ProxyBuffering" as const,
+
+  encode(message: ProxyBuffering, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.enabled !== false) {
+      writer.uint32(8).bool(message.enabled);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProxyBuffering {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProxyBuffering();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.enabled = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ProxyBuffering {
+    return { enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false };
+  },
+
+  toJSON(message: ProxyBuffering): unknown {
+    const obj: any = {};
+    if (message.enabled !== false) {
+      obj.enabled = message.enabled;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<ProxyBuffering>): ProxyBuffering {
+    const message = createBaseProxyBuffering();
+    message.enabled = object.enabled ?? false;
     return message;
   },
 };

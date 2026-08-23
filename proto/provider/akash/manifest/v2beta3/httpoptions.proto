@@ -8,21 +8,6 @@ option (gogoproto.goproto_stringer_all) = false;
 option (gogoproto.stringer_all)         = true;
 option go_package                       = "pkg.akt.dev/go/manifest/v2beta3";
 
-// ProxyBuffering is a tri-state for expose.http_options.proxy.buffering.
-// PROXY_BUFFERING_UNSPECIFIED (0) means the tenant did not set it and the
-// provider applies the gateway default (nginx: on). It is omitempty so it never
-// affects the manifest version hash of deployments that do not set it.
-enum ProxyBuffering {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // PROXY_BUFFERING_UNSPECIFIED: tenant did not set proxy_buffering; the provider applies the gateway default.
-  PROXY_BUFFERING_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ProxyBufferingUnspecified"];
-  // PROXY_BUFFERING_ON: buffer responses from the upstream (nginx proxy_buffering on).
-  PROXY_BUFFERING_ON          = 1 [(gogoproto.enumvalue_customname) = "ProxyBufferingOn"];
-  // PROXY_BUFFERING_OFF: stream responses from the upstream (nginx proxy_buffering off).
-  PROXY_BUFFERING_OFF         = 2 [(gogoproto.enumvalue_customname) = "ProxyBufferingOff"];
-}
-
 // ServiceExposeHTTPOptions
 message ServiceExposeHTTPOptions {
   uint32 max_body_size = 1 [
@@ -66,8 +51,11 @@ message ServiceExposeHTTPOptions {
 // from the manifest and never affect the version hash. Defaults are applied by the
 // provider gateway at use-time, never injected here.
 message ProxyOptions {
-  // buffering toggles nginx proxy_buffering; Unspecified leaves the gateway default.
+  // buffering toggles nginx proxy_buffering. A nil message leaves the gateway
+  // default; a present message with enabled true/false turns it on/off. nil is
+  // omitempty so an unset value never affects the manifest version hash.
   ProxyBuffering buffering = 1 [
+    (gogoproto.nullable) = true,
     (gogoproto.jsontag)  = "buffering,omitempty",
     (gogoproto.moretags) = "yaml:\"buffering,omitempty\""
   ];
@@ -95,5 +83,16 @@ message ProxyOptions {
   uint32 connect_timeout = 6 [
     (gogoproto.jsontag)  = "connectTimeout,omitempty",
     (gogoproto.moretags) = "yaml:\"connectTimeout,omitempty\""
+  ];
+}
+
+// ProxyBuffering is the presence-based tri-state for proxy.buffering: a nil
+// message means unset (the provider applies the gateway default), while a present
+// message carries the explicit on/off in enabled.
+message ProxyBuffering {
+  // enabled true maps to nginx proxy_buffering on, false to proxy_buffering off.
+  bool enabled = 1 [
+    (gogoproto.jsontag)  = "enabled",
+    (gogoproto.moretags) = "yaml:\"enabled\""
   ];
 }

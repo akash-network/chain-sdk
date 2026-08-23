@@ -221,20 +221,16 @@ func (p *v2HTTPProxyOptions) asManifest() (*manifest.ProxyOptions, error) {
 		return nil, fmt.Errorf("%w: proxy.buffers_number and proxy.buffers_size must be set together", errHTTPOptionNotAllowed)
 	}
 
-	// buffering is a tri-state: unset (nil) -> Unspecified (gateway default);
-	// explicit true/false -> On/Off.
-	buffering := manifest.ProxyBufferingUnspecified
+	// buffering is a tri-state carried by presence: unset (nil) leaves the gateway
+	// default; explicit true/false becomes a present message with enabled on/off.
+	var buffering *manifest.ProxyBuffering
 	if p.Buffering != nil {
-		if *p.Buffering {
-			buffering = manifest.ProxyBufferingOn
-		} else {
-			buffering = manifest.ProxyBufferingOff
-		}
+		buffering = &manifest.ProxyBuffering{Enabled: *p.Buffering}
 	}
 
 	// Nothing meaningful was set (e.g. an empty `proxy:` block) -> omit the whole
 	// object so the manifest hashes identically to one without proxy options.
-	if buffering == manifest.ProxyBufferingUnspecified &&
+	if buffering == nil &&
 		p.BufferSize == 0 && p.BuffersNumber == 0 && p.BuffersSize == 0 &&
 		p.BusyBuffersSize == 0 && p.ConnectTimeout == 0 {
 		return nil, nil
