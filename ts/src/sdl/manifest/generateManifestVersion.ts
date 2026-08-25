@@ -18,18 +18,17 @@ const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 // validation on existing leases.
 const OMITTED_WHEN_EMPTY_STRING_KEYS = new Set(["interconnectGroup"]);
 
-// http_options proxy fields that on the Go side use `omitempty` for numeric/enum
+// Nested `proxy` object fields that on the Go side use `omitempty` for numeric
 // values (0 == unset). Like the empty-string case above, they must NOT appear in
 // the JSON when their value is 0, otherwise the manifest version hash diverges
 // from the Go side and breaks send-manifest validation for deployments that do
-// not set them.
+// not set them. (`buffering` is a nullable message, dropped naturally when unset.)
 const OMITTED_WHEN_ZERO_KEYS = new Set([
-  "proxyBuffering",
-  "proxyBufferSize",
-  "proxyBuffersNumber",
-  "proxyBuffersSize",
-  "proxyBusyBuffersSize",
-  "proxyConnectTimeout",
+  "bufferSize",
+  "buffersNumber",
+  "buffersSize",
+  "busyBuffersSize",
+  "connectTimeout",
 ]);
 
 export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {
