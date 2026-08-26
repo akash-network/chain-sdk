@@ -18,12 +18,13 @@ const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 // validation on existing leases.
 const OMITTED_WHEN_EMPTY_STRING_KEYS = new Set(["interconnectGroup"]);
 
-// Nested `proxy` object fields that on the Go side use `omitempty` for numeric
-// values (0 == unset). Like the empty-string case above, they must NOT appear in
-// the JSON when their value is 0, otherwise the manifest version hash diverges
-// from the Go side and breaks send-manifest validation for deployments that do
-// not set them. (`buffering` is a nullable message, dropped naturally when unset.)
+// Nested `proxy` object fields that on the Go side use `omitempty`, so an unset
+// value (0 for the numeric fields, false for the `bufferingDisable` bool) must NOT
+// appear in the JSON. Like the empty-string case above, keeping it would diverge the
+// manifest version hash from the Go side and break send-manifest validation for
+// deployments that do not set these fields.
 const OMITTED_WHEN_ZERO_KEYS = new Set([
+  "bufferingDisable",
   "bufferSize",
   "buffersNumber",
   "buffersSize",
@@ -69,7 +70,7 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
     return undefined;
   }
 
-  if (OMITTED_WHEN_ZERO_KEYS.has(key) && value === 0) {
+  if (OMITTED_WHEN_ZERO_KEYS.has(key) && (value === 0 || value === false)) {
     return undefined;
   }
 

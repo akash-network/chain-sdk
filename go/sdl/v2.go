@@ -134,12 +134,12 @@ type v2HTTPOptions struct {
 }
 
 type v2HTTPProxyOptions struct {
-	Buffering       *bool  `yaml:"buffering,omitempty"`
-	BufferSize      uint32 `yaml:"buffer_size,omitempty"`
-	BuffersNumber   uint32 `yaml:"buffers_number,omitempty"`
-	BuffersSize     uint32 `yaml:"buffers_size,omitempty"`
-	BusyBuffersSize uint32 `yaml:"busy_buffers_size,omitempty"`
-	ConnectTimeout  uint32 `yaml:"connect_timeout,omitempty"`
+	BufferingDisable bool   `yaml:"buffering_disable,omitempty"`
+	BufferSize       uint32 `yaml:"buffer_size,omitempty"`
+	BuffersNumber    uint32 `yaml:"buffers_number,omitempty"`
+	BuffersSize      uint32 `yaml:"buffers_size,omitempty"`
+	BusyBuffersSize  uint32 `yaml:"busy_buffers_size,omitempty"`
+	ConnectTimeout   uint32 `yaml:"connect_timeout,omitempty"`
 }
 
 func (ho v2HTTPOptions) asManifest() (manifest.ServiceExposeHTTPOptions, error) {
@@ -221,28 +221,26 @@ func (p *v2HTTPProxyOptions) asManifest() (*manifest.ProxyOptions, error) {
 		return nil, fmt.Errorf("%w: proxy.buffers_number and proxy.buffers_size must be set together", errHTTPOptionNotAllowed)
 	}
 
-	// buffering is a tri-state carried by presence: unset (nil) leaves the gateway
-	// default; explicit true/false becomes a present message with enabled on/off.
-	var buffering *manifest.ProxyBuffering
-	if p.Buffering != nil {
-		buffering = &manifest.ProxyBuffering{Enabled: *p.Buffering}
-	}
+	// buffering_disable defaults to false, the nginx default of buffering on; set it
+	// true to render proxy_buffering off. false is omitempty and never affects the
+	// version hash.
+	bufferingDisable := p.BufferingDisable
 
 	// Nothing meaningful was set (e.g. an empty `proxy:` block) -> omit the whole
 	// object so the manifest hashes identically to one without proxy options.
-	if buffering == nil &&
+	if !bufferingDisable &&
 		p.BufferSize == 0 && p.BuffersNumber == 0 && p.BuffersSize == 0 &&
 		p.BusyBuffersSize == 0 && p.ConnectTimeout == 0 {
 		return nil, nil
 	}
 
 	return &manifest.ProxyOptions{
-		Buffering:       buffering,
-		BufferSize:      p.BufferSize,
-		BuffersNumber:   p.BuffersNumber,
-		BuffersSize:     p.BuffersSize,
-		BusyBuffersSize: p.BusyBuffersSize,
-		ConnectTimeout:  p.ConnectTimeout,
+		BufferingDisable: bufferingDisable,
+		BufferSize:       p.BufferSize,
+		BuffersNumber:    p.BuffersNumber,
+		BuffersSize:      p.BuffersSize,
+		BusyBuffersSize:  p.BusyBuffersSize,
+		ConnectTimeout:   p.ConnectTimeout,
 	}, nil
 }
 

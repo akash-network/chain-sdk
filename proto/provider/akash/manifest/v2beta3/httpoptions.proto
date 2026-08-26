@@ -51,13 +51,15 @@ message ServiceExposeHTTPOptions {
 // from the manifest and never affect the version hash. Defaults are applied by the
 // provider gateway at use-time, never injected here.
 message ProxyOptions {
-  // buffering toggles nginx proxy_buffering. A nil message leaves the gateway
-  // default; a present message with enabled true/false turns it on/off. nil is
-  // omitempty so an unset value never affects the manifest version hash.
-  ProxyBuffering buffering = 1 [
-    (gogoproto.nullable) = true,
-    (gogoproto.jsontag)  = "buffering,omitempty",
-    (gogoproto.moretags) = "yaml:\"buffering,omitempty\""
+  // buffering_disable turns nginx proxy_buffering off when true. When false (the
+  // default) the field is omitted, so the gateway applies its default (buffering on)
+  // and a manifest that does not disable buffering hashes identically to one without
+  // proxy tuning. It is scoped to proxy_buffering only and independent of the buffer
+  // sizing fields below: proxy_buffer_size still applies with buffering off, while
+  // proxy_buffers/busy_buffers_size take effect only with buffering on.
+  bool buffering_disable = 1 [
+    (gogoproto.jsontag)  = "bufferingDisable,omitempty",
+    (gogoproto.moretags) = "yaml:\"bufferingDisable,omitempty\""
   ];
   // buffer_size maps to nginx proxy_buffer_size (bytes).
   uint32 buffer_size = 2 [
@@ -83,16 +85,5 @@ message ProxyOptions {
   uint32 connect_timeout = 6 [
     (gogoproto.jsontag)  = "connectTimeout,omitempty",
     (gogoproto.moretags) = "yaml:\"connectTimeout,omitempty\""
-  ];
-}
-
-// ProxyBuffering is the presence-based tri-state for proxy.buffering: a nil
-// message means unset (the provider applies the gateway default), while a present
-// message carries the explicit on/off in enabled.
-message ProxyBuffering {
-  // enabled true maps to nginx proxy_buffering on, false to proxy_buffering off.
-  bool enabled = 1 [
-    (gogoproto.jsontag)  = "enabled",
-    (gogoproto.moretags) = "yaml:\"enabled\""
   ];
 }
