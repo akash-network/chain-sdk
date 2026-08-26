@@ -35,4 +35,55 @@ message ServiceExposeHTTPOptions {
     (gogoproto.jsontag)  = "nextCases,omitempty",
     (gogoproto.moretags) = "yaml:\"nextCases,omitempty\""
   ];
+  // proxy groups the optional nginx proxy tuning for this route. It is nullable
+  // and omitempty, so a manifest that does not set it serializes identically to a
+  // pre-change manifest: the version hash is unchanged and older providers stay
+  // compatible. A nil proxy means the provider applies gateway defaults.
+  ProxyOptions proxy = 7 [
+    (gogoproto.nullable) = true,
+    (gogoproto.jsontag)  = "proxy,omitempty",
+    (gogoproto.moretags) = "yaml:\"proxy,omitempty\""
+  ];
+}
+
+// ProxyOptions carries nginx proxy tuning applied to a route's location block.
+// Every field is omitempty (0 / Unspecified == unset) so unset values are dropped
+// from the manifest and never affect the version hash. Defaults are applied by the
+// provider gateway at use-time, never injected here.
+message ProxyOptions {
+  // buffering_disable turns nginx proxy_buffering off when true. When false (the
+  // default) the field is omitted, so the gateway applies its default (buffering on)
+  // and a manifest that does not disable buffering hashes identically to one without
+  // proxy tuning. It is scoped to proxy_buffering only and independent of the buffer
+  // sizing fields below: proxy_buffer_size still applies with buffering off, while
+  // proxy_buffers/busy_buffers_size take effect only with buffering on.
+  bool buffering_disable = 1 [
+    (gogoproto.jsontag)  = "bufferingDisable,omitempty",
+    (gogoproto.moretags) = "yaml:\"bufferingDisable,omitempty\""
+  ];
+  // buffer_size maps to nginx proxy_buffer_size (bytes).
+  uint32 buffer_size = 2 [
+    (gogoproto.jsontag)  = "bufferSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"bufferSize,omitempty\""
+  ];
+  // buffers_number maps to the count in nginx proxy_buffers <number> <size>.
+  uint32 buffers_number = 3 [
+    (gogoproto.jsontag)  = "buffersNumber,omitempty",
+    (gogoproto.moretags) = "yaml:\"buffersNumber,omitempty\""
+  ];
+  // buffers_size maps to the size in nginx proxy_buffers <number> <size> (bytes).
+  uint32 buffers_size = 4 [
+    (gogoproto.jsontag)  = "buffersSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"buffersSize,omitempty\""
+  ];
+  // busy_buffers_size maps to nginx proxy_busy_buffers_size (bytes).
+  uint32 busy_buffers_size = 5 [
+    (gogoproto.jsontag)  = "busyBuffersSize,omitempty",
+    (gogoproto.moretags) = "yaml:\"busyBuffersSize,omitempty\""
+  ];
+  // connect_timeout maps to nginx proxy_connect_timeout (milliseconds).
+  uint32 connect_timeout = 6 [
+    (gogoproto.jsontag)  = "connectTimeout,omitempty",
+    (gogoproto.moretags) = "yaml:\"connectTimeout,omitempty\""
+  ];
 }
