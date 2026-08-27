@@ -1,0 +1,93 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "cosmos/msg/v1/msg.proto";
+
+import "akash/verification/v1/msg.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// Msg defines the x/verification Msg service. It carries all transaction RPCs
+// for the verification module, including auditor lifecycle, attestation
+// submission and revocation, audit escrow flow, provider bond management,
+// snapshot posting, discrepancy resolution, and parameter updates.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // PostAuditorBond posts (or tops up) an auditor's verification bond.
+  rpc PostAuditorBond(MsgPostAuditorBond) returns (MsgPostAuditorBondResponse);
+
+  // OpenAuditEscrow opens a new audit escrow funding a pending attestation.
+  rpc OpenAuditEscrow(MsgOpenAuditEscrow) returns (MsgOpenAuditEscrowResponse);
+
+  // CancelAuditEscrow cancels an open, unconsumed audit escrow before expiry
+  // and returns the fee and provider deposit to the provider.
+  rpc CancelAuditEscrow(MsgCancelAuditEscrow) returns (MsgCancelAuditEscrowResponse);
+
+  // SettleAuditEscrow settles an unconsumed audit escrow with an explicit
+  // reason, fault attribution, and evidence reference.
+  rpc SettleAuditEscrow(MsgSettleAuditEscrow) returns (MsgSettleAuditEscrowResponse);
+
+  // SubmitAttestation submits an attestation about a provider; the first
+  // valid submission against a matching open escrow consumes it.
+  rpc SubmitAttestation(MsgSubmitAttestation) returns (MsgSubmitAttestationResponse);
+
+  // RevokeAttestation revokes a previously submitted attestation with a
+  // typed reason and evidence reference.
+  rpc RevokeAttestation(MsgRevokeAttestation) returns (MsgRevokeAttestationResponse);
+
+  // RemoveAttestation voluntarily removes an attestation associated with the
+  // signing provider.
+  rpc RemoveAttestation(MsgRemoveAttestation) returns (MsgRemoveAttestationResponse);
+
+  // ResignAuditor voluntarily exits the auditor role and begins unbonding
+  // of any posted auditor bond.
+  rpc ResignAuditor(MsgResignAuditor) returns (MsgResignAuditorResponse);
+
+  // PostProviderBond posts (or tops up) a provider's resource-scaled
+  // verification bond.
+  rpc PostProviderBond(MsgPostProviderBond) returns (MsgPostProviderBondResponse);
+
+  // WithdrawProviderBond initiates withdrawal of part or all of a provider's
+  // verification bond.
+  rpc WithdrawProviderBond(MsgWithdrawProviderBond) returns (MsgWithdrawProviderBondResponse);
+
+  // PostSnapshotHash posts the provider's most recent resource snapshot hash
+  // and inline resource summary.
+  rpc PostSnapshotHash(MsgPostSnapshotHash) returns (MsgPostSnapshotHashResponse);
+
+  // RegisterAuditor registers a new auditor with a maximum attestation tier;
+  // governance only.
+  rpc RegisterAuditor(MsgRegisterAuditor) returns (MsgRegisterAuditorResponse);
+
+  // RenewAuditor renews an auditor's registration and resets the renewal
+  // deadline; governance only.
+  rpc RenewAuditor(MsgRenewAuditor) returns (MsgRenewAuditorResponse);
+
+  // RemoveAuditor removes an auditor from the active set; governance only.
+  rpc RemoveAuditor(MsgRemoveAuditor) returns (MsgRemoveAuditorResponse);
+
+  // RevokeProviderAttestation revokes a single attestation for a specific
+  // provider/auditor pair; governance only.
+  rpc RevokeProviderAttestation(MsgRevokeProviderAttestation) returns (MsgRevokeProviderAttestationResponse);
+
+  // RevokeAllProviderAttestations revokes every active attestation for a
+  // single provider; governance only.
+  rpc RevokeAllProviderAttestations(MsgRevokeAllProviderAttestations) returns (MsgRevokeAllProviderAttestationsResponse);
+
+  // RevokeAuditorAttestations revokes every active attestation issued by a
+  // single auditor; governance only.
+  rpc RevokeAuditorAttestations(MsgRevokeAuditorAttestations) returns (MsgRevokeAuditorAttestationsResponse);
+
+  // ResolveDiscrepancy resolves a pending discrepancy between two auditors
+  // over the same provider; governance only.
+  rpc ResolveDiscrepancy(MsgResolveDiscrepancy) returns (MsgResolveDiscrepancyResponse);
+
+  // SlashProviderBond slashes a fraction of a provider's verification bond;
+  // governance only.
+  rpc SlashProviderBond(MsgSlashProviderBond) returns (MsgSlashProviderBondResponse);
+
+  // UpdateParams updates the x/verification module parameters; governance
+  // only.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}

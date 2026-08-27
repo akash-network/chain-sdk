@@ -10,6 +10,8 @@ import { ResourceUnit } from "../../generated/protos/akash/deployment/v1beta4/re
 import { Group } from "../../generated/protos/akash/manifest/v2beta3/group.ts";
 import { ImageCredentials, Service, ServiceParams, StorageParams, TEEParams } from "../../generated/protos/akash/manifest/v2beta3/service.ts";
 import { ServiceExpose } from "../../generated/protos/akash/manifest/v2beta3/serviceexpose.ts";
+import { AuditorSelectionMode, CapabilityFlag, verificationTierFromJSON } from "../../generated/protos/akash/verification/v1/types.ts";
+import { VerificationRequirement } from "../../generated/protos/akash/verification/v1/verificationrequirement.ts";
 import type { ValidationError } from "../../utils/jsonSchemaValidation.ts";
 import { castArray } from "../utils.ts";
 import type { SDLInput } from "../validateSDL/validateSDL.ts";
@@ -94,6 +96,7 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
                 allOf: infra.signedBy?.allOf,
                 anyOf: infra.signedBy?.anyOf,
               }),
+              verification: buildVerificationRequirement(infra.verification),
             }),
           }),
           boundComputes: {},
@@ -202,6 +205,29 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
   };
 
   return { ok: true, value: manifest };
+}
+
+type SDLVerificationRequirement = NonNullable<SDLInput["profiles"]["placement"][string]["verification"]>;
+
+const CAPABILITY_FLAGS: Record<NonNullable<SDLVerificationRequirement["capabilities"]>[number], CapabilityFlag> = {
+  tee_hardware_attestation: CapabilityFlag.capability_tee_hardware_attestation,
+  confidential_computing: CapabilityFlag.capability_confidential_computing,
+  persistent_storage: CapabilityFlag.capability_persistent_storage,
+  bare_metal: CapabilityFlag.capability_bare_metal,
+};
+
+function buildVerificationRequirement(requirement?: SDLVerificationRequirement): VerificationRequirement | undefined {
+  if (!requirement || requirement.min_tier === 0) return undefined;
+
+  return VerificationRequirement.fromPartial({
+    minTier: verificationTierFromJSON(requirement.min_tier),
+    requiredCapabilities: (requirement.capabilities ?? []).map((capability) => CAPABILITY_FLAGS[capability]),
+    requiredAuditors: requirement.auditors,
+    auditorMode: requirement.auditor_mode === "all"
+      ? AuditorSelectionMode.auditor_selection_mode_all
+      : AuditorSelectionMode.auditor_selection_mode_any,
+    minAuditorCount: requirement.min_auditor_count,
+  });
 }
 
 function buildResources(

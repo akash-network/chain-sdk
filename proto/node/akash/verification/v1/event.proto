@@ -1,0 +1,697 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/timestamp.proto";
+
+import "akash/verification/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// EventAuditorRegistered is emitted when a new auditor is registered.
+message EventAuditorRegistered {
+  // Auditor is the bech32 account address of the newly registered auditor.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // MaxAttestationTier is the maximum tier the auditor may attest at.
+  VerificationTier max_attestation_tier = 2 [
+    (gogoproto.jsontag)  = "max_attestation_tier",
+    (gogoproto.moretags) = "yaml:\"max_attestation_tier\""
+  ];
+}
+
+// EventAuditorBondPosted is emitted when an auditor posts (or tops up) bond.
+message EventAuditorBondPosted {
+  // Auditor is the bech32 account address of the bonding auditor.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Amount is the coin amount posted as bond.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventAuditorFrozen is emitted when an auditor crosses the discrepancy
+// threshold and is frozen pending governance review.
+message EventAuditorFrozen {
+  // Auditor is the bech32 account address of the frozen auditor.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // DiscrepancyID is the identifier of the discrepancy that triggered the freeze.
+  uint64 discrepancy_id = 2 [
+    (gogoproto.customname) = "DiscrepancyID",
+    (gogoproto.jsontag)    = "discrepancy_id",
+    (gogoproto.moretags)   = "yaml:\"discrepancy_id\""
+  ];
+}
+
+// EventAuditorLapsed is emitted when an auditor's renewal deadline passes
+// without renewal.
+message EventAuditorLapsed {
+  // Auditor is the bech32 account address of the lapsed auditor.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+}
+
+// EventAuditorResigned is emitted when an auditor voluntarily resigns.
+message EventAuditorResigned {
+  // Auditor is the bech32 account address of the resigning auditor.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+}
+
+// EventAuditorRemoved is emitted when governance removes an auditor.
+message EventAuditorRemoved {
+  // Auditor is the bech32 account address of the removed auditor.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+}
+
+// EventAuditorRenewed is emitted when an auditor's registration is renewed.
+message EventAuditorRenewed {
+  // Auditor is the bech32 account address of the renewed auditor.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // NewDeadline is the new renewal deadline assigned to the auditor.
+  google.protobuf.Timestamp new_deadline = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "new_deadline",
+    (gogoproto.moretags) = "yaml:\"new_deadline\""
+  ];
+}
+
+// EventAttestationSubmitted is emitted when an auditor submits an attestation.
+message EventAttestationSubmitted {
+  // Provider is the bech32 account address of the attested provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the issuing auditor.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Tier is the verification tier asserted by the attestation.
+  VerificationTier tier = 3 [
+    (gogoproto.jsontag)  = "tier",
+    (gogoproto.moretags) = "yaml:\"tier\""
+  ];
+
+  // Capabilities is the set of capability flags asserted by the attestation.
+  repeated CapabilityFlag capabilities = 4 [
+    (gogoproto.jsontag)  = "capabilities",
+    (gogoproto.moretags) = "yaml:\"capabilities\""
+  ];
+
+  // ExpiresAt is the chain timestamp at which the attestation expires.
+  google.protobuf.Timestamp expires_at = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "expires_at",
+    (gogoproto.moretags) = "yaml:\"expires_at\""
+  ];
+
+  // AuditEscrowID is the audit escrow identifier that authorized the attestation.
+  uint64 audit_escrow_id = 6 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+}
+
+// EventAttestationExpired is emitted when an attestation expires.
+message EventAttestationExpired {
+  // Provider is the bech32 account address of the provider whose attestation expired.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor whose attestation expired.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Tier is the tier of the expired attestation.
+  VerificationTier tier = 3 [
+    (gogoproto.jsontag)  = "tier",
+    (gogoproto.moretags) = "yaml:\"tier\""
+  ];
+}
+
+// EventAttestationReplaced is emitted when a new attestation replaces an existing
+// attestation from the same auditor for the same provider.
+message EventAttestationReplaced {
+  // Provider is the bech32 account address of the provider involved.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor involved.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // OldTier is the tier of the previous attestation being replaced.
+  VerificationTier old_tier = 3 [
+    (gogoproto.jsontag)  = "old_tier",
+    (gogoproto.moretags) = "yaml:\"old_tier\""
+  ];
+
+  // NewTier is the tier of the new attestation.
+  VerificationTier new_tier = 4 [
+    (gogoproto.jsontag)  = "new_tier",
+    (gogoproto.moretags) = "yaml:\"new_tier\""
+  ];
+
+  // OldAuditEscrowID is the audit escrow that authorized the previous attestation.
+  uint64 old_audit_escrow_id = 5 [
+    (gogoproto.customname) = "OldAuditEscrowID",
+    (gogoproto.jsontag)    = "old_audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"old_audit_escrow_id\""
+  ];
+
+  // NewAuditEscrowID is the audit escrow that authorized the new attestation.
+  uint64 new_audit_escrow_id = 6 [
+    (gogoproto.customname) = "NewAuditEscrowID",
+    (gogoproto.jsontag)    = "new_audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"new_audit_escrow_id\""
+  ];
+}
+
+// EventAttestationRevoked is emitted when an attestation is revoked by the auditor.
+message EventAttestationRevoked {
+  // Provider is the bech32 account address of the provider involved.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor involved.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Initiator is the textual identifier of the party that initiated the
+  // revocation (e.g. "auditor", "governance").
+  string initiator = 3 [
+    (gogoproto.jsontag)  = "initiator",
+    (gogoproto.moretags) = "yaml:\"initiator\""
+  ];
+
+  // Reason is the typed reason recorded for the revocation.
+  AttestationRevocationReason reason = 4 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+}
+
+// EventAttestationVoided is emitted when an attestation transitions to voided state.
+message EventAttestationVoided {
+  // Provider is the bech32 account address of the provider whose attestation was voided.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the auditor whose attestation was voided.
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Reason is the typed reason recorded for the void.
+  VoidedReason reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+}
+
+// EventDiscrepancyDetected is emitted when the chain detects two conflicting
+// attestations from different auditors for the same provider.
+message EventDiscrepancyDetected {
+  // DiscrepancyID is the identifier of the newly created discrepancy record.
+  uint64 discrepancy_id = 1 [
+    (gogoproto.customname) = "DiscrepancyID",
+    (gogoproto.jsontag)    = "discrepancy_id",
+    (gogoproto.moretags)   = "yaml:\"discrepancy_id\""
+  ];
+
+  // Provider is the bech32 account address of the disputed provider.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // AuditorA is the bech32 account address of the first auditor in the dispute.
+  string auditor_a = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor_a",
+    (gogoproto.moretags)  = "yaml:\"auditor_a\""
+  ];
+
+  // TierA is the tier asserted by auditor A.
+  VerificationTier tier_a = 4 [
+    (gogoproto.jsontag)  = "tier_a",
+    (gogoproto.moretags) = "yaml:\"tier_a\""
+  ];
+
+  // AuditorB is the bech32 account address of the second auditor in the dispute.
+  string auditor_b = 5 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor_b",
+    (gogoproto.moretags)  = "yaml:\"auditor_b\""
+  ];
+
+  // TierB is the tier asserted by auditor B.
+  VerificationTier tier_b = 6 [
+    (gogoproto.jsontag)  = "tier_b",
+    (gogoproto.moretags) = "yaml:\"tier_b\""
+  ];
+}
+
+// EventDiscrepancyResolved is emitted when a discrepancy is resolved by governance.
+message EventDiscrepancyResolved {
+  // DiscrepancyID is the identifier of the resolved discrepancy record.
+  uint64 discrepancy_id = 1 [
+    (gogoproto.customname) = "DiscrepancyID",
+    (gogoproto.jsontag)    = "discrepancy_id",
+    (gogoproto.moretags)   = "yaml:\"discrepancy_id\""
+  ];
+
+  // VindicatedAuditor is the identifier of the auditor vindicated by the
+  // resolution; carries an empty string when neither party is vindicated.
+  string vindicated_auditor = 2 [
+    (gogoproto.jsontag)  = "vindicated_auditor",
+    (gogoproto.moretags) = "yaml:\"vindicated_auditor\""
+  ];
+
+  // Reason is the typed resolution reason recorded by governance.
+  DiscrepancyResolutionReason reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // FaultAttribution is the typed fault attribution recorded at resolution.
+  FaultAttribution fault_attribution = 4 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+}
+
+// EventDiscrepancyTimedOut is emitted when a discrepancy's resolution window
+// elapses without governance action.
+message EventDiscrepancyTimedOut {
+  // DiscrepancyID is the identifier of the timed-out discrepancy record.
+  uint64 discrepancy_id = 1 [
+    (gogoproto.customname) = "DiscrepancyID",
+    (gogoproto.jsontag)    = "discrepancy_id",
+    (gogoproto.moretags)   = "yaml:\"discrepancy_id\""
+  ];
+
+  // AuditorA is the bech32 account address of the first auditor in the dispute.
+  string auditor_a = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor_a",
+    (gogoproto.moretags)  = "yaml:\"auditor_a\""
+  ];
+
+  // AuditorB is the bech32 account address of the second auditor in the dispute.
+  string auditor_b = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor_b",
+    (gogoproto.moretags)  = "yaml:\"auditor_b\""
+  ];
+}
+
+// EventProviderBondPosted is emitted when a provider posts (or tops up) bond.
+message EventProviderBondPosted {
+  // Provider is the bech32 account address of the bonding provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Amount is the coin amount just posted in this transaction.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+
+  // TotalBonded is the resulting total bonded amount after this posting.
+  cosmos.base.v1beta1.Coin total_bonded = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "total_bonded",
+    (gogoproto.moretags) = "yaml:\"total_bonded\""
+  ];
+}
+
+// EventProviderBondSlashed is emitted when a provider's bond is slashed.
+message EventProviderBondSlashed {
+  // Provider is the bech32 account address of the slashed provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // SlashedAmount is the coin amount slashed in this action.
+  cosmos.base.v1beta1.Coin slashed_amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "slashed_amount",
+    (gogoproto.moretags) = "yaml:\"slashed_amount\""
+  ];
+
+  // Reason is the typed slash reason recorded.
+  ProviderBondSlashReason reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+}
+
+// EventProviderBondWithdrawalInitiated is emitted when a provider begins
+// unbonding part or all of its bond.
+message EventProviderBondWithdrawalInitiated {
+  // Provider is the bech32 account address of the unbonding provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Amount is the coin amount the provider is unbonding.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+
+  // CompletionTime is the chain timestamp at which the unbonding completes.
+  google.protobuf.Timestamp completion_time = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "completion_time",
+    (gogoproto.moretags) = "yaml:\"completion_time\""
+  ];
+}
+
+// EventProviderBondWithdrawalCompleted is emitted when an unbonding entry
+// matures and the amount is returned to the provider.
+message EventProviderBondWithdrawalCompleted {
+  // Provider is the bech32 account address of the provider receiving the unbonded coins.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Amount is the coin amount returned to the provider.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventSnapshotHashPosted is emitted when a provider posts a snapshot hash.
+message EventSnapshotHashPosted {
+  // Provider is the bech32 account address of the snapshotting provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // SnapshotHash is the opaque hash bytes posted by the provider.
+  bytes snapshot_hash = 2 [
+    (gogoproto.jsontag)  = "snapshot_hash",
+    (gogoproto.moretags) = "yaml:\"snapshot_hash\""
+  ];
+
+  // ComplianceDeadline is the chain timestamp by which the next snapshot must be posted.
+  google.protobuf.Timestamp compliance_deadline = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "compliance_deadline",
+    (gogoproto.moretags) = "yaml:\"compliance_deadline\""
+  ];
+}
+
+// EventSnapshotSuspended is emitted when a provider's snapshot is suspended
+// for missing a compliance deadline.
+message EventSnapshotSuspended {
+  // Provider is the bech32 account address of the suspended provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+}
+
+// EventSnapshotResumed is emitted when a previously suspended provider snapshot
+// returns to compliance.
+message EventSnapshotResumed {
+  // Provider is the bech32 account address of the resumed provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+}
+
+// EventFeeEscrowed is emitted when an audit fee is escrowed by a provider.
+message EventFeeEscrowed {
+  // Provider is the bech32 account address of the escrowing provider.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Auditor is the bech32 account address of the consuming auditor (may be empty).
+  string auditor = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Amount is the coin amount escrowed.
+  cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventFeeReleasedToAuditor is emitted when an escrowed fee is released to the auditor.
+message EventFeeReleasedToAuditor {
+  // Auditor is the bech32 account address of the auditor receiving the fee.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Amount is the coin amount released to the auditor.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventFeeReturnedToProvider is emitted when an escrowed fee is returned to the provider.
+message EventFeeReturnedToProvider {
+  // Provider is the bech32 account address of the provider receiving the fee.
+  string provider = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Amount is the coin amount returned to the provider.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventAuditEscrowOpened is emitted when a provider opens an audit escrow.
+message EventAuditEscrowOpened {
+  // AuditEscrowID is the identifier of the newly opened audit escrow.
+  uint64 audit_escrow_id = 1 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+
+  // Provider is the bech32 account address of the provider opening the escrow.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // Fee is the audit fee escrowed.
+  cosmos.base.v1beta1.Coin fee = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "fee",
+    (gogoproto.moretags) = "yaml:\"fee\""
+  ];
+
+  // ProviderDeposit is the deposit a provider escrows alongside the fee.
+  cosmos.base.v1beta1.Coin provider_deposit = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "provider_deposit",
+    (gogoproto.moretags) = "yaml:\"provider_deposit\""
+  ];
+}
+
+// EventAuditEscrowSettled is emitted when an audit escrow reaches final settlement.
+message EventAuditEscrowSettled {
+  // AuditEscrowID is the identifier of the settled audit escrow.
+  uint64 audit_escrow_id = 1 [
+    (gogoproto.customname) = "AuditEscrowID",
+    (gogoproto.jsontag)    = "audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"audit_escrow_id\""
+  ];
+
+  // Reason is the typed settlement reason recorded.
+  AuditEscrowSettlementReason reason = 2 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+
+  // FaultAttribution is the typed fault attribution recorded at settlement.
+  FaultAttribution fault_attribution = 3 [
+    (gogoproto.jsontag)  = "fault_attribution",
+    (gogoproto.moretags) = "yaml:\"fault_attribution\""
+  ];
+}
+
+// EventDepositReturnedToAuditor is emitted when an auditor's anti-griefing
+// deposit is returned.
+message EventDepositReturnedToAuditor {
+  // Auditor is the bech32 account address of the auditor receiving the deposit.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Amount is the coin amount returned to the auditor.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventDepositSlashed is emitted when an auditor's anti-griefing deposit is slashed.
+message EventDepositSlashed {
+  // Auditor is the bech32 account address of the auditor whose deposit was slashed.
+  string auditor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "auditor",
+    (gogoproto.moretags)  = "yaml:\"auditor\""
+  ];
+
+  // Amount is the coin amount slashed from the deposit.
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventVerificationGraceStarted is emitted when a provider enters a verification
+// grace window.
+message EventVerificationGraceStarted {
+  // GraceRecordID is the identifier of the newly opened grace record.
+  uint64 grace_record_id = 1 [
+    (gogoproto.customname) = "GraceRecordID",
+    (gogoproto.jsontag)    = "grace_record_id",
+    (gogoproto.moretags)   = "yaml:\"grace_record_id\""
+  ];
+
+  // Provider is the bech32 account address of the provider entering grace.
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+
+  // PreservedTier is the verification tier preserved for the provider during grace.
+  VerificationTier preserved_tier = 3 [
+    (gogoproto.jsontag)  = "preserved_tier",
+    (gogoproto.moretags) = "yaml:\"preserved_tier\""
+  ];
+}
+
+// EventVerificationGraceEnded is emitted when a verification grace window
+// concludes for any reason.
+message EventVerificationGraceEnded {
+  // GraceRecordID is the identifier of the closed grace record.
+  uint64 grace_record_id = 1 [
+    (gogoproto.customname) = "GraceRecordID",
+    (gogoproto.jsontag)    = "grace_record_id",
+    (gogoproto.moretags)   = "yaml:\"grace_record_id\""
+  ];
+
+  // Status is the final lifecycle status of the closed grace record.
+  VerificationGraceStatus status = 2 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+}

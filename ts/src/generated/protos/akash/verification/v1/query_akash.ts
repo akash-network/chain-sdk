@@ -1,0 +1,98 @@
+import { QueryAttestationRequest, QueryAttestationResponse, QueryAuditEscrowRequest, QueryAuditEscrowResponse, QueryAuditorAttestationsRequest, QueryAuditorAttestationsResponse, QueryAuditorRequest, QueryAuditorResponse, QueryAuditorsRequest, QueryAuditorsResponse, QueryDiscrepanciesRequest, QueryDiscrepanciesResponse, QueryDiscrepancyRequest, QueryDiscrepancyResponse, QueryParamsRequest, QueryParamsResponse, QueryProviderAttestationsRequest, QueryProviderAttestationsResponse, QueryProviderAuditEscrowsRequest, QueryProviderAuditEscrowsResponse, QueryProviderBondRequest, QueryProviderBondResponse, QueryProviderSnapshotRequest, QueryProviderSnapshotResponse, QueryProviderVerificationGraceRequest, QueryProviderVerificationGraceResponse } from "./query.ts";
+
+export const Query = {
+  typeName: "akash.verification.v1.Query",
+  methods: {
+    auditor: {
+      name: "Auditor",
+      httpPath: "/akash/verification/v1/auditors/{auditor}",
+      input: QueryAuditorRequest,
+      output: QueryAuditorResponse,
+      get parent() { return Query; },
+    },
+    auditors: {
+      name: "Auditors",
+      httpPath: "/akash/verification/v1/auditors",
+      input: QueryAuditorsRequest,
+      output: QueryAuditorsResponse,
+      get parent() { return Query; },
+    },
+    attestation: {
+      name: "Attestation",
+      httpPath: "/akash/verification/v1/attestations/{provider}/{auditor}",
+      input: QueryAttestationRequest,
+      output: QueryAttestationResponse,
+      get parent() { return Query; },
+    },
+    providerAttestations: {
+      name: "ProviderAttestations",
+      httpPath: "/akash/verification/v1/providers/{provider}/attestations",
+      input: QueryProviderAttestationsRequest,
+      output: QueryProviderAttestationsResponse,
+      get parent() { return Query; },
+    },
+    auditorAttestations: {
+      name: "AuditorAttestations",
+      httpPath: "/akash/verification/v1/auditors/{auditor}/attestations",
+      input: QueryAuditorAttestationsRequest,
+      output: QueryAuditorAttestationsResponse,
+      get parent() { return Query; },
+    },
+    discrepancy: {
+      name: "Discrepancy",
+      httpPath: "/akash/verification/v1/discrepancies/{id}",
+      input: QueryDiscrepancyRequest,
+      output: QueryDiscrepancyResponse,
+      get parent() { return Query; },
+    },
+    discrepancies: {
+      name: "Discrepancies",
+      httpPath: "/akash/verification/v1/discrepancies",
+      input: QueryDiscrepanciesRequest,
+      output: QueryDiscrepanciesResponse,
+      get parent() { return Query; },
+    },
+    auditEscrow: {
+      name: "AuditEscrow",
+      httpPath: "/akash/verification/v1/audit-escrows/{id}",
+      input: QueryAuditEscrowRequest,
+      output: QueryAuditEscrowResponse,
+      get parent() { return Query; },
+    },
+    providerAuditEscrows: {
+      name: "ProviderAuditEscrows",
+      httpPath: "/akash/verification/v1/providers/{provider}/audit-escrows",
+      input: QueryProviderAuditEscrowsRequest,
+      output: QueryProviderAuditEscrowsResponse,
+      get parent() { return Query; },
+    },
+    providerVerificationGrace: {
+      name: "ProviderVerificationGrace",
+      httpPath: "/akash/verification/v1/providers/{provider}/grace",
+      input: QueryProviderVerificationGraceRequest,
+      output: QueryProviderVerificationGraceResponse,
+      get parent() { return Query; },
+    },
+    providerBond: {
+      name: "ProviderBond",
+      httpPath: "/akash/verification/v1/providers/{provider}/bond",
+      input: QueryProviderBondRequest,
+      output: QueryProviderBondResponse,
+      get parent() { return Query; },
+    },
+    providerSnapshot: {
+      name: "ProviderSnapshot",
+      httpPath: "/akash/verification/v1/providers/{provider}/snapshot",
+      input: QueryProviderSnapshotRequest,
+      output: QueryProviderSnapshotResponse,
+      get parent() { return Query; },
+    },
+    params: {
+      name: "Params",
+      httpPath: "/akash/verification/v1/params",
+      input: QueryParamsRequest,
+      output: QueryParamsResponse,
+      get parent() { return Query; },
+    },
+  },
+} as const;

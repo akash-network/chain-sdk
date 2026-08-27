@@ -36,6 +36,7 @@ import (
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	otypes "pkg.akt.dev/go/node/oracle/v2"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
+	vtypes "pkg.akt.dev/go/node/verification/v1"
 )
 
 // QueryClient is the interface that exposes query modules.
@@ -45,6 +46,7 @@ type QueryClient interface {
 	Market() mtypes.QueryClient
 	Provider() ptypes.QueryClient
 	Audit() atypes.QueryClient
+	Verification() vtypes.QueryClient
 	Certs() ctypes.QueryClient
 	Auth() authtypes.QueryClient
 	Authz() authz.QueryClient

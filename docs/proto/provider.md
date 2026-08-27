@@ -37,7 +37,20 @@
      - [ClusterRPC](#akash.inventory.v1.ClusterRPC)
      - [NodeRPC](#akash.inventory.v1.NodeRPC)
    
+ - [akash/inventory/v1/snapshot.proto](#akash/inventory/v1/snapshot.proto)
+     - [GetCommittedInventorySnapshotRequest](#akash.inventory.v1.GetCommittedInventorySnapshotRequest)
+     - [GetCommittedInventorySnapshotResponse](#akash.inventory.v1.GetCommittedInventorySnapshotResponse)
+     - [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest)
+     - [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse)
+     - [SnapshotEvidenceSection](#akash.inventory.v1.SnapshotEvidenceSection)
+     - [SnapshotPayload](#akash.inventory.v1.SnapshotPayload)
+     - [SnapshotResourceSummary](#akash.inventory.v1.SnapshotResourceSummary)
+     - [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity)
+   
+     - [InventoryService](#akash.inventory.v1.InventoryService)
+   
  - [akash/manifest/v2beta3/httpoptions.proto](#akash/manifest/v2beta3/httpoptions.proto)
+     - [ProxyOptions](#akash.manifest.v2beta3.ProxyOptions)
      - [ServiceExposeHTTPOptions](#akash.manifest.v2beta3.ServiceExposeHTTPOptions)
    
  - [akash/manifest/v2beta3/serviceexpose.proto](#akash/manifest/v2beta3/serviceexpose.proto)
@@ -49,11 +62,15 @@
      - [ServiceParams](#akash.manifest.v2beta3.ServiceParams)
      - [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions)
      - [StorageParams](#akash.manifest.v2beta3.StorageParams)
+     - [TEEParams](#akash.manifest.v2beta3.TEEParams)
    
  - [akash/manifest/v2beta3/group.proto](#akash/manifest/v2beta3/group.proto)
      - [Group](#akash.manifest.v2beta3.Group)
    
  - [akash/provider/lease/v1/service.proto](#akash/provider/lease/v1/service.proto)
+     - [AttestationGPUReport](#akash.provider.lease.v1.AttestationGPUReport)
+     - [AttestationQuoteRequest](#akash.provider.lease.v1.AttestationQuoteRequest)
+     - [AttestationQuoteResponse](#akash.provider.lease.v1.AttestationQuoteResponse)
      - [ForwarderPortStatus](#akash.provider.lease.v1.ForwarderPortStatus)
      - [LeaseIPStatus](#akash.provider.lease.v1.LeaseIPStatus)
      - [LeaseServiceStatus](#akash.provider.lease.v1.LeaseServiceStatus)
@@ -484,10 +501,212 @@
 
  
  
+ <a name="akash/inventory/v1/snapshot.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/inventory/v1/snapshot.proto
+ 
+
+ 
+ <a name="akash.inventory.v1.GetCommittedInventorySnapshotRequest"></a>
+
+ ### GetCommittedInventorySnapshotRequest
+ GetCommittedInventorySnapshotRequest is the request type for
+GetCommittedInventorySnapshot.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot_hash` | [bytes](#bytes) |  | snapshot_hash optionally selects a committed snapshot by SHA-256 hash. When omitted, the latest committed snapshot is returned. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.GetCommittedInventorySnapshotResponse"></a>
+
+ ### GetCommittedInventorySnapshotResponse
+ GetCommittedInventorySnapshotResponse is the response type for
+GetCommittedInventorySnapshot.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot_payload` | [bytes](#bytes) |  | snapshot_payload is the exact committed inventory snapshot payload. |
+ | `signature` | [bytes](#bytes) |  | signature is the provider signature over snapshot_payload. |
+ | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
+ | `snapshot_hash` | [bytes](#bytes) |  | snapshot_hash is the SHA-256 hash of snapshot_payload. |
+ | `posted_at` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | posted_at is when the provider stored this committed snapshot locally. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.GetInventorySnapshotRequest"></a>
+
+ ### GetInventorySnapshotRequest
+ GetInventorySnapshotRequest is the request type for GetInventorySnapshot.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `nonce` | [bytes](#bytes) |  | nonce is an optional 32-byte challenge bound into the signed payload. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.GetInventorySnapshotResponse"></a>
+
+ ### GetInventorySnapshotResponse
+ GetInventorySnapshotResponse is the response type for GetInventorySnapshot.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `snapshot_payload` | [bytes](#bytes) |  | snapshot_payload is the opaque inventory snapshot payload. |
+ | `signature` | [bytes](#bytes) |  | signature is the provider signature over snapshot_payload. |
+ | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SnapshotEvidenceSection"></a>
+
+ ### SnapshotEvidenceSection
+ SnapshotEvidenceSection carries an opaque payload from one collector.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `name` | [string](#string) |  |  |
+ | `payload` | [bytes](#bytes) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SnapshotPayload"></a>
+
+ ### SnapshotPayload
+ SnapshotPayload is the deterministic payload signed by a provider.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `schema_version` | [uint32](#uint32) |  | schema_version identifies the payload schema used by snapshot_payload. |
+ | `provider` | [string](#string) |  | provider is the provider account address in bech32 form. |
+ | `chain_id` | [string](#string) |  | chain_id binds the snapshot to the chain the provider is operating on. |
+ | `nonce` | [bytes](#bytes) |  | nonce is the optional challenge supplied by the caller. |
+ | `timestamp` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp is the provider-local snapshot generation time. |
+ | `cluster` | [Cluster](#akash.inventory.v1.Cluster) |  | cluster is the current cluster inventory view. |
+ | `resource_summary` | [SnapshotResourceSummary](#akash.inventory.v1.SnapshotResourceSummary) |  | resource_summary is the chain-facing summary derived from the full snapshot. |
+ | `evidence_sections` | [SnapshotEvidenceSection](#akash.inventory.v1.SnapshotEvidenceSection) | repeated | evidence_sections carries named collector payloads for auditor evidence. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SnapshotResourceSummary"></a>
+
+ ### SnapshotResourceSummary
+ SnapshotResourceSummary captures the snapshot fields posted on-chain.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `total_gpus` | [uint32](#uint32) |  |  |
+ | `total_vcpus` | [uint32](#uint32) |  |  |
+ | `total_memory_mb` | [uint64](#uint64) |  |  |
+ | `total_storage_mb` | [uint64](#uint64) |  |  |
+ | `active_leases` | [uint32](#uint32) |  |  |
+ | `software_version` | [string](#string) |  | software_version is the provider software version string kept for compatibility. |
+ | `software_signature` | [bytes](#bytes) |  | software_signature is the provider software signature kept for compatibility. |
+ | `software_identity` | [SoftwareIdentity](#akash.inventory.v1.SoftwareIdentity) |  | software_identity carries structured release artifact metadata. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.inventory.v1.SoftwareIdentity"></a>
+
+ ### SoftwareIdentity
+ SoftwareIdentity carries release artifact identity and signature metadata.
+Providers report these fields; auditors verify them off-chain against the
+published Akash release key.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `version` | [string](#string) |  | version is the provider or inventory software version string. |
+ | `artifact_ref` | [string](#string) |  | artifact_ref identifies the release artifact whose digest/signature is reported. |
+ | `digest_algorithm` | [string](#string) |  | digest_algorithm identifies the digest algorithm, e.g. sha3-256. |
+ | `digest` | [bytes](#bytes) |  | digest is the release artifact digest bytes. |
+ | `signature_type` | [string](#string) |  | signature_type identifies the signature format, e.g. cosign. |
+ | `signature` | [bytes](#bytes) |  | signature is the detached signature bytes when carried inline. |
+ | `signature_ref` | [string](#string) |  | signature_ref identifies an external signature or bundle. |
+ | `public_key_ref` | [string](#string) |  | public_key_ref identifies the published release public key. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.inventory.v1.InventoryService"></a>
+
+ ### InventoryService
+ InventoryService exposes signed provider inventory snapshots.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `GetInventorySnapshot` | [GetInventorySnapshotRequest](#akash.inventory.v1.GetInventorySnapshotRequest) | [GetInventorySnapshotResponse](#akash.inventory.v1.GetInventorySnapshotResponse) | GetInventorySnapshot returns a fresh provider-signed live challenge snapshot. | POST|/v1/inventory/snapshot|
+ | `GetCommittedInventorySnapshot` | [GetCommittedInventorySnapshotRequest](#akash.inventory.v1.GetCommittedInventorySnapshotRequest) | [GetCommittedInventorySnapshotResponse](#akash.inventory.v1.GetCommittedInventorySnapshotResponse) | GetCommittedInventorySnapshot returns an exact provider-signed committed snapshot payload by hash, or the latest committed snapshot when no hash is provided. | POST|/v1/inventory/snapshot/committed|
+ 
+  <!-- end services -->
+
+ 
+ 
  <a name="akash/manifest/v2beta3/httpoptions.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/manifest/v2beta3/httpoptions.proto
+ 
+
+ 
+ <a name="akash.manifest.v2beta3.ProxyOptions"></a>
+
+ ### ProxyOptions
+ ProxyOptions carries nginx proxy tuning applied to a route's location block.
+Every field is omitempty (0 / Unspecified == unset) so unset values are dropped
+from the manifest and never affect the version hash. Defaults are applied by the
+provider gateway at use-time, never injected here.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `buffering_disable` | [bool](#bool) |  | buffering_disable turns nginx proxy_buffering off when true. When false (the default) the field is omitted, so the gateway applies its default (buffering on) and a manifest that does not disable buffering hashes identically to one without proxy tuning. It is scoped to proxy_buffering only and independent of the buffer sizing fields below: proxy_buffer_size still applies with buffering off, while proxy_buffers/busy_buffers_size take effect only with buffering on. |
+ | `buffer_size` | [uint32](#uint32) |  | buffer_size maps to nginx proxy_buffer_size (bytes). |
+ | `buffers_number` | [uint32](#uint32) |  | buffers_number maps to the count in nginx proxy_buffers <number> <size>. |
+ | `buffers_size` | [uint32](#uint32) |  | buffers_size maps to the size in nginx proxy_buffers <number> <size> (bytes). |
+ | `busy_buffers_size` | [uint32](#uint32) |  | busy_buffers_size maps to nginx proxy_busy_buffers_size (bytes). |
+ | `connect_timeout` | [uint32](#uint32) |  | connect_timeout maps to nginx proxy_connect_timeout (milliseconds). |
+ 
+ 
+
  
 
  
@@ -505,6 +724,7 @@
  | `next_tries` | [uint32](#uint32) |  |  |
  | `next_timeout` | [uint32](#uint32) |  |  |
  | `next_cases` | [string](#string) | repeated |  |
+ | `proxy` | [ProxyOptions](#akash.manifest.v2beta3.ProxyOptions) |  | proxy groups the optional nginx proxy tuning for this route. It is nullable and omitempty, so a manifest that does not set it serializes identically to a pre-change manifest: the version hash is unchanged and older providers stay compatible. A nil proxy means the provider applies gateway defaults. |
  
  
 
@@ -622,6 +842,7 @@ JSON / YAML tags carry `omitempty`: the on-chain manifest `version` is a SHA has
  | `storage` | [StorageParams](#akash.manifest.v2beta3.StorageParams) | repeated |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
  | `permissions` | [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions) |  |  |
+ | `tee` | [TEEParams](#akash.manifest.v2beta3.TEEParams) |  |  |
  
  
 
@@ -656,6 +877,25 @@ Resources map to Kubernetes RBAC permissions:
  | `name` | [string](#string) |  |  |
  | `mount` | [string](#string) |  |  |
  | `read_only` | [bool](#bool) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.manifest.v2beta3.TEEParams"></a>
+
+ ### TEEParams
+ TEEParams configures Trusted Execution Environment for the service.
+The type field selects the TEE capability and the provider resolves the
+runtime class based on its detected platform (TDX or SNP).
+The attestation field controls whether the provider injects an attestation sidecar.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `type` | [string](#string) |  | type is the TEE capability: cpu, cpu-gpu |
+ | `attestation` | [bool](#bool) |  | attestation controls whether the provider injects an attestation sidecar. IMPORTANT: proto3 bool defaults to false, but the intended default is true. All producers MUST set this field explicitly. The Go SDL builder enforces this; non-Go clients must set attestation=true when sidecar injection is desired. |
  
  
 
@@ -707,6 +947,63 @@ Resources map to Kubernetes RBAC permissions:
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/lease/v1/service.proto
+ 
+
+ 
+ <a name="akash.provider.lease.v1.AttestationGPUReport"></a>
+
+ ### AttestationGPUReport
+ AttestationGPUReport holds attestation evidence for a single GPU device.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `device_index` | [uint32](#uint32) |  |  |
+ | `report` | [string](#string) |  | Base64-encoded hardware-signed GPU attestation report. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.lease.v1.AttestationQuoteRequest"></a>
+
+ ### AttestationQuoteRequest
+ AttestationQuoteRequest is the request body for the AttestationQuote RPC method.
+The tenant generates a nonce and sends it; the provider forwards it verbatim
+to the attestation sidecar inside the confidential compute pod.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  |  |
+ | `nonce` | [string](#string) |  | Base64-encoded 64-byte nonce generated by the tenant. |
+ | `bind_tls` | [bool](#bool) |  | When true, report_data is computed as SHA-512(tls_pubkey || nonce)[:64] to bind the attestation to the TLS channel. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.lease.v1.AttestationQuoteResponse"></a>
+
+ ### AttestationQuoteResponse
+ AttestationQuoteResponse is the response from the AttestationQuote RPC method.
+Contains raw hardware-signed attestation evidence from the TEE sidecar.
+The provider never inspects or modifies any field.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `report` | [string](#string) |  | Base64-encoded CPU attestation report (SNP ~1184 bytes, TDX ~5243 bytes). |
+ | `cert_chain` | [string](#string) |  | Base64-encoded certificate chain (may be empty). |
+ | `tee_platform` | [string](#string) |  | TEE platform identifier: "snp", "tdx", "snp-gpu", "tdx-gpu". |
+ | `auxblob` | [string](#string) |  | Base64-encoded auxiliary blob (typically empty). |
+ | `gpu_reports` | [AttestationGPUReport](#akash.provider.lease.v1.AttestationGPUReport) | repeated | Per-device GPU attestation reports for all CC-capable GPUs. |
+ | `tls_bound` | [bool](#bool) |  | Whether report_data was computed with TLS channel binding. |
+ 
+ 
+
  
 
  
@@ -924,6 +1221,7 @@ Resources map to Kubernetes RBAC permissions:
  | `StreamServiceStatus` | [ServiceStatusRequest](#akash.provider.lease.v1.ServiceStatusRequest) | [ServiceStatusResponse](#akash.provider.lease.v1.ServiceStatusResponse) stream | StreamServiceStatus buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
  | `ServiceLogs` | [ServiceLogsRequest](#akash.provider.lease.v1.ServiceLogsRequest) | [ServiceLogsResponse](#akash.provider.lease.v1.ServiceLogsResponse) | ServiceLogs buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
  | `StreamServiceLogs` | [ServiceLogsRequest](#akash.provider.lease.v1.ServiceLogsRequest) | [ServiceLogsResponse](#akash.provider.lease.v1.ServiceLogsResponse) stream | StreamServiceLogs buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
+ | `AttestationQuote` | [AttestationQuoteRequest](#akash.provider.lease.v1.AttestationQuoteRequest) | [AttestationQuoteResponse](#akash.provider.lease.v1.AttestationQuoteResponse) | AttestationQuote requests hardware-signed attestation evidence from the confidential compute sidecar. The provider forwards the tenant's nonce to the sidecar and returns the hardware-signed quote verbatim. | POST|/v1/lease/attestation/quote|
  
   <!-- end services -->
 

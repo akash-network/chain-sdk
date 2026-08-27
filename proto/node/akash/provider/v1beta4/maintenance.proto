@@ -1,0 +1,116 @@
+syntax = "proto3";
+package akash.provider.v1beta4;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "pkg.akt.dev/go/node/provider/v1beta4";
+
+// ProviderMaintenanceType enumerates provider maintenance window types.
+enum ProviderMaintenanceType {
+  // provider_maintenance_type_unspecified is the zero value.
+  provider_maintenance_type_unspecified = 0;
+  // provider_maintenance_type_planned represents a scheduled, non-urgent
+  // maintenance window communicated to tenants ahead of time.
+  provider_maintenance_type_planned = 1;
+  // provider_maintenance_type_emergency represents an urgent, unplanned
+  // maintenance window driven by operational incidents.
+  provider_maintenance_type_emergency = 2;
+  // provider_maintenance_type_security represents a window opened to apply a
+  // security patch or to remediate a security event.
+  provider_maintenance_type_security = 3;
+  // provider_maintenance_type_network represents a window driven by network
+  // connectivity work (e.g., upstream provider, peering, or DNS changes).
+  provider_maintenance_type_network = 4;
+  // provider_maintenance_type_capacity represents a window opened to perform
+  // capacity changes such as adding, draining, or removing hardware.
+  provider_maintenance_type_capacity = 5;
+}
+
+// ProviderMaintenanceStatus enumerates provider maintenance lifecycle states.
+enum ProviderMaintenanceStatus {
+  // provider_maintenance_status_unspecified is the zero value.
+  provider_maintenance_status_unspecified = 0;
+  // provider_maintenance_status_scheduled means the window has not started.
+  provider_maintenance_status_scheduled = 1;
+  // provider_maintenance_status_active means the window is active.
+  provider_maintenance_status_active = 2;
+  // provider_maintenance_status_elapsed means the window reached expected_ends_at.
+  provider_maintenance_status_elapsed = 3;
+  // provider_maintenance_status_closed means the window was closed explicitly.
+  provider_maintenance_status_closed = 4;
+}
+
+// ProviderMaintenanceRecord is an on-chain provider maintenance record.
+message ProviderMaintenanceRecord {
+  // id is the maintenance identifier.
+  uint64 id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+  // provider is the bech32 address of the provider owning the maintenance
+  // window.
+  //
+  // Example:
+  //   "akash1..."
+  string provider = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "provider",
+    (gogoproto.moretags)  = "yaml:\"provider\""
+  ];
+  // maintenance_type is the declared category of the window.
+  ProviderMaintenanceType maintenance_type = 3 [
+    (gogoproto.jsontag)  = "maintenance_type",
+    (gogoproto.moretags) = "yaml:\"maintenance_type\""
+  ];
+  // starts_at is the wall-clock time at which the maintenance window begins.
+  google.protobuf.Timestamp starts_at = 4 [
+    (gogoproto.stdtime)  = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "starts_at",
+    (gogoproto.moretags) = "yaml:\"starts_at\""
+  ];
+  // expected_ends_at is the wall-clock time at which the provider expects the
+  // window to end.
+  google.protobuf.Timestamp expected_ends_at = 5 [
+    (gogoproto.stdtime)  = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "expected_ends_at",
+    (gogoproto.moretags) = "yaml:\"expected_ends_at\""
+  ];
+  // opened_at is the block time at which the window was opened.
+  google.protobuf.Timestamp opened_at = 6 [
+    (gogoproto.stdtime)  = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "opened_at",
+    (gogoproto.moretags) = "yaml:\"opened_at\""
+  ];
+  // closed_at is the block time at which the window was closed.
+  google.protobuf.Timestamp closed_at = 7 [
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "closed_at,omitempty",
+    (gogoproto.moretags) = "yaml:\"closed_at,omitempty\""
+  ];
+  // metadata_hash is an optional, opaque hash of off-chain metadata.
+  bytes metadata_hash = 8 [
+    (gogoproto.jsontag)  = "metadata_hash,omitempty",
+    (gogoproto.moretags) = "yaml:\"metadata_hash,omitempty\""
+  ];
+}
+
+// ProviderMaintenanceWithStatus pairs a maintenance record with its status.
+message ProviderMaintenanceWithStatus {
+  // record is the stored maintenance window.
+  ProviderMaintenanceRecord record = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "record",
+    (gogoproto.moretags) = "yaml:\"record\""
+  ];
+  // status is the derived lifecycle state of the record at query time.
+  ProviderMaintenanceStatus status = 2 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+}

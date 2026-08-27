@@ -1,0 +1,463 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// Params defines the on-chain parameters for the verification module.
+// Includes per-tier auditor bond and TTL settings, per-tier minimum audit fees,
+// resource-scaled provider bond amounts, history requirements for higher tiers,
+// EndBlocker budget caps, escrow timing, anti-griefing deposits, the feature
+// flag controlling module activation, and per-tier contact-response targets.
+message Params {
+  // BondL1 is the auditor bond required to attest at L1 (Identified).
+  cosmos.base.v1beta1.Coin bond_l1 = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_l1",
+    (gogoproto.moretags) = "yaml:\"bond_l1\""
+  ];
+
+  // BondL2 is the auditor bond required to attest at L2 (Verified).
+  cosmos.base.v1beta1.Coin bond_l2 = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_l2",
+    (gogoproto.moretags) = "yaml:\"bond_l2\""
+  ];
+
+  // BondL3 is the auditor bond required to attest at L3 (Established).
+  cosmos.base.v1beta1.Coin bond_l3 = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_l3",
+    (gogoproto.moretags) = "yaml:\"bond_l3\""
+  ];
+
+  // BondL4 is the auditor bond required to attest at L4 (Trusted).
+  cosmos.base.v1beta1.Coin bond_l4 = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_l4",
+    (gogoproto.moretags) = "yaml:\"bond_l4\""
+  ];
+
+  // TTLL1 is the time-to-live of an L1 attestation before it expires.
+  google.protobuf.Duration ttl_l1 = 5 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "ttl_l1",
+    (gogoproto.moretags)    = "yaml:\"ttl_l1\""
+  ];
+
+  // TTLL2 is the time-to-live of an L2 attestation before it expires.
+  google.protobuf.Duration ttl_l2 = 6 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "ttl_l2",
+    (gogoproto.moretags)    = "yaml:\"ttl_l2\""
+  ];
+
+  // TTLL3 is the time-to-live of an L3 attestation before it expires.
+  google.protobuf.Duration ttl_l3 = 7 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "ttl_l3",
+    (gogoproto.moretags)    = "yaml:\"ttl_l3\""
+  ];
+
+  // TTLL4 is the time-to-live of an L4 attestation before it expires.
+  google.protobuf.Duration ttl_l4 = 8 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "ttl_l4",
+    (gogoproto.moretags)    = "yaml:\"ttl_l4\""
+  ];
+
+  // MinFeeL1 is the minimum audit fee a provider must escrow for an L1 audit.
+  cosmos.base.v1beta1.Coin min_fee_l1 = 9 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "min_fee_l1",
+    (gogoproto.moretags) = "yaml:\"min_fee_l1\""
+  ];
+
+  // MinFeeL2 is the minimum audit fee a provider must escrow for an L2 audit.
+  cosmos.base.v1beta1.Coin min_fee_l2 = 10 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "min_fee_l2",
+    (gogoproto.moretags) = "yaml:\"min_fee_l2\""
+  ];
+
+  // MinFeeL3 is the minimum audit fee a provider must escrow for an L3 audit.
+  cosmos.base.v1beta1.Coin min_fee_l3 = 11 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "min_fee_l3",
+    (gogoproto.moretags) = "yaml:\"min_fee_l3\""
+  ];
+
+  // MinFeeL4 is the minimum audit fee a provider must escrow for an L4 audit.
+  cosmos.base.v1beta1.Coin min_fee_l4 = 12 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "min_fee_l4",
+    (gogoproto.moretags) = "yaml:\"min_fee_l4\""
+  ];
+
+  // DiscrepancyThreshold is the number of discrepancies that triggers auditor freeze.
+  uint32 discrepancy_threshold = 13 [
+    (gogoproto.jsontag)  = "discrepancy_threshold",
+    (gogoproto.moretags) = "yaml:\"discrepancy_threshold\""
+  ];
+
+  // AuditorUnbondingPeriod is the unbonding duration applied to an auditor bond
+  // upon withdrawal initiation.
+  google.protobuf.Duration auditor_unbonding_period = 14 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "auditor_unbonding_period",
+    (gogoproto.moretags)    = "yaml:\"auditor_unbonding_period\""
+  ];
+
+  // RenewalPeriodL1 is the auditor renewal period for L1 attestations.
+  google.protobuf.Duration renewal_period_l1 = 15 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "renewal_period_l1",
+    (gogoproto.moretags)    = "yaml:\"renewal_period_l1\""
+  ];
+
+  // RenewalPeriodL2 is the auditor renewal period for L2 attestations.
+  google.protobuf.Duration renewal_period_l2 = 16 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "renewal_period_l2",
+    (gogoproto.moretags)    = "yaml:\"renewal_period_l2\""
+  ];
+
+  // RenewalPeriodL3 is the auditor renewal period for L3 attestations.
+  google.protobuf.Duration renewal_period_l3 = 17 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "renewal_period_l3",
+    (gogoproto.moretags)    = "yaml:\"renewal_period_l3\""
+  ];
+
+  // RenewalPeriodL4 is the auditor renewal period for L4 attestations.
+  google.protobuf.Duration renewal_period_l4 = 18 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "renewal_period_l4",
+    (gogoproto.moretags)    = "yaml:\"renewal_period_l4\""
+  ];
+
+  // SnapshotHashInterval is the cadence at which providers must post a snapshot hash.
+  google.protobuf.Duration snapshot_hash_interval = 19 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "snapshot_hash_interval",
+    (gogoproto.moretags)    = "yaml:\"snapshot_hash_interval\""
+  ];
+
+  // MaxSnapshotAge is the maximum age a provider snapshot may have before being stale.
+  google.protobuf.Duration max_snapshot_age = 20 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "max_snapshot_age",
+    (gogoproto.moretags)    = "yaml:\"max_snapshot_age\""
+  ];
+
+  // BondGpuL2 is the per-GPU resource-scaled provider bond at L2.
+  cosmos.base.v1beta1.Coin bond_gpu_l2 = 21 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_gpu_l2",
+    (gogoproto.moretags) = "yaml:\"bond_gpu_l2\""
+  ];
+
+  // BondGpuL3 is the per-GPU resource-scaled provider bond at L3.
+  cosmos.base.v1beta1.Coin bond_gpu_l3 = 22 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_gpu_l3",
+    (gogoproto.moretags) = "yaml:\"bond_gpu_l3\""
+  ];
+
+  // BondGpuL4 is the per-GPU resource-scaled provider bond at L4.
+  cosmos.base.v1beta1.Coin bond_gpu_l4 = 23 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_gpu_l4",
+    (gogoproto.moretags) = "yaml:\"bond_gpu_l4\""
+  ];
+
+  // BondVcpuL2 is the per-vCPU resource-scaled provider bond at L2.
+  cosmos.base.v1beta1.Coin bond_vcpu_l2 = 24 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_vcpu_l2",
+    (gogoproto.moretags) = "yaml:\"bond_vcpu_l2\""
+  ];
+
+  // BondVcpuL3 is the per-vCPU resource-scaled provider bond at L3.
+  cosmos.base.v1beta1.Coin bond_vcpu_l3 = 25 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_vcpu_l3",
+    (gogoproto.moretags) = "yaml:\"bond_vcpu_l3\""
+  ];
+
+  // BondVcpuL4 is the per-vCPU resource-scaled provider bond at L4.
+  cosmos.base.v1beta1.Coin bond_vcpu_l4 = 26 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_vcpu_l4",
+    (gogoproto.moretags) = "yaml:\"bond_vcpu_l4\""
+  ];
+
+  // BondMemGbL2 is the per-GB-memory resource-scaled provider bond at L2.
+  cosmos.base.v1beta1.Coin bond_mem_gb_l2 = 27 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_mem_gb_l2",
+    (gogoproto.moretags) = "yaml:\"bond_mem_gb_l2\""
+  ];
+
+  // BondMemGbL3 is the per-GB-memory resource-scaled provider bond at L3.
+  cosmos.base.v1beta1.Coin bond_mem_gb_l3 = 28 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_mem_gb_l3",
+    (gogoproto.moretags) = "yaml:\"bond_mem_gb_l3\""
+  ];
+
+  // BondMemGbL4 is the per-GB-memory resource-scaled provider bond at L4.
+  cosmos.base.v1beta1.Coin bond_mem_gb_l4 = 29 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_mem_gb_l4",
+    (gogoproto.moretags) = "yaml:\"bond_mem_gb_l4\""
+  ];
+
+  // BondStorageTbL2 is the per-TB-storage resource-scaled provider bond at L2.
+  cosmos.base.v1beta1.Coin bond_storage_tb_l2 = 30 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_storage_tb_l2",
+    (gogoproto.moretags) = "yaml:\"bond_storage_tb_l2\""
+  ];
+
+  // BondStorageTbL3 is the per-TB-storage resource-scaled provider bond at L3.
+  cosmos.base.v1beta1.Coin bond_storage_tb_l3 = 31 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_storage_tb_l3",
+    (gogoproto.moretags) = "yaml:\"bond_storage_tb_l3\""
+  ];
+
+  // BondStorageTbL4 is the per-TB-storage resource-scaled provider bond at L4.
+  cosmos.base.v1beta1.Coin bond_storage_tb_l4 = 32 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "bond_storage_tb_l4",
+    (gogoproto.moretags) = "yaml:\"bond_storage_tb_l4\""
+  ];
+
+  // ProviderBondUnbondingPeriod is the unbonding duration applied to a provider bond
+  // upon withdrawal initiation.
+  google.protobuf.Duration provider_bond_unbonding_period = 33 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "provider_bond_unbonding_period",
+    (gogoproto.moretags)    = "yaml:\"provider_bond_unbonding_period\""
+  ];
+
+  // MinAgeL2 is the minimum provider age required to attain L2.
+  google.protobuf.Duration min_age_l2 = 34 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "min_age_l2",
+    (gogoproto.moretags)    = "yaml:\"min_age_l2\""
+  ];
+
+  // MinAgeL3 is the minimum provider age required to attain L3.
+  google.protobuf.Duration min_age_l3 = 35 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "min_age_l3",
+    (gogoproto.moretags)    = "yaml:\"min_age_l3\""
+  ];
+
+  // MinAgeL4 is the minimum provider age required to attain L4.
+  google.protobuf.Duration min_age_l4 = 36 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "min_age_l4",
+    (gogoproto.moretags)    = "yaml:\"min_age_l4\""
+  ];
+
+  // MinLeaseCompletionBpsL3 is the minimum lease-completion rate (basis points) for L3.
+  uint32 min_lease_completion_bps_l3 = 37 [
+    (gogoproto.jsontag)  = "min_lease_completion_bps_l3",
+    (gogoproto.moretags) = "yaml:\"min_lease_completion_bps_l3\""
+  ];
+
+  // MinLeaseCompletionBpsL4 is the minimum lease-completion rate (basis points) for L4.
+  uint32 min_lease_completion_bps_l4 = 38 [
+    (gogoproto.jsontag)  = "min_lease_completion_bps_l4",
+    (gogoproto.moretags) = "yaml:\"min_lease_completion_bps_l4\""
+  ];
+
+  // CleanHistoryWindowL3 is the clean-history window required to attain L3.
+  google.protobuf.Duration clean_history_window_l3 = 39 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "clean_history_window_l3",
+    (gogoproto.moretags)    = "yaml:\"clean_history_window_l3\""
+  ];
+
+  // CleanHistoryWindowL4 is the clean-history window required to attain L4.
+  google.protobuf.Duration clean_history_window_l4 = 40 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "clean_history_window_l4",
+    (gogoproto.moretags)    = "yaml:\"clean_history_window_l4\""
+  ];
+
+  // MinL3DurationForL4 is the minimum continuous L3 duration required before promotion to L4.
+  google.protobuf.Duration min_l3_duration_for_l4 = 41 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "min_l3_duration_for_l4",
+    (gogoproto.moretags)    = "yaml:\"min_l3_duration_for_l4\""
+  ];
+
+  // MinLeasesForCompletionRate is the minimum number of leases required before
+  // the lease-completion ratio is considered meaningful.
+  uint32 min_leases_for_completion_rate = 42 [
+    (gogoproto.jsontag)  = "min_leases_for_completion_rate",
+    (gogoproto.moretags) = "yaml:\"min_leases_for_completion_rate\""
+  ];
+
+  // MaxEndblockerAttestationExpiries caps the number of attestation expiries processed per EndBlocker.
+  uint32 max_endblocker_attestation_expiries = 43 [
+    (gogoproto.jsontag)  = "max_endblocker_attestation_expiries",
+    (gogoproto.moretags) = "yaml:\"max_endblocker_attestation_expiries\""
+  ];
+
+  // MaxEndblockerSnapshotSuspensions caps the number of snapshot suspensions processed per EndBlocker.
+  uint32 max_endblocker_snapshot_suspensions = 44 [
+    (gogoproto.jsontag)  = "max_endblocker_snapshot_suspensions",
+    (gogoproto.moretags) = "yaml:\"max_endblocker_snapshot_suspensions\""
+  ];
+
+  // MaxEndblockerUnbondingCompletions caps the number of unbonding completions processed per EndBlocker.
+  uint32 max_endblocker_unbonding_completions = 45 [
+    (gogoproto.jsontag)  = "max_endblocker_unbonding_completions",
+    (gogoproto.moretags) = "yaml:\"max_endblocker_unbonding_completions\""
+  ];
+
+  // MaxEndblockerDiscrepancyTimeouts caps the number of discrepancy timeouts processed per EndBlocker.
+  uint32 max_endblocker_discrepancy_timeouts = 46 [
+    (gogoproto.jsontag)  = "max_endblocker_discrepancy_timeouts",
+    (gogoproto.moretags) = "yaml:\"max_endblocker_discrepancy_timeouts\""
+  ];
+
+  // MaxEndblockerAuditEscrowExpiries caps the number of audit escrow expiries processed per EndBlocker.
+  uint32 max_endblocker_audit_escrow_expiries = 47 [
+    (gogoproto.jsontag)  = "max_endblocker_audit_escrow_expiries",
+    (gogoproto.moretags) = "yaml:\"max_endblocker_audit_escrow_expiries\""
+  ];
+
+  // MaxEndblockerGraceExpiries caps the number of verification-grace expiries processed per EndBlocker.
+  uint32 max_endblocker_grace_expiries = 48 [
+    (gogoproto.jsontag)  = "max_endblocker_grace_expiries",
+    (gogoproto.moretags) = "yaml:\"max_endblocker_grace_expiries\""
+  ];
+
+  // DiscrepancyResolutionTimeout is the maximum time a discrepancy may remain pending before timing out.
+  google.protobuf.Duration discrepancy_resolution_timeout = 49 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "discrepancy_resolution_timeout",
+    (gogoproto.moretags)    = "yaml:\"discrepancy_resolution_timeout\""
+  ];
+
+  // AttestationDeposit is the anti-griefing deposit required when submitting an attestation.
+  cosmos.base.v1beta1.Coin attestation_deposit = 50 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "attestation_deposit",
+    (gogoproto.moretags) = "yaml:\"attestation_deposit\""
+  ];
+
+  // DiscrepancyGracePeriod is the grace window applied after a discrepancy is opened.
+  google.protobuf.Duration discrepancy_grace_period = 51 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "discrepancy_grace_period",
+    (gogoproto.moretags)    = "yaml:\"discrepancy_grace_period\""
+  ];
+
+  // ProviderAuditDeposit is the deposit a provider must escrow when opening an audit escrow.
+  cosmos.base.v1beta1.Coin provider_audit_deposit = 52 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "provider_audit_deposit",
+    (gogoproto.moretags) = "yaml:\"provider_audit_deposit\""
+  ];
+
+  // VerificationModuleActive is the feature flag controlling whether the verification
+  // module enforces filtering and accepts new transactions.
+  bool verification_module_active = 53 [
+    (gogoproto.jsontag)  = "verification_module_active",
+    (gogoproto.moretags) = "yaml:\"verification_module_active\""
+  ];
+
+  // ContactResponseCriticalL1 is the maximum critical-contact response time at L1.
+  google.protobuf.Duration contact_response_critical_l1 = 54 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_critical_l1",
+    (gogoproto.moretags)    = "yaml:\"contact_response_critical_l1\""
+  ];
+
+  // ContactResponseCriticalL2 is the maximum critical-contact response time at L2.
+  google.protobuf.Duration contact_response_critical_l2 = 55 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_critical_l2",
+    (gogoproto.moretags)    = "yaml:\"contact_response_critical_l2\""
+  ];
+
+  // ContactResponseCriticalL3 is the maximum critical-contact response time at L3.
+  google.protobuf.Duration contact_response_critical_l3 = 56 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_critical_l3",
+    (gogoproto.moretags)    = "yaml:\"contact_response_critical_l3\""
+  ];
+
+  // ContactResponseCriticalL4 is the maximum critical-contact response time at L4.
+  google.protobuf.Duration contact_response_critical_l4 = 57 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_critical_l4",
+    (gogoproto.moretags)    = "yaml:\"contact_response_critical_l4\""
+  ];
+
+  // ContactResponseStandardL1 is the maximum standard-contact response time at L1.
+  google.protobuf.Duration contact_response_standard_l1 = 58 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_standard_l1",
+    (gogoproto.moretags)    = "yaml:\"contact_response_standard_l1\""
+  ];
+
+  // ContactResponseStandardL2 is the maximum standard-contact response time at L2.
+  google.protobuf.Duration contact_response_standard_l2 = 59 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_standard_l2",
+    (gogoproto.moretags)    = "yaml:\"contact_response_standard_l2\""
+  ];
+
+  // ContactResponseStandardL3 is the maximum standard-contact response time at L3.
+  google.protobuf.Duration contact_response_standard_l3 = 60 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_standard_l3",
+    (gogoproto.moretags)    = "yaml:\"contact_response_standard_l3\""
+  ];
+
+  // ContactResponseStandardL4 is the maximum standard-contact response time at L4.
+  google.protobuf.Duration contact_response_standard_l4 = 61 [
+    (gogoproto.nullable)    = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag)     = "contact_response_standard_l4",
+    (gogoproto.moretags)    = "yaml:\"contact_response_standard_l4\""
+  ];
+}

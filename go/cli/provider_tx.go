@@ -66,6 +66,8 @@ func GetTxProviderCmd() *cobra.Command {
 	cmd.AddCommand(
 		GetTxProviderCreateCmd(),
 		GetTxProviderUpdateCmd(),
+		GetTxProviderOpenMaintenanceCmd(),
+		GetTxProviderCloseMaintenanceCmd(),
 	)
 	return cmd
 }

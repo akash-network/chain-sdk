@@ -85,6 +85,7 @@ func TxCmd() *cobra.Command {
 		GetTxDeploymentCmds(),
 		GetTxMarketCmds(),
 		GetTxProviderCmd(),
+		GetTxVerificationCmd(),
 		GetTxGovCmd(
 			[]*cobra.Command{
 				GetTxParamsSubmitParamChangeProposalCmd(),

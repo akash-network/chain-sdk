@@ -1,0 +1,97 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+
+import "akash/verification/v1/state.proto";
+import "akash/verification/v1/params.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// GenesisState defines the genesis state of the verification module. It
+// contains the on-chain parameters and the full set of records the module
+// is responsible for: auditors, attestations, discrepancies (and the next ID
+// counter), provider bonds, provider snapshot records, audit escrows (and
+// the next ID counter), and provider verification grace records (and the
+// next ID counter).
+message GenesisState {
+  // Params holds the on-chain parameters for the verification module.
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
+
+  // Auditors is the list of registered auditor records.
+  repeated AuditorRecord auditors = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "auditors",
+    (gogoproto.moretags) = "yaml:\"auditors\""
+  ];
+
+  // Attestations is the list of attestation records.
+  repeated AttestationRecord attestations = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "attestations",
+    (gogoproto.moretags) = "yaml:\"attestations\""
+  ];
+
+  // Discrepancies is the list of discrepancy events.
+  repeated DiscrepancyEvent discrepancies = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "discrepancies",
+    (gogoproto.moretags) = "yaml:\"discrepancies\""
+  ];
+
+  // ProviderBonds is the list of provider bond records.
+  repeated ProviderBondRecord provider_bonds = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "provider_bonds",
+    (gogoproto.moretags) = "yaml:\"provider_bonds\""
+  ];
+
+  // ProviderSnapshots is the list of provider snapshot records.
+  repeated ProviderSnapshotRecord provider_snapshots = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "provider_snapshots",
+    (gogoproto.moretags) = "yaml:\"provider_snapshots\""
+  ];
+
+  // NextDiscrepancyID is the monotonically increasing ID assigned to the next
+  // discrepancy event.
+  uint64 next_discrepancy_id = 7 [
+    (gogoproto.customname) = "NextDiscrepancyID",
+    (gogoproto.jsontag)    = "next_discrepancy_id",
+    (gogoproto.moretags)   = "yaml:\"next_discrepancy_id\""
+  ];
+
+  // AuditEscrows is the list of audit escrow records.
+  repeated AuditEscrowRecord audit_escrows = 8 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "audit_escrows",
+    (gogoproto.moretags) = "yaml:\"audit_escrows\""
+  ];
+
+  // NextAuditEscrowID is the monotonically increasing ID assigned to the next
+  // audit escrow record.
+  uint64 next_audit_escrow_id = 9 [
+    (gogoproto.customname) = "NextAuditEscrowID",
+    (gogoproto.jsontag)    = "next_audit_escrow_id",
+    (gogoproto.moretags)   = "yaml:\"next_audit_escrow_id\""
+  ];
+
+  // VerificationGraces is the list of provider verification grace records.
+  repeated ProviderVerificationGraceRecord verification_graces = 10 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "verification_graces",
+    (gogoproto.moretags) = "yaml:\"verification_graces\""
+  ];
+
+  // NextGraceRecordID is the monotonically increasing ID assigned to the next
+  // provider verification grace record.
+  uint64 next_grace_record_id = 11 [
+    (gogoproto.customname) = "NextGraceRecordID",
+    (gogoproto.jsontag)    = "next_grace_record_id",
+    (gogoproto.moretags)   = "yaml:\"next_grace_record_id\""
+  ];
+}

@@ -1,4 +1,5 @@
-import { MsgCreateProvider, MsgCreateProviderResponse, MsgDeleteProvider, MsgDeleteProviderResponse, MsgUpdateProvider, MsgUpdateProviderResponse } from "./msg.ts";
+import { MsgCloseProviderMaintenance, MsgCloseProviderMaintenanceResponse, MsgCreateProvider, MsgCreateProviderResponse, MsgDeleteProvider, MsgDeleteProviderResponse, MsgOpenProviderMaintenance, MsgOpenProviderMaintenanceResponse, MsgUpdateProvider, MsgUpdateProviderResponse } from "./msg.ts";
+import { MsgUpdateParams, MsgUpdateParamsResponse } from "./paramsmsg.ts";
 
 export const Msg = {
   typeName: "akash.provider.v1beta4.Msg",
@@ -19,6 +20,24 @@ export const Msg = {
       name: "DeleteProvider",
       input: MsgDeleteProvider,
       output: MsgDeleteProviderResponse,
+      get parent() { return Msg; },
+    },
+    openProviderMaintenance: {
+      name: "OpenProviderMaintenance",
+      input: MsgOpenProviderMaintenance,
+      output: MsgOpenProviderMaintenanceResponse,
+      get parent() { return Msg; },
+    },
+    closeProviderMaintenance: {
+      name: "CloseProviderMaintenance",
+      input: MsgCloseProviderMaintenance,
+      output: MsgCloseProviderMaintenanceResponse,
+      get parent() { return Msg; },
+    },
+    updateParams: {
+      name: "UpdateParams",
+      input: MsgUpdateParams,
+      output: MsgUpdateParamsResponse,
       get parent() { return Msg; },
     },
   },

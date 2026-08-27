@@ -1,4 +1,4 @@
-import { QueryBidRequest, QueryBidResponse, QueryBidsRequest, QueryBidsResponse, QueryLeaseRequest, QueryLeaseResponse, QueryLeasesRequest, QueryLeasesResponse, QueryOrderRequest, QueryOrderResponse, QueryOrdersRequest, QueryOrdersResponse, QueryParamsRequest, QueryParamsResponse } from "./query.ts";
+import { QueryBidRequest, QueryBidResponse, QueryBidsRequest, QueryBidsResponse, QueryLeaseRequest, QueryLeaseResponse, QueryLeasesRequest, QueryLeasesResponse, QueryOrderRequest, QueryOrderResponse, QueryOrdersRequest, QueryOrdersResponse, QueryParamsRequest, QueryParamsResponse, QueryProviderLeaseStatsRequest, QueryProviderLeaseStatsResponse } from "./query.ts";
 
 export const Query = {
   typeName: "akash.market.v1beta5.Query",
@@ -43,6 +43,13 @@ export const Query = {
       httpPath: "/akash/market/v1beta5/leases/info",
       input: QueryLeaseRequest,
       output: QueryLeaseResponse,
+      get parent() { return Query; },
+    },
+    providerLeaseStats: {
+      name: "ProviderLeaseStats",
+      httpPath: "/akash/market/v1beta5/providers/{provider}/lease-stats",
+      input: QueryProviderLeaseStatsRequest,
+      output: QueryProviderLeaseStatsResponse,
       get parent() { return Query; },
     },
     params: {

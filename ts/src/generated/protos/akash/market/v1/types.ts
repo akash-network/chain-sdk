@@ -14,10 +14,10 @@ export enum LeaseClosedReason {
    * be used
    */
   lease_closed_invalid = 0,
-  /** lease_closed_owner - values between 1..9999 indicate owner‑initiated close */
+  /** lease_closed_owner - values between 1..9999 indicate owner-initiated close. */
   lease_closed_owner = 1,
   /**
-   * lease_closed_reason_unstable - values between 10000..19999 are indicating provider initiated close
+   * lease_closed_reason_unstable - values between 10000..19999 are indicating provider initiated close.
    * lease_closed_reason_unstable lease workloads have been unstable
    */
   lease_closed_reason_unstable = 10000,
@@ -27,7 +27,9 @@ export enum LeaseClosedReason {
   lease_closed_reason_unspecified = 10002,
   /** lease_closed_reason_manifest_timeout - lease_closed_reason_manifest_timeout provider closed leases due to manifest not received */
   lease_closed_reason_manifest_timeout = 10003,
-  /** lease_closed_reason_insufficient_funds - values between 20000..29999 indicate network‑initiated close */
+  /** lease_closed_reason_provider - lease_closed_reason_provider provider closed the lease */
+  lease_closed_reason_provider = 10004,
+  /** lease_closed_reason_insufficient_funds - values between 20000..29999 indicate network-initiated close. */
   lease_closed_reason_insufficient_funds = 20000,
   UNRECOGNIZED = -1,
 }
@@ -52,6 +54,9 @@ export function leaseClosedReasonFromJSON(object: any): LeaseClosedReason {
     case 10003:
     case "lease_closed_reason_manifest_timeout":
       return LeaseClosedReason.lease_closed_reason_manifest_timeout;
+    case 10004:
+    case "lease_closed_reason_provider":
+      return LeaseClosedReason.lease_closed_reason_provider;
     case 20000:
     case "lease_closed_reason_insufficient_funds":
       return LeaseClosedReason.lease_closed_reason_insufficient_funds;
@@ -76,6 +81,8 @@ export function leaseClosedReasonToJSON(object: LeaseClosedReason): string {
       return "lease_closed_reason_unspecified";
     case LeaseClosedReason.lease_closed_reason_manifest_timeout:
       return "lease_closed_reason_manifest_timeout";
+    case LeaseClosedReason.lease_closed_reason_provider:
+      return "lease_closed_reason_provider";
     case LeaseClosedReason.lease_closed_reason_insufficient_funds:
       return "lease_closed_reason_insufficient_funds";
     case LeaseClosedReason.UNRECOGNIZED:

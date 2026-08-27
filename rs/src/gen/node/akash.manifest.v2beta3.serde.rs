@@ -249,6 +249,198 @@ impl<'de> serde::Deserialize<'de> for ImageCredentials {
         deserializer.deserialize_struct("akash.manifest.v2beta3.ImageCredentials", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for ProxyOptions {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.buffering_disable {
+            len += 1;
+        }
+        if self.buffer_size != 0 {
+            len += 1;
+        }
+        if self.buffers_number != 0 {
+            len += 1;
+        }
+        if self.buffers_size != 0 {
+            len += 1;
+        }
+        if self.busy_buffers_size != 0 {
+            len += 1;
+        }
+        if self.connect_timeout != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.ProxyOptions", len)?;
+        if self.buffering_disable {
+            struct_ser.serialize_field("bufferingDisable", &self.buffering_disable)?;
+        }
+        if self.buffer_size != 0 {
+            struct_ser.serialize_field("bufferSize", &self.buffer_size)?;
+        }
+        if self.buffers_number != 0 {
+            struct_ser.serialize_field("buffersNumber", &self.buffers_number)?;
+        }
+        if self.buffers_size != 0 {
+            struct_ser.serialize_field("buffersSize", &self.buffers_size)?;
+        }
+        if self.busy_buffers_size != 0 {
+            struct_ser.serialize_field("busyBuffersSize", &self.busy_buffers_size)?;
+        }
+        if self.connect_timeout != 0 {
+            struct_ser.serialize_field("connectTimeout", &self.connect_timeout)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ProxyOptions {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "buffering_disable",
+            "bufferingDisable",
+            "buffer_size",
+            "bufferSize",
+            "buffers_number",
+            "buffersNumber",
+            "buffers_size",
+            "buffersSize",
+            "busy_buffers_size",
+            "busyBuffersSize",
+            "connect_timeout",
+            "connectTimeout",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            BufferingDisable,
+            BufferSize,
+            BuffersNumber,
+            BuffersSize,
+            BusyBuffersSize,
+            ConnectTimeout,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "bufferingDisable" | "buffering_disable" => Ok(GeneratedField::BufferingDisable),
+                            "bufferSize" | "buffer_size" => Ok(GeneratedField::BufferSize),
+                            "buffersNumber" | "buffers_number" => Ok(GeneratedField::BuffersNumber),
+                            "buffersSize" | "buffers_size" => Ok(GeneratedField::BuffersSize),
+                            "busyBuffersSize" | "busy_buffers_size" => Ok(GeneratedField::BusyBuffersSize),
+                            "connectTimeout" | "connect_timeout" => Ok(GeneratedField::ConnectTimeout),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ProxyOptions;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.manifest.v2beta3.ProxyOptions")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProxyOptions, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut buffering_disable__ = None;
+                let mut buffer_size__ = None;
+                let mut buffers_number__ = None;
+                let mut buffers_size__ = None;
+                let mut busy_buffers_size__ = None;
+                let mut connect_timeout__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::BufferingDisable => {
+                            if buffering_disable__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("bufferingDisable"));
+                            }
+                            buffering_disable__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::BufferSize => {
+                            if buffer_size__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("bufferSize"));
+                            }
+                            buffer_size__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::BuffersNumber => {
+                            if buffers_number__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("buffersNumber"));
+                            }
+                            buffers_number__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::BuffersSize => {
+                            if buffers_size__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("buffersSize"));
+                            }
+                            buffers_size__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::BusyBuffersSize => {
+                            if busy_buffers_size__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("busyBuffersSize"));
+                            }
+                            busy_buffers_size__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::ConnectTimeout => {
+                            if connect_timeout__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("connectTimeout"));
+                            }
+                            connect_timeout__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(ProxyOptions {
+                    buffering_disable: buffering_disable__.unwrap_or_default(),
+                    buffer_size: buffer_size__.unwrap_or_default(),
+                    buffers_number: buffers_number__.unwrap_or_default(),
+                    buffers_size: buffers_size__.unwrap_or_default(),
+                    busy_buffers_size: busy_buffers_size__.unwrap_or_default(),
+                    connect_timeout: connect_timeout__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.manifest.v2beta3.ProxyOptions", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for Service {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -287,6 +479,9 @@ impl serde::Serialize for Service {
         if self.credentials.is_some() {
             len += 1;
         }
+        if !self.interconnect_group.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.Service", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -318,6 +513,9 @@ impl serde::Serialize for Service {
         if let Some(v) = self.credentials.as_ref() {
             struct_ser.serialize_field("credentials", v)?;
         }
+        if !self.interconnect_group.is_empty() {
+            struct_ser.serialize_field("interconnectGroup", &self.interconnect_group)?;
+        }
         struct_ser.end()
     }
 }
@@ -338,6 +536,8 @@ impl<'de> serde::Deserialize<'de> for Service {
             "expose",
             "params",
             "credentials",
+            "interconnect_group",
+            "interconnectGroup",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -352,6 +552,7 @@ impl<'de> serde::Deserialize<'de> for Service {
             Expose,
             Params,
             Credentials,
+            InterconnectGroup,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -383,6 +584,7 @@ impl<'de> serde::Deserialize<'de> for Service {
                             "expose" => Ok(GeneratedField::Expose),
                             "params" => Ok(GeneratedField::Params),
                             "credentials" => Ok(GeneratedField::Credentials),
+                            "interconnectGroup" | "interconnect_group" => Ok(GeneratedField::InterconnectGroup),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -412,6 +614,7 @@ impl<'de> serde::Deserialize<'de> for Service {
                 let mut expose__ = None;
                 let mut params__ = None;
                 let mut credentials__ = None;
+                let mut interconnect_group__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -476,6 +679,12 @@ impl<'de> serde::Deserialize<'de> for Service {
                             }
                             credentials__ = map_.next_value()?;
                         }
+                        GeneratedField::InterconnectGroup => {
+                            if interconnect_group__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("interconnectGroup"));
+                            }
+                            interconnect_group__ = Some(map_.next_value()?);
+                        }
                     }
                 }
                 Ok(Service {
@@ -489,6 +698,7 @@ impl<'de> serde::Deserialize<'de> for Service {
                     expose: expose__.unwrap_or_default(),
                     params: params__,
                     credentials: credentials__,
+                    interconnect_group: interconnect_group__.unwrap_or_default(),
                 })
             }
         }
@@ -757,6 +967,9 @@ impl serde::Serialize for ServiceExposeHttpOptions {
         if !self.next_cases.is_empty() {
             len += 1;
         }
+        if self.proxy.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.ServiceExposeHTTPOptions", len)?;
         if self.max_body_size != 0 {
             struct_ser.serialize_field("maxBodySize", &self.max_body_size)?;
@@ -775,6 +988,9 @@ impl serde::Serialize for ServiceExposeHttpOptions {
         }
         if !self.next_cases.is_empty() {
             struct_ser.serialize_field("nextCases", &self.next_cases)?;
+        }
+        if let Some(v) = self.proxy.as_ref() {
+            struct_ser.serialize_field("proxy", v)?;
         }
         struct_ser.end()
     }
@@ -798,6 +1014,7 @@ impl<'de> serde::Deserialize<'de> for ServiceExposeHttpOptions {
             "nextTimeout",
             "next_cases",
             "nextCases",
+            "proxy",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -808,6 +1025,7 @@ impl<'de> serde::Deserialize<'de> for ServiceExposeHttpOptions {
             NextTries,
             NextTimeout,
             NextCases,
+            Proxy,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -835,6 +1053,7 @@ impl<'de> serde::Deserialize<'de> for ServiceExposeHttpOptions {
                             "nextTries" | "next_tries" => Ok(GeneratedField::NextTries),
                             "nextTimeout" | "next_timeout" => Ok(GeneratedField::NextTimeout),
                             "nextCases" | "next_cases" => Ok(GeneratedField::NextCases),
+                            "proxy" => Ok(GeneratedField::Proxy),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -860,6 +1079,7 @@ impl<'de> serde::Deserialize<'de> for ServiceExposeHttpOptions {
                 let mut next_tries__ = None;
                 let mut next_timeout__ = None;
                 let mut next_cases__ = None;
+                let mut proxy__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::MaxBodySize => {
@@ -908,6 +1128,12 @@ impl<'de> serde::Deserialize<'de> for ServiceExposeHttpOptions {
                             }
                             next_cases__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Proxy => {
+                            if proxy__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("proxy"));
+                            }
+                            proxy__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(ServiceExposeHttpOptions {
@@ -917,6 +1143,7 @@ impl<'de> serde::Deserialize<'de> for ServiceExposeHttpOptions {
                     next_tries: next_tries__.unwrap_or_default(),
                     next_timeout: next_timeout__.unwrap_or_default(),
                     next_cases: next_cases__.unwrap_or_default(),
+                    proxy: proxy__,
                 })
             }
         }
@@ -940,6 +1167,9 @@ impl serde::Serialize for ServiceParams {
         if self.permissions.is_some() {
             len += 1;
         }
+        if self.tee.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.ServiceParams", len)?;
         if !self.storage.is_empty() {
             struct_ser.serialize_field("storage", &self.storage)?;
@@ -949,6 +1179,9 @@ impl serde::Serialize for ServiceParams {
         }
         if let Some(v) = self.permissions.as_ref() {
             struct_ser.serialize_field("permissions", v)?;
+        }
+        if let Some(v) = self.tee.as_ref() {
+            struct_ser.serialize_field("tee", v)?;
         }
         struct_ser.end()
     }
@@ -963,6 +1196,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
             "storage",
             "credentials",
             "permissions",
+            "tee",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -970,6 +1204,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
             Storage,
             Credentials,
             Permissions,
+            Tee,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -994,6 +1229,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
                             "storage" => Ok(GeneratedField::Storage),
                             "credentials" => Ok(GeneratedField::Credentials),
                             "permissions" => Ok(GeneratedField::Permissions),
+                            "tee" => Ok(GeneratedField::Tee),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1016,6 +1252,7 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
                 let mut storage__ = None;
                 let mut credentials__ = None;
                 let mut permissions__ = None;
+                let mut tee__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Storage => {
@@ -1036,12 +1273,19 @@ impl<'de> serde::Deserialize<'de> for ServiceParams {
                             }
                             permissions__ = map_.next_value()?;
                         }
+                        GeneratedField::Tee => {
+                            if tee__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tee"));
+                            }
+                            tee__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(ServiceParams {
                     storage: storage__.unwrap_or_default(),
                     credentials: credentials__,
                     permissions: permissions__,
+                    tee: tee__,
                 })
             }
         }
@@ -1263,5 +1507,113 @@ impl<'de> serde::Deserialize<'de> for StorageParams {
             }
         }
         deserializer.deserialize_struct("akash.manifest.v2beta3.StorageParams", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for TeeParams {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.r#type.is_empty() {
+            len += 1;
+        }
+        if self.attestation {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.manifest.v2beta3.TEEParams", len)?;
+        if !self.r#type.is_empty() {
+            struct_ser.serialize_field("type", &self.r#type)?;
+        }
+        if self.attestation {
+            struct_ser.serialize_field("attestation", &self.attestation)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for TeeParams {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "type",
+            "attestation",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Type,
+            Attestation,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "type" => Ok(GeneratedField::Type),
+                            "attestation" => Ok(GeneratedField::Attestation),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = TeeParams;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.manifest.v2beta3.TEEParams")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<TeeParams, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut r#type__ = None;
+                let mut attestation__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Type => {
+                            if r#type__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("type"));
+                            }
+                            r#type__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Attestation => {
+                            if attestation__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("attestation"));
+                            }
+                            attestation__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(TeeParams {
+                    r#type: r#type__.unwrap_or_default(),
+                    attestation: attestation__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.manifest.v2beta3.TEEParams", FIELDS, GeneratedVisitor)
     }
 }

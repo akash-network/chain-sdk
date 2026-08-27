@@ -3,6 +3,8 @@ package akash.provider.v1beta4;
 
 import "gogoproto/gogo.proto";
 import "akash/provider/v1beta4/provider.proto";
+import "akash/provider/v1beta4/params.proto";
+import "akash/provider/v1beta4/maintenance.proto";
 
 option go_package = "pkg.akt.dev/go/node/provider/v1beta4";
 
@@ -14,5 +16,33 @@ message GenesisState {
     (gogoproto.castrepeated) = "Providers",
     (gogoproto.jsontag)      = "providers",
     (gogoproto.moretags)     = "yaml:\"providers\""
+  ];
+
+  // Params is the provider module parameter set.
+  ProviderMaintenanceParams params = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
+
+  // Maintenances is the list of provider maintenance records.
+  repeated ProviderMaintenanceRecord maintenances = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "maintenances",
+    (gogoproto.moretags) = "yaml:\"maintenances\""
+  ];
+
+  // NextMaintenanceID is the next provider maintenance identifier.
+  uint64 next_maintenance_id = 4 [
+    (gogoproto.customname) = "NextMaintenanceID",
+    (gogoproto.jsontag)    = "next_maintenance_id",
+    (gogoproto.moretags)   = "yaml:\"next_maintenance_id\""
+  ];
+
+  // Registrations is the list of provider registration records to import at genesis.
+  repeated ProviderRegistration registrations = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "registrations",
+    (gogoproto.moretags) = "yaml:\"registrations\""
   ];
 }

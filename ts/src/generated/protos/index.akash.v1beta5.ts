@@ -7,4 +7,4 @@ export { Order, Order_State } from "./akash/market/v1beta5/order.ts";
 export { GenesisState } from "./akash/market/v1beta5/genesis.ts";
 export { MsgCreateLease, MsgCreateLeaseResponse, MsgWithdrawLease, MsgWithdrawLeaseResponse, MsgCloseLease, MsgCloseLeaseResponse, MsgLeaseStartReclaim, MsgLeaseStartReclaimResponse } from "./akash/market/v1beta5/leasemsg.ts";
 export { MsgUpdateParams, MsgUpdateParamsResponse } from "./akash/market/v1beta5/paramsmsg.ts";
-export { QueryOrdersRequest, QueryOrdersResponse, QueryOrderRequest, QueryOrderResponse, QueryBidsRequest, QueryBidsResponse, QueryBidRequest, QueryBidResponse, QueryLeasesRequest, QueryLeasesResponse, QueryLeaseRequest, QueryLeaseResponse, QueryParamsRequest, QueryParamsResponse } from "./akash/market/v1beta5/query.ts";
+export { QueryOrdersRequest, QueryOrdersResponse, QueryOrderRequest, QueryOrderResponse, QueryBidsRequest, QueryBidsResponse, QueryBidRequest, QueryBidResponse, QueryLeasesRequest, QueryLeasesResponse, QueryLeaseRequest, QueryLeaseResponse, QueryProviderLeaseStatsRequest, QueryProviderLeaseStatsResponse, QueryParamsRequest, QueryParamsResponse } from "./akash/market/v1beta5/query.ts";

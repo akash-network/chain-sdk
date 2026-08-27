@@ -234,6 +234,33 @@ pub mod query_client {
                 .insert(GrpcMethod::new("akash.market.v1beta5.Query", "Lease"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn provider_lease_stats(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryProviderLeaseStatsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryProviderLeaseStatsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.market.v1beta5.Query/ProviderLeaseStats",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("akash.market.v1beta5.Query", "ProviderLeaseStats"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
         pub async fn params(
             &mut self,
             request: impl tonic::IntoRequest<super::QueryParamsRequest>,
@@ -308,6 +335,13 @@ pub mod query_server {
             request: tonic::Request<super::QueryLeaseRequest>,
         ) -> std::result::Result<
             tonic::Response<super::QueryLeaseResponse>,
+            tonic::Status,
+        >;
+        async fn provider_lease_stats(
+            &self,
+            request: tonic::Request<super::QueryProviderLeaseStatsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryProviderLeaseStatsResponse>,
             tonic::Status,
         >;
         async fn params(
@@ -637,6 +671,53 @@ pub mod query_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = LeaseSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.market.v1beta5.Query/ProviderLeaseStats" => {
+                    #[allow(non_camel_case_types)]
+                    struct ProviderLeaseStatsSvc<T: Query>(pub Arc<T>);
+                    impl<
+                        T: Query,
+                    > tonic::server::UnaryService<super::QueryProviderLeaseStatsRequest>
+                    for ProviderLeaseStatsSvc<T> {
+                        type Response = super::QueryProviderLeaseStatsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<
+                                super::QueryProviderLeaseStatsRequest,
+                            >,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Query>::provider_lease_stats(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = ProviderLeaseStatsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

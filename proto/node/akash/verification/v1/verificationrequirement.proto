@@ -1,0 +1,54 @@
+syntax = "proto3";
+package akash.verification.v1;
+
+import "gogoproto/gogo.proto";
+import "akash/verification/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/verification/v1";
+
+// VerificationRequirement holds the verification constraints that a deployment
+// places on the providers eligible to bid on a group. It is referenced from the
+// deployment-module `PlacementRequirements` message; this file is split out from
+// `state.proto` so the deployment-side import surface stays minimal (only the
+// shared enums in `types.proto` need to come along).
+// A `min_tier` of 0 (TierUnspecified) means "no requirement".
+message VerificationRequirement {
+  // Generate Equal() so that PlacementRequirements (which sets gogoproto.equal)
+  // can compose this type into its own equality check.
+  option (gogoproto.equal) = true;
+
+  // MinTier is the minimum verification tier required of bidding providers.
+  // A value of 0 (TierUnspecified) means no tier requirement.
+  VerificationTier min_tier = 1 [
+    (gogoproto.jsontag)  = "min_tier",
+    (gogoproto.moretags) = "yaml:\"min_tier\""
+  ];
+
+  // RequiredCapabilities is the set of capability flags providers must assert.
+  repeated CapabilityFlag required_capabilities = 2 [
+    (gogoproto.jsontag)  = "required_capabilities",
+    (gogoproto.moretags) = "yaml:\"required_capabilities\""
+  ];
+
+  // RequiredAuditors is an optional list of specific auditor bech32 addresses
+  // whose attestations must be present on the provider, interpreted per
+  // `auditor_mode`.
+  repeated string required_auditors = 3 [
+    (gogoproto.jsontag)  = "required_auditors",
+    (gogoproto.moretags) = "yaml:\"required_auditors\""
+  ];
+
+  // AuditorMode controls how `required_auditors` is evaluated.
+  // AuditorSelectionModeUnspecified is treated as Any.
+  AuditorSelectionMode auditor_mode = 4 [
+    (gogoproto.jsontag)  = "auditor_mode",
+    (gogoproto.moretags) = "yaml:\"auditor_mode\""
+  ];
+
+  // MinAuditorCount is the minimum number of independent auditors that must
+  // have attested the provider, regardless of identity.
+  uint32 min_auditor_count = 5 [
+    (gogoproto.jsontag)  = "min_auditor_count",
+    (gogoproto.moretags) = "yaml:\"min_auditor_count\""
+  ];
+}

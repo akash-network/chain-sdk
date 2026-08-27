@@ -49,6 +49,7 @@ func (sdl *v2_1) buildGroups() error {
 
 				group.dgroup.Requirements.Attributes = types.Attributes(infra.Attributes)
 				group.dgroup.Requirements.SignedBy = infra.SignedBy
+				group.dgroup.Requirements.Verification = infra.Verification.toProto()
 
 				// keep ordering stable
 				sort.Sort(group.dgroup.Requirements.Attributes)

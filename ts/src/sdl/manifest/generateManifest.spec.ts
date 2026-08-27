@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { AuditorSelectionMode, CapabilityFlag, VerificationTier } from "../../generated/protos/index.akash.v1.ts";
 import { GroupSpec } from "../../generated/protos/index.akash.v1beta4.ts";
 import { Group } from "../../generated/protos/index.provider.akash.v2beta3.ts";
 import { yaml } from "../../utils/yaml.ts";
@@ -528,6 +529,44 @@ describe(generateManifest.name, () => {
 
       expect(result.groupSpecs[0].requirements?.signedBy?.anyOf).toEqual(["akash1abc", "akash1def"]);
       expect(result.groupSpecs[0].requirements?.signedBy?.allOf).toEqual(["akash1xyz"]);
+    });
+
+    it("includes verification requirements", () => {
+      const sdl = createBasicSdl({
+        verification: {
+          min_tier: 3,
+          capabilities: ["tee_hardware_attestation", "persistent_storage"],
+          auditors: ["akash1auditor"],
+          auditor_mode: "all",
+          min_auditor_count: 2,
+        },
+      });
+      const { result } = setup({ sdl });
+
+      expect(result.groupSpecs[0].requirements?.verification).toEqual({
+        minTier: VerificationTier.verification_tier_established,
+        requiredCapabilities: [
+          CapabilityFlag.capability_tee_hardware_attestation,
+          CapabilityFlag.capability_persistent_storage,
+        ],
+        requiredAuditors: ["akash1auditor"],
+        auditorMode: AuditorSelectionMode.auditor_selection_mode_all,
+        minAuditorCount: 2,
+      });
+    });
+
+    it("defaults verification auditor mode to any", () => {
+      const sdl = createBasicSdl({ verification: { min_tier: 1 } });
+      const { result } = setup({ sdl });
+
+      expect(result.groupSpecs[0].requirements?.verification?.auditorMode).toBe(AuditorSelectionMode.auditor_selection_mode_any);
+    });
+
+    it("collapses a tier-zero verification requirement", () => {
+      const sdl = createBasicSdl({ verification: { min_tier: 0, auditor_mode: "all" } });
+      const { result } = setup({ sdl });
+
+      expect(result.groupSpecs[0].requirements?.verification).toBeUndefined();
     });
 
     it("sorts placements alphabetically", () => {
@@ -1095,6 +1134,7 @@ describe(generateManifest.name, () => {
     amount?: number;
     placementAttributes?: SDLInput["profiles"]["placement"][string]["attributes"];
     signedBy?: SDLInput["profiles"]["placement"][string]["signedBy"];
+    verification?: SDLInput["profiles"]["placement"][string]["verification"];
     env?: SDLInput["services"][string]["env"];
     command?: SDLInput["services"][string]["command"];
     args?: SDLInput["services"][string]["args"];
@@ -1139,6 +1179,7 @@ describe(generateManifest.name, () => {
               web: ${{ denom, amount }}
             attributes: ${input.placementAttributes}
             signedBy: ${input.signedBy}
+            verification: ${input.verification}
       deployment:
         web:
           dcloud:
