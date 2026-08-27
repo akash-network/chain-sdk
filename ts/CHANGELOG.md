@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.42](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.41...ts/v1.0.0-alpha.42) (2026-08-26)
+
+
+### Features
+
+* **verification:** add AEP-86 protocol, inventory, and SDL support ([#308](https://github.com/akash-network/chain-sdk/pull/308))
+
 ## [1.0.0-alpha.41](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.40...ts/v1.0.0-alpha.41) (2026-07-31)
 
 
