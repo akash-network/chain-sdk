@@ -32,25 +32,25 @@ exports[`generateManifest > fixture file tests > GPU basic > generates groupSpec
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -89,25 +89,25 @@ exports[`generateManifest > fixture file tests > GPU basic > generates manifest 
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -197,25 +197,25 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM > generates 
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -254,25 +254,25 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM > generates 
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -362,25 +362,25 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM and interfac
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -419,25 +419,25 @@ exports[`generateManifest > fixture file tests > GPU basic with RAM and interfac
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -527,25 +527,25 @@ exports[`generateManifest > fixture file tests > GPU without GPU (units=0) > gen
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [
@@ -578,25 +578,25 @@ exports[`generateManifest > fixture file tests > GPU without GPU (units=0) > gen
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [
@@ -680,25 +680,25 @@ exports[`generateManifest > fixture file tests > GPU without model > generates g
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -737,25 +737,25 @@ exports[`generateManifest > fixture file tests > GPU without model > generates m
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAw"
+              "val": "100"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTM0MjE3NzI4"
+              "val": "134217728"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MQ=="
+              "val": "1"
             },
             "attributes": [
               {
@@ -826,25 +826,25 @@ exports[`generateManifest > fixture file tests > IP lease > generates groupSpecs
           "id": 1,
           "cpu": {
             "units": {
-              "val": "NTAw"
+              "val": "500"
             }
           },
           "memory": {
             "quantity": {
-              "val": "NTM2ODcwOTEy"
+              "val": "536870912"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "NTM2ODcwOTEy"
+                "val": "536870912"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [
@@ -878,25 +878,25 @@ exports[`generateManifest > fixture file tests > IP lease > generates manifest (
           "id": 1,
           "cpu": {
             "units": {
-              "val": "NTAw"
+              "val": "500"
             }
           },
           "memory": {
             "quantity": {
-              "val": "NTM2ODcwOTEy"
+              "val": "536870912"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "NTM2ODcwOTEy"
+                "val": "536870912"
               }
             }
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [
@@ -952,25 +952,25 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAwMA=="
+              "val": "1000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTA3Mzc0MTgyNA=="
+              "val": "1073741824"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             },
             {
               "name": "wordpress-db",
               "quantity": {
-                "val": "ODU4OTkzNDU5Mg=="
+                "val": "8589934592"
               },
               "attributes": [
                 {
@@ -986,7 +986,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
             {
               "name": "shm",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               },
               "attributes": [
                 {
@@ -1002,7 +1002,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
             {
               "name": "shm2",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               },
               "attributes": [
                 {
@@ -1018,7 +1018,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           }
         },
@@ -1033,25 +1033,25 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           "id": 2,
           "cpu": {
             "units": {
-              "val": "NDAwMA=="
+              "val": "4000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "NDI5NDk2NzI5Ng=="
+              "val": "4294967296"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "NDI5NDk2NzI5Ng=="
+                "val": "4294967296"
               }
             },
             {
               "name": "wordpress-data",
               "quantity": {
-                "val": "MzQzNTk3MzgzNjg="
+                "val": "34359738368"
               },
               "attributes": [
                 {
@@ -1067,7 +1067,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [
@@ -1103,25 +1103,25 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAwMA=="
+              "val": "1000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTA3Mzc0MTgyNA=="
+              "val": "1073741824"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             },
             {
               "name": "wordpress-db",
               "quantity": {
-                "val": "ODU4OTkzNDU5Mg=="
+                "val": "8589934592"
               },
               "attributes": [
                 {
@@ -1137,7 +1137,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
             {
               "name": "shm",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               },
               "attributes": [
                 {
@@ -1153,7 +1153,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
             {
               "name": "shm2",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               },
               "attributes": [
                 {
@@ -1169,7 +1169,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           }
         },
@@ -1232,25 +1232,25 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           "id": 2,
           "cpu": {
             "units": {
-              "val": "NDAwMA=="
+              "val": "4000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "NDI5NDk2NzI5Ng=="
+              "val": "4294967296"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "NDI5NDk2NzI5Ng=="
+                "val": "4294967296"
               }
             },
             {
               "name": "wordpress-data",
               "quantity": {
-                "val": "MzQzNTk3MzgzNjg="
+                "val": "34359738368"
               },
               "attributes": [
                 {
@@ -1266,7 +1266,7 @@ exports[`generateManifest > fixture file tests > Persistent storage > generates 
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [
@@ -1323,25 +1323,25 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAwMA=="
+              "val": "1000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTA3Mzc0MTgyNA=="
+              "val": "1073741824"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             },
             {
               "name": "wordpress-db",
               "quantity": {
-                "val": "ODU4OTkzNDU5Mg=="
+                "val": "8589934592"
               },
               "attributes": [
                 {
@@ -1357,7 +1357,7 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           }
         },
@@ -1372,25 +1372,25 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           "id": 2,
           "cpu": {
             "units": {
-              "val": "NDAwMA=="
+              "val": "4000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "NDI5NDk2NzI5Ng=="
+              "val": "4294967296"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "NDI5NDk2NzI5Ng=="
+                "val": "4294967296"
               }
             },
             {
               "name": "wordpress-data",
               "quantity": {
-                "val": "MzQzNTk3MzgzNjg="
+                "val": "34359738368"
               },
               "attributes": [
                 {
@@ -1406,7 +1406,7 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [
@@ -1442,25 +1442,25 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           "id": 1,
           "cpu": {
             "units": {
-              "val": "MTAwMA=="
+              "val": "1000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "MTA3Mzc0MTgyNA=="
+              "val": "1073741824"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "MTA3Mzc0MTgyNA=="
+                "val": "1073741824"
               }
             },
             {
               "name": "wordpress-db",
               "quantity": {
-                "val": "ODU4OTkzNDU5Mg=="
+                "val": "8589934592"
               },
               "attributes": [
                 {
@@ -1476,7 +1476,7 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           }
         },
@@ -1535,25 +1535,25 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           "id": 2,
           "cpu": {
             "units": {
-              "val": "NDAwMA=="
+              "val": "4000"
             }
           },
           "memory": {
             "quantity": {
-              "val": "NDI5NDk2NzI5Ng=="
+              "val": "4294967296"
             }
           },
           "storage": [
             {
               "name": "default",
               "quantity": {
-                "val": "NDI5NDk2NzI5Ng=="
+                "val": "4294967296"
               }
             },
             {
               "name": "wordpress-data",
               "quantity": {
-                "val": "MzQzNTk3MzgzNjg="
+                "val": "34359738368"
               },
               "attributes": [
                 {
@@ -1569,7 +1569,7 @@ exports[`generateManifest > fixture file tests > WordPress multi-service > gener
           ],
           "gpu": {
             "units": {
-              "val": "MA=="
+              "val": "0"
             }
           },
           "endpoints": [

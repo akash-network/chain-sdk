@@ -11,6 +11,27 @@ const encoder = new TextEncoder();
 const NULLABLE_MANIFEST_KEYS = new Set(["command", "args", "env", "hosts", "storage"]);
 const OMITTED_MANIFEST_KEYS = new Set(["kind", "attributes"]);
 
+// Manifest fields that on the Go side use `omitempty` for string values —
+// the field must NOT appear in the JSON when its value is the empty
+// string, otherwise the manifest version hash (a SHA over this exact
+// serialization) diverges from the Go side and breaks send-manifest
+// validation on existing leases.
+const OMITTED_WHEN_EMPTY_STRING_KEYS = new Set(["interconnectGroup"]);
+
+// Nested `proxy` object fields that on the Go side use `omitempty`, so an unset
+// value (0 for the numeric fields, false for the `bufferingDisable` bool) must NOT
+// appear in the JSON. Like the empty-string case above, keeping it would diverge the
+// manifest version hash from the Go side and break send-manifest validation for
+// deployments that do not set these fields.
+const OMITTED_WHEN_ZERO_KEYS = new Set([
+  "bufferingDisable",
+  "bufferSize",
+  "buffersNumber",
+  "buffersSize",
+  "busyBuffersSize",
+  "connectTimeout",
+]);
+
 export async function generateManifestVersion(manifest: Manifest): Promise<Uint8Array> {
   const jsonStr = manifestToSortedJSON(manifest);
   const sortedBytes = encoder.encode(jsonStr);
@@ -28,6 +49,10 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
     return decoder.decode(value);
   }
 
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
   if (typeof key !== "string") {
     return value;
   }
@@ -42,6 +67,14 @@ function manifestReplacer(this: unknown, key: string | number, value: unknown): 
   }
 
   if (OMITTED_MANIFEST_KEYS.has(key) && ((Array.isArray(value) && value.length === 0) || value === 0)) {
+    return undefined;
+  }
+
+  if (OMITTED_WHEN_ZERO_KEYS.has(key) && (value === 0 || value === false)) {
+    return undefined;
+  }
+
+  if (OMITTED_WHEN_EMPTY_STRING_KEYS.has(key) && value === "") {
     return undefined;
   }
 

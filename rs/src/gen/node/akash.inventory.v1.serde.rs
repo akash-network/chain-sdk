@@ -1531,9 +1531,27 @@ impl serde::Serialize for NodeCapabilities {
         if !self.storage_classes.is_empty() {
             len += 1;
         }
+        if !self.interconnect_resource_name.is_empty() {
+            len += 1;
+        }
+        if !self.interconnect_fabric.is_empty() {
+            len += 1;
+        }
+        if !self.nccl_hca_prefixes.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.inventory.v1.NodeCapabilities", len)?;
         if !self.storage_classes.is_empty() {
             struct_ser.serialize_field("storageClasses", &self.storage_classes)?;
+        }
+        if !self.interconnect_resource_name.is_empty() {
+            struct_ser.serialize_field("interconnectResourceName", &self.interconnect_resource_name)?;
+        }
+        if !self.interconnect_fabric.is_empty() {
+            struct_ser.serialize_field("interconnectFabric", &self.interconnect_fabric)?;
+        }
+        if !self.nccl_hca_prefixes.is_empty() {
+            struct_ser.serialize_field("ncclHcaPrefixes", &self.nccl_hca_prefixes)?;
         }
         struct_ser.end()
     }
@@ -1547,11 +1565,20 @@ impl<'de> serde::Deserialize<'de> for NodeCapabilities {
         const FIELDS: &[&str] = &[
             "storage_classes",
             "storageClasses",
+            "interconnect_resource_name",
+            "interconnectResourceName",
+            "interconnect_fabric",
+            "interconnectFabric",
+            "nccl_hca_prefixes",
+            "ncclHcaPrefixes",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             StorageClasses,
+            InterconnectResourceName,
+            InterconnectFabric,
+            NcclHcaPrefixes,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1574,6 +1601,9 @@ impl<'de> serde::Deserialize<'de> for NodeCapabilities {
                     {
                         match value {
                             "storageClasses" | "storage_classes" => Ok(GeneratedField::StorageClasses),
+                            "interconnectResourceName" | "interconnect_resource_name" => Ok(GeneratedField::InterconnectResourceName),
+                            "interconnectFabric" | "interconnect_fabric" => Ok(GeneratedField::InterconnectFabric),
+                            "ncclHcaPrefixes" | "nccl_hca_prefixes" => Ok(GeneratedField::NcclHcaPrefixes),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1594,6 +1624,9 @@ impl<'de> serde::Deserialize<'de> for NodeCapabilities {
                     V: serde::de::MapAccess<'de>,
             {
                 let mut storage_classes__ = None;
+                let mut interconnect_resource_name__ = None;
+                let mut interconnect_fabric__ = None;
+                let mut nccl_hca_prefixes__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::StorageClasses => {
@@ -1602,10 +1635,31 @@ impl<'de> serde::Deserialize<'de> for NodeCapabilities {
                             }
                             storage_classes__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::InterconnectResourceName => {
+                            if interconnect_resource_name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("interconnectResourceName"));
+                            }
+                            interconnect_resource_name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::InterconnectFabric => {
+                            if interconnect_fabric__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("interconnectFabric"));
+                            }
+                            interconnect_fabric__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NcclHcaPrefixes => {
+                            if nccl_hca_prefixes__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("ncclHcaPrefixes"));
+                            }
+                            nccl_hca_prefixes__ = Some(map_.next_value()?);
+                        }
                     }
                 }
                 Ok(NodeCapabilities {
                     storage_classes: storage_classes__.unwrap_or_default(),
+                    interconnect_resource_name: interconnect_resource_name__.unwrap_or_default(),
+                    interconnect_fabric: interconnect_fabric__.unwrap_or_default(),
+                    nccl_hca_prefixes: nccl_hca_prefixes__.unwrap_or_default(),
                 })
             }
         }
@@ -1638,6 +1692,9 @@ impl serde::Serialize for NodeResources {
         if self.volumes_mounted.is_some() {
             len += 1;
         }
+        if self.gpu_interconnect.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.inventory.v1.NodeResources", len)?;
         if let Some(v) = self.cpu.as_ref() {
             struct_ser.serialize_field("cpu", v)?;
@@ -1656,6 +1713,9 @@ impl serde::Serialize for NodeResources {
         }
         if let Some(v) = self.volumes_mounted.as_ref() {
             struct_ser.serialize_field("volumesMounted", v)?;
+        }
+        if let Some(v) = self.gpu_interconnect.as_ref() {
+            struct_ser.serialize_field("gpuInterconnect", v)?;
         }
         struct_ser.end()
     }
@@ -1676,6 +1736,8 @@ impl<'de> serde::Deserialize<'de> for NodeResources {
             "volumesAttached",
             "volumes_mounted",
             "volumesMounted",
+            "gpu_interconnect",
+            "gpuInterconnect",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1686,6 +1748,7 @@ impl<'de> serde::Deserialize<'de> for NodeResources {
             EphemeralStorage,
             VolumesAttached,
             VolumesMounted,
+            GpuInterconnect,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1713,6 +1776,7 @@ impl<'de> serde::Deserialize<'de> for NodeResources {
                             "ephemeralStorage" | "ephemeral_storage" => Ok(GeneratedField::EphemeralStorage),
                             "volumesAttached" | "volumes_attached" => Ok(GeneratedField::VolumesAttached),
                             "volumesMounted" | "volumes_mounted" => Ok(GeneratedField::VolumesMounted),
+                            "gpuInterconnect" | "gpu_interconnect" => Ok(GeneratedField::GpuInterconnect),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1738,6 +1802,7 @@ impl<'de> serde::Deserialize<'de> for NodeResources {
                 let mut ephemeral_storage__ = None;
                 let mut volumes_attached__ = None;
                 let mut volumes_mounted__ = None;
+                let mut gpu_interconnect__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Cpu => {
@@ -1776,6 +1841,12 @@ impl<'de> serde::Deserialize<'de> for NodeResources {
                             }
                             volumes_mounted__ = map_.next_value()?;
                         }
+                        GeneratedField::GpuInterconnect => {
+                            if gpu_interconnect__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("gpuInterconnect"));
+                            }
+                            gpu_interconnect__ = map_.next_value()?;
+                        }
                     }
                 }
                 Ok(NodeResources {
@@ -1785,6 +1856,7 @@ impl<'de> serde::Deserialize<'de> for NodeResources {
                     ephemeral_storage: ephemeral_storage__,
                     volumes_attached: volumes_attached__,
                     volumes_mounted: volumes_mounted__,
+                    gpu_interconnect: gpu_interconnect__,
                 })
             }
         }

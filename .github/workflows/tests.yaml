@@ -44,6 +44,10 @@ jobs:
         with:
           go-version: "${{ env.GOVERSION }}"
       - run: make test-coverage
+      - name: Verify committed codegen is up to date
+        run: |
+          git add -N ts/src/generated
+          git diff --exit-code -- ts/src/generated
       - name: Upload GO Test Coverage
         uses: codecov/codecov-action@v4
         with:

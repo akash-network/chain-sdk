@@ -1,5 +1,44 @@
 # Changelog
 
+## [1.0.0-alpha.41](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.40...ts/v1.0.0-alpha.41) (2026-07-31)
+
+
+### Bug Fixes
+
+* **ts:** regenerate protos with ts-proto 2.12.0 + guard against codegen drift ([#349](https://github.com/akash-network/chain-sdk/issues/349)) ([f42001e](https://github.com/akash-network/chain-sdk/commit/f42001e273a06b8a729f01298f7b6781dc98fa67))
+
+## [1.0.0-alpha.40](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.39...ts/v1.0.0-alpha.40) (2026-07-29)
+
+
+### Features
+
+* GPU interconnect multinode support ([#315](https://github.com/akash-network/chain-sdk/issues/315)) ([2c2aaf5](https://github.com/akash-network/chain-sdk/commit/2c2aaf557ea0ef739590c8ef4fd9ab108a42756a))
+* **ts:** properly decodes cosmos/math.Int custom type ([#347](https://github.com/akash-network/chain-sdk/issues/347)) ([474ba7f](https://github.com/akash-network/chain-sdk/commit/474ba7f6fe6ce6c164bd09800b3c2956671f8f30))
+
+
+### Code Refactoring
+
+* upgrades ts-proto and removes custom bigint coercion patching ([#346](https://github.com/akash-network/chain-sdk/issues/346)) ([968ad5f](https://github.com/akash-network/chain-sdk/commit/968ad5fe583874f04bebf2a5b2c294d9e28fd201))
+
+## [1.0.0-alpha.39](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.38...ts/v1.0.0-alpha.39) (2026-07-02)
+
+
+### Features
+
+* add proxy_buffer_size support to http options ([#340](https://github.com/akash-network/chain-sdk/issues/340)) ([2223ff2](https://github.com/akash-network/chain-sdk/commit/2223ff2292c8de4376a5a9611dd1601bd3d66227))
+
+
+### Bug Fixes
+
+* proxy_buffer_size backward compatibility ([#343](https://github.com/akash-network/chain-sdk/issues/343)) ([55f1c68](https://github.com/akash-network/chain-sdk/commit/55f1c6837f99b17f103c4e8701f24305bd1eef9a))
+* **ts:** upgrades valnerable packages ([#338](https://github.com/akash-network/chain-sdk/issues/338)) ([fb96484](https://github.com/akash-network/chain-sdk/commit/fb964847214707699205c8aa7ed38cdc1c53ea03))
+
+
+### Code Refactoring
+
+* **ts:** migrates from Long to BigInt ([#342](https://github.com/akash-network/chain-sdk/issues/342)) ([b93236f](https://github.com/akash-network/chain-sdk/commit/b93236fe38077e9740eff6e64b854be251af8876))
+* **ts:** replaces jsrsasign with custom logic to parse/create X509 cert ([#341](https://github.com/akash-network/chain-sdk/issues/341)) ([bbd1c5a](https://github.com/akash-network/chain-sdk/commit/bbd1c5aece8caa634654e2942d8341ab7b7c096e))
+
 ## [1.0.0-alpha.38](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.37...ts/v1.0.0-alpha.38) (2026-06-24)
 
 

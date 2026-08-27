@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --experimental-strip-types --no-warnings
+#!/usr/bin/env -S node
 
 import { execSync } from "child_process";
 import { accessSync, constants as fsConstants, globSync, readFileSync } from "fs";

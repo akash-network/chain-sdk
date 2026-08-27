@@ -2,10 +2,14 @@ package v1
 
 func (nd *NodeCapabilities) Dup() NodeCapabilities {
 	res := NodeCapabilities{
-		StorageClasses: make([]string, 0, len(nd.StorageClasses)),
+		StorageClasses:           make([]string, 0, len(nd.StorageClasses)),
+		InterconnectResourceName: nd.InterconnectResourceName,
+		InterconnectFabric:       nd.InterconnectFabric,
+		NCCLHCAPrefixes:          make([]string, 0, len(nd.NCCLHCAPrefixes)),
 	}
 
 	res.StorageClasses = append(res.StorageClasses, nd.StorageClasses...)
+	res.NCCLHCAPrefixes = append(res.NCCLHCAPrefixes, nd.NCCLHCAPrefixes...)
 
 	return res
 }

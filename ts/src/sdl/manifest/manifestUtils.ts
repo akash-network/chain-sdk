@@ -6,6 +6,7 @@ import {
 import {
   ServiceExposeHTTPOptions,
 } from "../../generated/protos/index.provider.akash.v2beta3.ts";
+import { parseHTTPTimeout } from "../httpTimeout.ts";
 import { convertCpuResourceString, convertResourceString } from "../sizes.ts";
 import type { SDLInput } from "../validateSDL/validateSDL.ts";
 import type { StorageAttributesValidation } from "../validateSDL/validateSDLInput.ts";
@@ -20,12 +21,6 @@ type SDLStorageVolume = SDLStorage extends (infer T)[] ? T : SDLStorage;
 type SDLGpuAttributes = NonNullable<NonNullable<SDLCompute["resources"]["gpu"]>["attributes"]>;
 
 export type { SDLCompute, SDLExpose, SDLExposeTo, SDLGpuAttributes, SDLHttpOptions, SDLService, SDLStorage, SDLStorageVolume };
-
-const encoder = new TextEncoder();
-
-export function encodeResourceValue(value: number): Uint8Array {
-  return encoder.encode(value.toString());
-}
 
 export function computeEndpointSequenceNumbers(services: SDLInput["services"]): Record<string, number> {
   const endpointNames: string[] = [];
@@ -53,36 +48,88 @@ export function isIngress(proto: string, global: boolean, externalPort: number, 
   return global && proto === "TCP" && effectivePort === 80;
 }
 
+// INTERCONNECT_GROUP_AUTO is the reserved name the SDL parser assigns to
+// every `interconnect: []` opt-in within one placement. Tenants cannot
+// write it explicitly under `interconnect: { group: ... }` — mirrors
+// `InterconnectGroupAuto` in go/sdl/gpu.go.
+export const INTERCONNECT_GROUP_AUTO = "auto";
+
+// resolveInterconnectGroup returns the group string the parser derives
+// from gpu.attributes.interconnect:
+//   - empty sequence `[]`         → INTERCONNECT_GROUP_AUTO ("auto")
+//   - mapping `{ group: <name> }` → <name>
+//   - anything else / absent       → ""  (non-interconnect)
+// Both the on-chain attribute emitter and the off-chain manifest builder
+// route through this helper so they agree on the resolved value.
+export function resolveInterconnectGroup(interconnect: SDLGpuAttributes["interconnect"]): string {
+  if (Array.isArray(interconnect)) {
+    return interconnect.length === 0 ? INTERCONNECT_GROUP_AUTO : "";
+  }
+  if (interconnect && typeof interconnect === "object" && "group" in interconnect) {
+    const g = (interconnect as { group?: unknown }).group;
+    return typeof g === "string" ? g : "";
+  }
+  return "";
+}
+
 export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[] {
+  const result: Attribute[] = [];
+
   const vendor = attributes.vendor;
-  if (!vendor) return [];
-
-  return Object.keys(vendor)
-    .sort((a, b) => a.localeCompare(b))
-    .flatMap((vendorName) => {
-      const models = vendor[vendorName as keyof typeof vendor];
-      if (!models) {
-        return [{ key: `vendor/${vendorName}/model/*`, value: "true" }];
-      }
-
-      return models.map((model) => {
-        let key = `vendor/${vendorName}/model/${model.model}`;
-        if (model.ram) key += `/ram/${model.ram}`;
-        if (model.interface) key += `/interface/${model.interface}`;
-        return { key, value: "true" };
+  if (vendor) {
+    Object.keys(vendor)
+      .sort((a, b) => a.localeCompare(b))
+      .forEach((vendorName) => {
+        const models = vendor[vendorName as keyof typeof vendor];
+        if (!models) {
+          result.push({ key: `vendor/${vendorName}/model/*`, value: "true" });
+          return;
+        }
+        for (const model of models) {
+          let key = `vendor/${vendorName}/model/${model.model}`;
+          if (model.ram) key += `/ram/${model.ram}`;
+          if (model.interface) key += `/interface/${model.interface}`;
+          result.push({ key, value: "true" });
+        }
       });
-    });
+  }
+
+  // interconnect emits a single on-chain attribute `interconnect/group` —
+  // the group is the entire opt-in signal. Keep parity with the Go parser
+  // in go/sdl/gpu.go: empty sequence `[]` resolves to the reserved literal
+  // `auto`, the explicit mapping form `{ group: <name> }` carries the
+  // tenant-chosen name. See docs/sdl-interconnect-spec.md.
+  const group = resolveInterconnectGroup(attributes.interconnect);
+  if (group !== "") {
+    result.push({ key: "interconnect/group", value: group });
+  }
+
+  // Go SDL parser canonicalizes the slice via sort.Sort(res) before
+  // returning. Mirror that here so the on-chain attribute order matches
+  // byte-for-byte across both implementations.
+  result.sort((a, b) => a.key.localeCompare(b.key));
+
+  return result;
 }
 
 export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTTPOptions {
   return ServiceExposeHTTPOptions.fromPartial({
     maxBodySize: httpOptions?.max_body_size ?? 1048576,
-    readTimeout: httpOptions?.read_timeout ?? 60000,
-    sendTimeout: httpOptions?.send_timeout ?? 60000,
+    readTimeout: normalizedHTTPTimeout(httpOptions?.read_timeout),
+    sendTimeout: normalizedHTTPTimeout(httpOptions?.send_timeout),
     nextTries: httpOptions?.next_tries ?? 3,
     nextTimeout: httpOptions?.next_timeout ?? 0,
     nextCases: httpOptions?.next_cases ?? ["error", "timeout"],
   });
+}
+
+function normalizedHTTPTimeout(value: number | string | undefined): number {
+  const result = parseHTTPTimeout(value ?? 60_000);
+  if (!result.ok) {
+    throw new Error(`Invalid HTTP timeout: ${result.message}`);
+  }
+
+  return result.milliseconds;
 }
 
 export function buildStorageAttributes(attributes?: StorageAttributesValidation): Attribute[] {
@@ -138,24 +185,24 @@ export function buildServiceEndpoints(
   );
 }
 
-export function parseCpuUnits(cpu: SDLCompute["resources"]["cpu"]): number {
+export function parseCpuUnits(cpu: SDLCompute["resources"]["cpu"]): bigint {
   return typeof cpu.units === "string"
     ? convertCpuResourceString(cpu.units)
-    : cpu.units * 1000;
+    : convertCpuResourceString(String(cpu.units));
 }
 
-export function parseMemoryBytes(memory: SDLCompute["resources"]["memory"]): number {
+export function parseMemoryBytes(memory: SDLCompute["resources"]["memory"]): bigint {
   return convertResourceString(memory.size);
 }
 
-export function parseStorageBytes(size: string): number {
+export function parseStorageBytes(size: string): bigint {
   return convertResourceString(size);
 }
 
-export function parseGpuUnits(gpu?: SDLCompute["resources"]["gpu"]): number {
+export function parseGpuUnits(gpu?: SDLCompute["resources"]["gpu"]): bigint {
   const value = gpu?.units;
-  if (value === undefined || value === null) return 0;
-  return typeof value === "string" ? parseInt(value, 10) : value;
+  if (value === undefined || value === null) return 0n;
+  return BigInt(value);
 }
 
 export function buildResourceAttributes(attributes?: Record<string, unknown>): Attribute[] | undefined {

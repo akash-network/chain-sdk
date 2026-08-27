@@ -56,15 +56,15 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name: "read_timeout_exceeds_limit",
+			name: "read_timeout_above_legacy_limit",
 			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
           read_timeout: 60001
         to:
           - global: true`},
-			shouldErr: true,
-			reason:    "Should reject > 60000 ms",
+			shouldErr: false,
+			reason:    "Timeouts are no longer capped at 60000 ms",
 		},
 		{
 			name: "send_timeout_within_limit",
@@ -77,15 +77,48 @@ func TestSchemaValidation_HTTPOptions_Limits(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name: "send_timeout_exceeds_limit",
+			name: "send_timeout_at_manifest_limit",
 			builder: sdlTestBuilder{exposeBlock: `    expose:
       - port: 80
         http_options:
-          send_timeout: 60001
+          send_timeout: 4294967295
+        to:
+          - global: true`},
+			shouldErr: false,
+			reason:    "The uint32 manifest maximum should be accepted",
+		},
+		{
+			name: "send_timeout_exceeds_manifest_limit",
+			builder: sdlTestBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          send_timeout: 4294967296
         to:
           - global: true`},
 			shouldErr: true,
-			reason:    "Should reject > 60000 ms",
+			reason:    "Values above the uint32 manifest maximum should be rejected",
+		},
+		{
+			name: "duration_timeout",
+			builder: sdlTestBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          read_timeout: 60s
+          send_timeout: 1h
+        to:
+          - global: true`},
+			shouldErr: false,
+		},
+		{
+			name: "invalid_duration_timeout",
+			builder: sdlTestBuilder{exposeBlock: `    expose:
+      - port: 80
+        http_options:
+          read_timeout: 1h30m
+        to:
+          - global: true`},
+			shouldErr: true,
+			reason:    "Gateway durations use one whole-number unit",
 		},
 		{
 			name: "negative_max_body_size",

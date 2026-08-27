@@ -20,12 +20,12 @@ import {
   buildServiceEndpoints,
   buildStorageAttributes,
   computeEndpointSequenceNumbers,
-  encodeResourceValue,
   parseCpuUnits,
   parseGpuUnits,
   parseMemoryBytes,
   parseServiceProto,
   parseStorageBytes,
+  resolveInterconnectGroup,
   type SDLCompute,
   type SDLService,
   transformGpuAttributes,
@@ -217,21 +217,21 @@ function buildResources(
   return Resources.fromPartial({
     id,
     cpu: CPU.fromPartial({
-      units: { val: encodeResourceValue(parseCpuUnits(res.cpu)) },
+      units: { val: parseCpuUnits(res.cpu) },
       attributes: cpuAttributes,
     }),
     memory: Memory.fromPartial({
-      quantity: { val: encodeResourceValue(parseMemoryBytes(res.memory)) },
+      quantity: { val: parseMemoryBytes(res.memory) },
     }),
     storage: castArray(res.storage).map((s) =>
       Storage.fromPartial({
         name: s.name || "default",
-        quantity: { val: encodeResourceValue(parseStorageBytes(s.size)) },
+        quantity: { val: parseStorageBytes(s.size) },
         attributes: buildStorageAttributes(s.attributes),
       }),
     ),
     gpu: GPU.fromPartial({
-      units: { val: encodeResourceValue(parseGpuUnits(res.gpu)) },
+      units: { val: parseGpuUnits(res.gpu) },
       attributes: gpuAttributes,
     }),
     endpoints: buildServiceEndpoints(service, endpointSequenceNumbers),
@@ -257,6 +257,15 @@ function buildManifestService(
 
   const params = buildParams(service);
 
+  // The interconnect group lives under gpu.attributes.interconnect (either
+  // `[]` for the implicit `auto` group or `{ group: <name> }` for an
+  // explicit name) and propagates to the off-chain manifest's
+  // Service.interconnectGroup field so the provider's workload builder
+  // can label pods for per-group anti-affinity. The same value is also
+  // emitted into Resources.GPU.Attributes by transformGpuAttributes —
+  // both consumers (bid engine vs. workload builder) see it.
+  const interconnectGroup = resolveInterconnectGroup(compute.resources.gpu?.attributes?.interconnect);
+
   return Service.fromPartial({
     name,
     image: service.image,
@@ -268,6 +277,7 @@ function buildManifestService(
     expose: buildManifestExpose(service, endpointSequenceNumbers),
     params,
     credentials,
+    interconnectGroup,
   });
 }
 

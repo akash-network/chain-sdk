@@ -50,6 +50,7 @@
      - [InventoryService](#akash.inventory.v1.InventoryService)
    
  - [akash/manifest/v2beta3/httpoptions.proto](#akash/manifest/v2beta3/httpoptions.proto)
+     - [ProxyOptions](#akash.manifest.v2beta3.ProxyOptions)
      - [ServiceExposeHTTPOptions](#akash.manifest.v2beta3.ServiceExposeHTTPOptions)
    
  - [akash/manifest/v2beta3/serviceexpose.proto](#akash/manifest/v2beta3/serviceexpose.proto)
@@ -315,6 +316,7 @@
  | `ephemeral_storage` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `volumes_attached` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
  | `volumes_mounted` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  |  |
+ | `gpu_interconnect` | [ResourcePair](#akash.inventory.v1.ResourcePair) |  | GPUInterconnect reports node GPU-interconnect HCA capacity. Capacity/Allocatable/Allocated are populated by the inventory operator from k8s allocatable for whichever rdma/rdma_shared_device_* extended resource the cluster's device plugin publishes (the `rdma/*` prefix is the device plugin's naming convention; see NodeCapabilities.interconnect_resource_name). |
  
  
 
@@ -363,6 +365,9 @@
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `storage_classes` | [string](#string) | repeated |  |
+ | `interconnect_resource_name` | [string](#string) |  | Kubernetes extended-resource name the cluster's device plugin publishes for GPU interconnect HCAs (e.g. rdma/rdma_shared_device_ib for an InfiniBand fabric, rdma/rdma_shared_device_eth for RoCE). The `rdma/*` prefix is the device-plugin's own convention (Mellanox/NVIDIA) and stays unchanged here. Empty when the node has no GPU interconnect capability. Discovered by the inventory operator from k8s allocatable. |
+ | `interconnect_fabric` | [string](#string) |  | GPU interconnect fabric type. "infiniband" or "roce". Internal / informational — the SDL surface is fabric-agnostic; tenants only declare `interconnect: []` or `interconnect: { group: <name> }`. Derived from /sys/class/infiniband/<dev>/ports/1/link_layer on the host node. |
+ | `nccl_hca_prefixes` | [string](#string) | repeated | NCCL HCA device-name prefixes present on this node, one per distinct family (e.g. ["mlx5"], or ["mlx5","bnxt_re"] on a mixed-vendor host). Same key for IB and RoCE since NCCL uses the IB verbs API for both. Joined with commas and injected as NCCL_IB_HCA when scheduling GPU interconnect workloads — NCCL accepts comma-separated device prefixes natively. Discovered from /sys/class/infiniband/<dev> on the host. |
  
  
 
@@ -682,6 +687,29 @@ published Akash release key.
  
 
  
+ <a name="akash.manifest.v2beta3.ProxyOptions"></a>
+
+ ### ProxyOptions
+ ProxyOptions carries nginx proxy tuning applied to a route's location block.
+Every field is omitempty (0 / Unspecified == unset) so unset values are dropped
+from the manifest and never affect the version hash. Defaults are applied by the
+provider gateway at use-time, never injected here.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `buffering_disable` | [bool](#bool) |  | buffering_disable turns nginx proxy_buffering off when true. When false (the default) the field is omitted, so the gateway applies its default (buffering on) and a manifest that does not disable buffering hashes identically to one without proxy tuning. It is scoped to proxy_buffering only and independent of the buffer sizing fields below: proxy_buffer_size still applies with buffering off, while proxy_buffers/busy_buffers_size take effect only with buffering on. |
+ | `buffer_size` | [uint32](#uint32) |  | buffer_size maps to nginx proxy_buffer_size (bytes). |
+ | `buffers_number` | [uint32](#uint32) |  | buffers_number maps to the count in nginx proxy_buffers <number> <size>. |
+ | `buffers_size` | [uint32](#uint32) |  | buffers_size maps to the size in nginx proxy_buffers <number> <size> (bytes). |
+ | `busy_buffers_size` | [uint32](#uint32) |  | busy_buffers_size maps to nginx proxy_busy_buffers_size (bytes). |
+ | `connect_timeout` | [uint32](#uint32) |  | connect_timeout maps to nginx proxy_connect_timeout (milliseconds). |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.manifest.v2beta3.ServiceExposeHTTPOptions"></a>
 
  ### ServiceExposeHTTPOptions
@@ -696,6 +724,7 @@ published Akash release key.
  | `next_tries` | [uint32](#uint32) |  |  |
  | `next_timeout` | [uint32](#uint32) |  |  |
  | `next_cases` | [string](#string) | repeated |  |
+ | `proxy` | [ProxyOptions](#akash.manifest.v2beta3.ProxyOptions) |  | proxy groups the optional nginx proxy tuning for this route. It is nullable and omitempty, so a manifest that does not set it serializes identically to a pre-change manifest: the version hash is unchanged and older providers stay compatible. A nil proxy means the provider applies gateway defaults. |
  
  
 
@@ -793,6 +822,9 @@ published Akash release key.
  | `expose` | [ServiceExpose](#akash.manifest.v2beta3.ServiceExpose) | repeated |  |
  | `params` | [ServiceParams](#akash.manifest.v2beta3.ServiceParams) |  |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
+ | `interconnect_group` | [string](#string) |  | InterconnectGroup carries the SDL gpu.attributes.interconnect_group peer-group label. Lifted from Resources.GPU.Attributes by the manifest builder so the off-chain workload builder can label pods for per-group anti-affinity. Services sharing the same value form one NCCL peer group; the provider schedules them on distinct nodes. Empty when the service is not part of any GPU interconnect group.
+
+JSON / YAML tags carry `omitempty`: the on-chain manifest `version` is a SHA hash of the JSON-serialized off-chain manifest, so any field that always serializes (even at zero value) would shift the hash for every non-interconnect SDL and break send-manifest validation on existing leases. |
  
  
 

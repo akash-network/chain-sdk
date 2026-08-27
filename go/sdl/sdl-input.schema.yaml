@@ -37,6 +37,15 @@ definitions:
       - off
     type: string
 
+  httpTimeout:
+    description: HTTP timeout. Integers and unitless strings are milliseconds; duration strings use ms, s, m, or h. The normalized value must fit uint32 milliseconds.
+    oneOf:
+      - type: integer
+        minimum: 0
+        maximum: 4294967295
+      - type: string
+        pattern: '^[0-9]+(ms|s|m|h)?$'
+
   priceCoin:
     description: Price definition with amount and denomination
     additionalProperties: false
@@ -339,6 +348,31 @@ properties:
                                     type: object
                                 - type: 'null'
                           type: object
+                        interconnect:
+                          description: |
+                            Opt this resource into GPU interconnect.
+                            Accepts two forms:
+                              - `[]` (empty sequence) — implicit group,
+                                the parser auto-names it `auto` within
+                                the placement. All services that opt in
+                                with `[]` under one placement land in
+                                the same `auto` group.
+                              - `{ group: <name> }` — explicit named
+                                group. The name `auto` is reserved.
+                            The bare boolean `true` is no longer
+                            accepted. Fabric (InfiniBand vs RoCE) is
+                            chosen by the provider, not the SDL.
+                          oneOf:
+                            - type: array
+                              maxItems: 0
+                            - additionalProperties: false
+                              properties:
+                                group:
+                                  type: string
+                                  minLength: 1
+                              required:
+                                - group
+                              type: object
                       type: object
                     units:
                       oneOf:
@@ -483,15 +517,9 @@ properties:
                         type: integer
                         minimum: 0
                       read_timeout:
-                        type: integer
-                        minimum: 0
-                        maximum: 60000
-                        description: Read timeout in milliseconds (max 60 seconds)
+                        $ref: '#/definitions/httpTimeout'
                       send_timeout:
-                        type: integer
-                        minimum: 0
-                        maximum: 60000
-                        description: Send timeout in milliseconds (max 60 seconds)
+                        $ref: '#/definitions/httpTimeout'
                     type: object
                   port:
                     $ref: '#/definitions/portNumber'
