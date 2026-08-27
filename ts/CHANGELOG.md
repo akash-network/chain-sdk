@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.43](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.42...ts/v1.0.0-alpha.43) (2026-08-26)
+
+
+### Bug Fixes
+
+* **sdl:** include verification requirements in group specs ([9019a75](https://github.com/akash-network/chain-sdk/commit/9019a75056d5609a878868641fe93e31b83740ff))
+
 ## [1.0.0-alpha.42](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.41...ts/v1.0.0-alpha.42) (2026-08-26)
 
 
