@@ -2,31 +2,15 @@ name: Release TypeScript NPM Package
 on:
   push:
     branches:
-      - main
+      - aep-86/npm-alpha43-publish
 
 # 1 in-progress + 1 queued which will be canceled if a new one appears
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  release:
-    runs-on: [self-hosted, akash]
-    outputs:
-      paths_released: ${{ steps.release-pl.outputs.paths_released }}
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    steps:
-      - uses: googleapis/release-please-action@v5
-        id: release-pl
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   publish:
     runs-on: ubuntu-latest
-    needs: release
-    if: ${{ contains(fromJSON(needs.release.outputs.paths_released), 'ts') }}
     permissions:
       contents: read
       id-token: write
