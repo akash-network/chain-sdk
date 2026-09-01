@@ -10,6 +10,7 @@ import { generateManifest } from "../../src/sdl/manifest/generateManifest.ts";
 import { manifestToSortedJSON } from "../../src/sdl/manifest/generateManifestVersion.ts";
 import type { SDLInput } from "../../src/sdl/validateSDL/validateSDL.ts";
 import { yaml } from "../../src/utils/yaml.ts";
+import { toGoGroupSpecJSON } from "./goGroupSpecJSON.ts";
 
 const PROJECT_ROOT = path.join(__dirname, "../../..");
 const FIXTURES_INPUT_ROOT = path.join(PROJECT_ROOT, "testdata/sdl/input");
@@ -20,8 +21,9 @@ describe("SDL Parity Tests", () => {
   describe("v2.0", () => {
     loadFixtures("v2.0").forEach((fixture) => {
       it(fixture.name, () => {
-        const { manifest, expectedManifest } = setup(fixture);
+        const { manifest, expectedManifest, groupSpecs, expectedGroupSpecs } = setup(fixture);
         expect(manifest).toEqual(expectedManifest);
+        expect(groupSpecs).toEqual(expectedGroupSpecs);
       });
     });
   });
@@ -29,8 +31,9 @@ describe("SDL Parity Tests", () => {
   describe("v2.1", () => {
     loadFixtures("v2.1").forEach((fixture) => {
       it(fixture.name, () => {
-        const { manifest, expectedManifest } = setup(fixture);
+        const { manifest, expectedManifest, groupSpecs, expectedGroupSpecs } = setup(fixture);
         expect(manifest).toEqual(expectedManifest);
+        expect(groupSpecs).toEqual(expectedGroupSpecs);
       });
     });
   });
@@ -56,6 +59,17 @@ describe("SDL Parity Tests", () => {
       "v2.1-tee-cpu-gpu-no-gpu.yaml": {
         instancePath: "/services/web/params/tee",
         messageIncludes: "tee type requires gpu resources",
+      },
+      // Both arch fixtures are rejected by Go's parser too (`v2CPUAttributes.
+      // UnmarshalYAML`), so pinning the position here is what makes "same SDL,
+      // same answer, same place" a checked claim rather than a coincidence.
+      "cpu-arch-unknown-value.yaml": {
+        instancePath: "/profiles/compute/web/resources/cpu/attributes/arch",
+        messageIncludes: "amd64, arm64",
+      },
+      "cpu-unknown-attribute.yaml": {
+        instancePath: "/profiles/compute/web/resources/cpu/attributes",
+        messageIncludes: '"vendor" is not allowed',
       },
     };
 
@@ -90,9 +104,18 @@ describe("SDL Parity Tests", () => {
     const manifest = JSON.parse(manifestToSortedJSON(result.value.groups), normalizeManifestJSON);
     const expectedManifest = JSON.parse(fs.readFileSync(fixture.manifestPath, "utf8"));
 
+    // Resource attributes (cpu/gpu/memory/storage) never reach a manifest — they
+    // only exist in the group spec — so the manifest comparison above cannot see
+    // them drift. Both sides go through `normalizeGroupSpecsJSON` so the Go
+    // 18-decimal price and this side's plain decimal compare as the same number.
+    const groupSpecs = JSON.parse(JSON.stringify(toGoGroupSpecJSON(result.value.groupSpecs)), normalizeGroupSpecsJSON);
+    const expectedGroupSpecs = JSON.parse(fs.readFileSync(fixture.groupSpecsPath, "utf8"), normalizeGroupSpecsJSON);
+
     return {
       manifest,
       expectedManifest,
+      groupSpecs,
+      expectedGroupSpecs,
     };
   }
 });
@@ -112,15 +135,21 @@ function loadFixtures(version: string): Fixture[] {
       const fixtureName = entry.name;
       const inputPath = path.join(inputVersionDir, fixtureName, "input.yaml");
       const manifestPath = path.join(FIXTURES_OUTPUT_ROOT, version, fixtureName, "manifest.json");
+      const groupSpecsPath = path.join(FIXTURES_OUTPUT_ROOT, version, fixtureName, "group-specs.json");
 
       if (!fs.existsSync(manifestPath)) {
         throw new Error(`manifest.json not generated for ${fixtureName} (run: make generate-sdl-fixtures)`);
+      }
+
+      if (!fs.existsSync(groupSpecsPath)) {
+        throw new Error(`group-specs.json not generated for ${fixtureName} (run: make generate-sdl-fixtures)`);
       }
 
       return {
         name: fixtureName,
         inputPath,
         manifestPath,
+        groupSpecsPath,
       };
     });
 }
@@ -168,8 +197,19 @@ function normalizeManifestJSON(this: unknown, key: string, value: unknown): unkn
   return value;
 }
 
+function normalizeGroupSpecsJSON(this: unknown, key: string, value: unknown): unknown {
+  if (typeof this !== "object" || this === null) return value;
+
+  if (key === "amount" && "denom" in this) {
+    return LegacyDec.encode(value as string);
+  }
+
+  return value;
+}
+
 interface Fixture {
   name: string;
   inputPath: string;
   manifestPath: string;
+  groupSpecsPath: string;
 }
