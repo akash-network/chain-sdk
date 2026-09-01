@@ -176,37 +176,73 @@ export function parseServiceProto(proto?: string): string {
   return proto?.toUpperCase() || "TCP";
 }
 
+export interface ExposeSortKey {
+  service: string;
+  port: number;
+  proto: string;
+  global: boolean;
+}
+
+// Mirrors `ServiceExposes.Less` in go/manifest/v2beta3/serviceexposes.go.
+export function compareExposes(a: ExposeSortKey, b: ExposeSortKey): number {
+  if (a.service !== b.service) return a.service.localeCompare(b.service);
+  if (a.port !== b.port) return a.port - b.port;
+  if (a.proto !== b.proto) return a.proto.localeCompare(b.proto);
+  if (a.global !== b.global) return a.global ? -1 : 1;
+  return 0;
+}
+
+// Go expands a service's `expose` entries into one manifest expose per `to`
+// target and sorts the whole list before anything reads it — `toManifestExpose`
+// in go/sdl/expose.go. Both the manifest expose list and the resource endpoint
+// list are then built by walking it in that order, and the endpoint order is
+// part of the signed group spec, so ordering has to be decided once, here.
+export function sortedExposeTargets(service: SDLService): { expose: SDLExpose; to: SDLExposeTo }[] {
+  return (service.expose ?? [])
+    .flatMap((expose) => (expose.to ?? []).map((to) => ({ expose, to })))
+    .sort((a, b) => compareExposes(exposeSortKey(a), exposeSortKey(b)));
+}
+
+function exposeSortKey({ expose, to }: { expose: SDLExpose; to: SDLExposeTo }): ExposeSortKey {
+  return {
+    service: to.service || "",
+    port: expose.port,
+    proto: parseServiceProto(expose.proto),
+    global: to.global || false,
+  };
+}
+
 export function buildServiceEndpoints(
   service: SDLService,
   endpointSequenceNumbers: Record<string, number>,
 ): Endpoint[] {
-  return (service.expose ?? []).flatMap((expose) =>
-    (expose.to ?? [])
-      .filter((to) => to.global)
-      .flatMap((to) => {
-        const externalPort = expose.as || 0;
-        const proto = parseServiceProto(expose.proto);
-        const kind = isIngress(proto, !!to.global, externalPort, expose.port)
-          ? Endpoint_Kind.SHARED_HTTP
-          : Endpoint_Kind.RANDOM_PORT;
+  return sortedExposeTargets(service)
+    .filter(({ to }) => to.global)
+    .flatMap(({ expose, to }) => {
+      const externalPort = expose.as || 0;
+      const proto = parseServiceProto(expose.proto);
+      const kind = isIngress(proto, !!to.global, externalPort, expose.port)
+        ? Endpoint_Kind.SHARED_HTTP
+        : Endpoint_Kind.RANDOM_PORT;
 
-        const defaultEp = Endpoint.fromPartial({
-          kind,
-          sequenceNumber: 0,
-        });
+      const defaultEp = Endpoint.fromPartial({
+        kind,
+        sequenceNumber: 0,
+      });
 
-        if (!to.ip?.length) {
-          return [defaultEp];
-        }
+      if (!to.ip?.length) {
+        return [defaultEp];
+      }
 
-        const leasedEp = Endpoint.fromPartial({
-          kind: Endpoint_Kind.LEASED_IP,
-          sequenceNumber: endpointSequenceNumbers[to.ip] ?? 0,
-        });
+      const leasedEp = Endpoint.fromPartial({
+        kind: Endpoint_Kind.LEASED_IP,
+        sequenceNumber: endpointSequenceNumbers[to.ip] ?? 0,
+      });
 
-        return [defaultEp, leasedEp];
-      }),
-  );
+      // Go emits [LEASED_IP, <kind>] then sorts this pair on its own
+      // (`ServiceExpose.GetEndpoints`), which puts the lower kind first.
+      return [defaultEp, leasedEp];
+    });
 }
 
 export function parseCpuUnits(cpu: SDLCompute["resources"]["cpu"]): bigint {
