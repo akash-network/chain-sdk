@@ -9,6 +9,19 @@ import (
 	types "pkg.akt.dev/go/node/types/attributes/v1"
 )
 
+// cpuArchitectures is the set of CPU architectures an SDL may ask for. It is
+// the Go half of the `arch` enum in sdl-input.schema.yaml — the two must stay
+// in step, since the schema is what the TypeScript SDK validates against and
+// the two SDKs have to accept and reject the same SDLs.
+//
+// There is deliberately no default. An SDL that omits `arch` produces zero CPU
+// attributes; writing an implicit amd64 would change the group spec of every
+// existing deployment and break bid matching.
+var cpuArchitectures = map[string]bool{
+	"amd64": true,
+	"arm64": true,
+}
+
 type v2CPUAttributes types.Attributes
 
 type v2ResourceCPU struct {
@@ -47,6 +60,10 @@ func (sdl *v2CPUAttributes) UnmarshalYAML(node *yaml.Node) error {
 		case "arch":
 			if err := node.Content[i+1].Decode(&value); err != nil {
 				return err
+			}
+
+			if !cpuArchitectures[value] {
+				return fmt.Errorf("unsupported cpu architecture \"%s\"", value)
 			}
 		default:
 			return fmt.Errorf("unsupported cpu attribute \"%s\"", node.Content[i].Value)
