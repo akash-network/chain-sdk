@@ -16,6 +16,7 @@ export interface CPUInfo {
   vendor: string;
   model: string;
   vcores: number;
+  arch: string;
 }
 
 /** CPU reports CPU inventory details */
@@ -25,7 +26,7 @@ export interface CPU {
 }
 
 function createBaseCPUInfo(): CPUInfo {
-  return { id: "", vendor: "", model: "", vcores: 0 };
+  return { id: "", vendor: "", model: "", vcores: 0, arch: "" };
 }
 
 export const CPUInfo: MessageFns<CPUInfo, "akash.inventory.v1.CPUInfo"> = {
@@ -43,6 +44,9 @@ export const CPUInfo: MessageFns<CPUInfo, "akash.inventory.v1.CPUInfo"> = {
     }
     if (message.vcores !== 0) {
       writer.uint32(32).uint32(message.vcores);
+    }
+    if (message.arch !== "") {
+      writer.uint32(42).string(message.arch);
     }
     return writer;
   },
@@ -86,6 +90,14 @@ export const CPUInfo: MessageFns<CPUInfo, "akash.inventory.v1.CPUInfo"> = {
           message.vcores = reader.uint32();
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.arch = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -101,6 +113,7 @@ export const CPUInfo: MessageFns<CPUInfo, "akash.inventory.v1.CPUInfo"> = {
       vendor: isSet(object.vendor) ? globalThis.String(object.vendor) : "",
       model: isSet(object.model) ? globalThis.String(object.model) : "",
       vcores: isSet(object.vcores) ? globalThis.Number(object.vcores) : 0,
+      arch: isSet(object.arch) ? globalThis.String(object.arch) : "",
     };
   },
 
@@ -118,6 +131,9 @@ export const CPUInfo: MessageFns<CPUInfo, "akash.inventory.v1.CPUInfo"> = {
     if (message.vcores !== 0) {
       obj.vcores = Math.round(message.vcores);
     }
+    if (message.arch !== "") {
+      obj.arch = message.arch;
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<CPUInfo>): CPUInfo {
@@ -126,6 +142,7 @@ export const CPUInfo: MessageFns<CPUInfo, "akash.inventory.v1.CPUInfo"> = {
     message.vendor = object.vendor ?? "";
     message.model = object.model ?? "";
     message.vcores = object.vcores ?? 0;
+    message.arch = object.arch ?? "";
     return message;
   },
 };

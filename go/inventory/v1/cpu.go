@@ -22,6 +22,7 @@ func (s CPUInfoS) Dup() CPUInfoS {
 			Vendor: n.Vendor,
 			Model:  n.Model,
 			Vcores: n.Vcores,
+			Arch:   n.Arch,
 		})
 	}
 

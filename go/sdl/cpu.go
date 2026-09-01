@@ -16,6 +16,28 @@ type v2ResourceCPU struct {
 	Attributes v2CPUAttributes `yaml:"attributes,omitempty"`
 }
 
+func (sdl *v2ResourceCPU) UnmarshalYAML(node *yaml.Node) error {
+	res := v2ResourceCPU{}
+
+	for i := 0; i < len(node.Content); i += 2 {
+		switch node.Content[i].Value {
+		case "units":
+			if err := node.Content[i+1].Decode(&res.Units); err != nil {
+				return err
+			}
+		case "attributes":
+			if err := node.Content[i+1].Decode(&res.Attributes); err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("sdl: unsupported field (%s) for CPU resource", node.Content[i].Value)
+		}
+	}
+
+	*sdl = res
+	return nil
+}
+
 func (sdl *v2CPUAttributes) UnmarshalYAML(node *yaml.Node) error {
 	var attr v2CPUAttributes
 
