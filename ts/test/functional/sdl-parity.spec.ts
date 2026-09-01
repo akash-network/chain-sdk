@@ -104,10 +104,13 @@ describe("SDL Parity Tests", () => {
     const manifest = JSON.parse(manifestToSortedJSON(result.value.groups), normalizeManifestJSON);
     const expectedManifest = JSON.parse(fs.readFileSync(fixture.manifestPath, "utf8"));
 
-    // Resource attributes (cpu/gpu/memory/storage) never reach a manifest — they
-    // only exist in the group spec — so the manifest comparison above cannot see
-    // them drift. Both sides go through `normalizeGroupSpecsJSON` so the Go
-    // 18-decimal price and this side's plain decimal compare as the same number.
+    // The manifest carries a per-service view of the resources, so it does cover
+    // cpu/gpu/memory/storage attributes. What only ever exists in the group spec
+    // is the placement requirements (attributes and signedBy), each resource
+    // unit's price and count, and the merged endpoint list a shared profile
+    // accumulates — none of which the manifest comparison above can see drift.
+    // Both sides go through `normalizeGroupSpecsJSON` so the Go 18-decimal price
+    // and this side's plain decimal compare as the same number.
     const groupSpecs = JSON.parse(JSON.stringify(toGoGroupSpecJSON(result.value.groupSpecs)), normalizeGroupSpecsJSON);
     const expectedGroupSpecs = JSON.parse(fs.readFileSync(fixture.groupSpecsPath, "utf8"), normalizeGroupSpecsJSON);
 

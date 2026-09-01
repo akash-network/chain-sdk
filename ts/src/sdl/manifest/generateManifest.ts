@@ -19,6 +19,7 @@ import {
   buildResourceAttributes,
   buildServiceEndpoints,
   buildStorageAttributes,
+  compareStrings,
   computeEndpointSequenceNumbers,
   parseCpuUnits,
   parseGpuUnits,
@@ -67,10 +68,10 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
     }
   }
   for (const list of deploymentsByPlacement.values()) {
-    list.sort(([a], [b]) => a.localeCompare(b));
+    list.sort(([a], [b]) => compareStrings(a, b));
   }
 
-  const services = Object.entries(sdl.services).sort(([a], [b]) => a.localeCompare(b));
+  const services = Object.entries(sdl.services).sort(([a], [b]) => compareStrings(a, b));
 
   for (const [svcName, service] of services) {
     for (const [placementName, svcdepl] of Object.entries(sdl.deployment[svcName])) {
@@ -108,7 +109,7 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
       if (teeType && !group.teeType) {
         group.teeType = teeType;
         group.dgroup.requirements!.attributes.push({ key: "tee/type", value: teeType });
-        group.dgroup.requirements!.attributes.sort((a, b) => a.key.localeCompare(b.key));
+        group.dgroup.requirements!.attributes.sort((a, b) => compareStrings(a.key, b.key));
       }
 
       const profileKey = `${placementName}:${svcdepl.profile}`;

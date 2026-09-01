@@ -45,6 +45,19 @@ export function computeEndpointSequenceNumbers(services: SDLInput["services"]): 
   }, {});
 }
 
+// Go orders every string it sorts in the SDL builder with a plain `<`:
+// `Attributes.Less` compares keys, `ServiceExposes.Less` compares service names,
+// and placement/service names go through `sort.Strings`. `localeCompare` is not
+// the same relation — it folds case and demotes punctuation, so e.g. "a_b" and
+// "aB" come out in the opposite order. Attribute keys carry "/" and placement,
+// service and volume names are unconstrained strings, so the two can genuinely
+// disagree, and the resulting group spec is signed. Every sort on this path uses
+// this comparator instead.
+export function compareStrings(a: string, b: string): number {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+}
+
 export function isIngress(proto: string, global: boolean, externalPort: number, port: number): boolean {
   const effectivePort = externalPort === 0 ? port : externalPort;
   return global && proto === "TCP" && effectivePort === 80;
@@ -80,7 +93,7 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
   const vendor = attributes.vendor;
   if (vendor) {
     Object.keys(vendor)
-      .sort((a, b) => a.localeCompare(b))
+      .sort(compareStrings)
       .forEach((vendorName) => {
         const models = vendor[vendorName as keyof typeof vendor];
         if (!models) {
@@ -109,7 +122,7 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
   // Go SDL parser canonicalizes the slice via sort.Sort(res) before
   // returning. Mirror that here so the on-chain attribute order matches
   // byte-for-byte across both implementations.
-  result.sort((a, b) => a.key.localeCompare(b.key));
+  result.sort((a, b) => compareStrings(a.key, b.key));
 
   return result;
 }
@@ -168,7 +181,7 @@ export function buildStorageAttributes(attributes?: StorageAttributesValidation)
     pairs.push({ key: "persistent", value: "false" });
   }
 
-  pairs.sort((a, b) => a.key.localeCompare(b.key));
+  pairs.sort((a, b) => compareStrings(a.key, b.key));
   return pairs;
 }
 
@@ -185,9 +198,9 @@ export interface ExposeSortKey {
 
 // Mirrors `ServiceExposes.Less` in go/manifest/v2beta3/serviceexposes.go.
 export function compareExposes(a: ExposeSortKey, b: ExposeSortKey): number {
-  if (a.service !== b.service) return a.service.localeCompare(b.service);
+  if (a.service !== b.service) return compareStrings(a.service, b.service);
   if (a.port !== b.port) return a.port - b.port;
-  if (a.proto !== b.proto) return a.proto.localeCompare(b.proto);
+  if (a.proto !== b.proto) return compareStrings(a.proto, b.proto);
   if (a.global !== b.global) return a.global ? -1 : 1;
   return 0;
 }
@@ -268,6 +281,6 @@ export function parseGpuUnits(gpu?: SDLCompute["resources"]["gpu"]): bigint {
 export function buildResourceAttributes(attributes?: Record<string, unknown>): Attribute[] | undefined {
   if (!attributes) return undefined;
   return Object.keys(attributes)
-    .sort((a, b) => a.localeCompare(b))
+    .sort(compareStrings)
     .map((key) => ({ key, value: String(attributes[key]) }));
 }
