@@ -1489,6 +1489,118 @@ describe(validateSDL.name, () => {
 
       expect(validate()).toBeUndefined();
     });
+
+    it("accepts a valid http_options.proxy block", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            expose: [{
+              port: 80,
+              as: 80,
+              to: [{ global: true }],
+              http_options: {
+                proxy: {
+                  buffering_disable: true,
+                  buffer_size: 4096,
+                  buffers_number: 8,
+                  buffers_size: 4096,
+                  busy_buffers_size: 8192,
+                  connect_timeout: 5000,
+                },
+              },
+            }],
+          },
+        },
+      });
+
+      expect(validate()).toBeUndefined();
+    });
+
+    it("returns an error when http_options.proxy has an unknown key", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            expose: [{
+              port: 80,
+              as: 80,
+              to: [{ global: true }],
+              http_options: {
+                proxy: { bogus: 1 },
+              },
+            }],
+          },
+        },
+      } as unknown as DeepPartial<SDLInput>);
+
+      const errors = validate();
+
+      expect(errors).toContainEqual(expect.objectContaining({
+        keyword: "additionalProperties",
+        params: { additionalProperty: "bogus" },
+      }));
+    });
+
+    it("returns an error when buffers_number is set without buffers_size", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            expose: [{
+              port: 80,
+              as: 80,
+              to: [{ global: true }],
+              http_options: {
+                proxy: { buffers_number: 8 },
+              },
+            }],
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({ keyword: "dependencies" }));
+    });
+
+    it("returns an error when buffers_size is set without buffers_number", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            expose: [{
+              port: 80,
+              as: 80,
+              to: [{ global: true }],
+              http_options: {
+                proxy: { buffers_size: 4096 },
+              },
+            }],
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({ keyword: "dependencies" }));
+    });
+
+    it("returns an error when a buffer field is present with 0", () => {
+      const { validate } = setup({
+        services: {
+          web: {
+            image: "nginx:latest",
+            expose: [{
+              port: 80,
+              as: 80,
+              to: [{ global: true }],
+              http_options: {
+                proxy: { buffers_number: 0, buffers_size: 4096 },
+              },
+            }],
+          },
+        },
+      });
+
+      expect(validate()).toContainEqual(expect.objectContaining({ keyword: "minimum" }));
+    });
   });
 
   describe("schema validation: storage mount path", () => {

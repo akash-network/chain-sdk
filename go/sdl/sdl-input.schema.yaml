@@ -443,6 +443,47 @@ properties:
                       next_tries:
                         type: integer
                         minimum: 0
+                      proxy:
+                        additionalProperties: false
+                        description: >-
+                          Optional proxy tuning for this route. All fields are optional and
+                          buffers_number and buffers_size must be set together (both present and >= 1);
+                          an empty block is unset.
+                        dependencies:
+                          buffers_number:
+                            - buffers_size
+                          buffers_size:
+                            - buffers_number
+                        properties:
+                          buffer_size:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                            description: Proxy buffer size in bytes
+                          buffering_disable:
+                            type: boolean
+                            description: Disable proxy response buffering when true
+                          buffers_number:
+                            type: integer
+                            minimum: 1
+                            maximum: 4294967295
+                            description: Number of proxy buffers
+                          buffers_size:
+                            type: integer
+                            minimum: 1
+                            maximum: 4294967295
+                            description: Size of each proxy buffer in bytes
+                          busy_buffers_size:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                            description: Proxy busy buffers size in bytes
+                          connect_timeout:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                            description: Proxy connect timeout in milliseconds
+                        type: object
                       read_timeout:
                         $ref: '#/definitions/httpTimeout'
                       send_timeout:
