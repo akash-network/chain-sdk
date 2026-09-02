@@ -4,6 +4,7 @@ import {
   Endpoint_Kind,
 } from "../../generated/protos/index.akash.v1beta4.ts";
 import {
+  ProxyOptions,
   ServiceExposeHTTPOptions,
 } from "../../generated/protos/index.provider.akash.v2beta3.ts";
 import { parseHTTPTimeout } from "../httpTimeout.ts";
@@ -15,6 +16,7 @@ type SDLService = SDLInput["services"][string];
 type SDLExpose = NonNullable<SDLService["expose"]>[number];
 type SDLExposeTo = NonNullable<SDLExpose["to"]>[number];
 type SDLHttpOptions = SDLExpose["http_options"];
+type SDLHttpProxyOptions = NonNullable<SDLHttpOptions>["proxy"];
 type SDLCompute = SDLInput["profiles"]["compute"][string];
 type SDLStorage = SDLCompute["resources"]["storage"];
 type SDLStorageVolume = SDLStorage extends (infer T)[] ? T : SDLStorage;
@@ -120,7 +122,29 @@ export function buildHttpOptions(httpOptions?: SDLHttpOptions): ServiceExposeHTT
     nextTries: httpOptions?.next_tries ?? 3,
     nextTimeout: httpOptions?.next_timeout ?? 0,
     nextCases: httpOptions?.next_cases ?? ["error", "timeout"],
+    proxy: buildProxyOptions(httpOptions?.proxy),
   });
+}
+
+function buildProxyOptions(proxy?: SDLHttpProxyOptions): ProxyOptions | undefined {
+  if (!proxy) return undefined;
+
+  const bufferingDisable = proxy.buffering_disable ?? false;
+  const bufferSize = proxy.buffer_size ?? 0;
+  const buffersNumber = proxy.buffers_number ?? 0;
+  const buffersSize = proxy.buffers_size ?? 0;
+  const busyBuffersSize = proxy.busy_buffers_size ?? 0;
+  const connectTimeout = proxy.connect_timeout ?? 0;
+
+  if ((buffersNumber === 0) !== (buffersSize === 0)) {
+    throw new Error("proxy.buffers_number and proxy.buffers_size must be set together");
+  }
+
+  if (!bufferingDisable && bufferSize === 0 && buffersNumber === 0 && buffersSize === 0 && busyBuffersSize === 0 && connectTimeout === 0) {
+    return undefined;
+  }
+
+  return ProxyOptions.fromPartial({ bufferingDisable, bufferSize, buffersNumber, buffersSize, busyBuffersSize, connectTimeout });
 }
 
 function normalizedHTTPTimeout(value: number | string | undefined): number {

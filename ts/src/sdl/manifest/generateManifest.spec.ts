@@ -688,6 +688,74 @@ describe(generateManifest.name, () => {
       expect(httpOptions?.nextCases).toEqual(["500"]);
     });
 
+    it("handles HTTP proxy options", () => {
+      const sdl = createBasicSdl({
+        expose: [
+          {
+            port: 80,
+            as: 80,
+            to: [{ global: true }],
+            http_options: {
+              proxy: {
+                buffering_disable: true,
+                buffer_size: 4096,
+                buffers_number: 8,
+                buffers_size: 4096,
+                busy_buffers_size: 8192,
+                connect_timeout: 5000,
+              },
+            },
+          },
+        ],
+      });
+      const { result } = setup({ sdl });
+
+      const proxy = result.groups[0].services[0].expose[0].httpOptions?.proxy;
+      expect(proxy?.bufferingDisable).toBe(true);
+      expect(proxy?.bufferSize).toBe(4096);
+      expect(proxy?.buffersNumber).toBe(8);
+      expect(proxy?.buffersSize).toBe(4096);
+      expect(proxy?.busyBuffersSize).toBe(8192);
+      expect(proxy?.connectTimeout).toBe(5000);
+    });
+
+    it("omits HTTP proxy options when the proxy block is empty", () => {
+      const sdl = createBasicSdl({
+        expose: [
+          {
+            port: 80,
+            as: 80,
+            to: [{ global: true }],
+            http_options: { proxy: {} },
+          },
+        ],
+      });
+      const { result } = setup({ sdl });
+
+      expect(result.groups[0].services[0].expose[0].httpOptions?.proxy).toBeUndefined();
+    });
+
+    it("rejects HTTP proxy options with buffers_number but no buffers_size", () => {
+      const sdl = createBasicSdl({
+        expose: [
+          {
+            port: 80,
+            as: 80,
+            to: [{ global: true }],
+            http_options: { proxy: { buffers_number: 8 } },
+          },
+        ],
+      });
+
+      // The paired-field rule is enforced by the schema, so the SDL is rejected at
+      // validation time rather than throwing later when the manifest is built.
+      const result = generateManifest(sdl);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.value).toContainEqual(expect.objectContaining({ keyword: "dependencies" }));
+      }
+    });
+
     it("handles accept hosts", () => {
       const sdl = createBasicSdl({
         expose: [{ port: 80, as: 80, to: [{ global: true }], accept: ["example.com", "api.example.com"] }],
