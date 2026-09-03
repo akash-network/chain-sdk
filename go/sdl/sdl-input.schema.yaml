@@ -233,6 +233,21 @@ properties:
                   additionalProperties: false
                   properties:
                     attributes:
+                      additionalProperties: false
+                      description: |
+                        CPU attributes. `arch` is the only recognised key, and it
+                        is optional: omitting it leaves the group spec with zero
+                        CPU attributes, which is what every pre-arch deployment
+                        already has. There is deliberately no default — writing an
+                        implicit `amd64` would change the group spec of every
+                        existing deployment and break bid matching.
+                        Mirrors `v2CPUAttributes.UnmarshalYAML` in go/sdl/cpu.go.
+                      properties:
+                        arch:
+                          enum:
+                            - amd64
+                            - arm64
+                          type: string
                       type: object
                     units:
                       oneOf:

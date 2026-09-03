@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../../go/sdl/sdl-input.schema.yaml
+#
+# Placement attribute keys chosen so that Go's ordering (`Attributes.Less`, a
+# plain `<`) and JavaScript's `localeCompare` disagree: `<` puts "aB" first
+# because "B" (0x42) sorts below "_" (0x5F), while localeCompare folds case and
+# demotes punctuation, putting "a_b" first. Requirement attributes exist only in
+# the group spec, so nothing else in the suite would catch the difference.
+---
+version: "2.0"
+services:
+  web:
+    image: nginx
+    expose:
+      - port: 80
+        to:
+          - global: true
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: "100m"
+        memory:
+          size: "128Mi"
+        storage:
+          size: "1Gi"
+  placement:
+    westcoast:
+      attributes:
+        a_b: "1"
+        aB: "2"
+      pricing:
+        web:
+          denom: uakt
+          amount: 50
+deployment:
+  web:
+    westcoast:
+      profile: web
+      count: 1

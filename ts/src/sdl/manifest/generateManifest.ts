@@ -19,6 +19,7 @@ import {
   buildResourceAttributes,
   buildServiceEndpoints,
   buildStorageAttributes,
+  compareStrings,
   computeEndpointSequenceNumbers,
   parseCpuUnits,
   parseGpuUnits,
@@ -28,6 +29,7 @@ import {
   resolveInterconnectGroup,
   type SDLCompute,
   type SDLService,
+  sortedExposeTargets,
   transformGpuAttributes,
 } from "./manifestUtils.ts";
 import { minWindowToDuration } from "./reclamationDuration.ts";
@@ -66,10 +68,10 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
     }
   }
   for (const list of deploymentsByPlacement.values()) {
-    list.sort(([a], [b]) => a.localeCompare(b));
+    list.sort(([a], [b]) => compareStrings(a, b));
   }
 
-  const services = Object.entries(sdl.services).sort(([a], [b]) => a.localeCompare(b));
+  const services = Object.entries(sdl.services).sort(([a], [b]) => compareStrings(a, b));
 
   for (const [svcName, service] of services) {
     for (const [placementName, svcdepl] of Object.entries(sdl.deployment[svcName])) {
@@ -107,7 +109,7 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
       if (teeType && !group.teeType) {
         group.teeType = teeType;
         group.dgroup.requirements!.attributes.push({ key: "tee/type", value: teeType });
-        group.dgroup.requirements!.attributes.sort((a, b) => a.key.localeCompare(b.key));
+        group.dgroup.requirements!.attributes.sort((a, b) => compareStrings(a.key, b.key));
       }
 
       const profileKey = `${placementName}:${svcdepl.profile}`;
@@ -140,15 +142,16 @@ export function generateManifest(sdl: SDLInput): GenerateManifestResult {
         group.dgroup.resources[location].resource!.endpoints.push(
           ...buildServiceEndpoints(service, endpointSequenceNumbers),
         );
-      }
-    }
-  }
 
-  for (const group of groupsMap.values()) {
-    for (const resourceUnit of group.dgroup.resources) {
-      resourceUnit.resource!.endpoints.sort(
-        (a, b) => a.kind - b.kind || a.sequenceNumber - b.sequenceNumber,
-      );
+        // Go re-sorts only when it merges a second service into an already-bound
+        // profile, and `Endpoints.Less` compares the sequence number alone — kind
+        // is not part of the ordering, so equal-sequence endpoints keep the order
+        // the services were merged in. Sorting on kind too, or sorting the
+        // single-service case, produces a different group spec than the chain.
+        group.dgroup.resources[location].resource!.endpoints.sort(
+          (a, b) => a.sequenceNumber - b.sequenceNumber,
+        );
+      }
     }
   }
 
@@ -316,27 +319,17 @@ function buildManifestExpose(
   service: SDLService,
   endpointSequenceNumbers: Record<string, number>,
 ): ServiceExpose[] {
-  return (service.expose ?? [])
-    .flatMap((expose) =>
-      (expose.to ?? []).map((to) =>
-        ServiceExpose.fromPartial({
-          port: expose.port,
-          externalPort: expose.as,
-          proto: parseServiceProto(expose.proto),
-          service: to.service || "",
-          global: to.global || false,
-          hosts: expose.accept || [],
-          httpOptions: buildHttpOptions(expose.http_options),
-          ip: to.ip || "",
-          endpointSequenceNumber: endpointSequenceNumbers[to.ip!],
-        }),
-      ),
-    )
-    .sort((a, b) => {
-      if (a.service !== b.service) return a.service.localeCompare(b.service);
-      if (a.port !== b.port) return a.port - b.port;
-      if (a.proto !== b.proto) return a.proto.localeCompare(b.proto);
-      if (a.global !== b.global) return a.global ? -1 : 1;
-      return 0;
-    });
+  return sortedExposeTargets(service).map(({ expose, to }) =>
+    ServiceExpose.fromPartial({
+      port: expose.port,
+      externalPort: expose.as,
+      proto: parseServiceProto(expose.proto),
+      service: to.service || "",
+      global: to.global || false,
+      hosts: expose.accept || [],
+      httpOptions: buildHttpOptions(expose.http_options),
+      ip: to.ip || "",
+      endpointSequenceNumber: endpointSequenceNumbers[to.ip!],
+    }),
+  );
 }

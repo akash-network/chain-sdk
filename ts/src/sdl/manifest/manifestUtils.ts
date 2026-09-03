@@ -45,6 +45,19 @@ export function computeEndpointSequenceNumbers(services: SDLInput["services"]): 
   }, {});
 }
 
+// Go orders every string it sorts in the SDL builder with a plain `<`:
+// `Attributes.Less` compares keys, `ServiceExposes.Less` compares service names,
+// and placement/service names go through `sort.Strings`. `localeCompare` is not
+// the same relation — it folds case and demotes punctuation, so e.g. "a_b" and
+// "aB" come out in the opposite order. Attribute keys carry "/" and placement,
+// service and volume names are unconstrained strings, so the two can genuinely
+// disagree, and the resulting group spec is signed. Every sort on this path uses
+// this comparator instead.
+export function compareStrings(a: string, b: string): number {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+}
+
 export function isIngress(proto: string, global: boolean, externalPort: number, port: number): boolean {
   const effectivePort = externalPort === 0 ? port : externalPort;
   return global && proto === "TCP" && effectivePort === 80;
@@ -80,7 +93,7 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
   const vendor = attributes.vendor;
   if (vendor) {
     Object.keys(vendor)
-      .sort((a, b) => a.localeCompare(b))
+      .sort(compareStrings)
       .forEach((vendorName) => {
         const models = vendor[vendorName as keyof typeof vendor];
         if (!models) {
@@ -109,7 +122,7 @@ export function transformGpuAttributes(attributes: SDLGpuAttributes): Attribute[
   // Go SDL parser canonicalizes the slice via sort.Sort(res) before
   // returning. Mirror that here so the on-chain attribute order matches
   // byte-for-byte across both implementations.
-  result.sort((a, b) => a.key.localeCompare(b.key));
+  result.sort((a, b) => compareStrings(a.key, b.key));
 
   return result;
 }
@@ -168,7 +181,7 @@ export function buildStorageAttributes(attributes?: StorageAttributesValidation)
     pairs.push({ key: "persistent", value: "false" });
   }
 
-  pairs.sort((a, b) => a.key.localeCompare(b.key));
+  pairs.sort((a, b) => compareStrings(a.key, b.key));
   return pairs;
 }
 
@@ -176,37 +189,73 @@ export function parseServiceProto(proto?: string): string {
   return proto?.toUpperCase() || "TCP";
 }
 
+export interface ExposeSortKey {
+  service: string;
+  port: number;
+  proto: string;
+  global: boolean;
+}
+
+// Mirrors `ServiceExposes.Less` in go/manifest/v2beta3/serviceexposes.go.
+export function compareExposes(a: ExposeSortKey, b: ExposeSortKey): number {
+  if (a.service !== b.service) return compareStrings(a.service, b.service);
+  if (a.port !== b.port) return a.port - b.port;
+  if (a.proto !== b.proto) return compareStrings(a.proto, b.proto);
+  if (a.global !== b.global) return a.global ? -1 : 1;
+  return 0;
+}
+
+// Go expands a service's `expose` entries into one manifest expose per `to`
+// target and sorts the whole list before anything reads it — `toManifestExpose`
+// in go/sdl/expose.go. Both the manifest expose list and the resource endpoint
+// list are then built by walking it in that order, and the endpoint order is
+// part of the signed group spec, so ordering has to be decided once, here.
+export function sortedExposeTargets(service: SDLService): { expose: SDLExpose; to: SDLExposeTo }[] {
+  return (service.expose ?? [])
+    .flatMap((expose) => (expose.to ?? []).map((to) => ({ expose, to })))
+    .sort((a, b) => compareExposes(exposeSortKey(a), exposeSortKey(b)));
+}
+
+function exposeSortKey({ expose, to }: { expose: SDLExpose; to: SDLExposeTo }): ExposeSortKey {
+  return {
+    service: to.service || "",
+    port: expose.port,
+    proto: parseServiceProto(expose.proto),
+    global: to.global || false,
+  };
+}
+
 export function buildServiceEndpoints(
   service: SDLService,
   endpointSequenceNumbers: Record<string, number>,
 ): Endpoint[] {
-  return (service.expose ?? []).flatMap((expose) =>
-    (expose.to ?? [])
-      .filter((to) => to.global)
-      .flatMap((to) => {
-        const externalPort = expose.as || 0;
-        const proto = parseServiceProto(expose.proto);
-        const kind = isIngress(proto, !!to.global, externalPort, expose.port)
-          ? Endpoint_Kind.SHARED_HTTP
-          : Endpoint_Kind.RANDOM_PORT;
+  return sortedExposeTargets(service)
+    .filter(({ to }) => to.global)
+    .flatMap(({ expose, to }) => {
+      const externalPort = expose.as || 0;
+      const proto = parseServiceProto(expose.proto);
+      const kind = isIngress(proto, !!to.global, externalPort, expose.port)
+        ? Endpoint_Kind.SHARED_HTTP
+        : Endpoint_Kind.RANDOM_PORT;
 
-        const defaultEp = Endpoint.fromPartial({
-          kind,
-          sequenceNumber: 0,
-        });
+      const defaultEp = Endpoint.fromPartial({
+        kind,
+        sequenceNumber: 0,
+      });
 
-        if (!to.ip?.length) {
-          return [defaultEp];
-        }
+      if (!to.ip?.length) {
+        return [defaultEp];
+      }
 
-        const leasedEp = Endpoint.fromPartial({
-          kind: Endpoint_Kind.LEASED_IP,
-          sequenceNumber: endpointSequenceNumbers[to.ip] ?? 0,
-        });
+      const leasedEp = Endpoint.fromPartial({
+        kind: Endpoint_Kind.LEASED_IP,
+        sequenceNumber: endpointSequenceNumbers[to.ip] ?? 0,
+      });
 
-        return [defaultEp, leasedEp];
-      }),
-  );
+      // Go emits [LEASED_IP, <kind>] then sorts this pair on its own
+      // (`ServiceExpose.GetEndpoints`), which puts the lower kind first.
+      return [defaultEp, leasedEp];
+    });
 }
 
 export function parseCpuUnits(cpu: SDLCompute["resources"]["cpu"]): bigint {
@@ -232,6 +281,6 @@ export function parseGpuUnits(gpu?: SDLCompute["resources"]["gpu"]): bigint {
 export function buildResourceAttributes(attributes?: Record<string, unknown>): Attribute[] | undefined {
   if (!attributes) return undefined;
   return Object.keys(attributes)
-    .sort((a, b) => a.localeCompare(b))
+    .sort(compareStrings)
     .map((key) => ({ key, value: String(attributes[key]) }));
 }
