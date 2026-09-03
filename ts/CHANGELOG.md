@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.45](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.44...ts/v1.0.0-alpha.45) (2026-09-03)
+
+
+### Features
+
+* **sdl:** cover group specs in TS parity tests and add CPU architecture support ([#358](https://github.com/akash-network/chain-sdk/issues/358)) ([cd81db4](https://github.com/akash-network/chain-sdk/commit/cd81db4aa6684b8a9ef8c4b5771efb5bd301c4bc))
+
 ## [1.0.0-alpha.44](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.43...ts/v1.0.0-alpha.44) (2026-09-02)
 
 
