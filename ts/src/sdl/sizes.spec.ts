@@ -128,6 +128,26 @@ describe("convertResourceString", () => {
     it("should still reject a value with no digits", () => {
       expect(() => convertResourceString("Gi")).toThrow("Invalid size string: gi");
     });
+
+    it("should reject a lone decimal point", () => {
+      expect(() => convertResourceString(".")).toThrow("Invalid size string: .");
+    });
+
+    it("should reject a value with more than one decimal point", () => {
+      expect(() => convertResourceString("1.2.3")).toThrow("Invalid size string: 1.2.3");
+    });
+
+    it("should reject a value with more than one decimal point even with a unit", () => {
+      expect(() => convertResourceString("1.2.3Gi")).toThrow("Invalid size string: 1.2.3gi");
+    });
+
+    it("should accept a decimal with no leading digit", () => {
+      expect(convertResourceString(".5Gi")).toBe(536870912n);
+    });
+
+    it("should accept a decimal with no trailing digit", () => {
+      expect(convertResourceString("1.")).toBe(1n);
+    });
   });
 
   describe("edge cases", () => {
