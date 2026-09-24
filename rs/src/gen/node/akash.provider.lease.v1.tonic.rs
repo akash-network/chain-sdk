@@ -2,10 +2,10 @@
 /// Generated client implementations.
 pub mod lease_rpc_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     /** LeaseRPC defines the RPC server for lease control
-*/
+    */
     #[derive(Debug, Clone)]
     pub struct LeaseRpcClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -49,9 +49,8 @@ pub mod lease_rpc_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             LeaseRpcClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -87,69 +86,59 @@ pub mod lease_rpc_client {
             self
         }
         /** SendManifest sends manifest to the provider
-*/
+        */
         pub async fn send_manifest(
             &mut self,
             request: impl tonic::IntoRequest<super::SendManifestRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::SendManifestResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::SendManifestResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/akash.provider.lease.v1.LeaseRPC/SendManifest",
             );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(
-                    GrpcMethod::new("akash.provider.lease.v1.LeaseRPC", "SendManifest"),
-                );
+            req.extensions_mut().insert(GrpcMethod::new(
+                "akash.provider.lease.v1.LeaseRPC",
+                "SendManifest",
+            ));
             self.inner.unary(req, path, codec).await
         }
         /** ServiceStatus
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         pub async fn service_status(
             &mut self,
             request: impl tonic::IntoRequest<super::ServiceStatusRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ServiceStatusResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::ServiceStatusResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/akash.provider.lease.v1.LeaseRPC/ServiceStatus",
             );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(
-                    GrpcMethod::new("akash.provider.lease.v1.LeaseRPC", "ServiceStatus"),
-                );
+            req.extensions_mut().insert(GrpcMethod::new(
+                "akash.provider.lease.v1.LeaseRPC",
+                "ServiceStatus",
+            ));
             self.inner.unary(req, path, codec).await
         }
         /** StreamServiceStatus
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         pub async fn stream_service_status(
             &mut self,
             request: impl tonic::IntoRequest<super::ServiceStatusRequest>,
@@ -157,64 +146,53 @@ pub mod lease_rpc_client {
             tonic::Response<tonic::codec::Streaming<super::ServiceStatusResponse>>,
             tonic::Status,
         > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/akash.provider.lease.v1.LeaseRPC/StreamServiceStatus",
             );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(
-                    GrpcMethod::new(
-                        "akash.provider.lease.v1.LeaseRPC",
-                        "StreamServiceStatus",
-                    ),
-                );
+            req.extensions_mut().insert(GrpcMethod::new(
+                "akash.provider.lease.v1.LeaseRPC",
+                "StreamServiceStatus",
+            ));
             self.inner.server_streaming(req, path, codec).await
         }
         /** ServiceLogs
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         pub async fn service_logs(
             &mut self,
             request: impl tonic::IntoRequest<super::ServiceLogsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ServiceLogsResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::ServiceLogsResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/akash.provider.lease.v1.LeaseRPC/ServiceLogs",
             );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(
-                    GrpcMethod::new("akash.provider.lease.v1.LeaseRPC", "ServiceLogs"),
-                );
+            req.extensions_mut().insert(GrpcMethod::new(
+                "akash.provider.lease.v1.LeaseRPC",
+                "ServiceLogs",
+            ));
             self.inner.unary(req, path, codec).await
         }
         /** StreamServiceLogs
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         pub async fn stream_service_logs(
             &mut self,
             request: impl tonic::IntoRequest<super::ServiceLogsRequest>,
@@ -222,28 +200,48 @@ pub mod lease_rpc_client {
             tonic::Response<tonic::codec::Streaming<super::ServiceLogsResponse>>,
             tonic::Status,
         > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/akash.provider.lease.v1.LeaseRPC/StreamServiceLogs",
             );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(
-                    GrpcMethod::new(
-                        "akash.provider.lease.v1.LeaseRPC",
-                        "StreamServiceLogs",
-                    ),
-                );
+            req.extensions_mut().insert(GrpcMethod::new(
+                "akash.provider.lease.v1.LeaseRPC",
+                "StreamServiceLogs",
+            ));
             self.inner.server_streaming(req, path, codec).await
+        }
+        /** AttestationQuote requests hardware-signed attestation evidence from the
+         confidential compute sidecar. The provider forwards the tenant's nonce
+         to the sidecar and returns the hardware-signed quote verbatim.
+        */
+        pub async fn attestation_quote(
+            &mut self,
+            request: impl tonic::IntoRequest<super::AttestationQuoteRequest>,
+        ) -> std::result::Result<tonic::Response<super::AttestationQuoteResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.lease.v1.LeaseRPC/AttestationQuote",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new(
+                "akash.provider.lease.v1.LeaseRPC",
+                "AttestationQuote",
+            ));
+            self.inner.unary(req, path, codec).await
         }
     }
 }
@@ -255,73 +253,64 @@ pub mod lease_rpc_server {
     #[async_trait]
     pub trait LeaseRpc: Send + Sync + 'static {
         /** SendManifest sends manifest to the provider
-*/
+        */
         async fn send_manifest(
             &self,
             request: tonic::Request<super::SendManifestRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::SendManifestResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::SendManifestResponse>, tonic::Status>;
         /** ServiceStatus
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         async fn service_status(
             &self,
             request: tonic::Request<super::ServiceStatusRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ServiceStatusResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ServiceStatusResponse>, tonic::Status>;
         /// Server streaming response type for the StreamServiceStatus method.
         type StreamServiceStatusStream: tonic::codegen::tokio_stream::Stream<
                 Item = std::result::Result<super::ServiceStatusResponse, tonic::Status>,
-            >
-            + Send
+            > + Send
             + 'static;
         /** StreamServiceStatus
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         async fn stream_service_status(
             &self,
             request: tonic::Request<super::ServiceStatusRequest>,
-        ) -> std::result::Result<
-            tonic::Response<Self::StreamServiceStatusStream>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<Self::StreamServiceStatusStream>, tonic::Status>;
         /** ServiceLogs
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         async fn service_logs(
             &self,
             request: tonic::Request<super::ServiceLogsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ServiceLogsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ServiceLogsResponse>, tonic::Status>;
         /// Server streaming response type for the StreamServiceLogs method.
         type StreamServiceLogsStream: tonic::codegen::tokio_stream::Stream<
                 Item = std::result::Result<super::ServiceLogsResponse, tonic::Status>,
-            >
-            + Send
+            > + Send
             + 'static;
         /** StreamServiceLogs
- buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
- buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-*/
+         buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+         buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+        */
         async fn stream_service_logs(
             &self,
             request: tonic::Request<super::ServiceLogsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<Self::StreamServiceLogsStream>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<Self::StreamServiceLogsStream>, tonic::Status>;
+        /** AttestationQuote requests hardware-signed attestation evidence from the
+         confidential compute sidecar. The provider forwards the tenant's nonce
+         to the sidecar and returns the hardware-signed quote verbatim.
+        */
+        async fn attestation_quote(
+            &self,
+            request: tonic::Request<super::AttestationQuoteRequest>,
+        ) -> std::result::Result<tonic::Response<super::AttestationQuoteResponse>, tonic::Status>;
     }
     /** LeaseRPC defines the RPC server for lease control
-*/
+    */
     #[derive(Debug)]
     pub struct LeaseRpcServer<T: LeaseRpc> {
         inner: Arc<T>,
@@ -343,10 +332,7 @@ pub mod lease_rpc_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -401,15 +387,9 @@ pub mod lease_rpc_server {
                 "/akash.provider.lease.v1.LeaseRPC/SendManifest" => {
                     #[allow(non_camel_case_types)]
                     struct SendManifestSvc<T: LeaseRpc>(pub Arc<T>);
-                    impl<
-                        T: LeaseRpc,
-                    > tonic::server::UnaryService<super::SendManifestRequest>
-                    for SendManifestSvc<T> {
+                    impl<T: LeaseRpc> tonic::server::UnaryService<super::SendManifestRequest> for SendManifestSvc<T> {
                         type Response = super::SendManifestResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SendManifestRequest>,
@@ -446,15 +426,9 @@ pub mod lease_rpc_server {
                 "/akash.provider.lease.v1.LeaseRPC/ServiceStatus" => {
                     #[allow(non_camel_case_types)]
                     struct ServiceStatusSvc<T: LeaseRpc>(pub Arc<T>);
-                    impl<
-                        T: LeaseRpc,
-                    > tonic::server::UnaryService<super::ServiceStatusRequest>
-                    for ServiceStatusSvc<T> {
+                    impl<T: LeaseRpc> tonic::server::UnaryService<super::ServiceStatusRequest> for ServiceStatusSvc<T> {
                         type Response = super::ServiceStatusResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ServiceStatusRequest>,
@@ -491,24 +465,21 @@ pub mod lease_rpc_server {
                 "/akash.provider.lease.v1.LeaseRPC/StreamServiceStatus" => {
                     #[allow(non_camel_case_types)]
                     struct StreamServiceStatusSvc<T: LeaseRpc>(pub Arc<T>);
-                    impl<
-                        T: LeaseRpc,
-                    > tonic::server::ServerStreamingService<super::ServiceStatusRequest>
-                    for StreamServiceStatusSvc<T> {
+                    impl<T: LeaseRpc>
+                        tonic::server::ServerStreamingService<super::ServiceStatusRequest>
+                        for StreamServiceStatusSvc<T>
+                    {
                         type Response = super::ServiceStatusResponse;
                         type ResponseStream = T::StreamServiceStatusStream;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::ResponseStream>,
-                            tonic::Status,
-                        >;
+                        type Future =
+                            BoxFuture<tonic::Response<Self::ResponseStream>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ServiceStatusRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as LeaseRpc>::stream_service_status(&inner, request)
-                                    .await
+                                <T as LeaseRpc>::stream_service_status(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -538,23 +509,16 @@ pub mod lease_rpc_server {
                 "/akash.provider.lease.v1.LeaseRPC/ServiceLogs" => {
                     #[allow(non_camel_case_types)]
                     struct ServiceLogsSvc<T: LeaseRpc>(pub Arc<T>);
-                    impl<
-                        T: LeaseRpc,
-                    > tonic::server::UnaryService<super::ServiceLogsRequest>
-                    for ServiceLogsSvc<T> {
+                    impl<T: LeaseRpc> tonic::server::UnaryService<super::ServiceLogsRequest> for ServiceLogsSvc<T> {
                         type Response = super::ServiceLogsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ServiceLogsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as LeaseRpc>::service_logs(&inner, request).await
-                            };
+                            let fut =
+                                async move { <T as LeaseRpc>::service_logs(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -583,16 +547,14 @@ pub mod lease_rpc_server {
                 "/akash.provider.lease.v1.LeaseRPC/StreamServiceLogs" => {
                     #[allow(non_camel_case_types)]
                     struct StreamServiceLogsSvc<T: LeaseRpc>(pub Arc<T>);
-                    impl<
-                        T: LeaseRpc,
-                    > tonic::server::ServerStreamingService<super::ServiceLogsRequest>
-                    for StreamServiceLogsSvc<T> {
+                    impl<T: LeaseRpc>
+                        tonic::server::ServerStreamingService<super::ServiceLogsRequest>
+                        for StreamServiceLogsSvc<T>
+                    {
                         type Response = super::ServiceLogsResponse;
                         type ResponseStream = T::StreamServiceLogsStream;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::ResponseStream>,
-                            tonic::Status,
-                        >;
+                        type Future =
+                            BoxFuture<tonic::Response<Self::ResponseStream>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ServiceLogsRequest>,
@@ -626,21 +588,58 @@ pub mod lease_rpc_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
+                "/akash.provider.lease.v1.LeaseRPC/AttestationQuote" => {
+                    #[allow(non_camel_case_types)]
+                    struct AttestationQuoteSvc<T: LeaseRpc>(pub Arc<T>);
+                    impl<T: LeaseRpc> tonic::server::UnaryService<super::AttestationQuoteRequest>
+                        for AttestationQuoteSvc<T>
+                    {
+                        type Response = super::AttestationQuoteResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::AttestationQuoteRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as LeaseRpc>::attestation_quote(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = AttestationQuoteSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
                 }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
+                        )
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
