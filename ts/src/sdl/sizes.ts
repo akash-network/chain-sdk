@@ -51,11 +51,11 @@ export function convertCpuResourceString(resourceStr: string): bigint {
 }
 
 /**
- * Parses a size string into value and unit components; the unit is optional
+ * Parses a size string into value and unit components; the unit is optional and the value is a single decimal
  * @internal
  */
 function parseSizeString(size: string): [string, string, string] {
-  const regex = /^([\d.]+)([a-zA-Z]?)([a-zA-Z]*)$/;
+  const regex = /^(\d+\.?\d*|\.\d+)([a-zA-Z]?)([a-zA-Z]*)$/;
   const match = size.match(regex);
 
   if (match) {
