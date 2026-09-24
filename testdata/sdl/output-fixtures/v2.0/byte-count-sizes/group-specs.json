@@ -1,0 +1,67 @@
+[
+  {
+    "name": "westcoast",
+    "requirements": {
+      "signed_by": {
+        "all_of": [
+          "3",
+          "4"
+        ],
+        "any_of": [
+          "1",
+          "2"
+        ]
+      },
+      "attributes": [
+        {
+          "key": "region",
+          "value": "us-west"
+        }
+      ]
+    },
+    "resources": [
+      {
+        "resource": {
+          "id": 1,
+          "cpu": {
+            "units": {
+              "val": "100"
+            }
+          },
+          "memory": {
+            "size": {
+              "val": "134217728"
+            }
+          },
+          "storage": [
+            {
+              "name": "default",
+              "size": {
+                "val": "1073741824"
+              }
+            }
+          ],
+          "gpu": {
+            "units": {
+              "val": "0"
+            }
+          },
+          "endpoints": [
+            {
+              "sequence_number": 0
+            },
+            {
+              "kind": 1,
+              "sequence_number": 0
+            }
+          ]
+        },
+        "count": 2,
+        "price": {
+          "denom": "uakt",
+          "amount": "50.000000000000000000"
+        }
+      }
+    ]
+  }
+]
