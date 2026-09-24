@@ -104,6 +104,52 @@ describe("convertResourceString", () => {
     });
   });
 
+  describe("unit-less inputs", () => {
+    it("should treat a bare number as a byte count", () => {
+      expect(convertResourceString("1")).toBe(1n);
+    });
+
+    it("should treat a bare byte count as equal to its binary-suffixed form", () => {
+      expect(convertResourceString("536870912")).toBe(convertResourceString("512Mi"));
+    });
+
+    it("should treat a bare zero as zero bytes", () => {
+      expect(convertResourceString("0")).toBe(0n);
+    });
+
+    it("should round a fractional byte count up to a whole byte", () => {
+      expect(convertResourceString("1.5")).toBe(2n);
+    });
+
+    it("should still reject an empty string", () => {
+      expect(() => convertResourceString("")).toThrow("Invalid size string: ");
+    });
+
+    it("should still reject a value with no digits", () => {
+      expect(() => convertResourceString("Gi")).toThrow("Invalid size string: gi");
+    });
+
+    it("should reject a lone decimal point", () => {
+      expect(() => convertResourceString(".")).toThrow("Invalid size string: .");
+    });
+
+    it("should reject a value with more than one decimal point", () => {
+      expect(() => convertResourceString("1.2.3")).toThrow("Invalid size string: 1.2.3");
+    });
+
+    it("should reject a value with more than one decimal point even with a unit", () => {
+      expect(() => convertResourceString("1.2.3Gi")).toThrow("Invalid size string: 1.2.3gi");
+    });
+
+    it("should accept a decimal with no leading digit", () => {
+      expect(convertResourceString(".5Gi")).toBe(536870912n);
+    });
+
+    it("should accept a decimal with no trailing digit", () => {
+      expect(convertResourceString("1.")).toBe(1n);
+    });
+  });
+
   describe("edge cases", () => {
     it("should handle case insensitivity", () => {
       const result1 = convertResourceString("1GI");

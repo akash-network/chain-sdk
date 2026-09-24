@@ -2,6 +2,7 @@ const prefixes = "kmgtpe".split("");
 
 /**
  * Converts resource strings like "1k", "5gi", "10m" to their numeric values.
+ * A bare number is a byte count, matching the Go SDL parser.
  *
  * The result is a `bigint` computed with exact integer arithmetic so that large
  * quantities (petabyte/exabyte-scale storage and memory) cannot silently lose
@@ -13,6 +14,7 @@ const prefixes = "kmgtpe".split("");
  * convertResourceString("1k") // Returns 1000n
  * convertResourceString("5gi") // Returns 5368709120n
  * convertResourceString("10m") // Returns 10000000n
+ * convertResourceString("1024") // Returns 1024n
  * ```
  */
 export function convertResourceString(resourceStr: string): bigint {
@@ -49,11 +51,11 @@ export function convertCpuResourceString(resourceStr: string): bigint {
 }
 
 /**
- * Parses a size string into value and unit components
+ * Parses a size string into value and unit components; the unit is optional and the value is a single decimal
  * @internal
  */
 function parseSizeString(size: string): [string, string, string] {
-  const regex = /^([\d.]+)([a-zA-Z])([a-zA-Z]*)$/;
+  const regex = /^(\d+\.?\d*|\.\d+)([a-zA-Z]?)([a-zA-Z]*)$/;
   const match = size.match(regex);
 
   if (match) {
