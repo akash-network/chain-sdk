@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: [self-hosted, akash]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Setup env
@@ -22,9 +22,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "${{ env.GOVERSION }}"
+          cache-dependency-path: go/go.sum
       - run: SUB_TESTS=go TEST_RACE=1 make test
   coverage:
-    runs-on: [self-hosted, akash]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +44,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "${{ env.GOVERSION }}"
+          cache-dependency-path: go/go.sum
+      - name: Cache buf modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/buf
+          key: buf-${{ runner.os }}-${{ hashFiles('buf.lock') }}
+          restore-keys: buf-${{ runner.os }}-
       - run: make test-coverage
       - name: Verify committed codegen is up to date
         run: |
@@ -76,4 +84,5 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "${{ env.GOVERSION }}"
+          cache-dependency-path: go/sdl/go.sum
       - run: make test-sdl-parity

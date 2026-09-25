@@ -10,7 +10,7 @@ on:
 
 jobs:
   go:
-    runs-on: [self-hosted, akash]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -22,12 +22,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "${{ env.GOVERSION }}"
+          cache-dependency-path: go/go.sum
       - name: go mod vendor
         run: make modvendor
       - name: lint
         run: make lint-go
   proto:
-    runs-on: [self-hosted, akash]
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -39,8 +40,15 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "${{ env.GOVERSION }}"
+          cache-dependency-path: go/go.sum
       - name: go mod vendor
         run: make modvendor
+      - name: Cache buf modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/buf
+          key: buf-${{ runner.os }}-${{ hashFiles('buf.lock') }}
+          restore-keys: buf-${{ runner.os }}-
       - name: lint-proto
         run: make lint-proto
   sdl-schema:
