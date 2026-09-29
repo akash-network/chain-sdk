@@ -1,7 +1,14 @@
 const prefixes = "kmgtpe".split("");
 
 /**
+ * A single decimal (`1024`, `1.5`, `.5`, `1.`) followed by an optional prefix letter and unit suffix,
+ * e.g. `512Mi`, `1.5G`, `1024`. Captures the value, the prefix and the suffix.
+ */
+const DECIMAL_WITH_OPTIONAL_UNIT_PATTERN = /^(\d+\.?\d*|\.\d+)([a-zA-Z]?)([a-zA-Z]*)$/;
+
+/**
  * Converts resource strings like "1k", "5gi", "10m" to their numeric values.
+ * A bare number is a byte count, matching the Go SDL parser.
  *
  * The result is a `bigint` computed with exact integer arithmetic so that large
  * quantities (petabyte/exabyte-scale storage and memory) cannot silently lose
@@ -13,6 +20,7 @@ const prefixes = "kmgtpe".split("");
  * convertResourceString("1k") // Returns 1000n
  * convertResourceString("5gi") // Returns 5368709120n
  * convertResourceString("10m") // Returns 10000000n
+ * convertResourceString("1024") // Returns 1024n
  * ```
  */
 export function convertResourceString(resourceStr: string): bigint {
@@ -49,12 +57,12 @@ export function convertCpuResourceString(resourceStr: string): bigint {
 }
 
 /**
- * Parses a size string into value and unit components
+ * Parses a size string into value and unit components. The value is a single decimal. The unit is optional
+ * and defaults to bytes when omitted, so "1024" is 1024 bytes.
  * @internal
  */
 function parseSizeString(size: string): [string, string, string] {
-  const regex = /^([\d.]+)([a-zA-Z])([a-zA-Z]*)$/;
-  const match = size.match(regex);
+  const match = size.match(DECIMAL_WITH_OPTIONAL_UNIT_PATTERN);
 
   if (match) {
     const [, value, unit1, unit2] = match;
