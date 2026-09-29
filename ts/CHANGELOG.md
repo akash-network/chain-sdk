@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.46](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.45...ts/v1.0.0-alpha.46) (2026-09-29)
+
+
+### Bug Fixes
+
+* **sdl:** accept memory and storage sizes given as bare byte counts ([#362](https://github.com/akash-network/chain-sdk/issues/362)) ([117041e](https://github.com/akash-network/chain-sdk/commit/117041ee62390395d7443de0aca3bbe3065e3fb0))
+
 ## [1.0.0-alpha.45](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.44...ts/v1.0.0-alpha.45) (2026-09-03)
 
 
