@@ -1,4 +1,542 @@
 // @generated
+impl serde::Serialize for AttestationGpuReport {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.device_index != 0 {
+            len += 1;
+        }
+        if !self.report.is_empty() {
+            len += 1;
+        }
+        if !self.attestation_report.is_empty() {
+            len += 1;
+        }
+        if !self.cec_report.is_empty() {
+            len += 1;
+        }
+        if !self.certificate_chain.is_empty() {
+            len += 1;
+        }
+        if !self.architecture.is_empty() {
+            len += 1;
+        }
+        if !self.uuid.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.AttestationGPUReport", len)?;
+        if self.device_index != 0 {
+            struct_ser.serialize_field("deviceIndex", &self.device_index)?;
+        }
+        if !self.report.is_empty() {
+            struct_ser.serialize_field("report", &self.report)?;
+        }
+        if !self.attestation_report.is_empty() {
+            struct_ser.serialize_field("attestationReport", &self.attestation_report)?;
+        }
+        if !self.cec_report.is_empty() {
+            struct_ser.serialize_field("cecReport", &self.cec_report)?;
+        }
+        if !self.certificate_chain.is_empty() {
+            struct_ser.serialize_field("certificateChain", &self.certificate_chain)?;
+        }
+        if !self.architecture.is_empty() {
+            struct_ser.serialize_field("architecture", &self.architecture)?;
+        }
+        if !self.uuid.is_empty() {
+            struct_ser.serialize_field("uuid", &self.uuid)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AttestationGpuReport {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "device_index",
+            "deviceIndex",
+            "report",
+            "attestation_report",
+            "attestationReport",
+            "cec_report",
+            "cecReport",
+            "certificate_chain",
+            "certificateChain",
+            "architecture",
+            "uuid",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            DeviceIndex,
+            Report,
+            AttestationReport,
+            CecReport,
+            CertificateChain,
+            Architecture,
+            Uuid,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "deviceIndex" | "device_index" => Ok(GeneratedField::DeviceIndex),
+                            "report" => Ok(GeneratedField::Report),
+                            "attestationReport" | "attestation_report" => {
+                                Ok(GeneratedField::AttestationReport)
+                            }
+                            "cecReport" | "cec_report" => Ok(GeneratedField::CecReport),
+                            "certificateChain" | "certificate_chain" => {
+                                Ok(GeneratedField::CertificateChain)
+                            }
+                            "architecture" => Ok(GeneratedField::Architecture),
+                            "uuid" => Ok(GeneratedField::Uuid),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AttestationGpuReport;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.lease.v1.AttestationGPUReport")
+            }
+
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<AttestationGpuReport, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
+            {
+                let mut device_index__ = None;
+                let mut report__ = None;
+                let mut attestation_report__ = None;
+                let mut cec_report__ = None;
+                let mut certificate_chain__ = None;
+                let mut architecture__ = None;
+                let mut uuid__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::DeviceIndex => {
+                            if device_index__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("deviceIndex"));
+                            }
+                            device_index__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::Report => {
+                            if report__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("report"));
+                            }
+                            report__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::AttestationReport => {
+                            if attestation_report__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("attestationReport"));
+                            }
+                            attestation_report__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CecReport => {
+                            if cec_report__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("cecReport"));
+                            }
+                            cec_report__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CertificateChain => {
+                            if certificate_chain__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("certificateChain"));
+                            }
+                            certificate_chain__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Architecture => {
+                            if architecture__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("architecture"));
+                            }
+                            architecture__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Uuid => {
+                            if uuid__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("uuid"));
+                            }
+                            uuid__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(AttestationGpuReport {
+                    device_index: device_index__.unwrap_or_default(),
+                    report: report__.unwrap_or_default(),
+                    attestation_report: attestation_report__.unwrap_or_default(),
+                    cec_report: cec_report__.unwrap_or_default(),
+                    certificate_chain: certificate_chain__.unwrap_or_default(),
+                    architecture: architecture__.unwrap_or_default(),
+                    uuid: uuid__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.AttestationGPUReport",
+            FIELDS,
+            GeneratedVisitor,
+        )
+    }
+}
+impl serde::Serialize for AttestationQuoteRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.lease_id.is_some() {
+            len += 1;
+        }
+        if !self.nonce.is_empty() {
+            len += 1;
+        }
+        if self.bind_tls {
+            len += 1;
+        }
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.AttestationQuoteRequest", len)?;
+        if let Some(v) = self.lease_id.as_ref() {
+            struct_ser.serialize_field("leaseId", v)?;
+        }
+        if !self.nonce.is_empty() {
+            struct_ser.serialize_field("nonce", &self.nonce)?;
+        }
+        if self.bind_tls {
+            struct_ser.serialize_field("bindTls", &self.bind_tls)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AttestationQuoteRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &["lease_id", "leaseId", "nonce", "bind_tls", "bindTls"];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            LeaseId,
+            Nonce,
+            BindTls,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "leaseId" | "lease_id" => Ok(GeneratedField::LeaseId),
+                            "nonce" => Ok(GeneratedField::Nonce),
+                            "bindTls" | "bind_tls" => Ok(GeneratedField::BindTls),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AttestationQuoteRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.lease.v1.AttestationQuoteRequest")
+            }
+
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<AttestationQuoteRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
+            {
+                let mut lease_id__ = None;
+                let mut nonce__ = None;
+                let mut bind_tls__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::LeaseId => {
+                            if lease_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("leaseId"));
+                            }
+                            lease_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Nonce => {
+                            if nonce__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nonce"));
+                            }
+                            nonce__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::BindTls => {
+                            if bind_tls__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("bindTls"));
+                            }
+                            bind_tls__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(AttestationQuoteRequest {
+                    lease_id: lease_id__,
+                    nonce: nonce__.unwrap_or_default(),
+                    bind_tls: bind_tls__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.AttestationQuoteRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
+    }
+}
+impl serde::Serialize for AttestationQuoteResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.report.is_empty() {
+            len += 1;
+        }
+        if !self.cert_chain.is_empty() {
+            len += 1;
+        }
+        if !self.tee_platform.is_empty() {
+            len += 1;
+        }
+        if !self.auxblob.is_empty() {
+            len += 1;
+        }
+        if !self.gpu_reports.is_empty() {
+            len += 1;
+        }
+        if self.tls_bound {
+            len += 1;
+        }
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.AttestationQuoteResponse", len)?;
+        if !self.report.is_empty() {
+            struct_ser.serialize_field("report", &self.report)?;
+        }
+        if !self.cert_chain.is_empty() {
+            struct_ser.serialize_field("certChain", &self.cert_chain)?;
+        }
+        if !self.tee_platform.is_empty() {
+            struct_ser.serialize_field("teePlatform", &self.tee_platform)?;
+        }
+        if !self.auxblob.is_empty() {
+            struct_ser.serialize_field("auxblob", &self.auxblob)?;
+        }
+        if !self.gpu_reports.is_empty() {
+            struct_ser.serialize_field("gpuReports", &self.gpu_reports)?;
+        }
+        if self.tls_bound {
+            struct_ser.serialize_field("tlsBound", &self.tls_bound)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AttestationQuoteResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "report",
+            "cert_chain",
+            "certChain",
+            "tee_platform",
+            "teePlatform",
+            "auxblob",
+            "gpu_reports",
+            "gpuReports",
+            "tls_bound",
+            "tlsBound",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Report,
+            CertChain,
+            TeePlatform,
+            Auxblob,
+            GpuReports,
+            TlsBound,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "report" => Ok(GeneratedField::Report),
+                            "certChain" | "cert_chain" => Ok(GeneratedField::CertChain),
+                            "teePlatform" | "tee_platform" => Ok(GeneratedField::TeePlatform),
+                            "auxblob" => Ok(GeneratedField::Auxblob),
+                            "gpuReports" | "gpu_reports" => Ok(GeneratedField::GpuReports),
+                            "tlsBound" | "tls_bound" => Ok(GeneratedField::TlsBound),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AttestationQuoteResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.provider.lease.v1.AttestationQuoteResponse")
+            }
+
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<AttestationQuoteResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
+            {
+                let mut report__ = None;
+                let mut cert_chain__ = None;
+                let mut tee_platform__ = None;
+                let mut auxblob__ = None;
+                let mut gpu_reports__ = None;
+                let mut tls_bound__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Report => {
+                            if report__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("report"));
+                            }
+                            report__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CertChain => {
+                            if cert_chain__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("certChain"));
+                            }
+                            cert_chain__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TeePlatform => {
+                            if tee_platform__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("teePlatform"));
+                            }
+                            tee_platform__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Auxblob => {
+                            if auxblob__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("auxblob"));
+                            }
+                            auxblob__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::GpuReports => {
+                            if gpu_reports__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("gpuReports"));
+                            }
+                            gpu_reports__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TlsBound => {
+                            if tls_bound__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tlsBound"));
+                            }
+                            tls_bound__ = Some(map_.next_value()?);
+                        }
+                    }
+                }
+                Ok(AttestationQuoteResponse {
+                    report: report__.unwrap_or_default(),
+                    cert_chain: cert_chain__.unwrap_or_default(),
+                    tee_platform: tee_platform__.unwrap_or_default(),
+                    auxblob: auxblob__.unwrap_or_default(),
+                    gpu_reports: gpu_reports__.unwrap_or_default(),
+                    tls_bound: tls_bound__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.AttestationQuoteResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
+    }
+}
 impl serde::Serialize for ForwarderPortStatus {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -22,7 +560,8 @@ impl serde::Serialize for ForwarderPortStatus {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ForwarderPortStatus", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ForwarderPortStatus", len)?;
         if !self.host.is_empty() {
             struct_ser.serialize_field("host", &self.host)?;
         }
@@ -74,7 +613,10 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -105,8 +647,8 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ForwarderPortStatus, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut host__ = None;
                 let mut port__ = None;
@@ -125,17 +667,19 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
                             if port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("port"));
                             }
-                            port__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            port__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::ExternalPort => {
                             if external_port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("externalPort"));
                             }
-                            external_port__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            external_port__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::Proto => {
                             if proto__.is_some() {
@@ -160,7 +704,11 @@ impl<'de> serde::Deserialize<'de> for ForwarderPortStatus {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ForwarderPortStatus", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ForwarderPortStatus",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for LeaseIpStatus {
@@ -183,7 +731,8 @@ impl serde::Serialize for LeaseIpStatus {
         if !self.ip.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.LeaseIPStatus", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.LeaseIPStatus", len)?;
         if self.port != 0 {
             struct_ser.serialize_field("port", &self.port)?;
         }
@@ -205,13 +754,7 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "port",
-            "external_port",
-            "externalPort",
-            "protocol",
-            "ip",
-        ];
+        const FIELDS: &[&str] = &["port", "external_port", "externalPort", "protocol", "ip"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -230,7 +773,10 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -260,8 +806,8 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<LeaseIpStatus, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut port__ = None;
                 let mut external_port__ = None;
@@ -273,17 +819,19 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
                             if port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("port"));
                             }
-                            port__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            port__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::ExternalPort => {
                             if external_port__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("externalPort"));
                             }
-                            external_port__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            external_port__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::Protocol => {
                             if protocol__.is_some() {
@@ -307,7 +855,11 @@ impl<'de> serde::Deserialize<'de> for LeaseIpStatus {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.LeaseIPStatus", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.LeaseIPStatus",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for LeaseServiceStatus {
@@ -342,7 +894,8 @@ impl serde::Serialize for LeaseServiceStatus {
         if self.available_replicas != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.LeaseServiceStatus", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.LeaseServiceStatus", len)?;
         if self.available != 0 {
             struct_ser.serialize_field("available", &self.available)?;
         }
@@ -355,7 +908,10 @@ impl serde::Serialize for LeaseServiceStatus {
         if self.observed_generation != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("observedGeneration", ToString::to_string(&self.observed_generation).as_str())?;
+            struct_ser.serialize_field(
+                "observedGeneration",
+                ToString::to_string(&self.observed_generation).as_str(),
+            )?;
         }
         if self.replicas != 0 {
             struct_ser.serialize_field("replicas", &self.replicas)?;
@@ -414,7 +970,10 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -427,11 +986,17 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             "available" => Ok(GeneratedField::Available),
                             "total" => Ok(GeneratedField::Total),
                             "uris" => Ok(GeneratedField::Uris),
-                            "observedGeneration" | "observed_generation" => Ok(GeneratedField::ObservedGeneration),
+                            "observedGeneration" | "observed_generation" => {
+                                Ok(GeneratedField::ObservedGeneration)
+                            }
                             "replicas" => Ok(GeneratedField::Replicas),
-                            "updatedReplicas" | "updated_replicas" => Ok(GeneratedField::UpdatedReplicas),
+                            "updatedReplicas" | "updated_replicas" => {
+                                Ok(GeneratedField::UpdatedReplicas)
+                            }
                             "readyReplicas" | "ready_replicas" => Ok(GeneratedField::ReadyReplicas),
-                            "availableReplicas" | "available_replicas" => Ok(GeneratedField::AvailableReplicas),
+                            "availableReplicas" | "available_replicas" => {
+                                Ok(GeneratedField::AvailableReplicas)
+                            }
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -448,8 +1013,8 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<LeaseServiceStatus, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut available__ = None;
                 let mut total__ = None;
@@ -465,17 +1030,19 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                             if available__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("available"));
                             }
-                            available__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            available__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::Total => {
                             if total__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("total"));
                             }
-                            total__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            total__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::Uris => {
                             if uris__.is_some() {
@@ -485,43 +1052,50 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                         }
                         GeneratedField::ObservedGeneration => {
                             if observed_generation__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("observedGeneration"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "observedGeneration",
+                                ));
                             }
-                            observed_generation__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            observed_generation__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::Replicas => {
                             if replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("replicas"));
                             }
-                            replicas__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            replicas__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::UpdatedReplicas => {
                             if updated_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("updatedReplicas"));
                             }
-                            updated_replicas__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            updated_replicas__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::ReadyReplicas => {
                             if ready_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("readyReplicas"));
                             }
-                            ready_replicas__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            ready_replicas__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::AvailableReplicas => {
                             if available_replicas__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("availableReplicas"));
                             }
-                            available_replicas__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            available_replicas__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                     }
                 }
@@ -537,7 +1111,11 @@ impl<'de> serde::Deserialize<'de> for LeaseServiceStatus {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.LeaseServiceStatus", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.LeaseServiceStatus",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for SendManifestRequest {
@@ -554,7 +1132,8 @@ impl serde::Serialize for SendManifestRequest {
         if !self.manifest.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.SendManifestRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.SendManifestRequest", len)?;
         if let Some(v) = self.lease_id.as_ref() {
             struct_ser.serialize_field("leaseId", v)?;
         }
@@ -570,11 +1149,7 @@ impl<'de> serde::Deserialize<'de> for SendManifestRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "lease_id",
-            "leaseId",
-            "manifest",
-        ];
+        const FIELDS: &[&str] = &["lease_id", "leaseId", "manifest"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -591,7 +1166,10 @@ impl<'de> serde::Deserialize<'de> for SendManifestRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -619,8 +1197,8 @@ impl<'de> serde::Deserialize<'de> for SendManifestRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<SendManifestRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut lease_id__ = None;
                 let mut manifest__ = None;
@@ -646,7 +1224,11 @@ impl<'de> serde::Deserialize<'de> for SendManifestRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.SendManifestRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.SendManifestRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for SendManifestResponse {
@@ -657,7 +1239,8 @@ impl serde::Serialize for SendManifestResponse {
     {
         use serde::ser::SerializeStruct;
         let len = 0;
-        let struct_ser = serializer.serialize_struct("akash.provider.lease.v1.SendManifestResponse", len)?;
+        let struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.SendManifestResponse", len)?;
         struct_ser.end()
     }
 }
@@ -667,12 +1250,10 @@ impl<'de> serde::Deserialize<'de> for SendManifestResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-        ];
+        const FIELDS: &[&str] = &[];
 
         #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-        }
+        enum GeneratedField {}
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
             where
@@ -683,7 +1264,10 @@ impl<'de> serde::Deserialize<'de> for SendManifestResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -692,7 +1276,7 @@ impl<'de> serde::Deserialize<'de> for SendManifestResponse {
                     where
                         E: serde::de::Error,
                     {
-                            Err(serde::de::Error::unknown_field(value, FIELDS))
+                        Err(serde::de::Error::unknown_field(value, FIELDS))
                     }
                 }
                 deserializer.deserialize_identifier(GeneratedVisitor)
@@ -706,18 +1290,24 @@ impl<'de> serde::Deserialize<'de> for SendManifestResponse {
                 formatter.write_str("struct akash.provider.lease.v1.SendManifestResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SendManifestResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<SendManifestResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 while map_.next_key::<GeneratedField>()?.is_some() {
                     let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                 }
-                Ok(SendManifestResponse {
-                })
+                Ok(SendManifestResponse {})
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.SendManifestResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.SendManifestResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ServiceLogs {
@@ -734,14 +1324,16 @@ impl serde::Serialize for ServiceLogs {
         if !self.logs.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ServiceLogs", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ServiceLogs", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if !self.logs.is_empty() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("logs", pbjson::private::base64::encode(&self.logs).as_str())?;
+            struct_ser
+                .serialize_field("logs", pbjson::private::base64::encode(&self.logs).as_str())?;
         }
         struct_ser.end()
     }
@@ -752,10 +1344,7 @@ impl<'de> serde::Deserialize<'de> for ServiceLogs {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "logs",
-        ];
+        const FIELDS: &[&str] = &["name", "logs"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -772,7 +1361,10 @@ impl<'de> serde::Deserialize<'de> for ServiceLogs {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -800,8 +1392,8 @@ impl<'de> serde::Deserialize<'de> for ServiceLogs {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ServiceLogs, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut logs__ = None;
@@ -817,9 +1409,10 @@ impl<'de> serde::Deserialize<'de> for ServiceLogs {
                             if logs__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("logs"));
                             }
-                            logs__ = 
-                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
-                            ;
+                            logs__ = Some(
+                                map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                     }
                 }
@@ -829,7 +1422,11 @@ impl<'de> serde::Deserialize<'de> for ServiceLogs {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ServiceLogs", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ServiceLogs",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ServiceLogsRequest {
@@ -846,7 +1443,8 @@ impl serde::Serialize for ServiceLogsRequest {
         if !self.services.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ServiceLogsRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ServiceLogsRequest", len)?;
         if let Some(v) = self.lease_id.as_ref() {
             struct_ser.serialize_field("leaseId", v)?;
         }
@@ -862,11 +1460,7 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "lease_id",
-            "leaseId",
-            "services",
-        ];
+        const FIELDS: &[&str] = &["lease_id", "leaseId", "services"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -883,7 +1477,10 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -911,8 +1508,8 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ServiceLogsRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut lease_id__ = None;
                 let mut services__ = None;
@@ -938,7 +1535,11 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ServiceLogsRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ServiceLogsRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ServiceLogsResponse {
@@ -952,7 +1553,8 @@ impl serde::Serialize for ServiceLogsResponse {
         if !self.services.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ServiceLogsResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ServiceLogsResponse", len)?;
         if !self.services.is_empty() {
             struct_ser.serialize_field("services", &self.services)?;
         }
@@ -965,9 +1567,7 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "services",
-        ];
+        const FIELDS: &[&str] = &["services"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -983,7 +1583,10 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1010,8 +1613,8 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsResponse {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ServiceLogsResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut services__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1029,7 +1632,11 @@ impl<'de> serde::Deserialize<'de> for ServiceLogsResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ServiceLogsResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ServiceLogsResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ServiceStatus {
@@ -1052,7 +1659,8 @@ impl serde::Serialize for ServiceStatus {
         if !self.ips.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ServiceStatus", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ServiceStatus", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1074,12 +1682,7 @@ impl<'de> serde::Deserialize<'de> for ServiceStatus {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "status",
-            "ports",
-            "ips",
-        ];
+        const FIELDS: &[&str] = &["name", "status", "ports", "ips"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1098,7 +1701,10 @@ impl<'de> serde::Deserialize<'de> for ServiceStatus {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1128,8 +1734,8 @@ impl<'de> serde::Deserialize<'de> for ServiceStatus {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ServiceStatus, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut status__ = None;
@@ -1171,7 +1777,11 @@ impl<'de> serde::Deserialize<'de> for ServiceStatus {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ServiceStatus", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ServiceStatus",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ServiceStatusRequest {
@@ -1188,7 +1798,8 @@ impl serde::Serialize for ServiceStatusRequest {
         if !self.services.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ServiceStatusRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ServiceStatusRequest", len)?;
         if let Some(v) = self.lease_id.as_ref() {
             struct_ser.serialize_field("leaseId", v)?;
         }
@@ -1204,11 +1815,7 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "lease_id",
-            "leaseId",
-            "services",
-        ];
+        const FIELDS: &[&str] = &["lease_id", "leaseId", "services"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1225,7 +1832,10 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1252,9 +1862,12 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusRequest {
                 formatter.write_str("struct akash.provider.lease.v1.ServiceStatusRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ServiceStatusRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ServiceStatusRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut lease_id__ = None;
                 let mut services__ = None;
@@ -1280,7 +1893,11 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ServiceStatusRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ServiceStatusRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ServiceStatusResponse {
@@ -1294,7 +1911,8 @@ impl serde::Serialize for ServiceStatusResponse {
         if !self.services.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ServiceStatusResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ServiceStatusResponse", len)?;
         if !self.services.is_empty() {
             struct_ser.serialize_field("services", &self.services)?;
         }
@@ -1307,9 +1925,7 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "services",
-        ];
+        const FIELDS: &[&str] = &["services"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1325,7 +1941,10 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1351,9 +1970,12 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusResponse {
                 formatter.write_str("struct akash.provider.lease.v1.ServiceStatusResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ServiceStatusResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ServiceStatusResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut services__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1371,7 +1993,11 @@ impl<'de> serde::Deserialize<'de> for ServiceStatusResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ServiceStatusResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ServiceStatusResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ShellRequest {
@@ -1385,7 +2011,8 @@ impl serde::Serialize for ShellRequest {
         if self.lease_id.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.provider.lease.v1.ShellRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("akash.provider.lease.v1.ShellRequest", len)?;
         if let Some(v) = self.lease_id.as_ref() {
             struct_ser.serialize_field("leaseId", v)?;
         }
@@ -1398,10 +2025,7 @@ impl<'de> serde::Deserialize<'de> for ShellRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "lease_id",
-            "leaseId",
-        ];
+        const FIELDS: &[&str] = &["lease_id", "leaseId"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1417,7 +2041,10 @@ impl<'de> serde::Deserialize<'de> for ShellRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1444,8 +2071,8 @@ impl<'de> serde::Deserialize<'de> for ShellRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ShellRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut lease_id__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1463,6 +2090,10 @@ impl<'de> serde::Deserialize<'de> for ShellRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("akash.provider.lease.v1.ShellRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "akash.provider.lease.v1.ShellRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
