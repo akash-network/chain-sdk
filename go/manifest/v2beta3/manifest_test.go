@@ -467,3 +467,60 @@ func Test_ValidateManifest(t *testing.T) {
 		}
 	}
 }
+
+// Test_ValidateManifest_ResourceErrorsWrapped ensures that resource validation
+// failures surfaced while validating a manifest are wrapped with
+// ErrInvalidManifest, so that consumers (e.g. the provider gateway) can classify
+// them as client errors rather than returning a 500.
+func Test_ValidateManifest_ResourceErrorsWrapped(t *testing.T) {
+	const (
+		testHost  = "host.test"
+		testImage = "test-image"
+	)
+
+	expose := make([]ServiceExpose, 1)
+	expose[0].Global = true
+	expose[0].Port = 80
+	expose[0].Proto = TCP
+	expose[0].Hosts = []string{testHost}
+
+	newManifest := func(mutate func(r *resources.Resources)) Manifest {
+		res := simpleResources(expose)
+		mutate(&res)
+
+		return Manifest{
+			{
+				Name: nameOfTestGroup,
+				Services: []Service{
+					{
+						Name:      nameOfTestService,
+						Image:     testImage,
+						Resources: res,
+						Count:     1,
+						Expose:    expose,
+					},
+				},
+			},
+		}
+	}
+
+	tests := []struct {
+		name    string
+		mutate  func(r *resources.Resources)
+		wantMsg string
+	}{
+		{"nil CPU", func(r *resources.Resources) { r.CPU = nil }, "CPU must not be nil"},
+		{"nil GPU", func(r *resources.Resources) { r.GPU = nil }, "GPU must not be nil"},
+		{"nil memory", func(r *resources.Resources) { r.Memory = nil }, "memory must not be nil"},
+		{"nil storage", func(r *resources.Resources) { r.Storage = nil }, "storage must not be nil"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := newManifest(test.mutate).Validate()
+			require.Error(t, err)
+			require.ErrorIs(t, err, ErrInvalidManifest)
+			require.ErrorContains(t, err, test.wantMsg)
+		})
+	}
+}
