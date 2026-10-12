@@ -286,8 +286,22 @@ func (kpm *keyPairManager) readImpl(fin io.Reader) ([]byte, []byte, []byte, erro
 			// nolint:staticcheck
 			privKeyPlaintext, err = x509.DecryptPEMBlock(block, kpm.passwordLegacy)
 		}
+	} else if block.Type == "PRIVATE KEY" {
+		// Unencrypted PKCS#8 private key (RFC 5958 / RFC 7468 section 10)
+		privKeyPlaintext = block.Bytes
+	} else if block.Type == "EC PRIVATE KEY" {
+		// SEC 1 / RFC 5915 EC private key — parse and re-marshal as PKCS#8
+		// so downstream code can uniformly call x509.ParsePKCS8PrivateKey.
+		ecKey, ecErr := x509.ParseECPrivateKey(block.Bytes)
+		if ecErr != nil {
+			return nil, nil, nil, fmt.Errorf("%w: failed parsing EC private key", ecErr)
+		}
+		privKeyPlaintext, err = x509.MarshalPKCS8PrivateKey(ecKey)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("%w: failed re-encoding EC key as PKCS#8", err)
+		}
 	} else {
-		return nil, nil, nil, errUnsupportedEncryptedPEM
+		return nil, nil, nil, fmt.Errorf("%w: PEM block type %q", errUnsupportedEncryptedPEM, block.Type)
 	}
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("%w: failed decrypting x509 block with private key", err)
