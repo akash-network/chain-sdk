@@ -268,7 +268,30 @@ function run_go_mod_tidy() {
 	done
 }
 
+function usage() {
+	cat <<EOF
+Usage: ${0##*/} <command> [args]
+
+Commands:
+  gotoolchain                               Print Go toolchain version
+  bump-go <major|minor|patch|prerel> <mod>  Tag next module version (e.g. go/cli)
+  replace-import-path <vN>                  Rewrite Go import paths to major vN
+  gotest <mods> [flags] [pkgs]              Run go test per module
+  gocoverage <mods> [flags] [pkgs]          Run go test with coverage per module
+  golint <mods> [dirs]                      Run golangci-lint per module
+  go-mod-tidy <mods>                        Run go mod tidy per module
+  help                                      Show this help
+EOF
+}
+
 case "$1" in
+	help | -h | --help)
+		usage
+		;;
+	"")
+		usage >&2
+		exit 1
+		;;
 	gotoolchain)
 		get_gotoolchain
 		;;
@@ -295,5 +318,10 @@ case "$1" in
 	go-mod-tidy)
 		shift
 		run_go_mod_tidy "$@"
+		;;
+	*)
+		echo "unknown command: $1" >&2
+		usage >&2
+		exit 1
 		;;
 esac
