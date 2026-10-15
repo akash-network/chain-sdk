@@ -12,6 +12,29 @@ ifeq ($(UNAME_OS),Darwin)
 	PROTOC_ZIP ?= protoc-${PROTOC_VERSION}-osx-universal_binary.zip
 endif
 
+SHA256SUM := $(shell command -v sha256sum 2>/dev/null || echo "shasum -a 256")
+
+# verify_sha256 checks a downloaded file against the release's published checksum list
+# $(1): checksum list URL, $(2): asset name as listed there, $(3): downloaded file
+define verify_sha256
+	expected=$$(curl -fsSL "$(1)" | awk '$$2 == "$(2)" { print $$1 }'); \
+	actual=$$($(SHA256SUM) "$(3)" | awk '{ print $$1 }'); \
+	if [ -z "$$expected" ] || [ "$$expected" != "$$actual" ]; then \
+		echo "checksum mismatch for $(2): expected '$$expected', got '$$actual'"; \
+		rm -f "$(3)"; \
+		exit 1; \
+	fi
+endef
+
+BUF_RELEASE_URL := https://github.com/bufbuild/buf/releases/download/v$(BUF_VERSION)
+BUF_ASSET       := buf-$(UNAME_OS)-$(UNAME_ARCH)
+
+GOLANGCI_LINT_OS          := $(shell echo $(UNAME_OS) | tr '[:upper:]' '[:lower:]')
+GOLANGCI_LINT_ARCH        := $(patsubst aarch64,arm64,$(patsubst x86_64,amd64,$(UNAME_ARCH)))
+GOLANGCI_LINT_RELEASE_URL := https://github.com/golangci/golangci-lint/releases/download/$(GOLANGCI_LINT_VERSION)
+GOLANGCI_LINT_ASSET       := golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(GOLANGCI_LINT_OS)-$(GOLANGCI_LINT_ARCH)
+GOLANGCI_LINT_CHECKSUMS   := golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-checksums.txt
+
 $(AKASH_DEVCACHE):
 	@echo "creating .cache dir structure..."
 	mkdir -p $@
@@ -26,7 +49,10 @@ cache: $(AKASH_DEVCACHE)
 $(BUF_VERSION_FILE): $(AKASH_DEVCACHE)
 	@echo "installing buf v$(BUF_VERSION) ..."
 	rm -f $(BUF)
-	(cd $(GO_ROOT); GOBIN=$(AKASH_DEVCACHE_BIN) $(GO) install github.com/bufbuild/buf/cmd/buf@v$(BUF_VERSION))
+	curl -fsSL -o $(BUF).download "$(BUF_RELEASE_URL)/$(BUF_ASSET)"
+	$(call verify_sha256,$(BUF_RELEASE_URL)/sha256.txt,$(BUF_ASSET),$(BUF).download)
+	chmod +x $(BUF).download
+	mv $(BUF).download $(BUF)
 	rm -rf "$(dir $@)"
 	mkdir -p "$(dir $@)"
 	touch $@
@@ -152,11 +178,13 @@ $(MOCKERY_VERSION_FILE): $(AKASH_DEVCACHE)
 	touch $@
 $(MOCKERY): $(MOCKERY_VERSION_FILE)
 
-$(GOLANGCI_LINT_VERSION_FILE): $(SEMVER) $(AKASH_DEVCACHE)
+$(GOLANGCI_LINT_VERSION_FILE): $(AKASH_DEVCACHE)
 	@echo "installing golangci-lint $(GOLANGCI_LINT_VERSION) ..."
 	rm -f $(GOLANGCI_LINT)
-	$(eval GOLANGCI_LINT_MAJOR := $(shell $(SEMVER) get major $(GOLANGCI_LINT_VERSION)))
-	(cd $(GO_ROOT); GOBIN=$(AKASH_DEVCACHE_BIN) go install github.com/golangci/golangci-lint/v$(GOLANGCI_LINT_MAJOR)/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION))
+	curl -fsSL -o $(GOLANGCI_LINT).tar.gz "$(GOLANGCI_LINT_RELEASE_URL)/$(GOLANGCI_LINT_ASSET).tar.gz"
+	$(call verify_sha256,$(GOLANGCI_LINT_RELEASE_URL)/$(GOLANGCI_LINT_CHECKSUMS),$(GOLANGCI_LINT_ASSET).tar.gz,$(GOLANGCI_LINT).tar.gz)
+	tar -xzf $(GOLANGCI_LINT).tar.gz -C $(AKASH_DEVCACHE_BIN) --strip-components=1 $(GOLANGCI_LINT_ASSET)/golangci-lint
+	rm -f $(GOLANGCI_LINT).tar.gz
 	rm -rf "$(dir $@)"
 	mkdir -p "$(dir $@)"
 	touch $@
