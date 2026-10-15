@@ -41,10 +41,15 @@ type subscribeResult struct {
 
 // stall is the height the cursor cannot get past. The zero value means healthy.
 type stall struct {
-	height  int64
+	height int64
+	// since is when the cursor first parked on height, the clock the stall is
+	// measured against.
+	since   time.Time
 	nextTry time.Time
-	// pruneChecked is set once the node has been asked whether height is pruned, so a
-	// cursor parked for days asks once rather than on every retry.
+	// escalated is set once a stall that outlasted prunedCheckAfter has been logged at
+	// error level, and pruneChecked once the node has been asked whether height is
+	// pruned, so a cursor parked for days does each once rather than on every retry.
+	escalated    bool
 	pruneChecked bool
 }
 
@@ -57,10 +62,7 @@ type events struct {
 	log        log.Logger
 	opts       options
 	lastHeight int64
-	// lastProgress is when a block was last fetched and published, the clock a parked
-	// cursor's stall is measured against.
-	lastProgress time.Time
-	stall        stall
+	stall      stall
 }
 
 // Service represents an event monitoring service that watches the chain and
@@ -87,7 +89,9 @@ type Service interface {
 // level and every attempt to re-establish it at info level (see WithLogger).
 //
 // A height that cannot be fetched or decoded parks the cursor and is retried
-// indefinitely, at most once per minRetryInterval as headers and watchdog ticks arrive.
+// indefinitely, once per minRetryInterval on its own timer, so a transient failure
+// (a pooled backend that does not have the height yet, a rate-limited request) costs
+// one retry interval rather than waiting for the next header or watchdog tick.
 // The cursor never moves past it, even once the node has pruned it, because a skipped
 // height is a lost event: a missed EventLeaseClosed leaves a provider running a closed
 // lease. A parked cursor holds back every later event until the height is served.
@@ -124,7 +128,6 @@ func NewEvents(pctx context.Context, node sdkclient.CometRPC, name string, bus p
 		}
 		ev.lastHeight = status.SyncInfo.LatestBlockHeight
 	}
-	ev.lastProgress = time.Now()
 
 	blkHeaderName := name + "-blk-hdr"
 	blkch, err := ev.ebus.Subscribe(pctx, blkHeaderName, blkHeaderQuery().String(), queueSize)
@@ -205,9 +208,29 @@ func (e *events) run(subs string, ch <-chan ctypes.ResultEvent) {
 	defer watchdog.Stop()
 
 	// known is the highest height the chain is known to have reached, from headers and
-	// from Status. Every header and watchdog tick catches up to it, so a parked height
-	// is retried on each tick even while Status is failing and no header arrives.
+	// from Status. Every header, watchdog tick and retry catches up to it, so a parked
+	// height is retried even while Status is failing and no header arrives.
 	known := e.lastHeight
+
+	// retry wakes a parked cursor when its next attempt is due. Without it a height
+	// that failed would wait for whatever arrives next, a header one block later or a
+	// watchdog tick a full window later, and hold every later event back that long. It
+	// is armed only while the cursor is parked.
+	retry := time.NewTimer(time.Hour)
+	stopTimer(retry)
+	defer retry.Stop()
+
+	advance := func() error {
+		if err := e.catchUp(ctx, known); err != nil {
+			return err
+		}
+		if e.stall.height != 0 {
+			resetTimer(retry, time.Until(e.stall.nextTry))
+		} else {
+			stopTimer(retry)
+		}
+		return nil
+	}
 
 	// Disconnects are logged at warn level and every step of re-establishing the
 	// subscription at info level. down is set from the first watchdog expiry or channel
@@ -266,7 +289,14 @@ func (e *events) run(subs string, ch <-chan ctypes.ResultEvent) {
 
 			// A repeated or older header still retries a parked cursor; catchUp paces
 			// retries, and the cursor keeps it from publishing anything twice.
-			if err := e.catchUp(ctx, known); err != nil {
+			if err := advance(); err != nil {
+				e.log.Error("catch up, stopping", "err", err)
+				exitErr = err
+				return
+			}
+
+		case <-retry.C:
+			if err := advance(); err != nil {
 				e.log.Error("catch up, stopping", "err", err)
 				exitErr = err
 				return
@@ -294,7 +324,7 @@ func (e *events) run(subs string, ch <-chan ctypes.ResultEvent) {
 			} else if latest := status.SyncInfo.LatestBlockHeight; latest > known {
 				known = latest
 			}
-			if err := e.catchUp(ctx, known); err != nil {
+			if err := advance(); err != nil {
 				e.log.Error("catch up, stopping", "err", err)
 				exitErr = err
 				return
@@ -338,18 +368,24 @@ func (e *events) resubscribe(ctx context.Context, subs string, attempt int) chan
 // resetTimer safely re-arms t to fire after d. It is only called from the run
 // goroutine, so the stop-drain-reset sequence has no concurrent timer access.
 func resetTimer(t *time.Timer, d time.Duration) {
+	stopTimer(t)
+	t.Reset(d)
+}
+
+// stopTimer stops t and drains a fire that has not been received, so a later select
+// does not see it.
+func stopTimer(t *time.Timer) {
 	if !t.Stop() {
 		select {
 		case <-t.C:
 		default:
 		}
 	}
-	t.Reset(d)
 }
 
 // catchUp processes every block from the last one handled up to targetHeight, in order.
 // A height that fails is parked and retried indefinitely, paced by
-// e.opts.minRetryInterval, and is never skipped. The cursor advances only once every
+// e.opts.minRetryInterval (the run loop's retry timer wakes it), and is never skipped. The cursor advances only once every
 // event of a height has been published, so no height is published twice either. It
 // returns non-nil only on a terminal publish error, which means the caller must stop
 // rather than keep retrying.
@@ -380,11 +416,10 @@ func (e *events) catchUp(ctx context.Context, targetHeight int64) error {
 		}
 
 		if e.stall.height == height {
-			e.log.Info("block fetch recovered, cursor resumed", "height", height, "stalled", time.Since(e.lastProgress))
+			e.log.Info("block fetch recovered, cursor resumed", "height", height, "stalled", time.Since(e.stall.since))
 		}
 
 		e.stall = stall{}
-		e.lastProgress = time.Now()
 		e.lastHeight = height
 	}
 
@@ -396,31 +431,41 @@ func (e *events) catchUp(ctx context.Context, targetHeight int64) error {
 // height, because a skipped height is a lost event. Pooled backends report very
 // different pruning floors, so the fetch keeps being retried against whichever answers.
 //
-// Once the stall has lasted e.opts.prunedCheckAfter it asks the node, once per height,
-// whether the height is below its retained history. The answer only explains the stall
-// in the log, so an operator knows a node that retains the height is needed.
+// A fetch failure is logged at warn level the first time, since behind pooled RPC
+// backends a height that one backend does not have yet, or a rate-limited request, is
+// routine and recovers on the next attempt. If the cursor is still parked after
+// e.opts.prunedCheckAfter it is logged once at error level. A decode failure is logged
+// at error level at once, because retrying cannot fix it, and is named as such so it
+// does not send an operator after the network. Retries in between log at debug level,
+// so a cursor parked for days does not bury the lines that matter.
+//
+// Once the stall has lasted e.opts.prunedCheckAfter it also asks the node, once per
+// height, whether the height is below its retained history. The answer only explains
+// the stall in the log, so an operator knows a node that retains the height is needed.
 func (e *events) parkCursor(ctx context.Context, height int64, err error) {
+	now := time.Now()
 	first := e.stall.height != height
-	e.stall = stall{
-		height:       height,
-		nextTry:      time.Now().Add(e.opts.minRetryInterval),
-		pruneChecked: !first && e.stall.pruneChecked,
-	}
-
-	// A parked cursor retries for as long as it takes, so logging every attempt at
-	// error level buries the one line that matters under tens of thousands a day. A
-	// decode failure is named as such, so it does not send an operator after the network.
-	msgFirst, msgAgain := "block fetch failed, cursor parked", "block fetch still failing, cursor parked"
-	var derr *decodeError
-	if errors.As(err, &derr) {
-		msgFirst, msgAgain = "block decode failed, cursor parked", "block decode still failing, cursor parked"
-	}
-
-	stalled := time.Since(e.lastProgress)
 	if first {
-		e.log.Error(msgFirst, "height", height, "stalled", stalled, "err", err)
-	} else {
-		e.log.Debug(msgAgain, "height", height, "stalled", stalled, "err", err)
+		e.stall = stall{height: height, since: now}
+	}
+	e.stall.nextTry = now.Add(e.opts.minRetryInterval)
+	stalled := now.Sub(e.stall.since)
+
+	var derr *decodeError
+	decode := errors.As(err, &derr)
+
+	switch {
+	case first && decode:
+		e.log.Error("block decode failed, cursor parked", "height", height, "err", err)
+	case first:
+		e.log.Warn("block fetch failed, cursor parked", "height", height, "retry_in", e.opts.minRetryInterval, "err", err)
+	case decode:
+		e.log.Debug("block decode still failing, cursor parked", "height", height, "stalled", stalled, "err", err)
+	case !e.stall.escalated && stalled >= e.opts.prunedCheckAfter:
+		e.stall.escalated = true
+		e.log.Error("block fetch keeps failing, cursor stalled", "height", height, "stalled", stalled, "err", err)
+	default:
+		e.log.Debug("block fetch still failing, cursor parked", "height", height, "stalled", stalled, "err", err)
 	}
 
 	if e.stall.pruneChecked || stalled < e.opts.prunedCheckAfter {
