@@ -43,7 +43,10 @@ type fakeNode struct {
 	blockErr   map[int64]error
 	blockCalls map[int64]int
 	blockDelay time.Duration
-	headerCh   chan coretypes.ResultEvent
+	// failFirst is how many more times a height fails before it is served, the way a
+	// pooled backend that does not have the height yet answers.
+	failFirst map[int64]int
+	headerCh  chan coretypes.ResultEvent
 
 	subscribes   int
 	subscribeErr error
@@ -81,6 +84,7 @@ func newFakeNode() *fakeNode {
 		blocks:     map[int64]*coretypes.ResultBlockResults{},
 		blockErr:   map[int64]error{},
 		blockCalls: map[int64]int{},
+		failFirst:  map[int64]int{},
 		headerCh:   make(chan coretypes.ResultEvent, 64),
 	}
 }
@@ -150,6 +154,10 @@ func (f *fakeNode) BlockResults(_ context.Context, h *int64) (*coretypes.ResultB
 	f.blockCalls[*h]++
 	if err := f.blockErr[*h]; err != nil {
 		return nil, err
+	}
+	if f.failFirst[*h] > 0 {
+		f.failFirst[*h]--
+		return nil, errTransientFetch
 	}
 	if b, ok := f.blocks[*h]; ok {
 		return b, nil
@@ -253,8 +261,13 @@ func withAttrs(ev abci.Event, attrs ...abci.EventAttribute) abci.Event {
 // they were published.
 func collectLeaseClosed(t *testing.T, sub pubsub.Subscriber, n int) []uint64 {
 	t.Helper()
+	return collectLeaseClosedWithin(t, sub, n, 2*time.Second)
+}
+
+func collectLeaseClosedWithin(t *testing.T, sub pubsub.Subscriber, n int, wait time.Duration) []uint64 {
+	t.Helper()
 	var got []uint64
-	deadline := time.After(2 * time.Second)
+	deadline := time.After(wait)
 	for len(got) < n {
 		select {
 		case ev := <-sub.Events():
@@ -533,6 +546,86 @@ func TestEventsLogsClosedSubscription(t *testing.T) {
 	require.Equal(t, 1, rec.count(levelWarn, "block subscription channel closed"))
 	require.Zero(t, rec.count(levelWarn, "block subscription presumed lost"), "the close already reported the outage")
 	require.Equal(t, 1, rec.count(levelInfo, "block subscription restored"))
+}
+
+// A height that fails once is retried on its own timer. Nothing else arrives to
+// trigger it: no further header, and a watchdog too long to matter. Waiting for an
+// outside trigger would hold the height, and every event after it, indefinitely.
+func TestEventsRetriesParkedHeightOnItsOwn(t *testing.T) {
+	node := newFakeNode()
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 20 * time.Millisecond, prunedCheckAfter: time.Hour})
+
+	node.set(func(f *fakeNode) {
+		f.failFirst[101] = 1
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+	})
+	node.pushHeader(101)
+
+	require.Equal(t, []uint64{101}, collectLeaseClosed(t, sub, 1))
+	require.Equal(t, 2, node.callsAt(101), "one failed attempt, then one retry")
+	requireNoMoreEvents(t, sub, 50*time.Millisecond)
+}
+
+// While the subscription is down the watchdog is the only outside trigger, a full
+// window apart. A back-fill whose heights each fail once, as behind a lagging or
+// rate-limiting proxy, must still go at the retry pace, not one height per window.
+func TestEventsBackfillRetriesAtRetryPaceWhileSubscriptionDown(t *testing.T) {
+	const (
+		watchdog = 200 * time.Millisecond
+		retry    = 10 * time.Millisecond
+		heights  = 10
+	)
+
+	node := newFakeNode()
+	sub := newTestService(t, node, tuning{watchdog: watchdog, minRetryInterval: retry, prunedCheckAfter: time.Hour})
+
+	// The chain moves on after the service started from height 100.
+	node.set(func(f *fakeNode) {
+		for h := int64(101); h < 101+heights; h++ {
+			f.failFirst[h] = 1
+			f.blocks[h] = txBlock(h, leaseClosedEvent(t, dseqAt(h)))
+		}
+		f.height = 100 + heights
+	})
+
+	// No header ever arrives. The first watchdog tick starts the back-fill; at one
+	// height per watchdog window it would take heights*watchdog = 2s.
+	start := time.Now()
+	want := make([]uint64, 0, heights)
+	for h := int64(101); h < 101+heights; h++ {
+		want = append(want, dseqAt(h))
+	}
+	require.Equal(t, want, collectLeaseClosedWithin(t, sub, heights, 3*time.Second))
+	require.Less(t, time.Since(start), watchdog+heights*watchdog/2, "the back-fill went at the watchdog pace, not the retry pace")
+	requireNoMoreEvents(t, sub, 50*time.Millisecond)
+}
+
+// A fetch failure is a disconnect, logged at warn level the first time; the retries
+// that follow log at debug level. Only a stall that outlasts prunedCheckAfter is
+// logged at error level, and only once.
+func TestEventsLogsFetchFailureWarnThenErrorOnce(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}, WithLogger(rec))
+
+	node.set(func(f *fakeNode) {
+		f.blockErr[101] = errTransientFetch
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+	})
+	node.pushHeader(101)
+
+	require.Eventually(t, func() bool { return rec.has(levelWarn, "block fetch failed, cursor parked") }, time.Second, time.Millisecond)
+	require.False(t, rec.has(levelError, "block fetch"), "a first failure is routine behind pooled backends, not an error")
+
+	require.Eventually(t, func() bool { return rec.has(levelError, "block fetch keeps failing, cursor stalled") }, 2*time.Second, time.Millisecond)
+	time.Sleep(100 * time.Millisecond) // many more retries
+	require.Equal(t, 1, rec.count(levelError, "block fetch keeps failing, cursor stalled"), "the stall is escalated once")
+	require.Equal(t, 1, rec.count(levelWarn, "block fetch failed, cursor parked"), "the first failure is reported once")
+	require.Greater(t, rec.count(levelDebug, "block fetch still failing"), 1, "retries in between are debug")
+
+	node.set(func(f *fakeNode) { delete(f.blockErr, 101) })
+	waitLeaseClosed(t, sub, 101)
+	require.True(t, rec.has(levelInfo, "block fetch recovered, cursor resumed"))
 }
 
 // A height parked behind a transient failure is retried on every watchdog tick, even

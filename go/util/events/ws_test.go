@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"sync"
@@ -75,12 +76,22 @@ type rpcNode struct {
 	// frozen, when non-zero, is the height status reports regardless of the chain, so
 	// the watchdog's catch-up cannot reach anything above it.
 	frozen int64
+
+	// lagEvery, when non-zero, makes block_results for every height divisible by it
+	// fail once the way a pooled backend one block behind answers, and lagged records
+	// which heights did.
+	lagEvery int64
+	lagged   map[int64]bool
+	// rejectPosts is how many of the next HTTP POSTs the proxy refuses with 403, as a
+	// rate limiter in front of the backends does; rejected counts the refusals.
+	rejectPosts int
+	rejected    int
 }
 
 func newRPCNode(t *testing.T, height int64) *rpcNode {
 	t.Helper()
 
-	n := &rpcNode{t: t, height: height}
+	n := &rpcNode{t: t, height: height, lagged: map[int64]bool{}}
 
 	funcs := map[string]*rpcserver.RPCFunc{
 		"status":          rpcserver.NewRPCFunc(n.status, ""),
@@ -100,7 +111,7 @@ func newRPCNode(t *testing.T, height int64) *rpcNode {
 	require.NoError(t, err)
 	n.ln = &trackingListener{Listener: l}
 
-	srv := &http.Server{Handler: mux, ReadHeaderTimeout: time.Second}
+	srv := &http.Server{Handler: n.proxy(mux), ReadHeaderTimeout: time.Second}
 	go func() { _ = srv.Serve(n.ln) }()
 	t.Cleanup(func() { _ = srv.Close() })
 
@@ -128,7 +139,47 @@ func (n *rpcNode) freezeStatus() int64 {
 }
 
 func (n *rpcNode) blockResults(_ *rpctypes.Context, height *int64) (*coretypes.ResultBlockResults, error) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	if h := *height; n.lagEvery > 0 && h%n.lagEvery == 0 && !n.lagged[h] {
+		n.lagged[h] = true
+		return nil, fmt.Errorf("height %d must be less than or equal to the current blockchain height %d", h, h-1)
+	}
 	return txBlock(*height, leaseClosedEvent(n.t, dseqAt(*height))), nil
+}
+
+// proxy stands in front of the RPC server the way a rate-limiting load balancer does,
+// refusing POSTs with 403 while rejectPosts lasts. The websocket upgrade is a GET and
+// passes.
+func (n *rpcNode) proxy(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			n.mu.Lock()
+			reject := n.rejectPosts > 0
+			if reject {
+				n.rejectPosts--
+				n.rejected++
+			}
+			n.mu.Unlock()
+			if reject {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (n *rpcNode) set(mutate func(*rpcNode)) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	mutate(n)
+}
+
+func (n *rpcNode) get(read func(*rpcNode) int) int {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	return read(n)
 }
 
 func (n *rpcNode) subscribe(ctx *rpctypes.Context, query string) (*coretypes.ResultSubscribe, error) {
@@ -199,8 +250,10 @@ func TestEventsRecoversWebsocketDrop(t *testing.T) {
 	}
 }
 
-func testWebsocketDrop(t *testing.T, reset bool) {
-	node := newRPCNode(t, 100)
+// startRPCService runs the service against node through the real rpchttp client and
+// waits for its block subscription to reach the node.
+func startRPCService(t *testing.T, node *rpcNode, tune tuning) pubsub.Subscriber {
+	t.Helper()
 
 	cl, err := rpchttp.New(node.addr(), "/websocket")
 	require.NoError(t, err)
@@ -214,11 +267,7 @@ func testWebsocketDrop(t *testing.T, reset bool) {
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
-	svc, err := NewEvents(ctx, cl, "test", bus, tuning{
-		watchdog:         300 * time.Millisecond,
-		minRetryInterval: 50 * time.Millisecond,
-		prunedCheckAfter: time.Hour,
-	}.options()...)
+	svc, err := NewEvents(ctx, cl, "test", bus, tune.options()...)
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		svc.Shutdown()
@@ -227,12 +276,19 @@ func testWebsocketDrop(t *testing.T, reset bool) {
 
 	require.Eventually(t, func() bool { return node.subscribeCount() == 1 }, 2*time.Second, 10*time.Millisecond)
 
+	return sub
+}
+
+// produceBlocks commits a block every interval until the test ends.
+func produceBlocks(t *testing.T, node *rpcNode, interval time.Duration) {
+	t.Helper()
+
 	stop := make(chan struct{})
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		tick := time.NewTicker(50 * time.Millisecond)
+		tick := time.NewTicker(interval)
 		defer tick.Stop()
 		for {
 			select {
@@ -247,6 +303,68 @@ func testWebsocketDrop(t *testing.T, reset bool) {
 		close(stop)
 		wg.Wait()
 	})
+}
+
+// requireInOrderThrough reads lease-closed events and requires DSeqs from, from+1, ...
+// through last with none missing and none repeated.
+func requireInOrderThrough(t *testing.T, sub pubsub.Subscriber, from, last uint64) {
+	t.Helper()
+
+	want := from
+	deadline := time.After(5 * time.Second)
+	for want <= last {
+		select {
+		case ev := <-sub.Events():
+			closed, ok := ev.(*mtypes.EventLeaseClosed)
+			if !ok {
+				continue
+			}
+			require.Equal(t, want, closed.ID.DSeq, "events must be published in block order with no gaps or repeats")
+			want++
+		case <-deadline:
+			t.Fatalf("stopped receiving events at height %d", want)
+		}
+	}
+}
+
+// The incident behind rpc.akt.dev: the websocket and the per-block POSTs reach
+// different backends, so block_results for a height a header just announced can land
+// on a backend one block behind, or be refused with 403 by the proxy's rate limiter.
+// The service used to drop such a height silently. Each failure must delay the height
+// by a retry, never skip it, and the watchdog is far too long to be what recovers it.
+func TestEventsSurvivesLaggingAndRateLimitedBackends(t *testing.T) {
+	if testing.Short() {
+		t.Skip("drives the real cometbft client against a local RPC server")
+	}
+
+	node := newRPCNode(t, 100)
+	node.set(func(n *rpcNode) { n.lagEvery = 3 })
+
+	sub := startRPCService(t, node, tuning{
+		watchdog:         time.Hour,
+		minRetryInterval: 20 * time.Millisecond,
+		prunedCheckAfter: time.Hour,
+	})
+	produceBlocks(t, node, 50*time.Millisecond)
+
+	requireInOrderThrough(t, sub, 101, 115)
+
+	node.set(func(n *rpcNode) { n.rejectPosts = 5 })
+	requireInOrderThrough(t, sub, 116, 130)
+
+	require.Positive(t, node.get(func(n *rpcNode) int { return len(n.lagged) }), "no fetch landed on a lagging backend")
+	require.Equal(t, 5, node.get(func(n *rpcNode) int { return n.rejected }), "the rate limiter never refused a fetch")
+}
+
+func testWebsocketDrop(t *testing.T, reset bool) {
+	node := newRPCNode(t, 100)
+
+	sub := startRPCService(t, node, tuning{
+		watchdog:         300 * time.Millisecond,
+		minRetryInterval: 50 * time.Millisecond,
+		prunedCheckAfter: time.Hour,
+	})
+	produceBlocks(t, node, 50*time.Millisecond)
 
 	time.Sleep(200 * time.Millisecond)
 	node.drop(reset)
@@ -259,19 +377,5 @@ func testWebsocketDrop(t *testing.T, reset bool) {
 	frozen := node.freezeStatus()
 
 	// Every height from the start must have been published exactly once, in order.
-	want := uint64(101)
-	deadline := time.After(5 * time.Second)
-	for want <= dseqAt(frozen)+10 {
-		select {
-		case ev := <-sub.Events():
-			closed, ok := ev.(*mtypes.EventLeaseClosed)
-			if !ok {
-				continue
-			}
-			require.Equal(t, want, closed.ID.DSeq, "events must be published in block order with no gaps")
-			want++
-		case <-deadline:
-			t.Fatalf("stopped receiving events at height %d", want)
-		}
-	}
+	requireInOrderThrough(t, sub, 101, dseqAt(frozen)+10)
 }
