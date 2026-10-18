@@ -44,7 +44,19 @@ export function manifestToSortedJSON(manifest: Manifest | GenerateManifestOkResu
   return escapeHtml(renameFields(json));
 }
 
+// Go's encoding/json decodes a lone surrogate as U+FFFD, so the provider hashes
+// U+FFFD for it. Replace it here too so the manifest we send and hash match.
 function manifestReplacer(this: unknown, key: string | number, value: unknown): unknown {
+  const replaced = replaceManifestValue.call(this, key, value);
+  return typeof replaced === "string" ? replaceLoneSurrogates(replaced) : replaced;
+}
+
+const SURROGATE_REGEX = /[\ud800-\udbff][\udc00-\udfff]|[\ud800-\udfff]/g;
+function replaceLoneSurrogates(value: string): string {
+  return value.replace(SURROGATE_REGEX, (match) => (match.length === 2 ? match : "\u{fffd}"));
+}
+
+function replaceManifestValue(this: unknown, key: string | number, value: unknown): unknown {
   if (value && value instanceof Uint8Array) {
     return decoder.decode(value);
   }
@@ -88,10 +100,13 @@ function renameFields(jsonStr: string): string {
   return jsonStr.replace(MANIFEST_VERSION_FIELD_REGEX, (_, field) => `"${MANIFEST_VERSION_FIELD_MAPPING[field]}":`);
 }
 
+// Mirrors Go's json.HTMLEscape, which encoding/json applies to every string.
 const htmlEscapes: Record<string, string> = {
   "<": "\\u003c",
   ">": "\\u003e",
   "&": "\\u0026",
+  "\u{2028}": "\\u2028",
+  "\u{2029}": "\\u2029",
 };
 
 const HTML_SPECIAL_CHARS_REGEX = new RegExp(`[${Object.keys(htmlEscapes).join("")}]`, "g");
