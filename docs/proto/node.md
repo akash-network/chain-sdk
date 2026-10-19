@@ -542,6 +542,63 @@
  - [akash/provider/v1beta4/service.proto](#akash/provider/v1beta4/service.proto)
      - [Msg](#akash.provider.v1beta4.Msg)
    
+ - [akash/sink/v1/params.proto](#akash/sink/v1/params.proto)
+     - [Params](#akash.sink.v1.Params)
+   
+ - [akash/sink/v1/types.proto](#akash/sink/v1/types.proto)
+     - [AccountUsage](#akash.sink.v1.AccountUsage)
+     - [Observation](#akash.sink.v1.Observation)
+     - [ReporterPolicy](#akash.sink.v1.ReporterPolicy)
+     - [Settlement](#akash.sink.v1.Settlement)
+     - [Totals](#akash.sink.v1.Totals)
+     - [TransferState](#akash.sink.v1.TransferState)
+     - [Vote](#akash.sink.v1.Vote)
+   
+     - [Decision](#akash.sink.v1.Decision)
+     - [Hold](#akash.sink.v1.Hold)
+     - [Outcome](#akash.sink.v1.Outcome)
+     - [Status](#akash.sink.v1.Status)
+   
+ - [akash/sink/v1/genesis.proto](#akash/sink/v1/genesis.proto)
+     - [GenesisState](#akash.sink.v1.GenesisState)
+   
+ - [akash/sink/v1/msgs.proto](#akash/sink/v1/msgs.proto)
+     - [MsgFinalizeRefund](#akash.sink.v1.MsgFinalizeRefund)
+     - [MsgFinalizeRefundResponse](#akash.sink.v1.MsgFinalizeRefundResponse)
+     - [MsgGuardianPause](#akash.sink.v1.MsgGuardianPause)
+     - [MsgGuardianPauseResponse](#akash.sink.v1.MsgGuardianPauseResponse)
+     - [MsgReportOutcome](#akash.sink.v1.MsgReportOutcome)
+     - [MsgReportOutcomeResponse](#akash.sink.v1.MsgReportOutcomeResponse)
+     - [MsgRequestVoid](#akash.sink.v1.MsgRequestVoid)
+     - [MsgRequestVoidResponse](#akash.sink.v1.MsgRequestVoidResponse)
+     - [MsgResolveTransfer](#akash.sink.v1.MsgResolveTransfer)
+     - [MsgResolveTransferResponse](#akash.sink.v1.MsgResolveTransferResponse)
+     - [MsgSink](#akash.sink.v1.MsgSink)
+     - [MsgSinkResponse](#akash.sink.v1.MsgSinkResponse)
+     - [MsgUpdateParams](#akash.sink.v1.MsgUpdateParams)
+     - [MsgUpdateParamsResponse](#akash.sink.v1.MsgUpdateParamsResponse)
+     - [MsgVetoVoid](#akash.sink.v1.MsgVetoVoid)
+     - [MsgVetoVoidResponse](#akash.sink.v1.MsgVetoVoidResponse)
+   
+ - [akash/sink/v1/query.proto](#akash/sink/v1/query.proto)
+     - [QueryAccountRequest](#akash.sink.v1.QueryAccountRequest)
+     - [QueryAccountResponse](#akash.sink.v1.QueryAccountResponse)
+     - [QueryOpenTransfersRequest](#akash.sink.v1.QueryOpenTransfersRequest)
+     - [QueryOpenTransfersResponse](#akash.sink.v1.QueryOpenTransfersResponse)
+     - [QuerySink](#akash.sink.v1.QuerySink)
+     - [QuerySinkResponse](#akash.sink.v1.QuerySinkResponse)
+     - [QueryStateRequest](#akash.sink.v1.QueryStateRequest)
+     - [QueryStateResponse](#akash.sink.v1.QueryStateResponse)
+     - [QueryTransferRequest](#akash.sink.v1.QueryTransferRequest)
+     - [QueryTransferResponse](#akash.sink.v1.QueryTransferResponse)
+   
+     - [QuerySinkResponse.SinkStatus](#akash.sink.v1.QuerySinkResponse.SinkStatus)
+   
+     - [Query](#akash.sink.v1.Query)
+   
+ - [akash/sink/v1/service.proto](#akash/sink/v1/service.proto)
+     - [Msg](#akash.sink.v1.Msg)
+   
  - [akash/take/v1/params.proto](#akash/take/v1/params.proto)
      - [DenomTakeRate](#akash.take.v1.DenomTakeRate)
      - [Params](#akash.take.v1.Params)
@@ -7262,6 +7319,763 @@ Example: "akash1..." |
  | `CreateProvider` | [MsgCreateProvider](#akash.provider.v1beta4.MsgCreateProvider) | [MsgCreateProviderResponse](#akash.provider.v1beta4.MsgCreateProviderResponse) | CreateProvider defines a method that creates a provider given the proper inputs. | |
  | `UpdateProvider` | [MsgUpdateProvider](#akash.provider.v1beta4.MsgUpdateProvider) | [MsgUpdateProviderResponse](#akash.provider.v1beta4.MsgUpdateProviderResponse) | UpdateProvider defines a method that updates a provider given the proper inputs. | |
  | `DeleteProvider` | [MsgDeleteProvider](#akash.provider.v1beta4.MsgDeleteProvider) | [MsgDeleteProviderResponse](#akash.provider.v1beta4.MsgDeleteProviderResponse) | DeleteProvider defines a method that deletes a provider given the proper inputs. | |
+ 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/sink/v1/params.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/sink/v1/params.proto
+ 
+
+ 
+ <a name="akash.sink.v1.Params"></a>
+
+ ### Params
+ Params configures deposits, reporter settlement and refund limits. Amounts are uakt; limits use fixed UTC days.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `enabled` | [bool](#bool) |  |  |
+ | `max_transfer` | [uint64](#uint64) |  |  |
+ | `solana_daily_mint_cap` | [uint64](#uint64) |  |  |
+ | `max_daily_per_account` | [uint32](#uint32) |  |  |
+ | `max_pending_per_account` | [uint32](#uint32) |  |  |
+ | `vault_allowlist` | [bytes](#bytes) | repeated |  |
+ | `reporters` | [string](#string) | repeated |  |
+ | `reporter_threshold` | [uint32](#uint32) |  |  |
+ | `challenge_period_seconds` | [uint64](#uint64) |  |  |
+ | `daily_refund_cap` | [uint64](#uint64) |  |  |
+ | `refunds_enabled` | [bool](#bool) |  |  |
+ | `min_transfer` | [uint64](#uint64) |  | Zero means no minimum. |
+ | `max_daily_amount_per_account` | [uint64](#uint64) |  | Zero means no limit. Otherwise at least min_transfer. |
+ | `pause_guardian` | [string](#string) |  | Bech32 account that may only disable deposits and refunds. Empty means none. |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/sink/v1/types.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/sink/v1/types.proto
+ 
+
+ 
+ <a name="akash.sink.v1.AccountUsage"></a>
+
+ ### AccountUsage
+ AccountUsage tracks deposit limits for one Akash account.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `sender` | [bytes](#bytes) |  |  |
+ | `day` | [uint64](#uint64) |  |  |
+ | `daily_count` | [uint32](#uint32) |  |  |
+ | `pending_count` | [uint32](#uint32) |  |  |
+ | `daily_amount` | [uint64](#uint64) |  | uakt deposited on day. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.Observation"></a>
+
+ ### Observation
+ Observation identifies a finalized Solana mint or void and its evidence.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `outcome` | [Outcome](#akash.sink.v1.Outcome) |  |  |
+ | `slot` | [uint64](#uint64) |  |  |
+ | `transaction_signature` | [bytes](#bytes) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.ReporterPolicy"></a>
+
+ ### ReporterPolicy
+ ReporterPolicy snapshots the membership and threshold for one epoch.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `epoch` | [uint64](#uint64) |  |  |
+ | `members` | [string](#string) | repeated |  |
+ | `threshold` | [uint32](#uint32) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.Settlement"></a>
+
+ ### Settlement
+ Settlement tracks reporter votes, holds and the refund challenge window.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `status` | [Status](#akash.sink.v1.Status) |  |  |
+ | `hold` | [Hold](#akash.sink.v1.Hold) |  |  |
+ | `round` | [uint64](#uint64) |  |  |
+ | `policy` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) |  |  |
+ | `votes` | [Vote](#akash.sink.v1.Vote) | repeated |  |
+ | `challenge_end` | [int64](#int64) |  |  |
+ | `governance_observation` | [Observation](#akash.sink.v1.Observation) |  |  |
+ | `veto_by` | [string](#string) |  |  |
+ | `veto_reason` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.Totals"></a>
+
+ ### Totals
+ Totals records escrow accounting and monotonically increasing transfer and reporter identifiers.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `last_transfer_id` | [uint64](#uint64) |  |  |
+ | `launch_reserve` | [uint64](#uint64) |  |  |
+ | `pending_amount` | [uint64](#uint64) |  |  |
+ | `pending_count` | [uint64](#uint64) |  |  |
+ | `minted_amount` | [uint64](#uint64) |  |  |
+ | `voided_amount` | [uint64](#uint64) |  |  |
+ | `refunded_amount` | [uint64](#uint64) |  |  |
+ | `refund_day` | [uint64](#uint64) |  |  |
+ | `refunded_today` | [uint64](#uint64) |  |  |
+ | `reporter_epoch` | [uint64](#uint64) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.TransferState"></a>
+
+ ### TransferState
+ TransferState combines the immutable 77-byte proof record with mutable settlement state.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `record` | [bytes](#bytes) |  |  |
+ | `void_ordered` | [bool](#bool) |  |  |
+ | `settlement` | [Settlement](#akash.sink.v1.Settlement) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.Vote"></a>
+
+ ### Vote
+ Vote records one reporter observation.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `reporter` | [string](#string) |  |  |
+ | `observation` | [Observation](#akash.sink.v1.Observation) |  |  |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.sink.v1.Decision"></a>
+
+ ### Decision
+ Decision specifies the governance action for a held transfer.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | DECISION_UNSPECIFIED | 0 | DECISION_UNSPECIFIED represents unspecified. |
+ | DECISION_RESTART | 1 | DECISION_RESTART represents restart. |
+ | DECISION_CONFIRM_MINT | 2 | DECISION_CONFIRM_MINT represents confirm mint. |
+ | DECISION_CONFIRM_VOID | 3 | DECISION_CONFIRM_VOID represents confirm void. |
+ 
+
+ 
+ <a name="akash.sink.v1.Hold"></a>
+
+ ### Hold
+ Hold prevents settlement while a veto or conflicting observation is unresolved.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | HOLD_NONE | 0 | HOLD_NONE represents none. |
+ | HOLD_VETO | 1 | HOLD_VETO represents veto. |
+ | HOLD_CONFLICT | 2 | HOLD_CONFLICT represents conflict. |
+ 
+
+ 
+ <a name="akash.sink.v1.Outcome"></a>
+
+ ### Outcome
+ Outcome is the finalized Solana result reported by an observer.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | OUTCOME_UNSPECIFIED | 0 | OUTCOME_UNSPECIFIED represents unspecified. |
+ | OUTCOME_MINTED | 1 | OUTCOME_MINTED represents minted. |
+ | OUTCOME_VOIDED | 2 | OUTCOME_VOIDED represents voided. |
+ 
+
+ 
+ <a name="akash.sink.v1.Status"></a>
+
+ ### Status
+ Status describes settlement and refund payment on Akash.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | STATUS_PENDING | 0 | STATUS_PENDING represents pending. |
+ | STATUS_MINTED | 1 | STATUS_MINTED represents minted. |
+ | STATUS_VOIDED | 2 | STATUS_VOIDED represents voided. |
+ | STATUS_REFUNDED | 3 | STATUS_REFUNDED represents refunded. |
+ 
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/sink/v1/genesis.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/sink/v1/genesis.proto
+ 
+
+ 
+ <a name="akash.sink.v1.GenesisState"></a>
+
+ ### GenesisState
+ GenesisState defines the sink module state at genesis or export.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [Params](#akash.sink.v1.Params) |  |  |
+ | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
+ | `launch_reserve_source` | [string](#string) |  | Used only for initial funding. Exports clear this to avoid funding twice. |
+ | `transfers` | [TransferState](#akash.sink.v1.TransferState) | repeated |  |
+ | `accounts` | [AccountUsage](#akash.sink.v1.AccountUsage) | repeated |  |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/sink/v1/msgs.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/sink/v1/msgs.proto
+ 
+
+ 
+ <a name="akash.sink.v1.MsgFinalizeRefund"></a>
+
+ ### MsgFinalizeRefund
+ MsgFinalizeRefund defines the MsgFinalizeRefund request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `executor` | [string](#string) |  |  |
+ | `id` | [uint64](#uint64) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgFinalizeRefundResponse"></a>
+
+ ### MsgFinalizeRefundResponse
+ MsgFinalizeRefundResponse is the response for MsgFinalizeRefund.
+
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgGuardianPause"></a>
+
+ ### MsgGuardianPause
+ MsgGuardianPause disables deposits, refunds or both. The signer must be
+params.pause_guardian. It cannot enable anything; only governance can.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `guardian` | [string](#string) |  |  |
+ | `deposits` | [bool](#bool) |  |  |
+ | `refunds` | [bool](#bool) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgGuardianPauseResponse"></a>
+
+ ### MsgGuardianPauseResponse
+ MsgGuardianPauseResponse is the response for MsgGuardianPause.
+
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgReportOutcome"></a>
+
+ ### MsgReportOutcome
+ MsgReportOutcome defines the MsgReportOutcome request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `reporter` | [string](#string) |  |  |
+ | `id` | [uint64](#uint64) |  |  |
+ | `reporter_epoch` | [uint64](#uint64) |  |  |
+ | `round` | [uint64](#uint64) |  |  |
+ | `observation` | [Observation](#akash.sink.v1.Observation) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgReportOutcomeResponse"></a>
+
+ ### MsgReportOutcomeResponse
+ MsgReportOutcomeResponse is the response for MsgReportOutcome.
+
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgRequestVoid"></a>
+
+ ### MsgRequestVoid
+ MsgRequestVoid defines the MsgRequestVoid request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  |  |
+ | `id` | [uint64](#uint64) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgRequestVoidResponse"></a>
+
+ ### MsgRequestVoidResponse
+ MsgRequestVoidResponse is the response for MsgRequestVoid.
+
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgResolveTransfer"></a>
+
+ ### MsgResolveTransfer
+ MsgResolveTransfer defines the MsgResolveTransfer request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  |  |
+ | `id` | [uint64](#uint64) |  |  |
+ | `decision` | [Decision](#akash.sink.v1.Decision) |  |  |
+ | `observation` | [Observation](#akash.sink.v1.Observation) |  |  |
+ | `reason` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgResolveTransferResponse"></a>
+
+ ### MsgResolveTransferResponse
+ MsgResolveTransferResponse is the response for MsgResolveTransfer.
+
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgSink"></a>
+
+ ### MsgSink
+ MsgSink locks AKT for a Solana destination. It must be the sole top-level transaction message.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `dest_type` | [uint32](#uint32) |  | Only 1 (Solana) is accepted. |
+ | `dest` | [string](#string) |  |  |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `sender` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgSinkResponse"></a>
+
+ ### MsgSinkResponse
+ MsgSinkResponse returns the canonical decimal record ID for status tracking.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgUpdateParams"></a>
+
+ ### MsgUpdateParams
+ MsgUpdateParams defines the MsgUpdateParams request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `authority` | [string](#string) |  |  |
+ | `params` | [Params](#akash.sink.v1.Params) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgUpdateParamsResponse"></a>
+
+ ### MsgUpdateParamsResponse
+ MsgUpdateParamsResponse is the response for MsgUpdateParams.
+
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgVetoVoid"></a>
+
+ ### MsgVetoVoid
+ MsgVetoVoid defines the MsgVetoVoid request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `signer` | [string](#string) |  |  |
+ | `id` | [uint64](#uint64) |  |  |
+ | `reason` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.MsgVetoVoidResponse"></a>
+
+ ### MsgVetoVoidResponse
+ MsgVetoVoidResponse is the response for MsgVetoVoid.
+
+ 
+
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/sink/v1/query.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/sink/v1/query.proto
+ 
+
+ 
+ <a name="akash.sink.v1.QueryAccountRequest"></a>
+
+ ### QueryAccountRequest
+ QueryAccountRequest defines the QueryAccountRequest request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `sender` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryAccountResponse"></a>
+
+ ### QueryAccountResponse
+ QueryAccountResponse is the response for QueryAccount.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `usage` | [AccountUsage](#akash.sink.v1.AccountUsage) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryOpenTransfersRequest"></a>
+
+ ### QueryOpenTransfersRequest
+ QueryOpenTransfersRequest pages through transfers that are neither minted
+nor refunded: pending or voided, including held ones.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `start_after` | [uint64](#uint64) |  | Returns IDs greater than this; zero starts at the first transfer. |
+ | `limit` | [uint32](#uint32) |  | Zero means 100; values above 500 return 500. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryOpenTransfersResponse"></a>
+
+ ### QueryOpenTransfersResponse
+ QueryOpenTransfersResponse is the response for QueryOpenTransfers.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `transfers` | [TransferState](#akash.sink.v1.TransferState) | repeated |  |
+ | `next_start_after` | [uint64](#uint64) |  | Pass as start_after for the next page; zero when there are no more. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QuerySink"></a>
+
+ ### QuerySink
+ QuerySink looks up a transfer by its canonical decimal record ID.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [string](#string) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QuerySinkResponse"></a>
+
+ ### QuerySinkResponse
+ QuerySinkResponse returns the public status and full settlement details.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `status` | [QuerySinkResponse.SinkStatus](#akash.sink.v1.QuerySinkResponse.SinkStatus) |  |  |
+ | `transfer` | [TransferState](#akash.sink.v1.TransferState) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryStateRequest"></a>
+
+ ### QueryStateRequest
+ QueryStateRequest defines the QueryStateRequest request.
+
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryStateResponse"></a>
+
+ ### QueryStateResponse
+ QueryStateResponse is the response for QueryState.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [Params](#akash.sink.v1.Params) |  |  |
+ | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryTransferRequest"></a>
+
+ ### QueryTransferRequest
+ QueryTransferRequest defines the QueryTransferRequest request.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [uint64](#uint64) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryTransferResponse"></a>
+
+ ### QueryTransferResponse
+ QueryTransferResponse is the response for QueryTransfer.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `transfer` | [TransferState](#akash.sink.v1.TransferState) |  |  |
+ 
+ 
+
+ 
+
+  <!-- end messages -->
+
+ 
+ <a name="akash.sink.v1.QuerySinkResponse.SinkStatus"></a>
+
+ ### QuerySinkResponse.SinkStatus
+ SinkStatus is the public transfer lifecycle; settlement records refund payment separately.
+
+ | Name | Number | Description |
+ | ---- | ------ | ----------- |
+ | invalid | 0 | The response has no valid status. |
+ | validation_pending | 1 | Reserved for asynchronous validation.
+
+Reserved; no asynchronous validation workflow. |
+ | validated | 2 | Reserved for asynchronous validation.
+
+Reserved; valid deposits enter transfer_pending atomically. |
+ | transfer_pending | 3 | The deposit is locked and awaits settlement. |
+ | completed | 4 | The mint has been confirmed. |
+ | void | 5 | The transfer is voided; consult settlement for refund payment.
+
+Does not imply refund payment; consult transfer.settlement. |
+ 
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.sink.v1.Query"></a>
+
+ ### Query
+ Query defines the sink query service.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `Sink` | [QuerySink](#akash.sink.v1.QuerySink) | [QuerySinkResponse](#akash.sink.v1.QuerySinkResponse) | Sink handles the Sink request. | GET|/akash/sink/v1/records/{id}|
+ | `State` | [QueryStateRequest](#akash.sink.v1.QueryStateRequest) | [QueryStateResponse](#akash.sink.v1.QueryStateResponse) | State handles the State request. | GET|/akash/sink/v1/state|
+ | `Transfer` | [QueryTransferRequest](#akash.sink.v1.QueryTransferRequest) | [QueryTransferResponse](#akash.sink.v1.QueryTransferResponse) | Transfer handles the Transfer request. | GET|/akash/sink/v1/transfers/{id}|
+ | `Account` | [QueryAccountRequest](#akash.sink.v1.QueryAccountRequest) | [QueryAccountResponse](#akash.sink.v1.QueryAccountResponse) | Account handles the Account request. | GET|/akash/sink/v1/accounts/{sender}|
+ | `OpenTransfers` | [QueryOpenTransfersRequest](#akash.sink.v1.QueryOpenTransfersRequest) | [QueryOpenTransfersResponse](#akash.sink.v1.QueryOpenTransfersResponse) | OpenTransfers lists unsettled transfers in ascending ID order. | GET|/akash/sink/v1/open_transfers|
+ 
+  <!-- end services -->
+
+ 
+ 
+ <a name="akash/sink/v1/service.proto"></a>
+ <p align="right"><a href="#top">Top</a></p>
+
+ ## akash/sink/v1/service.proto
+ 
+
+  <!-- end messages -->
+
+  <!-- end enums -->
+
+  <!-- end HasExtensions -->
+
+ 
+ <a name="akash.sink.v1.Msg"></a>
+
+ ### Msg
+ Msg defines the sink transaction service.
+
+ | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+ | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+ | `Sink` | [MsgSink](#akash.sink.v1.MsgSink) | [MsgSinkResponse](#akash.sink.v1.MsgSinkResponse) | Sink handles the Sink request. | |
+ | `UpdateParams` | [MsgUpdateParams](#akash.sink.v1.MsgUpdateParams) | [MsgUpdateParamsResponse](#akash.sink.v1.MsgUpdateParamsResponse) | UpdateParams handles the UpdateParams request. | |
+ | `RequestVoid` | [MsgRequestVoid](#akash.sink.v1.MsgRequestVoid) | [MsgRequestVoidResponse](#akash.sink.v1.MsgRequestVoidResponse) | RequestVoid handles the RequestVoid request. | |
+ | `ReportOutcome` | [MsgReportOutcome](#akash.sink.v1.MsgReportOutcome) | [MsgReportOutcomeResponse](#akash.sink.v1.MsgReportOutcomeResponse) | ReportOutcome handles the ReportOutcome request. | |
+ | `VetoVoid` | [MsgVetoVoid](#akash.sink.v1.MsgVetoVoid) | [MsgVetoVoidResponse](#akash.sink.v1.MsgVetoVoidResponse) | VetoVoid handles the VetoVoid request. | |
+ | `ResolveTransfer` | [MsgResolveTransfer](#akash.sink.v1.MsgResolveTransfer) | [MsgResolveTransferResponse](#akash.sink.v1.MsgResolveTransferResponse) | ResolveTransfer handles the ResolveTransfer request. | |
+ | `FinalizeRefund` | [MsgFinalizeRefund](#akash.sink.v1.MsgFinalizeRefund) | [MsgFinalizeRefundResponse](#akash.sink.v1.MsgFinalizeRefundResponse) | FinalizeRefund handles the FinalizeRefund request. | |
+ | `GuardianPause` | [MsgGuardianPause](#akash.sink.v1.MsgGuardianPause) | [MsgGuardianPauseResponse](#akash.sink.v1.MsgGuardianPauseResponse) | GuardianPause handles the GuardianPause request. | |
  
   <!-- end services -->
 

@@ -26,6 +26,8 @@ import type * as akash_oracle_v2_query from "./protos/akash/oracle/v2/query.ts";
 import type * as akash_oracle_v2_msgs from "./protos/akash/oracle/v2/msgs.ts";
 import type * as akash_provider_v1beta4_query from "./protos/akash/provider/v1beta4/query.ts";
 import type * as akash_provider_v1beta4_msg from "./protos/akash/provider/v1beta4/msg.ts";
+import type * as akash_sink_v1_query from "./protos/akash/sink/v1/query.ts";
+import type * as akash_sink_v1_msgs from "./protos/akash/sink/v1/msgs.ts";
 import type * as akash_take_v1_query from "./protos/akash/take/v1/query.ts";
 import type * as akash_take_v1_paramsmsg from "./protos/akash/take/v1/paramsmsg.ts";
 import type * as akash_wasm_v1_query from "./protos/akash/wasm/v1/query.ts";
@@ -58,6 +60,8 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/akash/oracle/v2/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/provider/v1beta4/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/provider/v1beta4/service_akash.ts").then(m => m.Msg),
+  () => import("./protos/akash/sink/v1/query_akash.ts").then(m => m.Query),
+  () => import("./protos/akash/sink/v1/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/take/v1/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/take/v1/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/wasm/v1/query_akash.ts").then(m => m.Query),
@@ -591,15 +595,110 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           }, { path: [20, "deleteProvider"], serviceLoader })
         }
       },
+      sink: {
+        v1: {
+          /**
+           * getSink handles the getSink request.
+           */
+          getSink: withMetadata(async function getSink(input: DeepPartial<akash_sink_v1_query.QuerySink>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).sink(input, options);
+          }, { path: [21, "sink"], serviceLoader }),
+          /**
+           * getState handles the getState request.
+           */
+          getState: withMetadata(async function getState(input: DeepPartial<akash_sink_v1_query.QueryStateRequest> = {}, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).state(input, options);
+          }, { path: [21, "state"], serviceLoader }),
+          /**
+           * getTransfer handles the getTransfer request.
+           */
+          getTransfer: withMetadata(async function getTransfer(input: DeepPartial<akash_sink_v1_query.QueryTransferRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).transfer(input, options);
+          }, { path: [21, "transfer"], serviceLoader }),
+          /**
+           * getAccount handles the getAccount request.
+           */
+          getAccount: withMetadata(async function getAccount(input: DeepPartial<akash_sink_v1_query.QueryAccountRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).account(input, options);
+          }, { path: [21, "account"], serviceLoader }),
+          /**
+           * getOpenTransfers lists unsettled transfers in ascending ID order.
+           */
+          getOpenTransfers: withMetadata(async function getOpenTransfers(input: DeepPartial<akash_sink_v1_query.QueryOpenTransfersRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).openTransfers(input, options);
+          }, { path: [21, "openTransfers"], serviceLoader }),
+          /**
+           * sink handles the sink request.
+           */
+          sink: withMetadata(async function sink(input: DeepSimplify<akash_sink_v1_msgs.MsgSink>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).sink(input, options);
+          }, { path: [22, "sink"], serviceLoader }),
+          /**
+           * updateParams handles the updateParams request.
+           */
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_sink_v1_msgs.MsgUpdateParams>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).updateParams(input, options);
+          }, { path: [22, "updateParams"], serviceLoader }),
+          /**
+           * requestVoid handles the requestVoid request.
+           */
+          requestVoid: withMetadata(async function requestVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgRequestVoid>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).requestVoid(input, options);
+          }, { path: [22, "requestVoid"], serviceLoader }),
+          /**
+           * reportOutcome handles the reportOutcome request.
+           */
+          reportOutcome: withMetadata(async function reportOutcome(input: DeepSimplify<akash_sink_v1_msgs.MsgReportOutcome>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).reportOutcome(input, options);
+          }, { path: [22, "reportOutcome"], serviceLoader }),
+          /**
+           * vetoVoid handles the vetoVoid request.
+           */
+          vetoVoid: withMetadata(async function vetoVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgVetoVoid>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).vetoVoid(input, options);
+          }, { path: [22, "vetoVoid"], serviceLoader }),
+          /**
+           * resolveTransfer handles the resolveTransfer request.
+           */
+          resolveTransfer: withMetadata(async function resolveTransfer(input: DeepSimplify<akash_sink_v1_msgs.MsgResolveTransfer>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).resolveTransfer(input, options);
+          }, { path: [22, "resolveTransfer"], serviceLoader }),
+          /**
+           * finalizeRefund handles the finalizeRefund request.
+           */
+          finalizeRefund: withMetadata(async function finalizeRefund(input: DeepSimplify<akash_sink_v1_msgs.MsgFinalizeRefund>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).finalizeRefund(input, options);
+          }, { path: [22, "finalizeRefund"], serviceLoader }),
+          /**
+           * guardianPause handles the guardianPause request.
+           */
+          guardianPause: withMetadata(async function guardianPause(input: DeepSimplify<akash_sink_v1_msgs.MsgGuardianPause>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).guardianPause(input, options);
+          }, { path: [22, "guardianPause"], serviceLoader })
+        }
+      },
       take: {
         v1: {
           /**
            * getParams returns the total set of take parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_take_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(21);
+            const service = await serviceLoader.loadAt(23);
             return getClient(service).params(input, options);
-          }, { path: [21, "params"], serviceLoader }),
+          }, { path: [23, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/market module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -607,9 +706,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * Since: akash v1.0.0
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_take_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(22);
+            const service = await serviceLoader.loadAt(24);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [22, "updateParams"], serviceLoader })
+          }, { path: [24, "updateParams"], serviceLoader })
         }
       },
       wasm: {
@@ -618,9 +717,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * getParams returns the total set of wasm parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_wasm_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(23);
+            const service = await serviceLoader.loadAt(25);
             return getClient(service).params(input, options);
-          }, { path: [23, "params"], serviceLoader }),
+          }, { path: [25, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/wasm module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -628,9 +727,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * Since: akash v2.0.0
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_wasm_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(24);
+            const service = await serviceLoader.loadAt(26);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [24, "updateParams"], serviceLoader })
+          }, { path: [26, "updateParams"], serviceLoader })
         }
       }
     }
