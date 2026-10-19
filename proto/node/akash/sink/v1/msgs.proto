@@ -1,0 +1,110 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+import "akash/sink/v1/params.proto";
+import "akash/sink/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// MsgSink locks AKT for a Solana destination. It must be the sole top-level transaction message.
+message MsgSink {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name) = "sink/MsgSink";
+  uint32 dest_type = 1; // Only 1 (Solana) is accepted.
+  string dest = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+  string sender = 4;
+}
+
+// MsgSinkResponse returns the canonical decimal record ID for status tracking.
+message MsgSinkResponse { string id = 1; }
+
+// MsgUpdateParams defines the MsgUpdateParams request.
+message MsgUpdateParams {
+  option (amino.name) = "sink/MsgUpdateParams";
+  option (cosmos.msg.v1.signer) = "authority";
+  string authority = 1;
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse is the response for MsgUpdateParams.
+message MsgUpdateParamsResponse {}
+
+// MsgRequestVoid defines the MsgRequestVoid request.
+message MsgRequestVoid {
+  option (amino.name) = "sink/MsgRequestVoid";
+  option (cosmos.msg.v1.signer) = "authority";
+  string authority = 1;
+  uint64 id = 2;
+}
+
+// MsgRequestVoidResponse is the response for MsgRequestVoid.
+message MsgRequestVoidResponse {}
+
+// MsgReportOutcome defines the MsgReportOutcome request.
+message MsgReportOutcome {
+  option (amino.name) = "sink/MsgReportOutcome";
+  option (cosmos.msg.v1.signer) = "reporter";
+  string reporter = 1;
+  uint64 id = 2;
+  uint64 reporter_epoch = 3;
+  uint64 round = 4;
+  Observation observation = 5 [(gogoproto.nullable) = false];
+}
+
+// MsgReportOutcomeResponse is the response for MsgReportOutcome.
+message MsgReportOutcomeResponse {}
+
+// MsgVetoVoid defines the MsgVetoVoid request.
+message MsgVetoVoid {
+  option (amino.name) = "sink/MsgVetoVoid";
+  option (cosmos.msg.v1.signer) = "signer";
+  string signer = 1;
+  uint64 id = 2;
+  string reason = 3;
+}
+
+// MsgVetoVoidResponse is the response for MsgVetoVoid.
+message MsgVetoVoidResponse {}
+
+// MsgResolveTransfer defines the MsgResolveTransfer request.
+message MsgResolveTransfer {
+  option (amino.name) = "sink/MsgResolveTransfer";
+  option (cosmos.msg.v1.signer) = "authority";
+  string authority = 1;
+  uint64 id = 2;
+  Decision decision = 3;
+  Observation observation = 4;
+  string reason = 5;
+}
+
+// MsgResolveTransferResponse is the response for MsgResolveTransfer.
+message MsgResolveTransferResponse {}
+
+// MsgFinalizeRefund defines the MsgFinalizeRefund request.
+message MsgFinalizeRefund {
+  option (amino.name) = "sink/MsgFinalizeRefund";
+  option (cosmos.msg.v1.signer) = "executor";
+  string executor = 1;
+  uint64 id = 2;
+}
+
+// MsgFinalizeRefundResponse is the response for MsgFinalizeRefund.
+message MsgFinalizeRefundResponse {}
+
+// MsgGuardianPause disables deposits, refunds or both. The signer must be
+// params.pause_guardian. It cannot enable anything; only governance can.
+message MsgGuardianPause {
+  option (amino.name) = "sink/MsgGuardianPause";
+  option (cosmos.msg.v1.signer) = "guardian";
+  string guardian = 1;
+  bool deposits = 2;
+  bool refunds = 3;
+}
+
+// MsgGuardianPauseResponse is the response for MsgGuardianPause.
+message MsgGuardianPauseResponse {}

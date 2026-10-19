@@ -1,0 +1,94 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "akash/sink/v1/params.proto";
+import "akash/sink/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// Query defines the sink query service.
+service Query {
+  // Sink handles the Sink request.
+  rpc Sink(QuerySink) returns (QuerySinkResponse) {
+    option (google.api.http).get = "/akash/sink/v1/records/{id}";
+  }
+  // State handles the State request.
+  rpc State(QueryStateRequest) returns (QueryStateResponse) {
+    option (google.api.http).get = "/akash/sink/v1/state";
+  }
+  // Transfer handles the Transfer request.
+  rpc Transfer(QueryTransferRequest) returns (QueryTransferResponse) {
+    option (google.api.http).get = "/akash/sink/v1/transfers/{id}";
+  }
+  // Account handles the Account request.
+  rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
+    option (google.api.http).get = "/akash/sink/v1/accounts/{sender}";
+  }
+  // OpenTransfers lists unsettled transfers in ascending ID order.
+  rpc OpenTransfers(QueryOpenTransfersRequest) returns (QueryOpenTransfersResponse) {
+    option (google.api.http).get = "/akash/sink/v1/open_transfers";
+  }
+}
+
+// QuerySink looks up a transfer by its canonical decimal record ID.
+message QuerySink { string id = 1; }
+
+// QuerySinkResponse returns the public status and full settlement details.
+message QuerySinkResponse {
+  // SinkStatus is the public transfer lifecycle; settlement records refund payment separately.
+  enum SinkStatus {
+    // The response has no valid status.
+    invalid = 0;
+    // Reserved for asynchronous validation.
+    validation_pending = 1; // Reserved; no asynchronous validation workflow.
+    // Reserved for asynchronous validation.
+    validated = 2; // Reserved; valid deposits enter transfer_pending atomically.
+    // The deposit is locked and awaits settlement.
+    transfer_pending = 3;
+    // The mint has been confirmed.
+    completed = 4;
+    // The transfer is voided; consult settlement for refund payment.
+    void = 5; // Does not imply refund payment; consult transfer.settlement.
+  }
+  SinkStatus status = 1;
+  TransferState transfer = 2 [(gogoproto.nullable) = false];
+}
+
+// QueryStateRequest defines the QueryStateRequest request.
+message QueryStateRequest {}
+
+// QueryStateResponse is the response for QueryState.
+message QueryStateResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+  Totals totals = 2 [(gogoproto.nullable) = false];
+}
+
+// QueryTransferRequest defines the QueryTransferRequest request.
+message QueryTransferRequest { uint64 id = 1; }
+
+// QueryTransferResponse is the response for QueryTransfer.
+message QueryTransferResponse { TransferState transfer = 1 [(gogoproto.nullable) = false]; }
+
+// QueryAccountRequest defines the QueryAccountRequest request.
+message QueryAccountRequest { string sender = 1; }
+
+// QueryAccountResponse is the response for QueryAccount.
+message QueryAccountResponse { AccountUsage usage = 1 [(gogoproto.nullable) = false]; }
+
+// QueryOpenTransfersRequest pages through transfers that are neither minted
+// nor refunded: pending or voided, including held ones.
+message QueryOpenTransfersRequest {
+  // Returns IDs greater than this; zero starts at the first transfer.
+  uint64 start_after = 1;
+  // Zero means 100; values above 500 return 500.
+  uint32 limit = 2;
+}
+
+// QueryOpenTransfersResponse is the response for QueryOpenTransfers.
+message QueryOpenTransfersResponse {
+  repeated TransferState transfers = 1 [(gogoproto.nullable) = false];
+  // Pass as start_after for the next page; zero when there are no more.
+  uint64 next_start_after = 2;
+}
