@@ -28,6 +28,8 @@ import (
 
 	providerv1beta4 "pkg.akt.dev/go/node/provider/v1beta4"
 
+	sinkv1 "pkg.akt.dev/go/node/sink/v1"
+
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -951,6 +953,53 @@ func (_c *QueryClient_Provider_Call) Return(_a0 providerv1beta4.QueryClient) *Qu
 }
 
 func (_c *QueryClient_Provider_Call) RunAndReturn(run func() providerv1beta4.QueryClient) *QueryClient_Provider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Sink provides a mock function with no fields
+func (_m *QueryClient) Sink() sinkv1.QueryClient {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Sink")
+	}
+
+	var r0 sinkv1.QueryClient
+	if rf, ok := ret.Get(0).(func() sinkv1.QueryClient); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(sinkv1.QueryClient)
+		}
+	}
+
+	return r0
+}
+
+// QueryClient_Sink_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Sink'
+type QueryClient_Sink_Call struct {
+	*mock.Call
+}
+
+// Sink is a helper method to define mock.On call
+func (_e *QueryClient_Expecter) Sink() *QueryClient_Sink_Call {
+	return &QueryClient_Sink_Call{Call: _e.mock.On("Sink")}
+}
+
+func (_c *QueryClient_Sink_Call) Run(run func()) *QueryClient_Sink_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *QueryClient_Sink_Call) Return(_a0 sinkv1.QueryClient) *QueryClient_Sink_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *QueryClient_Sink_Call) RunAndReturn(run func() sinkv1.QueryClient) *QueryClient_Sink_Call {
 	_c.Call.Return(run)
 	return _c
 }

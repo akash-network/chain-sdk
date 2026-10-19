@@ -58,6 +58,7 @@ var v1beta3Modules = []ModuleVersion{
 	{Module: "market", Version: "v1beta5"},
 	{Module: "oracle", Version: "v2"},
 	{Module: "provider", Version: "v1beta4"},
+	{Module: "sink", Version: "v1"},
 	{Module: "take", Version: "v1"},
 	{Module: "wasm", Version: "v1"},
 }
@@ -73,6 +74,7 @@ var v1beta4Modules = []ModuleVersion{
 	{Module: "market", Version: "v1beta5"},
 	{Module: "oracle", Version: "v2"},
 	{Module: "provider", Version: "v1beta4"},
+	{Module: "sink", Version: "v1"},
 	{Module: "take", Version: "v1"},
 	{Module: "wasm", Version: "v1"},
 }
