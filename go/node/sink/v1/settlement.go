@@ -70,10 +70,12 @@ func (s Settlement) Terminal() bool {
 }
 
 func (s Settlement) Tallies() (minted, voided uint32) {
+	// Only these two outcomes count; a future outcome must not reach either quorum.
 	for _, vote := range s.Votes {
-		if vote.Observation.Outcome == Outcome_OUTCOME_MINTED {
+		switch vote.Observation.Outcome {
+		case Outcome_OUTCOME_MINTED:
 			minted++
-		} else {
+		case Outcome_OUTCOME_VOIDED:
 			voided++
 		}
 	}

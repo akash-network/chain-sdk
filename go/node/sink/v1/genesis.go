@@ -7,6 +7,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// ValidReserveSourceLength accepts ordinary 20-byte accounts and 32-byte
+// derived accounts such as group policies. The source never appears in a
+// transfer record, so it is not bound to the record's 20-byte sender.
+func ValidReserveSourceLength(addr sdk.AccAddress) bool { return len(addr) == 20 || len(addr) == 32 }
+
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{Params: DefaultParams(), Totals: Totals{ReporterEpoch: 1}}
 }
@@ -23,7 +28,7 @@ func (g GenesisState) Validate() error {
 	}
 	if g.LaunchReserveSource != "" {
 		addr, err := sdk.AccAddressFromBech32(g.LaunchReserveSource)
-		if err != nil || len(addr) != 20 {
+		if err != nil || !ValidReserveSourceLength(addr) {
 			return fmt.Errorf("invalid reserve source")
 		}
 		if g.Totals.LaunchReserve != 0 {

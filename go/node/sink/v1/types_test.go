@@ -35,6 +35,48 @@ func TestDestination(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, offCurve, got)
 	require.Error(t, types.ValidateRecipient([32]byte{}, [][]byte{make([]byte, 32)}))
+
+	// Small-order points decode but no wallet holds their key: the identity
+	// (y = 1) and the point of order 2 (y = -1).
+	identity := [32]byte{1}
+	require.ErrorContains(t, types.ValidateRecipient(identity, nil), "small-order")
+	var order2 [32]byte
+	copy(order2[:], []byte{0xec})
+	for i := 1; i < 31; i++ {
+		order2[i] = 0xff
+	}
+	order2[31] = 0x7f
+	require.ErrorContains(t, types.ValidateRecipient(order2, nil), "small-order")
+	// A listed vault is exempt: vaults may be any 32-byte address.
+	require.NoError(t, types.ValidateRecipient(identity, [][]byte{identity[:]}))
+	// y + p encodes the same point as y for y < 19. Find such a point of large
+	// order and check its non-canonical spelling is rejected.
+	found := false
+	for y := byte(2); y < 19 && !found; y++ {
+		var canonical, alias [32]byte
+		canonical[0] = y
+		alias[0] = 0xed + y // p = 2^255 - 19: low byte 0xed, then 0xff..., top 0x7f
+		for i := 1; i < 31; i++ {
+			alias[i] = 0xff
+		}
+		alias[31] = 0x7f
+		if types.ValidateRecipient(canonical, nil) != nil {
+			continue
+		}
+		found = true
+		require.ErrorContains(t, types.ValidateRecipient(alias, nil), "canonical")
+	}
+	require.True(t, found, "no large-order point with a small y")
+}
+
+func TestReserveSourceLength(t *testing.T) {
+	g := types.DefaultGenesis()
+	g.LaunchReserveSource = sdk.AccAddress(bytes.Repeat([]byte{9}, 32)).String() // group policy size
+	require.NoError(t, g.Validate())
+	g.LaunchReserveSource = sdk.AccAddress(bytes.Repeat([]byte{9}, 20)).String()
+	require.NoError(t, g.Validate())
+	g.LaunchReserveSource = sdk.AccAddress(bytes.Repeat([]byte{9}, 25)).String()
+	require.Error(t, g.Validate())
 }
 
 func TestTransferWireVector(t *testing.T) {
@@ -66,6 +108,7 @@ func TestParamsAndGenesis(t *testing.T) {
 	g.Params.Enabled = true
 	g.Params.Reporters = []string{sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()}
 	g.Params.ReporterThreshold = 1
+	g.Params.MinTransfer = 1
 	require.ErrorContains(t, g.Validate(), "reserve")
 	g.Totals.LaunchReserve = types.LaunchReserve
 	require.NoError(t, g.Validate())
