@@ -71,6 +71,10 @@ Pass the returned next_start_after as --start-after to continue; zero means ther
 			if err != nil {
 				return err
 			}
+			heldOnly, err := cmd.Flags().GetBool("held-only")
+			if err != nil {
+				return err
+			}
 
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
@@ -83,12 +87,38 @@ Pass the returned next_start_after as --start-after to continue; zero means ther
 				return err
 			}
 
-			return cl.ClientContext().PrintProto(res)
+			if !heldOnly {
+				return cl.ClientContext().PrintProto(res)
+			}
+
+			// Held transfers wait for governance. Page through every open transfer
+			// so one proposal can restart all of them.
+			held := &types.QueryOpenTransfersResponse{}
+			for {
+				for _, transfer := range res.Transfers {
+					if transfer.Settlement.Hold != types.Hold_HOLD_NONE {
+						held.Transfers = append(held.Transfers, transfer)
+					}
+				}
+
+				if res.NextStartAfter == 0 {
+					return cl.ClientContext().PrintProto(held)
+				}
+
+				res, err = cl.Query().Sink().OpenTransfers(ctx, &types.QueryOpenTransfersRequest{
+					StartAfter: res.NextStartAfter,
+					Limit:      limit,
+				})
+				if err != nil {
+					return err
+				}
+			}
 		},
 	}
 
 	cmd.Flags().Uint64("start-after", 0, "Return transfers with IDs above this one")
 	cmd.Flags().Uint32("limit", 0, "Maximum transfers to return; 0 means 100, at most 500")
+	cmd.Flags().Bool("held-only", false, "List every open transfer held for governance (veto or conflict), reading all pages")
 	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
