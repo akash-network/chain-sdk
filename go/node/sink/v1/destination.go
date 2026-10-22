@@ -48,8 +48,14 @@ func ValidateRecipient(recipient [32]byte, vaults [][]byte) error {
 			return nil
 		}
 	}
-	if _, err := new(edwards25519.Point).SetBytes(recipient[:]); err != nil {
-		return fmt.Errorf("Solana recipient must be on-curve or an allowlisted vault") //nolint:staticcheck // Solana is a proper noun
+	// SetBytes also accepts non-canonical encodings and small-order points. No
+	// wallet holds a key for either, so tokens minted there could never move.
+	point, err := new(edwards25519.Point).SetBytes(recipient[:])
+	if err != nil || !bytes.Equal(point.Bytes(), recipient[:]) {
+		return fmt.Errorf("Solana recipient must be a canonical on-curve key or an allowlisted vault") //nolint:staticcheck // Solana is a proper noun
+	}
+	if new(edwards25519.Point).MultByCofactor(point).Equal(edwards25519.NewIdentityPoint()) == 1 {
+		return fmt.Errorf("Solana recipient is a small-order point") //nolint:staticcheck // Solana is a proper noun
 	}
 	return nil
 }

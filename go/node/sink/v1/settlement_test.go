@@ -29,14 +29,39 @@ func TestReporterPolicyBoundaries(t *testing.T) {
 	p.Enabled = true
 	require.Error(t, p.Validate())
 	p.Reporters, p.ReporterThreshold = members, 3
+	require.ErrorContains(t, p.Validate(), "min transfer must be set") // deposits need a minimum
+	p.MinTransfer = 1
 	require.NoError(t, p.Validate())
+	p.Enabled = false
+	p.MinTransfer = 0
+	require.NoError(t, p.Validate()) // disabling deposits never fails on the minimum
+	p.Enabled, p.MinTransfer = true, 1
 	p.ChallengePeriodSeconds = 0
 	require.Error(t, p.Validate())
+	p.ChallengePeriodSeconds = types.MinChallengePeriodSeconds - 1
+	require.ErrorContains(t, p.Validate(), "challenge period")
+	p.RefundsEnabled = false
+	require.Error(t, p.Validate()) // the floor applies while refunds are off too
+	p.ChallengePeriodSeconds = types.MinChallengePeriodSeconds
+	require.NoError(t, p.Validate())
 	p.ChallengePeriodSeconds = math.MaxUint64
 	require.Error(t, p.Validate())
-	p.ChallengePeriodSeconds = 1
+	p.ChallengePeriodSeconds = types.MinChallengePeriodSeconds
 	p.DailyRefundCap = p.MaxTransfer - 1
 	require.Error(t, p.Validate())
+	require.Equal(t, types.DefaultChallengePeriodSeconds, types.DefaultParams().ChallengePeriodSeconds)
+	require.NoError(t, types.DefaultParams().Validate())
+}
+
+func TestTalliesCountOnlyKnownOutcomes(t *testing.T) {
+	vote := func(o types.Outcome) types.Vote {
+		return types.Vote{Observation: types.Observation{Outcome: o}}
+	}
+	s := types.Settlement{Votes: []types.Vote{vote(types.Outcome_OUTCOME_MINTED), vote(types.Outcome_OUTCOME_VOIDED),
+		vote(types.Outcome_OUTCOME_UNSPECIFIED), vote(types.Outcome(7))}}
+	minted, voided := s.Tallies()
+	require.Equal(t, uint32(1), minted)
+	require.Equal(t, uint32(1), voided)
 }
 
 func TestSettlementValidationAndAccounting(t *testing.T) {

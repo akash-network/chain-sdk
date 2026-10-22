@@ -8,11 +8,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// DefaultChallengePeriodSeconds is the 72-hour window AEP-92 assumes.
+const DefaultChallengePeriodSeconds uint64 = 72 * 60 * 60
+
 // Defaults are local-development limits, not production policy. Deposits are off.
 func DefaultParams() Params {
 	return Params{MaxTransfer: 1_000_000_000, SolanaDailyMintCap: 10_000_000_000,
 		MaxDailyPerAccount: 20, MaxPendingPerAccount: 3,
-		ChallengePeriodSeconds: 86_400, DailyRefundCap: 1_000_000_000}
+		ChallengePeriodSeconds: DefaultChallengePeriodSeconds, DailyRefundCap: 1_000_000_000}
 }
 
 func (p Params) Validate() error {
@@ -22,15 +25,25 @@ func (p Params) Validate() error {
 	if p.Enabled && len(p.Reporters) == 0 {
 		return fmt.Errorf("reporters must be configured before enabling deposits")
 	}
-	if p.ChallengePeriodSeconds == 0 || p.ChallengePeriodSeconds > math.MaxInt64 || p.DailyRefundCap < p.MaxTransfer {
-		return fmt.Errorf("positive bounded challenge duration and refund cap at least max transfer required")
+	// The floor applies even while refunds are off: a void confirmed under a
+	// shorter window would keep its deadline after refunds are enabled.
+	if p.ChallengePeriodSeconds < MinChallengePeriodSeconds || p.ChallengePeriodSeconds > math.MaxInt64 {
+		return fmt.Errorf("challenge period must be %d to %d seconds", MinChallengePeriodSeconds, uint64(math.MaxInt64))
+	}
+	if p.DailyRefundCap < p.MaxTransfer {
+		return fmt.Errorf("daily refund cap must be at least max transfer")
 	}
 	if p.MaxTransfer == 0 || p.MaxTransfer > p.SolanaDailyMintCap {
 		return fmt.Errorf("max transfer must be positive and no larger than Solana daily mint cap")
 	}
-	// Zero disables the minimum, preserving parameters stored before this field.
+	// Zero disables the minimum, preserving parameters stored before this field,
+	// but deposits need one: it keeps each worth the Solana rent of settling it.
+	// Disabling deposits never fails here, so a guardian pause always works.
 	if p.MinTransfer > p.MaxTransfer {
 		return fmt.Errorf("min transfer must not exceed max transfer")
+	}
+	if p.Enabled && p.MinTransfer == 0 {
+		return fmt.Errorf("min transfer must be set while deposits are enabled")
 	}
 	// Zero disables the per-account daily amount cap. A nonzero cap below the
 	// minimum would reject every deposit.
