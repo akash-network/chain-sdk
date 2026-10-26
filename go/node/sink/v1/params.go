@@ -13,9 +13,9 @@ const DefaultChallengePeriodSeconds uint64 = 72 * 60 * 60
 
 // Defaults are local-development limits, not production policy. Deposits are off.
 func DefaultParams() Params {
-	return Params{MaxTransfer: 1_000_000_000, SolanaDailyMintCap: 10_000_000_000,
+	return Params{MaxTransfer: 1_000_000_000_000, SolanaDailyMintCap: 10_000_000_000_000,
 		MaxDailyPerAccount: 20, MaxPendingPerAccount: 3,
-		ChallengePeriodSeconds: DefaultChallengePeriodSeconds, DailyRefundCap: 1_000_000_000}
+		ChallengePeriodSeconds: DefaultChallengePeriodSeconds, DailyRefundCap: 1_000_000_000_000}
 }
 
 func (p Params) Validate() error {

@@ -102,10 +102,10 @@ func TestSettlementValidationAndAccounting(t *testing.T) {
 	} {
 		require.Error(t, o.Validate())
 	}
-	totals := types.Totals{LaunchReserve: 100, PendingAmount: 10, MintedAmount: 20, VoidedAmount: 30, RefundedAmount: 40}
+	totals := types.Totals{PendingAmount: 10, MintedAmount: 20, VoidedAmount: 30, RefundedAmount: 40}
 	escrow, err := totals.EscrowAmount()
 	require.NoError(t, err)
-	require.Equal(t, uint64(160), escrow)
+	require.Equal(t, uint64(60), escrow)
 	deposited, err := totals.DepositedAmount()
 	require.NoError(t, err)
 	require.Equal(t, uint64(100), deposited)

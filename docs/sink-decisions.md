@@ -28,6 +28,8 @@ A Solana program verifies x/sink state with ICS23 proofs, and deployed
 clients sign these messages. Coordinate before changing:
 
 - Protobuf package `akash.sink.v1`, message names and field numbers.
+  `Totals` field 2 and `GenesisState` field 3 held the removed launch
+  reserve. They stay reserved; never reuse them.
 - Amino names `sink/MsgSink` and `sink/MsgGuardianPause` (wallet sign bytes).
 - uint64 fields must round-trip values above 2^63 exactly in TypeScript; the
   bigint SDK does, and a spec covers it.

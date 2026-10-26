@@ -198,7 +198,6 @@ export function decisionToJSON(object: Decision): string {
 /** Totals records escrow accounting and monotonically increasing transfer and reporter identifiers. */
 export interface Totals {
   lastTransferId: bigint;
-  launchReserve: bigint;
   pendingAmount: bigint;
   pendingCount: bigint;
   mintedAmount: bigint;
@@ -262,7 +261,6 @@ export interface Settlement {
 function createBaseTotals(): Totals {
   return {
     lastTransferId: 0n,
-    launchReserve: 0n,
     pendingAmount: 0n,
     pendingCount: 0n,
     mintedAmount: 0n,
@@ -283,12 +281,6 @@ export const Totals: MessageFns<Totals, "akash.sink.v1.Totals"> = {
         throw new globalThis.Error("value provided for field message.lastTransferId of type uint64 too large");
       }
       writer.uint32(8).uint64(message.lastTransferId);
-    }
-    if (message.launchReserve !== 0n) {
-      if (BigInt.asUintN(64, message.launchReserve) !== message.launchReserve) {
-        throw new globalThis.Error("value provided for field message.launchReserve of type uint64 too large");
-      }
-      writer.uint32(16).uint64(message.launchReserve);
     }
     if (message.pendingAmount !== 0n) {
       if (BigInt.asUintN(64, message.pendingAmount) !== message.pendingAmount) {
@@ -354,14 +346,6 @@ export const Totals: MessageFns<Totals, "akash.sink.v1.Totals"> = {
           }
 
           message.lastTransferId = reader.uint64() as bigint;
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.launchReserve = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -440,7 +424,6 @@ export const Totals: MessageFns<Totals, "akash.sink.v1.Totals"> = {
   fromJSON(object: any): Totals {
     return {
       lastTransferId: isSet(object.last_transfer_id) ? BigInt(object.last_transfer_id) : 0n,
-      launchReserve: isSet(object.launch_reserve) ? BigInt(object.launch_reserve) : 0n,
       pendingAmount: isSet(object.pending_amount) ? BigInt(object.pending_amount) : 0n,
       pendingCount: isSet(object.pending_count) ? BigInt(object.pending_count) : 0n,
       mintedAmount: isSet(object.minted_amount) ? BigInt(object.minted_amount) : 0n,
@@ -456,9 +439,6 @@ export const Totals: MessageFns<Totals, "akash.sink.v1.Totals"> = {
     const obj: any = {};
     if (message.lastTransferId !== 0n) {
       obj.last_transfer_id = message.lastTransferId.toString();
-    }
-    if (message.launchReserve !== 0n) {
-      obj.launch_reserve = message.launchReserve.toString();
     }
     if (message.pendingAmount !== 0n) {
       obj.pending_amount = message.pendingAmount.toString();
@@ -490,9 +470,6 @@ export const Totals: MessageFns<Totals, "akash.sink.v1.Totals"> = {
     const message = createBaseTotals();
     message.lastTransferId = (object.lastTransferId !== undefined && object.lastTransferId !== null)
       ? BigInt(object.lastTransferId)
-      : 0n;
-    message.launchReserve = (object.launchReserve !== undefined && object.launchReserve !== null)
-      ? BigInt(object.launchReserve)
       : 0n;
     message.pendingAmount = (object.pendingAmount !== undefined && object.pendingAmount !== null)
       ? BigInt(object.pendingAmount)

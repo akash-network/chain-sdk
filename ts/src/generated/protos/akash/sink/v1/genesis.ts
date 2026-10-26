@@ -14,17 +14,13 @@ import { AccountUsage, Totals, TransferState } from "./types.ts";
 /** GenesisState defines the sink module state at genesis or export. */
 export interface GenesisState {
   params: Params | undefined;
-  totals:
-    | Totals
-    | undefined;
-  /** Used only for initial funding. Exports clear this to avoid funding twice. */
-  launchReserveSource: string;
+  totals: Totals | undefined;
   transfers: TransferState[];
   accounts: AccountUsage[];
 }
 
 function createBaseGenesisState(): GenesisState {
-  return { params: undefined, totals: undefined, launchReserveSource: "", transfers: [], accounts: [] };
+  return { params: undefined, totals: undefined, transfers: [], accounts: [] };
 }
 
 export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"> = {
@@ -36,9 +32,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     }
     if (message.totals !== undefined) {
       Totals.encode(message.totals, writer.uint32(18).fork()).join();
-    }
-    if (message.launchReserveSource !== "") {
-      writer.uint32(26).string(message.launchReserveSource);
     }
     for (const v of message.transfers) {
       TransferState.encode(v!, writer.uint32(34).fork()).join();
@@ -72,14 +65,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
           message.totals = Totals.decode(reader, reader.uint32());
           continue;
         }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.launchReserveSource = reader.string();
-          continue;
-        }
         case 4: {
           if (tag !== 34) {
             break;
@@ -109,7 +94,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     return {
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
       totals: isSet(object.totals) ? Totals.fromJSON(object.totals) : undefined,
-      launchReserveSource: isSet(object.launch_reserve_source) ? globalThis.String(object.launch_reserve_source) : "",
       transfers: globalThis.Array.isArray(object?.transfers)
         ? object.transfers.map((e: any) => TransferState.fromJSON(e))
         : [],
@@ -127,9 +111,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     if (message.totals !== undefined) {
       obj.totals = Totals.toJSON(message.totals);
     }
-    if (message.launchReserveSource !== "") {
-      obj.launch_reserve_source = message.launchReserveSource;
-    }
     if (message.transfers?.length) {
       obj.transfers = message.transfers.map((e) => TransferState.toJSON(e));
     }
@@ -146,7 +127,6 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     message.totals = (object.totals !== undefined && object.totals !== null)
       ? Totals.fromPartial(object.totals)
       : undefined;
-    message.launchReserveSource = object.launchReserveSource ?? "";
     message.transfers = object.transfers?.map((e) => TransferState.fromPartial(e)) || [];
     message.accounts = object.accounts?.map((e) => AccountUsage.fromPartial(e)) || [];
     return message;

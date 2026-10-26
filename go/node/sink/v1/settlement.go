@@ -166,5 +166,5 @@ func (t Totals) DepositedAmount() (uint64, error) {
 	return checkedSum(t.PendingAmount, t.MintedAmount, t.VoidedAmount, t.RefundedAmount)
 }
 func (t Totals) EscrowAmount() (uint64, error) {
-	return checkedSum(t.LaunchReserve, t.PendingAmount, t.MintedAmount, t.VoidedAmount)
+	return checkedSum(t.PendingAmount, t.MintedAmount, t.VoidedAmount)
 }

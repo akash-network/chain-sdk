@@ -11,7 +11,6 @@ const (
 	StoreKey              = ModuleName
 	Denom                 = "uakt"
 	DestTypeSolana uint32 = 1
-	LaunchReserve  uint64 = 1_000_000_000_000
 	RecordSize            = 77
 )
 

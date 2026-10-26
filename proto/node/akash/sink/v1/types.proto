@@ -7,8 +7,9 @@ option go_package = "pkg.akt.dev/go/node/sink/v1";
 
 // Totals records escrow accounting and monotonically increasing transfer and reporter identifiers.
 message Totals {
+  reserved 2;
+  reserved "launch_reserve";
   uint64 last_transfer_id = 1;
-  uint64 launch_reserve = 2;
   uint64 pending_amount = 3;
   uint64 pending_count = 4;
   uint64 minted_amount = 5;
