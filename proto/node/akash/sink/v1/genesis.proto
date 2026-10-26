@@ -9,10 +9,11 @@ option go_package = "pkg.akt.dev/go/node/sink/v1";
 
 // GenesisState defines the sink module state at genesis or export.
 message GenesisState {
+  reserved 3;
+  reserved "launch_reserve_source";
+
   Params params = 1 [(gogoproto.nullable) = false];
   Totals totals = 2 [(gogoproto.nullable) = false];
-  // Used only for initial funding. Exports clear this to avoid funding twice.
-  string launch_reserve_source = 3;
   repeated TransferState transfers = 4 [(gogoproto.nullable) = false];
   repeated AccountUsage accounts = 5 [(gogoproto.nullable) = false];
 }

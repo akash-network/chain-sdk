@@ -7460,7 +7460,6 @@ Example: "akash1..." |
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `last_transfer_id` | [uint64](#uint64) |  |  |
- | `launch_reserve` | [uint64](#uint64) |  |  |
  | `pending_amount` | [uint64](#uint64) |  |  |
  | `pending_count` | [uint64](#uint64) |  |  |
  | `minted_amount` | [uint64](#uint64) |  |  |
@@ -7588,7 +7587,6 @@ Example: "akash1..." |
  | ----- | ---- | ----- | ----------- |
  | `params` | [Params](#akash.sink.v1.Params) |  |  |
  | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
- | `launch_reserve_source` | [string](#string) |  | Used only for initial funding. Exports clear this to avoid funding twice. |
  | `transfers` | [TransferState](#akash.sink.v1.TransferState) | repeated |  |
  | `accounts` | [AccountUsage](#akash.sink.v1.AccountUsage) | repeated |  |
  

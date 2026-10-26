@@ -69,16 +69,6 @@ func TestDestination(t *testing.T) {
 	require.True(t, found, "no large-order point with a small y")
 }
 
-func TestReserveSourceLength(t *testing.T) {
-	g := types.DefaultGenesis()
-	g.LaunchReserveSource = sdk.AccAddress(bytes.Repeat([]byte{9}, 32)).String() // group policy size
-	require.NoError(t, g.Validate())
-	g.LaunchReserveSource = sdk.AccAddress(bytes.Repeat([]byte{9}, 20)).String()
-	require.NoError(t, g.Validate())
-	g.LaunchReserveSource = sdk.AccAddress(bytes.Repeat([]byte{9}, 25)).String()
-	require.Error(t, g.Validate())
-}
-
 func TestTransferWireVector(t *testing.T) {
 	// The Solana verifier parses these exact bytes: no protobuf envelope,
 	// 20-byte sender, little-endian numbers and ASCII decimal keys.
@@ -109,9 +99,12 @@ func TestParamsAndGenesis(t *testing.T) {
 	g.Params.Reporters = []string{sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()}
 	g.Params.ReporterThreshold = 1
 	g.Params.MinTransfer = 1
-	require.ErrorContains(t, g.Validate(), "reserve")
-	g.Totals.LaunchReserve = types.LaunchReserve
+	// No launch reserve: deposits need only reporters and a minimum.
 	require.NoError(t, g.Validate())
+	g.Params.Reporters, g.Params.ReporterThreshold = nil, 0
+	require.ErrorContains(t, g.Validate(), "reporters must be configured")
+	g.Params.Reporters = []string{sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()}
+	g.Params.ReporterThreshold = 1
 	g.Params.MaxTransfer = g.Params.SolanaDailyMintCap + 1
 	require.Error(t, g.Validate())
 	g.Params = types.DefaultParams()
@@ -120,6 +113,22 @@ func TestParamsAndGenesis(t *testing.T) {
 	g.Params = types.DefaultParams()
 	g.Totals.PendingAmount = 1
 	require.Error(t, g.Validate())
+}
+
+func TestDefaultParams(t *testing.T) {
+	p := types.DefaultParams()
+	require.NoError(t, p.Validate())
+	require.False(t, p.Enabled)
+	require.Equal(t, uint64(1_000_000_000_000), p.MaxTransfer)         // 1M AKT
+	require.Equal(t, uint64(10_000_000_000_000), p.SolanaDailyMintCap) // 10M AKT
+	require.Equal(t, uint64(1_000_000_000_000), p.DailyRefundCap)      // 1M AKT
+	require.GreaterOrEqual(t, p.DailyRefundCap, p.MaxTransfer)
+	require.Equal(t, uint32(20), p.MaxDailyPerAccount)
+	require.Equal(t, uint32(3), p.MaxPendingPerAccount)
+	require.Zero(t, p.MinTransfer)
+	require.Equal(t, types.DefaultChallengePeriodSeconds, p.ChallengePeriodSeconds)
+	p.DailyRefundCap = p.MaxTransfer - 1
+	require.ErrorContains(t, p.Validate(), "daily refund cap")
 }
 
 func TestParamsMinTransfer(t *testing.T) {
