@@ -12,8 +12,6 @@ import (
 
 const MaxReporters = 32
 
-func SettlementKey(id uint64) []byte { return []byte(fmt.Sprintf("settlement/%d", id)) }
-
 func ValidateReporters(members []string, threshold uint32) error {
 	if len(members) == 0 {
 		if threshold != 0 {

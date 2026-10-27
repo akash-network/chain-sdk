@@ -3,7 +3,6 @@ package v1
 import (
 	"encoding/binary"
 	"fmt"
-	"strconv"
 )
 
 const (
@@ -23,8 +22,21 @@ type Transfer struct {
 	Height    uint64
 }
 
-func TransferKey(id uint64) []byte { return []byte("transfer/" + strconv.FormatUint(id, 10)) }
-func VoidKey(id uint64) []byte     { return []byte("void/" + strconv.FormatUint(id, 10)) }
+// Solana proves transfer records and void orders at these keys in the sink
+// store: a two-byte prefix, then the ID as an 8-byte big-endian integer.
+// Changing a prefix or the ID encoding breaks every Solana proof.
+
+// TransferKeyPrefix is the store prefix of transfer records.
+func TransferKeyPrefix() []byte { return []byte{0x02, 0x00} }
+
+// VoidKeyPrefix is the store prefix of void orders.
+func VoidKeyPrefix() []byte { return []byte{0x02, 0x01} }
+
+// TransferKey is the store key of transfer record id.
+func TransferKey(id uint64) []byte { return binary.BigEndian.AppendUint64(TransferKeyPrefix(), id) }
+
+// VoidKey is the store key of the void order for transfer id.
+func VoidKey(id uint64) []byte { return binary.BigEndian.AppendUint64(VoidKeyPrefix(), id) }
 
 func (t Transfer) Marshal() ([]byte, error) {
 	if t.ID == 0 || t.Amount == 0 || t.Height == 0 || t.Recipient == [32]byte{} {
