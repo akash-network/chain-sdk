@@ -5,6 +5,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"strings"
 	"testing"
 
@@ -83,8 +84,10 @@ func TestTransferWireVector(t *testing.T) {
 	got, err := types.DecodeTransfer(b)
 	require.NoError(t, err)
 	require.Equal(t, transfer, got)
-	require.Equal(t, "transfer/42", string(types.TransferKey(42)))
-	require.Equal(t, "void/42", string(types.VoidKey(42)))
+	require.Equal(t, "0200000000000000002a", hex.EncodeToString(types.TransferKey(42)))
+	require.Equal(t, "0201000000000000002a", hex.EncodeToString(types.VoidKey(42)))
+	require.Equal(t, "0200ffffffffffffffff", hex.EncodeToString(types.TransferKey(math.MaxUint64)))
+	require.Equal(t, "0201ffffffffffffffff", hex.EncodeToString(types.VoidKey(math.MaxUint64)))
 	require.Equal(t, "012a00000000000000", hex.EncodeToString(types.VoidValue(42)))
 	for _, bad := range [][]byte{nil, b[:76], append(bytes.Clone(b), 0), append([]byte{2}, b[1:]...)} {
 		_, err := types.DecodeTransfer(bad)
