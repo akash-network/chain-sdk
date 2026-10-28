@@ -2,143 +2,158 @@ package events
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/boz/go-lifecycle"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	cmclient "github.com/cometbft/cometbft/rpc/client"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
-	cmtypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
-	sdkclient "github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/gogoproto/proto"
-
-	atypes "pkg.akt.dev/go/node/audit/v1"
-	dtypes "pkg.akt.dev/go/node/deployment/v1"
-	mtypes "pkg.akt.dev/go/node/market/v1"
 
 	"pkg.akt.dev/go/util/ctxlog"
 	"pkg.akt.dev/go/util/pubsub"
 )
 
-const (
-	queueSize          = 1000
-	unsubscribeTimeout = 5 * time.Second
-)
-
-// subscribeResult carries the outcome of a re-subscribe back to the run loop.
-type subscribeResult struct {
-	ch      <-chan ctypes.ResultEvent
-	err     error
-	attempt int
-}
-
-// stall is the height the cursor cannot get past. The zero value means healthy.
-type stall struct {
-	height int64
-	// since is when the cursor first parked on height, the clock the stall is
-	// measured against.
-	since   time.Time
-	nextTry time.Time
-	// escalated is set once a stall that outlasted prunedCheckAfter has been logged at
-	// error level, and pruneChecked once the node has been asked whether height is
-	// pruned, so a cursor parked for days does each once rather than on every retry.
-	escalated    bool
-	pruneChecked bool
-}
-
-type events struct {
-	ctx        context.Context
-	ebus       cmclient.EventsClient
-	client     sdkclient.CometRPC
-	bus        pubsub.Bus
-	lc         lifecycle.Lifecycle
-	log        log.Logger
-	opts       options
-	lastHeight int64
-	stall      stall
-}
-
 // Service represents an event monitoring service that watches the chain and
 // publishes the transaction events it recognises to a message bus.
 type Service interface {
-	// Shutdown gracefully stops the event monitoring service and waits for it to finish.
+	// Shutdown stops the event monitoring service and waits for it to finish.
 	Shutdown()
+	// Done is closed once the service has stopped, whether through Shutdown, its parent
+	// context, or on its own (see Err).
+	Done() <-chan struct{}
+	// Err returns why the service stopped on its own: the bus's error when the bus
+	// stopped accepting events. It returns nil while the service runs and once it was
+	// stopped through Shutdown or its parent context.
+	Err() error
 }
 
-// NewEvents creates and starts a blockchain event monitoring service.
+type events struct {
+	ctx    context.Context
+	client queryNode
+	dial   dialFunc
+	bus    pubsub.Bus
+	lc     lifecycle.Lifecycle
+	log    log.Logger
+	opts   options
+	// start is the last height the caller had accounted for when the service started.
+	start int64
+	// failure is why the run loop stopped on its own. It is written before the
+	// lifecycle completes and read only after Done is closed.
+	failure error
+}
+
+// NewEvents creates and starts a blockchain event monitoring service for the node at
+// nodeURI: tcp://, http://, https://, ws://, wss:// or unix://.
 //
-// It subscribes to block headers and processes each block in order, publishing the
-// events it recognises exactly once: none is skipped and none is published twice. It
-// tracks the last processed height, so a gap between headers (for example after a
-// dropped and re-established subscription) is back-filled rather than lost.
+// The service opens its own connection to the node, a websocket for block headers and
+// an HTTP client for block results, so its lifecycle is its own, separate from any
+// client the caller holds. It processes each block in order, publishing the events it
+// recognises exactly once: none is published twice and no height is skipped (see below
+// for the one kind of event that is). It tracks the last published height, so a gap
+// between headers, for example across a reconnect, is back-filled rather than lost.
 //
-// A watchdog resets on every block and fires if none arrives within the timeout
-// (WithWatchdogTimeout, DefaultWatchdogTimeout by default). The subscription channel is
-// never closed when the connection under it dies, so the watchdog is what notices: it
-// fetches the missed blocks to keep events flowing and re-subscribes. The re-subscribe
-// matters because the CometBFT websocket client redials only after a websocket close
-// or a failed write. After a reset or a keepalive timeout it goes silent for good
-// until something writes to it again. Every loss of the subscription is logged at warn
-// level and every attempt to re-establish it at info level (see WithLogger).
+// The websocket is watched with ping and pong. A connection that stops answering,
+// whether reset, closed or silently dropped somewhere along the way, is noticed within
+// the pong wait and redialed: the first time at once, then once per retry interval
+// (WithRetryInterval, DefaultRetryInterval by default) for as long as it takes. The
+// service never subscribes twice on one connection; a node that rejects the subscription
+// is asked again on a fresh connection, at the same pace. Every loss of the
+// subscription is logged at warn level and every dial at info level (see WithLogger).
+// While no header arrives, a watchdog (WithWatchdogTimeout, DefaultWatchdogTimeout by
+// default) asks the node how far the chain has got, so events keep flowing while the
+// websocket is down or the chain is slow.
 //
-// A height that cannot be fetched or decoded parks the cursor and is retried
-// indefinitely, once per minRetryInterval on its own timer, so a transient failure
-// (a pooled backend that does not have the height yet, a rate-limited request) costs
-// one retry interval rather than waiting for the next header or watchdog tick.
-// The cursor never moves past it, even once the node has pruned it, because a skipped
-// height is a lost event: a missed EventLeaseClosed leaves a provider running a closed
-// lease. A parked cursor holds back every later event until the height is served.
+// Blocks are fetched off the service's loop, up to WithPrefetch (DefaultPrefetch by
+// default) at a time while it catches up, and published strictly in order. Every call to
+// the node is bounded by the fetch timeout (WithFetchTimeout, DefaultFetchTimeout by
+// default) and cancelled when the service stops, so a stuck request never holds it and
+// Shutdown returns promptly.
+//
+// A height that cannot be fetched parks the cursor and is retried once per retry
+// interval on its own timer, so a transient failure (a pooled backend that does not have
+// the height yet, a rate-limited request) costs one retry interval rather than waiting
+// for the next header or watchdog tick. The cursor never moves past it, because a
+// skipped height is a lost event: a missed EventLeaseClosed leaves a provider running a
+// closed lease. Later events wait behind it until it is served, however long that
+// takes: the service never gives up on a height. A long stall is logged at error level,
+// once. A node that answers with another height's results is treated as failing.
+//
+// A recognized event that cannot be decoded, for example one carrying an enum value
+// from a newer chain, is skipped and logged at error level. Retrying its height cannot
+// change the outcome, so the rest of the height and later heights go out as usual.
+//
+// The service stops on its own only when the bus refuses an event; Err then says why.
 //
 // It starts from the node's latest height, so historical events are not replayed,
 // unless WithStartHeight says where the caller left off.
-func NewEvents(pctx context.Context, node sdkclient.CometRPC, name string, bus pubsub.Bus, opts ...Option) (Service, error) {
+func NewEvents(ctx context.Context, nodeURI string, name string, bus pubsub.Bus, opts ...Option) (Service, error) {
 	o, err := newOptions(opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	lg := o.log
-	if lg == nil {
-		lg = ctxlog.Logger(pctx)
-	}
-
-	ev := &events{
-		ctx:    pctx,
-		ebus:   node.(cmclient.EventsClient),
-		client: node,
-		bus:    bus,
-		lc:     lifecycle.New(),
-		log:    lg.With("cmp", "events"),
-		opts:   o,
-	}
-
-	if o.startHeightSet {
-		ev.lastHeight = o.startHeight
-	} else {
-		status, err := node.Status(pctx)
-		if err != nil {
-			return nil, err
-		}
-		ev.lastHeight = status.SyncInfo.LatestBlockHeight
-	}
-
-	blkHeaderName := name + "-blk-hdr"
-	blkch, err := ev.ebus.Subscribe(pctx, blkHeaderName, blkHeaderQuery().String(), queueSize)
+	u, err := parseNodeURI(nodeURI)
 	if err != nil {
 		return nil, err
 	}
 
-	go ev.lc.WatchContext(pctx)
-	go ev.run(blkHeaderName, blkch)
+	client, err := newQueryNode(ctx, u)
+	if err != nil {
+		return nil, err
+	}
 
-	return ev, nil
+	cfg := wsConfig{
+		target:     newWSTarget(u),
+		query:      blkHeaderQuery().String(),
+		timeout:    o.fetchTimeout,
+		pingPeriod: o.pingPeriod,
+		pongWait:   o.pongWait,
+	}
+	dial := func(ctx context.Context) (headerStream, error) { return dialHeaders(ctx, cfg) }
+
+	e, err := newEvents(ctx, client, dial, name, bus, o)
+	if err != nil {
+		closeIdle(client)
+		return nil, err
+	}
+
+	return e, nil
+}
+
+// newEvents starts the service on the given node client and websocket dialer, with the
+// options NewEvents applied: it applies none itself, so each option is applied once.
+func newEvents(ctx context.Context, client queryNode, dial dialFunc, name string, bus pubsub.Bus, o options) (*events, error) {
+	lg := o.log
+	if lg == nil {
+		lg = ctxlog.Logger(ctx)
+	}
+
+	e := &events{
+		ctx:    ctx,
+		client: client,
+		dial:   dial,
+		bus:    bus,
+		lc:     lifecycle.New(),
+		log:    lg.With("cmp", "events", "name", name),
+		opts:   o,
+	}
+
+	if o.startHeightSet {
+		e.start = o.startHeight
+	} else {
+		status, err := e.status(ctx)
+		if err != nil {
+			return nil, err
+		}
+		e.start = status.SyncInfo.LatestBlockHeight
+	}
+
+	go e.lc.WatchContext(ctx)
+	go e.run()
+
+	return e, nil
 }
 
 func (e *events) Shutdown() {
@@ -150,7 +165,28 @@ func (e *events) Shutdown() {
 	}
 }
 
-func (e *events) run(subs string, ch <-chan ctypes.ResultEvent) {
+func (e *events) Done() <-chan struct{} {
+	return e.lc.Done()
+}
+
+func (e *events) Err() error {
+	select {
+	case <-e.lc.Done():
+		return e.failure
+	default:
+		return nil
+	}
+}
+
+// status asks the node how far the chain has got, giving up after the fetch timeout.
+func (e *events) status(ctx context.Context) (*ctypes.ResultStatus, error) {
+	sctx, cancel := context.WithTimeout(ctx, e.opts.fetchTimeout)
+	defer cancel()
+
+	return e.client.Status(sctx)
+}
+
+func (e *events) run() {
 	ctx, cancel := context.WithCancel(e.ctx)
 	defer cancel()
 
@@ -165,9 +201,8 @@ func (e *events) run(subs string, ch <-chan ctypes.ResultEvent) {
 		})
 	}
 
-	// Bridge a shutdown request (explicit Shutdown or parent-context cancellation
-	// via WatchContext) to context cancellation, so an in-progress catch-up is
-	// interrupted promptly instead of blocking shutdown until the gap is drained.
+	// Bridge a shutdown request (explicit Shutdown or parent-context cancellation via
+	// WatchContext) to context cancellation, which every call to the node is bound to.
 	go func() {
 		select {
 		case err := <-e.lc.ShutdownRequest():
@@ -176,193 +211,429 @@ func (e *events) run(subs string, ch <-chan ctypes.ResultEvent) {
 		}
 	}()
 
-	// The reason run leaves is the one thing lc.Error() can carry upward, so give it
-	// the terminal error rather than a nil that reads as a clean shutdown.
-	var exitErr error
-
-	// resub is non-nil while a re-subscribe is in flight. At most one runs at a time,
-	// and it runs off the loop, because Subscribe blocks while the websocket client is
-	// redialing and the loop must keep catching up meanwhile.
-	var resub chan subscribeResult
-
-	defer func() {
-		initiate(exitErr)
-
-		// Let an in-flight re-subscribe land before unsubscribing, or it could register
-		// the query again after UnsubscribeAll cleared it. ctx is already cancelled, so
-		// it returns promptly.
-		if resub != nil {
-			select {
-			case <-resub:
-			case <-time.After(unsubscribeTimeout):
-			}
-		}
-
-		unsubCtx, ucancel := context.WithTimeout(context.Background(), unsubscribeTimeout)
-		_ = e.ebus.UnsubscribeAll(unsubCtx, subs)
-		ucancel()
-		e.lc.ShutdownCompleted()
-	}()
-
-	watchdog := time.NewTimer(e.opts.watchdog)
-	defer watchdog.Stop()
-
-	// known is the highest height the chain is known to have reached, from headers and
-	// from Status. Every header, watchdog tick and retry catches up to it, so a parked
-	// height is retried even while Status is failing and no header arrives.
-	known := e.lastHeight
-
-	// retry wakes a parked cursor when its next attempt is due. Without it a height
-	// that failed would wait for whatever arrives next, a header one block later or a
-	// watchdog tick a full window later, and hold every later event back that long. It
-	// is armed only while the cursor is parked.
-	retry := time.NewTimer(time.Hour)
-	stopTimer(retry)
-	defer retry.Stop()
-
-	advance := func() error {
-		if err := e.catchUp(ctx, known); err != nil {
-			return err
-		}
-		if e.stall.height != 0 {
-			resetTimer(retry, time.Until(e.stall.nextTry))
-		} else {
-			stopTimer(retry)
-		}
-		return nil
+	l := newLoop(ctx, e)
+	err := l.run()
+	if err != nil {
+		e.log.Error("catch up, stopping", "err", err)
 	}
 
-	// Disconnects are logged at warn level and every step of re-establishing the
-	// subscription at info level. down is set from the first watchdog expiry or channel
-	// close until a new block arrives again, so an outage is reported as lost once and
-	// restored once. Only a header above lastHeader is a new block: a repeated or older
-	// one must neither hold the watchdog off nor claim the subscription is back.
-	var (
-		lastHeader   int64
-		lastHeaderAt = time.Now()
-		down         bool
-		attempts     int
-	)
+	initiate(err)
+	l.close()
+	closeIdle(e.client)
+
+	// Written before ShutdownCompleted closes Done, which is what Err waits for.
+	e.failure = err
+	e.lc.ShutdownCompleted()
+}
+
+// dialResult, fetchResult, statusResult and pruneResult carry the outcome of a call to
+// the node back to the run loop.
+type dialResult struct {
+	stream headerStream
+	err    error
+}
+
+type fetchResult struct {
+	height int64
+	events []interface{}
+	err    error
+}
+
+type statusResult struct {
+	latest int64
+	err    error
+}
+
+type pruneResult struct {
+	height   int64
+	earliest int64
+	stalled  time.Duration
+	err      error
+}
+
+// loop is the run goroutine's state. Only the run goroutine touches it, and it never
+// waits on the node: every call runs in a goroutine of its own, bound to the service
+// context, and reports back on one of the channels. Their senders never block, as each
+// send also gives way to the context ending.
+type loop struct {
+	e   *events
+	ctx context.Context
+	wg  sync.WaitGroup
+	cur *cursor
+
+	// stream is the live header subscription, nil while there is none. At most one
+	// dial is in flight.
+	stream  headerStream
+	dialing bool
+	dials   chan dialResult
+	redial  *time.Timer
+
+	// outage runs from a stream ending until the first new header after it. redialed is
+	// set once the outage's immediate redial is spent; later ones wait the retry
+	// interval. attempts counts the dials since the last header, for the logs.
+	outage   bool
+	redialed bool
+	attempts int
+
+	fetches chan fetchResult
+	retry   *time.Timer
+
+	// watchdog fires when no new header has arrived for a window; the loop then asks
+	// the node for its height, one call at a time.
+	watchdog       *time.Timer
+	statuses       chan statusResult
+	statusInflight bool
+	pruneChecks    chan pruneResult
+
+	// lastHeader is the highest header seen, and lastHeaderAt when it arrived. Only a
+	// header above lastHeader is a new block.
+	lastHeader   int64
+	lastHeaderAt time.Time
+}
+
+func newLoop(ctx context.Context, e *events) *loop {
+	return &loop{
+		e:            e,
+		ctx:          ctx,
+		cur:          newCursor(e.start, e.opts.prefetch, e.opts.retryInterval, e.opts.prunedCheckAfter),
+		dials:        make(chan dialResult, 1),
+		redial:       newStoppedTimer(),
+		fetches:      make(chan fetchResult, e.opts.prefetch),
+		retry:        newStoppedTimer(),
+		watchdog:     time.NewTimer(e.opts.watchdog),
+		statuses:     make(chan statusResult, 1),
+		pruneChecks:  make(chan pruneResult, 1),
+		lastHeaderAt: time.Now(),
+	}
+}
+
+// run serves the loop until the service context ends, or until the bus refuses an
+// event, which it returns.
+func (l *loop) run() error {
+	l.startDial()
 
 	for {
+		var notify, ended <-chan struct{}
+		if l.stream != nil {
+			notify, ended = l.stream.Notify(), l.stream.Done()
+		}
+
 		select {
-		case <-ctx.Done():
-			return
-
-		case ev, ok := <-ch:
-			if !ok {
-				// The subscription channel should never close; if it does, drop it and
-				// let the watchdog re-subscribe rather than hot-spinning. The close is
-				// itself the loss, so the watchdog does not report the outage again.
-				e.log.Warn("block subscription channel closed, re-subscribing on watchdog expiry",
-					"last_header", lastHeader, "last_height", e.lastHeight)
-				down = true
-				ch = nil
-				continue
+		case <-l.ctx.Done():
+			return nil
+		case <-notify:
+			l.onHeader(l.stream.Latest())
+		case <-ended:
+			l.onStreamEnded()
+		case r := <-l.dials:
+			l.onDial(r)
+		case <-l.redial.C:
+			l.startDial()
+		case r := <-l.fetches:
+			if err := l.onFetch(r); err != nil {
+				return err
 			}
-
-			evt, ok := ev.Data.(cmtypes.EventDataNewBlockHeader)
-			if !ok {
-				continue
-			}
-			height := evt.Header.Height
-
-			if height > lastHeader {
-				switch {
-				case down:
-					e.log.Info("block subscription restored",
-						"down_for", time.Since(lastHeaderAt), "attempts", attempts, "height", height, "last_height", e.lastHeight)
-					down, attempts = false, 0
-				case lastHeader > 0 && height > lastHeader+1:
-					// The client redialed on its own within the watchdog window, so the
-					// only trace of the disconnect is the heights it never delivered.
-					e.log.Warn("block subscription missed blocks, back-filling",
-						"from", lastHeader+1, "to", height-1)
-				}
-				lastHeader = height
-				lastHeaderAt = time.Now()
-				resetTimer(watchdog, e.opts.watchdog)
-			}
-			if height > known {
-				known = height
-			}
-
-			// A repeated or older header still retries a parked cursor; catchUp paces
-			// retries, and the cursor keeps it from publishing anything twice.
-			if err := advance(); err != nil {
-				e.log.Error("catch up, stopping", "err", err)
-				exitErr = err
-				return
-			}
-
-		case <-retry.C:
-			if err := advance(); err != nil {
-				e.log.Error("catch up, stopping", "err", err)
-				exitErr = err
-				return
-			}
-
-		case <-watchdog.C:
-			if len(ch) > 0 {
-				// Headers arrived while a long catch-up held the loop; the subscription
-				// is alive and they are next in line, so this is not an outage.
-				resetTimer(watchdog, e.opts.watchdog)
-				continue
-			}
-			if !down {
-				down = true
-				e.log.Warn("block subscription presumed lost: no new block within watchdog window",
-					"timeout", e.opts.watchdog, "last_header", lastHeader, "last_height", e.lastHeight)
-			}
-			if resub == nil {
-				attempts++
-				e.log.Info("re-subscribing to block headers", "attempt", attempts, "down_for", time.Since(lastHeaderAt))
-				resub = e.resubscribe(ctx, subs, attempts)
-			}
-			if status, err := e.client.Status(ctx); err != nil {
-				e.log.Warn("watchdog fetch chain status failed, will retry", "err", err)
-			} else if latest := status.SyncInfo.LatestBlockHeight; latest > known {
-				known = latest
-			}
-			if err := advance(); err != nil {
-				e.log.Error("catch up, stopping", "err", err)
-				exitErr = err
-				return
-			}
-			resetTimer(watchdog, e.opts.watchdog)
-
-		case res := <-resub:
-			resub = nil
-			if res.err != nil {
-				e.log.Warn("re-subscribe failed, retrying on next watchdog expiry", "attempt", res.attempt, "err", res.err)
-				continue
-			}
-			e.log.Info("re-subscribe sent, waiting for block headers", "attempt", res.attempt)
-			ch = res.ch
+		case <-l.retry.C:
+			l.schedule()
+		case <-l.watchdog.C:
+			l.onWatchdog()
+		case r := <-l.statuses:
+			l.onStatus(r)
+		case r := <-l.pruneChecks:
+			l.onPruneCheck(r)
 		}
 	}
 }
 
-// resubscribe subscribes to block headers again, off the run loop, and delivers the
-// outcome on the returned channel. Calling Subscribe is what gets a silently dead
-// websocket redialed: the write fails, and the client reconnects and replays its
-// subscriptions. On a live connection the node answers that the query is already
-// subscribed, which the client ignores, so re-subscribing while the chain is merely
-// slow is harmless. The call is bounded by the watchdog window, because Subscribe
-// blocks for as long as the client is redialing. Success means the request went out,
-// not that headers flow again; the first header after it is what confirms that.
-func (e *events) resubscribe(ctx context.Context, subs string, attempt int) chan subscribeResult {
-	res := make(chan subscribeResult, 1)
+// close releases what the loop holds once the service context has ended: the stream,
+// every goroutine (each returns promptly, its call being bound to the context), and a
+// stream a dial delivered too late to be used.
+func (l *loop) close() {
+	if l.stream != nil {
+		l.stream.Close()
+		l.stream = nil
+	}
 
+	l.wg.Wait()
+
+	select {
+	case r := <-l.dials:
+		if r.stream != nil {
+			r.stream.Close()
+		}
+	default:
+	}
+
+	l.watchdog.Stop()
+	l.retry.Stop()
+	l.redial.Stop()
+}
+
+// onHeader handles the highest header the stream has seen. Only a header above the last
+// one is a new block: a repeated or older one neither holds the watchdog off nor claims
+// the subscription is back.
+func (l *loop) onHeader(height int64) {
+	if height > l.lastHeader {
+		switch {
+		case l.outage:
+			l.e.log.Info("block subscription restored",
+				"down_for", time.Since(l.lastHeaderAt), "attempts", l.attempts, "height", height, "last_height", l.cur.last())
+			l.outage, l.redialed = false, false
+		case l.lastHeader > 0 && height > l.lastHeader+1:
+			// The stream went on without delivering some heights, so the only trace of
+			// the gap is the heights it never delivered.
+			l.e.log.Warn("block subscription missed blocks, back-filling", "from", l.lastHeader+1, "to", height-1)
+		}
+		l.lastHeader = height
+		l.lastHeaderAt = time.Now()
+		l.attempts = 0
+		resetTimer(l.watchdog, l.e.opts.watchdog)
+	}
+
+	l.cur.observe(height)
+	l.schedule()
+}
+
+// onStreamEnded drops a stream that has ended and redials: at once the first time in an
+// outage, then once per retry interval.
+func (l *loop) onStreamEnded() {
+	s := l.stream
+	l.stream = nil
+
+	// A header that raced the end is still a header.
+	if h := s.Latest(); h > l.lastHeader {
+		l.onHeader(h)
+	}
+	err := s.Err()
+	s.Close()
+
+	if !l.outage {
+		l.outage, l.redialed, l.attempts = true, false, 0
+		l.e.log.Warn("block subscription lost, redialing", "err", err, "last_header", l.lastHeader, "last_height", l.cur.last())
+	}
+
+	if !l.redialed {
+		l.redialed = true
+		l.startDial()
+		return
+	}
+	resetTimer(l.redial, l.e.opts.retryInterval)
+}
+
+// startDial dials the node's websocket off the loop, unless a dial is in flight or a
+// stream is live.
+func (l *loop) startDial() {
+	if l.dialing || l.stream != nil {
+		return
+	}
+	l.dialing = true
+	l.attempts++
+	l.e.log.Info("dialing block subscription", "attempt", l.attempts)
+
+	l.wg.Add(1)
 	go func() {
-		sctx, cancel := context.WithTimeout(ctx, e.opts.watchdog)
+		defer l.wg.Done()
+
+		dctx, cancel := context.WithTimeout(l.ctx, l.e.opts.fetchTimeout)
 		defer cancel()
 
-		ch, err := e.ebus.Subscribe(sctx, subs, blkHeaderQuery().String(), queueSize)
-		res <- subscribeResult{ch: ch, err: err, attempt: attempt}
+		s, err := l.e.dial(dctx)
+		select {
+		case l.dials <- dialResult{stream: s, err: err}:
+		case <-l.ctx.Done():
+			if s != nil {
+				s.Close()
+			}
+		}
 	}()
+}
 
-	return res
+func (l *loop) onDial(r dialResult) {
+	l.dialing = false
+
+	if l.ctx.Err() != nil {
+		if r.stream != nil {
+			r.stream.Close()
+		}
+		return
+	}
+
+	if r.err != nil {
+		l.e.log.Warn("block subscription dial failed, retrying",
+			"attempt", l.attempts, "retry_in", l.e.opts.retryInterval, "err", r.err)
+		resetTimer(l.redial, l.e.opts.retryInterval)
+		return
+	}
+
+	l.stream = r.stream
+	l.e.log.Info("block subscription connected", "attempt", l.attempts)
+}
+
+// onWatchdog asks the node how far the chain has got when no new header arrived for a
+// window. A live stream with no header is a slow chain, not a lost subscription, so
+// nothing is redialed.
+func (l *loop) onWatchdog() {
+	l.e.log.Debug("no new block within watchdog window, polling node",
+		"timeout", l.e.opts.watchdog, "last_header", l.lastHeader, "last_height", l.cur.last())
+
+	if !l.statusInflight {
+		l.statusInflight = true
+		l.wg.Add(1)
+		go func() {
+			defer l.wg.Done()
+
+			var r statusResult
+			if status, err := l.e.status(l.ctx); err != nil {
+				r.err = err
+			} else {
+				r.latest = status.SyncInfo.LatestBlockHeight
+			}
+
+			select {
+			case l.statuses <- r:
+			case <-l.ctx.Done():
+			}
+		}()
+	}
+
+	resetTimer(l.watchdog, l.e.opts.watchdog)
+}
+
+func (l *loop) onStatus(r statusResult) {
+	l.statusInflight = false
+
+	if r.err != nil {
+		if l.ctx.Err() == nil {
+			l.e.log.Warn("watchdog fetch chain status failed, will retry", "err", r.err)
+		}
+		return
+	}
+
+	l.cur.observe(r.latest)
+	l.schedule()
+}
+
+// schedule starts the fetches the cursor wants now, and arms the retry timer for a
+// parked height.
+func (l *loop) schedule() {
+	for _, h := range l.cur.toFetch(time.Now()) {
+		l.startFetch(h)
+	}
+
+	if at, ok := l.cur.wakeAt(); ok {
+		resetTimer(l.retry, time.Until(at))
+	} else {
+		stopTimer(l.retry)
+	}
+}
+
+func (l *loop) startFetch(height int64) {
+	l.wg.Add(1)
+	go func() {
+		defer l.wg.Done()
+
+		evs, err := l.e.blockEvents(l.ctx, height)
+		select {
+		case l.fetches <- fetchResult{height: height, events: evs, err: err}:
+		case <-l.ctx.Done():
+		}
+	}()
+}
+
+// onFetch hands a fetch to the cursor and publishes every height that is now next in
+// line. It returns an error only when the bus refuses an event.
+func (l *loop) onFetch(r fetchResult) error {
+	if r.err != nil && l.ctx.Err() != nil {
+		return nil // cut short by the service stopping
+	}
+
+	if ev, parked := l.cur.done(r.height, r.events, r.err, time.Now()); parked {
+		l.parked(ev)
+	} else if r.err != nil {
+		l.e.log.Debug("block fetch ahead of the cursor failed, refetching when the cursor gets there",
+			"height", r.height, "err", r.err)
+	}
+
+	for {
+		blk, ok := l.cur.pop(time.Now())
+		if !ok {
+			break
+		}
+		for _, ev := range blk.events {
+			if err := l.e.bus.Publish(ev); err != nil {
+				return err
+			}
+		}
+		if blk.recovered {
+			l.e.log.Info("block fetch recovered, cursor resumed", "height", blk.height, "stalled", blk.stalled)
+		}
+	}
+
+	l.schedule()
+	return nil
+}
+
+// parked logs a failure of the cursor height: at warn level the first time, since
+// behind pooled RPC backends a height that one backend does not have yet, or a
+// rate-limited request, is routine and recovers on the next attempt; once at error level
+// when the stall outlasts the pruned-check delay; at debug level in between, so a long
+// stall does not bury the lines that matter. At that delay it also asks the node,
+// once, whether the height is pruned.
+func (l *loop) parked(ev parkEvent) {
+	switch {
+	case ev.first:
+		l.e.log.Warn("block fetch failed, cursor parked", "height", ev.height, "retry_in", l.e.opts.retryInterval, "err", ev.err)
+	case ev.escalate:
+		l.e.log.Error("block fetch keeps failing, cursor stalled", "height", ev.height, "stalled", ev.stalled, "err", ev.err)
+	default:
+		l.e.log.Debug("block fetch still failing, cursor parked", "height", ev.height, "stalled", ev.stalled, "err", ev.err)
+	}
+
+	if ev.pruneCheck {
+		l.startPruneCheck(ev.height, ev.stalled)
+	}
+}
+
+// startPruneCheck asks the node, off the loop, whether height is below its retained
+// history. The cursor stays parked either way: the answer only explains the stall in
+// the log, so an operator knows a node that retains the height is needed.
+func (l *loop) startPruneCheck(height int64, stalled time.Duration) {
+	l.wg.Add(1)
+	go func() {
+		defer l.wg.Done()
+
+		r := pruneResult{height: height, stalled: stalled}
+		if status, err := l.e.status(l.ctx); err != nil {
+			r.err = err
+		} else {
+			r.earliest = status.SyncInfo.EarliestBlockHeight
+		}
+
+		select {
+		case l.pruneChecks <- r:
+		case <-l.ctx.Done():
+		}
+	}()
+}
+
+// onPruneCheck explains a stall the node has pruned under. An answer for a height that
+// has been served since explains nothing any more.
+func (l *loop) onPruneCheck(r pruneResult) {
+	if r.err != nil || !l.cur.parkedOn(r.height) {
+		return
+	}
+
+	if r.earliest > r.height {
+		l.e.log.Warn("node has pruned the parked height, cursor stays parked until a node that retains it answers",
+			"height", r.height, "node_earliest", r.earliest, "stalled", r.stalled)
+	}
+}
+
+// newStoppedTimer returns a timer that is not running.
+func newStoppedTimer() *time.Timer {
+	t := time.NewTimer(time.Hour)
+	stopTimer(t)
+	return t
 }
 
 // resetTimer safely re-arms t to fire after d. It is only called from the run
@@ -382,248 +653,3 @@ func stopTimer(t *time.Timer) {
 		}
 	}
 }
-
-// catchUp processes every block from the last one handled up to targetHeight, in order.
-// A height that fails is parked and retried indefinitely, paced by
-// e.opts.minRetryInterval (the run loop's retry timer wakes it), and is never skipped. The cursor advances only once every
-// event of a height has been published, so no height is published twice either. It
-// returns non-nil only on a terminal publish error, which means the caller must stop
-// rather than keep retrying.
-func (e *events) catchUp(ctx context.Context, targetHeight int64) error {
-	for e.lastHeight < targetHeight {
-		if ctx.Err() != nil {
-			return nil
-		}
-
-		height := e.lastHeight + 1
-		if e.stall.height == height && time.Now().Before(e.stall.nextTry) {
-			return nil
-		}
-
-		evs, err := e.blockEvents(ctx, height)
-		if err != nil {
-			if ctx.Err() != nil {
-				return nil
-			}
-			e.parkCursor(ctx, height, err)
-			return nil
-		}
-
-		for _, ev := range evs {
-			if err := e.bus.Publish(ev); err != nil {
-				return err
-			}
-		}
-
-		if e.stall.height == height {
-			e.log.Info("block fetch recovered, cursor resumed", "height", height, "stalled", time.Since(e.stall.since))
-		}
-
-		e.stall = stall{}
-		e.lastHeight = height
-	}
-
-	return nil
-}
-
-// parkCursor records height as the stalled cursor position. The cursor stays there until
-// the height is fetched and decoded: it never skips, even once the node has pruned the
-// height, because a skipped height is a lost event. Pooled backends report very
-// different pruning floors, so the fetch keeps being retried against whichever answers.
-//
-// A fetch failure is logged at warn level the first time, since behind pooled RPC
-// backends a height that one backend does not have yet, or a rate-limited request, is
-// routine and recovers on the next attempt. If the cursor is still parked after
-// e.opts.prunedCheckAfter it is logged once at error level. A decode failure is logged
-// at error level at once, because retrying cannot fix it, and is named as such so it
-// does not send an operator after the network. Retries in between log at debug level,
-// so a cursor parked for days does not bury the lines that matter.
-//
-// Once the stall has lasted e.opts.prunedCheckAfter it also asks the node, once per
-// height, whether the height is below its retained history. The answer only explains
-// the stall in the log, so an operator knows a node that retains the height is needed.
-func (e *events) parkCursor(ctx context.Context, height int64, err error) {
-	now := time.Now()
-	first := e.stall.height != height
-	if first {
-		e.stall = stall{height: height, since: now}
-	}
-	e.stall.nextTry = now.Add(e.opts.minRetryInterval)
-	stalled := now.Sub(e.stall.since)
-
-	var derr *decodeError
-	decode := errors.As(err, &derr)
-
-	switch {
-	case first && decode:
-		e.log.Error("block decode failed, cursor parked", "height", height, "err", err)
-	case first:
-		e.log.Warn("block fetch failed, cursor parked", "height", height, "retry_in", e.opts.minRetryInterval, "err", err)
-	case decode:
-		e.log.Debug("block decode still failing, cursor parked", "height", height, "stalled", stalled, "err", err)
-	case !e.stall.escalated && stalled >= e.opts.prunedCheckAfter:
-		e.stall.escalated = true
-		e.log.Error("block fetch keeps failing, cursor stalled", "height", height, "stalled", stalled, "err", err)
-	default:
-		e.log.Debug("block fetch still failing, cursor parked", "height", height, "stalled", stalled, "err", err)
-	}
-
-	if e.stall.pruneChecked || stalled < e.opts.prunedCheckAfter {
-		return
-	}
-
-	status, serr := e.client.Status(ctx)
-	if serr != nil {
-		return
-	}
-	e.stall.pruneChecked = true
-
-	if earliest := status.SyncInfo.EarliestBlockHeight; earliest > height {
-		e.log.Warn("node has pruned the parked height, cursor stays parked until a node that retains it answers",
-			"height", height, "node_earliest", earliest, "stalled", stalled)
-	}
-}
-
-// blockEvents fetches height and returns the events worth publishing, in the order the
-// chain executed them. It has no side effects, so a retry of the same height cannot
-// re-publish what already went out. A recognized event that cannot be decoded fails
-// the whole height, so the cursor parks on it rather than dropping it.
-func (e *events) blockEvents(ctx context.Context, height int64) ([]interface{}, error) {
-	blkResults, err := e.client.BlockResults(ctx, &height)
-	if err != nil {
-		return nil, err
-	}
-
-	// Akash's own blockers emit none of the recognized events, but x/gov's EndBlocker
-	// executes the messages of passed proposals and re-emits their events there, so
-	// block-level events are read too. The SDK keeps them apart from tx events (those
-	// appear only in TxsResults) and lists them PreBlock, BeginBlock, EndBlock, so
-	// splitting off EndBlock restores execution order around the txs.
-	var begin, end []abci.Event
-	for _, ev := range blkResults.FinalizeBlockEvents {
-		if blockMode(ev) == modeEndBlock {
-			end = append(end, ev)
-		} else {
-			begin = append(begin, ev)
-		}
-	}
-
-	var evs []interface{}
-	collect := func(raw []abci.Event) error {
-		for _, ev := range raw {
-			mev, ok, err := processEvent(ev)
-			if err != nil {
-				return &decodeError{height: height, typ: ev.Type, err: err}
-			}
-			if ok {
-				evs = append(evs, mev)
-			}
-		}
-		return nil
-	}
-
-	if err := collect(begin); err != nil {
-		return nil, err
-	}
-	for _, tx := range blkResults.TxsResults {
-		if tx == nil {
-			continue
-		}
-		if err := collect(tx.Events); err != nil {
-			return nil, err
-		}
-	}
-	if err := collect(end); err != nil {
-		return nil, err
-	}
-
-	return evs, nil
-}
-
-const (
-	// modeKey is the attribute the SDK appends to every BeginBlock and EndBlock event.
-	// Its value is a bare word, not JSON, unlike every attribute of a typed event.
-	modeKey        = "mode"
-	modeBeginBlock = "BeginBlock"
-	modeEndBlock   = "EndBlock"
-)
-
-// recognized is the set of typed events the service publishes, keyed by the proto
-// message name the SDK writes as the event type.
-var recognized = func() map[string]struct{} {
-	m := make(map[string]struct{})
-	for _, msg := range []proto.Message{
-		&atypes.EventTrustedAuditorCreated{},
-		&atypes.EventTrustedAuditorDeleted{},
-		&dtypes.EventDeploymentCreated{},
-		&dtypes.EventDeploymentUpdated{},
-		&dtypes.EventDeploymentClosed{},
-		&dtypes.EventGroupStarted{},
-		&dtypes.EventGroupPaused{},
-		&dtypes.EventGroupClosed{},
-		&mtypes.EventOrderCreated{},
-		&mtypes.EventOrderClosed{},
-		&mtypes.EventBidCreated{},
-		&mtypes.EventBidClosed{},
-		&mtypes.EventLeaseCreated{},
-		&mtypes.EventLeaseClosed{},
-		&mtypes.EventLeaseReclaimStarted{},
-	} {
-		m[proto.MessageName(msg)] = struct{}{}
-	}
-	return m
-}()
-
-// blockMode returns the phase the SDK tagged a block-level event with, or "" for a
-// PreBlock event, which carries no tag.
-func blockMode(ev abci.Event) string {
-	for _, attr := range ev.Attributes {
-		if attr.Key == modeKey && (attr.Value == modeBeginBlock || attr.Value == modeEndBlock) {
-			return attr.Value
-		}
-	}
-	return ""
-}
-
-// processEvent decodes bev when it is one of the recognized types; ok is false for any
-// other event. The SDK's mode tag is stripped first, because ParseTypedEvent reads
-// every attribute value as JSON and the bare word would fail it. A typed event's own
-// fields are always JSON, so the tag cannot be mistaken for one. The SDK's other
-// bookkeeping attributes (msg_index, authz_msg_index) are JSON numbers the decoder
-// already ignores. An error therefore means a recognized event the chain emitted could
-// not be read, which must never be dropped.
-func processEvent(bev abci.Event) (interface{}, bool, error) {
-	if _, ok := recognized[bev.Type]; !ok {
-		return nil, false, nil
-	}
-
-	attrs := make([]abci.EventAttribute, 0, len(bev.Attributes))
-	for _, attr := range bev.Attributes {
-		if attr.Key == modeKey && (attr.Value == modeBeginBlock || attr.Value == modeEndBlock) {
-			continue
-		}
-		attrs = append(attrs, attr)
-	}
-
-	pev, err := sdk.ParseTypedEvent(abci.Event{Type: bev.Type, Attributes: attrs})
-	if err != nil {
-		return nil, false, err
-	}
-
-	return pev, true, nil
-}
-
-// decodeError is a recognized event the chain emitted that could not be decoded. It
-// parks the cursor like a fetch failure, since dropping it would lose the event, but it
-// is reported as what it is: a format the service cannot read, not a network problem.
-type decodeError struct {
-	height int64
-	typ    string
-	err    error
-}
-
-func (e *decodeError) Error() string {
-	return fmt.Sprintf("height %d: decode %s: %v", e.height, e.typ, e.err)
-}
-
-func (e *decodeError) Unwrap() error { return e.err }

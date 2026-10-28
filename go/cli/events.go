@@ -40,11 +40,22 @@ func EventsCmd() *cobra.Command {
 func getEvents(ctx context.Context, cmd *cobra.Command, _ []string) error {
 	cctx := client.GetClientContextFromCmd(cmd)
 
-	node, err := cctx.GetNode()
-	if err != nil {
-		return err
+	// The events service dials the node itself, so it needs the node's address rather
+	// than the client the context holds.
+	nodeURI := cctx.NodeURI
+	if nodeURI == "" {
+		nodeURI, _ = cmd.Flags().GetString(cflags.FlagNode)
+	}
+	if nodeURI == "" {
+		return errors.New("events: no node URI")
 	}
 
+	return streamEvents(ctx, cctx, nodeURI)
+}
+
+// streamEvents prints the chain events the node at nodeURI emits until ctx ends, or
+// until the events service stops on its own, whose error it returns.
+func streamEvents(ctx context.Context, cctx client.Context, nodeURI string, opts ...events.Option) error {
 	bus := pubsub.NewBus()
 	defer bus.Close()
 
@@ -55,29 +66,17 @@ func getEvents(ctx context.Context, cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	evtSvc, err := events.NewEvents(ctx, node, "akash-cli", bus)
+	evtSvc, err := events.NewEvents(ctx, nodeURI, "akash-cli", bus, opts...)
 	if err != nil {
 		return err
 	}
 
 	group.Go(func() error {
-		<-ctx.Done()
-		evtSvc.Shutdown()
-
-		return nil
+		return waitEvents(ctx, evtSvc)
 	})
 
 	group.Go(func() error {
-		for {
-			select {
-			case <-subscriber.Done():
-				return nil
-			case ev := <-subscriber.Events():
-				if err := PrintJSON(cctx, ev); err != nil {
-					return err
-				}
-			}
-		}
+		return printEvents(ctx, cctx, subscriber)
 	})
 
 	err = group.Wait()
@@ -86,4 +85,32 @@ func getEvents(ctx context.Context, cmd *cobra.Command, _ []string) error {
 	}
 
 	return nil
+}
+
+// waitEvents returns once ctx ends, after shutting the events service down, or once the
+// service stops on its own, with the error it stopped on.
+func waitEvents(ctx context.Context, svc events.Service) error {
+	select {
+	case <-ctx.Done():
+		svc.Shutdown()
+		return nil
+	case <-svc.Done():
+		return svc.Err()
+	}
+}
+
+// printEvents prints every event sub receives until ctx ends or sub is closed.
+func printEvents(ctx context.Context, cctx client.Context, sub pubsub.Subscriber) error {
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-sub.Done():
+			return nil
+		case ev := <-sub.Events():
+			if err := PrintJSON(cctx, ev); err != nil {
+				return err
+			}
+		}
+	}
 }

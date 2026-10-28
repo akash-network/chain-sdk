@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 	"testing"
@@ -14,10 +15,8 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
-	cmtypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
-	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	mtypes "pkg.akt.dev/go/node/market/v1"
@@ -31,51 +30,145 @@ var errTransientFetch = errors.New("post failed: connection reset by peer")
 // undecodableAttr is an attribute value no typed event decoder accepts.
 const undecodableAttr = "{not json"
 
-// fakeNode implements the CometRPC and EventsClient methods the events service uses.
-type fakeNode struct {
-	sdkclient.CometRPC
+// testNode is a fake node: the HTTP calls the service makes, and its websocket.
+type testNode interface {
+	queryNode
+	dial(ctx context.Context) (headerStream, error)
+}
 
-	mu         sync.Mutex
-	height     int64
-	earliest   int64
-	statusErr  error
-	blocks     map[int64]*coretypes.ResultBlockResults
-	blockErr   map[int64]error
-	blockCalls map[int64]int
-	blockDelay time.Duration
+// fakeNode answers the service's HTTP calls and serves its websocket header streams.
+type fakeNode struct {
+	mu        sync.Mutex
+	height    int64
+	earliest  int64
+	statusErr error
+	// statusHang makes Status block until its context ends.
+	statusHang bool
+	// statusDelay makes Status sleep before answering, ignoring its context, the way a
+	// request already on the wire does.
+	statusDelay time.Duration
+	// statusEntered, when non-nil, is signalled every time Status is called.
+	statusEntered chan struct{}
+	statusCalls   int
+	blocks        map[int64]*coretypes.ResultBlockResults
+	blockErr      map[int64]error
+	blockCalls    map[int64]int
+	// gate, when non-nil, holds every fetch until it is closed or the fetch's context
+	// ends.
+	gate chan struct{}
+	// slow delays the fetch of one height.
+	slow map[int64]time.Duration
 	// failFirst is how many more times a height fails before it is served, the way a
 	// pooled backend that does not have the height yet answers.
 	failFirst map[int64]int
-	headerCh  chan coretypes.ResultEvent
+	// hangFirst is how many more times a fetch of a height blocks until its context
+	// ends, the way a request stuck on a dead connection or queued behind a full
+	// connection pool does.
+	hangFirst map[int64]int
+	// serveOnce is answered, once, to the next fetch of a height instead of its block,
+	// the way a misrouted or cached response for another height would be.
+	serveOnce map[int64]*coretypes.ResultBlockResults
+	// fetchInflight counts fetches in progress; maxFetchInflight is its peak.
+	fetchInflight    int
+	maxFetchInflight int
 
-	subscribes   int
-	subscribeErr error
-	// subscribeHang, when non-nil, makes Subscribe block until it is closed, ignoring
-	// the context, the way a client stuck redialing would.
-	subscribeHang chan struct{}
-	// subscribeUntilCancel makes Subscribe block until its context ends, the way the
-	// real client does while it is redialing.
-	subscribeUntilCancel bool
-	inflight             int
-	maxInflight          int
-	// calls records subscription calls in completion order.
-	calls []string
+	// dialErr fails every dial. dialHang makes a dial block until its context ends,
+	// the way a dial to a node that never answers the handshake does.
+	dialErr  error
+	dialHang bool
+	dialed   int
+	// streams are the header streams handed out, in order.
+	streams []*fakeStream
 }
 
-// tuning is test shorthand for the three time options, so each test states all of
-// them in one place.
+// fakeStream is a header stream the test drives.
+type fakeStream struct {
+	mu     sync.Mutex
+	latest int64
+	err    error
+	ended  bool
+	closed bool
+	notify chan struct{}
+	done   chan struct{}
+}
+
+func newFakeStream() *fakeStream {
+	return &fakeStream{notify: make(chan struct{}, 1), done: make(chan struct{})}
+}
+
+// push delivers a header. Like the real stream, only a header above the highest seen
+// is news.
+func (s *fakeStream) push(h int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if h <= s.latest {
+		return
+	}
+	s.latest = h
+	select {
+	case s.notify <- struct{}{}:
+	default:
+	}
+}
+
+// end ends the stream with err, the way a failed connection or subscription does.
+func (s *fakeStream) end(err error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.ended {
+		return
+	}
+	s.ended, s.err = true, err
+	close(s.done)
+}
+
+func (s *fakeStream) Notify() <-chan struct{} { return s.notify }
+func (s *fakeStream) Done() <-chan struct{}   { return s.done }
+
+func (s *fakeStream) Latest() int64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.latest
+}
+
+func (s *fakeStream) Err() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.err
+}
+
+func (s *fakeStream) Close() {
+	s.end(errStreamClosed)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.closed = true
+}
+
+func (s *fakeStream) isClosed() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.closed
+}
+
+// tuning is test shorthand for the time options, so each test states them in one
+// place. fetchTimeout keeps its default when left zero.
 type tuning struct {
 	watchdog         time.Duration
-	minRetryInterval time.Duration
+	retryInterval    time.Duration
 	prunedCheckAfter time.Duration
+	fetchTimeout     time.Duration
 }
 
 func (t tuning) options() []Option {
-	return []Option{
+	opts := []Option{
 		WithWatchdogTimeout(t.watchdog),
-		withMinRetryInterval(t.minRetryInterval),
+		WithRetryInterval(t.retryInterval),
 		withPrunedCheckAfter(t.prunedCheckAfter),
 	}
+	if t.fetchTimeout > 0 {
+		opts = append(opts, WithFetchTimeout(t.fetchTimeout))
+	}
+	return opts
 }
 
 func newFakeNode() *fakeNode {
@@ -84,8 +177,10 @@ func newFakeNode() *fakeNode {
 		blocks:     map[int64]*coretypes.ResultBlockResults{},
 		blockErr:   map[int64]error{},
 		blockCalls: map[int64]int{},
+		slow:       map[int64]time.Duration{},
 		failFirst:  map[int64]int{},
-		headerCh:   make(chan coretypes.ResultEvent, 64),
+		hangFirst:  map[int64]int{},
+		serveOnce:  map[int64]*coretypes.ResultBlockResults{},
 	}
 }
 
@@ -95,32 +190,84 @@ func (f *fakeNode) set(mutate func(*fakeNode)) {
 	mutate(f)
 }
 
-// pushHeader delivers a header on the channel the latest Subscribe returned.
-func (f *fakeNode) pushHeader(h int64) {
+func (f *fakeNode) dial(ctx context.Context) (headerStream, error) {
 	f.mu.Lock()
-	ch := f.headerCh
+	err, hang := f.dialErr, f.dialHang
+	if hang || err != nil {
+		f.dialed++
+		f.mu.Unlock()
+		if hang {
+			<-ctx.Done()
+			return nil, ctx.Err()
+		}
+		return nil, err
+	}
+
+	// A successful dial is counted together with its stream, so a test that waits for
+	// the nth dial finds the nth stream in place.
+	s := newFakeStream()
+	f.dialed++
+	f.streams = append(f.streams, s)
 	f.mu.Unlock()
-	ch <- coretypes.ResultEvent{Data: cmtypes.EventDataNewBlockHeader{Header: cmtypes.Header{Height: h}}}
+
+	return s, nil
 }
 
-// dropSubscription kills the subscription the way a dead connection does: its channel
-// stays open and goes silent, and only a fresh Subscribe receives later headers.
-func (f *fakeNode) dropSubscription() {
+func (f *fakeNode) dials() int {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	f.headerCh = make(chan coretypes.ResultEvent, 64)
+	return f.dialed
 }
 
-func (f *fakeNode) subscribeCount() int {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	return f.subscribes
+// waitDials waits until the service has dialed n times.
+func (f *fakeNode) waitDials(t *testing.T, n int) {
+	t.Helper()
+	require.Eventually(t, func() bool { return f.dials() >= n }, 2*time.Second, time.Millisecond, "waiting for dial %d", n)
 }
 
-func (f *fakeNode) maxInflightSubscribes() int {
+// current is the stream the latest successful dial returned, or nil.
+func (f *fakeNode) current() *fakeStream {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return f.maxInflight
+	if len(f.streams) == 0 {
+		return nil
+	}
+	return f.streams[len(f.streams)-1]
+}
+
+// pushHeader delivers a header on the latest stream, waiting briefly for the first dial,
+// which the service makes as it starts.
+func (f *fakeNode) pushHeader(h int64) {
+	deadline := time.Now().Add(2 * time.Second)
+	for {
+		if s := f.current(); s != nil {
+			s.push(h)
+			return
+		}
+		if time.Now().After(deadline) {
+			return
+		}
+		time.Sleep(time.Millisecond)
+	}
+}
+
+// endStream ends the latest stream with err, the way a dead connection does.
+func (f *fakeNode) endStream(err error) {
+	if s := f.current(); s != nil {
+		s.end(err)
+	}
+}
+
+func (f *fakeNode) allStreamsClosed() bool {
+	f.mu.Lock()
+	streams := append([]*fakeStream(nil), f.streams...)
+	f.mu.Unlock()
+	for _, s := range streams {
+		if !s.isClosed() {
+			return false
+		}
+	}
+	return true
 }
 
 func (f *fakeNode) callsAt(h int64) int {
@@ -129,7 +276,55 @@ func (f *fakeNode) callsAt(h int64) int {
 	return f.blockCalls[h]
 }
 
-func (f *fakeNode) Status(context.Context) (*coretypes.ResultStatus, error) {
+func (f *fakeNode) statusCallCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.statusCalls
+}
+
+func (f *fakeNode) fetchesInflight() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.fetchInflight
+}
+
+func (f *fakeNode) peakFetchesInflight() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.maxFetchInflight
+}
+
+// requireSignal waits for a signal on ch, failing the test after a generous limit.
+func requireSignal(t *testing.T, ch <-chan struct{}, what string) {
+	t.Helper()
+
+	select {
+	case <-ch:
+	case <-time.After(2 * time.Second):
+		t.Fatalf("timed out waiting for %s", what)
+	}
+}
+
+func (f *fakeNode) Status(ctx context.Context) (*coretypes.ResultStatus, error) {
+	f.mu.Lock()
+	f.statusCalls++
+	hang, delay, entered := f.statusHang, f.statusDelay, f.statusEntered
+	f.mu.Unlock()
+
+	if entered != nil {
+		select {
+		case entered <- struct{}{}:
+		default:
+		}
+	}
+	if hang {
+		<-ctx.Done()
+		return nil, ctx.Err()
+	}
+	if delay > 0 {
+		time.Sleep(delay)
+	}
+
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if f.statusErr != nil {
@@ -141,10 +336,36 @@ func (f *fakeNode) Status(context.Context) (*coretypes.ResultStatus, error) {
 	}}, nil
 }
 
-func (f *fakeNode) BlockResults(_ context.Context, h *int64) (*coretypes.ResultBlockResults, error) {
+func (f *fakeNode) BlockResults(ctx context.Context, h *int64) (*coretypes.ResultBlockResults, error) {
 	f.mu.Lock()
-	delay := f.blockDelay
+	f.fetchInflight++
+	if f.fetchInflight > f.maxFetchInflight {
+		f.maxFetchInflight = f.fetchInflight
+	}
+	delay, gate := f.slow[*h], f.gate
+	hang := f.hangFirst[*h] > 0
+	if hang {
+		f.hangFirst[*h]--
+		f.blockCalls[*h]++
+	}
 	f.mu.Unlock()
+	defer func() {
+		f.mu.Lock()
+		f.fetchInflight--
+		f.mu.Unlock()
+	}()
+
+	if hang {
+		<-ctx.Done()
+		return nil, ctx.Err()
+	}
+	if gate != nil {
+		select {
+		case <-gate:
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
 	if delay > 0 {
 		time.Sleep(delay)
 	}
@@ -159,61 +380,14 @@ func (f *fakeNode) BlockResults(_ context.Context, h *int64) (*coretypes.ResultB
 		f.failFirst[*h]--
 		return nil, errTransientFetch
 	}
+	if b, ok := f.serveOnce[*h]; ok {
+		delete(f.serveOnce, *h)
+		return b, nil
+	}
 	if b, ok := f.blocks[*h]; ok {
 		return b, nil
 	}
 	return &coretypes.ResultBlockResults{Height: *h}, nil
-}
-
-func (f *fakeNode) Subscribe(ctx context.Context, _, _ string, _ ...int) (<-chan coretypes.ResultEvent, error) {
-	f.mu.Lock()
-	f.subscribes++
-	f.inflight++
-	if f.inflight > f.maxInflight {
-		f.maxInflight = f.inflight
-	}
-	ch, err, hang, untilCancel := f.headerCh, f.subscribeErr, f.subscribeHang, f.subscribeUntilCancel
-	f.mu.Unlock()
-
-	defer func() {
-		f.mu.Lock()
-		f.inflight--
-		f.calls = append(f.calls, "subscribe returned")
-		f.mu.Unlock()
-	}()
-
-	if hang != nil {
-		<-hang
-	}
-	if untilCancel {
-		<-ctx.Done()
-		return nil, ctx.Err()
-	}
-	if err != nil {
-		return nil, err
-	}
-	return ch, nil
-}
-
-func (f *fakeNode) Unsubscribe(context.Context, string, string) error { return nil }
-
-func (f *fakeNode) UnsubscribeAll(context.Context, string) error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	f.calls = append(f.calls, "unsubscribe all")
-	return nil
-}
-
-func (f *fakeNode) inflightSubscribes() int {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	return f.inflight
-}
-
-func (f *fakeNode) callLog() []string {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	return append([]string(nil), f.calls...)
 }
 
 // requireNoMoreEvents fails if anything else is published within wait, which is how a
@@ -249,6 +423,16 @@ func dseqAt(h int64) uint64 {
 		panic(fmt.Sprintf("negative block height %d", h))
 	}
 	return uint64(h)
+}
+
+// dseqsThrough returns the DSeqs the tests give blocks 101, the first after the start
+// height, through last.
+func dseqsThrough(last int64) []uint64 {
+	var out []uint64
+	for h := int64(101); h <= last; h++ {
+		out = append(out, dseqAt(h))
+	}
+	return out
 }
 
 // withAttrs returns ev with attrs appended, the way the SDK tags the events it records.
@@ -334,7 +518,25 @@ func (l recLogger) count(level, prefix string) int {
 
 func (l recLogger) has(level, prefix string) bool { return l.count(level, prefix) > 0 }
 
-func newTestService(t *testing.T, node sdkclient.CometRPC, tune tuning, extra ...Option) pubsub.Subscriber {
+// newEventsOn starts the service on node, applying opts the way NewEvents does.
+func newEventsOn(ctx context.Context, node testNode, bus pubsub.Bus, opts ...Option) (*events, error) {
+	o, err := newOptions(opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return newEvents(ctx, node, node.dial, "test", bus, o)
+}
+
+func newTestService(t *testing.T, node testNode, tune tuning, extra ...Option) pubsub.Subscriber {
+	t.Helper()
+
+	_, sub := startTestService(t, node, tune, extra...)
+	return sub
+}
+
+// startTestService is newTestService for tests that also watch the service itself.
+func startTestService(t *testing.T, node testNode, tune tuning, extra ...Option) (*events, pubsub.Subscriber) {
 	t.Helper()
 
 	bus := pubsub.NewBus()
@@ -344,14 +546,45 @@ func newTestService(t *testing.T, node sdkclient.CometRPC, tune tuning, extra ..
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
-	svc, err := NewEvents(ctx, node, "test", bus, append(tune.options(), extra...)...)
+	svc, err := newEventsOn(ctx, node, bus, append(tune.options(), extra...)...)
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		svc.Shutdown()
 		bus.Close()
 	})
 
-	return sub
+	return svc, sub
+}
+
+// requireStopped waits for svc to stop on its own and returns the error it stopped on.
+func requireStopped(t *testing.T, svc Service, within time.Duration) error {
+	t.Helper()
+
+	select {
+	case <-svc.Done():
+		return svc.Err()
+	case <-time.After(within):
+		t.Fatalf("service still running after %s", within)
+		return nil
+	}
+}
+
+// withAttr returns ev with the value of attribute key replaced, or the attribute
+// added when ev has none.
+func withAttr(ev abci.Event, key, value string) abci.Event {
+	out := abci.Event{Type: ev.Type, Attributes: make([]abci.EventAttribute, 0, len(ev.Attributes)+1)}
+	found := false
+	for _, attr := range ev.Attributes {
+		if attr.Key == key {
+			attr.Value = value
+			found = true
+		}
+		out.Attributes = append(out.Attributes, attr)
+	}
+	if !found {
+		out.Attributes = append(out.Attributes, abci.EventAttribute{Key: key, Value: value})
+	}
+	return out
 }
 
 func waitLeaseClosed(t *testing.T, sub pubsub.Subscriber, wantDseq uint64) {
@@ -372,7 +605,7 @@ func waitLeaseClosed(t *testing.T, sub pubsub.Subscriber, wantDseq uint64) {
 // A block header from the subscription drives processing of that block.
 func TestEventsProcessesBlockOnHeader(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}) // watchdog idle, header drives processing
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}) // watchdog idle, header drives processing
 
 	node.set(func(f *fakeNode) { f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101)) })
 	node.pushHeader(101)
@@ -384,7 +617,7 @@ func TestEventsProcessesBlockOnHeader(t *testing.T) {
 // subscription) back-fills every block in between, in order.
 func TestEventsBackfillsGapBetweenHeaders(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}) // watchdog idle, header drives processing
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}) // watchdog idle, header drives processing
 
 	node.set(func(f *fakeNode) {
 		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
@@ -398,11 +631,11 @@ func TestEventsBackfillsGapBetweenHeaders(t *testing.T) {
 	waitLeaseClosed(t, sub, 103)
 }
 
-// When the subscription goes quiet (dies without closing its channel), the fetch
-// fallback catches up so events keep flowing.
+// When no header arrives, the watchdog asks the node how far the chain has got and
+// catches up, so events keep flowing.
 func TestEventsFetchFallbackWhenSubscriptionQuiet(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond})
 
 	// No header pushed, the subscription is silent. A new block appears on chain.
 	node.set(func(f *fakeNode) {
@@ -413,81 +646,73 @@ func TestEventsFetchFallbackWhenSubscriptionQuiet(t *testing.T) {
 	waitLeaseClosed(t, sub, 101)
 }
 
-// A subscription whose connection died keeps its channel open and silent. The
-// watchdog must re-subscribe and the service must follow headers on the new channel.
-// Status stays at the start height, so polling alone cannot publish block 101.
-func TestEventsResubscribesWhenSubscriptionGoesSilent(t *testing.T) {
+// A stream that ends is redialed at once; the service follows headers on the new one.
+func TestEventsRedialsWhenStreamEnds(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 20 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: time.Hour, prunedCheckAfter: time.Hour})
+
+	node.waitDials(t, 1)
+	node.endStream(io.EOF)
+	node.waitDials(t, 2) // the retry interval is an hour: only an immediate redial gets here
 
 	node.set(func(f *fakeNode) { f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101)) })
-	node.dropSubscription()
 	node.pushHeader(101)
 
 	waitLeaseClosed(t, sub, 101)
-	require.GreaterOrEqual(t, node.subscribeCount(), 2, "the initial subscribe alone cannot see a header on the new channel")
 }
 
-// A re-subscribe that fails, as it does while the node is unreachable, is retried on
-// the next watchdog expiry rather than given up on.
-func TestEventsRetriesFailedResubscribe(t *testing.T) {
+// After the immediate redial, redials wait the retry interval: a node that keeps
+// refusing is asked about once per interval, forever, never in a busy loop.
+func TestEventsPacesRedialsAfterTheFirst(t *testing.T) {
 	node := newFakeNode()
 	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
+	newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 50 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
 
-	node.set(func(f *fakeNode) {
-		f.subscribeErr = errors.New("client is not running")
-		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
-	})
-	node.dropSubscription()
+	node.waitDials(t, 1)
+	node.set(func(f *fakeNode) { f.dialErr = errors.New("connection refused") })
+	node.endStream(io.EOF)
 
-	require.Eventually(t, func() bool { return node.subscribeCount() >= 3 }, 2*time.Second, time.Millisecond,
-		"a failed re-subscribe must be retried on later expiries")
-	require.Eventually(t, func() bool { return rec.count(levelWarn, "re-subscribe failed") >= 2 }, 2*time.Second, time.Millisecond,
-		"every failed attempt is logged as a disconnect")
-
-	node.set(func(f *fakeNode) { f.subscribeErr = nil })
-	node.pushHeader(101)
-
-	waitLeaseClosed(t, sub, 101)
+	time.Sleep(500 * time.Millisecond)
+	dials := node.dials()
+	require.GreaterOrEqual(t, dials, 5, "redials go on")
+	require.LessOrEqual(t, dials, 13, "about one redial per retry interval, not a busy loop")
+	require.GreaterOrEqual(t, rec.count(levelWarn, "block subscription dial failed"), 4)
 }
 
-// Subscribe blocks for as long as the websocket client is redialing. The watchdog's
-// catch-up must keep publishing meanwhile, and re-subscribes must not pile up.
-func TestEventsHungResubscribeDoesNotStallCatchUp(t *testing.T) {
+// A live stream that delivers no block is a slow chain, not a lost subscription: the
+// service polls the node but neither redials nor reports an outage.
+func TestEventsSlowChainDoesNotRedial(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
+	rec := newRecLogger()
+	newTestService(t, node, tuning{watchdog: 20 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
 
-	hang := make(chan struct{})
-	t.Cleanup(func() { close(hang) }) // runs before the service shuts down
-	node.set(func(f *fakeNode) { f.subscribeHang = hang })
-	node.dropSubscription()
+	node.waitDials(t, 1)
+	before := node.statusCallCount()
+	time.Sleep(200 * time.Millisecond)
 
-	for h := int64(101); h <= 105; h++ {
-		node.set(func(f *fakeNode) {
-			f.blocks[h] = txBlock(h, leaseClosedEvent(t, dseqAt(h)))
-			f.height = h
-		})
-		waitLeaseClosed(t, sub, dseqAt(h))
+	require.Equal(t, 1, node.dials())
+	require.Zero(t, rec.count(levelWarn, "block subscription lost"))
+	require.GreaterOrEqual(t, node.statusCallCount()-before, 3, "the watchdog polls the node instead")
+	require.True(t, rec.has(levelDebug, "no new block within watchdog window"))
+}
+
+// Losing the subscription is logged at warn level once per outage, however many
+// redials it takes, and every dial at info level; the first header after it reports
+// the subscription restored, once.
+func TestEventsLogsSubscriptionLossOncePerOutage(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
+
+	for i := 1; i <= 3; i++ {
+		node.waitDials(t, i)
+		node.endStream(io.EOF)
 	}
+	node.waitDials(t, 4)
 
-	require.Equal(t, 1, node.maxInflightSubscribes(), "at most one re-subscribe may be in flight")
-}
-
-// Losing the subscription is logged at warn level once per outage, and every step of
-// re-establishing it at info level, ending with the first header that proves it is
-// back.
-func TestEventsLogsSubscriptionLossAndRestore(t *testing.T) {
-	node := newFakeNode()
-	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
-
-	node.dropSubscription()
-
-	require.Eventually(t, func() bool { return rec.count(levelInfo, "re-subscribe sent") >= 2 }, 2*time.Second, time.Millisecond)
-	require.Equal(t, 1, rec.count(levelWarn, "block subscription presumed lost"), "an outage is reported as lost once, not on every expiry")
-	require.GreaterOrEqual(t, rec.count(levelInfo, "re-subscribing to block headers"), 2, "every attempt is logged")
-	require.False(t, rec.has(levelInfo, "block subscription restored"), "a sent re-subscribe is not proof the subscription is back")
+	require.Equal(t, 1, rec.count(levelWarn, "block subscription lost"))
+	require.GreaterOrEqual(t, rec.count(levelInfo, "dialing block subscription"), 4)
+	require.Zero(t, rec.count(levelInfo, "block subscription restored"), "a dial is not proof the subscription is back")
 
 	node.set(func(f *fakeNode) { f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101)) })
 	node.pushHeader(101)
@@ -496,12 +721,39 @@ func TestEventsLogsSubscriptionLossAndRestore(t *testing.T) {
 	require.Equal(t, 1, rec.count(levelInfo, "block subscription restored"))
 }
 
+// Each outage is its own: a loss after the subscription was restored is reported again,
+// redialed at once again, and reported restored again by its first new header.
+func TestEventsLogsEachOutage(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	node.set(func(f *fakeNode) {
+		for h := int64(101); h <= 102; h++ {
+			f.blocks[h] = txBlock(h, leaseClosedEvent(t, dseqAt(h)))
+		}
+	})
+	// An hour's retry interval: only an outage's immediate redial can reconnect within
+	// the test.
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: time.Hour, prunedCheckAfter: time.Hour}, WithLogger(rec))
+
+	for i, h := range []int64{101, 102} {
+		outage := i + 1
+		node.waitDials(t, outage)
+		node.endStream(io.EOF)
+		node.waitDials(t, outage+1)
+		node.pushHeader(h)
+		waitLeaseClosed(t, sub, dseqAt(h))
+
+		require.Equal(t, outage, rec.count(levelWarn, "block subscription lost"), "outage %d", outage)
+		require.Equal(t, outage, rec.count(levelInfo, "block subscription restored"), "outage %d", outage)
+	}
+}
+
 // A client that redials on its own within the watchdog window leaves no outage, only
 // heights it never delivered. That gap is logged as a disconnect and back-filled.
 func TestEventsLogsMissedHeaders(t *testing.T) {
 	node := newFakeNode()
 	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
 
 	node.set(func(f *fakeNode) {
 		for h := int64(101); h <= 104; h++ {
@@ -518,42 +770,12 @@ func TestEventsLogsMissedHeaders(t *testing.T) {
 	require.Equal(t, 1, rec.count(levelWarn, "block subscription missed blocks"))
 }
 
-// A closed subscription channel is logged as a disconnect, once, and the watchdog's
-// re-subscribe takes the service back to following headers.
-func TestEventsLogsClosedSubscription(t *testing.T) {
-	node := newFakeNode()
-	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: 50 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
-
-	node.set(func(f *fakeNode) {
-		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
-		f.blocks[102] = txBlock(102, leaseClosedEvent(t, 102))
-	})
-
-	// A header first, so the watchdog is freshly armed when the channel closes.
-	node.pushHeader(101)
-	waitLeaseClosed(t, sub, 101)
-
-	node.set(func(f *fakeNode) {
-		close(f.headerCh)
-		f.headerCh = make(chan coretypes.ResultEvent, 64)
-	})
-	require.Eventually(t, func() bool { return rec.count(levelInfo, "re-subscribe sent") >= 1 }, 2*time.Second, time.Millisecond)
-
-	node.pushHeader(102)
-	waitLeaseClosed(t, sub, 102)
-
-	require.Equal(t, 1, rec.count(levelWarn, "block subscription channel closed"))
-	require.Zero(t, rec.count(levelWarn, "block subscription presumed lost"), "the close already reported the outage")
-	require.Equal(t, 1, rec.count(levelInfo, "block subscription restored"))
-}
-
 // A height that fails once is retried on its own timer. Nothing else arrives to
 // trigger it: no further header, and a watchdog too long to matter. Waiting for an
 // outside trigger would hold the height, and every event after it, indefinitely.
 func TestEventsRetriesParkedHeightOnItsOwn(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 20 * time.Millisecond, prunedCheckAfter: time.Hour})
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 20 * time.Millisecond, prunedCheckAfter: time.Hour})
 
 	node.set(func(f *fakeNode) {
 		f.failFirst[101] = 1
@@ -566,9 +788,9 @@ func TestEventsRetriesParkedHeightOnItsOwn(t *testing.T) {
 	requireNoMoreEvents(t, sub, 50*time.Millisecond)
 }
 
-// While the subscription is down the watchdog is the only outside trigger, a full
-// window apart. A back-fill whose heights each fail once, as behind a lagging or
-// rate-limiting proxy, must still go at the retry pace, not one height per window.
+// Without headers the watchdog is the only outside trigger, a full window apart. A
+// back-fill whose heights each fail once, as behind a lagging or rate-limiting proxy,
+// must still go at the retry pace, not one height per window.
 func TestEventsBackfillRetriesAtRetryPaceWhileSubscriptionDown(t *testing.T) {
 	const (
 		watchdog = 200 * time.Millisecond
@@ -577,7 +799,7 @@ func TestEventsBackfillRetriesAtRetryPaceWhileSubscriptionDown(t *testing.T) {
 	)
 
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: watchdog, minRetryInterval: retry, prunedCheckAfter: time.Hour})
+	sub := newTestService(t, node, tuning{watchdog: watchdog, retryInterval: retry, prunedCheckAfter: time.Hour})
 
 	// The chain moves on after the service started from height 100.
 	node.set(func(f *fakeNode) {
@@ -591,11 +813,7 @@ func TestEventsBackfillRetriesAtRetryPaceWhileSubscriptionDown(t *testing.T) {
 	// No header ever arrives. The first watchdog tick starts the back-fill; at one
 	// height per watchdog window it would take heights*watchdog = 2s.
 	start := time.Now()
-	want := make([]uint64, 0, heights)
-	for h := int64(101); h < 101+heights; h++ {
-		want = append(want, dseqAt(h))
-	}
-	require.Equal(t, want, collectLeaseClosedWithin(t, sub, heights, 3*time.Second))
+	require.Equal(t, dseqsThrough(100+heights), collectLeaseClosedWithin(t, sub, heights, 3*time.Second))
 	require.Less(t, time.Since(start), watchdog+heights*watchdog/2, "the back-fill went at the watchdog pace, not the retry pace")
 	requireNoMoreEvents(t, sub, 50*time.Millisecond)
 }
@@ -606,7 +824,7 @@ func TestEventsBackfillRetriesAtRetryPaceWhileSubscriptionDown(t *testing.T) {
 func TestEventsLogsFetchFailureWarnThenErrorOnce(t *testing.T) {
 	node := newFakeNode()
 	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}, WithLogger(rec))
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}, WithLogger(rec))
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -628,12 +846,12 @@ func TestEventsLogsFetchFailureWarnThenErrorOnce(t *testing.T) {
 	require.True(t, rec.has(levelInfo, "block fetch recovered, cursor resumed"))
 }
 
-// A height parked behind a transient failure is retried on every watchdog tick, even
-// while Status keeps failing and no further header arrives, because the height a
-// header already announced is remembered.
+// A height parked behind a transient failure is retried even while Status keeps
+// failing and no further header arrives, because the height a header already announced
+// is remembered.
 func TestEventsRetriesKnownHeightWhileStatusFails(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
+	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -651,108 +869,143 @@ func TestEventsRetriesKnownHeightWhileStatusFails(t *testing.T) {
 	requireNoMoreEvents(t, sub, 50*time.Millisecond)
 }
 
-// Only a block above the last one seen is new. Repeated or older headers, such as a
-// lagging backend behind a load balancer sends, must neither hold the watchdog off nor
-// announce the subscription restored.
-func TestEventsStaleHeadersDoNotHoldOffWatchdog(t *testing.T) {
+// Prefetching never has more than the window's worth of fetches in flight, and
+// publishes strictly in order however the fetches complete.
+func TestEventsPrefetchIsBoundedByWindow(t *testing.T) {
 	node := newFakeNode()
-	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: 50 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
-
+	gate := make(chan struct{})
 	node.set(func(f *fakeNode) {
-		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
-		f.blocks[102] = txBlock(102, leaseClosedEvent(t, 102))
-	})
-	node.pushHeader(101)
-	waitLeaseClosed(t, sub, 101)
-
-	stop, done := make(chan struct{}), make(chan struct{})
-	go func() {
-		defer close(done)
-		tick := time.NewTicker(5 * time.Millisecond)
-		defer tick.Stop()
-		for {
-			select {
-			case <-stop:
-				return
-			case <-tick.C:
-				node.pushHeader(101)
-				node.pushHeader(100)
-			}
+		f.gate = gate
+		for h := int64(101); h <= 130; h++ {
+			f.blocks[h] = txBlock(h, leaseClosedEvent(t, dseqAt(h)))
 		}
-	}()
+		f.height = 130
+	})
+	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour},
+		WithPrefetch(3), WithStartHeight(100))
 
-	require.Eventually(t, func() bool { return rec.has(levelWarn, "block subscription presumed lost") }, time.Second, time.Millisecond,
-		"stale headers must not hold the watchdog off")
-	time.Sleep(30 * time.Millisecond) // more stale headers after the outage is declared
-	close(stop)
-	<-done
-	require.Zero(t, rec.count(levelInfo, "block subscription restored"), "a stale header is not proof the subscription is back")
+	// While the node holds every fetch, the service fills the window and goes no
+	// further, however often the watchdog has it poll the node meanwhile.
+	require.Eventually(t, func() bool { return node.fetchesInflight() == 3 }, 2*time.Second, time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
+	require.Equal(t, 3, node.peakFetchesInflight())
 
-	node.pushHeader(102)
-	waitLeaseClosed(t, sub, 102)
-	require.Equal(t, 1, rec.count(levelInfo, "block subscription restored"))
+	// Released together, the fetches complete in any order.
+	close(gate)
+	require.Equal(t, dseqsThrough(130), collectLeaseClosedWithin(t, sub, 30, 3*time.Second))
+	require.Equal(t, 3, node.peakFetchesInflight(), "never more than the window in flight")
 }
 
-// A catch-up that outlasts the watchdog window leaves the headers that arrived
-// meanwhile queued. They prove the subscription alive, so the expired watchdog must not
-// declare an outage. When both are ready the run loop's select picks at random, so one
-// round would catch a regression only half the time; several rounds make it near-certain.
-func TestEventsQueuedHeadersAreNotAnOutage(t *testing.T) {
-	const (
-		rounds   = 4
-		perRound = 8 // blocks per catch-up, at blockDelay each: 96ms, past the 80ms watchdog
-		queued   = 2 // headers that arrive while it runs
-	)
-
+// A height ahead of the cursor that fails is fetched again once the cursor reaches
+// it, right away and without parking the cursor on it.
+func TestEventsPrefetchFailureAboveCursorWaitsForCursor(t *testing.T) {
 	node := newFakeNode()
 	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: 80 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
-
-	last := int64(100 + rounds*(perRound+queued))
 	node.set(func(f *fakeNode) {
-		f.blockDelay = 12 * time.Millisecond
-		for h := int64(101); h <= last; h++ {
+		for h := int64(101); h <= 104; h++ {
+			f.blocks[h] = txBlock(h, leaseClosedEvent(t, dseqAt(h)))
+		}
+		f.slow[101] = 50 * time.Millisecond // 103 fails while the cursor is still at 101
+		f.failFirst[103] = 1
+	})
+	// An hour's retry interval: a parked 103 would never come back within the test.
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: time.Hour, prunedCheckAfter: time.Hour}, WithPrefetch(4), WithLogger(rec))
+	node.pushHeader(104)
+
+	require.Equal(t, dseqsThrough(104), collectLeaseClosed(t, sub, 4))
+	require.Equal(t, 2, node.callsAt(103))
+	require.Zero(t, rec.count(levelWarn, "block fetch failed, cursor parked"), "the cursor never parked on 103")
+}
+
+// Headers are handled while fetches hang: the loop never waits on the node.
+func TestEventsHeadersHandledDuringBackfill(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	node.set(func(f *fakeNode) {
+		for h := int64(101); h <= 104; h++ {
+			f.hangFirst[h] = 1
+		}
+	})
+	newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: time.Hour, prunedCheckAfter: time.Hour, fetchTimeout: time.Minute}, WithLogger(rec))
+
+	node.pushHeader(104)
+	require.Eventually(t, func() bool { return node.fetchesInflight() == 4 }, time.Second, time.Millisecond)
+
+	node.pushHeader(150)
+	require.Eventually(t, func() bool { return rec.has(levelWarn, "block subscription missed blocks") }, 100*time.Millisecond, time.Millisecond)
+}
+
+// Headers repeat across a redial. Each height is still published once, and the
+// subscription is reported restored once.
+func TestEventsRepeatedHeadersAcrossRedialsPublishOnce(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	node.set(func(f *fakeNode) {
+		for h := int64(101); h <= 103; h++ {
 			f.blocks[h] = txBlock(h, leaseClosedEvent(t, dseqAt(h)))
 		}
 	})
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
 
-	from := int64(101)
-	for r := 0; r < rounds; r++ {
-		top := from + perRound - 1
-		for h := top; h <= top+queued; h++ {
-			node.pushHeader(h)
-		}
+	node.pushHeader(101)
+	node.pushHeader(102)
+	require.Equal(t, []uint64{101, 102}, collectLeaseClosed(t, sub, 2))
 
-		var want []uint64
-		for h := from; h <= top+queued; h++ {
-			want = append(want, dseqAt(h))
-		}
-		require.Equal(t, want, collectLeaseClosed(t, sub, len(want)), "round %d", r)
-		from = top + queued + 1
-	}
+	node.endStream(io.EOF)
+	node.waitDials(t, 2)
+	node.pushHeader(101)
+	node.pushHeader(102)
+	node.pushHeader(103)
 
-	require.Zero(t, rec.count(levelWarn, "block subscription presumed lost"), "queued headers are not an outage")
+	require.Equal(t, []uint64{103}, collectLeaseClosed(t, sub, 1))
+	requireNoMoreEvents(t, sub, 50*time.Millisecond)
+	require.Equal(t, 1, rec.count(levelInfo, "block subscription restored"))
 }
 
-// A recognized block-level event that cannot be decoded fails its whole height as a
-// decode error, so the cursor parks without publishing any of the height.
-func TestBlockEventsReportsUndecodableBlockLevelEvent(t *testing.T) {
+// A recognized event the service cannot decode is skipped and logged once. Retrying its
+// height cannot change the outcome, so the rest of the height and every later height
+// are published as usual. A newer chain emitting an enum value this build does not
+// know is the realistic case.
+func TestEventsSkipsUndecodableEvent(t *testing.T) {
+	for name, bad := range map[string]abci.Event{
+		"malformed attribute":         withAttr(leaseClosedEvent(t, 2), "id", undecodableAttr),
+		"enum value from newer chain": withAttr(leaseClosedEvent(t, 2), "reason", `"lease_closed_reason_from_a_newer_chain"`),
+	} {
+		t.Run(name, func(t *testing.T) {
+			node := newFakeNode()
+			rec := newRecLogger()
+			sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
+
+			node.set(func(f *fakeNode) {
+				f.blocks[101] = txBlock(101, leaseClosedEvent(t, 1), bad, leaseClosedEvent(t, 3))
+				f.blocks[102] = txBlock(102, leaseClosedEvent(t, 102))
+			})
+			node.pushHeader(102)
+
+			require.Equal(t, []uint64{1, 3, 102}, collectLeaseClosed(t, sub, 3))
+			requireNoMoreEvents(t, sub, 50*time.Millisecond)
+			require.Equal(t, 1, node.callsAt(101), "an undecodable event is not a reason to fetch its height again")
+			require.Equal(t, 1, rec.count(levelError, "skipping undecodable event"))
+		})
+	}
+}
+
+// A node that answers a fetch with another height's results, as a misrouted or cached
+// response would, must not have them published as the requested height: the height is
+// fetched again and published from the right answer.
+func TestEventsRetriesMismatchedHeight(t *testing.T) {
 	node := newFakeNode()
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
 
-	bad := withAttrs(abci.Event{Type: leaseClosedEvent(t, 2).Type, Attributes: []abci.EventAttribute{{Key: "id", Value: undecodableAttr}}},
-		abci.EventAttribute{Key: modeKey, Value: modeEndBlock})
-	blk := txBlock(101, leaseClosedEvent(t, 1))
-	blk.FinalizeBlockEvents = []abci.Event{bad}
-	node.set(func(f *fakeNode) { f.blocks[101] = blk })
+	node.set(func(f *fakeNode) {
+		f.serveOnce[101] = txBlock(100, leaseClosedEvent(t, 100))
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+	})
+	node.pushHeader(101)
 
-	e := &events{client: node}
-	evs, err := e.blockEvents(context.Background(), 101)
-
-	var derr *decodeError
-	require.ErrorAs(t, err, &derr)
-	require.Equal(t, int64(101), derr.height)
-	require.Nil(t, evs, "nothing of a height that fails to decode may be returned")
+	require.Equal(t, []uint64{101}, collectLeaseClosed(t, sub, 1))
+	require.Equal(t, 2, node.callsAt(101), "the mismatched answer, then the right one")
+	requireNoMoreEvents(t, sub, 50*time.Millisecond)
 }
 
 // WithStartHeight makes the service publish from the block after the one the caller
@@ -766,7 +1019,7 @@ func TestEventsStartsAfterStartHeight(t *testing.T) {
 		}
 	})
 
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithStartHeight(90))
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithStartHeight(90))
 	node.pushHeader(93)
 
 	require.Equal(t, []uint64{91, 92, 93}, collectLeaseClosed(t, sub, 3), "block 90 is the caller's, everything after it is published")
@@ -777,7 +1030,7 @@ func TestEventsStartsAfterStartHeight(t *testing.T) {
 // fetch was failing.
 func TestEventsRecoversBlockAfterTransientFetchFailure(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 4 * time.Millisecond, prunedCheckAfter: 500 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 4 * time.Millisecond, prunedCheckAfter: 500 * time.Millisecond})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -802,7 +1055,7 @@ func TestEventsDoesNotReplayHistory(t *testing.T) {
 	node := newFakeNode()
 	node.set(func(f *fakeNode) { f.blocks[100] = txBlock(100, leaseClosedEvent(t, 100)) })
 
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}) // watchdog active, but nothing to replay
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 50 * time.Millisecond}) // watchdog active, but nothing to replay
 
 	select {
 	case ev := <-sub.Events():
@@ -811,95 +1064,11 @@ func TestEventsDoesNotReplayHistory(t *testing.T) {
 	}
 }
 
-func TestProcessEventFiltersUnrecognized(t *testing.T) {
-	_, ok, err := processEvent(leaseClosedEvent(t, 1))
-	require.NoError(t, err)
-	require.True(t, ok, "a lease-closed event must be recognized")
-
-	other := abci.Event{Type: "coin_received", Attributes: []abci.EventAttribute{{Key: "amount", Value: "1uakt"}}}
-	_, ok, err = processEvent(other)
-	require.NoError(t, err, "an event the service does not publish is not a decode failure")
-	require.False(t, ok, "a non-Akash event must be ignored")
-}
-
-// The SDK appends bookkeeping attributes to the events it records: msg_index to every
-// message event, authz_msg_index to events of messages run through authz MsgExec, and
-// mode to every BeginBlock and EndBlock event. None of them may stop a recognized
-// event from being decoded. mode in particular is a bare word, not JSON.
-func TestProcessEventAcceptsSDKBookkeepingAttributes(t *testing.T) {
-	for _, tc := range []struct {
-		name  string
-		attrs []abci.EventAttribute
-	}{
-		{name: "tx", attrs: []abci.EventAttribute{{Key: "msg_index", Value: "0"}}},
-		{name: "authz", attrs: []abci.EventAttribute{{Key: "authz_msg_index", Value: "1"}, {Key: "msg_index", Value: "0"}}},
-		{name: "begin block", attrs: []abci.EventAttribute{{Key: modeKey, Value: modeBeginBlock}}},
-		{name: "end block", attrs: []abci.EventAttribute{{Key: modeKey, Value: modeEndBlock}}},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			ev := withAttrs(leaseClosedEvent(t, 7), tc.attrs...)
-
-			pev, ok, err := processEvent(ev)
-			require.NoError(t, err)
-			require.True(t, ok)
-			closed, isClosed := pev.(*mtypes.EventLeaseClosed)
-			require.True(t, isClosed)
-			require.Equal(t, uint64(7), closed.ID.DSeq)
-		})
-	}
-}
-
-// A recognized event that cannot be decoded is reported, never treated as an event
-// the service does not publish.
-func TestProcessEventReportsUndecodableRecognizedEvent(t *testing.T) {
-	ev := leaseClosedEvent(t, 1)
-	ev.Attributes = []abci.EventAttribute{{Key: "id", Value: undecodableAttr}}
-
-	_, ok, err := processEvent(ev)
-	require.Error(t, err)
-	require.False(t, ok)
-}
-
-// A height that holds a recognized event the service cannot decode parks the cursor.
-// Nothing of that height is published, not even the valid events ahead of the bad
-// one, and nothing after it. Once the height can be read, every event goes out once.
-func TestEventsParksOnUndecodableEvent(t *testing.T) {
-	node := newFakeNode()
-	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
-
-	bad := leaseClosedEvent(t, 2)
-	bad.Attributes = []abci.EventAttribute{{Key: "id", Value: undecodableAttr}}
-	node.set(func(f *fakeNode) {
-		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 1), bad)
-		f.blocks[102] = txBlock(102, leaseClosedEvent(t, 102))
-		f.height = 102
-	})
-	node.pushHeader(102)
-
-	select {
-	case ev := <-sub.Events():
-		t.Fatalf("published %T from or past a height whose event could not be decoded", ev)
-	case <-time.After(200 * time.Millisecond):
-	}
-
-	require.Greater(t, node.callsAt(101), 1, "the undecodable height must be retried, not abandoned")
-	require.Zero(t, node.callsAt(102), "the cursor must not move past the undecodable height")
-	require.True(t, rec.has(levelError, "block decode failed, cursor parked"), "a decode failure must be named as such")
-	require.False(t, rec.has(levelError, "block fetch failed"), "a decode failure is not a network problem")
-
-	node.set(func(f *fakeNode) { f.blocks[101] = txBlock(101, leaseClosedEvent(t, 1), leaseClosedEvent(t, 2)) })
-
-	require.Equal(t, []uint64{1, 2, 102}, collectLeaseClosed(t, sub, 3))
-	requireNoMoreEvents(t, sub, 100*time.Millisecond)
-}
-
-// Headers repeat and arrive out of order across re-subscribes, and the watchdog's
-// catch-up covers the same heights again. Each height is still published exactly once,
-// in order.
+// Headers repeat and arrive out of order, and the watchdog's catch-up covers the same
+// heights again. Each height is still published exactly once, in order.
 func TestEventsPublishesEachHeightOnce(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
 
 	node.set(func(f *fakeNode) {
 		for h := int64(101); h <= 104; h++ {
@@ -915,42 +1084,12 @@ func TestEventsPublishesEachHeightOnce(t *testing.T) {
 	requireNoMoreEvents(t, sub, 100*time.Millisecond)
 }
 
-// Shutting down while a re-subscribe is stuck redialing cancels it and waits for it to
-// return before unsubscribing, so it cannot register the query again behind
-// UnsubscribeAll.
-func TestEventsShutdownCancelsInFlightResubscribe(t *testing.T) {
-	node := newFakeNode()
-	bus := pubsub.NewBus()
-	t.Cleanup(bus.Close)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
-
-	// A long watchdog keeps the re-subscribe in flight for a full second, far longer
-	// than a cancelled one takes to return.
-	svc, err := NewEvents(ctx, node, "test", bus, tuning{watchdog: time.Second, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}.options()...)
-	require.NoError(t, err)
-
-	node.set(func(f *fakeNode) { f.subscribeUntilCancel = true })
-	require.Eventually(t, func() bool { return node.inflightSubscribes() == 1 }, 3*time.Second, time.Millisecond)
-
-	start := time.Now()
-	svc.Shutdown()
-	require.Less(t, time.Since(start), 500*time.Millisecond, "shutdown must cancel the in-flight re-subscribe, not wait out its timeout")
-
-	calls := node.callLog()
-	require.GreaterOrEqual(t, len(calls), 2)
-	require.Equal(t, []string{"subscribe returned", "unsubscribe all"}, calls[len(calls)-2:],
-		"the re-subscribe must return before the service unsubscribes")
-	require.Zero(t, node.inflightSubscribes())
-}
-
 // x/gov's EndBlocker runs the messages of passed proposals and re-emits their events at
 // block level, so the service must publish block-level events too, in execution order:
 // PreBlock, then BeginBlock, then each tx, then EndBlock.
 func TestEventsPublishesBlockEventsInExecutionOrder(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
 
 	blk := txBlock(101, leaseClosedEvent(t, 3), leaseClosedEvent(t, 4))
 	blk.FinalizeBlockEvents = []abci.Event{
@@ -966,11 +1105,12 @@ func TestEventsPublishesBlockEventsInExecutionOrder(t *testing.T) {
 
 // The cursor never moves past a height the node has pruned, because publishing what
 // follows would mean the pruned height's events were skipped. The stall is explained
-// once in the log, not on every retry.
+// once in the log, not on every retry. Prefetch is off, so any fetch of a later height
+// would mean the cursor had moved.
 func TestEventsParksOnPrunedHeight(t *testing.T) {
 	node := newFakeNode()
 	rec := newRecLogger()
-	sub := newTestService(t, node, tuning{watchdog: 3 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond}, WithLogger(rec))
+	sub := newTestService(t, node, tuning{watchdog: 3 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond}, WithLogger(rec), WithPrefetch(1))
 
 	node.set(func(f *fakeNode) {
 		for h := int64(101); h < 200; h++ {
@@ -992,11 +1132,36 @@ func TestEventsParksOnPrunedHeight(t *testing.T) {
 	require.Equal(t, 1, rec.count(levelWarn, "node has pruned the parked height"), "the pruned stall is explained once")
 }
 
+// A pruned-check answer that comes back after its height was served explains a stall
+// that is over: it is not logged.
+func TestEventsIgnoresPrunedCheckAfterRecovery(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond}, WithLogger(rec))
+
+	entered := make(chan struct{}, 1)
+	node.set(func(f *fakeNode) {
+		f.statusDelay = 100 * time.Millisecond
+		f.statusEntered = entered
+		f.earliest = 150
+		f.blockErr[101] = errTransientFetch
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+	})
+	node.pushHeader(101)
+
+	requireSignal(t, entered, "the pruned check to ask for Status")
+	node.set(func(f *fakeNode) { delete(f.blockErr, 101) })
+	waitLeaseClosed(t, sub, 101) // served while the pruned check is still waiting
+
+	time.Sleep(150 * time.Millisecond) // the pruned check answers
+	require.Zero(t, rec.count(levelWarn, "node has pruned the parked height"))
+}
+
 // A height exactly equal to the node's earliest retained height is still retained,
 // so a fetch failure there must be retried, never treated as pruned.
 func TestEventsRetriesHeightEqualToEarliest(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -1013,11 +1178,11 @@ func TestEventsRetriesHeightEqualToEarliest(t *testing.T) {
 	waitLeaseClosed(t, sub, 101)
 }
 
-// A node reporting earliest 0 (unknown) must never cause a skip. A permanently
-// failing height is retried forever and nothing later is ever published.
+// A node reporting earliest 0 (unknown) must never cause a skip. A permanently failing
+// height is retried, and nothing later is ever published.
 func TestEventsDoesNotSkipWhenEarliestUnknown(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -1036,10 +1201,10 @@ func TestEventsDoesNotSkipWhenEarliestUnknown(t *testing.T) {
 }
 
 // When Status itself is unavailable, a failing height must be retried rather than
-// skipped, since parkCursor cannot confirm pruning and so cannot assume it either.
+// skipped, since the pruned check cannot confirm pruning and so cannot assume it either.
 func TestEventsRetriesWhenStatusUnavailable(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -1080,7 +1245,7 @@ func TestEventsRetriesWhenStatusUnavailable(t *testing.T) {
 // serve the height.
 func TestEventsDoesNotSkipBeforePrunedThreshold(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 200 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 200 * time.Millisecond})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -1097,11 +1262,11 @@ func TestEventsDoesNotSkipBeforePrunedThreshold(t *testing.T) {
 	waitLeaseClosed(t, sub, 101)
 }
 
-// Fifteen headers buffered at once while one height fails must cost exactly one
-// fetch attempt for that height within a single minRetryInterval, not one per header.
+// Fifteen headers at once while one height fails must cost exactly one fetch attempt
+// for that height within a single retry interval, not one per header.
 func TestEventsBurstOfHeadersDoesNotBurnRetries(t *testing.T) {
 	node := newFakeNode()
-	newTestService(t, node, tuning{watchdog: time.Hour, minRetryInterval: 2 * time.Second, prunedCheckAfter: time.Hour})
+	newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 2 * time.Second, prunedCheckAfter: time.Hour})
 
 	node.set(func(f *fakeNode) { f.blockErr[101] = errTransientFetch })
 
@@ -1111,14 +1276,14 @@ func TestEventsBurstOfHeadersDoesNotBurnRetries(t *testing.T) {
 
 	require.Eventually(t, func() bool { return node.callsAt(101) >= 1 }, time.Second, time.Millisecond)
 	time.Sleep(50 * time.Millisecond)
-	require.Equal(t, 1, node.callsAt(101), "a burst of buffered headers must not burn through retries for one height")
+	require.Equal(t, 1, node.callsAt(101), "a burst of headers must not burn through retries for one height")
 }
 
 // A height that fails forever, with earliest at or below it, must never be skipped,
 // so a later and perfectly fetchable height is never published ahead of it.
 func TestEventsDoesNotAdvancePastFailingBlock(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -1143,7 +1308,7 @@ func TestEventsDoesNotAdvancePastFailingBlock(t *testing.T) {
 // before an earlier one recovers.
 func TestEventsOrderPreservedAcrossStallAndRecovery(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: 500 * time.Millisecond})
+	sub := newTestService(t, node, tuning{watchdog: 5 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 500 * time.Millisecond})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -1158,20 +1323,7 @@ func TestEventsOrderPreservedAcrossStallAndRecovery(t *testing.T) {
 		node.set(func(f *fakeNode) { delete(f.blockErr, 101) })
 	})
 
-	var got []uint64
-	deadline := time.After(2 * time.Second)
-	for len(got) < 5 {
-		select {
-		case ev := <-sub.Events():
-			if closed, ok := ev.(*mtypes.EventLeaseClosed); ok {
-				got = append(got, closed.ID.DSeq)
-			}
-		case <-deadline:
-			t.Fatalf("did not observe all 5 events, got %v so far", got)
-		}
-	}
-
-	require.Equal(t, []uint64{101, 102, 103, 104, 105}, got)
+	require.Equal(t, dseqsThrough(105), collectLeaseClosed(t, sub, 5))
 }
 
 // A publish failure means the bus is shutting down for good, so the run loop must
@@ -1186,25 +1338,265 @@ func TestEventsStopsWhenBusClosed(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
-	svc, err := NewEvents(ctx, node, "test", bus, tuning{watchdog: time.Hour, minRetryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}.options()...)
+	svc, err := newEventsOn(ctx, node, bus, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}.options()...)
 	require.NoError(t, err)
-
-	ev, ok := svc.(*events)
-	require.True(t, ok)
 
 	bus.Close()
 	node.pushHeader(101)
 
 	select {
-	case <-ev.lc.Done():
+	case <-svc.lc.Done():
 	case <-time.After(2 * time.Second):
 		t.Fatal("run loop did not stop after the bus closed")
 	}
 
 	select {
-	case <-ev.lc.ShuttingDown():
+	case <-svc.lc.ShuttingDown():
 	default:
 		t.Fatal("lifecycle never entered shutting-down, so WatchContext and the shutdown bridge stay parked forever")
+	}
+
+	require.ErrorIs(t, svc.Err(), pubsub.ErrNotRunning, "the service reports why it stopped")
+	require.True(t, node.allStreamsClosed(), "a stopped service leaves no stream open")
+}
+
+// A block fetch that never returns, as on a dead connection or behind a full
+// connection pool, is abandoned after the fetch timeout and retried, so one stuck
+// request cannot hold every later event.
+func TestEventsRetriesFetchThatHangs(t *testing.T) {
+	node := newFakeNode()
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour, fetchTimeout: 20 * time.Millisecond})
+
+	node.set(func(f *fakeNode) {
+		f.hangFirst[101] = 1
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+		f.blocks[102] = txBlock(102, leaseClosedEvent(t, 102))
+	})
+	node.pushHeader(102)
+
+	require.Equal(t, []uint64{101, 102}, collectLeaseClosed(t, sub, 2))
+	require.Equal(t, 2, node.callsAt(101), "the hung attempt, then one retry")
+}
+
+// The watchdog asks the node how far the chain has got. A node that never answers must
+// not hold the run loop, or the headers that arrive meanwhile are never processed.
+func TestEventsWatchdogStatusThatHangsDoesNotHoldEvents(t *testing.T) {
+	node := newFakeNode()
+	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour, fetchTimeout: 20 * time.Millisecond})
+
+	entered := make(chan struct{}, 1)
+	node.set(func(f *fakeNode) {
+		f.statusHang = true
+		f.statusEntered = entered
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+	})
+	requireSignal(t, entered, "the watchdog to ask for Status")
+	node.pushHeader(101)
+
+	waitLeaseClosed(t, sub, 101)
+}
+
+// While a height is parked, the pruned check asks the node for its retention floor. A
+// node that never answers must not hold the run loop, or the parked height is never
+// retried.
+func TestEventsPrunedCheckThatHangsDoesNotHoldEvents(t *testing.T) {
+	node := newFakeNode()
+	sub := newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond, fetchTimeout: 20 * time.Millisecond})
+
+	node.set(func(f *fakeNode) {
+		f.statusHang = true
+		f.blockErr[101] = errTransientFetch
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+	})
+	node.pushHeader(101)
+
+	time.AfterFunc(100*time.Millisecond, func() {
+		node.set(func(f *fakeNode) { delete(f.blockErr, 101) })
+	})
+
+	waitLeaseClosed(t, sub, 101)
+}
+
+// A height that never comes back is retried for as long as the service runs; the
+// service neither stops nor publishes past it.
+func TestEventsRetriesFailingHeightForever(t *testing.T) {
+	node := newFakeNode()
+	svc, sub := startTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 2 * time.Millisecond, prunedCheckAfter: time.Hour})
+
+	node.set(func(f *fakeNode) {
+		f.blockErr[101] = errTransientFetch
+		f.blocks[102] = txBlock(102, leaseClosedEvent(t, 102))
+	})
+	node.pushHeader(102)
+
+	require.Eventually(t, func() bool { return node.callsAt(101) >= 50 }, 5*time.Second, time.Millisecond)
+	select {
+	case <-svc.Done():
+		t.Fatalf("service stopped: %v", svc.Err())
+	default:
+	}
+	requireNoMoreEvents(t, sub, 20*time.Millisecond)
+
+	node.set(func(f *fakeNode) { delete(f.blockErr, 101) })
+	require.Equal(t, []uint64{102}, collectLeaseClosed(t, sub, 1))
+}
+
+// The pruned check costs a call to the node, so a parked height asks it once, whether
+// or not the node answers.
+func TestEventsPrunedCheckRunsOncePerHeight(t *testing.T) {
+	node := newFakeNode()
+	newTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
+
+	before := node.statusCallCount()
+	node.set(func(f *fakeNode) {
+		f.statusErr = errors.New("rpc unavailable")
+		f.blockErr[101] = errTransientFetch
+	})
+	node.pushHeader(101)
+
+	require.Eventually(t, func() bool { return node.callsAt(101) >= 10 }, 2*time.Second, time.Millisecond,
+		"the height keeps being retried well past prunedCheckAfter")
+	require.Equal(t, 1, node.statusCallCount()-before)
+}
+
+// Shutting the service down while its pruned check is waiting on the node is an owner
+// stop, even when the check returns long after. Err must not report a failure the owner
+// cut short.
+func TestEventsShutdownDuringPrunedCheckIsNotAFailure(t *testing.T) {
+	node := newFakeNode()
+	svc, _ := startTestService(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: 10 * time.Millisecond})
+
+	entered := make(chan struct{}, 1)
+	node.set(func(f *fakeNode) {
+		f.statusDelay = 300 * time.Millisecond // returns late, whatever its context
+		f.statusEntered = entered
+		f.blockErr[101] = errTransientFetch
+	})
+	node.pushHeader(101)
+
+	requireSignal(t, entered, "the pruned check to ask for Status")
+	svc.Shutdown()
+
+	require.NoError(t, requireStopped(t, svc, 2*time.Second))
+}
+
+// Shutdown cancels everything in flight, a dial, a fetch and a Status call, rather
+// than waiting any of them out, and leaves no stream open.
+func TestEventsShutdownIsPromptWithIOInFlight(t *testing.T) {
+	node := newFakeNode()
+	svc, _ := startTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: time.Hour, prunedCheckAfter: time.Hour, fetchTimeout: time.Hour})
+	node.waitDials(t, 1)
+
+	statusBefore := node.statusCallCount()
+	node.set(func(f *fakeNode) {
+		f.hangFirst[101] = 1
+		f.statusHang = true
+		f.dialHang = true
+	})
+	node.pushHeader(101)
+	node.endStream(io.EOF)
+
+	require.Eventually(t, func() bool {
+		return node.fetchesInflight() == 1 && node.dials() == 2 && node.statusCallCount() > statusBefore
+	}, 2*time.Second, time.Millisecond, "a fetch, a dial and a Status call in flight")
+
+	start := time.Now()
+	svc.Shutdown()
+	require.Less(t, time.Since(start), 200*time.Millisecond)
+	require.True(t, node.allStreamsClosed())
+}
+
+// Err reports why the service stopped on its own. A service its owner stopped, through
+// Shutdown or by cancelling the parent context, stopped for no error.
+func TestEventsErrIsNilWhenStoppedByOwner(t *testing.T) {
+	tune := tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}
+
+	start := func(t *testing.T, ctx context.Context) Service {
+		t.Helper()
+
+		bus := pubsub.NewBus()
+		t.Cleanup(bus.Close)
+
+		node := newFakeNode()
+		svc, err := newEventsOn(ctx, node, bus, tune.options()...)
+		require.NoError(t, err)
+		return svc
+	}
+
+	t.Run("shutdown", func(t *testing.T) {
+		svc := start(t, context.Background())
+		require.NoError(t, svc.Err(), "a running service has no error")
+
+		svc.Shutdown()
+		require.NoError(t, requireStopped(t, svc, time.Second))
+	})
+
+	t.Run("parent context", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		svc := start(t, ctx)
+
+		cancel()
+		require.NoError(t, requireStopped(t, svc, time.Second))
+	})
+}
+
+// NewEvents bounds its own calls to the node too. A node that never answers Status fails
+// NewEvents after the fetch timeout instead of blocking the caller.
+func TestNewEventsFailsWhenStatusHangs(t *testing.T) {
+	node := newFakeNode()
+	node.set(func(f *fakeNode) { f.statusHang = true })
+
+	err := newEventsWithin(t, node, tuning{watchdog: time.Hour, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour, fetchTimeout: 20 * time.Millisecond}, 2*time.Second)
+	require.ErrorIs(t, err, context.DeadlineExceeded)
+}
+
+// The websocket is dialed in the background: a node that never completes the dial does
+// not hold NewEvents, and events still flow through the watchdog.
+func TestNewEventsDoesNotWaitForTheWebsocket(t *testing.T) {
+	node := newFakeNode()
+	node.set(func(f *fakeNode) {
+		f.dialHang = true
+		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
+	})
+
+	start := time.Now()
+	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
+	require.Less(t, time.Since(start), 100*time.Millisecond)
+
+	node.set(func(f *fakeNode) { f.height = 101 }) // the chain moves on after the start
+	waitLeaseClosed(t, sub, 101)
+}
+
+// newEventsWithin runs newEvents and returns its error, failing the test if it has not
+// returned within the given time. A service it did start is shut down with the test.
+func newEventsWithin(t *testing.T, node testNode, tune tuning, within time.Duration) error {
+	t.Helper()
+
+	bus := pubsub.NewBus()
+	t.Cleanup(bus.Close)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+
+	type result struct {
+		svc *events
+		err error
+	}
+	done := make(chan result, 1)
+	go func() {
+		svc, err := newEventsOn(ctx, node, bus, tune.options()...)
+		done <- result{svc: svc, err: err}
+	}()
+
+	select {
+	case res := <-done:
+		if res.svc != nil {
+			t.Cleanup(res.svc.Shutdown)
+		}
+		return res.err
+	case <-time.After(within):
+		t.Fatalf("newEvents still blocked after %s", within)
+		return nil
 	}
 }
 
@@ -1222,7 +1614,6 @@ func newPruningNode(earliest, latest int64, ev abci.Event) *pruningNode {
 	n := &pruningNode{earliest: earliest, latest: latest, ev: ev, missed: map[int64]struct{}{}}
 	n.blocks = map[int64]*coretypes.ResultBlockResults{}
 	n.blockErr = map[int64]error{}
-	n.headerCh = make(chan coretypes.ResultEvent, 64)
 	return n
 }
 
@@ -1270,23 +1661,19 @@ func (p *pruningNode) missedHeights() int {
 	return len(p.missed)
 }
 
-func (p *pruningNode) Subscribe(context.Context, string, string, ...int) (<-chan coretypes.ResultEvent, error) {
-	return p.headerCh, nil
-}
-
 // A node keeps pruning while the service waits, and every block above the floor is
 // fetchable. The cursor must still stay on the first pruned height, driven by both
 // headers and watchdog ticks, rather than chase the floor. The only height ever asked
-// for below the floor is the one the cursor is parked on.
+// for below the floor is the one the cursor is parked on, prefetch being off.
 func TestEventsStaysParkedBehindMovingPruneFloor(t *testing.T) {
 	const blockTime = 6 * time.Millisecond
 
 	node := newPruningNode(100, 100, leaseClosedEvent(t, 1))
 	sub := newTestService(t, node, tuning{
 		watchdog:         blockTime,
-		minRetryInterval: blockTime,
+		retryInterval:    blockTime,
 		prunedCheckAfter: 5 * blockTime,
-	})
+	}, WithPrefetch(1))
 
 	node.advance(1000)
 
