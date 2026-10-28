@@ -1,0 +1,28 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "akash/sink/v1/msgs.proto";
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// Msg defines the sink transaction service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+  // Sink handles the Sink request.
+  rpc Sink(MsgSink) returns (MsgSinkResponse);
+  // UpdateParams handles the UpdateParams request.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  // RequestVoid handles the RequestVoid request.
+  rpc RequestVoid(MsgRequestVoid) returns (MsgRequestVoidResponse);
+  // ReportOutcome handles the ReportOutcome request.
+  rpc ReportOutcome(MsgReportOutcome) returns (MsgReportOutcomeResponse);
+  // VetoVoid handles the VetoVoid request.
+  rpc VetoVoid(MsgVetoVoid) returns (MsgVetoVoidResponse);
+  // ResolveTransfer handles the ResolveTransfer request.
+  rpc ResolveTransfer(MsgResolveTransfer) returns (MsgResolveTransferResponse);
+  // FinalizeRefund handles the FinalizeRefund request.
+  rpc FinalizeRefund(MsgFinalizeRefund) returns (MsgFinalizeRefundResponse);
+  // GuardianPause handles the GuardianPause request.
+  rpc GuardianPause(MsgGuardianPause) returns (MsgGuardianPauseResponse);
+}

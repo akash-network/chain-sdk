@@ -1,0 +1,24 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// Params configures deposits, reporter settlement and refund limits. Amounts are uakt; limits use fixed UTC days.
+message Params {
+  bool enabled = 1;
+  uint64 max_transfer = 2;
+  uint64 solana_daily_mint_cap = 3;
+  uint32 max_daily_per_account = 4;
+  uint32 max_pending_per_account = 5;
+  repeated bytes vault_allowlist = 6;
+  repeated string reporters = 7;
+  uint32 reporter_threshold = 8;
+  uint64 challenge_period_seconds = 9;
+  uint64 daily_refund_cap = 10;
+  bool refunds_enabled = 11;
+  uint64 min_transfer = 12; // Zero means no minimum.
+  // Zero means no limit. Otherwise at least min_transfer.
+  uint64 max_daily_amount_per_account = 13;
+  // Bech32 account that may only disable deposits and refunds. Empty means none.
+  string pause_guardian = 14;
+}

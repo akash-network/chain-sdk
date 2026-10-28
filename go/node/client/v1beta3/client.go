@@ -36,6 +36,7 @@ import (
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	otypes "pkg.akt.dev/go/node/oracle/v2"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
+	sinktypes "pkg.akt.dev/go/node/sink/v1"
 )
 
 // QueryClient is the interface that exposes query modules.
@@ -62,6 +63,7 @@ type QueryClient interface {
 	Wasm() wasmtypes.QueryClient
 	Oracle() otypes.QueryClient
 	BME() btypes.QueryClient
+	Sink() sinktypes.QueryClient
 
 	ClientContext() sdkclient.Context
 }

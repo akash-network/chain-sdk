@@ -40,3 +40,8 @@ packages:
       dir: mocks/node/client/provider
     interfaces:
       QueryClient: {}
+  pkg.akt.dev/go/node/sink/v1:
+    config:
+      dir: mocks/node/client/sink
+    interfaces:
+      QueryClient: {}
