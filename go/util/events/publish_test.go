@@ -111,6 +111,16 @@ func (s *fakeStream) push(h int64) {
 	}
 }
 
+// deliverUnnoticed stores header h the way the reader does before it signals, and
+// leaves the signal out: the stream has the header, the loop has not taken it yet.
+func (s *fakeStream) deliverUnnoticed(h int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if h > s.latest {
+		s.latest = h
+	}
+}
+
 // end ends the stream with err, the way a failed connection or subscription does.
 func (s *fakeStream) end(err error) {
 	s.mu.Lock()
@@ -475,6 +485,7 @@ const (
 type logEntry struct {
 	level string
 	msg   string
+	kv    []any
 }
 
 // recLogger records what the service logs, so tests can check that disconnects and
@@ -490,18 +501,18 @@ func newRecLogger() recLogger {
 	return recLogger{mu: &sync.Mutex{}, entries: &[]logEntry{}}
 }
 
-func (l recLogger) add(level, msg string) {
+func (l recLogger) add(level, msg string, kv []any) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	*l.entries = append(*l.entries, logEntry{level: level, msg: msg})
+	*l.entries = append(*l.entries, logEntry{level: level, msg: msg, kv: kv})
 }
 
-func (l recLogger) Debug(msg string, _ ...any) { l.add(levelDebug, msg) }
-func (l recLogger) Info(msg string, _ ...any)  { l.add(levelInfo, msg) }
-func (l recLogger) Warn(msg string, _ ...any)  { l.add(levelWarn, msg) }
-func (l recLogger) Error(msg string, _ ...any) { l.add(levelError, msg) }
-func (l recLogger) With(...any) log.Logger     { return l }
-func (l recLogger) Impl() any                  { return l }
+func (l recLogger) Debug(msg string, kv ...any) { l.add(levelDebug, msg, kv) }
+func (l recLogger) Info(msg string, kv ...any)  { l.add(levelInfo, msg, kv) }
+func (l recLogger) Warn(msg string, kv ...any)  { l.add(levelWarn, msg, kv) }
+func (l recLogger) Error(msg string, kv ...any) { l.add(levelError, msg, kv) }
+func (l recLogger) With(...any) log.Logger      { return l }
+func (l recLogger) Impl() any                   { return l }
 
 // count returns how many entries at level start with prefix.
 func (l recLogger) count(level, prefix string) int {
@@ -517,6 +528,26 @@ func (l recLogger) count(level, prefix string) int {
 }
 
 func (l recLogger) has(level, prefix string) bool { return l.count(level, prefix) > 0 }
+
+// errOf returns the "err" value of the first entry at level that starts with prefix, or
+// nil when there is no such entry or it carries no error.
+func (l recLogger) errOf(level, prefix string) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	for _, e := range *l.entries {
+		if e.level != level || !strings.HasPrefix(e.msg, prefix) {
+			continue
+		}
+		for i := 0; i+1 < len(e.kv); i += 2 {
+			if k, ok := e.kv[i].(string); ok && k == "err" {
+				err, _ := e.kv[i+1].(error)
+				return err
+			}
+		}
+		return nil
+	}
+	return nil
+}
 
 // newEventsOn starts the service on node, applying opts the way NewEvents does.
 func newEventsOn(ctx context.Context, node testNode, bus pubsub.Bus, opts ...Option) (*events, error) {
@@ -679,21 +710,70 @@ func TestEventsPacesRedialsAfterTheFirst(t *testing.T) {
 	require.GreaterOrEqual(t, rec.count(levelWarn, "block subscription dial failed"), 4)
 }
 
-// A live stream that delivers no block is a slow chain, not a lost subscription: the
-// service polls the node but neither redials nor reports an outage.
-func TestEventsSlowChainDoesNotRedial(t *testing.T) {
+// The watchdog expects a new block every window. A live stream that delivers none for a
+// whole window is presumed lost, whatever the node's status says: a node that stopped
+// advancing but still answers pings, a subscription the node dropped without a word and
+// a halted chain all look the same from here. The stream is closed and redialed at once,
+// the loss is logged once for the outage, and the node is still polled so events keep
+// flowing.
+func TestEventsQuietWindowPresumesSubscriptionLost(t *testing.T) {
 	node := newFakeNode()
 	rec := newRecLogger()
-	newTestService(t, node, tuning{watchdog: 20 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour}, WithLogger(rec))
+	newTestService(t, node, tuning{watchdog: 20 * time.Millisecond, retryInterval: time.Hour, prunedCheckAfter: time.Hour}, WithLogger(rec))
 
-	node.waitDials(t, 1)
+	node.waitDials(t, 2) // the retry interval is an hour: only the outage's immediate redial gets here
+	var first *fakeStream
+	node.set(func(f *fakeNode) { first = f.streams[0] })
+	require.True(t, first.isClosed(), "the quiet stream is closed, not kept")
+	require.Equal(t, 1, rec.count(levelWarn, "block subscription lost"))
+
 	before := node.statusCallCount()
-	time.Sleep(200 * time.Millisecond)
+	require.Eventually(t, func() bool { return node.statusCallCount() >= before+3 }, 2*time.Second, time.Millisecond,
+		"the watchdog keeps polling the node")
+}
 
+// A header the stream has delivered but the loop has not taken yet is a new block: when
+// the stream's quiet window runs out before the header's signal is taken, the header is
+// taken rather than the stream presumed lost.
+func TestEventsQuietStreamTakesDeliveredHeaderFirst(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	sub := newTestService(t, node, tuning{watchdog: 300 * time.Millisecond, retryInterval: time.Hour, prunedCheckAfter: time.Hour}, WithLogger(rec))
+	require.Eventually(t, func() bool { return rec.has(levelInfo, "block subscription connected") }, 2*time.Second, time.Millisecond)
+	stream := node.current()
+
+	node.set(func(f *fakeNode) { f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101)) })
+	stream.deliverUnnoticed(101) // delivered within the window, its signal never taken
+
+	waitLeaseClosed(t, sub, 101) // taken when the watchdog fires
+	require.False(t, stream.isClosed(), "the stream that delivered header 101 was presumed lost")
 	require.Equal(t, 1, node.dials())
 	require.Zero(t, rec.count(levelWarn, "block subscription lost"))
-	require.GreaterOrEqual(t, node.statusCallCount()-before, 3, "the watchdog polls the node instead")
-	require.True(t, rec.has(levelDebug, "no new block within watchdog window"))
+}
+
+// A stream that ended on its own just as its quiet window ran out is reported with the
+// reason it ended, not as quiet: the warn line is what tells an operator why the
+// subscription was lost. The loop is driven directly, so the timing of the race is not
+// left to chance.
+func TestEventsQuietStreamThatEndedReportsItsOwnReason(t *testing.T) {
+	node := newFakeNode()
+	rec := newRecLogger()
+	o, err := newOptions(tuning{watchdog: time.Hour, retryInterval: time.Hour, prunedCheckAfter: time.Hour}.options()...)
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	l := newLoop(ctx, &events{ctx: ctx, client: node, dial: node.dial, log: rec, opts: o, start: 100})
+	t.Cleanup(func() {
+		cancel()
+		l.close()
+	})
+
+	s := newFakeStream()
+	l.stream = s
+	s.end(io.ErrUnexpectedEOF) // ended on its own; the loop has not taken the end yet
+	l.onQuiet()
+
+	require.ErrorIs(t, rec.errOf(levelWarn, "block subscription lost"), io.ErrUnexpectedEOF)
 }
 
 // Losing the subscription is logged at warn level once per outage, however many
@@ -851,7 +931,9 @@ func TestEventsLogsFetchFailureWarnThenErrorOnce(t *testing.T) {
 // is remembered.
 func TestEventsRetriesKnownHeightWhileStatusFails(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
+	// The window is long enough for the header to land on the first stream, and short
+	// enough for Status to fail while the height is parked.
+	sub := newTestService(t, node, tuning{watchdog: 100 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour})
 
 	node.set(func(f *fakeNode) {
 		f.blockErr[101] = errTransientFetch
@@ -863,6 +945,9 @@ func TestEventsRetriesKnownHeightWhileStatusFails(t *testing.T) {
 	node.pushHeader(103)
 
 	require.Eventually(t, func() bool { return node.callsAt(101) >= 1 }, 2*time.Second, time.Millisecond)
+	before := node.statusCallCount()
+	require.Eventually(t, func() bool { return node.statusCallCount() > before }, 2*time.Second, time.Millisecond,
+		"Status fails while the height is parked")
 	node.set(func(f *fakeNode) { delete(f.blockErr, 101) })
 
 	require.Equal(t, []uint64{101, 102, 103}, collectLeaseClosed(t, sub, 3))
@@ -1382,7 +1467,8 @@ func TestEventsRetriesFetchThatHangs(t *testing.T) {
 // not hold the run loop, or the headers that arrive meanwhile are never processed.
 func TestEventsWatchdogStatusThatHangsDoesNotHoldEvents(t *testing.T) {
 	node := newFakeNode()
-	sub := newTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour, fetchTimeout: 20 * time.Millisecond})
+	// The status call hangs longer than the test waits for the event.
+	sub := newTestService(t, node, tuning{watchdog: 200 * time.Millisecond, retryInterval: 5 * time.Millisecond, prunedCheckAfter: time.Hour, fetchTimeout: 5 * time.Second})
 
 	entered := make(chan struct{}, 1)
 	node.set(func(f *fakeNode) {
@@ -1391,6 +1477,9 @@ func TestEventsWatchdogStatusThatHangsDoesNotHoldEvents(t *testing.T) {
 		f.blocks[101] = txBlock(101, leaseClosedEvent(t, 101))
 	})
 	requireSignal(t, entered, "the watchdog to ask for Status")
+	// The quiet window that sent the poll also presumed the first stream lost; the header
+	// arrives on its replacement while the poll hangs.
+	node.waitDials(t, 2)
 	node.pushHeader(101)
 
 	waitLeaseClosed(t, sub, 101)
@@ -1484,7 +1573,9 @@ func TestEventsShutdownDuringPrunedCheckIsNotAFailure(t *testing.T) {
 // than waiting any of them out, and leaves no stream open.
 func TestEventsShutdownIsPromptWithIOInFlight(t *testing.T) {
 	node := newFakeNode()
-	svc, _ := startTestService(t, node, tuning{watchdog: 10 * time.Millisecond, retryInterval: time.Hour, prunedCheckAfter: time.Hour, fetchTimeout: time.Hour})
+	// A window long enough that the first stream is still up when the dial is set to
+	// hang, so ending it is what starts the dial left in flight.
+	svc, _ := startTestService(t, node, tuning{watchdog: 200 * time.Millisecond, retryInterval: time.Hour, prunedCheckAfter: time.Hour, fetchTimeout: time.Hour})
 	node.waitDials(t, 1)
 
 	statusBefore := node.statusCallCount()

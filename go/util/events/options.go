@@ -10,8 +10,8 @@ import (
 
 const (
 	// DefaultWatchdogTimeout is how long the service waits for a new block header before
-	// it asks the node how far the chain has got and fetches the blocks it has missed
-	// itself (see WithWatchdogTimeout).
+	// it presumes the connection lost, redials it, and asks the node how far the chain
+	// has got (see WithWatchdogTimeout).
 	DefaultWatchdogTimeout = 8 * time.Second
 
 	// DefaultFetchTimeout is how long the service waits for the node to answer a block
@@ -58,11 +58,13 @@ type options struct {
 // returns an error makes NewEvents fail with that error.
 type Option func(*options) error
 
-// WithWatchdogTimeout sets how long the service waits for a new block header before it
-// asks the node how far the chain has got and fetches the blocks it has missed itself.
-// It keeps asking once per window until a new header arrives. It does not judge the
-// websocket: a dead connection is found by ping and pong and redialed. It must be
-// positive. The default is DefaultWatchdogTimeout.
+// WithWatchdogTimeout sets how long the service waits for a new block header. Blocks are
+// expected every window: once one passes without a new block, a live connection is
+// presumed lost and redialed, and the service asks the node how far the chain has got
+// and fetches the blocks it has missed itself, once per window until a new header
+// arrives. Keep the window well above the chain's slowest normal block time, since any
+// block slower than it costs a reconnect. It must be positive. The default is
+// DefaultWatchdogTimeout.
 func WithWatchdogTimeout(d time.Duration) Option {
 	return func(o *options) error {
 		if d <= 0 {
