@@ -440,9 +440,69 @@ func TestEventsRecoversHalfOpenWebsocket(t *testing.T) {
 	require.GreaterOrEqual(t, node.subscribeCount(), 2)
 }
 
+// A node drops a subscriber it finds too slow without closing the connection, and tells
+// it with a notice it does not wait to deliver. Once that notice is lost, the connection
+// goes on answering pings but carries no header. The service must notice a window going
+// by without a block, subscribe again on a fresh connection, and publish every block in
+// order.
+func TestEventsRecoversSilentlyDroppedSubscription(t *testing.T) {
+	if testing.Short() {
+		t.Skip("drives a real websocket against a local RPC server")
+	}
+
+	node := newRPCNode(t)
+	sub := startRPCService(t, node, tuning{
+		watchdog:         200 * time.Millisecond,
+		retryInterval:    50 * time.Millisecond,
+		prunedCheckAfter: time.Hour,
+	}, withPing(20*time.Millisecond, 100*time.Millisecond))
+	produceBlocks(t, node)
+
+	requireInOrderThrough(t, sub, 101, 105)
+
+	node.set(func(n *rpcNode) { n.subs = nil }) // dropped without a word; the socket stays up
+
+	require.Eventually(t, func() bool { return node.subscribeCount() >= 2 }, 3*time.Second, 10*time.Millisecond,
+		"the service must subscribe again")
+	// Once status is frozen, only headers on the new subscription can carry the service
+	// past the frozen height.
+	frozen := node.freezeStatus()
+	requireInOrderThrough(t, sub, 106, dseqAt(frozen)+10)
+}
+
+// A node that stops advancing but keeps its websocket up, answering every ping, sends no
+// header. The service presumes the subscription lost after each window without a block
+// and redials, and once the node advances again it follows it, in order.
+func TestEventsRedialsStaleNode(t *testing.T) {
+	if testing.Short() {
+		t.Skip("drives a real websocket against a local RPC server")
+	}
+
+	node := newRPCNode(t)
+	rec := newRecLogger()
+	sub := startRPCService(t, node, tuning{
+		watchdog:         200 * time.Millisecond,
+		retryInterval:    50 * time.Millisecond,
+		prunedCheckAfter: time.Hour,
+	}, withPing(20*time.Millisecond, 100*time.Millisecond), WithLogger(rec))
+
+	// The node produces no block, while its socket stays up.
+	require.Eventually(t, func() bool { return node.subscribeCount() >= 3 }, 3*time.Second, 10*time.Millisecond,
+		"a stale node must be redialed, and redialed again while it stays stale")
+
+	produceBlocks(t, node) // it advances again
+	requireInOrderThrough(t, sub, 101, 110)
+
+	// However many redials the stale node took, it was one outage.
+	require.Equal(t, 1, rec.count(levelWarn, "block subscription lost"))
+	require.Equal(t, 1, rec.count(levelInfo, "block subscription restored"))
+}
+
 // A node that rejects the subscription, as one at its subscription limits does, is
 // asked again once per retry interval on a fresh connection, never in a storm, while
-// events keep flowing through the watchdog's polling.
+// events keep flowing through the watchdog's polling. Each of those connections opens
+// before the rejection ends it, and none may hold the polling off: the redials land
+// well inside the watchdog window, as they do with the default options.
 func TestEventsPacesRedialsWhenSubscribeRejected(t *testing.T) {
 	if testing.Short() {
 		t.Skip("drives a real websocket against a local RPC server")
@@ -452,7 +512,7 @@ func TestEventsPacesRedialsWhenSubscribeRejected(t *testing.T) {
 	node.set(func(n *rpcNode) { n.subscribeErr = errors.New("max_subscription_clients 100 reached") })
 
 	sub := startRPCService(t, node, tuning{
-		watchdog:         100 * time.Millisecond,
+		watchdog:         300 * time.Millisecond,
 		retryInterval:    100 * time.Millisecond,
 		prunedCheckAfter: time.Hour,
 	})

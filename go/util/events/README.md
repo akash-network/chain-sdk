@@ -62,11 +62,15 @@ means `tcp` and a bare `host:port` is rejected. A missing port defaults to 80, o
 the URI are sent as Basic auth and masked in URI errors.
 
 **Liveness.** The websocket is pinged every 5 s and counts as dead after 15 s without a
-pong or a message. A dead or rejected connection is redialed at once, then once per retry
-interval, for as long as it takes; the service never subscribes twice on one connection.
-While no new header arrives, a watchdog asks the node for its latest height once per
-window, so events keep flowing even while the websocket cannot connect. On a live
-connection, a quiet window means a slow chain, not an outage.
+pong or a message. Blocks are expected every watchdog window, so a live connection that
+delivers no new block for a whole window, counted from its last block or from when it
+connected, is presumed lost too: a node that stopped advancing but still answers pings, a
+subscription the node dropped without a word and a halted chain look the same from here.
+A lost or rejected connection is redialed at once, then once per retry interval, for as
+long as it takes; the service never subscribes twice on one connection. Each window
+without a new block, the watchdog also asks the node for its latest height, so events
+keep flowing even while the websocket cannot connect. Keep the window well above the
+chain's slowest normal block time, since a slower block costs a reconnect.
 
 **Run loop.** One goroutine owns all state and only selects on results and timers. Every
 call to the node (dial, block fetch, status) runs in a goroutine of its own, bounded by
@@ -89,7 +93,7 @@ goroutines and reads no clock.
 
 | Option                | Default         | Effect                                                                   |
 |-----------------------|-----------------|--------------------------------------------------------------------------|
-| `WithWatchdogTimeout` | 8 s             | Time without a new header before the node is polled for its height.      |
+| `WithWatchdogTimeout` | 8 s             | Time without a new block before redialing and polling the node.          |
 | `WithFetchTimeout`    | 10 s            | Bound on every call to the node, the websocket dial and writes included. |
 | `WithRetryInterval`   | 5 s             | Pace of retries for a failed height, and of redials.                     |
 | `WithPrefetch`        | 4               | Heights fetched ahead at once; 1 fetches one at a time.                  |

@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -14,6 +15,11 @@ import (
 	"pkg.akt.dev/go/util/ctxlog"
 	"pkg.akt.dev/go/util/pubsub"
 )
+
+// errNoNewBlock is why a live stream is dropped when a whole watchdog window passes
+// without a new block on it: the node stopped advancing, dropped the subscription
+// without a word, or the chain halted.
+var errNoNewBlock = errors.New("events: no new block within the watchdog window")
 
 // Service represents an event monitoring service that watches the chain and
 // publishes the transaction events it recognises to a message bus.
@@ -61,9 +67,12 @@ type events struct {
 // service never subscribes twice on one connection; a node that rejects the subscription
 // is asked again on a fresh connection, at the same pace. Every loss of the
 // subscription is logged at warn level and every dial at info level (see WithLogger).
-// While no header arrives, a watchdog (WithWatchdogTimeout, DefaultWatchdogTimeout by
-// default) asks the node how far the chain has got, so events keep flowing while the
-// websocket is down or the chain is slow.
+// Blocks are expected every watchdog window (WithWatchdogTimeout, DefaultWatchdogTimeout
+// by default): a live connection that delivers no new block for a whole window is
+// presumed lost and redialed the same way, since a node that stopped advancing but still
+// answers pings, a subscription the node dropped without a word and a halted chain look
+// the same from here. Each such window the watchdog also asks the node how far the chain
+// has got, so events keep flowing while the websocket is down.
 //
 // Blocks are fetched off the service's loop, up to WithPrefetch (DefaultPrefetch by
 // default) at a time while it catches up, and published strictly in order. Every call to
@@ -278,9 +287,14 @@ type loop struct {
 	fetches chan fetchResult
 	retry   *time.Timer
 
-	// watchdog fires when no new header has arrived for a window; the loop then asks
-	// the node for its height, one call at a time.
+	// watchdog fires when no new block has arrived for a window, counted from the last
+	// block or from its own last firing, whatever the stream does; the loop then asks the
+	// node for its height, one call at a time, so events keep flowing. quiet fires when
+	// the live stream has delivered no new block for a window, counted from its last block
+	// or from when it connected, and the stream is then presumed lost. A connection
+	// re-arms quiet only, so redials can never hold the polling off.
 	watchdog       *time.Timer
+	quiet          *time.Timer
 	statuses       chan statusResult
 	statusInflight bool
 	pruneChecks    chan pruneResult
@@ -301,6 +315,7 @@ func newLoop(ctx context.Context, e *events) *loop {
 		fetches:      make(chan fetchResult, e.opts.prefetch),
 		retry:        newStoppedTimer(),
 		watchdog:     time.NewTimer(e.opts.watchdog),
+		quiet:        newStoppedTimer(),
 		statuses:     make(chan statusResult, 1),
 		pruneChecks:  make(chan pruneResult, 1),
 		lastHeaderAt: time.Now(),
@@ -337,6 +352,8 @@ func (l *loop) run() error {
 			l.schedule()
 		case <-l.watchdog.C:
 			l.onWatchdog()
+		case <-l.quiet.C:
+			l.onQuiet()
 		case r := <-l.statuses:
 			l.onStatus(r)
 		case r := <-l.pruneChecks:
@@ -365,6 +382,7 @@ func (l *loop) close() {
 	}
 
 	l.watchdog.Stop()
+	l.quiet.Stop()
 	l.retry.Stop()
 	l.redial.Stop()
 }
@@ -388,23 +406,31 @@ func (l *loop) onHeader(height int64) {
 		l.lastHeaderAt = time.Now()
 		l.attempts = 0
 		resetTimer(l.watchdog, l.e.opts.watchdog)
+		if l.stream != nil {
+			resetTimer(l.quiet, l.e.opts.watchdog)
+		}
 	}
 
 	l.cur.observe(height)
 	l.schedule()
 }
 
-// onStreamEnded drops a stream that has ended and redials: at once the first time in an
-// outage, then once per retry interval.
+// onStreamEnded drops a stream that has ended on its own.
 func (l *loop) onStreamEnded() {
+	l.dropStream(l.stream.Err())
+}
+
+// dropStream closes the live stream, which ended or was found lost for err, and
+// redials: at once the first time in an outage, then once per retry interval.
+func (l *loop) dropStream(err error) {
 	s := l.stream
 	l.stream = nil
+	stopTimer(l.quiet)
 
 	// A header that raced the end is still a header.
 	if h := s.Latest(); h > l.lastHeader {
 		l.onHeader(h)
 	}
-	err := s.Err()
 	s.Close()
 
 	if !l.outage {
@@ -466,12 +492,39 @@ func (l *loop) onDial(r dialResult) {
 	}
 
 	l.stream = r.stream
+	// The new stream gets a whole window, from now, to deliver its first block.
+	resetTimer(l.quiet, l.e.opts.watchdog)
 	l.e.log.Info("block subscription connected", "attempt", l.attempts)
 }
 
-// onWatchdog asks the node how far the chain has got when no new header arrived for a
-// window. A live stream with no header is a slow chain, not a lost subscription, so
-// nothing is redialed.
+// onQuiet runs when the live stream has delivered no new block for a whole window,
+// counted from its last block or from when it connected. Blocks are expected every
+// window, so the stream is presumed lost, whatever the cause: a node that stopped
+// advancing but still answers pings, a subscription the node dropped without a word, or
+// a halted chain. It is dropped and redialed; the watchdog keeps polling the node on its
+// own schedule, so events keep flowing either way.
+func (l *loop) onQuiet() {
+	if l.stream == nil {
+		return
+	}
+	// A stream that ended on its own just now is reported with its own reason.
+	select {
+	case <-l.stream.Done():
+		l.onStreamEnded()
+		return
+	default:
+	}
+	// A header the stream has delivered but the loop has not taken yet is a new block.
+	if h := l.stream.Latest(); h > l.lastHeader {
+		l.onHeader(h)
+		return
+	}
+	l.dropStream(errNoNewBlock)
+}
+
+// onWatchdog asks the node how far the chain has got when no new block has arrived for a
+// window, so events keep flowing while the stream is quiet or down. It never judges the
+// stream, and a connection never re-arms it: that is onQuiet's job, on its own timer.
 func (l *loop) onWatchdog() {
 	l.e.log.Debug("no new block within watchdog window, polling node",
 		"timeout", l.e.opts.watchdog, "last_header", l.lastHeader, "last_height", l.cur.last())
