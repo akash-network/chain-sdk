@@ -1,0 +1,24 @@
+syntax = "proto3";
+package akash.escrow.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "pkg.akt.dev/go/node/escrow/v1";
+
+// EventOrphanPaymentsRepaired is emitted by the v2.2.0 upgrade after it closes
+// escrow payments left open without a matching lease.
+message EventOrphanPaymentsRepaired {
+  option (gogoproto.equal) = true;
+
+  // ClosedPayments is the number of payments closed.
+  uint64 closed_payments = 1 [
+    (gogoproto.jsontag)  = "closed_payments",
+    (gogoproto.moretags) = "yaml:\"closed_payments\""
+  ];
+
+  // MissingLeases is the number of those payments whose lease no longer exists.
+  uint64 missing_leases = 2 [
+    (gogoproto.jsontag)  = "missing_leases",
+    (gogoproto.moretags) = "yaml:\"missing_leases\""
+  ];
+}
