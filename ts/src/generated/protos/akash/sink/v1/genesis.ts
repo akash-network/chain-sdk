@@ -9,18 +9,136 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Params } from "./params.ts";
-import { AccountUsage, Totals, TransferState } from "./types.ts";
+import { AccountUsage, ID, RecordData, SettlementData, Totals } from "./types.ts";
+
+export interface GenesisRecord {
+  id: ID | undefined;
+  data: RecordData | undefined;
+  settlement: SettlementData | undefined;
+  usage: AccountUsage | undefined;
+}
 
 /** GenesisState defines the sink module state at genesis or export. */
 export interface GenesisState {
   params: Params | undefined;
   totals: Totals | undefined;
-  transfers: TransferState[];
-  accounts: AccountUsage[];
+  records: GenesisRecord[];
 }
 
+function createBaseGenesisRecord(): GenesisRecord {
+  return { id: undefined, data: undefined, settlement: undefined, usage: undefined };
+}
+
+export const GenesisRecord: MessageFns<GenesisRecord, "akash.sink.v1.GenesisRecord"> = {
+  $type: "akash.sink.v1.GenesisRecord" as const,
+
+  encode(message: GenesisRecord, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(10).fork()).join();
+    }
+    if (message.data !== undefined) {
+      RecordData.encode(message.data, writer.uint32(18).fork()).join();
+    }
+    if (message.settlement !== undefined) {
+      SettlementData.encode(message.settlement, writer.uint32(26).fork()).join();
+    }
+    if (message.usage !== undefined) {
+      AccountUsage.encode(message.usage, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GenesisRecord {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGenesisRecord();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = ID.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.data = RecordData.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.settlement = SettlementData.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.usage = AccountUsage.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GenesisRecord {
+    return {
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
+      data: isSet(object.data) ? RecordData.fromJSON(object.data) : undefined,
+      settlement: isSet(object.settlement) ? SettlementData.fromJSON(object.settlement) : undefined,
+      usage: isSet(object.usage) ? AccountUsage.fromJSON(object.usage) : undefined,
+    };
+  },
+
+  toJSON(message: GenesisRecord): unknown {
+    const obj: any = {};
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
+    }
+    if (message.data !== undefined) {
+      obj.data = RecordData.toJSON(message.data);
+    }
+    if (message.settlement !== undefined) {
+      obj.settlement = SettlementData.toJSON(message.settlement);
+    }
+    if (message.usage !== undefined) {
+      obj.usage = AccountUsage.toJSON(message.usage);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<GenesisRecord>): GenesisRecord {
+    const message = createBaseGenesisRecord();
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
+    message.data = (object.data !== undefined && object.data !== null)
+      ? RecordData.fromPartial(object.data)
+      : undefined;
+    message.settlement = (object.settlement !== undefined && object.settlement !== null)
+      ? SettlementData.fromPartial(object.settlement)
+      : undefined;
+    message.usage = (object.usage !== undefined && object.usage !== null)
+      ? AccountUsage.fromPartial(object.usage)
+      : undefined;
+    return message;
+  },
+};
+
 function createBaseGenesisState(): GenesisState {
-  return { params: undefined, totals: undefined, transfers: [], accounts: [] };
+  return { params: undefined, totals: undefined, records: [] };
 }
 
 export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"> = {
@@ -33,11 +151,8 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     if (message.totals !== undefined) {
       Totals.encode(message.totals, writer.uint32(18).fork()).join();
     }
-    for (const v of message.transfers) {
-      TransferState.encode(v!, writer.uint32(34).fork()).join();
-    }
-    for (const v of message.accounts) {
-      AccountUsage.encode(v!, writer.uint32(42).fork()).join();
+    for (const v of message.records) {
+      GenesisRecord.encode(v!, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -65,20 +180,12 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
           message.totals = Totals.decode(reader, reader.uint32());
           continue;
         }
-        case 4: {
-          if (tag !== 34) {
+        case 3: {
+          if (tag !== 26) {
             break;
           }
 
-          message.transfers.push(TransferState.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.accounts.push(AccountUsage.decode(reader, reader.uint32()));
+          message.records.push(GenesisRecord.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -94,11 +201,8 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     return {
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
       totals: isSet(object.totals) ? Totals.fromJSON(object.totals) : undefined,
-      transfers: globalThis.Array.isArray(object?.transfers)
-        ? object.transfers.map((e: any) => TransferState.fromJSON(e))
-        : [],
-      accounts: globalThis.Array.isArray(object?.accounts)
-        ? object.accounts.map((e: any) => AccountUsage.fromJSON(e))
+      records: globalThis.Array.isArray(object?.records)
+        ? object.records.map((e: any) => GenesisRecord.fromJSON(e))
         : [],
     };
   },
@@ -111,11 +215,8 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     if (message.totals !== undefined) {
       obj.totals = Totals.toJSON(message.totals);
     }
-    if (message.transfers?.length) {
-      obj.transfers = message.transfers.map((e) => TransferState.toJSON(e));
-    }
-    if (message.accounts?.length) {
-      obj.accounts = message.accounts.map((e) => AccountUsage.toJSON(e));
+    if (message.records?.length) {
+      obj.records = message.records.map((e) => GenesisRecord.toJSON(e));
     }
     return obj;
   },
@@ -127,8 +228,7 @@ export const GenesisState: MessageFns<GenesisState, "akash.sink.v1.GenesisState"
     message.totals = (object.totals !== undefined && object.totals !== null)
       ? Totals.fromPartial(object.totals)
       : undefined;
-    message.transfers = object.transfers?.map((e) => TransferState.fromPartial(e)) || [];
-    message.accounts = object.accounts?.map((e) => AccountUsage.fromPartial(e)) || [];
+    message.records = object.records?.map((e) => GenesisRecord.fromPartial(e)) || [];
     return message;
   },
 };

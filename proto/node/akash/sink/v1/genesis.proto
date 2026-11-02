@@ -7,13 +7,44 @@ import "akash/sink/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
+message GenesisRecord {
+  ID id = 1;
+
+  RecordData data = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "data",
+    (gogoproto.moretags) = "yaml:\"data\""
+  ];
+
+  SettlementData settlement = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "settlement",
+    (gogoproto.moretags) = "yaml:\"settlement\""
+  ];
+
+  AccountUsage usage = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "usage",
+    (gogoproto.moretags) = "yaml:\"usage\""
+  ];
+}
+
 // GenesisState defines the sink module state at genesis or export.
 message GenesisState {
-  reserved 3;
-  reserved "launch_reserve_source";
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
 
-  Params params = 1 [(gogoproto.nullable) = false];
-  Totals totals = 2 [(gogoproto.nullable) = false];
-  repeated TransferState transfers = 4 [(gogoproto.nullable) = false];
-  repeated AccountUsage accounts = 5 [(gogoproto.nullable) = false];
+  Totals totals = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "totals",
+    (gogoproto.moretags) = "yaml:\"totals\""
+  ];
+
+  repeated GenesisRecord records = 3 [
+    (gogoproto.jsontag) = "records",
+    (gogoproto.moretags) = "yaml:\"records\""
+  ];
 }

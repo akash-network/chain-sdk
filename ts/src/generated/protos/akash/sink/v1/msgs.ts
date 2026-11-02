@@ -10,7 +10,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Params } from "./params.ts";
-import { Decision, decisionFromJSON, decisionToJSON, Observation } from "./types.ts";
+import { Decision, decisionFromJSON, decisionToJSON, ID, Observation } from "./types.ts";
 
 /** MsgSink locks AKT for a Solana destination. It must be the sole top-level transaction message. */
 export interface MsgSink {
@@ -23,7 +23,7 @@ export interface MsgSink {
 
 /** MsgSinkResponse returns the canonical decimal record ID for status tracking. */
 export interface MsgSinkResponse {
-  id: string;
+  id: ID | undefined;
 }
 
 /** MsgUpdateParams defines the MsgUpdateParams request. */
@@ -39,7 +39,7 @@ export interface MsgUpdateParamsResponse {
 /** MsgRequestVoid defines the MsgRequestVoid request. */
 export interface MsgRequestVoid {
   authority: string;
-  id: bigint;
+  id: ID | undefined;
 }
 
 /** MsgRequestVoidResponse is the response for MsgRequestVoid. */
@@ -49,7 +49,7 @@ export interface MsgRequestVoidResponse {
 /** MsgReportOutcome defines the MsgReportOutcome request. */
 export interface MsgReportOutcome {
   reporter: string;
-  id: bigint;
+  id: ID | undefined;
   reporterEpoch: bigint;
   round: bigint;
   observation: Observation | undefined;
@@ -62,7 +62,7 @@ export interface MsgReportOutcomeResponse {
 /** MsgVetoVoid defines the MsgVetoVoid request. */
 export interface MsgVetoVoid {
   signer: string;
-  id: bigint;
+  id: ID | undefined;
   reason: string;
 }
 
@@ -73,7 +73,7 @@ export interface MsgVetoVoidResponse {
 /** MsgResolveTransfer defines the MsgResolveTransfer request. */
 export interface MsgResolveTransfer {
   authority: string;
-  id: bigint;
+  id: ID | undefined;
   decision: Decision;
   observation: Observation | undefined;
   reason: string;
@@ -86,7 +86,7 @@ export interface MsgResolveTransferResponse {
 /** MsgFinalizeRefund defines the MsgFinalizeRefund request. */
 export interface MsgFinalizeRefund {
   executor: string;
-  id: bigint;
+  id: ID | undefined;
 }
 
 /** MsgFinalizeRefundResponse is the response for MsgFinalizeRefund. */
@@ -216,15 +216,15 @@ export const MsgSink: MessageFns<MsgSink, "akash.sink.v1.MsgSink"> = {
 };
 
 function createBaseMsgSinkResponse(): MsgSinkResponse {
-  return { id: "" };
+  return { id: undefined };
 }
 
 export const MsgSinkResponse: MessageFns<MsgSinkResponse, "akash.sink.v1.MsgSinkResponse"> = {
   $type: "akash.sink.v1.MsgSinkResponse" as const,
 
   encode(message: MsgSinkResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -241,7 +241,7 @@ export const MsgSinkResponse: MessageFns<MsgSinkResponse, "akash.sink.v1.MsgSink
             break;
           }
 
-          message.id = reader.string();
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -254,19 +254,19 @@ export const MsgSinkResponse: MessageFns<MsgSinkResponse, "akash.sink.v1.MsgSink
   },
 
   fromJSON(object: any): MsgSinkResponse {
-    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+    return { id: isSet(object.id) ? ID.fromJSON(object.id) : undefined };
   },
 
   toJSON(message: MsgSinkResponse): unknown {
     const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
     return obj;
   },
   fromPartial(object: DeepPartial<MsgSinkResponse>): MsgSinkResponse {
     const message = createBaseMsgSinkResponse();
-    message.id = object.id ?? "";
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
     return message;
   },
 };
@@ -389,7 +389,7 @@ export const MsgUpdateParamsResponse: MessageFns<MsgUpdateParamsResponse, "akash
 };
 
 function createBaseMsgRequestVoid(): MsgRequestVoid {
-  return { authority: "", id: 0n };
+  return { authority: "", id: undefined };
 }
 
 export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgRequestVoid"> = {
@@ -399,11 +399,8 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
     if (message.authority !== "") {
       writer.uint32(10).string(message.authority);
     }
-    if (message.id !== 0n) {
-      if (BigInt.asUintN(64, message.id) !== message.id) {
-        throw new globalThis.Error("value provided for field message.id of type uint64 too large");
-      }
-      writer.uint32(16).uint64(message.id);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -424,11 +421,11 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.id = reader.uint64() as bigint;
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -443,7 +440,7 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
   fromJSON(object: any): MsgRequestVoid {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      id: isSet(object.id) ? BigInt(object.id) : 0n,
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
     };
   },
 
@@ -452,15 +449,15 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
     if (message.authority !== "") {
       obj.authority = message.authority;
     }
-    if (message.id !== 0n) {
-      obj.id = message.id.toString();
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
     return obj;
   },
   fromPartial(object: DeepPartial<MsgRequestVoid>): MsgRequestVoid {
     const message = createBaseMsgRequestVoid();
     message.authority = object.authority ?? "";
-    message.id = (object.id !== undefined && object.id !== null) ? BigInt(object.id) : 0n;
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
     return message;
   },
 };
@@ -507,7 +504,7 @@ export const MsgRequestVoidResponse: MessageFns<MsgRequestVoidResponse, "akash.s
 };
 
 function createBaseMsgReportOutcome(): MsgReportOutcome {
-  return { reporter: "", id: 0n, reporterEpoch: 0n, round: 0n, observation: undefined };
+  return { reporter: "", id: undefined, reporterEpoch: 0n, round: 0n, observation: undefined };
 }
 
 export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgReportOutcome"> = {
@@ -517,11 +514,8 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
     if (message.reporter !== "") {
       writer.uint32(10).string(message.reporter);
     }
-    if (message.id !== 0n) {
-      if (BigInt.asUintN(64, message.id) !== message.id) {
-        throw new globalThis.Error("value provided for field message.id of type uint64 too large");
-      }
-      writer.uint32(16).uint64(message.id);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(18).fork()).join();
     }
     if (message.reporterEpoch !== 0n) {
       if (BigInt.asUintN(64, message.reporterEpoch) !== message.reporterEpoch) {
@@ -557,11 +551,11 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.id = reader.uint64() as bigint;
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -600,7 +594,7 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
   fromJSON(object: any): MsgReportOutcome {
     return {
       reporter: isSet(object.reporter) ? globalThis.String(object.reporter) : "",
-      id: isSet(object.id) ? BigInt(object.id) : 0n,
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
       reporterEpoch: isSet(object.reporter_epoch) ? BigInt(object.reporter_epoch) : 0n,
       round: isSet(object.round) ? BigInt(object.round) : 0n,
       observation: isSet(object.observation) ? Observation.fromJSON(object.observation) : undefined,
@@ -612,8 +606,8 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
     if (message.reporter !== "") {
       obj.reporter = message.reporter;
     }
-    if (message.id !== 0n) {
-      obj.id = message.id.toString();
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
     if (message.reporterEpoch !== 0n) {
       obj.reporter_epoch = message.reporterEpoch.toString();
@@ -629,7 +623,7 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
   fromPartial(object: DeepPartial<MsgReportOutcome>): MsgReportOutcome {
     const message = createBaseMsgReportOutcome();
     message.reporter = object.reporter ?? "";
-    message.id = (object.id !== undefined && object.id !== null) ? BigInt(object.id) : 0n;
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
     message.reporterEpoch = (object.reporterEpoch !== undefined && object.reporterEpoch !== null)
       ? BigInt(object.reporterEpoch)
       : 0n;
@@ -684,7 +678,7 @@ export const MsgReportOutcomeResponse: MessageFns<MsgReportOutcomeResponse, "aka
   };
 
 function createBaseMsgVetoVoid(): MsgVetoVoid {
-  return { signer: "", id: 0n, reason: "" };
+  return { signer: "", id: undefined, reason: "" };
 }
 
 export const MsgVetoVoid: MessageFns<MsgVetoVoid, "akash.sink.v1.MsgVetoVoid"> = {
@@ -694,11 +688,8 @@ export const MsgVetoVoid: MessageFns<MsgVetoVoid, "akash.sink.v1.MsgVetoVoid"> =
     if (message.signer !== "") {
       writer.uint32(10).string(message.signer);
     }
-    if (message.id !== 0n) {
-      if (BigInt.asUintN(64, message.id) !== message.id) {
-        throw new globalThis.Error("value provided for field message.id of type uint64 too large");
-      }
-      writer.uint32(16).uint64(message.id);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(18).fork()).join();
     }
     if (message.reason !== "") {
       writer.uint32(26).string(message.reason);
@@ -722,11 +713,11 @@ export const MsgVetoVoid: MessageFns<MsgVetoVoid, "akash.sink.v1.MsgVetoVoid"> =
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.id = reader.uint64() as bigint;
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -749,7 +740,7 @@ export const MsgVetoVoid: MessageFns<MsgVetoVoid, "akash.sink.v1.MsgVetoVoid"> =
   fromJSON(object: any): MsgVetoVoid {
     return {
       signer: isSet(object.signer) ? globalThis.String(object.signer) : "",
-      id: isSet(object.id) ? BigInt(object.id) : 0n,
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
       reason: isSet(object.reason) ? globalThis.String(object.reason) : "",
     };
   },
@@ -759,8 +750,8 @@ export const MsgVetoVoid: MessageFns<MsgVetoVoid, "akash.sink.v1.MsgVetoVoid"> =
     if (message.signer !== "") {
       obj.signer = message.signer;
     }
-    if (message.id !== 0n) {
-      obj.id = message.id.toString();
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
     if (message.reason !== "") {
       obj.reason = message.reason;
@@ -770,7 +761,7 @@ export const MsgVetoVoid: MessageFns<MsgVetoVoid, "akash.sink.v1.MsgVetoVoid"> =
   fromPartial(object: DeepPartial<MsgVetoVoid>): MsgVetoVoid {
     const message = createBaseMsgVetoVoid();
     message.signer = object.signer ?? "";
-    message.id = (object.id !== undefined && object.id !== null) ? BigInt(object.id) : 0n;
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
     message.reason = object.reason ?? "";
     return message;
   },
@@ -818,7 +809,7 @@ export const MsgVetoVoidResponse: MessageFns<MsgVetoVoidResponse, "akash.sink.v1
 };
 
 function createBaseMsgResolveTransfer(): MsgResolveTransfer {
-  return { authority: "", id: 0n, decision: 0, observation: undefined, reason: "" };
+  return { authority: "", id: undefined, decision: 0, observation: undefined, reason: "" };
 }
 
 export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.MsgResolveTransfer"> = {
@@ -828,11 +819,8 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
     if (message.authority !== "") {
       writer.uint32(10).string(message.authority);
     }
-    if (message.id !== 0n) {
-      if (BigInt.asUintN(64, message.id) !== message.id) {
-        throw new globalThis.Error("value provided for field message.id of type uint64 too large");
-      }
-      writer.uint32(16).uint64(message.id);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(18).fork()).join();
     }
     if (message.decision !== 0) {
       writer.uint32(24).int32(message.decision);
@@ -862,11 +850,11 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.id = reader.uint64() as bigint;
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -905,7 +893,7 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
   fromJSON(object: any): MsgResolveTransfer {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
-      id: isSet(object.id) ? BigInt(object.id) : 0n,
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
       decision: isSet(object.decision) ? decisionFromJSON(object.decision) : 0,
       observation: isSet(object.observation) ? Observation.fromJSON(object.observation) : undefined,
       reason: isSet(object.reason) ? globalThis.String(object.reason) : "",
@@ -917,8 +905,8 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
     if (message.authority !== "") {
       obj.authority = message.authority;
     }
-    if (message.id !== 0n) {
-      obj.id = message.id.toString();
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
     if (message.decision !== 0) {
       obj.decision = decisionToJSON(message.decision);
@@ -934,7 +922,7 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
   fromPartial(object: DeepPartial<MsgResolveTransfer>): MsgResolveTransfer {
     const message = createBaseMsgResolveTransfer();
     message.authority = object.authority ?? "";
-    message.id = (object.id !== undefined && object.id !== null) ? BigInt(object.id) : 0n;
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
     message.decision = object.decision ?? 0;
     message.observation = (object.observation !== undefined && object.observation !== null)
       ? Observation.fromPartial(object.observation)
@@ -989,7 +977,7 @@ export const MsgResolveTransferResponse: MessageFns<
 };
 
 function createBaseMsgFinalizeRefund(): MsgFinalizeRefund {
-  return { executor: "", id: 0n };
+  return { executor: "", id: undefined };
 }
 
 export const MsgFinalizeRefund: MessageFns<MsgFinalizeRefund, "akash.sink.v1.MsgFinalizeRefund"> = {
@@ -999,11 +987,8 @@ export const MsgFinalizeRefund: MessageFns<MsgFinalizeRefund, "akash.sink.v1.Msg
     if (message.executor !== "") {
       writer.uint32(10).string(message.executor);
     }
-    if (message.id !== 0n) {
-      if (BigInt.asUintN(64, message.id) !== message.id) {
-        throw new globalThis.Error("value provided for field message.id of type uint64 too large");
-      }
-      writer.uint32(16).uint64(message.id);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -1024,11 +1009,11 @@ export const MsgFinalizeRefund: MessageFns<MsgFinalizeRefund, "akash.sink.v1.Msg
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.id = reader.uint64() as bigint;
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1043,7 +1028,7 @@ export const MsgFinalizeRefund: MessageFns<MsgFinalizeRefund, "akash.sink.v1.Msg
   fromJSON(object: any): MsgFinalizeRefund {
     return {
       executor: isSet(object.executor) ? globalThis.String(object.executor) : "",
-      id: isSet(object.id) ? BigInt(object.id) : 0n,
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
     };
   },
 
@@ -1052,15 +1037,15 @@ export const MsgFinalizeRefund: MessageFns<MsgFinalizeRefund, "akash.sink.v1.Msg
     if (message.executor !== "") {
       obj.executor = message.executor;
     }
-    if (message.id !== 0n) {
-      obj.id = message.id.toString();
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
     return obj;
   },
   fromPartial(object: DeepPartial<MsgFinalizeRefund>): MsgFinalizeRefund {
     const message = createBaseMsgFinalizeRefund();
     message.executor = object.executor ?? "";
-    message.id = (object.id !== undefined && object.id !== null) ? BigInt(object.id) : 0n;
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
     return message;
   },
 };

@@ -1,24 +1,85 @@
 syntax = "proto3";
 package akash.sink.v1;
 
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/duration.proto";
+
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
 // Params configures deposits, reporter settlement and refund limits. Amounts are uakt; limits use fixed UTC days.
 message Params {
-  bool enabled = 1;
-  uint64 max_transfer = 2;
-  uint64 solana_daily_mint_cap = 3;
-  uint32 max_daily_per_account = 4;
-  uint32 max_pending_per_account = 5;
-  repeated bytes vault_allowlist = 6;
-  repeated string reporters = 7;
-  uint32 reporter_threshold = 8;
-  uint64 challenge_period_seconds = 9;
-  uint64 daily_refund_cap = 10;
-  bool refunds_enabled = 11;
-  uint64 min_transfer = 12; // Zero means no minimum.
-  // Zero means no limit. Otherwise at least min_transfer.
-  uint64 max_daily_amount_per_account = 13;
+  bool   enabled = 1 [
+    (gogoproto.jsontag)   = "enabled",
+    (gogoproto.moretags)  = "yaml:\"enabled\""
+  ];
+
+  cosmos.base.v1beta1.Coin min_amount_per_transfer = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "min_transfer",
+    (gogoproto.moretags)  = "yaml:\"min_transfer\""
+  ];
+
+  cosmos.base.v1beta1.Coin max_amount_per_transfer = 3 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_transfer",
+    (gogoproto.moretags)  = "yaml:\"max_transfer\""
+  ];
+
+  cosmos.base.v1beta1.Coin max_transfer_amount_per_epoch = 4 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_transfer_amount_per_epoch",
+    (gogoproto.moretags)  = "yaml:\"max_transfer_amount_per_epoch\""
+  ];
+
+  // zero means no limit
+  cosmos.base.v1beta1.Coin max_epoch_amount_per_account = 5 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_epoch_amount_per_account",
+    (gogoproto.moretags)  = "yaml:\"max_epoch_amount_per_account\""
+  ];
+
+  cosmos.base.v1beta1.Coin max_epoch_refund = 6 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_epoch_refund",
+    (gogoproto.moretags)  = "yaml:\"max_epoch_refund\""
+  ];
+
+  // list governance approved akash addresses that monitor and report state of the
+  // mint/void from solana to akash
+  repeated string reporters = 7 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "reporters",
+    (gogoproto.moretags)  = "yaml:\"reporters\""
+  ];
+
+  string reporters_threshold = 8 [
+    (cosmos_proto.scalar) = "cosmos.Dec"
+  ];
+
+  // window of time reporter has to challenge the void
+  google.protobuf.Duration reporter_challenge_period = 9 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.moretags) = "yaml:\"challenge_period\""
+  ];
+
+  // list of allowed vaults to receive akt (liquidity pools, PDAs)
+  repeated string allowed_destination_vaults = 10 [
+    (gogoproto.jsontag)   = "allowed_destination_vaults",
+    (gogoproto.moretags)  = "yaml:\"allowed_destination_vaults\""
+  ];
+
+  bool refunds_enabled = 11 [
+    (gogoproto.jsontag)   = "refunds_enabled",
+    (gogoproto.moretags)  = "yaml:\"refunds_enabled\""
+  ];
+
   // Bech32 account that may only disable deposits and refunds. Empty means none.
-  string pause_guardian = 14;
+  string pause_guardian = 12 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "pause_guardian",
+    (gogoproto.moretags)  = "yaml:\"pause_guardian\""
+  ];
 }

@@ -8,6 +8,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 
 /** Outcome is the finalized Solana result reported by an observer. */
 export enum Outcome {
@@ -54,29 +55,37 @@ export function outcomeToJSON(object: Outcome): string {
 
 /** Status describes settlement and refund payment on Akash. */
 export enum Status {
-  /** STATUS_PENDING - STATUS_PENDING represents pending. */
-  STATUS_PENDING = 0,
+  STATUS_INVALID = 0,
+  /** STATUS_TRANSFER_PENDING - STATUS_PENDING represents pending. */
+  STATUS_TRANSFER_PENDING = 1,
   /** STATUS_MINTED - STATUS_MINTED represents minted. */
-  STATUS_MINTED = 1,
+  STATUS_MINTED = 2,
   /** STATUS_VOIDED - STATUS_VOIDED represents voided. */
-  STATUS_VOIDED = 2,
+  STATUS_VOIDED = 3,
+  STATUS_REFUND_PENDING = 4,
   /** STATUS_REFUNDED - STATUS_REFUNDED represents refunded. */
-  STATUS_REFUNDED = 3,
+  STATUS_REFUNDED = 5,
   UNRECOGNIZED = -1,
 }
 
 export function statusFromJSON(object: any): Status {
   switch (object) {
     case 0:
-    case "STATUS_PENDING":
-      return Status.STATUS_PENDING;
+    case "STATUS_INVALID":
+      return Status.STATUS_INVALID;
     case 1:
+    case "STATUS_TRANSFER_PENDING":
+      return Status.STATUS_TRANSFER_PENDING;
+    case 2:
     case "STATUS_MINTED":
       return Status.STATUS_MINTED;
-    case 2:
+    case 3:
     case "STATUS_VOIDED":
       return Status.STATUS_VOIDED;
-    case 3:
+    case 4:
+    case "STATUS_REFUND_PENDING":
+      return Status.STATUS_REFUND_PENDING;
+    case 5:
     case "STATUS_REFUNDED":
       return Status.STATUS_REFUNDED;
     case -1:
@@ -88,12 +97,16 @@ export function statusFromJSON(object: any): Status {
 
 export function statusToJSON(object: Status): string {
   switch (object) {
-    case Status.STATUS_PENDING:
-      return "STATUS_PENDING";
+    case Status.STATUS_INVALID:
+      return "STATUS_INVALID";
+    case Status.STATUS_TRANSFER_PENDING:
+      return "STATUS_TRANSFER_PENDING";
     case Status.STATUS_MINTED:
       return "STATUS_MINTED";
     case Status.STATUS_VOIDED:
       return "STATUS_VOIDED";
+    case Status.STATUS_REFUND_PENDING:
+      return "STATUS_REFUND_PENDING";
     case Status.STATUS_REFUNDED:
       return "STATUS_REFUNDED";
     case Status.UNRECOGNIZED:
@@ -195,34 +208,57 @@ export function decisionToJSON(object: Decision): string {
   }
 }
 
-/** Totals records escrow accounting and monotonically increasing transfer and reporter identifiers. */
-export interface Totals {
-  lastTransferId: bigint;
-  pendingAmount: bigint;
-  pendingCount: bigint;
-  mintedAmount: bigint;
-  voidedAmount: bigint;
-  refundedAmount: bigint;
-  refundDay: bigint;
-  refundedToday: bigint;
-  reporterEpoch: bigint;
+export interface ID {
+  owner: string;
+  height: bigint;
+  /** sequence disambiguate multiple entries at the same height */
+  sequence: bigint;
+}
+
+export interface SettlementID {
+  status: Status;
+  owner: string;
+  height: bigint;
+  /** sequence disambiguate multiple entries at the same height */
+  sequence: bigint;
+}
+
+export interface RecordData {
+  dest: string;
+  amount: Coin | undefined;
+}
+
+export interface SettlementData {
+  hold: Hold;
+  round: bigint;
+  policy: ReporterPolicy | undefined;
+  votes: Vote[];
+  challengeEnd: bigint;
+  governanceObservation: Observation | undefined;
+  vetoBy: string;
+  vetoReason: string;
+}
+
+export interface TransferState {
+  id: ID | undefined;
+  data: RecordData | undefined;
 }
 
 /** AccountUsage tracks deposit limits for one Akash account. */
 export interface AccountUsage {
-  sender: Uint8Array;
-  day: bigint;
-  dailyCount: number;
-  pendingCount: number;
-  /** uakt deposited on day. */
-  dailyAmount: bigint;
+  totalSent: Coin | undefined;
+  epochSent: Coin | undefined;
+  lastEpoch: bigint;
 }
 
-/** TransferState combines the immutable 77-byte proof record with mutable settlement state. */
-export interface TransferState {
-  record: Uint8Array;
-  voidOrdered: boolean;
-  settlement: Settlement | undefined;
+/** Totals records escrow accounting and monotonically increasing transfer and reporter identifiers. */
+export interface Totals {
+  pendingAmount: Coin | undefined;
+  pendingCount: Coin | undefined;
+  mintedAmount: Coin | undefined;
+  voidedAmount: Coin | undefined;
+  refundedAmount: Coin | undefined;
+  refundedInEpoch: Coin | undefined;
 }
 
 /** Observation identifies a finalized Solana mint or void and its evidence. */
@@ -245,294 +281,36 @@ export interface ReporterPolicy {
   threshold: number;
 }
 
-/** Settlement tracks reporter votes, holds and the refund challenge window. */
-export interface Settlement {
-  status: Status;
-  hold: Hold;
-  round: bigint;
-  policy: ReporterPolicy | undefined;
-  votes: Vote[];
-  challengeEnd: bigint;
-  governanceObservation: Observation | undefined;
-  vetoBy: string;
-  vetoReason: string;
+function createBaseID(): ID {
+  return { owner: "", height: 0n, sequence: 0n };
 }
 
-function createBaseTotals(): Totals {
-  return {
-    lastTransferId: 0n,
-    pendingAmount: 0n,
-    pendingCount: 0n,
-    mintedAmount: 0n,
-    voidedAmount: 0n,
-    refundedAmount: 0n,
-    refundDay: 0n,
-    refundedToday: 0n,
-    reporterEpoch: 0n,
-  };
-}
+export const ID: MessageFns<ID, "akash.sink.v1.ID"> = {
+  $type: "akash.sink.v1.ID" as const,
 
-export const Totals: MessageFns<Totals, "akash.sink.v1.Totals"> = {
-  $type: "akash.sink.v1.Totals" as const,
-
-  encode(message: Totals, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.lastTransferId !== 0n) {
-      if (BigInt.asUintN(64, message.lastTransferId) !== message.lastTransferId) {
-        throw new globalThis.Error("value provided for field message.lastTransferId of type uint64 too large");
-      }
-      writer.uint32(8).uint64(message.lastTransferId);
+  encode(message: ID, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.owner !== "") {
+      writer.uint32(10).string(message.owner);
     }
-    if (message.pendingAmount !== 0n) {
-      if (BigInt.asUintN(64, message.pendingAmount) !== message.pendingAmount) {
-        throw new globalThis.Error("value provided for field message.pendingAmount of type uint64 too large");
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
       }
-      writer.uint32(24).uint64(message.pendingAmount);
+      writer.uint32(16).int64(message.height);
     }
-    if (message.pendingCount !== 0n) {
-      if (BigInt.asUintN(64, message.pendingCount) !== message.pendingCount) {
-        throw new globalThis.Error("value provided for field message.pendingCount of type uint64 too large");
+    if (message.sequence !== 0n) {
+      if (BigInt.asUintN(64, message.sequence) !== message.sequence) {
+        throw new globalThis.Error("value provided for field message.sequence of type uint64 too large");
       }
-      writer.uint32(32).uint64(message.pendingCount);
-    }
-    if (message.mintedAmount !== 0n) {
-      if (BigInt.asUintN(64, message.mintedAmount) !== message.mintedAmount) {
-        throw new globalThis.Error("value provided for field message.mintedAmount of type uint64 too large");
-      }
-      writer.uint32(40).uint64(message.mintedAmount);
-    }
-    if (message.voidedAmount !== 0n) {
-      if (BigInt.asUintN(64, message.voidedAmount) !== message.voidedAmount) {
-        throw new globalThis.Error("value provided for field message.voidedAmount of type uint64 too large");
-      }
-      writer.uint32(48).uint64(message.voidedAmount);
-    }
-    if (message.refundedAmount !== 0n) {
-      if (BigInt.asUintN(64, message.refundedAmount) !== message.refundedAmount) {
-        throw new globalThis.Error("value provided for field message.refundedAmount of type uint64 too large");
-      }
-      writer.uint32(56).uint64(message.refundedAmount);
-    }
-    if (message.refundDay !== 0n) {
-      if (BigInt.asUintN(64, message.refundDay) !== message.refundDay) {
-        throw new globalThis.Error("value provided for field message.refundDay of type uint64 too large");
-      }
-      writer.uint32(64).uint64(message.refundDay);
-    }
-    if (message.refundedToday !== 0n) {
-      if (BigInt.asUintN(64, message.refundedToday) !== message.refundedToday) {
-        throw new globalThis.Error("value provided for field message.refundedToday of type uint64 too large");
-      }
-      writer.uint32(72).uint64(message.refundedToday);
-    }
-    if (message.reporterEpoch !== 0n) {
-      if (BigInt.asUintN(64, message.reporterEpoch) !== message.reporterEpoch) {
-        throw new globalThis.Error("value provided for field message.reporterEpoch of type uint64 too large");
-      }
-      writer.uint32(80).uint64(message.reporterEpoch);
+      writer.uint32(24).uint64(message.sequence);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Totals {
+  decode(input: BinaryReader | Uint8Array, length?: number): ID {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseTotals();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.lastTransferId = reader.uint64() as bigint;
-          continue;
-        }
-        case 3: {
-          if (tag !== 24) {
-            break;
-          }
-
-          message.pendingAmount = reader.uint64() as bigint;
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.pendingCount = reader.uint64() as bigint;
-          continue;
-        }
-        case 5: {
-          if (tag !== 40) {
-            break;
-          }
-
-          message.mintedAmount = reader.uint64() as bigint;
-          continue;
-        }
-        case 6: {
-          if (tag !== 48) {
-            break;
-          }
-
-          message.voidedAmount = reader.uint64() as bigint;
-          continue;
-        }
-        case 7: {
-          if (tag !== 56) {
-            break;
-          }
-
-          message.refundedAmount = reader.uint64() as bigint;
-          continue;
-        }
-        case 8: {
-          if (tag !== 64) {
-            break;
-          }
-
-          message.refundDay = reader.uint64() as bigint;
-          continue;
-        }
-        case 9: {
-          if (tag !== 72) {
-            break;
-          }
-
-          message.refundedToday = reader.uint64() as bigint;
-          continue;
-        }
-        case 10: {
-          if (tag !== 80) {
-            break;
-          }
-
-          message.reporterEpoch = reader.uint64() as bigint;
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): Totals {
-    return {
-      lastTransferId: isSet(object.last_transfer_id) ? BigInt(object.last_transfer_id) : 0n,
-      pendingAmount: isSet(object.pending_amount) ? BigInt(object.pending_amount) : 0n,
-      pendingCount: isSet(object.pending_count) ? BigInt(object.pending_count) : 0n,
-      mintedAmount: isSet(object.minted_amount) ? BigInt(object.minted_amount) : 0n,
-      voidedAmount: isSet(object.voided_amount) ? BigInt(object.voided_amount) : 0n,
-      refundedAmount: isSet(object.refunded_amount) ? BigInt(object.refunded_amount) : 0n,
-      refundDay: isSet(object.refund_day) ? BigInt(object.refund_day) : 0n,
-      refundedToday: isSet(object.refunded_today) ? BigInt(object.refunded_today) : 0n,
-      reporterEpoch: isSet(object.reporter_epoch) ? BigInt(object.reporter_epoch) : 0n,
-    };
-  },
-
-  toJSON(message: Totals): unknown {
-    const obj: any = {};
-    if (message.lastTransferId !== 0n) {
-      obj.last_transfer_id = message.lastTransferId.toString();
-    }
-    if (message.pendingAmount !== 0n) {
-      obj.pending_amount = message.pendingAmount.toString();
-    }
-    if (message.pendingCount !== 0n) {
-      obj.pending_count = message.pendingCount.toString();
-    }
-    if (message.mintedAmount !== 0n) {
-      obj.minted_amount = message.mintedAmount.toString();
-    }
-    if (message.voidedAmount !== 0n) {
-      obj.voided_amount = message.voidedAmount.toString();
-    }
-    if (message.refundedAmount !== 0n) {
-      obj.refunded_amount = message.refundedAmount.toString();
-    }
-    if (message.refundDay !== 0n) {
-      obj.refund_day = message.refundDay.toString();
-    }
-    if (message.refundedToday !== 0n) {
-      obj.refunded_today = message.refundedToday.toString();
-    }
-    if (message.reporterEpoch !== 0n) {
-      obj.reporter_epoch = message.reporterEpoch.toString();
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<Totals>): Totals {
-    const message = createBaseTotals();
-    message.lastTransferId = (object.lastTransferId !== undefined && object.lastTransferId !== null)
-      ? BigInt(object.lastTransferId)
-      : 0n;
-    message.pendingAmount = (object.pendingAmount !== undefined && object.pendingAmount !== null)
-      ? BigInt(object.pendingAmount)
-      : 0n;
-    message.pendingCount = (object.pendingCount !== undefined && object.pendingCount !== null)
-      ? BigInt(object.pendingCount)
-      : 0n;
-    message.mintedAmount = (object.mintedAmount !== undefined && object.mintedAmount !== null)
-      ? BigInt(object.mintedAmount)
-      : 0n;
-    message.voidedAmount = (object.voidedAmount !== undefined && object.voidedAmount !== null)
-      ? BigInt(object.voidedAmount)
-      : 0n;
-    message.refundedAmount = (object.refundedAmount !== undefined && object.refundedAmount !== null)
-      ? BigInt(object.refundedAmount)
-      : 0n;
-    message.refundDay = (object.refundDay !== undefined && object.refundDay !== null) ? BigInt(object.refundDay) : 0n;
-    message.refundedToday = (object.refundedToday !== undefined && object.refundedToday !== null)
-      ? BigInt(object.refundedToday)
-      : 0n;
-    message.reporterEpoch = (object.reporterEpoch !== undefined && object.reporterEpoch !== null)
-      ? BigInt(object.reporterEpoch)
-      : 0n;
-    return message;
-  },
-};
-
-function createBaseAccountUsage(): AccountUsage {
-  return { sender: new Uint8Array(0), day: 0n, dailyCount: 0, pendingCount: 0, dailyAmount: 0n };
-}
-
-export const AccountUsage: MessageFns<AccountUsage, "akash.sink.v1.AccountUsage"> = {
-  $type: "akash.sink.v1.AccountUsage" as const,
-
-  encode(message: AccountUsage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.sender.length !== 0) {
-      writer.uint32(10).bytes(message.sender);
-    }
-    if (message.day !== 0n) {
-      if (BigInt.asUintN(64, message.day) !== message.day) {
-        throw new globalThis.Error("value provided for field message.day of type uint64 too large");
-      }
-      writer.uint32(16).uint64(message.day);
-    }
-    if (message.dailyCount !== 0) {
-      writer.uint32(24).uint32(message.dailyCount);
-    }
-    if (message.pendingCount !== 0) {
-      writer.uint32(32).uint32(message.pendingCount);
-    }
-    if (message.dailyAmount !== 0n) {
-      if (BigInt.asUintN(64, message.dailyAmount) !== message.dailyAmount) {
-        throw new globalThis.Error("value provided for field message.dailyAmount of type uint64 too large");
-      }
-      writer.uint32(40).uint64(message.dailyAmount);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): AccountUsage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseAccountUsage();
+    const message = createBaseID();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -541,7 +319,7 @@ export const AccountUsage: MessageFns<AccountUsage, "akash.sink.v1.AccountUsage"
             break;
           }
 
-          message.sender = reader.bytes();
+          message.owner = reader.string();
           continue;
         }
         case 2: {
@@ -549,7 +327,7 @@ export const AccountUsage: MessageFns<AccountUsage, "akash.sink.v1.AccountUsage"
             break;
           }
 
-          message.day = reader.uint64() as bigint;
+          message.height = reader.int64() as bigint;
           continue;
         }
         case 3: {
@@ -557,23 +335,7 @@ export const AccountUsage: MessageFns<AccountUsage, "akash.sink.v1.AccountUsage"
             break;
           }
 
-          message.dailyCount = reader.uint32();
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.pendingCount = reader.uint32();
-          continue;
-        }
-        case 5: {
-          if (tag !== 40) {
-            break;
-          }
-
-          message.dailyAmount = reader.uint64() as bigint;
+          message.sequence = reader.uint64() as bigint;
           continue;
         }
       }
@@ -585,64 +347,431 @@ export const AccountUsage: MessageFns<AccountUsage, "akash.sink.v1.AccountUsage"
     return message;
   },
 
-  fromJSON(object: any): AccountUsage {
+  fromJSON(object: any): ID {
     return {
-      sender: isSet(object.sender) ? bytesFromBase64(object.sender) : new Uint8Array(0),
-      day: isSet(object.day) ? BigInt(object.day) : 0n,
-      dailyCount: isSet(object.daily_count) ? globalThis.Number(object.daily_count) : 0,
-      pendingCount: isSet(object.pending_count) ? globalThis.Number(object.pending_count) : 0,
-      dailyAmount: isSet(object.daily_amount) ? BigInt(object.daily_amount) : 0n,
+      owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
+      sequence: isSet(object.sequence) ? BigInt(object.sequence) : 0n,
     };
   },
 
-  toJSON(message: AccountUsage): unknown {
+  toJSON(message: ID): unknown {
     const obj: any = {};
-    if (message.sender.length !== 0) {
-      obj.sender = base64FromBytes(message.sender);
+    if (message.owner !== "") {
+      obj.owner = message.owner;
     }
-    if (message.day !== 0n) {
-      obj.day = message.day.toString();
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
     }
-    if (message.dailyCount !== 0) {
-      obj.daily_count = Math.round(message.dailyCount);
-    }
-    if (message.pendingCount !== 0) {
-      obj.pending_count = Math.round(message.pendingCount);
-    }
-    if (message.dailyAmount !== 0n) {
-      obj.daily_amount = message.dailyAmount.toString();
+    if (message.sequence !== 0n) {
+      obj.sequence = message.sequence.toString();
     }
     return obj;
   },
-  fromPartial(object: DeepPartial<AccountUsage>): AccountUsage {
-    const message = createBaseAccountUsage();
-    message.sender = object.sender ?? new Uint8Array(0);
-    message.day = (object.day !== undefined && object.day !== null) ? BigInt(object.day) : 0n;
-    message.dailyCount = object.dailyCount ?? 0;
-    message.pendingCount = object.pendingCount ?? 0;
-    message.dailyAmount = (object.dailyAmount !== undefined && object.dailyAmount !== null)
-      ? BigInt(object.dailyAmount)
+  fromPartial(object: DeepPartial<ID>): ID {
+    const message = createBaseID();
+    message.owner = object.owner ?? "";
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null) ? BigInt(object.sequence) : 0n;
+    return message;
+  },
+};
+
+function createBaseSettlementID(): SettlementID {
+  return { status: 0, owner: "", height: 0n, sequence: 0n };
+}
+
+export const SettlementID: MessageFns<SettlementID, "akash.sink.v1.SettlementID"> = {
+  $type: "akash.sink.v1.SettlementID" as const,
+
+  encode(message: SettlementID, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.owner !== "") {
+      writer.uint32(18).string(message.owner);
+    }
+    if (message.height !== 0n) {
+      if (BigInt.asIntN(64, message.height) !== message.height) {
+        throw new globalThis.Error("value provided for field message.height of type int64 too large");
+      }
+      writer.uint32(24).int64(message.height);
+    }
+    if (message.sequence !== 0n) {
+      if (BigInt.asUintN(64, message.sequence) !== message.sequence) {
+        throw new globalThis.Error("value provided for field message.sequence of type uint64 too large");
+      }
+      writer.uint32(32).uint64(message.sequence);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SettlementID {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSettlementID();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.owner = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.height = reader.int64() as bigint;
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.sequence = reader.uint64() as bigint;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SettlementID {
+    return {
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
+      height: isSet(object.height) ? BigInt(object.height) : 0n,
+      sequence: isSet(object.sequence) ? BigInt(object.sequence) : 0n,
+    };
+  },
+
+  toJSON(message: SettlementID): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.owner !== "") {
+      obj.owner = message.owner;
+    }
+    if (message.height !== 0n) {
+      obj.height = message.height.toString();
+    }
+    if (message.sequence !== 0n) {
+      obj.sequence = message.sequence.toString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<SettlementID>): SettlementID {
+    const message = createBaseSettlementID();
+    message.status = object.status ?? 0;
+    message.owner = object.owner ?? "";
+    message.height = (object.height !== undefined && object.height !== null) ? BigInt(object.height) : 0n;
+    message.sequence = (object.sequence !== undefined && object.sequence !== null) ? BigInt(object.sequence) : 0n;
+    return message;
+  },
+};
+
+function createBaseRecordData(): RecordData {
+  return { dest: "", amount: undefined };
+}
+
+export const RecordData: MessageFns<RecordData, "akash.sink.v1.RecordData"> = {
+  $type: "akash.sink.v1.RecordData" as const,
+
+  encode(message: RecordData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.dest !== "") {
+      writer.uint32(10).string(message.dest);
+    }
+    if (message.amount !== undefined) {
+      Coin.encode(message.amount, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RecordData {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRecordData();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.dest = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.amount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RecordData {
+    return {
+      dest: isSet(object.dest) ? globalThis.String(object.dest) : "",
+      amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
+    };
+  },
+
+  toJSON(message: RecordData): unknown {
+    const obj: any = {};
+    if (message.dest !== "") {
+      obj.dest = message.dest;
+    }
+    if (message.amount !== undefined) {
+      obj.amount = Coin.toJSON(message.amount);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<RecordData>): RecordData {
+    const message = createBaseRecordData();
+    message.dest = object.dest ?? "";
+    message.amount = (object.amount !== undefined && object.amount !== null)
+      ? Coin.fromPartial(object.amount)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseSettlementData(): SettlementData {
+  return {
+    hold: 0,
+    round: 0n,
+    policy: undefined,
+    votes: [],
+    challengeEnd: 0n,
+    governanceObservation: undefined,
+    vetoBy: "",
+    vetoReason: "",
+  };
+}
+
+export const SettlementData: MessageFns<SettlementData, "akash.sink.v1.SettlementData"> = {
+  $type: "akash.sink.v1.SettlementData" as const,
+
+  encode(message: SettlementData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.hold !== 0) {
+      writer.uint32(8).int32(message.hold);
+    }
+    if (message.round !== 0n) {
+      if (BigInt.asUintN(64, message.round) !== message.round) {
+        throw new globalThis.Error("value provided for field message.round of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.round);
+    }
+    if (message.policy !== undefined) {
+      ReporterPolicy.encode(message.policy, writer.uint32(26).fork()).join();
+    }
+    for (const v of message.votes) {
+      Vote.encode(v!, writer.uint32(34).fork()).join();
+    }
+    if (message.challengeEnd !== 0n) {
+      if (BigInt.asIntN(64, message.challengeEnd) !== message.challengeEnd) {
+        throw new globalThis.Error("value provided for field message.challengeEnd of type int64 too large");
+      }
+      writer.uint32(40).int64(message.challengeEnd);
+    }
+    if (message.governanceObservation !== undefined) {
+      Observation.encode(message.governanceObservation, writer.uint32(50).fork()).join();
+    }
+    if (message.vetoBy !== "") {
+      writer.uint32(58).string(message.vetoBy);
+    }
+    if (message.vetoReason !== "") {
+      writer.uint32(66).string(message.vetoReason);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SettlementData {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSettlementData();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.hold = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.round = reader.uint64() as bigint;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.policy = ReporterPolicy.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.votes.push(Vote.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.challengeEnd = reader.int64() as bigint;
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.governanceObservation = Observation.decode(reader, reader.uint32());
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.vetoBy = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.vetoReason = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SettlementData {
+    return {
+      hold: isSet(object.hold) ? holdFromJSON(object.hold) : 0,
+      round: isSet(object.round) ? BigInt(object.round) : 0n,
+      policy: isSet(object.policy) ? ReporterPolicy.fromJSON(object.policy) : undefined,
+      votes: globalThis.Array.isArray(object?.votes) ? object.votes.map((e: any) => Vote.fromJSON(e)) : [],
+      challengeEnd: isSet(object.challenge_end) ? BigInt(object.challenge_end) : 0n,
+      governanceObservation: isSet(object.governance_observation)
+        ? Observation.fromJSON(object.governance_observation)
+        : undefined,
+      vetoBy: isSet(object.veto_by) ? globalThis.String(object.veto_by) : "",
+      vetoReason: isSet(object.veto_reason) ? globalThis.String(object.veto_reason) : "",
+    };
+  },
+
+  toJSON(message: SettlementData): unknown {
+    const obj: any = {};
+    if (message.hold !== 0) {
+      obj.hold = holdToJSON(message.hold);
+    }
+    if (message.round !== 0n) {
+      obj.round = message.round.toString();
+    }
+    if (message.policy !== undefined) {
+      obj.policy = ReporterPolicy.toJSON(message.policy);
+    }
+    if (message.votes?.length) {
+      obj.votes = message.votes.map((e) => Vote.toJSON(e));
+    }
+    if (message.challengeEnd !== 0n) {
+      obj.challenge_end = message.challengeEnd.toString();
+    }
+    if (message.governanceObservation !== undefined) {
+      obj.governance_observation = Observation.toJSON(message.governanceObservation);
+    }
+    if (message.vetoBy !== "") {
+      obj.veto_by = message.vetoBy;
+    }
+    if (message.vetoReason !== "") {
+      obj.veto_reason = message.vetoReason;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<SettlementData>): SettlementData {
+    const message = createBaseSettlementData();
+    message.hold = object.hold ?? 0;
+    message.round = (object.round !== undefined && object.round !== null) ? BigInt(object.round) : 0n;
+    message.policy = (object.policy !== undefined && object.policy !== null)
+      ? ReporterPolicy.fromPartial(object.policy)
+      : undefined;
+    message.votes = object.votes?.map((e) => Vote.fromPartial(e)) || [];
+    message.challengeEnd = (object.challengeEnd !== undefined && object.challengeEnd !== null)
+      ? BigInt(object.challengeEnd)
       : 0n;
+    message.governanceObservation =
+      (object.governanceObservation !== undefined && object.governanceObservation !== null)
+        ? Observation.fromPartial(object.governanceObservation)
+        : undefined;
+    message.vetoBy = object.vetoBy ?? "";
+    message.vetoReason = object.vetoReason ?? "";
     return message;
   },
 };
 
 function createBaseTransferState(): TransferState {
-  return { record: new Uint8Array(0), voidOrdered: false, settlement: undefined };
+  return { id: undefined, data: undefined };
 }
 
 export const TransferState: MessageFns<TransferState, "akash.sink.v1.TransferState"> = {
   $type: "akash.sink.v1.TransferState" as const,
 
   encode(message: TransferState, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.record.length !== 0) {
-      writer.uint32(10).bytes(message.record);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(10).fork()).join();
     }
-    if (message.voidOrdered !== false) {
-      writer.uint32(16).bool(message.voidOrdered);
-    }
-    if (message.settlement !== undefined) {
-      Settlement.encode(message.settlement, writer.uint32(26).fork()).join();
+    if (message.data !== undefined) {
+      RecordData.encode(message.data, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -659,23 +788,15 @@ export const TransferState: MessageFns<TransferState, "akash.sink.v1.TransferSta
             break;
           }
 
-          message.record = reader.bytes();
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.voidOrdered = reader.bool();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.settlement = Settlement.decode(reader, reader.uint32());
+          message.data = RecordData.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -689,31 +810,280 @@ export const TransferState: MessageFns<TransferState, "akash.sink.v1.TransferSta
 
   fromJSON(object: any): TransferState {
     return {
-      record: isSet(object.record) ? bytesFromBase64(object.record) : new Uint8Array(0),
-      voidOrdered: isSet(object.void_ordered) ? globalThis.Boolean(object.void_ordered) : false,
-      settlement: isSet(object.settlement) ? Settlement.fromJSON(object.settlement) : undefined,
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
+      data: isSet(object.data) ? RecordData.fromJSON(object.data) : undefined,
     };
   },
 
   toJSON(message: TransferState): unknown {
     const obj: any = {};
-    if (message.record.length !== 0) {
-      obj.record = base64FromBytes(message.record);
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
-    if (message.voidOrdered !== false) {
-      obj.void_ordered = message.voidOrdered;
-    }
-    if (message.settlement !== undefined) {
-      obj.settlement = Settlement.toJSON(message.settlement);
+    if (message.data !== undefined) {
+      obj.data = RecordData.toJSON(message.data);
     }
     return obj;
   },
   fromPartial(object: DeepPartial<TransferState>): TransferState {
     const message = createBaseTransferState();
-    message.record = object.record ?? new Uint8Array(0);
-    message.voidOrdered = object.voidOrdered ?? false;
-    message.settlement = (object.settlement !== undefined && object.settlement !== null)
-      ? Settlement.fromPartial(object.settlement)
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
+    message.data = (object.data !== undefined && object.data !== null)
+      ? RecordData.fromPartial(object.data)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseAccountUsage(): AccountUsage {
+  return { totalSent: undefined, epochSent: undefined, lastEpoch: 0n };
+}
+
+export const AccountUsage: MessageFns<AccountUsage, "akash.sink.v1.AccountUsage"> = {
+  $type: "akash.sink.v1.AccountUsage" as const,
+
+  encode(message: AccountUsage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.totalSent !== undefined) {
+      Coin.encode(message.totalSent, writer.uint32(10).fork()).join();
+    }
+    if (message.epochSent !== undefined) {
+      Coin.encode(message.epochSent, writer.uint32(18).fork()).join();
+    }
+    if (message.lastEpoch !== 0n) {
+      if (BigInt.asIntN(64, message.lastEpoch) !== message.lastEpoch) {
+        throw new globalThis.Error("value provided for field message.lastEpoch of type int64 too large");
+      }
+      writer.uint32(24).int64(message.lastEpoch);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AccountUsage {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAccountUsage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.totalSent = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.epochSent = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.lastEpoch = reader.int64() as bigint;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AccountUsage {
+    return {
+      totalSent: isSet(object.total_sent) ? Coin.fromJSON(object.total_sent) : undefined,
+      epochSent: isSet(object.epoch_sent) ? Coin.fromJSON(object.epoch_sent) : undefined,
+      lastEpoch: isSet(object.last_epoch) ? BigInt(object.last_epoch) : 0n,
+    };
+  },
+
+  toJSON(message: AccountUsage): unknown {
+    const obj: any = {};
+    if (message.totalSent !== undefined) {
+      obj.total_sent = Coin.toJSON(message.totalSent);
+    }
+    if (message.epochSent !== undefined) {
+      obj.epoch_sent = Coin.toJSON(message.epochSent);
+    }
+    if (message.lastEpoch !== 0n) {
+      obj.last_epoch = message.lastEpoch.toString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<AccountUsage>): AccountUsage {
+    const message = createBaseAccountUsage();
+    message.totalSent = (object.totalSent !== undefined && object.totalSent !== null)
+      ? Coin.fromPartial(object.totalSent)
+      : undefined;
+    message.epochSent = (object.epochSent !== undefined && object.epochSent !== null)
+      ? Coin.fromPartial(object.epochSent)
+      : undefined;
+    message.lastEpoch = (object.lastEpoch !== undefined && object.lastEpoch !== null) ? BigInt(object.lastEpoch) : 0n;
+    return message;
+  },
+};
+
+function createBaseTotals(): Totals {
+  return {
+    pendingAmount: undefined,
+    pendingCount: undefined,
+    mintedAmount: undefined,
+    voidedAmount: undefined,
+    refundedAmount: undefined,
+    refundedInEpoch: undefined,
+  };
+}
+
+export const Totals: MessageFns<Totals, "akash.sink.v1.Totals"> = {
+  $type: "akash.sink.v1.Totals" as const,
+
+  encode(message: Totals, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.pendingAmount !== undefined) {
+      Coin.encode(message.pendingAmount, writer.uint32(10).fork()).join();
+    }
+    if (message.pendingCount !== undefined) {
+      Coin.encode(message.pendingCount, writer.uint32(18).fork()).join();
+    }
+    if (message.mintedAmount !== undefined) {
+      Coin.encode(message.mintedAmount, writer.uint32(26).fork()).join();
+    }
+    if (message.voidedAmount !== undefined) {
+      Coin.encode(message.voidedAmount, writer.uint32(34).fork()).join();
+    }
+    if (message.refundedAmount !== undefined) {
+      Coin.encode(message.refundedAmount, writer.uint32(42).fork()).join();
+    }
+    if (message.refundedInEpoch !== undefined) {
+      Coin.encode(message.refundedInEpoch, writer.uint32(50).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Totals {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTotals();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.pendingAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.pendingCount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.mintedAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.voidedAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.refundedAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.refundedInEpoch = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Totals {
+    return {
+      pendingAmount: isSet(object.pending_amount) ? Coin.fromJSON(object.pending_amount) : undefined,
+      pendingCount: isSet(object.pending_count) ? Coin.fromJSON(object.pending_count) : undefined,
+      mintedAmount: isSet(object.minted_amount) ? Coin.fromJSON(object.minted_amount) : undefined,
+      voidedAmount: isSet(object.voided_amount) ? Coin.fromJSON(object.voided_amount) : undefined,
+      refundedAmount: isSet(object.refunded_amount) ? Coin.fromJSON(object.refunded_amount) : undefined,
+      refundedInEpoch: isSet(object.refunded_in_epoch) ? Coin.fromJSON(object.refunded_in_epoch) : undefined,
+    };
+  },
+
+  toJSON(message: Totals): unknown {
+    const obj: any = {};
+    if (message.pendingAmount !== undefined) {
+      obj.pending_amount = Coin.toJSON(message.pendingAmount);
+    }
+    if (message.pendingCount !== undefined) {
+      obj.pending_count = Coin.toJSON(message.pendingCount);
+    }
+    if (message.mintedAmount !== undefined) {
+      obj.minted_amount = Coin.toJSON(message.mintedAmount);
+    }
+    if (message.voidedAmount !== undefined) {
+      obj.voided_amount = Coin.toJSON(message.voidedAmount);
+    }
+    if (message.refundedAmount !== undefined) {
+      obj.refunded_amount = Coin.toJSON(message.refundedAmount);
+    }
+    if (message.refundedInEpoch !== undefined) {
+      obj.refunded_in_epoch = Coin.toJSON(message.refundedInEpoch);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<Totals>): Totals {
+    const message = createBaseTotals();
+    message.pendingAmount = (object.pendingAmount !== undefined && object.pendingAmount !== null)
+      ? Coin.fromPartial(object.pendingAmount)
+      : undefined;
+    message.pendingCount = (object.pendingCount !== undefined && object.pendingCount !== null)
+      ? Coin.fromPartial(object.pendingCount)
+      : undefined;
+    message.mintedAmount = (object.mintedAmount !== undefined && object.mintedAmount !== null)
+      ? Coin.fromPartial(object.mintedAmount)
+      : undefined;
+    message.voidedAmount = (object.voidedAmount !== undefined && object.voidedAmount !== null)
+      ? Coin.fromPartial(object.voidedAmount)
+      : undefined;
+    message.refundedAmount = (object.refundedAmount !== undefined && object.refundedAmount !== null)
+      ? Coin.fromPartial(object.refundedAmount)
+      : undefined;
+    message.refundedInEpoch = (object.refundedInEpoch !== undefined && object.refundedInEpoch !== null)
+      ? Coin.fromPartial(object.refundedInEpoch)
       : undefined;
     return message;
   },
@@ -979,217 +1349,6 @@ export const ReporterPolicy: MessageFns<ReporterPolicy, "akash.sink.v1.ReporterP
     message.epoch = (object.epoch !== undefined && object.epoch !== null) ? BigInt(object.epoch) : 0n;
     message.members = object.members?.map((e) => e) || [];
     message.threshold = object.threshold ?? 0;
-    return message;
-  },
-};
-
-function createBaseSettlement(): Settlement {
-  return {
-    status: 0,
-    hold: 0,
-    round: 0n,
-    policy: undefined,
-    votes: [],
-    challengeEnd: 0n,
-    governanceObservation: undefined,
-    vetoBy: "",
-    vetoReason: "",
-  };
-}
-
-export const Settlement: MessageFns<Settlement, "akash.sink.v1.Settlement"> = {
-  $type: "akash.sink.v1.Settlement" as const,
-
-  encode(message: Settlement, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.status !== 0) {
-      writer.uint32(8).int32(message.status);
-    }
-    if (message.hold !== 0) {
-      writer.uint32(16).int32(message.hold);
-    }
-    if (message.round !== 0n) {
-      if (BigInt.asUintN(64, message.round) !== message.round) {
-        throw new globalThis.Error("value provided for field message.round of type uint64 too large");
-      }
-      writer.uint32(24).uint64(message.round);
-    }
-    if (message.policy !== undefined) {
-      ReporterPolicy.encode(message.policy, writer.uint32(34).fork()).join();
-    }
-    for (const v of message.votes) {
-      Vote.encode(v!, writer.uint32(42).fork()).join();
-    }
-    if (message.challengeEnd !== 0n) {
-      if (BigInt.asIntN(64, message.challengeEnd) !== message.challengeEnd) {
-        throw new globalThis.Error("value provided for field message.challengeEnd of type int64 too large");
-      }
-      writer.uint32(48).int64(message.challengeEnd);
-    }
-    if (message.governanceObservation !== undefined) {
-      Observation.encode(message.governanceObservation, writer.uint32(58).fork()).join();
-    }
-    if (message.vetoBy !== "") {
-      writer.uint32(66).string(message.vetoBy);
-    }
-    if (message.vetoReason !== "") {
-      writer.uint32(74).string(message.vetoReason);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): Settlement {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSettlement();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.status = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.hold = reader.int32() as any;
-          continue;
-        }
-        case 3: {
-          if (tag !== 24) {
-            break;
-          }
-
-          message.round = reader.uint64() as bigint;
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.policy = ReporterPolicy.decode(reader, reader.uint32());
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.votes.push(Vote.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 6: {
-          if (tag !== 48) {
-            break;
-          }
-
-          message.challengeEnd = reader.int64() as bigint;
-          continue;
-        }
-        case 7: {
-          if (tag !== 58) {
-            break;
-          }
-
-          message.governanceObservation = Observation.decode(reader, reader.uint32());
-          continue;
-        }
-        case 8: {
-          if (tag !== 66) {
-            break;
-          }
-
-          message.vetoBy = reader.string();
-          continue;
-        }
-        case 9: {
-          if (tag !== 74) {
-            break;
-          }
-
-          message.vetoReason = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): Settlement {
-    return {
-      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
-      hold: isSet(object.hold) ? holdFromJSON(object.hold) : 0,
-      round: isSet(object.round) ? BigInt(object.round) : 0n,
-      policy: isSet(object.policy) ? ReporterPolicy.fromJSON(object.policy) : undefined,
-      votes: globalThis.Array.isArray(object?.votes) ? object.votes.map((e: any) => Vote.fromJSON(e)) : [],
-      challengeEnd: isSet(object.challenge_end) ? BigInt(object.challenge_end) : 0n,
-      governanceObservation: isSet(object.governance_observation)
-        ? Observation.fromJSON(object.governance_observation)
-        : undefined,
-      vetoBy: isSet(object.veto_by) ? globalThis.String(object.veto_by) : "",
-      vetoReason: isSet(object.veto_reason) ? globalThis.String(object.veto_reason) : "",
-    };
-  },
-
-  toJSON(message: Settlement): unknown {
-    const obj: any = {};
-    if (message.status !== 0) {
-      obj.status = statusToJSON(message.status);
-    }
-    if (message.hold !== 0) {
-      obj.hold = holdToJSON(message.hold);
-    }
-    if (message.round !== 0n) {
-      obj.round = message.round.toString();
-    }
-    if (message.policy !== undefined) {
-      obj.policy = ReporterPolicy.toJSON(message.policy);
-    }
-    if (message.votes?.length) {
-      obj.votes = message.votes.map((e) => Vote.toJSON(e));
-    }
-    if (message.challengeEnd !== 0n) {
-      obj.challenge_end = message.challengeEnd.toString();
-    }
-    if (message.governanceObservation !== undefined) {
-      obj.governance_observation = Observation.toJSON(message.governanceObservation);
-    }
-    if (message.vetoBy !== "") {
-      obj.veto_by = message.vetoBy;
-    }
-    if (message.vetoReason !== "") {
-      obj.veto_reason = message.vetoReason;
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<Settlement>): Settlement {
-    const message = createBaseSettlement();
-    message.status = object.status ?? 0;
-    message.hold = object.hold ?? 0;
-    message.round = (object.round !== undefined && object.round !== null) ? BigInt(object.round) : 0n;
-    message.policy = (object.policy !== undefined && object.policy !== null)
-      ? ReporterPolicy.fromPartial(object.policy)
-      : undefined;
-    message.votes = object.votes?.map((e) => Vote.fromPartial(e)) || [];
-    message.challengeEnd = (object.challengeEnd !== undefined && object.challengeEnd !== null)
-      ? BigInt(object.challengeEnd)
-      : 0n;
-    message.governanceObservation =
-      (object.governanceObservation !== undefined && object.governanceObservation !== null)
-        ? Observation.fromPartial(object.governanceObservation)
-        : undefined;
-    message.vetoBy = object.vetoBy ?? "";
-    message.vetoReason = object.vetoReason ?? "";
     return message;
   },
 };

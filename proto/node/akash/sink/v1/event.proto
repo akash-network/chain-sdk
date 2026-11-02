@@ -16,7 +16,8 @@ message EventTransferCreated {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -54,7 +55,8 @@ message EventVoidOrdered {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -67,7 +69,8 @@ message EventOutcomeReported {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -93,7 +96,8 @@ message EventReportConflict {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -113,7 +117,8 @@ message EventMintConfirmed {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -126,7 +131,8 @@ message EventVoidConfirmed {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -147,7 +153,8 @@ message EventVoidVetoed {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -172,7 +179,8 @@ message EventTransferResolved {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -197,7 +205,8 @@ message EventTransferRefunded {
   option (gogoproto.equal) = true;
 
   // ID is the transfer record identifier.
-  uint64 id = 1 [
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
     (gogoproto.customname) = "ID",
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
@@ -276,15 +285,35 @@ message EventPreexistingBalanceMoved {
   ];
 }
 
-// EventWithdrawAddressReset is emitted at installation for each delegator
-// whose distribution withdraw address was the sink address.
-message EventWithdrawAddressReset {
-  option (gogoproto.equal) = true;
-
-  // Delegator is the delegator whose withdraw address was reset.
-  string delegator = 1 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "delegator",
-    (gogoproto.moretags)  = "yaml:\"delegator\""
+message EventTotalsUpdated {
+  cosmos.base.v1beta1.Coin pending_amount = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "pending_amount",
+    (gogoproto.moretags)  = "yaml:\"pending_amount\""
+  ];
+  cosmos.base.v1beta1.Coin pending_count = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "pending_count",
+    (gogoproto.moretags)  = "yaml:\"pending_count\""
+  ];
+  cosmos.base.v1beta1.Coin minted_amount = 3 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "status",
+    (gogoproto.moretags)  = "yaml:\"status\""
+  ];
+  cosmos.base.v1beta1.Coin voided_amount = 4 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "voided_amount",
+    (gogoproto.moretags)  = "yaml:\"voided_amount\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_amount = 5 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_amount",
+    (gogoproto.moretags)  = "yaml:\"refunded_amount\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_in_epoch = 6 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_in_epoch",
+    (gogoproto.moretags)  = "yaml:\"refunded_in_epoch\""
   ];
 }

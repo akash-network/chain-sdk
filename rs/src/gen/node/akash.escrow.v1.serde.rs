@@ -204,6 +204,124 @@ impl<'de> serde::Deserialize<'de> for deposit_authorization::Scope {
         deserializer.deserialize_any(GeneratedVisitor)
     }
 }
+impl serde::Serialize for EventOrphanPaymentsRepaired {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.closed_payments != 0 {
+            len += 1;
+        }
+        if self.missing_leases != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.escrow.v1.EventOrphanPaymentsRepaired", len)?;
+        if self.closed_payments != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("closedPayments", ToString::to_string(&self.closed_payments).as_str())?;
+        }
+        if self.missing_leases != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("missingLeases", ToString::to_string(&self.missing_leases).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for EventOrphanPaymentsRepaired {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "closed_payments",
+            "closedPayments",
+            "missing_leases",
+            "missingLeases",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            ClosedPayments,
+            MissingLeases,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "closedPayments" | "closed_payments" => Ok(GeneratedField::ClosedPayments),
+                            "missingLeases" | "missing_leases" => Ok(GeneratedField::MissingLeases),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = EventOrphanPaymentsRepaired;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.escrow.v1.EventOrphanPaymentsRepaired")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<EventOrphanPaymentsRepaired, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut closed_payments__ = None;
+                let mut missing_leases__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::ClosedPayments => {
+                            if closed_payments__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("closedPayments"));
+                            }
+                            closed_payments__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::MissingLeases => {
+                            if missing_leases__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("missingLeases"));
+                            }
+                            missing_leases__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                    }
+                }
+                Ok(EventOrphanPaymentsRepaired {
+                    closed_payments: closed_payments__.unwrap_or_default(),
+                    missing_leases: missing_leases__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.escrow.v1.EventOrphanPaymentsRepaired", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GenesisState {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>

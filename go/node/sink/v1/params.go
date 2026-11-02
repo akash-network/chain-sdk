@@ -11,12 +11,14 @@ const DefaultChallengePeriodSeconds uint64 = 72 * 60 * 60
 
 // Defaults are local-development limits, not production policy. Deposits are off.
 func DefaultParams() Params {
-	return Params{MaxTransfer: 1_000_000_000_000, SolanaDailyMintCap: 10_000_000_000_000,
-		MaxDailyPerAccount: 20, MaxPendingPerAccount: 3,
-		ChallengePeriodSeconds: DefaultChallengePeriodSeconds, DailyRefundCap: 1_000_000_000_000}
+	return Params{
+		//MaxTransfer: 1_000_000_000_000, SolanaDailyMintCap: 10_000_000_000_000,
+		//MaxDailyPerAccount: 20, MaxPendingPerAccount: 3,
+		//ChallengePeriodSeconds: DefaultChallengePeriodSeconds, DailyRefundCap: 1_000_000_000_000
+	}
 }
 
-func (p Params) Validate() error {
+func (p Params) ValidateBasic() error {
 	if err := ValidateReporters(p.Reporters, p.ReporterThreshold); err != nil {
 		return err
 	}
@@ -57,11 +59,11 @@ func (p Params) Validate() error {
 	if p.MaxDailyPerAccount == 0 || p.MaxPendingPerAccount == 0 {
 		return ErrInvalidParam.Wrap("account limits must be positive")
 	}
-	if len(p.VaultAllowlist) > 16 {
-		return ErrInvalidParam.Wrap("at most 16 vaults")
-	}
+	//if len(p.VaultAllowlist) > 16 {
+	//	return ErrInvalidParam.Wrap("at most 16 vaults")
+	//}
 	seen := make(map[[32]byte]bool)
-	for _, v := range p.VaultAllowlist {
+	for _, v := range p.AllowedDestinationVaults {
 		if len(v) != 32 {
 			return ErrInvalidParam.Wrap("vault must be 32 bytes")
 		}
@@ -71,6 +73,7 @@ func (p Params) Validate() error {
 		}
 		seen[key] = true
 	}
+
 	return nil
 }
 

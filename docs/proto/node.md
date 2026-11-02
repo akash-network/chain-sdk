@@ -547,9 +547,12 @@
    
  - [akash/sink/v1/types.proto](#akash/sink/v1/types.proto)
      - [AccountUsage](#akash.sink.v1.AccountUsage)
+     - [ID](#akash.sink.v1.ID)
      - [Observation](#akash.sink.v1.Observation)
+     - [RecordData](#akash.sink.v1.RecordData)
      - [ReporterPolicy](#akash.sink.v1.ReporterPolicy)
-     - [Settlement](#akash.sink.v1.Settlement)
+     - [SettlementData](#akash.sink.v1.SettlementData)
+     - [SettlementID](#akash.sink.v1.SettlementID)
      - [Totals](#akash.sink.v1.Totals)
      - [TransferState](#akash.sink.v1.TransferState)
      - [Vote](#akash.sink.v1.Vote)
@@ -565,18 +568,19 @@
      - [EventOutcomeReported](#akash.sink.v1.EventOutcomeReported)
      - [EventPreexistingBalanceMoved](#akash.sink.v1.EventPreexistingBalanceMoved)
      - [EventReportConflict](#akash.sink.v1.EventReportConflict)
+     - [EventTotalsUpdated](#akash.sink.v1.EventTotalsUpdated)
      - [EventTransferCreated](#akash.sink.v1.EventTransferCreated)
      - [EventTransferRefunded](#akash.sink.v1.EventTransferRefunded)
      - [EventTransferResolved](#akash.sink.v1.EventTransferResolved)
      - [EventVoidConfirmed](#akash.sink.v1.EventVoidConfirmed)
      - [EventVoidOrdered](#akash.sink.v1.EventVoidOrdered)
      - [EventVoidVetoed](#akash.sink.v1.EventVoidVetoed)
-     - [EventWithdrawAddressReset](#akash.sink.v1.EventWithdrawAddressReset)
    
  - [akash/sink/v1/params.proto](#akash/sink/v1/params.proto)
      - [Params](#akash.sink.v1.Params)
    
  - [akash/sink/v1/genesis.proto](#akash/sink/v1/genesis.proto)
+     - [GenesisRecord](#akash.sink.v1.GenesisRecord)
      - [GenesisState](#akash.sink.v1.GenesisState)
    
  - [akash/sink/v1/msgs.proto](#akash/sink/v1/msgs.proto)
@@ -4378,13 +4382,14 @@ allowing fine-grained permission control within the authz system.
  <a name="akash.escrow.v1.EventOrphanPaymentsRepaired"></a>
 
  ### EventOrphanPaymentsRepaired
- EventOrphanPaymentsRepaired is triggered when an upgrade closes escrow payments left open without a matching lease.
+ EventOrphanPaymentsRepaired is emitted by the v2.2.0 upgrade after it closes
+escrow payments left open without a matching lease.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `closed_payments` | [uint64](#uint64) |  | closed_payments is the number of payments closed. |
- | `missing_leases` | [uint64](#uint64) |  | missing_leases is the number of closed payments whose lease no longer exists. |
+ | `closed_payments` | [uint64](#uint64) |  | ClosedPayments is the number of payments closed. |
+ | `missing_leases` | [uint64](#uint64) |  | MissingLeases is the number of those payments whose lease no longer exists. |
  
  
 
@@ -7388,11 +7393,26 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `sender` | [bytes](#bytes) |  |  |
- | `day` | [uint64](#uint64) |  |  |
- | `daily_count` | [uint32](#uint32) |  |  |
- | `pending_count` | [uint32](#uint32) |  |  |
- | `daily_amount` | [uint64](#uint64) |  | uakt deposited on day. |
+ | `total_sent` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `epoch_sent` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `last_epoch` | [int64](#int64) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.ID"></a>
+
+ ### ID
+ 
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `owner` | [string](#string) |  |  |
+ | `height` | [int64](#int64) |  |  |
+ | `sequence` | [uint64](#uint64) |  | sequence disambiguate multiple entries at the same height |
  
  
 
@@ -7416,6 +7436,22 @@ Example: "akash1..." |
  
 
  
+ <a name="akash.sink.v1.RecordData"></a>
+
+ ### RecordData
+ 
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `dest` | [string](#string) |  |  |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.sink.v1.ReporterPolicy"></a>
 
  ### ReporterPolicy
@@ -7433,15 +7469,14 @@ Example: "akash1..." |
  
 
  
- <a name="akash.sink.v1.Settlement"></a>
+ <a name="akash.sink.v1.SettlementData"></a>
 
- ### Settlement
- Settlement tracks reporter votes, holds and the refund challenge window.
+ ### SettlementData
+ 
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `status` | [Status](#akash.sink.v1.Status) |  |  |
  | `hold` | [Hold](#akash.sink.v1.Hold) |  |  |
  | `round` | [uint64](#uint64) |  |  |
  | `policy` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) |  |  |
@@ -7456,6 +7491,24 @@ Example: "akash1..." |
  
 
  
+ <a name="akash.sink.v1.SettlementID"></a>
+
+ ### SettlementID
+ 
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `status` | [Status](#akash.sink.v1.Status) |  |  |
+ | `owner` | [string](#string) |  |  |
+ | `height` | [int64](#int64) |  |  |
+ | `sequence` | [uint64](#uint64) |  | sequence disambiguate multiple entries at the same height |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.sink.v1.Totals"></a>
 
  ### Totals
@@ -7464,15 +7517,12 @@ Example: "akash1..." |
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `last_transfer_id` | [uint64](#uint64) |  |  |
- | `pending_amount` | [uint64](#uint64) |  |  |
- | `pending_count` | [uint64](#uint64) |  |  |
- | `minted_amount` | [uint64](#uint64) |  |  |
- | `voided_amount` | [uint64](#uint64) |  |  |
- | `refunded_amount` | [uint64](#uint64) |  |  |
- | `refund_day` | [uint64](#uint64) |  |  |
- | `refunded_today` | [uint64](#uint64) |  |  |
- | `reporter_epoch` | [uint64](#uint64) |  |  |
+ | `pending_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `pending_count` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `minted_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `voided_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `refunded_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `refunded_in_epoch` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  
  
 
@@ -7482,14 +7532,13 @@ Example: "akash1..." |
  <a name="akash.sink.v1.TransferState"></a>
 
  ### TransferState
- TransferState combines the immutable 77-byte proof record with mutable settlement state.
+ 
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `record` | [bytes](#bytes) |  |  |
- | `void_ordered` | [bool](#bool) |  |  |
- | `settlement` | [Settlement](#akash.sink.v1.Settlement) |  |  |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
+ | `data` | [RecordData](#akash.sink.v1.RecordData) |  |  |
  
  
 
@@ -7561,10 +7610,12 @@ Example: "akash1..." |
 
  | Name | Number | Description |
  | ---- | ------ | ----------- |
- | STATUS_PENDING | 0 | STATUS_PENDING represents pending. |
- | STATUS_MINTED | 1 | STATUS_MINTED represents minted. |
- | STATUS_VOIDED | 2 | STATUS_VOIDED represents voided. |
- | STATUS_REFUNDED | 3 | STATUS_REFUNDED represents refunded. |
+ | STATUS_INVALID | 0 |  |
+ | STATUS_TRANSFER_PENDING | 1 | STATUS_PENDING represents pending. |
+ | STATUS_MINTED | 2 | STATUS_MINTED represents minted. |
+ | STATUS_VOIDED | 3 | STATUS_VOIDED represents voided. |
+ | STATUS_REFUND_PENDING | 4 |  |
+ | STATUS_REFUNDED | 5 | STATUS_REFUNDED represents refunded. |
  
 
   <!-- end enums -->
@@ -7585,16 +7636,17 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventGuardianPaused"></a>
 
  ### EventGuardianPaused
- EventGuardianPaused is triggered when the pause guardian turns deposits, refunds or both off.
+ EventGuardianPaused is emitted when the pause guardian turns deposits,
+refunds or both off.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `guardian` | [string](#string) |  | guardian is the pause guardian account. |
- | `deposits` | [bool](#bool) |  | deposits is set when the pause turned deposits off. |
- | `refunds` | [bool](#bool) |  | refunds is set when the pause turned refunds off. |
- | `enabled` | [bool](#bool) |  | enabled is whether deposits are enabled after the pause. |
- | `refunds_enabled` | [bool](#bool) |  | refunds_enabled is whether refunds are enabled after the pause. |
+ | `guardian` | [string](#string) |  | Guardian is the pause guardian account. |
+ | `deposits` | [bool](#bool) |  | Deposits is set when the pause requested deposits off. |
+ | `refunds` | [bool](#bool) |  | Refunds is set when the pause requested refunds off. |
+ | `enabled` | [bool](#bool) |  | Enabled is whether deposits are enabled after the pause. |
+ | `refunds_enabled` | [bool](#bool) |  | RefundsEnabled is whether refunds are enabled after the pause. |
  
  
 
@@ -7604,12 +7656,13 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventMintConfirmed"></a>
 
  ### EventMintConfirmed
- EventMintConfirmed is triggered when reporters confirm that Solana minted a transfer.
+ EventMintConfirmed is emitted when reporters confirm that Solana minted a
+transfer. The locked AKT stays in the sink module.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  
  
 
@@ -7619,14 +7672,15 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventOutcomeReported"></a>
 
  ### EventOutcomeReported
- EventOutcomeReported is triggered when a reporter reports the Solana outcome of a transfer.
+ EventOutcomeReported is emitted when a reporter records what happened to a
+transfer on Solana.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
- | `reporter` | [string](#string) |  | reporter is the reporter account that sent the report. |
- | `outcome` | [Outcome](#akash.sink.v1.Outcome) |  | outcome is the reported Solana outcome. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ | `reporter` | [string](#string) |  | Reporter is the reporter account that sent the report. |
+ | `outcome` | [Outcome](#akash.sink.v1.Outcome) |  | Outcome is the reported Solana outcome. |
  
  
 
@@ -7636,13 +7690,14 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventPreexistingBalanceMoved"></a>
 
  ### EventPreexistingBalanceMoved
- EventPreexistingBalanceMoved is triggered when installation moves coins already held at the sink address to the community pool.
+ EventPreexistingBalanceMoved is emitted at installation when the sink
+address already held coins, which move to the community pool.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | amount is the balance moved. |
- | `recipient` | [string](#string) |  | recipient is the community pool's module account. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Amount is the balance moved. |
+ | `recipient` | [string](#string) |  | Recipient is the community pool's module account. |
  
  
 
@@ -7652,13 +7707,34 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventReportConflict"></a>
 
  ### EventReportConflict
- EventReportConflict is triggered when a report contradicts earlier reports and holds the transfer for governance.
+ EventReportConflict is emitted when a report contradicts the reporter's
+earlier vote, holding the transfer for governance.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
- | `reporter` | [string](#string) |  | reporter is the reporter account whose report conflicted. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ | `reporter` | [string](#string) |  | Reporter is the reporter account whose report conflicted. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.EventTotalsUpdated"></a>
+
+ ### EventTotalsUpdated
+ 
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `pending_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `pending_count` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `minted_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `voided_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `refunded_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `refunded_in_epoch` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  
  
 
@@ -7668,16 +7744,17 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventTransferCreated"></a>
 
  ### EventTransferCreated
- EventTransferCreated is triggered when a deposit locks AKT and creates a transfer record.
+ EventTransferCreated is emitted when a deposit locks AKT and creates a
+transfer record for Solana to prove.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
- | `sender` | [string](#string) |  | sender is the account that deposited the AKT. |
- | `recipient` | [string](#string) |  | recipient is the base58 Solana address that receives the minted AKT. |
- | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the locked AKT. |
- | `height` | [int64](#int64) |  | height is the block height that committed the transfer record. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ | `sender` | [string](#string) |  | Sender is the Akash account that deposited the AKT. |
+ | `recipient` | [string](#string) |  | Recipient is the Solana address, base58, that receives the minted AKT. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the locked AKT. |
+ | `height` | [int64](#int64) |  | Height is the block height that committed the record. |
  
  
 
@@ -7687,14 +7764,15 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventTransferRefunded"></a>
 
  ### EventTransferRefunded
- EventTransferRefunded is triggered when the AKT of a voided transfer is returned to its sender.
+ EventTransferRefunded is emitted when a voided transfer's AKT is returned to
+its sender.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
- | `sender` | [string](#string) |  | sender is the account that deposited the AKT and receives the refund. |
- | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | amount is the refunded AKT. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ | `sender` | [string](#string) |  | Sender is the original sender, who receives the refund. |
+ | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the refunded AKT. |
  
  
 
@@ -7704,14 +7782,14 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventTransferResolved"></a>
 
  ### EventTransferResolved
- EventTransferResolved is triggered when governance resolves a held transfer.
+ EventTransferResolved is emitted when governance resolves a held transfer.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
- | `decision` | [Decision](#akash.sink.v1.Decision) |  | decision is the governance decision. |
- | `reason` | [string](#string) |  | reason is the stated reason for the decision. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ | `decision` | [Decision](#akash.sink.v1.Decision) |  | Decision is the governance decision. |
+ | `reason` | [string](#string) |  | Reason is the governance reason. |
  
  
 
@@ -7721,13 +7799,14 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventVoidConfirmed"></a>
 
  ### EventVoidConfirmed
- EventVoidConfirmed is triggered when reporters confirm that Solana voided a transfer.
+ EventVoidConfirmed is emitted when reporters confirm that Solana voided a
+transfer, starting its challenge period.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
- | `challenge_end` | [int64](#int64) |  | challenge_end is the unix timestamp when the challenge window ends and the refund becomes payable. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ | `challenge_end` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ChallengeEnd is when the refund becomes payable unless vetoed. |
  
  
 
@@ -7737,12 +7816,12 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventVoidOrdered"></a>
 
  ### EventVoidOrdered
- EventVoidOrdered is triggered when governance orders a transfer voided.
+ EventVoidOrdered is emitted when governance orders a transfer voided.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  
  
 
@@ -7752,29 +7831,15 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EventVoidVetoed"></a>
 
  ### EventVoidVetoed
- EventVoidVetoed is triggered when a reporter vetoes a confirmed void and holds the transfer for governance.
+ EventVoidVetoed is emitted when a reporter vetoes a confirmed void during
+its challenge period, holding the transfer for governance.
 
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [uint64](#uint64) |  | Id is the unique identifier of the transfer. |
- | `signer` | [string](#string) |  | signer is the reporter account that vetoed the void. |
- | `reason` | [string](#string) |  | reason is the reporter's stated reason for the veto. |
- 
- 
-
- 
-
- 
- <a name="akash.sink.v1.EventWithdrawAddressReset"></a>
-
- ### EventWithdrawAddressReset
- EventWithdrawAddressReset is triggered when installation resets a withdraw address that pointed at the sink address.
-
- 
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `delegator` | [string](#string) |  | delegator is the delegator whose withdraw address was reset. |
+ | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ | `signer` | [string](#string) |  | Signer is the reporter account that vetoed. |
+ | `reason` | [string](#string) |  | Reason is the veto reason. |
  
  
 
@@ -7806,18 +7871,16 @@ Example: "akash1..." |
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `enabled` | [bool](#bool) |  |  |
- | `max_transfer` | [uint64](#uint64) |  |  |
- | `solana_daily_mint_cap` | [uint64](#uint64) |  |  |
- | `max_daily_per_account` | [uint32](#uint32) |  |  |
- | `max_pending_per_account` | [uint32](#uint32) |  |  |
- | `vault_allowlist` | [bytes](#bytes) | repeated |  |
- | `reporters` | [string](#string) | repeated |  |
- | `reporter_threshold` | [uint32](#uint32) |  |  |
- | `challenge_period_seconds` | [uint64](#uint64) |  |  |
- | `daily_refund_cap` | [uint64](#uint64) |  |  |
+ | `min_amount_per_transfer` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `max_amount_per_transfer` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `max_transfer_amount_per_epoch` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `max_epoch_amount_per_account` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | zero means no limit |
+ | `max_epoch_refund` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `reporters` | [string](#string) | repeated | list governance approved akash addresses that monitor and report state of the mint/void from solana to akash |
+ | `reporters_threshold` | [string](#string) |  |  |
+ | `reporter_challenge_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | window of time reporter has to challenge the void |
+ | `allowed_destination_vaults` | [string](#string) | repeated | list of allowed vaults to receive akt (liquidity pools, PDAs) |
  | `refunds_enabled` | [bool](#bool) |  |  |
- | `min_transfer` | [uint64](#uint64) |  | Zero means no minimum. |
- | `max_daily_amount_per_account` | [uint64](#uint64) |  | Zero means no limit. Otherwise at least min_transfer. |
  | `pause_guardian` | [string](#string) |  | Bech32 account that may only disable deposits and refunds. Empty means none. |
  
  
@@ -7841,6 +7904,24 @@ Example: "akash1..." |
  
 
  
+ <a name="akash.sink.v1.GenesisRecord"></a>
+
+ ### GenesisRecord
+ 
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
+ | `data` | [RecordData](#akash.sink.v1.RecordData) |  |  |
+ | `settlement` | [SettlementData](#akash.sink.v1.SettlementData) |  |  |
+ | `usage` | [AccountUsage](#akash.sink.v1.AccountUsage) |  |  |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.sink.v1.GenesisState"></a>
 
  ### GenesisState
@@ -7851,8 +7932,7 @@ Example: "akash1..." |
  | ----- | ---- | ----- | ----------- |
  | `params` | [Params](#akash.sink.v1.Params) |  |  |
  | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
- | `transfers` | [TransferState](#akash.sink.v1.TransferState) | repeated |  |
- | `accounts` | [AccountUsage](#akash.sink.v1.AccountUsage) | repeated |  |
+ | `records` | [GenesisRecord](#akash.sink.v1.GenesisRecord) | repeated |  |
  
  
 
@@ -7884,7 +7964,7 @@ Example: "akash1..." |
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `executor` | [string](#string) |  |  |
- | `id` | [uint64](#uint64) |  |  |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
  
  
 
@@ -7938,7 +8018,7 @@ params.pause_guardian. It cannot enable anything; only governance can.
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `reporter` | [string](#string) |  |  |
- | `id` | [uint64](#uint64) |  |  |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `reporter_epoch` | [uint64](#uint64) |  |  |
  | `round` | [uint64](#uint64) |  |  |
  | `observation` | [Observation](#akash.sink.v1.Observation) |  |  |
@@ -7967,7 +8047,7 @@ params.pause_guardian. It cannot enable anything; only governance can.
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
- | `id` | [uint64](#uint64) |  |  |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
  
  
 
@@ -7993,7 +8073,7 @@ params.pause_guardian. It cannot enable anything; only governance can.
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
- | `id` | [uint64](#uint64) |  |  |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `decision` | [Decision](#akash.sink.v1.Decision) |  |  |
  | `observation` | [Observation](#akash.sink.v1.Observation) |  |  |
  | `reason` | [string](#string) |  |  |
@@ -8039,7 +8119,7 @@ params.pause_guardian. It cannot enable anything; only governance can.
  
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `id` | [string](#string) |  |  |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
  
  
 
@@ -8081,7 +8161,7 @@ params.pause_guardian. It cannot enable anything; only governance can.
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `signer` | [string](#string) |  |  |
- | `id` | [uint64](#uint64) |  |  |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `reason` | [string](#string) |  |  |
  
  

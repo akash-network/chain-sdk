@@ -22,8 +22,15 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 // RegisterInterfaces registers the sink messages and their response descriptors.
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgSink{}, &MsgUpdateParams{}, &MsgRequestVoid{}, &MsgReportOutcome{},
-		&MsgVetoVoid{}, &MsgResolveTransfer{}, &MsgFinalizeRefund{}, &MsgGuardianPause{},
+		&MsgSink{},
+		&MsgUpdateParams{},
+		&MsgRequestVoid{},
+		&MsgReportOutcome{},
+		&MsgVetoVoid{},
+		&MsgResolveTransfer{},
+		&MsgFinalizeRefund{},
+		&MsgGuardianPause{},
 	)
+
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

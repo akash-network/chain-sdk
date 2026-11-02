@@ -11,16 +11,19 @@ func DefaultGenesis() *GenesisState {
 	return &GenesisState{Params: DefaultParams(), Totals: Totals{ReporterEpoch: 1}}
 }
 
-func (g GenesisState) Validate() error {
+func (g *GenesisState) Validate() error {
 	if err := g.Params.Validate(); err != nil {
 		return err
 	}
+
 	if g.Totals.ReporterEpoch == 0 || g.Totals.RefundedToday > g.Totals.RefundedAmount {
 		return ErrInvalidGenesis.Wrap("zero reporter epoch or refunded today above refunded total")
 	}
+
 	seen := make(map[uint64]bool)
 	pending := make(map[[AccountLength]byte]uint32)
 	var total, pendingAmount, mintedAmount, voidedAmount, refundedAmount, pendingCount uint64
+
 	for _, entry := range g.Transfers {
 		t, err := DecodeTransfer(entry.Record)
 		if err != nil {
@@ -59,10 +62,13 @@ func (g GenesisState) Validate() error {
 			refundedAmount += t.Amount
 		}
 	}
+
 	if pendingAmount != g.Totals.PendingAmount || pendingCount != g.Totals.PendingCount || mintedAmount != g.Totals.MintedAmount || voidedAmount != g.Totals.VoidedAmount || refundedAmount != g.Totals.RefundedAmount {
 		return ErrInvalidGenesis.Wrap("totals do not match transfer records")
 	}
+
 	accounts := make(map[[AccountLength]byte]bool)
+
 	for _, a := range g.Accounts {
 		sender := sdk.AccAddress(a.Sender)
 		if err := ValidateAccount(sender, AccountLength); err != nil {
@@ -74,10 +80,12 @@ func (g GenesisState) Validate() error {
 		}
 		accounts[key] = true
 	}
+
 	for sender := range pending {
 		if !accounts[sender] {
 			return ErrInvalidGenesis.Wrapf("missing account usage for %s", sdk.AccAddress(sender[:]))
 		}
 	}
+
 	return nil
 }

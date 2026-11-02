@@ -5,16 +5,23 @@ package v1
 
 import (
 	fmt "fmt"
+	_ "github.com/cosmos/cosmos-proto"
+	types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
+	_ "google.golang.org/protobuf/types/known/durationpb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -24,22 +31,24 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params configures deposits, reporter settlement and refund limits. Amounts are uakt; limits use fixed UTC days.
 type Params struct {
-	Enabled                bool     `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	MaxTransfer            uint64   `protobuf:"varint,2,opt,name=max_transfer,json=maxTransfer,proto3" json:"max_transfer,omitempty"`
-	SolanaDailyMintCap     uint64   `protobuf:"varint,3,opt,name=solana_daily_mint_cap,json=solanaDailyMintCap,proto3" json:"solana_daily_mint_cap,omitempty"`
-	MaxDailyPerAccount     uint32   `protobuf:"varint,4,opt,name=max_daily_per_account,json=maxDailyPerAccount,proto3" json:"max_daily_per_account,omitempty"`
-	MaxPendingPerAccount   uint32   `protobuf:"varint,5,opt,name=max_pending_per_account,json=maxPendingPerAccount,proto3" json:"max_pending_per_account,omitempty"`
-	VaultAllowlist         [][]byte `protobuf:"bytes,6,rep,name=vault_allowlist,json=vaultAllowlist,proto3" json:"vault_allowlist,omitempty"`
-	Reporters              []string `protobuf:"bytes,7,rep,name=reporters,proto3" json:"reporters,omitempty"`
-	ReporterThreshold      uint32   `protobuf:"varint,8,opt,name=reporter_threshold,json=reporterThreshold,proto3" json:"reporter_threshold,omitempty"`
-	ChallengePeriodSeconds uint64   `protobuf:"varint,9,opt,name=challenge_period_seconds,json=challengePeriodSeconds,proto3" json:"challenge_period_seconds,omitempty"`
-	DailyRefundCap         uint64   `protobuf:"varint,10,opt,name=daily_refund_cap,json=dailyRefundCap,proto3" json:"daily_refund_cap,omitempty"`
-	RefundsEnabled         bool     `protobuf:"varint,11,opt,name=refunds_enabled,json=refundsEnabled,proto3" json:"refunds_enabled,omitempty"`
-	MinTransfer            uint64   `protobuf:"varint,12,opt,name=min_transfer,json=minTransfer,proto3" json:"min_transfer,omitempty"`
-	// Zero means no limit. Otherwise at least min_transfer.
-	MaxDailyAmountPerAccount uint64 `protobuf:"varint,13,opt,name=max_daily_amount_per_account,json=maxDailyAmountPerAccount,proto3" json:"max_daily_amount_per_account,omitempty"`
+	Enabled                   bool       `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled" yaml:"enabled"`
+	MinAmountPerTransfer      types.Coin `protobuf:"bytes,2,opt,name=min_amount_per_transfer,json=minAmountPerTransfer,proto3" json:"min_transfer" yaml:"min_transfer"`
+	MaxAmountPerTransfer      types.Coin `protobuf:"bytes,3,opt,name=max_amount_per_transfer,json=maxAmountPerTransfer,proto3" json:"max_transfer" yaml:"max_transfer"`
+	MaxTransferAmountPerEpoch types.Coin `protobuf:"bytes,4,opt,name=max_transfer_amount_per_epoch,json=maxTransferAmountPerEpoch,proto3" json:"max_transfer_amount_per_epoch" yaml:"max_transfer_amount_per_epoch"`
+	// zero means no limit
+	MaxEpochAmountPerAccount types.Coin `protobuf:"bytes,5,opt,name=max_epoch_amount_per_account,json=maxEpochAmountPerAccount,proto3" json:"max_epoch_amount_per_account" yaml:"max_epoch_amount_per_account"`
+	MaxEpochRefund           types.Coin `protobuf:"bytes,6,opt,name=max_epoch_refund,json=maxEpochRefund,proto3" json:"max_epoch_refund" yaml:"max_epoch_refund"`
+	// list governance approved akash addresses that monitor and report state of the
+	// mint/void from solana to akash
+	Reporters          []string `protobuf:"bytes,7,rep,name=reporters,proto3" json:"reporters" yaml:"reporters"`
+	ReportersThreshold string   `protobuf:"bytes,8,opt,name=reporters_threshold,json=reportersThreshold,proto3" json:"reporters_threshold,omitempty"`
+	// window of time reporter has to challenge the void
+	ReporterChallengePeriod time.Duration `protobuf:"bytes,9,opt,name=reporter_challenge_period,json=reporterChallengePeriod,proto3,stdduration" json:"reporter_challenge_period" yaml:"challenge_period"`
+	// list of allowed vaults to receive akt (liquidity pools, PDAs)
+	AllowedDestinationVaults []string `protobuf:"bytes,10,rep,name=allowed_destination_vaults,json=allowedDestinationVaults,proto3" json:"allowed_destination_vaults" yaml:"allowed_destination_vaults"`
+	RefundsEnabled           bool     `protobuf:"varint,11,opt,name=refunds_enabled,json=refundsEnabled,proto3" json:"refunds_enabled" yaml:"refunds_enabled"`
 	// Bech32 account that may only disable deposits and refunds. Empty means none.
-	PauseGuardian string `protobuf:"bytes,14,opt,name=pause_guardian,json=pauseGuardian,proto3" json:"pause_guardian,omitempty"`
+	PauseGuardian string `protobuf:"bytes,12,opt,name=pause_guardian,json=pauseGuardian,proto3" json:"pause_guardian" yaml:"pause_guardian"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -82,39 +91,39 @@ func (m *Params) GetEnabled() bool {
 	return false
 }
 
-func (m *Params) GetMaxTransfer() uint64 {
+func (m *Params) GetMinAmountPerTransfer() types.Coin {
 	if m != nil {
-		return m.MaxTransfer
+		return m.MinAmountPerTransfer
 	}
-	return 0
+	return types.Coin{}
 }
 
-func (m *Params) GetSolanaDailyMintCap() uint64 {
+func (m *Params) GetMaxAmountPerTransfer() types.Coin {
 	if m != nil {
-		return m.SolanaDailyMintCap
+		return m.MaxAmountPerTransfer
 	}
-	return 0
+	return types.Coin{}
 }
 
-func (m *Params) GetMaxDailyPerAccount() uint32 {
+func (m *Params) GetMaxTransferAmountPerEpoch() types.Coin {
 	if m != nil {
-		return m.MaxDailyPerAccount
+		return m.MaxTransferAmountPerEpoch
 	}
-	return 0
+	return types.Coin{}
 }
 
-func (m *Params) GetMaxPendingPerAccount() uint32 {
+func (m *Params) GetMaxEpochAmountPerAccount() types.Coin {
 	if m != nil {
-		return m.MaxPendingPerAccount
+		return m.MaxEpochAmountPerAccount
 	}
-	return 0
+	return types.Coin{}
 }
 
-func (m *Params) GetVaultAllowlist() [][]byte {
+func (m *Params) GetMaxEpochRefund() types.Coin {
 	if m != nil {
-		return m.VaultAllowlist
+		return m.MaxEpochRefund
 	}
-	return nil
+	return types.Coin{}
 }
 
 func (m *Params) GetReporters() []string {
@@ -124,25 +133,25 @@ func (m *Params) GetReporters() []string {
 	return nil
 }
 
-func (m *Params) GetReporterThreshold() uint32 {
+func (m *Params) GetReportersThreshold() string {
 	if m != nil {
-		return m.ReporterThreshold
+		return m.ReportersThreshold
+	}
+	return ""
+}
+
+func (m *Params) GetReporterChallengePeriod() time.Duration {
+	if m != nil {
+		return m.ReporterChallengePeriod
 	}
 	return 0
 }
 
-func (m *Params) GetChallengePeriodSeconds() uint64 {
+func (m *Params) GetAllowedDestinationVaults() []string {
 	if m != nil {
-		return m.ChallengePeriodSeconds
+		return m.AllowedDestinationVaults
 	}
-	return 0
-}
-
-func (m *Params) GetDailyRefundCap() uint64 {
-	if m != nil {
-		return m.DailyRefundCap
-	}
-	return 0
+	return nil
 }
 
 func (m *Params) GetRefundsEnabled() bool {
@@ -150,20 +159,6 @@ func (m *Params) GetRefundsEnabled() bool {
 		return m.RefundsEnabled
 	}
 	return false
-}
-
-func (m *Params) GetMinTransfer() uint64 {
-	if m != nil {
-		return m.MinTransfer
-	}
-	return 0
-}
-
-func (m *Params) GetMaxDailyAmountPerAccount() uint64 {
-	if m != nil {
-		return m.MaxDailyAmountPerAccount
-	}
-	return 0
 }
 
 func (m *Params) GetPauseGuardian() string {
@@ -180,37 +175,53 @@ func init() {
 func init() { proto.RegisterFile("akash/sink/v1/params.proto", fileDescriptor_051b6a0297e349b0) }
 
 var fileDescriptor_051b6a0297e349b0 = []byte{
-	// 466 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x92, 0x4d, 0x6f, 0xd3, 0x30,
-	0x1c, 0xc6, 0x1b, 0x5a, 0xba, 0xd5, 0x6b, 0x3b, 0xb0, 0x78, 0xb1, 0x60, 0x8a, 0x02, 0x12, 0x5a,
-	0x2e, 0x34, 0xaa, 0xd0, 0x24, 0x4e, 0x48, 0xe5, 0x45, 0x9c, 0x90, 0xaa, 0xb0, 0x13, 0x17, 0xeb,
-	0xbf, 0xd8, 0x4b, 0xad, 0x3a, 0x76, 0x64, 0x3b, 0xa5, 0x7c, 0x0b, 0x3e, 0x16, 0xc7, 0x1d, 0x39,
-	0xa2, 0xf6, 0x03, 0xf0, 0x15, 0xa6, 0x38, 0xcd, 0xda, 0x1d, 0xfd, 0xfc, 0x9e, 0x27, 0xb1, 0x9e,
-	0xc7, 0xe8, 0x05, 0x2c, 0xc1, 0x2e, 0x12, 0x2b, 0xd4, 0x32, 0x59, 0x4d, 0x93, 0x12, 0x0c, 0x14,
-	0x76, 0x52, 0x1a, 0xed, 0x34, 0x1e, 0x79, 0x36, 0xa9, 0xd9, 0x64, 0x35, 0x7d, 0xfd, 0xbf, 0x87,
-	0xfa, 0x73, 0xcf, 0x31, 0x41, 0x47, 0x5c, 0xc1, 0x95, 0xe4, 0x8c, 0x04, 0x51, 0x10, 0x1f, 0xa7,
-	0xed, 0x11, 0xbf, 0x42, 0xc3, 0x02, 0xd6, 0xd4, 0x19, 0x50, 0xf6, 0x9a, 0x1b, 0xf2, 0x20, 0x0a,
-	0xe2, 0x5e, 0x7a, 0x52, 0xc0, 0xfa, 0x72, 0x27, 0xe1, 0x29, 0x7a, 0x6a, 0xb5, 0x04, 0x05, 0x94,
-	0x81, 0x90, 0xbf, 0x68, 0x21, 0x94, 0xa3, 0x19, 0x94, 0xa4, 0xeb, 0xbd, 0xb8, 0x81, 0x9f, 0x6b,
-	0xf6, 0x4d, 0x28, 0xf7, 0x09, 0xca, 0x3a, 0x52, 0x7f, 0xb5, 0xf1, 0x97, 0xdc, 0x50, 0xc8, 0x32,
-	0x5d, 0x29, 0x47, 0x7a, 0x51, 0x10, 0x8f, 0x52, 0x5c, 0xc0, 0xda, 0xfb, 0xe7, 0xdc, 0xcc, 0x1a,
-	0x82, 0x2f, 0xd0, 0xf3, 0x3a, 0x52, 0x72, 0xc5, 0x84, 0xca, 0xef, 0x85, 0x1e, 0xfa, 0xd0, 0x93,
-	0x02, 0xd6, 0xf3, 0x86, 0x1e, 0xc4, 0xce, 0xd1, 0xe9, 0x0a, 0x2a, 0xe9, 0x28, 0x48, 0xa9, 0x7f,
-	0x4a, 0x61, 0x1d, 0xe9, 0x47, 0xdd, 0x78, 0x98, 0x8e, 0xbd, 0x3c, 0x6b, 0x55, 0x7c, 0x86, 0x06,
-	0x86, 0x97, 0xda, 0x38, 0x6e, 0x2c, 0x39, 0x8a, 0xba, 0xf1, 0x20, 0xdd, 0x0b, 0xf8, 0x2d, 0xc2,
-	0xed, 0x81, 0xba, 0x85, 0xe1, 0x76, 0xa1, 0x25, 0x23, 0xc7, 0xfe, 0xc7, 0x8f, 0x5b, 0x72, 0xd9,
-	0x02, 0xfc, 0x1e, 0x91, 0x6c, 0x01, 0x52, 0x72, 0x95, 0xf3, 0xfa, 0xaa, 0x42, 0x33, 0x6a, 0x79,
-	0xa6, 0x15, 0xb3, 0x64, 0xe0, 0x5b, 0x79, 0x76, 0xc7, 0xe7, 0x1e, 0x7f, 0x6f, 0x28, 0x8e, 0xd1,
-	0xa3, 0xa6, 0x15, 0xc3, 0xaf, 0x2b, 0xc5, 0x7c, 0x8f, 0xc8, 0x27, 0xc6, 0x5e, 0x4f, 0xbd, 0x5c,
-	0x77, 0x78, 0x8e, 0x4e, 0x1b, 0x8f, 0xa5, 0xed, 0x76, 0x27, 0x7e, 0xbb, 0xf1, 0x4e, 0xfe, 0x72,
-	0x30, 0xa1, 0x50, 0xfb, 0x09, 0x87, 0xbb, 0x09, 0x85, 0xba, 0x9b, 0xf0, 0x03, 0x3a, 0xdb, 0xef,
-	0x01, 0x45, 0xdd, 0xdc, 0xbd, 0x86, 0x47, 0x3e, 0x42, 0xda, 0x59, 0x66, 0xde, 0x71, 0xd0, 0xf2,
-	0x1b, 0x34, 0x2e, 0xa1, 0xb2, 0x9c, 0xe6, 0x15, 0x18, 0x26, 0x40, 0x91, 0x71, 0x14, 0xc4, 0x83,
-	0x74, 0xe4, 0xd5, 0xaf, 0x3b, 0xf1, 0xe3, 0xc5, 0x9f, 0x4d, 0x18, 0xdc, 0x6c, 0xc2, 0xe0, 0xdf,
-	0x26, 0x0c, 0x7e, 0x6f, 0xc3, 0xce, 0xcd, 0x36, 0xec, 0xfc, 0xdd, 0x86, 0x9d, 0x1f, 0x2f, 0xcb,
-	0x65, 0x3e, 0x81, 0xa5, 0x9b, 0x30, 0xbe, 0x4a, 0x72, 0x9d, 0x28, 0xcd, 0x78, 0xfb, 0x88, 0xaf,
-	0xfa, 0xfe, 0xf9, 0xbe, 0xbb, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x7d, 0xff, 0xf0, 0x79, 0xdc, 0x02,
-	0x00, 0x00,
+	// 729 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x95, 0xcf, 0x6e, 0xd3, 0x4a,
+	0x14, 0xc6, 0xe3, 0xdb, 0x7b, 0xdb, 0x66, 0xda, 0xe6, 0x56, 0x6e, 0xef, 0xad, 0x13, 0x68, 0x26,
+	0xb8, 0x2c, 0x22, 0xa1, 0xda, 0x0a, 0x15, 0x42, 0xb0, 0x41, 0x4d, 0x5b, 0xb1, 0x40, 0x48, 0x95,
+	0xa9, 0x8a, 0xc4, 0xc6, 0x9a, 0xc4, 0x53, 0xc7, 0xc4, 0xf6, 0x44, 0x33, 0x4e, 0x08, 0x48, 0x2c,
+	0x78, 0x03, 0x96, 0x3c, 0x01, 0x0b, 0xd6, 0x7d, 0x88, 0x2e, 0xab, 0xae, 0x58, 0x0d, 0xa8, 0xdd,
+	0x45, 0x62, 0xe3, 0x27, 0x40, 0x1e, 0x8f, 0x93, 0x34, 0xe9, 0x1f, 0x76, 0x9e, 0xef, 0xfb, 0xce,
+	0x39, 0xbf, 0xce, 0x74, 0x26, 0xa0, 0x84, 0xda, 0x88, 0xb5, 0x4c, 0xe6, 0x85, 0x6d, 0xb3, 0x57,
+	0x33, 0x3b, 0x88, 0xa2, 0x80, 0x19, 0x1d, 0x4a, 0x22, 0xa2, 0x2e, 0x09, 0xcf, 0x48, 0x3c, 0xa3,
+	0x57, 0x2b, 0xad, 0xba, 0xc4, 0x25, 0xc2, 0x31, 0x93, 0xaf, 0x34, 0x54, 0x2a, 0x36, 0x09, 0x0b,
+	0x08, 0xb3, 0x53, 0x23, 0x5d, 0x48, 0xab, 0x9c, 0xae, 0xcc, 0x06, 0x62, 0xd8, 0xec, 0xd5, 0x1a,
+	0x38, 0x42, 0x35, 0xb3, 0x49, 0xbc, 0x30, 0xf3, 0x5d, 0x42, 0x5c, 0x1f, 0x9b, 0x62, 0xd5, 0xe8,
+	0x1e, 0x99, 0x4e, 0x97, 0xa2, 0xc8, 0x23, 0xd2, 0xd7, 0x7f, 0x01, 0x30, 0xbb, 0x2f, 0x80, 0xd4,
+	0xc7, 0x60, 0x0e, 0x87, 0xa8, 0xe1, 0x63, 0x47, 0x53, 0x2a, 0x4a, 0x75, 0xbe, 0xbe, 0x3e, 0xe0,
+	0x30, 0x93, 0x62, 0x0e, 0x0b, 0xef, 0x51, 0xe0, 0x3f, 0xd5, 0xa5, 0xa0, 0x5b, 0x99, 0xa5, 0x7e,
+	0x04, 0x6b, 0x81, 0x17, 0xda, 0x28, 0x20, 0xdd, 0x30, 0xb2, 0x3b, 0x98, 0xda, 0x11, 0x45, 0x21,
+	0x3b, 0xc2, 0x54, 0xfb, 0xab, 0xa2, 0x54, 0x17, 0x1e, 0x16, 0x0d, 0xc9, 0x9c, 0x50, 0x1a, 0x92,
+	0xd2, 0xd8, 0x21, 0x5e, 0x58, 0x7f, 0x70, 0xc2, 0x61, 0x6e, 0xc0, 0xe1, 0x62, 0xd2, 0x21, 0x2b,
+	0x8b, 0x39, 0x5c, 0x49, 0x87, 0x8d, 0xab, 0xba, 0xb5, 0x1a, 0x78, 0xe1, 0xb6, 0x98, 0xb2, 0x8f,
+	0xe9, 0x81, 0x94, 0xc5, 0x78, 0xd4, 0xbf, 0x72, 0xfc, 0xcc, 0x9f, 0x8f, 0x47, 0xfd, 0xab, 0xc6,
+	0x8f, 0xa9, 0xc9, 0x78, 0xd4, 0x9f, 0x1e, 0xff, 0x4d, 0x01, 0xeb, 0xe3, 0xb9, 0x71, 0x10, 0xdc,
+	0x21, 0xcd, 0x96, 0xf6, 0xf7, 0x6d, 0x14, 0x2f, 0x25, 0xc5, 0xcd, 0x7d, 0x62, 0x0e, 0xef, 0x4f,
+	0x63, 0x4d, 0xc5, 0x74, 0xab, 0x18, 0xa0, 0x7e, 0x86, 0x37, 0xe4, 0xdd, 0x4b, 0x3c, 0xf5, 0xab,
+	0x02, 0xee, 0x26, 0xd5, 0x22, 0x39, 0x5e, 0x8a, 0x9a, 0xcd, 0xe4, 0x5b, 0xfb, 0xe7, 0x36, 0xd6,
+	0x17, 0x92, 0xf5, 0xc6, 0x36, 0x31, 0x87, 0x1b, 0x23, 0xd4, 0xeb, 0x52, 0xba, 0xa5, 0x05, 0xa8,
+	0x2f, 0xc0, 0x86, 0x98, 0xdb, 0xa9, 0xa5, 0xf6, 0xc1, 0xf2, 0xa8, 0x94, 0xe2, 0xa3, 0x6e, 0xe8,
+	0x68, 0xb3, 0xb7, 0xb1, 0x6d, 0x49, 0xb6, 0xa9, 0xd2, 0x98, 0xc3, 0xb5, 0x49, 0x9e, 0xd4, 0xd1,
+	0xad, 0x42, 0xc6, 0x60, 0x09, 0x41, 0x7d, 0x0d, 0xf2, 0x14, 0x77, 0x08, 0x8d, 0x30, 0x65, 0xda,
+	0x5c, 0x65, 0xa6, 0x9a, 0xaf, 0x3f, 0x19, 0x70, 0x38, 0x12, 0x63, 0x0e, 0x97, 0xd3, 0x66, 0x43,
+	0x49, 0x3f, 0x3b, 0xde, 0x5c, 0x95, 0x58, 0xdb, 0x8e, 0x43, 0x31, 0x63, 0xaf, 0x22, 0xea, 0x85,
+	0xae, 0x35, 0x2a, 0x53, 0x9f, 0x81, 0x95, 0xe1, 0xc2, 0x8e, 0x5a, 0x14, 0xb3, 0x16, 0xf1, 0x1d,
+	0x6d, 0xbe, 0xa2, 0x54, 0xf3, 0xf5, 0xc2, 0xd9, 0xf1, 0x26, 0x90, 0x1d, 0x76, 0x71, 0xd3, 0x52,
+	0x87, 0xd1, 0x83, 0x2c, 0xa9, 0x7e, 0x00, 0xc5, 0x4c, 0xb5, 0x9b, 0x2d, 0xe4, 0xfb, 0x38, 0x74,
+	0x71, 0xb2, 0xa1, 0x1e, 0x71, 0xb4, 0xbc, 0xdc, 0x9c, 0xf4, 0xbe, 0x1b, 0xd9, 0x7d, 0x37, 0x76,
+	0xe5, 0x7d, 0xaf, 0x6f, 0x24, 0x9b, 0x33, 0xda, 0x88, 0xc9, 0x06, 0xfa, 0x97, 0x1f, 0x50, 0xb1,
+	0xd6, 0xb2, 0x01, 0x3b, 0x99, 0xbd, 0x2f, 0x5c, 0xf5, 0x93, 0x02, 0x4a, 0xc8, 0xf7, 0xc9, 0x3b,
+	0xec, 0xd8, 0x0e, 0x66, 0x91, 0x17, 0x8a, 0xae, 0x76, 0x0f, 0x75, 0xfd, 0x88, 0x69, 0x40, 0xec,
+	0xd3, 0xce, 0x80, 0xc3, 0x1b, 0x52, 0x31, 0x87, 0xf7, 0xd2, 0xe1, 0xd7, 0x67, 0x74, 0x4b, 0x93,
+	0xe6, 0xee, 0xc8, 0x3b, 0x14, 0x96, 0x7a, 0x08, 0xfe, 0x4d, 0x0f, 0x8d, 0xd9, 0xd9, 0x43, 0xb5,
+	0x20, 0x1e, 0xaa, 0xcd, 0x01, 0x87, 0x93, 0x56, 0xcc, 0xe1, 0xff, 0xd9, 0x29, 0x5d, 0x32, 0x74,
+	0xab, 0x20, 0x95, 0x3d, 0xf9, 0x7e, 0xbd, 0x05, 0x85, 0x0e, 0xea, 0x32, 0x6c, 0xbb, 0x5d, 0x44,
+	0x1d, 0x0f, 0x85, 0xda, 0xa2, 0x38, 0x93, 0xe4, 0xcf, 0x99, 0x70, 0x62, 0x0e, 0xff, 0x4b, 0xbb,
+	0x5e, 0xd6, 0xaf, 0xff, 0x07, 0x58, 0x12, 0xc1, 0xe7, 0x32, 0x57, 0x7f, 0x74, 0x72, 0x5e, 0x56,
+	0x4e, 0xcf, 0xcb, 0xca, 0xcf, 0xf3, 0xb2, 0xf2, 0xf9, 0xa2, 0x9c, 0x3b, 0xbd, 0x28, 0xe7, 0xbe,
+	0x5f, 0x94, 0x73, 0x6f, 0xee, 0x74, 0xda, 0xae, 0x81, 0xda, 0x91, 0xe1, 0xe0, 0x9e, 0xe9, 0x12,
+	0x33, 0x24, 0x0e, 0xce, 0x7e, 0x33, 0x1a, 0xb3, 0xe2, 0x3c, 0xb7, 0x7e, 0x07, 0x00, 0x00, 0xff,
+	0xff, 0x7a, 0x78, 0xc1, 0x28, 0x4b, 0x06, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -238,17 +249,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.PauseGuardian)
 		i = encodeVarintParams(dAtA, i, uint64(len(m.PauseGuardian)))
 		i--
-		dAtA[i] = 0x72
-	}
-	if m.MaxDailyAmountPerAccount != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MaxDailyAmountPerAccount))
-		i--
-		dAtA[i] = 0x68
-	}
-	if m.MinTransfer != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MinTransfer))
-		i--
-		dAtA[i] = 0x60
+		dAtA[i] = 0x62
 	}
 	if m.RefundsEnabled {
 		i--
@@ -260,20 +261,29 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x58
 	}
-	if m.DailyRefundCap != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.DailyRefundCap))
-		i--
-		dAtA[i] = 0x50
+	if len(m.AllowedDestinationVaults) > 0 {
+		for iNdEx := len(m.AllowedDestinationVaults) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.AllowedDestinationVaults[iNdEx])
+			copy(dAtA[i:], m.AllowedDestinationVaults[iNdEx])
+			i = encodeVarintParams(dAtA, i, uint64(len(m.AllowedDestinationVaults[iNdEx])))
+			i--
+			dAtA[i] = 0x52
+		}
 	}
-	if m.ChallengePeriodSeconds != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.ChallengePeriodSeconds))
-		i--
-		dAtA[i] = 0x48
+	n1, err1 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.ReporterChallengePeriod, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.ReporterChallengePeriod):])
+	if err1 != nil {
+		return 0, err1
 	}
-	if m.ReporterThreshold != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.ReporterThreshold))
+	i -= n1
+	i = encodeVarintParams(dAtA, i, uint64(n1))
+	i--
+	dAtA[i] = 0x4a
+	if len(m.ReportersThreshold) > 0 {
+		i -= len(m.ReportersThreshold)
+		copy(dAtA[i:], m.ReportersThreshold)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.ReportersThreshold)))
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x42
 	}
 	if len(m.Reporters) > 0 {
 		for iNdEx := len(m.Reporters) - 1; iNdEx >= 0; iNdEx-- {
@@ -284,35 +294,56 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x3a
 		}
 	}
-	if len(m.VaultAllowlist) > 0 {
-		for iNdEx := len(m.VaultAllowlist) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.VaultAllowlist[iNdEx])
-			copy(dAtA[i:], m.VaultAllowlist[iNdEx])
-			i = encodeVarintParams(dAtA, i, uint64(len(m.VaultAllowlist[iNdEx])))
-			i--
-			dAtA[i] = 0x32
+	{
+		size, err := m.MaxEpochRefund.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
+		i -= size
+		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
-	if m.MaxPendingPerAccount != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MaxPendingPerAccount))
-		i--
-		dAtA[i] = 0x28
+	i--
+	dAtA[i] = 0x32
+	{
+		size, err := m.MaxEpochAmountPerAccount.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
-	if m.MaxDailyPerAccount != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MaxDailyPerAccount))
-		i--
-		dAtA[i] = 0x20
+	i--
+	dAtA[i] = 0x2a
+	{
+		size, err := m.MaxTransferAmountPerEpoch.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
-	if m.SolanaDailyMintCap != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.SolanaDailyMintCap))
-		i--
-		dAtA[i] = 0x18
+	i--
+	dAtA[i] = 0x22
+	{
+		size, err := m.MaxAmountPerTransfer.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
-	if m.MaxTransfer != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MaxTransfer))
-		i--
-		dAtA[i] = 0x10
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.MinAmountPerTransfer.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintParams(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if m.Enabled {
 		i--
 		if m.Enabled {
@@ -346,47 +377,36 @@ func (m *Params) Size() (n int) {
 	if m.Enabled {
 		n += 2
 	}
-	if m.MaxTransfer != 0 {
-		n += 1 + sovParams(uint64(m.MaxTransfer))
-	}
-	if m.SolanaDailyMintCap != 0 {
-		n += 1 + sovParams(uint64(m.SolanaDailyMintCap))
-	}
-	if m.MaxDailyPerAccount != 0 {
-		n += 1 + sovParams(uint64(m.MaxDailyPerAccount))
-	}
-	if m.MaxPendingPerAccount != 0 {
-		n += 1 + sovParams(uint64(m.MaxPendingPerAccount))
-	}
-	if len(m.VaultAllowlist) > 0 {
-		for _, b := range m.VaultAllowlist {
-			l = len(b)
-			n += 1 + l + sovParams(uint64(l))
-		}
-	}
+	l = m.MinAmountPerTransfer.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.MaxAmountPerTransfer.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.MaxTransferAmountPerEpoch.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.MaxEpochAmountPerAccount.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.MaxEpochRefund.Size()
+	n += 1 + l + sovParams(uint64(l))
 	if len(m.Reporters) > 0 {
 		for _, s := range m.Reporters {
 			l = len(s)
 			n += 1 + l + sovParams(uint64(l))
 		}
 	}
-	if m.ReporterThreshold != 0 {
-		n += 1 + sovParams(uint64(m.ReporterThreshold))
+	l = len(m.ReportersThreshold)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
 	}
-	if m.ChallengePeriodSeconds != 0 {
-		n += 1 + sovParams(uint64(m.ChallengePeriodSeconds))
-	}
-	if m.DailyRefundCap != 0 {
-		n += 1 + sovParams(uint64(m.DailyRefundCap))
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.ReporterChallengePeriod)
+	n += 1 + l + sovParams(uint64(l))
+	if len(m.AllowedDestinationVaults) > 0 {
+		for _, s := range m.AllowedDestinationVaults {
+			l = len(s)
+			n += 1 + l + sovParams(uint64(l))
+		}
 	}
 	if m.RefundsEnabled {
 		n += 2
-	}
-	if m.MinTransfer != 0 {
-		n += 1 + sovParams(uint64(m.MinTransfer))
-	}
-	if m.MaxDailyAmountPerAccount != 0 {
-		n += 1 + sovParams(uint64(m.MaxDailyAmountPerAccount))
 	}
 	l = len(m.PauseGuardian)
 	if l > 0 {
@@ -451,86 +471,10 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 			m.Enabled = bool(v != 0)
 		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxTransfer", wireType)
-			}
-			m.MaxTransfer = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MaxTransfer |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SolanaDailyMintCap", wireType)
-			}
-			m.SolanaDailyMintCap = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SolanaDailyMintCap |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxDailyPerAccount", wireType)
-			}
-			m.MaxDailyPerAccount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MaxDailyPerAccount |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPendingPerAccount", wireType)
-			}
-			m.MaxPendingPerAccount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MaxPendingPerAccount |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field VaultAllowlist", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MinAmountPerTransfer", wireType)
 			}
-			var byteLen int
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -540,23 +484,156 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthParams
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthParams
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.VaultAllowlist = append(m.VaultAllowlist, make([]byte, postIndex-iNdEx))
-			copy(m.VaultAllowlist[len(m.VaultAllowlist)-1], dAtA[iNdEx:postIndex])
+			if err := m.MinAmountPerTransfer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxAmountPerTransfer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaxAmountPerTransfer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxTransferAmountPerEpoch", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaxTransferAmountPerEpoch.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxEpochAmountPerAccount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaxEpochAmountPerAccount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxEpochRefund", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaxEpochRefund.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		case 7:
 			if wireType != 2 {
@@ -591,10 +668,10 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			m.Reporters = append(m.Reporters, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 8:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ReporterThreshold", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReportersThreshold", wireType)
 			}
-			m.ReporterThreshold = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -604,16 +681,29 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ReporterThreshold |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ReportersThreshold = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChallengePeriodSeconds", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReporterChallengePeriod", wireType)
 			}
-			m.ChallengePeriodSeconds = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -623,16 +713,30 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ChallengePeriodSeconds |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.ReporterChallengePeriod, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 10:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DailyRefundCap", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AllowedDestinationVaults", wireType)
 			}
-			m.DailyRefundCap = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -642,11 +746,24 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DailyRefundCap |= uint64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AllowedDestinationVaults = append(m.AllowedDestinationVaults, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
 		case 11:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RefundsEnabled", wireType)
@@ -668,44 +785,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 			m.RefundsEnabled = bool(v != 0)
 		case 12:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MinTransfer", wireType)
-			}
-			m.MinTransfer = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MinTransfer |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 13:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxDailyAmountPerAccount", wireType)
-			}
-			m.MaxDailyAmountPerAccount = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowParams
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MaxDailyAmountPerAccount |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field PauseGuardian", wireType)
 			}

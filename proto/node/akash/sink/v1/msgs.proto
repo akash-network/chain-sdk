@@ -3,8 +3,11 @@ package akash.sink.v1;
 
 import "cosmos/msg/v1/msg.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+
 import "gogoproto/gogo.proto";
 import "amino/amino.proto";
+
 import "akash/sink/v1/params.proto";
 import "akash/sink/v1/types.proto";
 
@@ -13,22 +16,49 @@ option go_package = "pkg.akt.dev/go/node/sink/v1";
 // MsgSink locks AKT for a Solana destination. It must be the sole top-level transaction message.
 message MsgSink {
   option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name) = "sink/MsgSink";
+  option (amino.name)           = "sink/MsgSink";
+
   uint32 dest_type = 1; // Only 1 (Solana) is accepted.
   string dest = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
-  string sender = 4;
+
+  cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "amount",
+    (gogoproto.moretags)  = "yaml:\"amount\""
+  ];
+
+  string sender = 4 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "sender",
+    (gogoproto.moretags)  = "yaml:\"sender\""
+  ];
 }
 
 // MsgSinkResponse returns the canonical decimal record ID for status tracking.
-message MsgSinkResponse { string id = 1; }
+message MsgSinkResponse {
+  ID id = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+}
 
 // MsgUpdateParams defines the MsgUpdateParams request.
 message MsgUpdateParams {
   option (amino.name) = "sink/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
-  string authority = 1;
-  Params params = 2 [(gogoproto.nullable) = false];
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "params",
+    (gogoproto.moretags)  = "yaml:\"params\""
+  ];
 }
 
 // MsgUpdateParamsResponse is the response for MsgUpdateParams.
@@ -38,8 +68,18 @@ message MsgUpdateParamsResponse {}
 message MsgRequestVoid {
   option (amino.name) = "sink/MsgRequestVoid";
   option (cosmos.msg.v1.signer) = "authority";
-  string authority = 1;
-  uint64 id = 2;
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
 }
 
 // MsgRequestVoidResponse is the response for MsgRequestVoid.
@@ -49,11 +89,34 @@ message MsgRequestVoidResponse {}
 message MsgReportOutcome {
   option (amino.name) = "sink/MsgReportOutcome";
   option (cosmos.msg.v1.signer) = "reporter";
-  string reporter = 1;
-  uint64 id = 2;
-  uint64 reporter_epoch = 3;
-  uint64 round = 4;
-  Observation observation = 5 [(gogoproto.nullable) = false];
+
+  string reporter = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "sender",
+    (gogoproto.moretags)  = "yaml:\"sender\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+
+  uint64 reporter_epoch = 3 [
+    (gogoproto.jsontag)   = "reporter_epoch",
+    (gogoproto.moretags)  = "yaml:\"reporter_epoch\""
+  ];
+
+  uint64 round = 4 [
+    (gogoproto.jsontag)   = "round",
+    (gogoproto.moretags)  = "yaml:\"round\""
+  ];
+
+  Observation observation = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "observation",
+    (gogoproto.moretags)  = "yaml:\"observation\""
+  ];
 }
 
 // MsgReportOutcomeResponse is the response for MsgReportOutcome.
@@ -63,8 +126,19 @@ message MsgReportOutcomeResponse {}
 message MsgVetoVoid {
   option (amino.name) = "sink/MsgVetoVoid";
   option (cosmos.msg.v1.signer) = "signer";
-  string signer = 1;
-  uint64 id = 2;
+
+  string signer = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "sender",
+    (gogoproto.moretags)  = "yaml:\"sender\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+
   string reason = 3;
 }
 
@@ -75,10 +149,22 @@ message MsgVetoVoidResponse {}
 message MsgResolveTransfer {
   option (amino.name) = "sink/MsgResolveTransfer";
   option (cosmos.msg.v1.signer) = "authority";
-  string authority = 1;
-  uint64 id = 2;
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
+
   Decision decision = 3;
   Observation observation = 4;
+
   string reason = 5;
 }
 
@@ -89,8 +175,18 @@ message MsgResolveTransferResponse {}
 message MsgFinalizeRefund {
   option (amino.name) = "sink/MsgFinalizeRefund";
   option (cosmos.msg.v1.signer) = "executor";
-  string executor = 1;
-  uint64 id = 2;
+
+  string executor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "executor",
+    (gogoproto.moretags)  = "yaml:\"executor\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "id",
+    (gogoproto.moretags)  = "yaml:\"id\""
+  ];
 }
 
 // MsgFinalizeRefundResponse is the response for MsgFinalizeRefund.
@@ -101,10 +197,23 @@ message MsgFinalizeRefundResponse {}
 message MsgGuardianPause {
   option (amino.name) = "sink/MsgGuardianPause";
   option (cosmos.msg.v1.signer) = "guardian";
-  string guardian = 1;
-  bool deposits = 2;
-  bool refunds = 3;
+
+  string guardian = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "guardian",
+    (gogoproto.moretags)  = "yaml:\"guardian\""
+  ];
+
+  bool deposits = 2 [
+    (gogoproto.jsontag)   = "deposits",
+    (gogoproto.moretags)  = "yaml:\"deposits\""
+  ];
+  bool refunds  = 3 [
+    (gogoproto.jsontag)   = "refunds",
+    (gogoproto.moretags)  = "yaml:\"refunds\""
+  ];
 }
 
 // MsgGuardianPauseResponse is the response for MsgGuardianPause.
 message MsgGuardianPauseResponse {}
+

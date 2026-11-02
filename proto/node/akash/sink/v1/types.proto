@@ -2,113 +2,294 @@ syntax = "proto3";
 package akash.sink.v1;
 
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
-// Totals records escrow accounting and monotonically increasing transfer and reporter identifiers.
-message Totals {
-  reserved 2;
-  reserved "launch_reserve";
-  uint64 last_transfer_id = 1;
-  uint64 pending_amount = 3;
-  uint64 pending_count = 4;
-  uint64 minted_amount = 5;
-  uint64 voided_amount = 6;
-  uint64 refunded_amount = 7;
-  uint64 refund_day = 8;
-  uint64 refunded_today = 9;
-  uint64 reporter_epoch = 10;
-}
-
-// AccountUsage tracks deposit limits for one Akash account.
-message AccountUsage {
-  bytes sender = 1;
-  uint64 day = 2;
-  uint32 daily_count = 3;
-  uint32 pending_count = 4;
-  uint64 daily_amount = 5; // uakt deposited on day.
-}
-
-// TransferState combines the immutable 77-byte proof record with mutable settlement state.
-message TransferState {
-  bytes record = 1;
-  bool void_ordered = 2;
-  Settlement settlement = 3 [(gogoproto.nullable) = false];
-}
-
 // Outcome is the finalized Solana result reported by an observer.
 enum Outcome {
+  option (gogoproto.goproto_enum_prefix) = false;
+
   // OUTCOME_UNSPECIFIED represents unspecified.
-  OUTCOME_UNSPECIFIED = 0;
+  OUTCOME_UNSPECIFIED = 0 [
+    (gogoproto.enumvalue_customname) = "OutcomeUnspecified"
+  ];;
   // OUTCOME_MINTED represents minted.
-  OUTCOME_MINTED = 1;
+  OUTCOME_MINTED = 1 [
+    (gogoproto.enumvalue_customname) = "OutcomeMinted"
+  ];;
   // OUTCOME_VOIDED represents voided.
-  OUTCOME_VOIDED = 2;
+  OUTCOME_VOIDED = 2 [
+    (gogoproto.enumvalue_customname) = "OutcomeVoided"
+  ];;
 }
 
 // Status describes settlement and refund payment on Akash.
 enum Status {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  STATUS_INVALID = 0 [
+    (gogoproto.enumvalue_customname) = "StatusInvalid"
+  ];
   // STATUS_PENDING represents pending.
-  STATUS_PENDING = 0;
+  STATUS_TRANSFER_PENDING = 1 [
+    (gogoproto.enumvalue_customname) = "StatusTransferPending"
+  ];
   // STATUS_MINTED represents minted.
-  STATUS_MINTED = 1;
+  STATUS_MINTED = 2 [
+    (gogoproto.enumvalue_customname) = "StatusMinted"
+  ];
   // STATUS_VOIDED represents voided.
-  STATUS_VOIDED = 2;
+  STATUS_VOIDED = 3 [
+    (gogoproto.enumvalue_customname) = "StatusVoided"
+  ];;
+  STATUS_REFUND_PENDING = 4 [
+    (gogoproto.enumvalue_customname) = "StatusRefundPending"
+  ];
   // STATUS_REFUNDED represents refunded.
-  STATUS_REFUNDED = 3;
+  STATUS_REFUNDED = 5 [
+    (gogoproto.enumvalue_customname) = "StatusRefunded"
+  ];
 }
 
 // Hold prevents settlement while a veto or conflicting observation is unresolved.
 enum Hold {
+  option (gogoproto.goproto_enum_prefix) = false;
+
   // HOLD_NONE represents none.
-  HOLD_NONE = 0;
+  HOLD_NONE = 0 [
+    (gogoproto.enumvalue_customname) = "HoldNone"
+  ];;
   // HOLD_VETO represents veto.
-  HOLD_VETO = 1;
+  HOLD_VETO = 1 [
+    (gogoproto.enumvalue_customname) = "HoldVeto"
+  ];;
   // HOLD_CONFLICT represents conflict.
-  HOLD_CONFLICT = 2;
+  HOLD_CONFLICT = 2 [
+    (gogoproto.enumvalue_customname) = "HoldConflict"
+  ];;
 }
 
 // Decision specifies the governance action for a held transfer.
 enum Decision {
+  option (gogoproto.goproto_enum_prefix) = false;
+
   // DECISION_UNSPECIFIED represents unspecified.
-  DECISION_UNSPECIFIED = 0;
+  DECISION_UNSPECIFIED = 0 [
+    (gogoproto.enumvalue_customname) = "DecisionUnspecified"
+  ];;
   // DECISION_RESTART represents restart.
-  DECISION_RESTART = 1;
+  DECISION_RESTART = 1 [
+    (gogoproto.enumvalue_customname) = "DecisionRestart"
+  ];;
   // DECISION_CONFIRM_MINT represents confirm mint.
-  DECISION_CONFIRM_MINT = 2;
+  DECISION_CONFIRM_MINT = 2 [
+    (gogoproto.enumvalue_customname) = "DecisionConfirmMint"
+  ];;
   // DECISION_CONFIRM_VOID represents confirm void.
-  DECISION_CONFIRM_VOID = 3;
+  DECISION_CONFIRM_VOID = 3 [
+    (gogoproto.enumvalue_customname) = "DecisionConfirmVoid"
+  ];;
+}
+
+message ID {
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+
+  int64 height = 2 [
+    (gogoproto.jsontag) = "height",
+    (gogoproto.moretags) = "yaml:\"height\""
+  ];
+
+  // sequence disambiguate multiple entries at the same height
+  uint64 sequence = 3 [
+    (gogoproto.jsontag) = "sequence",
+    (gogoproto.moretags) = "yaml:\"sequence\""
+  ];
+}
+
+message SettlementID {
+  Status status = 1 [
+    (gogoproto.jsontag)   = "status",
+    (gogoproto.moretags)  = "yaml:\"status\""
+  ];
+
+  string owner = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+
+  int64 height = 3 [
+    (gogoproto.jsontag) = "height",
+    (gogoproto.moretags) = "yaml:\"height\""
+  ];
+
+  // sequence disambiguate multiple entries at the same height
+  uint64 sequence = 4 [
+    (gogoproto.jsontag) = "sequence",
+    (gogoproto.moretags) = "yaml:\"sequence\""
+  ];
+}
+
+message RecordData {
+  string dest = 1 [
+    (gogoproto.jsontag) = "sequence",
+    (gogoproto.moretags) = "yaml:\"sequence\""
+  ];
+
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+message SettlementData {
+  Hold   hold = 1 [
+    (gogoproto.jsontag)   = "hold",
+    (gogoproto.moretags)  = "yaml:\"hold\""
+  ];
+  uint64 round = 2 [
+    (gogoproto.jsontag)   = "round",
+    (gogoproto.moretags)  = "yaml:\"round\""
+  ];
+  ReporterPolicy policy = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "policy",
+    (gogoproto.moretags)  = "yaml:\"policy\""
+  ];
+  repeated Vote votes = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "votes",
+    (gogoproto.moretags)  = "yaml:\"votes\""
+  ];
+  int64 challenge_end = 5 [
+    (gogoproto.jsontag)   = "challenge_end",
+    (gogoproto.moretags)  = "yaml:\"challenge_end\""
+  ];
+  Observation governance_observation = 6 [
+    (gogoproto.jsontag)   = "governance_observation",
+    (gogoproto.moretags)  = "yaml:\"governance_observation\""
+  ];
+  string veto_by = 7 [
+    (gogoproto.jsontag)   = "veto_by",
+    (gogoproto.moretags)  = "yaml:\"veto_by\""
+  ];
+  string veto_reason = 8 [
+    (gogoproto.jsontag)   = "veto_reason",
+    (gogoproto.moretags)  = "yaml:\"veto_reason\""
+  ];
+}
+
+message TransferState {
+  ID id = 1 [
+    (gogoproto.nullable) = false
+  ];
+
+  RecordData data = 2 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+// AccountUsage tracks deposit limits for one Akash account.
+message AccountUsage {
+  cosmos.base.v1beta1.Coin total_sent = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "total_sent",
+    (gogoproto.moretags)  = "yaml:\"total_sent\""
+  ];
+
+  cosmos.base.v1beta1.Coin epoch_sent = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "epoch_sent",
+    (gogoproto.moretags)  = "yaml:\"epoch_sent\""
+  ];
+
+  int64 last_epoch = 3 [
+    (gogoproto.jsontag)   = "last_epoch",
+    (gogoproto.moretags)  = "yaml:\"last_epoch\""
+  ];
+}
+
+// Totals records escrow accounting and monotonically increasing transfer and reporter identifiers.
+message Totals {
+  cosmos.base.v1beta1.Coin pending_amount = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "pending_amount",
+    (gogoproto.moretags)  = "yaml:\"pending_amount\""
+  ];
+  cosmos.base.v1beta1.Coin pending_count = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "pending_count",
+    (gogoproto.moretags)  = "yaml:\"pending_count\""
+  ];
+  cosmos.base.v1beta1.Coin minted_amount = 3 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "status",
+    (gogoproto.moretags)  = "yaml:\"status\""
+  ];
+  cosmos.base.v1beta1.Coin voided_amount = 4 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "voided_amount",
+    (gogoproto.moretags)  = "yaml:\"voided_amount\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_amount = 5 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_amount",
+    (gogoproto.moretags)  = "yaml:\"refunded_amount\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_in_epoch = 6 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_in_epoch",
+    (gogoproto.moretags)  = "yaml:\"refunded_in_epoch\""
+  ];
 }
 
 // Observation identifies a finalized Solana mint or void and its evidence.
 message Observation {
-  Outcome outcome = 1;
-  uint64 slot = 2;
-  bytes transaction_signature = 3;
+  Outcome outcome = 1 [
+    (gogoproto.jsontag)   = "outcome",
+    (gogoproto.moretags)  = "yaml:\"outcome\""
+  ];
+
+  uint64  slot = 2 [
+    (gogoproto.jsontag)   = "slot",
+    (gogoproto.moretags)  = "yaml:\"slot\""
+  ];
+
+  bytes   transaction_signature = 3 [
+    (gogoproto.jsontag)   = "transaction_signature",
+    (gogoproto.moretags)  = "yaml:\"transaction_signature\""
+  ];
 }
 
 // Vote records one reporter observation.
 message Vote {
-  string reporter = 1;
-  Observation observation = 2 [(gogoproto.nullable) = false];
+  string reporter = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "reported",
+    (gogoproto.moretags)  = "yaml:\"reporter\""
+  ];
+
+  Observation observation = 2 [
+    (gogoproto.nullable) = false
+  ];
 }
 
 // ReporterPolicy snapshots the membership and threshold for one epoch.
 message ReporterPolicy {
-  uint64 epoch = 1;
-  repeated string members = 2;
-  uint32 threshold = 3;
-}
+  uint64          epoch = 1;
+  repeated string members = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "members",
+    (gogoproto.moretags)  = "yaml:\"members\""
+  ];
 
-// Settlement tracks reporter votes, holds and the refund challenge window.
-message Settlement {
-  Status status = 1;
-  Hold hold = 2;
-  uint64 round = 3;
-  ReporterPolicy policy = 4 [(gogoproto.nullable) = false];
-  repeated Vote votes = 5 [(gogoproto.nullable) = false];
-  int64 challenge_end = 6;
-  Observation governance_observation = 7;
-  string veto_by = 8;
-  string veto_reason = 9;
+  uint32          threshold = 3 [
+    (gogoproto.jsontag)   = "threshold",
+    (gogoproto.moretags)  = "yaml:\"threshold\""
+  ];
 }

@@ -9,11 +9,14 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-/** EventOrphanPaymentsRepaired is triggered when an upgrade closes escrow payments left open without a matching lease. */
+/**
+ * EventOrphanPaymentsRepaired is emitted by the v2.2.0 upgrade after it closes
+ * escrow payments left open without a matching lease.
+ */
 export interface EventOrphanPaymentsRepaired {
-  /** closed_payments is the number of payments closed. */
+  /** ClosedPayments is the number of payments closed. */
   closedPayments: bigint;
-  /** missing_leases is the number of closed payments whose lease no longer exists. */
+  /** MissingLeases is the number of those payments whose lease no longer exists. */
   missingLeases: bigint;
 }
 
