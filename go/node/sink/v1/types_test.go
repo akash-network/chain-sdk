@@ -11,6 +11,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 
@@ -28,14 +29,17 @@ func TestDestination(t *testing.T) {
 		"empty": "", "zero": "11111111111111111111111111111111", "base58": "0OIl",
 		"short": "123", "long": "1" + addr, "space": " " + addr, "memo": fmt.Sprintf(`{"v":1,"solana_address":%q}`, addr),
 	} {
-		t.Run(name, func(t *testing.T) { _, err := types.ParseDestination(address, nil); require.Error(t, err) })
+		t.Run(name, func(t *testing.T) {
+			_, err := types.ParseDestination(address, nil)
+			require.ErrorIs(t, err, types.ErrInvalidDestination)
+		})
 	}
 	offCurve := [32]byte{2}
-	require.Error(t, types.ValidateRecipient(offCurve, nil))
+	require.ErrorIs(t, types.ValidateRecipient(offCurve, nil), types.ErrInvalidDestination)
 	got, err = types.ParseDestination(base58.Encode(offCurve[:]), [][]byte{offCurve[:]})
 	require.NoError(t, err)
 	require.Equal(t, offCurve, got)
-	require.Error(t, types.ValidateRecipient([32]byte{}, [][]byte{make([]byte, 32)}))
+	require.ErrorIs(t, types.ValidateRecipient([32]byte{}, [][]byte{make([]byte, 32)}), types.ErrInvalidDestination)
 
 	// Small-order points decode but no wallet holds their key: the identity
 	// (y = 1) and the point of order 2 (y = -1).
@@ -91,7 +95,7 @@ func TestTransferWireVector(t *testing.T) {
 	require.Equal(t, "012a00000000000000", hex.EncodeToString(types.VoidValue(42)))
 	for _, bad := range [][]byte{nil, b[:76], append(bytes.Clone(b), 0), append([]byte{2}, b[1:]...)} {
 		_, err := types.DecodeTransfer(bad)
-		require.Error(t, err)
+		require.ErrorIs(t, err, types.ErrInvalidRecord)
 	}
 }
 
@@ -228,6 +232,7 @@ func TestParamsPauseGuardian(t *testing.T) {
 		" " + sdk.AccAddress(bytes.Repeat([]byte{9}, 20)).String(),
 	} {
 		p.PauseGuardian = guardian
+		require.ErrorIs(t, p.Validate(), sdkerrors.ErrInvalidAddress, guardian)
 		require.ErrorContains(t, p.Validate(), "pause guardian", guardian)
 	}
 

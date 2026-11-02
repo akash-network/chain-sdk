@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 
 	types "pkg.akt.dev/go/node/sink/v1"
@@ -19,12 +20,12 @@ func TestReporterPolicyBoundaries(t *testing.T) {
 	require.NoError(t, types.ValidateReporters(nil, 0))
 	require.NoError(t, types.ValidateReporters(members, 3))
 	require.NoError(t, types.ValidateReporters(members, 4))
-	require.Error(t, types.ValidateReporters(members[:3], 2))
-	require.Error(t, types.ValidateReporters(members, 2))
-	require.Error(t, types.ValidateReporters(members, math.MaxUint32))
-	require.Error(t, types.ValidateReporters(nil, 1))
-	require.Error(t, types.ValidateReporters([]string{members[0], members[0]}, 2))
-	require.Error(t, types.ValidateReporters([]string{"invalid"}, 1))
+	require.ErrorIs(t, types.ValidateReporters(members[:3], 2), types.ErrInvalidReporters)
+	require.ErrorIs(t, types.ValidateReporters(members, 2), types.ErrInvalidReporters)
+	require.ErrorIs(t, types.ValidateReporters(members, math.MaxUint32), types.ErrInvalidReporters)
+	require.ErrorIs(t, types.ValidateReporters(nil, 1), types.ErrInvalidReporters)
+	require.ErrorIs(t, types.ValidateReporters([]string{members[0], members[0]}, 2), types.ErrInvalidReporters)
+	require.ErrorIs(t, types.ValidateReporters([]string{"invalid"}, 1), sdkerrors.ErrInvalidAddress)
 	p := types.DefaultParams()
 	p.Enabled = true
 	require.Error(t, p.Validate())
@@ -92,7 +93,7 @@ func TestSettlementValidationAndAccounting(t *testing.T) {
 			s := valid
 			s.Votes = append([]types.Vote(nil), valid.Votes...)
 			mutate(&s)
-			require.Error(t, s.Validate(1))
+			require.ErrorIs(t, s.Validate(1), types.ErrInvalidSettlement)
 		})
 	}
 	for _, o := range []types.Observation{
@@ -100,7 +101,7 @@ func TestSettlementValidationAndAccounting(t *testing.T) {
 		{Outcome: types.Outcome_OUTCOME_MINTED, TransactionSignature: bytes.Repeat([]byte{1}, 64)},
 		{Outcome: types.Outcome_OUTCOME_MINTED, Slot: 1, TransactionSignature: make([]byte, 64)},
 	} {
-		require.Error(t, o.Validate())
+		require.ErrorIs(t, o.Validate(), types.ErrInvalidObservation)
 	}
 	totals := types.Totals{PendingAmount: 10, MintedAmount: 20, VoidedAmount: 30, RefundedAmount: 40}
 	escrow, err := totals.EscrowAmount()
@@ -111,7 +112,7 @@ func TestSettlementValidationAndAccounting(t *testing.T) {
 	require.Equal(t, uint64(100), deposited)
 	totals.PendingAmount = math.MaxUint64
 	_, err = totals.EscrowAmount()
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrOverflow)
 	_, err = totals.DepositedAmount()
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrOverflow)
 }

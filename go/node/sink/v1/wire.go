@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/binary"
-	"fmt"
 )
 
 const (
@@ -40,7 +39,7 @@ func VoidKey(id uint64) []byte { return binary.BigEndian.AppendUint64(VoidKeyPre
 
 func (t Transfer) Marshal() ([]byte, error) {
 	if t.ID == 0 || t.Amount == 0 || t.Height == 0 || t.Recipient == [32]byte{} {
-		return nil, fmt.Errorf("invalid sink transfer")
+		return nil, ErrInvalidRecord.Wrap("id, amount, height and recipient must be nonzero")
 	}
 	b := make([]byte, RecordSize)
 	b[0] = 1
@@ -55,7 +54,7 @@ func (t Transfer) Marshal() ([]byte, error) {
 func DecodeTransfer(b []byte) (Transfer, error) {
 	var t Transfer
 	if len(b) != RecordSize || b[0] != 1 {
-		return t, fmt.Errorf("expected sink transfer version 1, %d bytes", RecordSize)
+		return t, ErrInvalidRecord.Wrapf("expected version 1 and %d bytes", RecordSize)
 	}
 	t.ID = binary.LittleEndian.Uint64(b[1:9])
 	copy(t.Sender[:], b[9:29])

@@ -1,12 +1,11 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	cflags "pkg.akt.dev/go/cli/flags"
 	types "pkg.akt.dev/go/node/sink/v1"
@@ -46,10 +45,6 @@ Example:
 			destType, err := cmd.Flags().GetUint32("dest-type")
 			if err != nil {
 				return err
-			}
-
-			if destType != types.DestTypeSolana {
-				return fmt.Errorf("destination type must be 1 (Solana)")
 			}
 
 			amount, err := parseSinkAmount(args[1])
@@ -106,10 +101,6 @@ Example:
 				return err
 			}
 
-			if !deposits && !refunds {
-				return fmt.Errorf("pass --deposits, --refunds or both")
-			}
-
 			ctx := cmd.Context()
 			cl := MustClientFromContext(ctx)
 
@@ -145,11 +136,7 @@ func parseSinkAmount(value string) (sdk.Coin, error) {
 
 	amount, fraction := sdk.NormalizeDecCoin(dec).TruncateDecimal()
 	if !fraction.IsZero() {
-		return sdk.Coin{}, fmt.Errorf("amount %s is not a whole number of uakt", value)
-	}
-
-	if amount.Denom != types.Denom || !amount.Amount.IsPositive() || !amount.Amount.IsUint64() {
-		return sdk.Coin{}, fmt.Errorf("amount must be positive uint64 uakt")
+		return sdk.Coin{}, sdkerrors.ErrInvalidCoins.Wrapf("amount %s is not a whole number of uakt", value)
 	}
 
 	return amount, nil

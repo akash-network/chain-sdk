@@ -1,6 +1,7 @@
 package v1
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -15,16 +16,19 @@ var (
 // amount limits and signer account checks.
 func (m *MsgSink) ValidateBasic() error {
 	if m.DestType != DestTypeSolana {
-		return sdkerrors.ErrInvalidRequest.Wrap("sink destination type must be 1 (Solana)")
+		return ErrInvalidDestination.Wrapf("destination type must be %d (Solana)", DestTypeSolana)
 	}
 	if _, err := DecodeDestination(m.Dest); err != nil {
-		return sdkerrors.ErrInvalidRequest.Wrap(err.Error())
+		return err
 	}
-	if m.Amount.Amount.IsNil() || m.Amount.Denom != Denom || !m.Amount.Amount.IsPositive() || !m.Amount.Amount.IsUint64() {
-		return sdkerrors.ErrInvalidCoins.Wrap("sink accepts positive uint64 uakt only")
+	if m.Amount.Denom != Denom {
+		return sdkerrors.ErrInvalidCoins.Wrapf("expected %s, got %s", Denom, m.Amount.Denom)
 	}
-	if sender, err := sdk.AccAddressFromBech32(m.Sender); err != nil || len(sender) != 20 {
-		return sdkerrors.ErrInvalidAddress.Wrap("invalid sink sender")
+	if m.Amount.Amount.IsNil() || !m.Amount.Amount.IsPositive() || !m.Amount.Amount.IsUint64() {
+		return sdkerrors.ErrInvalidCoins.Wrap("amount must be a positive 64-bit value")
+	}
+	if _, err := ParseAccount(m.Sender, AccountLength); err != nil {
+		return errorsmod.Wrap(err, "sender")
 	}
 	return nil
 }
@@ -33,10 +37,10 @@ func (m *MsgSink) ValidateBasic() error {
 // requested. The keeper checks that the signer is params.pause_guardian.
 func (m *MsgGuardianPause) ValidateBasic() error {
 	if err := ValidatePauseGuardian(m.Guardian); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
+		return err
 	}
 	if !m.Deposits && !m.Refunds {
-		return sdkerrors.ErrInvalidRequest.Wrap("guardian pause must disable deposits, refunds or both")
+		return ErrInvalidGuardianPause
 	}
 	return nil
 }

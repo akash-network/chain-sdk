@@ -17,6 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -134,24 +135,23 @@ func (s *SinkCLITestSuite) TestDepositAmountIsExact() {
 	for _, tc := range []struct {
 		amount string
 		want   int64
-		err    string
+		err    error
 	}{
-		{"1500000uakt", 1_500_000, ""},
-		{"1.5akt", 1_500_000, ""},
-		{"0.000001akt", 1, ""},
-		{"1.5uakt", 0, "not a whole number of uakt"},
-		{"0.0000015akt", 0, "not a whole number of uakt"},
-		{"0uakt", 0, "positive uint64 uakt"},
-		{"-1uakt", 0, "unknown shorthand flag"},
-		{"1e6uakt", 0, "positive uint64 uakt"},
-		{"1other", 0, "positive uint64 uakt"},
-		{"18446744073709551616uakt", 0, "positive uint64 uakt"},
+		{"1500000uakt", 1_500_000, nil},
+		{"1.5akt", 1_500_000, nil},
+		{"0.000001akt", 1, nil},
+		{"1.5uakt", 0, sdkerrors.ErrInvalidCoins},
+		{"0.0000015akt", 0, sdkerrors.ErrInvalidCoins},
+		{"0uakt", 0, sdkerrors.ErrInvalidCoins},
+		{"1e6uakt", 0, sdkerrors.ErrInvalidCoins},
+		{"1other", 0, sdkerrors.ErrInvalidCoins},
+		{"18446744073709551616uakt", 0, sdkerrors.ErrInvalidCoins},
 	} {
 		s.Run(tc.amount, func() {
 			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxSinkDepositCmd(),
 				cli.TestFlags().With(s.dest, tc.amount).WithFrom(s.from.String()).WithGenerateOnly()...)
-			if tc.err != "" {
-				s.Require().ErrorContains(err, tc.err)
+			if tc.err != nil {
+				s.Require().ErrorIs(err, tc.err)
 				return
 			}
 			s.Require().NoError(err)
@@ -164,6 +164,11 @@ func (s *SinkCLITestSuite) TestDepositAmountIsExact() {
 			s.Require().Equal(s.from.String(), msg.Sender)
 		})
 	}
+
+	// A negative amount parses as a flag, so it never reaches the command.
+	_, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxSinkDepositCmd(),
+		cli.TestFlags().With(s.dest, "-1uakt").WithFrom(s.from.String()).WithGenerateOnly()...)
+	s.Require().ErrorContains(err, "unknown shorthand flag")
 }
 
 // ValidateBasic runs before generation or broadcast, so malformed destinations
@@ -172,7 +177,7 @@ func (s *SinkCLITestSuite) TestDepositRejectsMalformedDestination() {
 	for _, dest := range []string{"11111111111111111111111111111111", "not-base58", "1" + s.dest} {
 		_, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxSinkDepositCmd(),
 			cli.TestFlags().With(dest, "1uakt").WithFrom(s.from.String()).WithGenerateOnly()...)
-		s.Require().Error(err, dest)
+		s.Require().ErrorIs(err, types.ErrInvalidDestination, dest)
 	}
 }
 
@@ -198,7 +203,7 @@ func (s *SinkCLITestSuite) TestGuardianPause() {
 	}
 	_, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxSinkGuardianPauseCmd(),
 		cli.TestFlags().WithFrom(s.from.String()).WithGenerateOnly()...)
-	s.Require().ErrorContains(err, "pass --deposits, --refunds or both")
+	s.Require().ErrorIs(err, types.ErrInvalidGuardianPause)
 	_, err = clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.TxCmd(),
 		cli.TestFlags().With("sink", "guardian-pause", "--deposits").WithFrom(s.from.String()).WithGenerateOnly()...)
 	s.Require().NoError(err)

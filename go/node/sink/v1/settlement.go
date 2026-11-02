@@ -2,12 +2,11 @@ package v1
 
 import (
 	"bytes"
-	"fmt"
 	"math"
 	"slices"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsmod "cosmossdk.io/errors"
 )
 
 const MaxReporters = 32
@@ -15,19 +14,21 @@ const MaxReporters = 32
 func ValidateReporters(members []string, threshold uint32) error {
 	if len(members) == 0 {
 		if threshold != 0 {
-			return fmt.Errorf("empty reporter set must have zero threshold")
+			return ErrInvalidReporters.Wrap("empty reporter set must have zero threshold")
 		}
 		return nil
 	}
 	// len(members) <= MaxReporters before either conversion.
 	if len(members) > MaxReporters || threshold > uint32(len(members)) || 3*threshold <= 2*uint32(len(members)) { //nolint:gosec
-		return fmt.Errorf("reporter threshold must exceed two thirds of at most %d members", MaxReporters)
+		return ErrInvalidReporters.Wrapf("reporter threshold must exceed two thirds of at most %d members", MaxReporters)
 	}
 	seen := make(map[string]bool, len(members))
 	for _, member := range members {
-		addr, err := sdk.AccAddressFromBech32(member)
-		if err != nil || len(addr) != 20 || addr.String() != member || bytes.Equal(addr, make([]byte, 20)) || seen[member] {
-			return fmt.Errorf("invalid or duplicate reporter address")
+		if _, err := ParseAccount(member, AccountLength); err != nil {
+			return errorsmod.Wrap(err, "reporter")
+		}
+		if seen[member] {
+			return ErrInvalidReporters.Wrapf("duplicate reporter %s", member)
 		}
 		seen[member] = true
 	}
@@ -48,17 +49,17 @@ func (p Params) SameReporterSet(other Params) bool {
 
 func (o Observation) Validate() error {
 	if o.Outcome != Outcome_OUTCOME_MINTED && o.Outcome != Outcome_OUTCOME_VOIDED {
-		return fmt.Errorf("invalid Solana outcome")
+		return ErrInvalidObservation.Wrapf("unknown outcome %s", o.Outcome)
 	}
 	if o.Slot == 0 || len(o.TransactionSignature) != 64 || bytes.Equal(o.TransactionSignature, make([]byte, 64)) {
-		return fmt.Errorf("positive finalized slot and 64-byte Solana transaction signature required")
+		return ErrInvalidObservation.Wrap("slot must be positive and the transaction signature 64 nonzero bytes")
 	}
 	return nil
 }
 
 func ValidateReason(reason string) error {
 	if strings.TrimSpace(reason) == "" || len(reason) > 256 {
-		return fmt.Errorf("reason must contain 1 to 256 bytes")
+		return ErrInvalidReason.Wrap("reason must contain 1 to 256 bytes")
 	}
 	return nil
 }
@@ -90,29 +91,29 @@ func (s Settlement) HasVoidAuthorization() bool {
 
 func (s Settlement) Validate(epoch uint64) error {
 	if s.Round == 0 || s.Policy.Epoch > epoch {
-		return fmt.Errorf("invalid report round or epoch")
+		return ErrInvalidSettlement.Wrap("zero round or future reporter epoch")
 	}
 	if s.Status < Status_STATUS_PENDING || s.Status > Status_STATUS_REFUNDED || s.Hold < Hold_HOLD_NONE || s.Hold > Hold_HOLD_CONFLICT {
-		return fmt.Errorf("invalid settlement status or hold")
+		return ErrInvalidSettlement.Wrapf("unknown status %d or hold %d", s.Status, s.Hold)
 	}
 	if err := ValidateReporters(s.Policy.Members, s.Policy.Threshold); err != nil {
 		return err
 	}
 	if s.Policy.Epoch == 0 && (len(s.Policy.Members) > 0 || len(s.Votes) > 0 || s.GovernanceObservation != nil) {
-		return fmt.Errorf("missing report epoch")
+		return ErrInvalidSettlement.Wrap("missing report epoch")
 	}
 	if s.GovernanceObservation != nil {
 		if err := s.GovernanceObservation.Validate(); err != nil {
 			return err
 		}
 		if s.Status == Status_STATUS_PENDING || (s.Status == Status_STATUS_MINTED) != (s.GovernanceObservation.Outcome == Outcome_OUTCOME_MINTED) {
-			return fmt.Errorf("governance observation does not match settlement")
+			return ErrInvalidSettlement.Wrap("governance observation does not match settlement")
 		}
 	}
 	seen := make(map[string]map[Outcome]bool)
 	for _, vote := range s.Votes {
 		if !slices.Contains(s.Policy.Members, vote.Reporter) {
-			return fmt.Errorf("vote outside reporter snapshot")
+			return ErrInvalidSettlement.Wrap("vote outside reporter snapshot")
 		}
 		if err := vote.Observation.Validate(); err != nil {
 			return err
@@ -121,7 +122,7 @@ func (s Settlement) Validate(epoch uint64) error {
 			seen[vote.Reporter] = make(map[Outcome]bool)
 		}
 		if seen[vote.Reporter][vote.Observation.Outcome] {
-			return fmt.Errorf("duplicate reporter vote")
+			return ErrInvalidSettlement.Wrap("duplicate reporter vote")
 		}
 		seen[vote.Reporter][vote.Observation.Outcome] = true
 	}
@@ -129,18 +130,18 @@ func (s Settlement) Validate(epoch uint64) error {
 	if s.Hold != Hold_HOLD_CONFLICT && ((minted > 0 && voided > 0) ||
 		(s.Status == Status_STATUS_MINTED && voided > 0) ||
 		((s.Status == Status_STATUS_VOIDED || s.Status == Status_STATUS_REFUNDED) && minted > 0)) {
-		return fmt.Errorf("conflicting reports without a hold")
+		return ErrInvalidSettlement.Wrap("conflicting reports without a hold")
 	}
 	if s.Status == Status_STATUS_VOIDED {
 		if s.ChallengeEnd <= 0 || !s.HasVoidAuthorization() {
-			return fmt.Errorf("void requires authorization and a challenge deadline")
+			return ErrInvalidSettlement.Wrap("void requires authorization and a challenge deadline")
 		}
 	} else if s.ChallengeEnd != 0 {
-		return fmt.Errorf("challenge deadline on a non-void settlement")
+		return ErrInvalidSettlement.Wrap("challenge deadline on a non-void settlement")
 	}
 	if s.Hold == Hold_HOLD_VETO {
 		if s.VetoBy == "" {
-			return fmt.Errorf("missing veto signer")
+			return ErrInvalidSettlement.Wrap("missing veto signer")
 		}
 		if err := ValidateReason(s.VetoReason); err != nil {
 			return err
@@ -153,7 +154,7 @@ func checkedSum(values ...uint64) (uint64, error) {
 	var total uint64
 	for _, value := range values {
 		if value > math.MaxUint64-total {
-			return 0, fmt.Errorf("sink amount overflow")
+			return 0, ErrOverflow.Wrap("uakt total")
 		}
 		total += value
 	}
