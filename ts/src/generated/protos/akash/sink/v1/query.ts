@@ -63,7 +63,10 @@ export interface QueryAccountRequest {
 
 /** QueryAccountResponse returns account usage normalized to the queried sending epoch. */
 export interface QueryAccountResponse {
-  usage: AccountUsage | undefined;
+  usage:
+    | AccountUsage
+    | undefined;
+  /** Native "day" CurrentEpoch at the queried height; zero before counting starts. */
   epoch: bigint;
 }
 
@@ -75,7 +78,10 @@ export interface QueryStateRequest {
 export interface QueryStateResponse {
   params: Params | undefined;
   totals: Totals | undefined;
-  policy: ReporterPolicy | undefined;
+  policy:
+    | ReporterPolicy
+    | undefined;
+  /** Native "day" CurrentEpoch at the queried height; zero before counting starts. */
   epoch: bigint;
   sendUsage: EpochUsage | undefined;
   refundUsage:

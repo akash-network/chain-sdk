@@ -17,7 +17,7 @@ export interface GenesisAccount {
   usage: AccountUsage | undefined;
 }
 
-/** GenesisState exports complete sink state; schema_version must be 2. */
+/** GenesisState exports complete sink state; schema_version must be 3 for native epoch usage. */
 export interface GenesisState {
   params: Params | undefined;
   totals:

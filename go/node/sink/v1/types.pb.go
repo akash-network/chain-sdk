@@ -554,7 +554,7 @@ func (m *TransferState) GetVoidOrdered() bool {
 	return false
 }
 
-// AccountUsage counts lifetime deposits and deposits within last_epoch.
+// AccountUsage counts lifetime deposits and deposits within the native "day" last_epoch.
 type AccountUsage struct {
 	TotalSent types.Coin `protobuf:"bytes,1,opt,name=total_sent,json=totalSent,proto3" json:"total_sent" yaml:"total_sent"`
 	EpochSent types.Coin `protobuf:"bytes,2,opt,name=epoch_sent,json=epochSent,proto3" json:"epoch_sent" yaml:"epoch_sent"`
@@ -615,7 +615,7 @@ func (m *AccountUsage) GetLastEpoch() int64 {
 	return 0
 }
 
-// EpochUsage preserves raw consumption for a fixed UTC day.
+// EpochUsage preserves raw consumption for a native "day" epoch number.
 type EpochUsage struct {
 	Epoch  uint64     `protobuf:"varint,1,opt,name=epoch,proto3" json:"epoch" yaml:"epoch"`
 	Amount types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount" yaml:"amount"`

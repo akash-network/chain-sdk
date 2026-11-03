@@ -381,7 +381,8 @@ func (m *QueryAccountRequest) GetOwner() string {
 // QueryAccountResponse returns account usage normalized to the queried sending epoch.
 type QueryAccountResponse struct {
 	Usage AccountUsage `protobuf:"bytes,1,opt,name=usage,proto3" json:"usage" yaml:"usage"`
-	Epoch uint64       `protobuf:"varint,2,opt,name=epoch,proto3" json:"epoch" yaml:"epoch"`
+	// Native "day" CurrentEpoch at the queried height; zero before counting starts.
+	Epoch uint64 `protobuf:"varint,2,opt,name=epoch,proto3" json:"epoch" yaml:"epoch"`
 }
 
 func (m *QueryAccountResponse) Reset()         { *m = QueryAccountResponse{} }
@@ -470,12 +471,13 @@ var xxx_messageInfo_QueryStateRequest proto.InternalMessageInfo
 
 // QueryStateResponse returns parameters, accounting, current policy and the refund candidate head.
 type QueryStateResponse struct {
-	Params      Params         `protobuf:"bytes,1,opt,name=params,proto3" json:"params" yaml:"params"`
-	Totals      Totals         `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals" yaml:"totals"`
-	Policy      ReporterPolicy `protobuf:"bytes,3,opt,name=policy,proto3" json:"policy" yaml:"policy"`
-	Epoch       uint64         `protobuf:"varint,4,opt,name=epoch,proto3" json:"epoch" yaml:"epoch"`
-	SendUsage   EpochUsage     `protobuf:"bytes,5,opt,name=send_usage,json=sendUsage,proto3" json:"send_usage" yaml:"send_usage"`
-	RefundUsage EpochUsage     `protobuf:"bytes,6,opt,name=refund_usage,json=refundUsage,proto3" json:"refund_usage" yaml:"refund_usage"`
+	Params Params         `protobuf:"bytes,1,opt,name=params,proto3" json:"params" yaml:"params"`
+	Totals Totals         `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals" yaml:"totals"`
+	Policy ReporterPolicy `protobuf:"bytes,3,opt,name=policy,proto3" json:"policy" yaml:"policy"`
+	// Native "day" CurrentEpoch at the queried height; zero before counting starts.
+	Epoch       uint64     `protobuf:"varint,4,opt,name=epoch,proto3" json:"epoch" yaml:"epoch"`
+	SendUsage   EpochUsage `protobuf:"bytes,5,opt,name=send_usage,json=sendUsage,proto3" json:"send_usage" yaml:"send_usage"`
+	RefundUsage EpochUsage `protobuf:"bytes,6,opt,name=refund_usage,json=refundUsage,proto3" json:"refund_usage" yaml:"refund_usage"`
 	// Oldest unheld candidate under governance or the current reporter policy.
 	// Payment still requires maturity, refund capacity, and enabled refunds.
 	RefundHead *ID `protobuf:"bytes,7,opt,name=refund_head,json=refundHead,proto3" json:"refund_head" yaml:"refund_head"`

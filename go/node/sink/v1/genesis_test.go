@@ -80,6 +80,7 @@ func TestFullGenesisRoundTrip(t *testing.T) {
 func TestGenesisRejectsLostOrContradictoryState(t *testing.T) {
 	for name, change := range map[string]func(*types.GenesisState){
 		"old schema":     func(g *types.GenesisState) { g.SchemaVersion = 1 },
+		"fixed days":     func(g *types.GenesisState) { g.SchemaVersion = 2 },
 		"missing schema": func(g *types.GenesisState) { g.SchemaVersion = 0 },
 		"duplicate ID":   func(g *types.GenesisState) { g.Transfers = append(g.Transfers, g.Transfers[0]) },
 		"cross owner reused sequence": func(g *types.GenesisState) {

@@ -77,7 +77,7 @@ func (m *GenesisAccount) GetUsage() AccountUsage {
 	return AccountUsage{}
 }
 
-// GenesisState exports complete sink state; schema_version must be 2.
+// GenesisState exports complete sink state; schema_version must be 3 for native epoch usage.
 type GenesisState struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params" yaml:"params"`
 	Totals Totals `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals" yaml:"totals"`

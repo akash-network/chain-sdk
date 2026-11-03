@@ -23,7 +23,7 @@ message GenesisAccount {
   ];
 }
 
-// GenesisState exports complete sink state; schema_version must be 2.
+// GenesisState exports complete sink state; schema_version must be 3 for native epoch usage.
 message GenesisState {
   Params params = 1 [
     (gogoproto.nullable) = false,

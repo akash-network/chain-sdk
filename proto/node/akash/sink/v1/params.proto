@@ -8,7 +8,8 @@ import "google/protobuf/duration.proto";
 
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
-// Params configures positive uakt caps and independent daily usage.
+// Params configures uakt transfer limits, reporter settlement and refunds.
+// Send and refund quotas use the current number of the native "day" epoch.
 message Params {
   bool   deposits_enabled = 1 [
     (gogoproto.jsontag)   = "deposits_enabled,omitempty",
@@ -33,6 +34,7 @@ message Params {
     (gogoproto.moretags)  = "yaml:\"max_transfer_amount_per_epoch\""
   ];
 
+  // zero means no limit
   cosmos.base.v1beta1.Coin max_epoch_amount_per_account = 5 [
     (gogoproto.nullable)  = false,
     (gogoproto.jsontag)   = "max_epoch_amount_per_account",

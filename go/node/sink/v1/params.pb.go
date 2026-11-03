@@ -30,14 +30,16 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Params configures positive uakt caps and independent daily usage.
+// Params configures uakt transfer limits, reporter settlement and refunds.
+// Send and refund quotas use the current number of the native "day" epoch.
 type Params struct {
 	DepositsEnabled           bool       `protobuf:"varint,1,opt,name=deposits_enabled,json=depositsEnabled,proto3" json:"deposits_enabled,omitempty" yaml:"deposits_enabled"`
 	MinAmountPerTransfer      types.Coin `protobuf:"bytes,2,opt,name=min_amount_per_transfer,json=minAmountPerTransfer,proto3" json:"min_amount_per_transfer" yaml:"min_amount_per_transfer"`
 	MaxAmountPerTransfer      types.Coin `protobuf:"bytes,3,opt,name=max_amount_per_transfer,json=maxAmountPerTransfer,proto3" json:"max_amount_per_transfer" yaml:"max_amount_per_transfer"`
 	MaxTransferAmountPerEpoch types.Coin `protobuf:"bytes,4,opt,name=max_transfer_amount_per_epoch,json=maxTransferAmountPerEpoch,proto3" json:"max_transfer_amount_per_epoch" yaml:"max_transfer_amount_per_epoch"`
-	MaxEpochAmountPerAccount  types.Coin `protobuf:"bytes,5,opt,name=max_epoch_amount_per_account,json=maxEpochAmountPerAccount,proto3" json:"max_epoch_amount_per_account" yaml:"max_epoch_amount_per_account"`
-	MaxEpochRefund            types.Coin `protobuf:"bytes,6,opt,name=max_epoch_refund,json=maxEpochRefund,proto3" json:"max_epoch_refund" yaml:"max_epoch_refund"`
+	// zero means no limit
+	MaxEpochAmountPerAccount types.Coin `protobuf:"bytes,5,opt,name=max_epoch_amount_per_account,json=maxEpochAmountPerAccount,proto3" json:"max_epoch_amount_per_account" yaml:"max_epoch_amount_per_account"`
+	MaxEpochRefund           types.Coin `protobuf:"bytes,6,opt,name=max_epoch_refund,json=maxEpochRefund,proto3" json:"max_epoch_refund" yaml:"max_epoch_refund"`
 	// list governance approved akash addresses that monitor and report state of the
 	// mint/void from solana to akash
 	Reporters []string `protobuf:"bytes,7,rep,name=reporters,proto3" json:"reporters,omitempty" yaml:"reporters"`

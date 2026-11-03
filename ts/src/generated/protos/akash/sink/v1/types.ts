@@ -286,14 +286,14 @@ export interface TransferState {
   voidOrdered: boolean;
 }
 
-/** AccountUsage counts lifetime deposits and deposits within last_epoch. */
+/** AccountUsage counts lifetime deposits and deposits within the native "day" last_epoch. */
 export interface AccountUsage {
   totalSent: Coin | undefined;
   epochSent: Coin | undefined;
   lastEpoch: bigint;
 }
 
-/** EpochUsage preserves raw consumption for a fixed UTC day. */
+/** EpochUsage preserves raw consumption for a native "day" epoch number. */
 export interface EpochUsage {
   epoch: bigint;
   amount: Coin | undefined;

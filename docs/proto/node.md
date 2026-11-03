@@ -7395,7 +7395,7 @@ Example: "akash1..." |
  <a name="akash.sink.v1.AccountUsage"></a>
 
  ### AccountUsage
- AccountUsage counts lifetime deposits and deposits within last_epoch.
+ AccountUsage counts lifetime deposits and deposits within the native "day" last_epoch.
 
 
  | Field | Type | Label | Description |
@@ -7412,7 +7412,7 @@ Example: "akash1..." |
  <a name="akash.sink.v1.EpochUsage"></a>
 
  ### EpochUsage
- EpochUsage preserves raw consumption for a fixed UTC day.
+ EpochUsage preserves raw consumption for a native "day" epoch number.
 
 
  | Field | Type | Label | Description |
@@ -7946,7 +7946,8 @@ reward withdrawal address is reset from the sink escrow to the delegator.
  <a name="akash.sink.v1.Params"></a>
 
  ### Params
- Params configures positive uakt caps and independent daily usage.
+ Params configures uakt transfer limits, reporter settlement and refunds.
+Send and refund quotas use the current number of the native "day" epoch.
 
 
  | Field | Type | Label | Description |
@@ -7955,7 +7956,7 @@ reward withdrawal address is reset from the sink escrow to the delegator.
  | `min_amount_per_transfer` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `max_amount_per_transfer` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `max_transfer_amount_per_epoch` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
- | `max_epoch_amount_per_account` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `max_epoch_amount_per_account` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | zero means no limit |
  | `max_epoch_refund` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `reporters` | [string](#string) | repeated | list governance approved akash addresses that monitor and report state of the mint/void from solana to akash |
  | `reporters_threshold` | [string](#string) |  | Exact ratio; with members, 3*r > 2 and r <= 1. Quorum is ceil(r*n). |
@@ -8004,7 +8005,7 @@ reward withdrawal address is reset from the sink escrow to the delegator.
  <a name="akash.sink.v1.GenesisState"></a>
 
  ### GenesisState
- GenesisState exports complete sink state; schema_version must be 2.
+ GenesisState exports complete sink state; schema_version must be 3 for native epoch usage.
 
 
  | Field | Type | Label | Description |
@@ -8359,7 +8360,7 @@ reward withdrawal address is reset from the sink escrow to the delegator.
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `usage` | [AccountUsage](#akash.sink.v1.AccountUsage) |  |  |
- | `epoch` | [uint64](#uint64) |  |  |
+ | `epoch` | [uint64](#uint64) |  | Native "day" CurrentEpoch at the queried height; zero before counting starts. |
 
 
 
@@ -8418,7 +8419,7 @@ reward withdrawal address is reset from the sink escrow to the delegator.
  | `params` | [Params](#akash.sink.v1.Params) |  |  |
  | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
  | `policy` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) |  |  |
- | `epoch` | [uint64](#uint64) |  |  |
+ | `epoch` | [uint64](#uint64) |  | Native "day" CurrentEpoch at the queried height; zero before counting starts. |
  | `send_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
  | `refund_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
  | `refund_head` | [ID](#akash.sink.v1.ID) |  | Oldest unheld candidate under governance or the current reporter policy. Payment still requires maturity, refund capacity, and enabled refunds. |
@@ -8500,7 +8501,7 @@ reward withdrawal address is reset from the sink escrow to the delegator.
  <a name="akash.sink.v1.Query"></a>
 
  ### Query
- Query reads complete transfer state and normalized epoch usage.
+ Query reads complete transfer state and usage normalized to the native "day" epoch.
 
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |

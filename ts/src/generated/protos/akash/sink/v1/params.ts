@@ -12,12 +12,18 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Duration } from "../../../google/protobuf/duration.ts";
 
-/** Params configures positive uakt caps and independent daily usage. */
+/**
+ * Params configures uakt transfer limits, reporter settlement and refunds.
+ * Send and refund quotas use the current number of the native "day" epoch.
+ */
 export interface Params {
   depositsEnabled: boolean;
   minAmountPerTransfer: Coin | undefined;
   maxAmountPerTransfer: Coin | undefined;
-  maxTransferAmountPerEpoch: Coin | undefined;
+  maxTransferAmountPerEpoch:
+    | Coin
+    | undefined;
+  /** zero means no limit */
   maxEpochAmountPerAccount: Coin | undefined;
   maxEpochRefund:
     | Coin

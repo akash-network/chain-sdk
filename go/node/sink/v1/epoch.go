@@ -1,23 +1,21 @@
 package v1
 
-import (
-	"math"
-	"time"
-)
-
-const EpochSeconds = 86400
-
-func EpochOf(t time.Time) (uint64, error) {
-	seconds := t.Unix()
-	if seconds < 0 {
-		return 0, ErrInvalidClock.Wrap("time before Unix epoch")
-	}
-
-	return uint64(seconds) / EpochSeconds, nil
-}
+import "math"
 
 func (u EpochUsage) Validate() error {
-	return ValidateAmount(u.Amount)
+	if u.Epoch > math.MaxInt64 {
+		return ErrInvalidClock.Wrap("epoch out of range")
+	}
+
+	if err := ValidateAmount(u.Amount); err != nil {
+		return err
+	}
+
+	if u.Epoch == 0 && u.Amount.IsPositive() {
+		return ErrInvalidClock.Wrap("usage before epoch counting started")
+	}
+
+	return nil
 }
 
 func (u AccountUsage) Validate() error {
@@ -33,6 +31,10 @@ func (u AccountUsage) Validate() error {
 		return err
 	}
 
+	if u.LastEpoch == 0 && u.EpochSent.IsPositive() {
+		return ErrInvalidClock.Wrap("account usage before epoch counting started")
+	}
+
 	if u.EpochSent.IsGT(u.TotalSent) {
 		return ErrInvalidGenesis.Wrap("account epoch usage exceeds lifetime amount")
 	}
@@ -43,6 +45,10 @@ func (u AccountUsage) Validate() error {
 func (u EpochUsage) At(epoch uint64) (EpochUsage, error) {
 	if err := u.Validate(); err != nil {
 		return EpochUsage{}, err
+	}
+
+	if epoch > math.MaxInt64 {
+		return EpochUsage{}, ErrInvalidClock.Wrap("epoch out of range")
 	}
 
 	if u.Epoch > epoch {

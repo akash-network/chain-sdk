@@ -238,7 +238,7 @@ message TransferState {
   ];
 }
 
-// AccountUsage counts lifetime deposits and deposits within last_epoch.
+// AccountUsage counts lifetime deposits and deposits within the native "day" last_epoch.
 message AccountUsage {
   cosmos.base.v1beta1.Coin total_sent = 1 [
     (gogoproto.nullable)  = false,
@@ -258,7 +258,7 @@ message AccountUsage {
   ];
 }
 
-// EpochUsage preserves raw consumption for a fixed UTC day.
+// EpochUsage preserves raw consumption for a native "day" epoch number.
 message EpochUsage {
   uint64 epoch = 1 [
     (gogoproto.jsontag)   = "epoch",

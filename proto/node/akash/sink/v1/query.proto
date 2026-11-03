@@ -10,7 +10,7 @@ import "akash/sink/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
-// Query reads complete transfer state and normalized epoch usage.
+// Query reads complete transfer state and usage normalized to the native "day" epoch.
 service Query {
   // Transfer returns immutable data and retained settlement evidence for one ID.
   rpc Transfer(QueryTransferRequest) returns (QueryTransferResponse) {
@@ -125,6 +125,7 @@ message QueryAccountResponse {
     (gogoproto.moretags) = "yaml:\"usage\""
   ];
 
+  // Native "day" CurrentEpoch at the queried height; zero before counting starts.
   uint64 epoch = 2 [
     (gogoproto.jsontag)  = "epoch",
     (gogoproto.moretags) = "yaml:\"epoch\""
@@ -154,6 +155,7 @@ message QueryStateResponse {
     (gogoproto.moretags) = "yaml:\"policy\""
   ];
 
+  // Native "day" CurrentEpoch at the queried height; zero before counting starts.
   uint64 epoch = 4 [
     (gogoproto.jsontag)  = "epoch",
     (gogoproto.moretags) = "yaml:\"epoch\""

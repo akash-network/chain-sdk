@@ -29,18 +29,23 @@ func DefaultParams() Params {
 }
 
 func (p Params) ValidateBasic() error {
-	for _, cap := range []sdk.Coin{p.MinAmountPerTransfer, p.MaxAmountPerTransfer, p.MaxTransferAmountPerEpoch, p.MaxEpochAmountPerAccount, p.MaxEpochRefund} {
+	for _, cap := range []sdk.Coin{p.MinAmountPerTransfer, p.MaxAmountPerTransfer, p.MaxTransferAmountPerEpoch, p.MaxEpochRefund} {
 		if err := ValidateAmount(cap); err != nil {
 			return ErrInvalidParam.Wrap(err.Error())
 		}
 
 		if !cap.IsPositive() {
-			return ErrInvalidParam.Wrap("all caps and the minimum must be positive")
+			return ErrInvalidParam.Wrap("transfer and refund caps and the minimum must be positive")
 		}
 	}
 
+	if err := ValidateAmount(p.MaxEpochAmountPerAccount); err != nil {
+		return ErrInvalidParam.Wrap(err.Error())
+	}
+
 	if !p.MaxAmountPerTransfer.Amount.IsUint64() || p.MinAmountPerTransfer.IsGT(p.MaxAmountPerTransfer) ||
-		p.MaxAmountPerTransfer.IsGT(p.MaxEpochAmountPerAccount) || p.MaxAmountPerTransfer.IsGT(p.MaxTransferAmountPerEpoch) || p.MaxAmountPerTransfer.IsGT(p.MaxEpochRefund) {
+		(p.MaxEpochAmountPerAccount.IsPositive() && p.MaxAmountPerTransfer.IsGT(p.MaxEpochAmountPerAccount)) ||
+		p.MaxAmountPerTransfer.IsGT(p.MaxTransferAmountPerEpoch) || p.MaxAmountPerTransfer.IsGT(p.MaxEpochRefund) {
 		return ErrInvalidParam.Wrap("transfer bounds must fit uint64 and account, send and refund caps")
 	}
 

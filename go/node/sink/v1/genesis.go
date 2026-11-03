@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const SchemaVersion uint32 = 2
+const SchemaVersion uint32 = 3
 
 func DefaultGenesis() *GenesisState {
 	params := DefaultParams()

@@ -47,6 +47,8 @@ func TestRatioAndCapEdges(t *testing.T) {
 
 	for name, change := range map[string]func(*types.Params){
 		"nil coin":           func(p *types.Params) { p.MaxTransferAmountPerEpoch = sdk.Coin{} },
+		"nil account cap":    func(p *types.Params) { p.MaxEpochAmountPerAccount = sdk.Coin{} },
+		"account cap denom":  func(p *types.Params) { p.MaxEpochAmountPerAccount.Denom = "other" },
 		"zero cap":           func(p *types.Params) { p.MaxEpochRefund = types.ZeroAmount() },
 		"denom":              func(p *types.Params) { p.MaxAmountPerTransfer.Denom = "other" },
 		"max over account":   func(p *types.Params) { p.MaxEpochAmountPerAccount = p.MinAmountPerTransfer },
@@ -72,6 +74,9 @@ func TestRatioAndCapEdges(t *testing.T) {
 	p.MaxTransferAmountPerEpoch = p.MaxAmountPerTransfer
 	p.ReporterChallengePeriod = time.Duration(types.MinChallengePeriodSeconds) * time.Second
 	require.NoError(t, p.ValidateBasic())
+	p.MaxEpochAmountPerAccount = types.ZeroAmount()
+	require.NoError(t, p.ValidateBasic())
+
 	a, b := policy(), policy()
 	b.Members[0], b.Members[3] = b.Members[3], b.Members[0]
 	b.Version = 2
@@ -81,11 +86,6 @@ func TestRatioAndCapEdges(t *testing.T) {
 }
 
 func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
-	epoch, err := types.EpochOf(time.Unix(86400, 0))
-	require.NoError(t, err)
-	require.Equal(t, uint64(1), epoch)
-	_, err = types.EpochOf(time.Unix(-1, 0))
-	require.ErrorIs(t, err, types.ErrInvalidClock)
 	amount := sdk.NewInt64Coin(sdkutil.DenomUakt, 123)
 	send := types.EpochUsage{Epoch: 8, Amount: amount}
 	refund := types.EpochUsage{Epoch: 9, Amount: amount}
@@ -108,6 +108,25 @@ func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
 	require.ErrorIs(t, err, types.ErrInvalidClock)
 	_, err = account.At(math.MaxInt64 + 1)
 	require.ErrorIs(t, err, types.ErrInvalidClock)
+	_, err = send.At(math.MaxInt64 + 1)
+	require.ErrorIs(t, err, types.ErrInvalidClock)
+	for _, usage := range []types.EpochUsage{
+		{Epoch: 0, Amount: amount},
+		{Epoch: math.MaxInt64 + 1, Amount: types.ZeroAmount()},
+	} {
+		require.ErrorIs(t, usage.Validate(), types.ErrInvalidClock)
+	}
+
+	account.LastEpoch = 0
+	require.ErrorIs(t, account.Validate(), types.ErrInvalidClock)
+	zero := types.EpochUsage{Amount: types.ZeroAmount()}
+	normalized, err = zero.At(0)
+	require.NoError(t, err)
+	require.Equal(t, zero, normalized)
+	zeroAccount := types.AccountUsage{TotalSent: types.ZeroAmount(), EpochSent: types.ZeroAmount()}
+	usage, err = zeroAccount.At(0)
+	require.NoError(t, err)
+	require.Equal(t, zeroAccount, usage)
 	account.LastEpoch = -1
 	_, err = account.At(9)
 	require.ErrorIs(t, err, types.ErrInvalidClock)

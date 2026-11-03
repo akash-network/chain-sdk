@@ -1,6 +1,6 @@
 # Sink SDK contract
 
-The unreleased `akash.sink.v1` schema uses genesis `schema_version: 2`. This is a coordinated fresh-chain migration. Old sink genesis, numeric IDs, record keys, programs, and client history do not migrate in place. Existing deployments remain separate. The node consensus version is 2.
+The unreleased `akash.sink.v1` schema uses genesis `schema_version: 3`. This is a coordinated fresh-chain migration. Old sink genesis, numeric IDs, record keys, programs, and client history do not migrate in place. Existing deployments remain separate. The node consensus version is 2.
 
 ## Identity and proof bytes
 
@@ -30,9 +30,13 @@ Refund queue scope is zero for governance and the policy version for quorum. Onl
 
 ## Amount limits and recipient validation
 
-All minimums and caps are positive SDK `Coin` values in `sdkutil.DenomUakt`. The minimum is at most the maximum transfer, which fits `uint64` and each account, aggregate sending, and refund cap. Totals use checked SDK integer arithmetic and may exceed `uint64`.
+Amounts are SDK `Coin` values in `sdkutil.DenomUakt`. The account epoch cap may be zero to disable that limit; usage is still tracked. The minimum and other caps are positive. The minimum is at most the maximum transfer, which fits `uint64`, the aggregate sending and refund caps, and any enabled account cap. Totals use checked SDK integer arithmetic and may exceed `uint64`.
 
-Sending and refund usage use independent fixed UTC days of 86,400 seconds. Refunds do not restore sending capacity. Stale query counters normalize without writes; export retains raw epochs. Future/backward stamps fail. Lowered caps retain consumed capacity, and the node scans unpaid records before lowering the refund cap. Existing challenge deadlines do not change with parameters. Account count quotas are removed.
+Sending and refund usage share the current number of the existing native `day` epoch, with separate consumed amounts. The epochs module owns the schedule. Its duration and start are configurable in genesis, so the identifier does not imply a UTC-day boundary. A started epoch advances only when block time is strictly after its end, at most once per block. After downtime, successive blocks can each advance one epoch and receive one fresh allowance. Unused allowances do not accumulate.
+
+Refunds do not restore sending capacity. Queries normalize stale counters on copies at the queried height; export retains raw stamps. Missing or malformed native epoch state fails explicitly. A valid unstarted schedule reports zero, but deposits and refund payments wait until counting starts. Future stamps and positive consumption at epoch zero fail. Lowered caps retain consumed capacity, and the node scans unpaid records before lowering the refund cap. The account cap's zero value disables only that comparison and does not reset account or aggregate consumption. Account count quotas are removed.
+
+Artur's `reporter_challenge_period` remains an independent Duration measured from authorization. Crossing a quota boundary never shortens that interval. Existing challenge deadlines do not change with parameters. Immediate Solana mints and the separate Solana amount caps are unchanged.
 
 Defaults disable deposits and refunds. The minimum is 1,000,000 uakt. Maximum transfer, account sending cap, and refund cap are 1,000,000,000,000 uakt. The aggregate sending cap is 10,000,000,000,000 uakt. The challenge period is 72 hours and the threshold ratio is 0.75. Reporters, vaults, and guardian start empty. Release builds retain the 72-hour floor; `sinkdev` permits a one-second floor. These are development defaults.
 
@@ -45,6 +49,10 @@ Both builds cap the challenge period at 9,223,372,035.999999999 seconds. `MaxCha
 Genesis contains params, totals, complete policy history, raw send/refund usage, every complete transfer, and each owner's usage exactly once. Validation rejects old schema versions, duplicate IDs, reused height/sequence pairs across owners, duplicate owners/policies, missing authorizations, malformed evidence, invalid Coins, inconsistent deadlines, and accounting mismatches. Every terminal or refund-pending transfer retains an appropriate quorum or governance authorization. Empty zero-usage owners remain valid.
 
 Global send consumption equals the sum of account epoch amounts stamped with its epoch. Account lifetime totals equal all their transfer amounts. Refund consumption cannot exceed total paid refunds. Lowered limits do not invalidate already-consumed capacity.
+
+Schema marker 3 distinguishes native quota numbers from marker 2's fixed-day counters. An old day stamp of 20759 with positive consumption is numerically older than native epoch 50000. Accepting it as a native stamp would clear consumption during normalization. Marker 2 therefore fails before interpretation. This guard does not change proof format, IDs, KV domains, or the module consensus version. The install-only upgrade still rejects a version map containing Sink. There is no supported in-place conversion.
+
+Recovery preserves the exported `day` record before Sink initialization, including its duration, start, current number, current start, and counting flag. Empty zero-stamped usage is valid when installing into an existing nonzero epoch. Neither import nor queries advance the timer. Raw consumption must not exceed the native number.
 
 Node import additionally requires `ID.height < max(1, initial_height)`, rejects future epochs and existing sink state, rebuilds derived indexes, and checks exact bank backing. Operators retain an `initial_height` greater than the exported chain height. Import does not refund, sweep, rotate policies, or normalize raw counters.
 
