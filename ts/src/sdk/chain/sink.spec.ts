@@ -5,6 +5,8 @@ import { MsgGuardianPause, MsgGuardianPauseResponse, MsgSink, MsgSinkResponse } 
 import { Params } from "../../generated/protos/akash/sink/v1/params.ts";
 import {
   QueryDisputesResponse,
+  QueryReportersRequest,
+  QueryReportersResponse,
   QueryStateResponse,
   QueryTransferResponse,
   QueryTransfersRequest,
@@ -151,9 +153,10 @@ describe("sink SDK", () => {
     expect(AccountUsage.decode(AccountUsage.encode(usage).finish())).toEqual(usage);
   });
 
-  it("queries independent send/refund usage and complete state", async () => {
+  it("queries independent send/refund usage and accounting without Params or Policy", async () => {
     const response = QueryStateResponse.fromPartial({
-      params: { reportersThreshold: "0.75" },
+      totals: { pendingCount: MAX_UINT64 },
+      epoch: 12n,
       sendUsage: { epoch: 10n, amount: { denom: "uakt", amount: "4" } },
       refundUsage: { epoch: 11n, amount: { denom: "uakt", amount: "9" } },
       refundHead: { owner: "akash1owner", height: 1n, sequence: MAX_UINT64 },
@@ -162,6 +165,44 @@ describe("sink SDK", () => {
     vi.stubGlobal("fetch", fetch);
     const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
     const result = await sdk.akash.sink.v1.getState();
+    expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe("/akash/sink/v1/state");
     expect(result).toEqual(response);
+    expect(result).not.toHaveProperty("params");
+    expect(result).not.toHaveProperty("policy");
+    expect(QueryStateResponse.toJSON(result)).not.toHaveProperty("params");
+    expect(QueryStateResponse.toJSON(result)).not.toHaveProperty("policy");
+  });
+
+  it("encodes the five State fields with the current protobuf field numbers", () => {
+    const response = QueryStateResponse.fromPartial({
+      totals: {},
+      epoch: 10n,
+      sendUsage: {},
+      refundUsage: {},
+      refundHead: {},
+    });
+    const wire = Uint8Array.of(10, 0, 16, 10, 26, 0, 34, 0, 42, 0);
+
+    expect(QueryStateResponse.encode(response).finish()).toEqual(wire);
+    expect(QueryStateResponse.decode(wire)).toEqual(response);
+  });
+
+  it("queries reporter policies with an explicit version without losing precision", async () => {
+    const json = {
+      reporters: [{ version: MAX_UINT64.toString(), members: ["akash1reporter"], threshold: 1 }],
+    };
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(json)));
+    vi.stubGlobal("fetch", fetch);
+    const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
+    const request = QueryReportersRequest.fromPartial({ version: MAX_UINT64 });
+
+    const result = await sdk.akash.sink.v1.getReporters(request);
+
+    const url = new URL(fetch.mock.calls[0][0].toString());
+    expect(url.pathname).toBe("/akash/sink/v1/reporters");
+    expect(url.searchParams.get("version")).toBe(MAX_UINT64.toString());
+    expect(result.reporters).toEqual([{ version: MAX_UINT64, members: ["akash1reporter"], threshold: 1 }]);
+    expect(QueryReportersResponse.toJSON(result)).toEqual(json);
+    expect(QueryReportersRequest.decode(QueryReportersRequest.encode(request).finish())).toEqual(request);
   });
 });

@@ -632,6 +632,14 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             const service = await serviceLoader.loadAt(21);
             return getClient(service).state(input, options);
           }, { path: [21, "state"], serviceLoader }),
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_sink_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).params(input, options);
+          }, { path: [21, "params"], serviceLoader }),
+          getReporters: withMetadata(async function getReporters(input: DeepPartial<akash_sink_v1_query.QueryReportersRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).reporters(input, options);
+          }, { path: [21, "reporters"], serviceLoader }),
           /**
            * sink locks uakt and allocates a composite transfer ID.
            */

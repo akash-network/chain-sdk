@@ -53,7 +53,7 @@ export { EventTransferCreated, EventVoidOrdered, EventOutcomeReported, EventRepo
 export { Params as Sink_Params } from "./akash/sink/v1/params.ts";
 export { GenesisAccount, GenesisRecord, GenesisState as Sink_GenesisState } from "./akash/sink/v1/genesis.ts";
 export { MsgSink, MsgSinkResponse, MsgUpdateParams as Sink_MsgUpdateParams, MsgUpdateParamsResponse as Sink_MsgUpdateParamsResponse, MsgRequestVoid, MsgRequestVoidResponse, MsgReportOutcome, MsgReportOutcomeResponse, MsgVetoVoid, MsgVetoVoidResponse, MsgRestartTransfer, MsgRestartTransferResponse, MsgConfirmMint, MsgConfirmMintResponse, MsgConfirmVoid, MsgConfirmVoidResponse, MsgFinalizeRefund, MsgFinalizeRefundResponse, MsgGuardianPause, MsgGuardianPauseResponse } from "./akash/sink/v1/msgs.ts";
-export { QueryTransferRequest, QueryTransferResponse, QueryTransfersRequest, QueryTransfersResponse, QueryDisputesRequest, QueryDisputesResponse, QueryAccountRequest, QueryAccountResponse, QueryStateRequest, QueryStateResponse } from "./akash/sink/v1/query.ts";
+export { QueryParamsRequest as Sink_QueryParamsRequest, QueryParamsResponse as Sink_QueryParamsResponse, QueryReportersRequest, QueryReportersResponse, QueryTransferRequest, QueryTransferResponse, QueryTransfersRequest, QueryTransfersResponse, QueryDisputesRequest, QueryDisputesResponse, QueryAccountRequest, QueryAccountResponse, QueryStateRequest, QueryStateResponse } from "./akash/sink/v1/query.ts";
 export { DenomTakeRate, Params as Take_Params } from "./akash/take/v1/params.ts";
 export { GenesisState as Take_GenesisState } from "./akash/take/v1/genesis.ts";
 export { MsgUpdateParams as Take_MsgUpdateParams, MsgUpdateParamsResponse as Take_MsgUpdateParamsResponse } from "./akash/take/v1/paramsmsg.ts";

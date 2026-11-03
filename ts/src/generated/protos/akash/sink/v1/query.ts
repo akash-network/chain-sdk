@@ -22,6 +22,27 @@ import {
   TransferState,
 } from "./types.ts";
 
+/** QueryParamsRequest is the request type for the Query/Params RPC method. */
+export interface QueryParamsRequest {
+}
+
+/** QueryParamsResponse is the response type for the Query/Params RPC method. */
+export interface QueryParamsResponse {
+  /** params defines the parameters of the module. */
+  params: Params | undefined;
+}
+
+/** QueryParamsRequest is the request type for the Query/Params RPC method. */
+export interface QueryReportersRequest {
+  version: bigint;
+}
+
+/** QueryParamsResponse is the response type for the Query/Params RPC method. */
+export interface QueryReportersResponse {
+  /** params defines the parameters of the module. */
+  reporters: ReporterPolicy[];
+}
+
 /** QueryTransferRequest selects one transfer by its composite ID. */
 export interface QueryTransferRequest {
   id: ID | undefined;
@@ -76,10 +97,8 @@ export interface QueryStateRequest {
 
 /** QueryStateResponse returns parameters, accounting, current policy and the refund candidate head. */
 export interface QueryStateResponse {
-  params: Params | undefined;
-  totals: Totals | undefined;
-  policy:
-    | ReporterPolicy
+  totals:
+    | Totals
     | undefined;
   /** Native "day" CurrentEpoch at the queried height; zero before counting starts. */
   epoch: bigint;
@@ -93,6 +112,224 @@ export interface QueryStateResponse {
    */
   refundHead: ID | undefined;
 }
+
+function createBaseQueryParamsRequest(): QueryParamsRequest {
+  return {};
+}
+
+export const QueryParamsRequest: MessageFns<QueryParamsRequest, "akash.sink.v1.QueryParamsRequest"> = {
+  $type: "akash.sink.v1.QueryParamsRequest" as const,
+
+  encode(_: QueryParamsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryParamsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryParamsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): QueryParamsRequest {
+    return {};
+  },
+
+  toJSON(_: QueryParamsRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+  fromPartial(_: DeepPartial<QueryParamsRequest>): QueryParamsRequest {
+    const message = createBaseQueryParamsRequest();
+    return message;
+  },
+};
+
+function createBaseQueryParamsResponse(): QueryParamsResponse {
+  return { params: undefined };
+}
+
+export const QueryParamsResponse: MessageFns<QueryParamsResponse, "akash.sink.v1.QueryParamsResponse"> = {
+  $type: "akash.sink.v1.QueryParamsResponse" as const,
+
+  encode(message: QueryParamsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.params !== undefined) {
+      Params.encode(message.params, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryParamsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryParamsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.params = Params.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryParamsResponse {
+    return { params: isSet(object.params) ? Params.fromJSON(object.params) : undefined };
+  },
+
+  toJSON(message: QueryParamsResponse): unknown {
+    const obj: any = {};
+    if (message.params !== undefined) {
+      obj.params = Params.toJSON(message.params);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryParamsResponse>): QueryParamsResponse {
+    const message = createBaseQueryParamsResponse();
+    message.params = (object.params !== undefined && object.params !== null)
+      ? Params.fromPartial(object.params)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryReportersRequest(): QueryReportersRequest {
+  return { version: 0n };
+}
+
+export const QueryReportersRequest: MessageFns<QueryReportersRequest, "akash.sink.v1.QueryReportersRequest"> = {
+  $type: "akash.sink.v1.QueryReportersRequest" as const,
+
+  encode(message: QueryReportersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.version !== 0n) {
+      if (BigInt.asUintN(64, message.version) !== message.version) {
+        throw new globalThis.Error("value provided for field message.version of type uint64 too large");
+      }
+      writer.uint32(8).uint64(message.version);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryReportersRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryReportersRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.version = reader.uint64() as bigint;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryReportersRequest {
+    return { version: isSet(object.version) ? BigInt(object.version) : 0n };
+  },
+
+  toJSON(message: QueryReportersRequest): unknown {
+    const obj: any = {};
+    if (message.version !== 0n) {
+      obj.version = message.version.toString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryReportersRequest>): QueryReportersRequest {
+    const message = createBaseQueryReportersRequest();
+    message.version = (object.version !== undefined && object.version !== null) ? BigInt(object.version) : 0n;
+    return message;
+  },
+};
+
+function createBaseQueryReportersResponse(): QueryReportersResponse {
+  return { reporters: [] };
+}
+
+export const QueryReportersResponse: MessageFns<QueryReportersResponse, "akash.sink.v1.QueryReportersResponse"> = {
+  $type: "akash.sink.v1.QueryReportersResponse" as const,
+
+  encode(message: QueryReportersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.reporters) {
+      ReporterPolicy.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryReportersResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryReportersResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.reporters.push(ReporterPolicy.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryReportersResponse {
+    return {
+      reporters: globalThis.Array.isArray(object?.reporters)
+        ? object.reporters.map((e: any) => ReporterPolicy.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: QueryReportersResponse): unknown {
+    const obj: any = {};
+    if (message.reporters?.length) {
+      obj.reporters = message.reporters.map((e) => ReporterPolicy.toJSON(e));
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryReportersResponse>): QueryReportersResponse {
+    const message = createBaseQueryReportersResponse();
+    message.reporters = object.reporters?.map((e) => ReporterPolicy.fromPartial(e)) || [];
+    return message;
+  },
+};
 
 function createBaseQueryTransferRequest(): QueryTransferRequest {
   return { id: undefined };
@@ -691,44 +928,30 @@ export const QueryStateRequest: MessageFns<QueryStateRequest, "akash.sink.v1.Que
 };
 
 function createBaseQueryStateResponse(): QueryStateResponse {
-  return {
-    params: undefined,
-    totals: undefined,
-    policy: undefined,
-    epoch: 0n,
-    sendUsage: undefined,
-    refundUsage: undefined,
-    refundHead: undefined,
-  };
+  return { totals: undefined, epoch: 0n, sendUsage: undefined, refundUsage: undefined, refundHead: undefined };
 }
 
 export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.QueryStateResponse"> = {
   $type: "akash.sink.v1.QueryStateResponse" as const,
 
   encode(message: QueryStateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.params !== undefined) {
-      Params.encode(message.params, writer.uint32(10).fork()).join();
-    }
     if (message.totals !== undefined) {
-      Totals.encode(message.totals, writer.uint32(18).fork()).join();
-    }
-    if (message.policy !== undefined) {
-      ReporterPolicy.encode(message.policy, writer.uint32(26).fork()).join();
+      Totals.encode(message.totals, writer.uint32(10).fork()).join();
     }
     if (message.epoch !== 0n) {
       if (BigInt.asUintN(64, message.epoch) !== message.epoch) {
         throw new globalThis.Error("value provided for field message.epoch of type uint64 too large");
       }
-      writer.uint32(32).uint64(message.epoch);
+      writer.uint32(16).uint64(message.epoch);
     }
     if (message.sendUsage !== undefined) {
-      EpochUsage.encode(message.sendUsage, writer.uint32(42).fork()).join();
+      EpochUsage.encode(message.sendUsage, writer.uint32(26).fork()).join();
     }
     if (message.refundUsage !== undefined) {
-      EpochUsage.encode(message.refundUsage, writer.uint32(50).fork()).join();
+      EpochUsage.encode(message.refundUsage, writer.uint32(34).fork()).join();
     }
     if (message.refundHead !== undefined) {
-      ID.encode(message.refundHead, writer.uint32(58).fork()).join();
+      ID.encode(message.refundHead, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -745,15 +968,15 @@ export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.Q
             break;
           }
 
-          message.params = Params.decode(reader, reader.uint32());
+          message.totals = Totals.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
-          if (tag !== 18) {
+          if (tag !== 16) {
             break;
           }
 
-          message.totals = Totals.decode(reader, reader.uint32());
+          message.epoch = reader.uint64() as bigint;
           continue;
         }
         case 3: {
@@ -761,35 +984,19 @@ export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.Q
             break;
           }
 
-          message.policy = ReporterPolicy.decode(reader, reader.uint32());
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.epoch = reader.uint64() as bigint;
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
           message.sendUsage = EpochUsage.decode(reader, reader.uint32());
           continue;
         }
-        case 6: {
-          if (tag !== 50) {
+        case 4: {
+          if (tag !== 34) {
             break;
           }
 
           message.refundUsage = EpochUsage.decode(reader, reader.uint32());
           continue;
         }
-        case 7: {
-          if (tag !== 58) {
+        case 5: {
+          if (tag !== 42) {
             break;
           }
 
@@ -807,9 +1014,7 @@ export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.Q
 
   fromJSON(object: any): QueryStateResponse {
     return {
-      params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
       totals: isSet(object.totals) ? Totals.fromJSON(object.totals) : undefined,
-      policy: isSet(object.policy) ? ReporterPolicy.fromJSON(object.policy) : undefined,
       epoch: isSet(object.epoch) ? BigInt(object.epoch) : 0n,
       sendUsage: isSet(object.send_usage) ? EpochUsage.fromJSON(object.send_usage) : undefined,
       refundUsage: isSet(object.refund_usage) ? EpochUsage.fromJSON(object.refund_usage) : undefined,
@@ -819,14 +1024,8 @@ export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.Q
 
   toJSON(message: QueryStateResponse): unknown {
     const obj: any = {};
-    if (message.params !== undefined) {
-      obj.params = Params.toJSON(message.params);
-    }
     if (message.totals !== undefined) {
       obj.totals = Totals.toJSON(message.totals);
-    }
-    if (message.policy !== undefined) {
-      obj.policy = ReporterPolicy.toJSON(message.policy);
     }
     if (message.epoch !== 0n) {
       obj.epoch = message.epoch.toString();
@@ -844,14 +1043,8 @@ export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.Q
   },
   fromPartial(object: DeepPartial<QueryStateResponse>): QueryStateResponse {
     const message = createBaseQueryStateResponse();
-    message.params = (object.params !== undefined && object.params !== null)
-      ? Params.fromPartial(object.params)
-      : undefined;
     message.totals = (object.totals !== undefined && object.totals !== null)
       ? Totals.fromPartial(object.totals)
-      : undefined;
-    message.policy = (object.policy !== undefined && object.policy !== null)
-      ? ReporterPolicy.fromPartial(object.policy)
       : undefined;
     message.epoch = (object.epoch !== undefined && object.epoch !== null) ? BigInt(object.epoch) : 0n;
     message.sendUsage = (object.sendUsage !== undefined && object.sendUsage !== null)

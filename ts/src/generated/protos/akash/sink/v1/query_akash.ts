@@ -1,4 +1,4 @@
-import { QueryAccountRequest, QueryAccountResponse, QueryDisputesRequest, QueryDisputesResponse, QueryStateRequest, QueryStateResponse, QueryTransferRequest, QueryTransferResponse, QueryTransfersRequest, QueryTransfersResponse } from "./query.ts";
+import { QueryAccountRequest, QueryAccountResponse, QueryDisputesRequest, QueryDisputesResponse, QueryParamsRequest, QueryParamsResponse, QueryReportersRequest, QueryReportersResponse, QueryStateRequest, QueryStateResponse, QueryTransferRequest, QueryTransferResponse, QueryTransfersRequest, QueryTransfersResponse } from "./query.ts";
 
 export const Query = {
   typeName: "akash.sink.v1.Query",
@@ -36,6 +36,20 @@ export const Query = {
       httpPath: "/akash/sink/v1/state",
       input: QueryStateRequest,
       output: QueryStateResponse,
+      get parent() { return Query; },
+    },
+    params: {
+      name: "Params",
+      httpPath: "/akash/sink/v1/params",
+      input: QueryParamsRequest,
+      output: QueryParamsResponse,
+      get parent() { return Query; },
+    },
+    reporters: {
+      name: "Reporters",
+      httpPath: "/akash/sink/v1/reporters",
+      input: QueryReportersRequest,
+      output: QueryReportersResponse,
       get parent() { return Query; },
     },
   },

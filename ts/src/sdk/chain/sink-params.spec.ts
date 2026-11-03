@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import vectors from "../../../../go/node/sink/v1/testdata/params_vectors.json" with { type: "json" };
 import { Params } from "../../generated/protos/akash/sink/v1/params.ts";
-import { QueryStateResponse } from "../../generated/protos/akash/sink/v1/query.ts";
+import { QueryParamsResponse } from "../../generated/protos/akash/sink/v1/query.ts";
 import { createChainNodeWebSDK } from "./createChainNodeWebSDK.ts";
 
 describe("sink native Params vectors", () => {
@@ -32,17 +32,17 @@ describe("sink native Params vectors", () => {
       });
     });
 
-    it(`reads Go Params through getState for ${vector.name}`, async () => {
+    it(`reads Go Params through getParams for ${vector.name}`, async () => {
       const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify({ params: vector.json })));
       vi.stubGlobal("fetch", fetch);
       const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
 
-      const result = await sdk.akash.sink.v1.getState();
+      const result = await sdk.akash.sink.v1.getParams();
 
       expect(fetch).toHaveBeenCalledTimes(1);
-      expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe("/akash/sink/v1/state");
+      expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe("/akash/sink/v1/params");
       expect(result.params?.reporterChallengePeriod).toEqual(duration);
-      expect(QueryStateResponse.toJSON(result)).toMatchObject({
+      expect(QueryParamsResponse.toJSON(result)).toMatchObject({
         params: { reporter_challenge_period: vector.json.reporter_challenge_period },
       });
     });
