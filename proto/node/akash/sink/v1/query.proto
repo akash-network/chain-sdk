@@ -178,37 +178,25 @@ message QueryStateRequest {}
 
 // QueryStateResponse returns parameters, accounting, current policy and the refund candidate head.
 message QueryStateResponse {
-  Params params = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag)  = "params",
-    (gogoproto.moretags) = "yaml:\"params\""
-  ];
-
-  Totals totals = 2 [
+  Totals totals = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "totals",
     (gogoproto.moretags) = "yaml:\"totals\""
   ];
 
-  ReporterPolicy policy = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag)  = "policy",
-    (gogoproto.moretags) = "yaml:\"policy\""
-  ];
-
   // Native "day" CurrentEpoch at the queried height; zero before counting starts.
-  uint64 epoch = 4 [
+  uint64 epoch = 2 [
     (gogoproto.jsontag)  = "epoch",
     (gogoproto.moretags) = "yaml:\"epoch\""
   ];
 
-  EpochUsage send_usage = 5 [
+  EpochUsage send_usage = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "send_usage",
     (gogoproto.moretags) = "yaml:\"send_usage\""
   ];
 
-  EpochUsage refund_usage = 6 [
+  EpochUsage refund_usage = 4 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)  = "refund_usage",
     (gogoproto.moretags) = "yaml:\"refund_usage\""
@@ -216,7 +204,7 @@ message QueryStateResponse {
 
   // Oldest unheld candidate under governance or the current reporter policy.
   // Payment still requires maturity, refund capacity, and enabled refunds.
-  ID refund_head = 7 [
+  ID refund_head = 5 [
     (gogoproto.jsontag)  = "refund_head",
     (gogoproto.moretags) = "yaml:\"refund_head\""
   ];
