@@ -1,13 +1,34 @@
-import { QueryAccountRequest, QueryAccountResponse, QueryOpenTransfersRequest, QueryOpenTransfersResponse, QuerySink, QuerySinkResponse, QueryStateRequest, QueryStateResponse, QueryTransferRequest, QueryTransferResponse } from "./query.ts";
+import { QueryAccountRequest, QueryAccountResponse, QueryDisputesRequest, QueryDisputesResponse, QueryStateRequest, QueryStateResponse, QueryTransferRequest, QueryTransferResponse, QueryTransfersRequest, QueryTransfersResponse } from "./query.ts";
 
 export const Query = {
   typeName: "akash.sink.v1.Query",
   methods: {
-    sink: {
-      name: "Sink",
-      httpPath: "/akash/sink/v1/records/{id}",
-      input: QuerySink,
-      output: QuerySinkResponse,
+    transfer: {
+      name: "Transfer",
+      httpPath: "/akash/sink/v1/transfers/{id.owner}/{id.height}/{id.sequence}",
+      input: QueryTransferRequest,
+      output: QueryTransferResponse,
+      get parent() { return Query; },
+    },
+    transfers: {
+      name: "Transfers",
+      httpPath: "/akash/sink/v1/transfers",
+      input: QueryTransfersRequest,
+      output: QueryTransfersResponse,
+      get parent() { return Query; },
+    },
+    disputes: {
+      name: "Disputes",
+      httpPath: "/akash/sink/v1/disputes",
+      input: QueryDisputesRequest,
+      output: QueryDisputesResponse,
+      get parent() { return Query; },
+    },
+    account: {
+      name: "Account",
+      httpPath: "/akash/sink/v1/accounts/{owner}",
+      input: QueryAccountRequest,
+      output: QueryAccountResponse,
       get parent() { return Query; },
     },
     state: {
@@ -15,27 +36,6 @@ export const Query = {
       httpPath: "/akash/sink/v1/state",
       input: QueryStateRequest,
       output: QueryStateResponse,
-      get parent() { return Query; },
-    },
-    transfer: {
-      name: "Transfer",
-      httpPath: "/akash/sink/v1/transfers/{id}",
-      input: QueryTransferRequest,
-      output: QueryTransferResponse,
-      get parent() { return Query; },
-    },
-    account: {
-      name: "Account",
-      httpPath: "/akash/sink/v1/accounts/{sender}",
-      input: QueryAccountRequest,
-      output: QueryAccountResponse,
-      get parent() { return Query; },
-    },
-    openTransfers: {
-      name: "OpenTransfers",
-      httpPath: "/akash/sink/v1/open_transfers",
-      input: QueryOpenTransfersRequest,
-      output: QueryOpenTransfersResponse,
       get parent() { return Query; },
     },
   },

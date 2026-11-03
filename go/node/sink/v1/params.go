@@ -1,87 +1,102 @@
 package v1
 
 import (
-	"math"
+	"time"
 
-	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/x/tx/signing/aminojson"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.akt.dev/go/sdkutil"
 )
 
-// DefaultChallengePeriodSeconds is the 72-hour window AEP-92 assumes.
 const DefaultChallengePeriodSeconds uint64 = 72 * 60 * 60
 
-// Defaults are local-development limits, not production policy. Deposits are off.
+// MaxChallengePeriod includes the final fractional second accepted by native Amino signing.
+const MaxChallengePeriod = time.Duration(aminojson.MaxDurationSeconds)*time.Second + time.Second - time.Nanosecond
+
+// DefaultParams is a development policy; deposits and refunds start disabled.
 func DefaultParams() Params {
 	return Params{
-		//MaxTransfer: 1_000_000_000_000, SolanaDailyMintCap: 10_000_000_000_000,
-		//MaxDailyPerAccount: 20, MaxPendingPerAccount: 3,
-		//ChallengePeriodSeconds: DefaultChallengePeriodSeconds, DailyRefundCap: 1_000_000_000_000
+		MinAmountPerTransfer:      sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000),
+		MaxAmountPerTransfer:      sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000_000_000),
+		MaxTransferAmountPerEpoch: sdk.NewInt64Coin(sdkutil.DenomUakt, 10_000_000_000_000),
+		MaxEpochAmountPerAccount:  sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000_000_000),
+		MaxEpochRefund:            sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000_000_000),
+		ReportersThreshold:        sdkmath.LegacyMustNewDecFromStr("0.75"),
+		ReporterChallengePeriod:   time.Duration(DefaultChallengePeriodSeconds) * time.Second,
 	}
 }
 
 func (p Params) ValidateBasic() error {
-	if err := ValidateReporters(p.Reporters, p.ReporterThreshold); err != nil {
+	for _, cap := range []sdk.Coin{p.MinAmountPerTransfer, p.MaxAmountPerTransfer, p.MaxTransferAmountPerEpoch, p.MaxEpochAmountPerAccount, p.MaxEpochRefund} {
+		if err := ValidateAmount(cap); err != nil {
+			return ErrInvalidParam.Wrap(err.Error())
+		}
+
+		if !cap.IsPositive() {
+			return ErrInvalidParam.Wrap("all caps and the minimum must be positive")
+		}
+	}
+
+	if !p.MaxAmountPerTransfer.Amount.IsUint64() || p.MinAmountPerTransfer.IsGT(p.MaxAmountPerTransfer) ||
+		p.MaxAmountPerTransfer.IsGT(p.MaxEpochAmountPerAccount) || p.MaxAmountPerTransfer.IsGT(p.MaxTransferAmountPerEpoch) || p.MaxAmountPerTransfer.IsGT(p.MaxEpochRefund) {
+		return ErrInvalidParam.Wrap("transfer bounds must fit uint64 and account, send and refund caps")
+	}
+
+	// Bound the decimal before multiplying; arbitrary protobuf decimals may overflow.
+	if p.ReportersThreshold.IsNil() || p.ReportersThreshold.IsNegative() || p.ReportersThreshold.GT(sdkmath.LegacyOneDec()) {
+		return ErrInvalidReporters.Wrap("reporters_threshold must be between zero and one")
+	}
+
+	if len(p.Reporters) > 0 && !p.ReportersThreshold.MulInt64(3).GT(sdkmath.LegacyNewDec(2)) {
+		return ErrInvalidReporters.Wrap("reporters_threshold must exceed two thirds")
+	}
+
+	if len(p.Reporters) > MaxReporters {
+		return ErrInvalidReporters.Wrap("too many reporters")
+	}
+
+	if err := p.Policy(1).Validate(); err != nil {
 		return err
 	}
-	if p.Enabled && len(p.Reporters) == 0 {
-		return ErrInvalidParam.Wrap("reporters must be configured before enabling deposits")
+
+	if p.DepositsEnabled && len(p.Reporters) == 0 {
+		return ErrInvalidParam.Wrap("deposits require reporters")
 	}
-	// The floor applies even while refunds are off: a void confirmed under a
-	// shorter window would keep its deadline after refunds are enabled.
-	if p.ChallengePeriodSeconds < MinChallengePeriodSeconds || p.ChallengePeriodSeconds > math.MaxInt64 {
-		return ErrInvalidParam.Wrapf("challenge period must be %d to %d seconds", MinChallengePeriodSeconds, uint64(math.MaxInt64))
+
+	if p.ReporterChallengePeriod < time.Duration(MinChallengePeriodSeconds)*time.Second {
+		return ErrInvalidParam.Wrap("challenge period below minimum")
 	}
-	if p.DailyRefundCap < p.MaxTransfer {
-		return ErrInvalidParam.Wrap("daily refund cap must be at least max transfer")
+
+	if p.ReporterChallengePeriod > MaxChallengePeriod {
+		return ErrInvalidParam.Wrap("challenge period exceeds Amino signing limit")
 	}
-	if p.MaxTransfer == 0 || p.MaxTransfer > p.SolanaDailyMintCap {
-		return ErrInvalidParam.Wrap("max transfer must be positive and no larger than Solana daily mint cap")
-	}
-	// Zero disables the minimum, preserving parameters stored before this field,
-	// but deposits need one: it keeps each worth the Solana rent of settling it.
-	// Disabling deposits never fails here, so a guardian pause always works.
-	if p.MinTransfer > p.MaxTransfer {
-		return ErrInvalidParam.Wrap("min transfer must not exceed max transfer")
-	}
-	if p.Enabled && p.MinTransfer == 0 {
-		return ErrInvalidParam.Wrap("min transfer must be set while deposits are enabled")
-	}
-	// Zero disables the per-account daily amount cap. A nonzero cap below the
-	// minimum would reject every deposit.
-	if p.MaxDailyAmountPerAccount != 0 && p.MaxDailyAmountPerAccount < p.MinTransfer {
-		return ErrInvalidParam.Wrap("max daily amount per account must be zero or at least min transfer")
-	}
-	// Empty means no guardian; only governance can then pause.
+
 	if p.PauseGuardian != "" {
 		if err := ValidatePauseGuardian(p.PauseGuardian); err != nil {
 			return err
 		}
 	}
-	if p.MaxDailyPerAccount == 0 || p.MaxPendingPerAccount == 0 {
-		return ErrInvalidParam.Wrap("account limits must be positive")
-	}
-	//if len(p.VaultAllowlist) > 16 {
-	//	return ErrInvalidParam.Wrap("at most 16 vaults")
-	//}
-	seen := make(map[[32]byte]bool)
+
+	seen := make(map[SolanaAddress]bool, len(p.AllowedDestinationVaults))
 	for _, v := range p.AllowedDestinationVaults {
-		if len(v) != 32 {
-			return ErrInvalidParam.Wrap("vault must be 32 bytes")
+		addr, err := ParseSolanaAddress(v)
+		if err != nil {
+			return err
 		}
-		key := [32]byte(v)
-		if key == [32]byte{} || seen[key] {
-			return ErrInvalidParam.Wrap("zero or duplicate vault")
+
+		if seen[addr] {
+			return ErrInvalidParam.Wrap("duplicate destination vault")
 		}
-		seen[key] = true
+
+		seen[addr] = true
 	}
 
 	return nil
 }
 
-// ValidatePauseGuardian accepts a canonical, nonzero account of an ordinary
-// or derived length, such as a group policy.
 func ValidatePauseGuardian(guardian string) error {
-	if _, err := ParseAccount(guardian, AccountLength, DerivedAccountLength); err != nil {
-		return errorsmod.Wrap(err, "pause guardian")
-	}
-	return nil
+	_, err := ParseAccount(guardian, AccountLength, DerivedAccountLength)
+	return err
 }

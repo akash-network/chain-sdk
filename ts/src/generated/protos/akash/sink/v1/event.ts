@@ -10,7 +10,16 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
-import { Decision, decisionFromJSON, decisionToJSON, ID, Outcome, outcomeFromJSON, outcomeToJSON } from "./types.ts";
+import {
+  Decision,
+  decisionFromJSON,
+  decisionToJSON,
+  ID,
+  Outcome,
+  outcomeFromJSON,
+  outcomeToJSON,
+  Totals,
+} from "./types.ts";
 
 /**
  * EventTransferCreated is emitted when a deposit locks AKT and creates a
@@ -159,13 +168,17 @@ export interface EventPreexistingBalanceMoved {
   recipient: string;
 }
 
+/** EventTotalsUpdated records the four financial status populations. */
 export interface EventTotalsUpdated {
-  pendingAmount: Coin | undefined;
-  pendingCount: Coin | undefined;
-  mintedAmount: Coin | undefined;
-  voidedAmount: Coin | undefined;
-  refundedAmount: Coin | undefined;
-  refundedInEpoch: Coin | undefined;
+  totals: Totals | undefined;
+}
+
+/**
+ * EventWithdrawAddressReset is emitted at installation when a delegator's
+ * reward withdrawal address is reset from the sink escrow to the delegator.
+ */
+export interface EventWithdrawAddressReset {
+  delegator: string;
 }
 
 function createBaseEventTransferCreated(): EventTransferCreated {
@@ -1117,37 +1130,15 @@ export const EventPreexistingBalanceMoved: MessageFns<
 };
 
 function createBaseEventTotalsUpdated(): EventTotalsUpdated {
-  return {
-    pendingAmount: undefined,
-    pendingCount: undefined,
-    mintedAmount: undefined,
-    voidedAmount: undefined,
-    refundedAmount: undefined,
-    refundedInEpoch: undefined,
-  };
+  return { totals: undefined };
 }
 
 export const EventTotalsUpdated: MessageFns<EventTotalsUpdated, "akash.sink.v1.EventTotalsUpdated"> = {
   $type: "akash.sink.v1.EventTotalsUpdated" as const,
 
   encode(message: EventTotalsUpdated, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.pendingAmount !== undefined) {
-      Coin.encode(message.pendingAmount, writer.uint32(10).fork()).join();
-    }
-    if (message.pendingCount !== undefined) {
-      Coin.encode(message.pendingCount, writer.uint32(18).fork()).join();
-    }
-    if (message.mintedAmount !== undefined) {
-      Coin.encode(message.mintedAmount, writer.uint32(26).fork()).join();
-    }
-    if (message.voidedAmount !== undefined) {
-      Coin.encode(message.voidedAmount, writer.uint32(34).fork()).join();
-    }
-    if (message.refundedAmount !== undefined) {
-      Coin.encode(message.refundedAmount, writer.uint32(42).fork()).join();
-    }
-    if (message.refundedInEpoch !== undefined) {
-      Coin.encode(message.refundedInEpoch, writer.uint32(50).fork()).join();
+    if (message.totals !== undefined) {
+      Totals.encode(message.totals, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -1164,47 +1155,7 @@ export const EventTotalsUpdated: MessageFns<EventTotalsUpdated, "akash.sink.v1.E
             break;
           }
 
-          message.pendingAmount = Coin.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.pendingCount = Coin.decode(reader, reader.uint32());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.mintedAmount = Coin.decode(reader, reader.uint32());
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.voidedAmount = Coin.decode(reader, reader.uint32());
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.refundedAmount = Coin.decode(reader, reader.uint32());
-          continue;
-        }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.refundedInEpoch = Coin.decode(reader, reader.uint32());
+          message.totals = Totals.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1217,58 +1168,80 @@ export const EventTotalsUpdated: MessageFns<EventTotalsUpdated, "akash.sink.v1.E
   },
 
   fromJSON(object: any): EventTotalsUpdated {
-    return {
-      pendingAmount: isSet(object.pending_amount) ? Coin.fromJSON(object.pending_amount) : undefined,
-      pendingCount: isSet(object.pending_count) ? Coin.fromJSON(object.pending_count) : undefined,
-      mintedAmount: isSet(object.minted_amount) ? Coin.fromJSON(object.minted_amount) : undefined,
-      voidedAmount: isSet(object.voided_amount) ? Coin.fromJSON(object.voided_amount) : undefined,
-      refundedAmount: isSet(object.refunded_amount) ? Coin.fromJSON(object.refunded_amount) : undefined,
-      refundedInEpoch: isSet(object.refunded_in_epoch) ? Coin.fromJSON(object.refunded_in_epoch) : undefined,
-    };
+    return { totals: isSet(object.totals) ? Totals.fromJSON(object.totals) : undefined };
   },
 
   toJSON(message: EventTotalsUpdated): unknown {
     const obj: any = {};
-    if (message.pendingAmount !== undefined) {
-      obj.pending_amount = Coin.toJSON(message.pendingAmount);
-    }
-    if (message.pendingCount !== undefined) {
-      obj.pending_count = Coin.toJSON(message.pendingCount);
-    }
-    if (message.mintedAmount !== undefined) {
-      obj.minted_amount = Coin.toJSON(message.mintedAmount);
-    }
-    if (message.voidedAmount !== undefined) {
-      obj.voided_amount = Coin.toJSON(message.voidedAmount);
-    }
-    if (message.refundedAmount !== undefined) {
-      obj.refunded_amount = Coin.toJSON(message.refundedAmount);
-    }
-    if (message.refundedInEpoch !== undefined) {
-      obj.refunded_in_epoch = Coin.toJSON(message.refundedInEpoch);
+    if (message.totals !== undefined) {
+      obj.totals = Totals.toJSON(message.totals);
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventTotalsUpdated>): EventTotalsUpdated {
     const message = createBaseEventTotalsUpdated();
-    message.pendingAmount = (object.pendingAmount !== undefined && object.pendingAmount !== null)
-      ? Coin.fromPartial(object.pendingAmount)
+    message.totals = (object.totals !== undefined && object.totals !== null)
+      ? Totals.fromPartial(object.totals)
       : undefined;
-    message.pendingCount = (object.pendingCount !== undefined && object.pendingCount !== null)
-      ? Coin.fromPartial(object.pendingCount)
-      : undefined;
-    message.mintedAmount = (object.mintedAmount !== undefined && object.mintedAmount !== null)
-      ? Coin.fromPartial(object.mintedAmount)
-      : undefined;
-    message.voidedAmount = (object.voidedAmount !== undefined && object.voidedAmount !== null)
-      ? Coin.fromPartial(object.voidedAmount)
-      : undefined;
-    message.refundedAmount = (object.refundedAmount !== undefined && object.refundedAmount !== null)
-      ? Coin.fromPartial(object.refundedAmount)
-      : undefined;
-    message.refundedInEpoch = (object.refundedInEpoch !== undefined && object.refundedInEpoch !== null)
-      ? Coin.fromPartial(object.refundedInEpoch)
-      : undefined;
+    return message;
+  },
+};
+
+function createBaseEventWithdrawAddressReset(): EventWithdrawAddressReset {
+  return { delegator: "" };
+}
+
+export const EventWithdrawAddressReset: MessageFns<
+  EventWithdrawAddressReset,
+  "akash.sink.v1.EventWithdrawAddressReset"
+> = {
+  $type: "akash.sink.v1.EventWithdrawAddressReset" as const,
+
+  encode(message: EventWithdrawAddressReset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.delegator !== "") {
+      writer.uint32(10).string(message.delegator);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EventWithdrawAddressReset {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEventWithdrawAddressReset();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.delegator = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EventWithdrawAddressReset {
+    return { delegator: isSet(object.delegator) ? globalThis.String(object.delegator) : "" };
+  },
+
+  toJSON(message: EventWithdrawAddressReset): unknown {
+    const obj: any = {};
+    if (message.delegator !== "") {
+      obj.delegator = message.delegator;
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<EventWithdrawAddressReset>): EventWithdrawAddressReset {
+    const message = createBaseEventWithdrawAddressReset();
+    message.delegator = object.delegator ?? "";
     return message;
   },
 };

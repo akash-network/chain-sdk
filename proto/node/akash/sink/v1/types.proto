@@ -4,114 +4,135 @@ package akash.sink.v1;
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
-// Outcome is the finalized Solana result reported by an observer.
+// Outcome is the finalized Solana result asserted by an observer.
 enum Outcome {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // OUTCOME_UNSPECIFIED represents unspecified.
+  // No outcome was supplied.
   OUTCOME_UNSPECIFIED = 0 [
     (gogoproto.enumvalue_customname) = "OutcomeUnspecified"
   ];;
-  // OUTCOME_MINTED represents minted.
+  // Solana finalized the mint.
   OUTCOME_MINTED = 1 [
     (gogoproto.enumvalue_customname) = "OutcomeMinted"
   ];;
-  // OUTCOME_VOIDED represents voided.
+  // Solana finalized the void.
   OUTCOME_VOIDED = 2 [
     (gogoproto.enumvalue_customname) = "OutcomeVoided"
   ];;
 }
 
-// Status describes settlement and refund payment on Akash.
+// Status partitions the four financial populations independently of holds.
 enum Status {
   option (gogoproto.goproto_enum_prefix) = false;
 
+  // Invalid on stored settlements; selects any status in list filters.
   STATUS_INVALID = 0 [
     (gogoproto.enumvalue_customname) = "StatusInvalid"
   ];
-  // STATUS_PENDING represents pending.
+  // Escrow awaits an authorized Solana outcome.
   STATUS_TRANSFER_PENDING = 1 [
     (gogoproto.enumvalue_customname) = "StatusTransferPending"
   ];
-  // STATUS_MINTED represents minted.
+  // Mint authorization is retained and escrow backs the minted tokens.
   STATUS_MINTED = 2 [
     (gogoproto.enumvalue_customname) = "StatusMinted"
   ];
-  // STATUS_VOIDED represents voided.
-  STATUS_VOIDED = 3 [
-    (gogoproto.enumvalue_customname) = "StatusVoided"
-  ];;
+  reserved 3;
+  reserved "STATUS_VOIDED";
+  // Void authorization is retained and payment awaits challenge and capacity checks.
   STATUS_REFUND_PENDING = 4 [
     (gogoproto.enumvalue_customname) = "StatusRefundPending"
   ];
-  // STATUS_REFUNDED represents refunded.
+  // The original owner has already received the refund.
   STATUS_REFUNDED = 5 [
     (gogoproto.enumvalue_customname) = "StatusRefunded"
   ];
 }
 
-// Hold prevents settlement while a veto or conflicting observation is unresolved.
+// Hold records a veto or conflict requiring governance resolution.
 enum Hold {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // HOLD_NONE represents none.
+  // No settlement hold is active.
   HOLD_NONE = 0 [
     (gogoproto.enumvalue_customname) = "HoldNone"
   ];;
-  // HOLD_VETO represents veto.
+  // An unpaid transfer is held by a reporter or governance veto.
   HOLD_VETO = 1 [
     (gogoproto.enumvalue_customname) = "HoldVeto"
   ];;
-  // HOLD_CONFLICT represents conflict.
+  // Conflicting evidence requires governance, including on terminal transfers.
   HOLD_CONFLICT = 2 [
     (gogoproto.enumvalue_customname) = "HoldConflict"
   ];;
 }
 
-// Decision specifies the governance action for a held transfer.
+// Decision labels resolution events.
 enum Decision {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // DECISION_UNSPECIFIED represents unspecified.
+  // No governance resolution was recorded.
   DECISION_UNSPECIFIED = 0 [
     (gogoproto.enumvalue_customname) = "DecisionUnspecified"
   ];;
-  // DECISION_RESTART represents restart.
+  // Governance restarted an unpaid transfer.
   DECISION_RESTART = 1 [
     (gogoproto.enumvalue_customname) = "DecisionRestart"
   ];;
-  // DECISION_CONFIRM_MINT represents confirm mint.
+  // Governance confirmed the mint.
   DECISION_CONFIRM_MINT = 2 [
     (gogoproto.enumvalue_customname) = "DecisionConfirmMint"
   ];;
-  // DECISION_CONFIRM_VOID represents confirm void.
+  // Governance confirmed the void or resolved a paid transfer dispute.
   DECISION_CONFIRM_VOID = 3 [
     (gogoproto.enumvalue_customname) = "DecisionConfirmVoid"
   ];;
 }
 
+// DestType selects the network that receives a transfer.
+enum DestType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // No destination network was supplied.
+  DEST_TYPE_INVALID = 0 [
+    (gogoproto.enumvalue_customname) = "DestTypeInvalid"
+  ];
+  // Solana; dest is a canonical base58 public key.
+  DEST_TYPE_SOLANA = 1 [
+    (gogoproto.enumvalue_customname) = "DestTypeSolana"
+  ];
+}
+
+// ID identifies a transfer by owner, block height and sequence.
 message ID {
+  option (gogoproto.equal)            = true;
+  option (gogoproto.goproto_stringer) = false;
+
   string owner = 1 [
     (cosmos_proto.scalar) = "cosmos.AddressString",
     (gogoproto.jsontag)   = "owner",
     (gogoproto.moretags)  = "yaml:\"owner\""
   ];
 
+  // Positive creating block height; genesis imports require a later initial_height.
   int64 height = 2 [
     (gogoproto.jsontag) = "height",
     (gogoproto.moretags) = "yaml:\"height\""
   ];
 
-  // sequence disambiguate multiple entries at the same height
+  // Positive globally allocated sequence within the creating block.
   uint64 sequence = 3 [
     (gogoproto.jsontag) = "sequence",
     (gogoproto.moretags) = "yaml:\"sequence\""
   ];
 }
 
+// SettlementID keys the status index by financial status, then transfer ID.
 message SettlementID {
   Status status = 1 [
     (gogoproto.jsontag)   = "status",
@@ -136,65 +157,88 @@ message SettlementID {
   ];
 }
 
+// RecordData is the immutable transfer payload proven on Solana.
 message RecordData {
   string dest = 1 [
-    (gogoproto.jsontag) = "sequence",
-    (gogoproto.moretags) = "yaml:\"sequence\""
+    (gogoproto.jsontag) = "dest",
+    (gogoproto.moretags) = "yaml:\"dest\""
   ];
 
   cosmos.base.v1beta1.Coin amount = 2 [
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
   ];
 }
 
+// SettlementData retains financial status and its authorization evidence.
 message SettlementData {
-  Hold   hold = 1 [
+  Status status = 1 [
+    (gogoproto.jsontag)   = "status",
+    (gogoproto.moretags)  = "yaml:\"status\""
+  ];
+  Hold   hold = 2 [
     (gogoproto.jsontag)   = "hold",
     (gogoproto.moretags)  = "yaml:\"hold\""
   ];
-  uint64 round = 2 [
+  uint64 round = 3 [
     (gogoproto.jsontag)   = "round",
     (gogoproto.moretags)  = "yaml:\"round\""
   ];
-  ReporterPolicy policy = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag)   = "policy",
-    (gogoproto.moretags)  = "yaml:\"policy\""
+  // Terminal and governance authorizations retain this version after reporter rotation.
+  uint64 policy_version = 4 [
+    (gogoproto.jsontag)   = "policy_version",
+    (gogoproto.moretags)  = "yaml:\"policy_version\""
   ];
-  repeated Vote votes = 4 [
+  repeated Vote votes = 5 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag)   = "votes",
     (gogoproto.moretags)  = "yaml:\"votes\""
   ];
-  int64 challenge_end = 5 [
+  // Present exactly while refund-pending; maturity does not change financial status.
+  google.protobuf.Timestamp challenge_end = 6 [
+    (gogoproto.stdtime)   = true,
     (gogoproto.jsontag)   = "challenge_end",
     (gogoproto.moretags)  = "yaml:\"challenge_end\""
   ];
-  Observation governance_observation = 6 [
-    (gogoproto.jsontag)   = "governance_observation",
-    (gogoproto.moretags)  = "yaml:\"governance_observation\""
+  SolanaEvidence governance_evidence = 7 [
+    (gogoproto.jsontag)   = "governance_evidence",
+    (gogoproto.moretags)  = "yaml:\"governance_evidence\""
   ];
-  string veto_by = 7 [
-    (gogoproto.jsontag)   = "veto_by",
-    (gogoproto.moretags)  = "yaml:\"veto_by\""
-  ];
-  string veto_reason = 8 [
-    (gogoproto.jsontag)   = "veto_reason",
-    (gogoproto.moretags)  = "yaml:\"veto_reason\""
+  Veto veto = 8 [
+    (gogoproto.jsontag)   = "veto",
+    (gogoproto.moretags)  = "yaml:\"veto\""
   ];
 }
 
+// TransferState is the complete public and genesis aggregate.
 message TransferState {
   ID id = 1 [
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag) = "id",
+    (gogoproto.moretags) = "yaml:\"id\""
   ];
 
   RecordData data = 2 [
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "data",
+    (gogoproto.moretags) = "yaml:\"data\""
+  ];
+
+  SettlementData settlement = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "settlement",
+    (gogoproto.moretags) = "yaml:\"settlement\""
+  ];
+
+  bool void_ordered = 4 [
+    (gogoproto.jsontag) = "void_ordered",
+    (gogoproto.moretags) = "yaml:\"void_ordered\""
   ];
 }
 
-// AccountUsage tracks deposit limits for one Akash account.
+// AccountUsage counts lifetime deposits and deposits within last_epoch.
 message AccountUsage {
   cosmos.base.v1beta1.Coin total_sent = 1 [
     (gogoproto.nullable)  = false,
@@ -214,74 +258,127 @@ message AccountUsage {
   ];
 }
 
-// Totals records escrow accounting and monotonically increasing transfer and reporter identifiers.
+// EpochUsage preserves raw consumption for a fixed UTC day.
+message EpochUsage {
+  uint64 epoch = 1 [
+    (gogoproto.jsontag)   = "epoch",
+    (gogoproto.moretags)  = "yaml:\"epoch\""
+  ];
+
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "amount",
+    (gogoproto.moretags)  = "yaml:\"amount\""
+  ];
+}
+
+// Totals counts each financial status exactly once, regardless of holds.
 message Totals {
   cosmos.base.v1beta1.Coin pending_amount = 1 [
     (gogoproto.nullable)  = false,
     (gogoproto.jsontag)   = "pending_amount",
     (gogoproto.moretags)  = "yaml:\"pending_amount\""
   ];
-  cosmos.base.v1beta1.Coin pending_count = 2 [
-    (gogoproto.nullable)  = false,
+  uint64 pending_count = 2 [
     (gogoproto.jsontag)   = "pending_count",
     (gogoproto.moretags)  = "yaml:\"pending_count\""
   ];
   cosmos.base.v1beta1.Coin minted_amount = 3 [
     (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "status",
-    (gogoproto.moretags)  = "yaml:\"status\""
+    (gogoproto.jsontag)   = "minted_amount",
+    (gogoproto.moretags)  = "yaml:\"minted_amount\""
   ];
-  cosmos.base.v1beta1.Coin voided_amount = 4 [
+  uint64 minted_count = 4 [
+    (gogoproto.jsontag)   = "minted_count",
+    (gogoproto.moretags)  = "yaml:\"minted_count\""
+  ];
+  cosmos.base.v1beta1.Coin refund_pending_amount = 5 [
     (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "voided_amount",
-    (gogoproto.moretags)  = "yaml:\"voided_amount\""
+    (gogoproto.jsontag)   = "refund_pending_amount",
+    (gogoproto.moretags)  = "yaml:\"refund_pending_amount\""
   ];
-  cosmos.base.v1beta1.Coin refunded_amount = 5 [
+  uint64 refund_pending_count = 6 [
+    (gogoproto.jsontag)   = "refund_pending_count",
+    (gogoproto.moretags)  = "yaml:\"refund_pending_count\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_amount = 7 [
     (gogoproto.nullable)  = false,
     (gogoproto.jsontag)   = "refunded_amount",
     (gogoproto.moretags)  = "yaml:\"refunded_amount\""
   ];
-  cosmos.base.v1beta1.Coin refunded_in_epoch = 6 [
-    (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "refunded_in_epoch",
-    (gogoproto.moretags)  = "yaml:\"refunded_in_epoch\""
+  uint64 refunded_count = 8 [
+    (gogoproto.jsontag)   = "refunded_count",
+    (gogoproto.moretags)  = "yaml:\"refunded_count\""
   ];
 }
 
-// Observation identifies a finalized Solana mint or void and its evidence.
+// SolanaEvidence validates evidence format, not Solana finality.
+message SolanaEvidence {
+  uint64  slot = 1 [
+    (gogoproto.jsontag)   = "slot",
+    (gogoproto.moretags)  = "yaml:\"slot\""
+  ];
+
+  bytes   transaction_signature = 2 [
+    (gogoproto.jsontag)   = "transaction_signature",
+    (gogoproto.moretags)  = "yaml:\"transaction_signature\""
+  ];
+}
+
+// Observation binds one outcome to its Solana evidence.
 message Observation {
   Outcome outcome = 1 [
     (gogoproto.jsontag)   = "outcome",
     (gogoproto.moretags)  = "yaml:\"outcome\""
   ];
 
-  uint64  slot = 2 [
-    (gogoproto.jsontag)   = "slot",
-    (gogoproto.moretags)  = "yaml:\"slot\""
-  ];
-
-  bytes   transaction_signature = 3 [
-    (gogoproto.jsontag)   = "transaction_signature",
-    (gogoproto.moretags)  = "yaml:\"transaction_signature\""
+  SolanaEvidence evidence = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "evidence",
+    (gogoproto.moretags)  = "yaml:\"evidence\""
   ];
 }
 
-// Vote records one reporter observation.
+// Vote retains the policy version under which its reporter was authorized.
 message Vote {
   string reporter = 1 [
     (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "reported",
+    (gogoproto.jsontag)   = "reporter",
     (gogoproto.moretags)  = "yaml:\"reporter\""
   ];
 
   Observation observation = 2 [
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "observation",
+    (gogoproto.moretags)  = "yaml:\"observation\""
+  ];
+
+  uint64 policy_version = 3 [
+    (gogoproto.jsontag)   = "policy_version",
+    (gogoproto.moretags)  = "yaml:\"policy_version\""
   ];
 }
 
-// ReporterPolicy snapshots the membership and threshold for one epoch.
+// Veto preserves its signer and reason through policy refresh.
+message Veto {
+  string signer = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "signer",
+    (gogoproto.moretags)  = "yaml:\"signer\""
+  ];
+
+  string reason = 2 [
+    (gogoproto.jsontag)   = "reason",
+    (gogoproto.moretags)  = "yaml:\"reason\""
+  ];
+}
+
+// ReporterPolicy is an immutable version of the reporter authorization rule.
 message ReporterPolicy {
-  uint64          epoch = 1;
+  uint64          version = 1 [
+    (gogoproto.jsontag)   = "version",
+    (gogoproto.moretags)  = "yaml:\"version\""
+  ];
   repeated string members = 2 [
     (cosmos_proto.scalar) = "cosmos.AddressString",
     (gogoproto.jsontag)   = "members",

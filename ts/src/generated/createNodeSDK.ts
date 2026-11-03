@@ -598,91 +598,105 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
       sink: {
         v1: {
           /**
-           * getSink handles the getSink request.
-           */
-          getSink: withMetadata(async function getSink(input: DeepPartial<akash_sink_v1_query.QuerySink>, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(21);
-            return getClient(service).sink(input, options);
-          }, { path: [21, "sink"], serviceLoader }),
-          /**
-           * getState handles the getState request.
-           */
-          getState: withMetadata(async function getState(input: DeepPartial<akash_sink_v1_query.QueryStateRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(21);
-            return getClient(service).state(input, options);
-          }, { path: [21, "state"], serviceLoader }),
-          /**
-           * getTransfer handles the getTransfer request.
+           * getTransfer returns immutable data and retained settlement evidence for one ID.
            */
           getTransfer: withMetadata(async function getTransfer(input: DeepPartial<akash_sink_v1_query.QueryTransferRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
             return getClient(service).transfer(input, options);
           }, { path: [21, "transfer"], serviceLoader }),
           /**
-           * getAccount handles the getAccount request.
+           * getTransfers lists owner/status indexes or global chronological history with native key pagination.
+           */
+          getTransfers: withMetadata(async function getTransfers(input: DeepPartial<akash_sink_v1_query.QueryTransfersRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).transfers(input, options);
+          }, { path: [21, "transfers"], serviceLoader }),
+          /**
+           * getDisputes lists all held transfers, including terminal conflicts.
+           */
+          getDisputes: withMetadata(async function getDisputes(input: DeepPartial<akash_sink_v1_query.QueryDisputesRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).disputes(input, options);
+          }, { path: [21, "disputes"], serviceLoader }),
+          /**
+           * getAccount returns usage normalized to the current sending epoch without a write.
            */
           getAccount: withMetadata(async function getAccount(input: DeepPartial<akash_sink_v1_query.QueryAccountRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
             return getClient(service).account(input, options);
           }, { path: [21, "account"], serviceLoader }),
           /**
-           * getOpenTransfers lists unsettled transfers in ascending ID order.
+           * getState returns current policy, financial totals, independent usage and the refund queue head.
            */
-          getOpenTransfers: withMetadata(async function getOpenTransfers(input: DeepPartial<akash_sink_v1_query.QueryOpenTransfersRequest>, options?: CallOptions) {
+          getState: withMetadata(async function getState(input: DeepPartial<akash_sink_v1_query.QueryStateRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
-            return getClient(service).openTransfers(input, options);
-          }, { path: [21, "openTransfers"], serviceLoader }),
+            return getClient(service).state(input, options);
+          }, { path: [21, "state"], serviceLoader }),
           /**
-           * sink handles the sink request.
+           * sink locks uakt and allocates a composite transfer ID.
            */
           sink: withMetadata(async function sink(input: DeepSimplify<akash_sink_v1_msgs.MsgSink>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).sink(input, options);
           }, { path: [22, "sink"], serviceLoader }),
           /**
-           * updateParams handles the updateParams request.
+           * updateParams updates governed parameters while preserving consumed capacity.
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_sink_v1_msgs.MsgUpdateParams>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).updateParams(input, options);
           }, { path: [22, "updateParams"], serviceLoader }),
           /**
-           * requestVoid handles the requestVoid request.
+           * requestVoid creates an immutable governance void order; it does not authorize a refund.
            */
           requestVoid: withMetadata(async function requestVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgRequestVoid>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).requestVoid(input, options);
           }, { path: [22, "requestVoid"], serviceLoader }),
           /**
-           * reportOutcome handles the reportOutcome request.
+           * reportOutcome records a report for the current policy and exact settlement round.
            */
           reportOutcome: withMetadata(async function reportOutcome(input: DeepSimplify<akash_sink_v1_msgs.MsgReportOutcome>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).reportOutcome(input, options);
           }, { path: [22, "reportOutcome"], serviceLoader }),
           /**
-           * vetoVoid handles the vetoVoid request.
+           * vetoVoid holds an unpaid refund authorization for governance.
            */
           vetoVoid: withMetadata(async function vetoVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgVetoVoid>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).vetoVoid(input, options);
           }, { path: [22, "vetoVoid"], serviceLoader }),
           /**
-           * resolveTransfer handles the resolveTransfer request.
+           * restartTransfer starts the next round of an unpaid transfer.
            */
-          resolveTransfer: withMetadata(async function resolveTransfer(input: DeepSimplify<akash_sink_v1_msgs.MsgResolveTransfer>, options?: TxCallOptions) {
+          restartTransfer: withMetadata(async function restartTransfer(input: DeepSimplify<akash_sink_v1_msgs.MsgRestartTransfer>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
-            return getMsgClient(service).resolveTransfer(input, options);
-          }, { path: [22, "resolveTransfer"], serviceLoader }),
+            return getMsgClient(service).restartTransfer(input, options);
+          }, { path: [22, "restartTransfer"], serviceLoader }),
           /**
-           * finalizeRefund handles the finalizeRefund request.
+           * confirmMint records governance mint evidence in the next settlement round.
+           */
+          confirmMint: withMetadata(async function confirmMint(input: DeepSimplify<akash_sink_v1_msgs.MsgConfirmMint>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).confirmMint(input, options);
+          }, { path: [22, "confirmMint"], serviceLoader }),
+          /**
+           * confirmVoid records governance void evidence or resolves a paid transfer dispute.
+           */
+          confirmVoid: withMetadata(async function confirmVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgConfirmVoid>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).confirmVoid(input, options);
+          }, { path: [22, "confirmVoid"], serviceLoader }),
+          /**
+           * finalizeRefund pays the eligible queue head once to its original owner.
            */
           finalizeRefund: withMetadata(async function finalizeRefund(input: DeepSimplify<akash_sink_v1_msgs.MsgFinalizeRefund>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);
             return getMsgClient(service).finalizeRefund(input, options);
           }, { path: [22, "finalizeRefund"], serviceLoader }),
           /**
-           * guardianPause handles the guardianPause request.
+           * guardianPause disables deposits, refunds or both.
            */
           guardianPause: withMetadata(async function guardianPause(input: DeepSimplify<akash_sink_v1_msgs.MsgGuardianPause>, options?: TxCallOptions) {
             const service = await serviceLoader.loadAt(22);

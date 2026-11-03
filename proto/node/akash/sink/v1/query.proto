@@ -3,92 +3,178 @@ package akash.sink.v1;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "akash/sink/v1/params.proto";
 import "akash/sink/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
-// Query defines the sink query service.
+// Query reads complete transfer state and normalized epoch usage.
 service Query {
-  // Sink handles the Sink request.
-  rpc Sink(QuerySink) returns (QuerySinkResponse) {
-    option (google.api.http).get = "/akash/sink/v1/records/{id}";
+  // Transfer returns immutable data and retained settlement evidence for one ID.
+  rpc Transfer(QueryTransferRequest) returns (QueryTransferResponse) {
+    option (google.api.http).get = "/akash/sink/v1/transfers/{id.owner}/{id.height}/{id.sequence}";
   }
-  // State handles the State request.
+  // Transfers lists owner/status indexes or global chronological history with native key pagination.
+  rpc Transfers(QueryTransfersRequest) returns (QueryTransfersResponse) {
+    option (google.api.http).get = "/akash/sink/v1/transfers";
+  }
+  // Disputes lists all held transfers, including terminal conflicts.
+  rpc Disputes(QueryDisputesRequest) returns (QueryDisputesResponse) {
+    option (google.api.http).get = "/akash/sink/v1/disputes";
+  }
+  // Account returns usage normalized to the current sending epoch without a write.
+  rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
+    option (google.api.http).get = "/akash/sink/v1/accounts/{owner}";
+  }
+  // State returns current policy, financial totals, independent usage and the refund queue head.
   rpc State(QueryStateRequest) returns (QueryStateResponse) {
     option (google.api.http).get = "/akash/sink/v1/state";
   }
-  // Transfer handles the Transfer request.
-  rpc Transfer(QueryTransferRequest) returns (QueryTransferResponse) {
-    option (google.api.http).get = "/akash/sink/v1/transfers/{id}";
-  }
-  // Account handles the Account request.
-  rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
-    option (google.api.http).get = "/akash/sink/v1/accounts/{sender}";
-  }
-  // OpenTransfers lists unsettled transfers in ascending ID order.
-  rpc OpenTransfers(QueryOpenTransfersRequest) returns (QueryOpenTransfersResponse) {
-    option (google.api.http).get = "/akash/sink/v1/open_transfers";
-  }
 }
 
-// QuerySink looks up a transfer by its canonical decimal record ID.
-message QuerySink { string id = 1; }
-
-// QuerySinkResponse returns the public status and full settlement details.
-message QuerySinkResponse {
-  // SinkStatus is the public transfer lifecycle; settlement records refund payment separately.
-  enum SinkStatus {
-    // The response has no valid status.
-    invalid = 0;
-    // Reserved for asynchronous validation.
-    validation_pending = 1; // Reserved; no asynchronous validation workflow.
-    // Reserved for asynchronous validation.
-    validated = 2; // Reserved; valid deposits enter transfer_pending atomically.
-    // The deposit is locked and awaits settlement.
-    transfer_pending = 3;
-    // The mint has been confirmed.
-    completed = 4;
-    // The transfer is voided; consult settlement for refund payment.
-    void = 5; // Does not imply refund payment; consult transfer.settlement.
-  }
-  SinkStatus status = 1;
-  TransferState transfer = 2 [(gogoproto.nullable) = false];
+// QueryTransferRequest selects one transfer by its composite ID.
+message QueryTransferRequest {
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
 }
 
-// QueryStateRequest defines the QueryStateRequest request.
+// QueryTransferResponse returns the complete transfer and settlement state.
+message QueryTransferResponse {
+  TransferState transfer = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "transfer",
+    (gogoproto.moretags) = "yaml:\"transfer\""
+  ];
+}
+
+// QueryTransfersRequest selects a page of transfers by owner and financial status.
+message QueryTransfersRequest {
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+
+  Status status = 2 [
+    (gogoproto.jsontag)  = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+
+  cosmos.base.query.v1beta1.PageRequest pagination = 3 [
+    (gogoproto.jsontag)  = "pagination",
+    (gogoproto.moretags) = "yaml:\"pagination\""
+  ];
+}
+
+// QueryTransfersResponse returns transfers and the next index cursor.
+message QueryTransfersResponse {
+  repeated TransferState transfers = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "transfers",
+    (gogoproto.moretags) = "yaml:\"transfers\""
+  ];
+
+  cosmos.base.query.v1beta1.PageResponse pagination = 2 [
+    (gogoproto.jsontag)  = "pagination",
+    (gogoproto.moretags) = "yaml:\"pagination\""
+  ];
+}
+
+// QueryDisputesRequest selects a page of held transfers across all financial statuses.
+message QueryDisputesRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1 [
+    (gogoproto.jsontag)  = "pagination",
+    (gogoproto.moretags) = "yaml:\"pagination\""
+  ];
+}
+
+// QueryDisputesResponse returns held transfers and the next dispute cursor.
+message QueryDisputesResponse {
+  repeated TransferState transfers = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "transfers",
+    (gogoproto.moretags) = "yaml:\"transfers\""
+  ];
+
+  cosmos.base.query.v1beta1.PageResponse pagination = 2 [
+    (gogoproto.jsontag)  = "pagination",
+    (gogoproto.moretags) = "yaml:\"pagination\""
+  ];
+}
+
+// QueryAccountRequest selects usage for one Akash owner.
+message QueryAccountRequest {
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "owner",
+    (gogoproto.moretags)  = "yaml:\"owner\""
+  ];
+}
+
+// QueryAccountResponse returns account usage normalized to the queried sending epoch.
+message QueryAccountResponse {
+  AccountUsage usage = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "usage",
+    (gogoproto.moretags) = "yaml:\"usage\""
+  ];
+
+  uint64 epoch = 2 [
+    (gogoproto.jsontag)  = "epoch",
+    (gogoproto.moretags) = "yaml:\"epoch\""
+  ];
+}
+
+// QueryStateRequest requests the current Sink parameters, accounting and policy.
 message QueryStateRequest {}
 
-// QueryStateResponse is the response for QueryState.
+// QueryStateResponse returns parameters, accounting, current policy and the refund candidate head.
 message QueryStateResponse {
-  Params params = 1 [(gogoproto.nullable) = false];
-  Totals totals = 2 [(gogoproto.nullable) = false];
-}
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "params",
+    (gogoproto.moretags) = "yaml:\"params\""
+  ];
 
-// QueryTransferRequest defines the QueryTransferRequest request.
-message QueryTransferRequest { uint64 id = 1; }
+  Totals totals = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "totals",
+    (gogoproto.moretags) = "yaml:\"totals\""
+  ];
 
-// QueryTransferResponse is the response for QueryTransfer.
-message QueryTransferResponse { TransferState transfer = 1 [(gogoproto.nullable) = false]; }
+  ReporterPolicy policy = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "policy",
+    (gogoproto.moretags) = "yaml:\"policy\""
+  ];
 
-// QueryAccountRequest defines the QueryAccountRequest request.
-message QueryAccountRequest { string sender = 1; }
+  uint64 epoch = 4 [
+    (gogoproto.jsontag)  = "epoch",
+    (gogoproto.moretags) = "yaml:\"epoch\""
+  ];
 
-// QueryAccountResponse is the response for QueryAccount.
-message QueryAccountResponse { AccountUsage usage = 1 [(gogoproto.nullable) = false]; }
+  EpochUsage send_usage = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "send_usage",
+    (gogoproto.moretags) = "yaml:\"send_usage\""
+  ];
 
-// QueryOpenTransfersRequest pages through transfers that are neither minted
-// nor refunded: pending or voided, including held ones.
-message QueryOpenTransfersRequest {
-  // Returns IDs greater than this; zero starts at the first transfer.
-  uint64 start_after = 1;
-  // Zero means 100; values above 500 return 500.
-  uint32 limit = 2;
-}
+  EpochUsage refund_usage = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "refund_usage",
+    (gogoproto.moretags) = "yaml:\"refund_usage\""
+  ];
 
-// QueryOpenTransfersResponse is the response for QueryOpenTransfers.
-message QueryOpenTransfersResponse {
-  repeated TransferState transfers = 1 [(gogoproto.nullable) = false];
-  // Pass as start_after for the next page; zero when there are no more.
-  uint64 next_start_after = 2;
+  // Oldest unheld candidate under governance or the current reporter policy.
+  // Payment still requires maturity, refund capacity, and enabled refunds.
+  ID refund_head = 7 [
+    (gogoproto.jsontag)  = "refund_head",
+    (gogoproto.moretags) = "yaml:\"refund_head\""
+  ];
 }

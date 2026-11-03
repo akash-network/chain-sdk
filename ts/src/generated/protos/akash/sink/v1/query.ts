@@ -8,396 +8,96 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination.ts";
 import { Params } from "./params.ts";
-import { AccountUsage, Totals, TransferState } from "./types.ts";
+import {
+  AccountUsage,
+  EpochUsage,
+  ID,
+  ReporterPolicy,
+  Status,
+  statusFromJSON,
+  statusToJSON,
+  Totals,
+  TransferState,
+} from "./types.ts";
 
-/** QuerySink looks up a transfer by its canonical decimal record ID. */
-export interface QuerySink {
-  id: string;
-}
-
-/** QuerySinkResponse returns the public status and full settlement details. */
-export interface QuerySinkResponse {
-  status: QuerySinkResponse_SinkStatus;
-  transfer: TransferState | undefined;
-}
-
-/** SinkStatus is the public transfer lifecycle; settlement records refund payment separately. */
-export enum QuerySinkResponse_SinkStatus {
-  /** invalid - The response has no valid status. */
-  invalid = 0,
-  /** validation_pending - Reserved for asynchronous validation. */
-  validation_pending = 1,
-  /** validated - Reserved for asynchronous validation. */
-  validated = 2,
-  /** transfer_pending - The deposit is locked and awaits settlement. */
-  transfer_pending = 3,
-  /** completed - The mint has been confirmed. */
-  completed = 4,
-  /** void - The transfer is voided; consult settlement for refund payment. */
-  void = 5,
-  UNRECOGNIZED = -1,
-}
-
-export function querySinkResponse_SinkStatusFromJSON(object: any): QuerySinkResponse_SinkStatus {
-  switch (object) {
-    case 0:
-    case "invalid":
-      return QuerySinkResponse_SinkStatus.invalid;
-    case 1:
-    case "validation_pending":
-      return QuerySinkResponse_SinkStatus.validation_pending;
-    case 2:
-    case "validated":
-      return QuerySinkResponse_SinkStatus.validated;
-    case 3:
-    case "transfer_pending":
-      return QuerySinkResponse_SinkStatus.transfer_pending;
-    case 4:
-    case "completed":
-      return QuerySinkResponse_SinkStatus.completed;
-    case 5:
-    case "void":
-      return QuerySinkResponse_SinkStatus.void;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return QuerySinkResponse_SinkStatus.UNRECOGNIZED;
-  }
-}
-
-export function querySinkResponse_SinkStatusToJSON(object: QuerySinkResponse_SinkStatus): string {
-  switch (object) {
-    case QuerySinkResponse_SinkStatus.invalid:
-      return "invalid";
-    case QuerySinkResponse_SinkStatus.validation_pending:
-      return "validation_pending";
-    case QuerySinkResponse_SinkStatus.validated:
-      return "validated";
-    case QuerySinkResponse_SinkStatus.transfer_pending:
-      return "transfer_pending";
-    case QuerySinkResponse_SinkStatus.completed:
-      return "completed";
-    case QuerySinkResponse_SinkStatus.void:
-      return "void";
-    case QuerySinkResponse_SinkStatus.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
-/** QueryStateRequest defines the QueryStateRequest request. */
-export interface QueryStateRequest {
-}
-
-/** QueryStateResponse is the response for QueryState. */
-export interface QueryStateResponse {
-  params: Params | undefined;
-  totals: Totals | undefined;
-}
-
-/** QueryTransferRequest defines the QueryTransferRequest request. */
+/** QueryTransferRequest selects one transfer by its composite ID. */
 export interface QueryTransferRequest {
-  id: bigint;
+  id: ID | undefined;
 }
 
-/** QueryTransferResponse is the response for QueryTransfer. */
+/** QueryTransferResponse returns the complete transfer and settlement state. */
 export interface QueryTransferResponse {
   transfer: TransferState | undefined;
 }
 
-/** QueryAccountRequest defines the QueryAccountRequest request. */
-export interface QueryAccountRequest {
-  sender: string;
+/** QueryTransfersRequest selects a page of transfers by owner and financial status. */
+export interface QueryTransfersRequest {
+  owner: string;
+  status: Status;
+  pagination: PageRequest | undefined;
 }
 
-/** QueryAccountResponse is the response for QueryAccount. */
+/** QueryTransfersResponse returns transfers and the next index cursor. */
+export interface QueryTransfersResponse {
+  transfers: TransferState[];
+  pagination: PageResponse | undefined;
+}
+
+/** QueryDisputesRequest selects a page of held transfers across all financial statuses. */
+export interface QueryDisputesRequest {
+  pagination: PageRequest | undefined;
+}
+
+/** QueryDisputesResponse returns held transfers and the next dispute cursor. */
+export interface QueryDisputesResponse {
+  transfers: TransferState[];
+  pagination: PageResponse | undefined;
+}
+
+/** QueryAccountRequest selects usage for one Akash owner. */
+export interface QueryAccountRequest {
+  owner: string;
+}
+
+/** QueryAccountResponse returns account usage normalized to the queried sending epoch. */
 export interface QueryAccountResponse {
   usage: AccountUsage | undefined;
+  epoch: bigint;
 }
 
-/**
- * QueryOpenTransfersRequest pages through transfers that are neither minted
- * nor refunded: pending or voided, including held ones.
- */
-export interface QueryOpenTransfersRequest {
-  /** Returns IDs greater than this; zero starts at the first transfer. */
-  startAfter: bigint;
-  /** Zero means 100; values above 500 return 500. */
-  limit: number;
+/** QueryStateRequest requests the current Sink parameters, accounting and policy. */
+export interface QueryStateRequest {
 }
 
-/** QueryOpenTransfersResponse is the response for QueryOpenTransfers. */
-export interface QueryOpenTransfersResponse {
-  transfers: TransferState[];
-  /** Pass as start_after for the next page; zero when there are no more. */
-  nextStartAfter: bigint;
+/** QueryStateResponse returns parameters, accounting, current policy and the refund candidate head. */
+export interface QueryStateResponse {
+  params: Params | undefined;
+  totals: Totals | undefined;
+  policy: ReporterPolicy | undefined;
+  epoch: bigint;
+  sendUsage: EpochUsage | undefined;
+  refundUsage:
+    | EpochUsage
+    | undefined;
+  /**
+   * Oldest unheld candidate under governance or the current reporter policy.
+   * Payment still requires maturity, refund capacity, and enabled refunds.
+   */
+  refundHead: ID | undefined;
 }
-
-function createBaseQuerySink(): QuerySink {
-  return { id: "" };
-}
-
-export const QuerySink: MessageFns<QuerySink, "akash.sink.v1.QuerySink"> = {
-  $type: "akash.sink.v1.QuerySink" as const,
-
-  encode(message: QuerySink, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): QuerySink {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQuerySink();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.id = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QuerySink {
-    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
-  },
-
-  toJSON(message: QuerySink): unknown {
-    const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<QuerySink>): QuerySink {
-    const message = createBaseQuerySink();
-    message.id = object.id ?? "";
-    return message;
-  },
-};
-
-function createBaseQuerySinkResponse(): QuerySinkResponse {
-  return { status: 0, transfer: undefined };
-}
-
-export const QuerySinkResponse: MessageFns<QuerySinkResponse, "akash.sink.v1.QuerySinkResponse"> = {
-  $type: "akash.sink.v1.QuerySinkResponse" as const,
-
-  encode(message: QuerySinkResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.status !== 0) {
-      writer.uint32(8).int32(message.status);
-    }
-    if (message.transfer !== undefined) {
-      TransferState.encode(message.transfer, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): QuerySinkResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQuerySinkResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.status = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.transfer = TransferState.decode(reader, reader.uint32());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QuerySinkResponse {
-    return {
-      status: isSet(object.status) ? querySinkResponse_SinkStatusFromJSON(object.status) : 0,
-      transfer: isSet(object.transfer) ? TransferState.fromJSON(object.transfer) : undefined,
-    };
-  },
-
-  toJSON(message: QuerySinkResponse): unknown {
-    const obj: any = {};
-    if (message.status !== 0) {
-      obj.status = querySinkResponse_SinkStatusToJSON(message.status);
-    }
-    if (message.transfer !== undefined) {
-      obj.transfer = TransferState.toJSON(message.transfer);
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<QuerySinkResponse>): QuerySinkResponse {
-    const message = createBaseQuerySinkResponse();
-    message.status = object.status ?? 0;
-    message.transfer = (object.transfer !== undefined && object.transfer !== null)
-      ? TransferState.fromPartial(object.transfer)
-      : undefined;
-    return message;
-  },
-};
-
-function createBaseQueryStateRequest(): QueryStateRequest {
-  return {};
-}
-
-export const QueryStateRequest: MessageFns<QueryStateRequest, "akash.sink.v1.QueryStateRequest"> = {
-  $type: "akash.sink.v1.QueryStateRequest" as const,
-
-  encode(_: QueryStateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryStateRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryStateRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(_: any): QueryStateRequest {
-    return {};
-  },
-
-  toJSON(_: QueryStateRequest): unknown {
-    const obj: any = {};
-    return obj;
-  },
-  fromPartial(_: DeepPartial<QueryStateRequest>): QueryStateRequest {
-    const message = createBaseQueryStateRequest();
-    return message;
-  },
-};
-
-function createBaseQueryStateResponse(): QueryStateResponse {
-  return { params: undefined, totals: undefined };
-}
-
-export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.QueryStateResponse"> = {
-  $type: "akash.sink.v1.QueryStateResponse" as const,
-
-  encode(message: QueryStateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.params !== undefined) {
-      Params.encode(message.params, writer.uint32(10).fork()).join();
-    }
-    if (message.totals !== undefined) {
-      Totals.encode(message.totals, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryStateResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryStateResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.params = Params.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.totals = Totals.decode(reader, reader.uint32());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryStateResponse {
-    return {
-      params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
-      totals: isSet(object.totals) ? Totals.fromJSON(object.totals) : undefined,
-    };
-  },
-
-  toJSON(message: QueryStateResponse): unknown {
-    const obj: any = {};
-    if (message.params !== undefined) {
-      obj.params = Params.toJSON(message.params);
-    }
-    if (message.totals !== undefined) {
-      obj.totals = Totals.toJSON(message.totals);
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<QueryStateResponse>): QueryStateResponse {
-    const message = createBaseQueryStateResponse();
-    message.params = (object.params !== undefined && object.params !== null)
-      ? Params.fromPartial(object.params)
-      : undefined;
-    message.totals = (object.totals !== undefined && object.totals !== null)
-      ? Totals.fromPartial(object.totals)
-      : undefined;
-    return message;
-  },
-};
 
 function createBaseQueryTransferRequest(): QueryTransferRequest {
-  return { id: 0n };
+  return { id: undefined };
 }
 
 export const QueryTransferRequest: MessageFns<QueryTransferRequest, "akash.sink.v1.QueryTransferRequest"> = {
   $type: "akash.sink.v1.QueryTransferRequest" as const,
 
   encode(message: QueryTransferRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== 0n) {
-      if (BigInt.asUintN(64, message.id) !== message.id) {
-        throw new globalThis.Error("value provided for field message.id of type uint64 too large");
-      }
-      writer.uint32(8).uint64(message.id);
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -410,11 +110,11 @@ export const QueryTransferRequest: MessageFns<QueryTransferRequest, "akash.sink.
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 8) {
+          if (tag !== 10) {
             break;
           }
 
-          message.id = reader.uint64() as bigint;
+          message.id = ID.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -427,19 +127,19 @@ export const QueryTransferRequest: MessageFns<QueryTransferRequest, "akash.sink.
   },
 
   fromJSON(object: any): QueryTransferRequest {
-    return { id: isSet(object.id) ? BigInt(object.id) : 0n };
+    return { id: isSet(object.id) ? ID.fromJSON(object.id) : undefined };
   },
 
   toJSON(message: QueryTransferRequest): unknown {
     const obj: any = {};
-    if (message.id !== 0n) {
-      obj.id = message.id.toString();
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryTransferRequest>): QueryTransferRequest {
     const message = createBaseQueryTransferRequest();
-    message.id = (object.id !== undefined && object.id !== null) ? BigInt(object.id) : 0n;
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
     return message;
   },
 };
@@ -502,16 +202,322 @@ export const QueryTransferResponse: MessageFns<QueryTransferResponse, "akash.sin
   },
 };
 
+function createBaseQueryTransfersRequest(): QueryTransfersRequest {
+  return { owner: "", status: 0, pagination: undefined };
+}
+
+export const QueryTransfersRequest: MessageFns<QueryTransfersRequest, "akash.sink.v1.QueryTransfersRequest"> = {
+  $type: "akash.sink.v1.QueryTransfersRequest" as const,
+
+  encode(message: QueryTransfersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.owner !== "") {
+      writer.uint32(10).string(message.owner);
+    }
+    if (message.status !== 0) {
+      writer.uint32(16).int32(message.status);
+    }
+    if (message.pagination !== undefined) {
+      PageRequest.encode(message.pagination, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryTransfersRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryTransfersRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.owner = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.pagination = PageRequest.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryTransfersRequest {
+    return {
+      owner: isSet(object.owner) ? globalThis.String(object.owner) : "",
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryTransfersRequest): unknown {
+    const obj: any = {};
+    if (message.owner !== "") {
+      obj.owner = message.owner;
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.pagination !== undefined) {
+      obj.pagination = PageRequest.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryTransfersRequest>): QueryTransfersRequest {
+    const message = createBaseQueryTransfersRequest();
+    message.owner = object.owner ?? "";
+    message.status = object.status ?? 0;
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageRequest.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryTransfersResponse(): QueryTransfersResponse {
+  return { transfers: [], pagination: undefined };
+}
+
+export const QueryTransfersResponse: MessageFns<QueryTransfersResponse, "akash.sink.v1.QueryTransfersResponse"> = {
+  $type: "akash.sink.v1.QueryTransfersResponse" as const,
+
+  encode(message: QueryTransfersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.transfers) {
+      TransferState.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryTransfersResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryTransfersResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.transfers.push(TransferState.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.pagination = PageResponse.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryTransfersResponse {
+    return {
+      transfers: globalThis.Array.isArray(object?.transfers)
+        ? object.transfers.map((e: any) => TransferState.fromJSON(e))
+        : [],
+      pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryTransfersResponse): unknown {
+    const obj: any = {};
+    if (message.transfers?.length) {
+      obj.transfers = message.transfers.map((e) => TransferState.toJSON(e));
+    }
+    if (message.pagination !== undefined) {
+      obj.pagination = PageResponse.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryTransfersResponse>): QueryTransfersResponse {
+    const message = createBaseQueryTransfersResponse();
+    message.transfers = object.transfers?.map((e) => TransferState.fromPartial(e)) || [];
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageResponse.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryDisputesRequest(): QueryDisputesRequest {
+  return { pagination: undefined };
+}
+
+export const QueryDisputesRequest: MessageFns<QueryDisputesRequest, "akash.sink.v1.QueryDisputesRequest"> = {
+  $type: "akash.sink.v1.QueryDisputesRequest" as const,
+
+  encode(message: QueryDisputesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.pagination !== undefined) {
+      PageRequest.encode(message.pagination, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryDisputesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryDisputesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.pagination = PageRequest.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryDisputesRequest {
+    return { pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined };
+  },
+
+  toJSON(message: QueryDisputesRequest): unknown {
+    const obj: any = {};
+    if (message.pagination !== undefined) {
+      obj.pagination = PageRequest.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryDisputesRequest>): QueryDisputesRequest {
+    const message = createBaseQueryDisputesRequest();
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageRequest.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryDisputesResponse(): QueryDisputesResponse {
+  return { transfers: [], pagination: undefined };
+}
+
+export const QueryDisputesResponse: MessageFns<QueryDisputesResponse, "akash.sink.v1.QueryDisputesResponse"> = {
+  $type: "akash.sink.v1.QueryDisputesResponse" as const,
+
+  encode(message: QueryDisputesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.transfers) {
+      TransferState.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryDisputesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryDisputesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.transfers.push(TransferState.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.pagination = PageResponse.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryDisputesResponse {
+    return {
+      transfers: globalThis.Array.isArray(object?.transfers)
+        ? object.transfers.map((e: any) => TransferState.fromJSON(e))
+        : [],
+      pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryDisputesResponse): unknown {
+    const obj: any = {};
+    if (message.transfers?.length) {
+      obj.transfers = message.transfers.map((e) => TransferState.toJSON(e));
+    }
+    if (message.pagination !== undefined) {
+      obj.pagination = PageResponse.toJSON(message.pagination);
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<QueryDisputesResponse>): QueryDisputesResponse {
+    const message = createBaseQueryDisputesResponse();
+    message.transfers = object.transfers?.map((e) => TransferState.fromPartial(e)) || [];
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageResponse.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
 function createBaseQueryAccountRequest(): QueryAccountRequest {
-  return { sender: "" };
+  return { owner: "" };
 }
 
 export const QueryAccountRequest: MessageFns<QueryAccountRequest, "akash.sink.v1.QueryAccountRequest"> = {
   $type: "akash.sink.v1.QueryAccountRequest" as const,
 
   encode(message: QueryAccountRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.sender !== "") {
-      writer.uint32(10).string(message.sender);
+    if (message.owner !== "") {
+      writer.uint32(10).string(message.owner);
     }
     return writer;
   },
@@ -528,7 +534,7 @@ export const QueryAccountRequest: MessageFns<QueryAccountRequest, "akash.sink.v1
             break;
           }
 
-          message.sender = reader.string();
+          message.owner = reader.string();
           continue;
         }
       }
@@ -541,25 +547,25 @@ export const QueryAccountRequest: MessageFns<QueryAccountRequest, "akash.sink.v1
   },
 
   fromJSON(object: any): QueryAccountRequest {
-    return { sender: isSet(object.sender) ? globalThis.String(object.sender) : "" };
+    return { owner: isSet(object.owner) ? globalThis.String(object.owner) : "" };
   },
 
   toJSON(message: QueryAccountRequest): unknown {
     const obj: any = {};
-    if (message.sender !== "") {
-      obj.sender = message.sender;
+    if (message.owner !== "") {
+      obj.owner = message.owner;
     }
     return obj;
   },
   fromPartial(object: DeepPartial<QueryAccountRequest>): QueryAccountRequest {
     const message = createBaseQueryAccountRequest();
-    message.sender = object.sender ?? "";
+    message.owner = object.owner ?? "";
     return message;
   },
 };
 
 function createBaseQueryAccountResponse(): QueryAccountResponse {
-  return { usage: undefined };
+  return { usage: undefined, epoch: 0n };
 }
 
 export const QueryAccountResponse: MessageFns<QueryAccountResponse, "akash.sink.v1.QueryAccountResponse"> = {
@@ -568,6 +574,12 @@ export const QueryAccountResponse: MessageFns<QueryAccountResponse, "akash.sink.
   encode(message: QueryAccountResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.usage !== undefined) {
       AccountUsage.encode(message.usage, writer.uint32(10).fork()).join();
+    }
+    if (message.epoch !== 0n) {
+      if (BigInt.asUintN(64, message.epoch) !== message.epoch) {
+        throw new globalThis.Error("value provided for field message.epoch of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.epoch);
     }
     return writer;
   },
@@ -587,6 +599,14 @@ export const QueryAccountResponse: MessageFns<QueryAccountResponse, "akash.sink.
           message.usage = AccountUsage.decode(reader, reader.uint32());
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.epoch = reader.uint64() as bigint;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -597,13 +617,19 @@ export const QueryAccountResponse: MessageFns<QueryAccountResponse, "akash.sink.
   },
 
   fromJSON(object: any): QueryAccountResponse {
-    return { usage: isSet(object.usage) ? AccountUsage.fromJSON(object.usage) : undefined };
+    return {
+      usage: isSet(object.usage) ? AccountUsage.fromJSON(object.usage) : undefined,
+      epoch: isSet(object.epoch) ? BigInt(object.epoch) : 0n,
+    };
   },
 
   toJSON(message: QueryAccountResponse): unknown {
     const obj: any = {};
     if (message.usage !== undefined) {
       obj.usage = AccountUsage.toJSON(message.usage);
+    }
+    if (message.epoch !== 0n) {
+      obj.epoch = message.epoch.toString();
     }
     return obj;
   },
@@ -612,56 +638,29 @@ export const QueryAccountResponse: MessageFns<QueryAccountResponse, "akash.sink.
     message.usage = (object.usage !== undefined && object.usage !== null)
       ? AccountUsage.fromPartial(object.usage)
       : undefined;
+    message.epoch = (object.epoch !== undefined && object.epoch !== null) ? BigInt(object.epoch) : 0n;
     return message;
   },
 };
 
-function createBaseQueryOpenTransfersRequest(): QueryOpenTransfersRequest {
-  return { startAfter: 0n, limit: 0 };
+function createBaseQueryStateRequest(): QueryStateRequest {
+  return {};
 }
 
-export const QueryOpenTransfersRequest: MessageFns<
-  QueryOpenTransfersRequest,
-  "akash.sink.v1.QueryOpenTransfersRequest"
-> = {
-  $type: "akash.sink.v1.QueryOpenTransfersRequest" as const,
+export const QueryStateRequest: MessageFns<QueryStateRequest, "akash.sink.v1.QueryStateRequest"> = {
+  $type: "akash.sink.v1.QueryStateRequest" as const,
 
-  encode(message: QueryOpenTransfersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.startAfter !== 0n) {
-      if (BigInt.asUintN(64, message.startAfter) !== message.startAfter) {
-        throw new globalThis.Error("value provided for field message.startAfter of type uint64 too large");
-      }
-      writer.uint32(8).uint64(message.startAfter);
-    }
-    if (message.limit !== 0) {
-      writer.uint32(16).uint32(message.limit);
-    }
+  encode(_: QueryStateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryOpenTransfersRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryStateRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryOpenTransfersRequest();
+    const message = createBaseQueryStateRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.startAfter = reader.uint64() as bigint;
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.limit = reader.uint32();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -671,60 +670,67 @@ export const QueryOpenTransfersRequest: MessageFns<
     return message;
   },
 
-  fromJSON(object: any): QueryOpenTransfersRequest {
-    return {
-      startAfter: isSet(object.start_after) ? BigInt(object.start_after) : 0n,
-      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
-    };
+  fromJSON(_: any): QueryStateRequest {
+    return {};
   },
 
-  toJSON(message: QueryOpenTransfersRequest): unknown {
+  toJSON(_: QueryStateRequest): unknown {
     const obj: any = {};
-    if (message.startAfter !== 0n) {
-      obj.start_after = message.startAfter.toString();
-    }
-    if (message.limit !== 0) {
-      obj.limit = Math.round(message.limit);
-    }
     return obj;
   },
-  fromPartial(object: DeepPartial<QueryOpenTransfersRequest>): QueryOpenTransfersRequest {
-    const message = createBaseQueryOpenTransfersRequest();
-    message.startAfter = (object.startAfter !== undefined && object.startAfter !== null)
-      ? BigInt(object.startAfter)
-      : 0n;
-    message.limit = object.limit ?? 0;
+  fromPartial(_: DeepPartial<QueryStateRequest>): QueryStateRequest {
+    const message = createBaseQueryStateRequest();
     return message;
   },
 };
 
-function createBaseQueryOpenTransfersResponse(): QueryOpenTransfersResponse {
-  return { transfers: [], nextStartAfter: 0n };
+function createBaseQueryStateResponse(): QueryStateResponse {
+  return {
+    params: undefined,
+    totals: undefined,
+    policy: undefined,
+    epoch: 0n,
+    sendUsage: undefined,
+    refundUsage: undefined,
+    refundHead: undefined,
+  };
 }
 
-export const QueryOpenTransfersResponse: MessageFns<
-  QueryOpenTransfersResponse,
-  "akash.sink.v1.QueryOpenTransfersResponse"
-> = {
-  $type: "akash.sink.v1.QueryOpenTransfersResponse" as const,
+export const QueryStateResponse: MessageFns<QueryStateResponse, "akash.sink.v1.QueryStateResponse"> = {
+  $type: "akash.sink.v1.QueryStateResponse" as const,
 
-  encode(message: QueryOpenTransfersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.transfers) {
-      TransferState.encode(v!, writer.uint32(10).fork()).join();
+  encode(message: QueryStateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.params !== undefined) {
+      Params.encode(message.params, writer.uint32(10).fork()).join();
     }
-    if (message.nextStartAfter !== 0n) {
-      if (BigInt.asUintN(64, message.nextStartAfter) !== message.nextStartAfter) {
-        throw new globalThis.Error("value provided for field message.nextStartAfter of type uint64 too large");
+    if (message.totals !== undefined) {
+      Totals.encode(message.totals, writer.uint32(18).fork()).join();
+    }
+    if (message.policy !== undefined) {
+      ReporterPolicy.encode(message.policy, writer.uint32(26).fork()).join();
+    }
+    if (message.epoch !== 0n) {
+      if (BigInt.asUintN(64, message.epoch) !== message.epoch) {
+        throw new globalThis.Error("value provided for field message.epoch of type uint64 too large");
       }
-      writer.uint32(16).uint64(message.nextStartAfter);
+      writer.uint32(32).uint64(message.epoch);
+    }
+    if (message.sendUsage !== undefined) {
+      EpochUsage.encode(message.sendUsage, writer.uint32(42).fork()).join();
+    }
+    if (message.refundUsage !== undefined) {
+      EpochUsage.encode(message.refundUsage, writer.uint32(50).fork()).join();
+    }
+    if (message.refundHead !== undefined) {
+      ID.encode(message.refundHead, writer.uint32(58).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryOpenTransfersResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): QueryStateResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryOpenTransfersResponse();
+    const message = createBaseQueryStateResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -733,15 +739,55 @@ export const QueryOpenTransfersResponse: MessageFns<
             break;
           }
 
-          message.transfers.push(TransferState.decode(reader, reader.uint32()));
+          message.params = Params.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.nextStartAfter = reader.uint64() as bigint;
+          message.totals = Totals.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.policy = ReporterPolicy.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.epoch = reader.uint64() as bigint;
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.sendUsage = EpochUsage.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.refundUsage = EpochUsage.decode(reader, reader.uint32());
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.refundHead = ID.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -753,31 +799,64 @@ export const QueryOpenTransfersResponse: MessageFns<
     return message;
   },
 
-  fromJSON(object: any): QueryOpenTransfersResponse {
+  fromJSON(object: any): QueryStateResponse {
     return {
-      transfers: globalThis.Array.isArray(object?.transfers)
-        ? object.transfers.map((e: any) => TransferState.fromJSON(e))
-        : [],
-      nextStartAfter: isSet(object.next_start_after) ? BigInt(object.next_start_after) : 0n,
+      params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
+      totals: isSet(object.totals) ? Totals.fromJSON(object.totals) : undefined,
+      policy: isSet(object.policy) ? ReporterPolicy.fromJSON(object.policy) : undefined,
+      epoch: isSet(object.epoch) ? BigInt(object.epoch) : 0n,
+      sendUsage: isSet(object.send_usage) ? EpochUsage.fromJSON(object.send_usage) : undefined,
+      refundUsage: isSet(object.refund_usage) ? EpochUsage.fromJSON(object.refund_usage) : undefined,
+      refundHead: isSet(object.refund_head) ? ID.fromJSON(object.refund_head) : undefined,
     };
   },
 
-  toJSON(message: QueryOpenTransfersResponse): unknown {
+  toJSON(message: QueryStateResponse): unknown {
     const obj: any = {};
-    if (message.transfers?.length) {
-      obj.transfers = message.transfers.map((e) => TransferState.toJSON(e));
+    if (message.params !== undefined) {
+      obj.params = Params.toJSON(message.params);
     }
-    if (message.nextStartAfter !== 0n) {
-      obj.next_start_after = message.nextStartAfter.toString();
+    if (message.totals !== undefined) {
+      obj.totals = Totals.toJSON(message.totals);
+    }
+    if (message.policy !== undefined) {
+      obj.policy = ReporterPolicy.toJSON(message.policy);
+    }
+    if (message.epoch !== 0n) {
+      obj.epoch = message.epoch.toString();
+    }
+    if (message.sendUsage !== undefined) {
+      obj.send_usage = EpochUsage.toJSON(message.sendUsage);
+    }
+    if (message.refundUsage !== undefined) {
+      obj.refund_usage = EpochUsage.toJSON(message.refundUsage);
+    }
+    if (message.refundHead !== undefined) {
+      obj.refund_head = ID.toJSON(message.refundHead);
     }
     return obj;
   },
-  fromPartial(object: DeepPartial<QueryOpenTransfersResponse>): QueryOpenTransfersResponse {
-    const message = createBaseQueryOpenTransfersResponse();
-    message.transfers = object.transfers?.map((e) => TransferState.fromPartial(e)) || [];
-    message.nextStartAfter = (object.nextStartAfter !== undefined && object.nextStartAfter !== null)
-      ? BigInt(object.nextStartAfter)
-      : 0n;
+  fromPartial(object: DeepPartial<QueryStateResponse>): QueryStateResponse {
+    const message = createBaseQueryStateResponse();
+    message.params = (object.params !== undefined && object.params !== null)
+      ? Params.fromPartial(object.params)
+      : undefined;
+    message.totals = (object.totals !== undefined && object.totals !== null)
+      ? Totals.fromPartial(object.totals)
+      : undefined;
+    message.policy = (object.policy !== undefined && object.policy !== null)
+      ? ReporterPolicy.fromPartial(object.policy)
+      : undefined;
+    message.epoch = (object.epoch !== undefined && object.epoch !== null) ? BigInt(object.epoch) : 0n;
+    message.sendUsage = (object.sendUsage !== undefined && object.sendUsage !== null)
+      ? EpochUsage.fromPartial(object.sendUsage)
+      : undefined;
+    message.refundUsage = (object.refundUsage !== undefined && object.refundUsage !== null)
+      ? EpochUsage.fromPartial(object.refundUsage)
+      : undefined;
+    message.refundHead = (object.refundHead !== undefined && object.refundHead !== null)
+      ? ID.fromPartial(object.refundHead)
+      : undefined;
     return message;
   },
 };

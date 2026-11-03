@@ -4,24 +4,25 @@ import { mock } from "vitest-mock-extended";
 import { MsgGuardianPause, MsgGuardianPauseResponse, MsgSink, MsgSinkResponse } from "../../generated/protos/akash/sink/v1/msgs.ts";
 import { Params } from "../../generated/protos/akash/sink/v1/params.ts";
 import {
-  QueryOpenTransfersRequest,
-  QueryOpenTransfersResponse,
-  QuerySinkResponse,
-  QuerySinkResponse_SinkStatus,
+  QueryDisputesResponse,
   QueryStateResponse,
+  QueryTransferResponse,
+  QueryTransfersRequest,
+  QueryTransfersResponse,
 } from "../../generated/protos/akash/sink/v1/query.ts";
-import { AccountUsage, Settlement, Status, Totals } from "../../generated/protos/akash/sink/v1/types.ts";
+import { AccountUsage, DestType, ID, Status, Totals } from "../../generated/protos/akash/sink/v1/types.ts";
 import type { TxClient } from "../transport/tx/TxClient.ts";
 import { createChainNodeWebSDK } from "./createChainNodeWebSDK.ts";
 
 const MAX_UINT64 = 18446744073709551615n;
+const MAX_INT64 = 9223372036854775807n;
 
 describe("sink SDK", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("signs MsgSink and decodes the included record ID", async () => {
     const signer = mock<TxClient>();
-    const id = MAX_UINT64.toString();
+    const id = ID.fromPartial({ owner: "akash1sender", height: 9007199254740993n, sequence: MAX_UINT64 });
     signer.signAndBroadcast.mockResolvedValue({
       code: 0,
       height: 10,
@@ -41,7 +42,7 @@ describe("sink SDK", () => {
     });
     const message = MsgSink.fromPartial({
       sender: "akash1sender",
-      destType: 1,
+      destType: DestType.DEST_TYPE_SOLANA,
       dest: "SolanaPublicKey",
       amount: { denom: "uakt", amount: "1000000" },
     });
@@ -85,100 +86,72 @@ describe("sink SDK", () => {
     expect(Params.fromJSON({ pause_guardian: "akash1guardian" }).pauseGuardian).toBe("akash1guardian");
   });
 
-  it("queries a record over REST without losing uint64 precision or refund state", async () => {
-    const response = QuerySinkResponse.fromPartial({
-      status: QuerySinkResponse_SinkStatus.void,
-      transfer: {
-        record: Uint8Array.of(1, 2, 3),
-        settlement: { status: Status.STATUS_REFUNDED, round: 9007199254740993n },
-      },
-    });
-    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
-      new Response(JSON.stringify(QuerySinkResponse.toJSON(response))),
-    );
+  it("queries composite IDs without losing precision or paid status", async () => {
+    const id = ID.fromPartial({ owner: "akash1owner", height: 9007199254740993n, sequence: MAX_UINT64 });
+    const response = QueryTransferResponse.fromPartial({ transfer: { id, settlement: { status: Status.STATUS_REFUNDED, round: 9007199254740993n } } });
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(QueryTransferResponse.toJSON(response))));
     vi.stubGlobal("fetch", fetch);
     const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
-
-    const result = await sdk.akash.sink.v1.getSink({ id: MAX_UINT64.toString() });
-
-    expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe(`/akash/sink/v1/records/${MAX_UINT64}`);
-    expect(result.status).toBe(QuerySinkResponse_SinkStatus.void);
+    const result = await sdk.akash.sink.v1.getTransfer({ id });
+    expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe(`/akash/sink/v1/transfers/${id.owner}/${id.height}/${id.sequence}`);
+    expect(result.transfer?.id).toEqual(id);
     expect(result.transfer?.settlement?.status).toBe(Status.STATUS_REFUNDED);
     expect(result.transfer?.settlement?.round).toBe(9007199254740993n);
+    await expect(sdk.akash.sink.v1.getTransfer({ id: { owner: id.owner } })).rejects.toThrow("id.height");
   });
 
-  it("pages open transfers over REST with unsigned cursors", async () => {
-    const response = QueryOpenTransfersResponse.fromPartial({
-      transfers: [
-        { record: Uint8Array.of(1), settlement: { status: Status.STATUS_PENDING, round: 1n } },
-        { record: Uint8Array.of(2), voidOrdered: true, settlement: { status: Status.STATUS_VOIDED, round: 2n } },
-      ],
-      nextStartAfter: MAX_UINT64,
+  it("pages transfers at a fixed height with native pagination", async () => {
+    const response = QueryTransfersResponse.fromPartial({
+      transfers: [{ settlement: { status: Status.STATUS_REFUND_PENDING } }],
+      pagination: { nextKey: Uint8Array.of(3, 4) },
     });
-    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
-      new Response(JSON.stringify(QueryOpenTransfersResponse.toJSON(response))),
-    );
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(QueryTransfersResponse.toJSON(response))));
     vi.stubGlobal("fetch", fetch);
     const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
-
-    const result = await sdk.akash.sink.v1.getOpenTransfers({ startAfter: MAX_UINT64 - 1n, limit: 500 });
-
+    const request = QueryTransfersRequest.fromPartial({ owner: "akash1owner", status: Status.STATUS_REFUND_PENDING, pagination: { key: Uint8Array.of(1, 2), limit: 500n } });
+    const result = await sdk.akash.sink.v1.getTransfers(request, { header: { "x-cosmos-block-height": "9001" } });
     const url = new URL(fetch.mock.calls[0][0].toString());
-    expect(url.pathname).toBe("/akash/sink/v1/open_transfers");
-    expect(url.searchParams.get("start_after")).toBe((MAX_UINT64 - 1n).toString());
-    expect(url.searchParams.get("limit")).toBe("500");
-    expect(result.transfers).toHaveLength(2);
-    expect(result.transfers[1].voidOrdered).toBe(true);
-    expect(result.transfers[1].settlement?.status).toBe(Status.STATUS_VOIDED);
-    expect(result.nextStartAfter).toBe(MAX_UINT64);
-
-    const request = QueryOpenTransfersRequest.fromPartial({ startAfter: MAX_UINT64 });
-    expect(request.startAfter).toBe(MAX_UINT64);
-    expect(request.limit).toBe(0);
-    expect(QueryOpenTransfersRequest.decode(QueryOpenTransfersRequest.encode(request).finish())).toEqual(request);
+    expect(url.pathname).toBe("/akash/sink/v1/transfers");
+    expect(url.searchParams.get("pagination.key")).toBe("AQI=");
+    expect(url.searchParams.get("pagination.limit")).toBe("500");
+    expect(url.searchParams.get("status")).toBe("STATUS_REFUND_PENDING");
+    expect(new Headers(fetch.mock.calls[0][1]?.headers).get("x-cosmos-block-height")).toBe("9001");
+    expect(result.pagination?.nextKey).toEqual(Uint8Array.of(3, 4));
+    expect(QueryTransfersRequest.decode(QueryTransfersRequest.encode(request).finish())).toEqual(request);
   });
 
-  it("decodes uint64 values above the signed range in fromJSON and fromPartial", () => {
-    const max = MAX_UINT64.toString();
-    const params = Params.fromJSON({ max_transfer: max, min_transfer: "1000000" });
-    expect(params.maxTransfer).toBe(MAX_UINT64);
-    expect(params.minTransfer).toBe(1000000n);
-    expect(Params.decode(Params.encode(params).finish())).toEqual(params);
-
-    const totals = Totals.fromPartial({ lastTransferId: MAX_UINT64, reporterEpoch: MAX_UINT64 });
-    expect(totals.lastTransferId).toBe(MAX_UINT64);
-    expect(totals.reporterEpoch).toBe(MAX_UINT64);
-    expect(Totals.decode(Totals.encode(totals).finish())).toEqual(totals);
-
-    const capped = Params.fromJSON({ max_daily_amount_per_account: max });
-    expect(capped.maxDailyAmountPerAccount).toBe(MAX_UINT64);
-    expect(Params.fromPartial({ maxDailyAmountPerAccount: MAX_UINT64 }).maxDailyAmountPerAccount).toBe(MAX_UINT64);
-    expect(Params.toJSON(capped)).toMatchObject({ max_daily_amount_per_account: max });
-    expect(Params.fromJSON({}).maxDailyAmountPerAccount).toBe(0n);
-
-    const usage = AccountUsage.fromJSON({ daily_amount: max, daily_count: 2 });
-    expect(usage.dailyAmount).toBe(MAX_UINT64);
-    expect(AccountUsage.decode(AccountUsage.encode(usage).finish())).toEqual(usage);
-
-    // Signed fields keep their sign.
-    expect(Settlement.fromPartial({ challengeEnd: -1n }).challengeEnd).toBe(-1n);
-    expect(Settlement.fromJSON({ challenge_end: "-1" }).challengeEnd).toBe(-1n);
-  });
-
-  it("queries state over REST without turning uint64 limits negative", async () => {
-    const max = MAX_UINT64.toString();
-    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
-      new Response(JSON.stringify({ params: { max_transfer: max, daily_refund_cap: max }, totals: { pending_amount: max } })),
-    );
+  it("lists disputes including terminal conflicts", async () => {
+    const response = QueryDisputesResponse.fromPartial({ transfers: [{ settlement: { status: Status.STATUS_MINTED, hold: 2 } }] });
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(QueryDisputesResponse.toJSON(response))));
     vi.stubGlobal("fetch", fetch);
     const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
+    const result = await sdk.akash.sink.v1.getDisputes({});
+    expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe("/akash/sink/v1/disputes");
+    expect(result.transfers[0].settlement?.status).toBe(Status.STATUS_MINTED);
+  });
 
+  it("round trips Coin totals above uint64 and the exact LegacyDec ratio", () => {
+    const amount = (MAX_UINT64 * 2n).toString();
+    const params = Params.fromJSON({ max_transfer_amount_per_epoch: { denom: "uakt", amount }, reporters_threshold: "0.750000000000000000" });
+    expect(params.maxTransferAmountPerEpoch?.amount).toBe(amount);
+    expect(Params.decode(Params.encode(params).finish()).reportersThreshold).toBe("0.75");
+    const totals = Totals.fromPartial({ pendingAmount: { denom: "uakt", amount }, pendingCount: MAX_UINT64 });
+    expect(Totals.decode(Totals.encode(totals).finish())).toEqual(totals);
+    const usage = AccountUsage.fromPartial({ totalSent: { denom: "uakt", amount }, epochSent: { denom: "uakt", amount: "1" }, lastEpoch: MAX_INT64 });
+    expect(AccountUsage.decode(AccountUsage.encode(usage).finish())).toEqual(usage);
+  });
+
+  it("queries independent send/refund usage and complete state", async () => {
+    const response = QueryStateResponse.fromPartial({
+      params: { reportersThreshold: "0.75" },
+      sendUsage: { epoch: 10n, amount: { denom: "uakt", amount: "4" } },
+      refundUsage: { epoch: 11n, amount: { denom: "uakt", amount: "9" } },
+      refundHead: { owner: "akash1owner", height: 1n, sequence: MAX_UINT64 },
+    });
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(QueryStateResponse.toJSON(response))));
+    vi.stubGlobal("fetch", fetch);
+    const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
     const result = await sdk.akash.sink.v1.getState();
-
-    expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe("/akash/sink/v1/state");
-    expect(result.params?.maxTransfer).toBe(MAX_UINT64);
-    expect(result.params?.dailyRefundCap).toBe(MAX_UINT64);
-    expect(result.totals?.pendingAmount).toBe(MAX_UINT64);
-    expect(QueryStateResponse.toJSON(result)).toMatchObject({ params: { max_transfer: max } });
+    expect(result).toEqual(response);
   });
 });

@@ -52,14 +52,20 @@ export function createGrpcGatewayTransport(options: GrpcGatewayTransportOptions)
           method,
           requestMethod: method.httpMethod || "GET",
           url: method.httpPath.replace(/\{[^}]+\}/g, (interpolation) => {
-            const data = message as Record<string, unknown> | undefined;
             // gRPC path templates may carry a capture pattern ({denom=**}, {name=segments});
             // the message field is the FieldPath before "="
             const key = interpolation.slice(1, -1).split("=")[0].trim();
-            if (!data || !Object.hasOwn(data, key)) {
-              throw new TransportError(`Cannot construct url for ${method.parent.typeName}.${method.name}: "${key}" is not specified in message`, TransportError.Code.InvalidArgument);
+            let value: unknown = message;
+            for (const field of key.split(".")) {
+              if (value === null || typeof value !== "object" || !Object.hasOwn(value, field)) {
+                throw new TransportError(`Cannot construct url for ${method.parent.typeName}.${method.name}: "${key}" is not specified in message`, TransportError.Code.InvalidArgument);
+              }
+              value = Reflect.get(value, field);
             }
-            return String(data[key]);
+            if (value === null || value === undefined || typeof value === "object") {
+              throw new TransportError(`Cannot construct url for ${method.parent.typeName}.${method.name}: "${key}" is not a scalar`, TransportError.Code.InvalidArgument);
+            }
+            return String(value);
           }),
           header: headers,
           contextValues: callOptions?.contextValues ?? createContextValues(),

@@ -11,6 +11,7 @@ import type * as _protos_akash_oracle_v1_prices from "../protos/akash/oracle/v1/
 import type * as _protos_akash_oracle_v2_prices from "../protos/akash/oracle/v2/prices.ts";
 import type * as _protos_akash_oracle_v2_events from "../protos/akash/oracle/v2/events.ts";
 import type * as _protos_akash_oracle_v2_msgs from "../protos/akash/oracle/v2/msgs.ts";
+import type * as _protos_akash_sink_v1_params from "../protos/akash/sink/v1/params.ts";
 
 const p = {
   "akash.base.resources.v1beta4.ResourceValue": Object.assign(function(value: any, transformType: 'encode' | 'decode') {
@@ -113,6 +114,12 @@ const p = {
     if (value == null) return;
     const newValue = { ...value };
     if (value.price != null) newValue.price = LegacyDec[transformType](value.price);
+    return newValue;
+  },
+  "akash.sink.v1.Params"(value: _protos_akash_sink_v1_params.Params | undefined | null, transformType: 'encode' | 'decode') {
+    if (value == null) return;
+    const newValue = { ...value };
+    if (value.reportersThreshold != null) newValue.reportersThreshold = LegacyDec[transformType](value.reportersThreshold);
     return newValue;
   }
 };

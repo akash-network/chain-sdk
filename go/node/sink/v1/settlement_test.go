@@ -2,117 +2,139 @@ package v1_test
 
 import (
 	"bytes"
-	"math"
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 
 	types "pkg.akt.dev/go/node/sink/v1"
 )
 
-func TestReporterPolicyBoundaries(t *testing.T) {
-	members := make([]string, 4)
-	for i := range members {
-		members[i] = sdk.AccAddress(bytes.Repeat([]byte{byte(i) + 1}, 20)).String()
-	}
-	require.NoError(t, types.ValidateReporters(nil, 0))
-	require.NoError(t, types.ValidateReporters(members, 3))
-	require.NoError(t, types.ValidateReporters(members, 4))
-	require.ErrorIs(t, types.ValidateReporters(members[:3], 2), types.ErrInvalidReporters)
-	require.ErrorIs(t, types.ValidateReporters(members, 2), types.ErrInvalidReporters)
-	require.ErrorIs(t, types.ValidateReporters(members, math.MaxUint32), types.ErrInvalidReporters)
-	require.ErrorIs(t, types.ValidateReporters(nil, 1), types.ErrInvalidReporters)
-	require.ErrorIs(t, types.ValidateReporters([]string{members[0], members[0]}, 2), types.ErrInvalidReporters)
-	require.ErrorIs(t, types.ValidateReporters([]string{"invalid"}, 1), sdkerrors.ErrInvalidAddress)
-	p := types.DefaultParams()
-	p.Enabled = true
-	require.Error(t, p.Validate())
-	p.Reporters, p.ReporterThreshold = members, 3
-	require.ErrorContains(t, p.Validate(), "min transfer must be set") // deposits need a minimum
-	p.MinTransfer = 1
-	require.NoError(t, p.Validate())
-	p.Enabled = false
-	p.MinTransfer = 0
-	require.NoError(t, p.Validate()) // disabling deposits never fails on the minimum
-	p.Enabled, p.MinTransfer = true, 1
-	p.ChallengePeriodSeconds = 0
-	require.Error(t, p.Validate())
-	p.ChallengePeriodSeconds = types.MinChallengePeriodSeconds - 1
-	require.ErrorContains(t, p.Validate(), "challenge period")
-	p.RefundsEnabled = false
-	require.Error(t, p.Validate()) // the floor applies while refunds are off too
-	p.ChallengePeriodSeconds = types.MinChallengePeriodSeconds
-	require.NoError(t, p.Validate())
-	p.ChallengePeriodSeconds = math.MaxUint64
-	require.Error(t, p.Validate())
-	p.ChallengePeriodSeconds = types.MinChallengePeriodSeconds
-	p.DailyRefundCap = p.MaxTransfer - 1
-	require.Error(t, p.Validate())
-	require.Equal(t, types.DefaultChallengePeriodSeconds, types.DefaultParams().ChallengePeriodSeconds)
-	require.NoError(t, types.DefaultParams().Validate())
+func account(b byte) string {
+	return sdk.AccAddress(bytes.Repeat([]byte{b}, 20)).String()
 }
 
-func TestTalliesCountOnlyKnownOutcomes(t *testing.T) {
-	vote := func(o types.Outcome) types.Vote {
-		return types.Vote{Observation: types.Observation{Outcome: o}}
+func evidence() types.SolanaEvidence {
+	return types.SolanaEvidence{Slot: 7, TransactionSignature: bytes.Repeat([]byte{8}, 64)}
+}
+
+func policy() types.ReporterPolicy {
+	return types.ReporterPolicy{Version: 1, Members: []string{account(1), account(2), account(3), account(4)}, Threshold: 3}
+}
+
+func quorum(outcome types.Outcome) []types.Vote {
+	votes := make([]types.Vote, 3)
+	for i := range votes {
+		votes[i] = types.Vote{Reporter: account(byte(i + 1)), PolicyVersion: 1, Observation: types.Observation{Outcome: outcome, Evidence: evidence()}}
 	}
-	s := types.Settlement{Votes: []types.Vote{vote(types.Outcome_OUTCOME_MINTED), vote(types.Outcome_OUTCOME_VOIDED),
-		vote(types.Outcome_OUTCOME_UNSPECIFIED), vote(types.Outcome(7))}}
+
+	return votes
+}
+
+func settled(status types.Status) types.SettlementData {
+	s := types.SettlementData{Status: status, Round: 1, PolicyVersion: 1}
+	if status == types.StatusMinted {
+		s.Votes = quorum(types.OutcomeMinted)
+	}
+
+	if status == types.StatusRefundPending || status == types.StatusRefunded {
+		s.Votes = quorum(types.OutcomeVoided)
+	}
+
+	if status == types.StatusRefundPending {
+		deadline := time.Unix(3600, 0).UTC()
+		s.ChallengeEnd = &deadline
+	}
+
+	return s
+}
+
+func TestSettlementRetainsAuthorization(t *testing.T) {
+	policies := map[uint64]types.ReporterPolicy{1: policy(), 2: {Version: 2, Members: []string{account(9)}, Threshold: 1}}
+	for _, status := range []types.Status{types.StatusTransferPending, types.StatusMinted, types.StatusRefundPending, types.StatusRefunded} {
+		s := settled(status)
+		require.NoError(t, s.Validate(policies))
+
+		if status != types.StatusTransferPending {
+			s.Votes = nil
+			require.ErrorContains(t, s.Validate(policies), "retained quorum")
+			e := evidence()
+			s.GovernanceEvidence, s.Round = &e, 2
+			require.NoError(t, s.Validate(policies))
+		}
+	}
+
+	s := settled(types.StatusMinted)
+	s.Votes = append(s.Votes, types.Vote{Reporter: account(9), PolicyVersion: 2, Observation: types.Observation{Outcome: types.OutcomeVoided, Evidence: evidence()}})
+	require.ErrorContains(t, s.Validate(policies), "conflict")
+	s.Hold = types.HoldConflict
+	require.NoError(t, s.Validate(policies))
 	minted, voided := s.Tallies()
-	require.Equal(t, uint32(1), minted)
-	require.Equal(t, uint32(1), voided)
+	require.Equal(t, uint32(3), minted)
+	require.Zero(t, voided)
+	s.PolicyVersion = 2
+	require.ErrorContains(t, s.Validate(policies), "retained quorum")
 }
 
-func TestSettlementValidationAndAccounting(t *testing.T) {
-	member := sdk.AccAddress(bytes.Repeat([]byte{1}, 20)).String()
-	o := types.Observation{Outcome: types.Outcome_OUTCOME_VOIDED, Slot: 100, TransactionSignature: bytes.Repeat([]byte{1}, 64)}
-	valid := types.Settlement{Status: types.Status_STATUS_VOIDED, Round: 1, ChallengeEnd: 100,
-		Policy: types.ReporterPolicy{Epoch: 1, Members: []string{member}, Threshold: 1},
-		Votes:  []types.Vote{{Reporter: member, Observation: o}}}
-	require.NoError(t, valid.Validate(1))
-	for name, mutate := range map[string]func(*types.Settlement){
-		"zero round":            func(s *types.Settlement) { s.Round = 0 },
-		"missing epoch":         func(s *types.Settlement) { s.Policy.Epoch = 0 },
-		"future epoch":          func(s *types.Settlement) { s.Policy.Epoch = 2 },
-		"missing deadline":      func(s *types.Settlement) { s.ChallengeEnd = 0 },
-		"missing authorization": func(s *types.Settlement) { s.Votes = nil },
-		"duplicate vote":        func(s *types.Settlement) { s.Votes = append(s.Votes, s.Votes[0]) },
-		"unknown reporter":      func(s *types.Settlement) { s.Policy.Members = nil; s.Policy.Threshold = 0 },
-		"unknown status":        func(s *types.Settlement) { s.Status = 99 },
-		"unknown hold":          func(s *types.Settlement) { s.Hold = 99 },
-		"veto without signer":   func(s *types.Settlement) { s.Hold = types.Hold_HOLD_VETO },
-		"conflict without hold": func(s *types.Settlement) {
-			mint := o
-			mint.Outcome = types.Outcome_OUTCOME_MINTED
-			s.Votes = append(s.Votes, types.Vote{Reporter: member, Observation: mint})
+func TestSettlementShapes(t *testing.T) {
+	policies := map[uint64]types.ReporterPolicy{1: policy()}
+	for name, change := range map[string]func(*types.SettlementData){
+		"unknown status":   func(s *types.SettlementData) { s.Status = 3 },
+		"unknown hold":     func(s *types.SettlementData) { s.Hold = 3 },
+		"zero round":       func(s *types.SettlementData) { s.Round = 0 },
+		"missing policy":   func(s *types.SettlementData) { s.PolicyVersion = 2 },
+		"missing deadline": func(s *types.SettlementData) { s.ChallengeEnd = nil },
+		"zero deadline":    func(s *types.SettlementData) { s.ChallengeEnd = &time.Time{} },
+		"duplicate vote":   func(s *types.SettlementData) { s.Votes = append(s.Votes, s.Votes[0]) },
+		"outsider":         func(s *types.SettlementData) { s.Votes[0].Reporter = account(9) },
+		"vote policy":      func(s *types.SettlementData) { s.Votes[0].PolicyVersion = 2 },
+		"veto missing":     func(s *types.SettlementData) { s.Hold = types.HoldVeto },
+		"orphan veto":      func(s *types.SettlementData) { s.Veto = &types.Veto{Signer: account(1), Reason: "verify"} },
+		"opposing vote":    func(s *types.SettlementData) { s.Votes[0].Observation.Outcome = types.OutcomeMinted },
+		"empty evidence":   func(s *types.SettlementData) { s.Votes[0].Observation.Evidence = types.SolanaEvidence{} },
+		"governance round one": func(s *types.SettlementData) {
+			e := evidence()
+			s.GovernanceEvidence = &e
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			s := valid
-			s.Votes = append([]types.Vote(nil), valid.Votes...)
-			mutate(&s)
-			require.ErrorIs(t, s.Validate(1), types.ErrInvalidSettlement)
+			s := settled(types.StatusRefundPending)
+			change(&s)
+			require.Error(t, s.Validate(policies))
 		})
 	}
-	for _, o := range []types.Observation{
-		{}, {Outcome: 99, Slot: 1, TransactionSignature: bytes.Repeat([]byte{1}, 64)},
-		{Outcome: types.Outcome_OUTCOME_MINTED, TransactionSignature: bytes.Repeat([]byte{1}, 64)},
-		{Outcome: types.Outcome_OUTCOME_MINTED, Slot: 1, TransactionSignature: make([]byte, 64)},
-	} {
-		require.ErrorIs(t, o.Validate(), types.ErrInvalidObservation)
-	}
-	totals := types.Totals{PendingAmount: 10, MintedAmount: 20, VoidedAmount: 30, RefundedAmount: 40}
-	escrow, err := totals.EscrowAmount()
-	require.NoError(t, err)
-	require.Equal(t, uint64(60), escrow)
-	deposited, err := totals.DepositedAmount()
-	require.NoError(t, err)
-	require.Equal(t, uint64(100), deposited)
-	totals.PendingAmount = math.MaxUint64
-	_, err = totals.EscrowAmount()
-	require.ErrorIs(t, err, types.ErrOverflow)
-	_, err = totals.DepositedAmount()
-	require.ErrorIs(t, err, types.ErrOverflow)
+
+	s := settled(types.StatusTransferPending)
+	s.Hold, s.Veto = types.HoldVeto, &types.Veto{Signer: account(1), Reason: "retained through rotation"}
+	require.NoError(t, s.Validate(policies))
+	s.Hold = types.HoldConflict
+	require.NoError(t, s.Validate(policies))
+	s = settled(types.StatusRefundPending)
+	require.True(t, s.Payable(policy(), 1))
+	require.False(t, s.Payable(policy(), 2))
+	scope, ok := s.RefundScope()
+	require.True(t, ok)
+	require.Equal(t, uint64(1), scope)
+	e := evidence()
+	s.GovernanceEvidence, s.Round = &e, 2
+	require.True(t, s.Payable(types.ReporterPolicy{Version: 2}, 2))
+	scope, ok = s.RefundScope()
+	require.True(t, ok)
+	require.Zero(t, scope)
+	s.Hold = types.HoldConflict
+	require.False(t, s.Payable(policy(), 1))
+	_, ok = s.RefundScope()
+	require.False(t, ok)
+}
+
+func TestSettlementValidatesReferencedPolicies(t *testing.T) {
+	rotated := types.ReporterPolicy{Version: 7, Members: []string{account(9)}, Threshold: 1}
+	s := settled(types.StatusMinted)
+	require.NoError(t, s.Validate(map[uint64]types.ReporterPolicy{1: policy()}), "unreferenced versions are not required")
+	require.ErrorContains(t, s.Validate(map[uint64]types.ReporterPolicy{7: rotated}), "missing authorization policy")
+	s.Hold = types.HoldConflict
+	s.Votes = append(s.Votes, types.Vote{Reporter: account(9), PolicyVersion: 7, Observation: types.Observation{Outcome: types.OutcomeVoided, Evidence: evidence()}})
+	require.NoError(t, s.Validate(map[uint64]types.ReporterPolicy{1: policy(), 7: rotated}))
+	require.ErrorContains(t, s.Validate(map[uint64]types.ReporterPolicy{1: policy()}), "vote outside its reporter policy")
 }

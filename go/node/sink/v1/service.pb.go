@@ -29,31 +29,32 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 func init() { proto.RegisterFile("akash/sink/v1/service.proto", fileDescriptor_3e2d3b7117ad1b53) }
 
 var fileDescriptor_3e2d3b7117ad1b53 = []byte{
-	// 374 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0xcd, 0x4a, 0xeb, 0x40,
-	0x14, 0xc7, 0x1b, 0xee, 0xed, 0xe5, 0x32, 0xf7, 0x56, 0x61, 0x16, 0x2a, 0x53, 0x8c, 0x1f, 0xe0,
-	0xe7, 0x22, 0xa1, 0x8a, 0x5b, 0x17, 0x2e, 0x14, 0x84, 0x62, 0x49, 0xb5, 0xa0, 0x08, 0x32, 0x36,
-	0xa7, 0x31, 0xa4, 0x99, 0x89, 0x73, 0x26, 0x59, 0xb8, 0xf2, 0x11, 0x7c, 0x14, 0xd7, 0x3e, 0x81,
-	0xcb, 0x2e, 0x5d, 0x4a, 0xbb, 0xf0, 0x35, 0xa4, 0x2d, 0x0d, 0x09, 0x8d, 0xed, 0x76, 0x7e, 0xbf,
-	0xff, 0x7f, 0x0e, 0x87, 0x43, 0xaa, 0x3c, 0xe0, 0xf8, 0x60, 0xa3, 0x2f, 0x02, 0x3b, 0xa9, 0xd9,
-	0x08, 0x2a, 0xf1, 0xdb, 0x60, 0x45, 0x4a, 0x6a, 0x49, 0x2b, 0x23, 0x68, 0x0d, 0xa1, 0x95, 0xd4,
-	0xd8, 0x72, 0x5b, 0x62, 0x28, 0xd1, 0x0e, 0xd1, 0x1b, 0xba, 0x21, 0x7a, 0x63, 0x8f, 0xad, 0xe4,
-	0x4b, 0x42, 0xf4, 0x70, 0x4c, 0x0e, 0xde, 0xca, 0xe4, 0x57, 0x1d, 0x3d, 0x7a, 0x4c, 0x7e, 0x37,
-	0x7d, 0x11, 0xd0, 0x25, 0x2b, 0x57, 0x69, 0xd5, 0xd1, 0x1b, 0xbe, 0x33, 0xb3, 0xf8, 0xdd, 0x01,
-	0x8c, 0xa4, 0x40, 0xa0, 0x2d, 0xf2, 0xff, 0x2a, 0x72, 0xb9, 0x86, 0x06, 0x57, 0x3c, 0x44, 0x5a,
-	0xe0, 0x67, 0x39, 0xdb, 0x9e, 0xcd, 0xd3, 0xde, 0x26, 0xf9, 0xe7, 0xc0, 0x63, 0x0c, 0xa8, 0x5b,
-	0xd2, 0x77, 0xe9, 0xea, 0x74, 0x2c, 0x83, 0xd9, 0xd6, 0x4c, 0x9c, 0x96, 0x5e, 0x93, 0x8a, 0x03,
-	0x91, 0x54, 0xfa, 0x22, 0xd6, 0x6d, 0x19, 0x02, 0x5d, 0x2b, 0xca, 0x65, 0x04, 0xb6, 0x33, 0x47,
-	0x48, 0xab, 0xcf, 0xc9, 0xdf, 0x16, 0x68, 0x39, 0x1a, 0x96, 0x4d, 0x87, 0x26, 0x8c, 0x6d, 0xfe,
-	0xcc, 0xd2, 0xae, 0x3b, 0xb2, 0xe8, 0x00, 0xca, 0x6e, 0x02, 0x97, 0x8a, 0x0b, 0xec, 0x80, 0xa2,
-	0x1b, 0x45, 0x73, 0xe4, 0x14, 0xb6, 0x37, 0x57, 0x49, 0x3f, 0xb8, 0x25, 0x0b, 0xa7, 0xbe, 0xe0,
-	0x5d, 0xff, 0x09, 0x1c, 0xe8, 0xc4, 0xc2, 0xa5, 0xeb, 0xd3, 0xe1, 0xbc, 0xc1, 0x76, 0xe7, 0x19,
-	0xd9, 0x2d, 0x9f, 0xc5, 0x5c, 0xb9, 0x3e, 0x17, 0x0d, 0x1e, 0x63, 0xe1, 0x96, 0x73, 0x42, 0xd1,
-	0x96, 0x73, 0xc2, 0xa4, 0x9a, 0x95, 0x9f, 0xbf, 0x5e, 0xf7, 0x8d, 0x93, 0xa3, 0xf7, 0xbe, 0x69,
-	0xf4, 0xfa, 0xa6, 0xf1, 0xd9, 0x37, 0x8d, 0x97, 0x81, 0x59, 0xea, 0x0d, 0xcc, 0xd2, 0xc7, 0xc0,
-	0x2c, 0xdd, 0x54, 0xa3, 0xc0, 0xb3, 0x78, 0xa0, 0x2d, 0x17, 0x12, 0xdb, 0x93, 0xb6, 0x90, 0x2e,
-	0x4c, 0xce, 0xff, 0xfe, 0xcf, 0xe8, 0xf4, 0x0f, 0xbf, 0x03, 0x00, 0x00, 0xff, 0xff, 0xf7, 0xf9,
-	0x24, 0x77, 0x5b, 0x03, 0x00, 0x00,
+	// 399 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x93, 0x4d, 0x6b, 0xdb, 0x30,
+	0x18, 0x80, 0x63, 0xb6, 0x85, 0xa1, 0x2d, 0x1b, 0xe8, 0xb0, 0x0d, 0x85, 0x79, 0x1f, 0x90, 0x65,
+	0xdb, 0xc1, 0x26, 0x1b, 0xbb, 0xee, 0xb0, 0xc1, 0x06, 0x85, 0xd0, 0xe0, 0xb4, 0x81, 0x96, 0x42,
+	0x51, 0xe3, 0x37, 0xae, 0x70, 0x2d, 0xb9, 0x7a, 0x65, 0x1f, 0x7a, 0xea, 0x4f, 0xe8, 0x4f, 0xe9,
+	0xcf, 0xe8, 0x31, 0xc7, 0x1e, 0x4b, 0x52, 0xe8, 0xdf, 0x28, 0x49, 0x88, 0xb1, 0x89, 0x63, 0x5f,
+	0xf5, 0x3c, 0xef, 0x83, 0xd0, 0x07, 0x69, 0xf3, 0x90, 0xe3, 0xa9, 0x8b, 0x42, 0x86, 0x6e, 0xda,
+	0x73, 0x11, 0x74, 0x2a, 0xc6, 0xe0, 0xc4, 0x5a, 0x19, 0x45, 0x5b, 0x4b, 0xe8, 0x2c, 0xa0, 0x93,
+	0xf6, 0xd8, 0xdb, 0xb1, 0xc2, 0x48, 0xa1, 0x1b, 0x61, 0xb0, 0x70, 0x23, 0x0c, 0x56, 0x1e, 0x7b,
+	0x57, 0x8c, 0x44, 0x18, 0xe0, 0x8a, 0xfc, 0xb8, 0x6f, 0x92, 0x27, 0x7d, 0x0c, 0xe8, 0x6f, 0xf2,
+	0x74, 0x28, 0x64, 0x48, 0xdf, 0x38, 0x85, 0xa4, 0xd3, 0xc7, 0x60, 0xb1, 0xce, 0xec, 0xf2, 0x75,
+	0x0f, 0x30, 0x56, 0x12, 0x81, 0x8e, 0xc8, 0xcb, 0xfd, 0xd8, 0xe7, 0x06, 0x06, 0x5c, 0xf3, 0x08,
+	0x69, 0x89, 0x9f, 0xe7, 0xec, 0x4b, 0x35, 0xcf, 0xba, 0x43, 0xf2, 0xc2, 0x83, 0xf3, 0x04, 0xd0,
+	0x8c, 0x94, 0xf0, 0xe9, 0xfb, 0xcd, 0xb1, 0x1c, 0x66, 0x9d, 0x4a, 0x9c, 0x45, 0x0f, 0x48, 0xcb,
+	0x83, 0x58, 0x69, 0xb3, 0x9b, 0x98, 0xb1, 0x8a, 0x80, 0x7e, 0x28, 0x9b, 0xcb, 0x09, 0xac, 0x5b,
+	0x23, 0x64, 0xe9, 0x1d, 0xf2, 0x7c, 0x04, 0x46, 0x2d, 0x37, 0xcb, 0x36, 0x87, 0xd6, 0x8c, 0x7d,
+	0xde, 0xce, 0xb2, 0xd6, 0x31, 0x79, 0xed, 0x01, 0x1a, 0xae, 0xcd, 0x9e, 0xe6, 0x12, 0x27, 0xa0,
+	0xe9, 0xa7, 0xb2, 0x7d, 0x14, 0x14, 0xf6, 0xad, 0x56, 0xc9, 0x1f, 0xee, 0x5f, 0x25, 0x27, 0x42,
+	0x47, 0x7d, 0x21, 0x4d, 0xd9, 0xe1, 0xe6, 0x30, 0xeb, 0x54, 0xe2, 0x92, 0xe8, 0xb6, 0x1b, 0xcb,
+	0x61, 0xd6, 0xa9, 0xc4, 0x59, 0xf4, 0x88, 0xbc, 0xfa, 0x27, 0x24, 0x3f, 0x13, 0x17, 0xe0, 0xc1,
+	0x24, 0x91, 0x3e, 0xfd, 0xb8, 0x39, 0x58, 0x34, 0xd8, 0xd7, 0x3a, 0x23, 0xff, 0x1e, 0xfe, 0x27,
+	0x5c, 0xfb, 0x82, 0xcb, 0x01, 0x4f, 0xb0, 0xf4, 0x3d, 0x14, 0x04, 0xd6, 0xad, 0x11, 0xd6, 0x69,
+	0xf6, 0xec, 0xf2, 0xe1, 0xfa, 0xbb, 0xf5, 0xe7, 0xd7, 0xcd, 0xcc, 0xb6, 0xa6, 0x33, 0xdb, 0xba,
+	0x9b, 0xd9, 0xd6, 0xd5, 0xdc, 0x6e, 0x4c, 0xe7, 0x76, 0xe3, 0x76, 0x6e, 0x37, 0x0e, 0xdb, 0x71,
+	0x18, 0x38, 0x3c, 0x34, 0x8e, 0x0f, 0xa9, 0x1b, 0x28, 0x57, 0x2a, 0x1f, 0xd6, 0x1f, 0xf5, 0xa4,
+	0xb9, 0xfc, 0xa4, 0x3f, 0x1f, 0x07, 0x00, 0x6a, 0x9f, 0x49, 0x3c, 0x05, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -68,21 +69,25 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// Sink handles the Sink request.
+	// Sink locks uakt and allocates a composite transfer ID.
 	Sink(ctx context.Context, in *MsgSink, opts ...grpc.CallOption) (*MsgSinkResponse, error)
-	// UpdateParams handles the UpdateParams request.
+	// UpdateParams updates governed parameters while preserving consumed capacity.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// RequestVoid handles the RequestVoid request.
+	// RequestVoid creates an immutable governance void order; it does not authorize a refund.
 	RequestVoid(ctx context.Context, in *MsgRequestVoid, opts ...grpc.CallOption) (*MsgRequestVoidResponse, error)
-	// ReportOutcome handles the ReportOutcome request.
+	// ReportOutcome records a report for the current policy and exact settlement round.
 	ReportOutcome(ctx context.Context, in *MsgReportOutcome, opts ...grpc.CallOption) (*MsgReportOutcomeResponse, error)
-	// VetoVoid handles the VetoVoid request.
+	// VetoVoid holds an unpaid refund authorization for governance.
 	VetoVoid(ctx context.Context, in *MsgVetoVoid, opts ...grpc.CallOption) (*MsgVetoVoidResponse, error)
-	// ResolveTransfer handles the ResolveTransfer request.
-	ResolveTransfer(ctx context.Context, in *MsgResolveTransfer, opts ...grpc.CallOption) (*MsgResolveTransferResponse, error)
-	// FinalizeRefund handles the FinalizeRefund request.
+	// RestartTransfer starts the next round of an unpaid transfer.
+	RestartTransfer(ctx context.Context, in *MsgRestartTransfer, opts ...grpc.CallOption) (*MsgRestartTransferResponse, error)
+	// ConfirmMint records governance mint evidence in the next settlement round.
+	ConfirmMint(ctx context.Context, in *MsgConfirmMint, opts ...grpc.CallOption) (*MsgConfirmMintResponse, error)
+	// ConfirmVoid records governance void evidence or resolves a paid transfer dispute.
+	ConfirmVoid(ctx context.Context, in *MsgConfirmVoid, opts ...grpc.CallOption) (*MsgConfirmVoidResponse, error)
+	// FinalizeRefund pays the eligible queue head once to its original owner.
 	FinalizeRefund(ctx context.Context, in *MsgFinalizeRefund, opts ...grpc.CallOption) (*MsgFinalizeRefundResponse, error)
-	// GuardianPause handles the GuardianPause request.
+	// GuardianPause disables deposits, refunds or both.
 	GuardianPause(ctx context.Context, in *MsgGuardianPause, opts ...grpc.CallOption) (*MsgGuardianPauseResponse, error)
 }
 
@@ -139,9 +144,27 @@ func (c *msgClient) VetoVoid(ctx context.Context, in *MsgVetoVoid, opts ...grpc.
 	return out, nil
 }
 
-func (c *msgClient) ResolveTransfer(ctx context.Context, in *MsgResolveTransfer, opts ...grpc.CallOption) (*MsgResolveTransferResponse, error) {
-	out := new(MsgResolveTransferResponse)
-	err := c.cc.Invoke(ctx, "/akash.sink.v1.Msg/ResolveTransfer", in, out, opts...)
+func (c *msgClient) RestartTransfer(ctx context.Context, in *MsgRestartTransfer, opts ...grpc.CallOption) (*MsgRestartTransferResponse, error) {
+	out := new(MsgRestartTransferResponse)
+	err := c.cc.Invoke(ctx, "/akash.sink.v1.Msg/RestartTransfer", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) ConfirmMint(ctx context.Context, in *MsgConfirmMint, opts ...grpc.CallOption) (*MsgConfirmMintResponse, error) {
+	out := new(MsgConfirmMintResponse)
+	err := c.cc.Invoke(ctx, "/akash.sink.v1.Msg/ConfirmMint", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) ConfirmVoid(ctx context.Context, in *MsgConfirmVoid, opts ...grpc.CallOption) (*MsgConfirmVoidResponse, error) {
+	out := new(MsgConfirmVoidResponse)
+	err := c.cc.Invoke(ctx, "/akash.sink.v1.Msg/ConfirmVoid", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -168,21 +191,25 @@ func (c *msgClient) GuardianPause(ctx context.Context, in *MsgGuardianPause, opt
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// Sink handles the Sink request.
+	// Sink locks uakt and allocates a composite transfer ID.
 	Sink(context.Context, *MsgSink) (*MsgSinkResponse, error)
-	// UpdateParams handles the UpdateParams request.
+	// UpdateParams updates governed parameters while preserving consumed capacity.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// RequestVoid handles the RequestVoid request.
+	// RequestVoid creates an immutable governance void order; it does not authorize a refund.
 	RequestVoid(context.Context, *MsgRequestVoid) (*MsgRequestVoidResponse, error)
-	// ReportOutcome handles the ReportOutcome request.
+	// ReportOutcome records a report for the current policy and exact settlement round.
 	ReportOutcome(context.Context, *MsgReportOutcome) (*MsgReportOutcomeResponse, error)
-	// VetoVoid handles the VetoVoid request.
+	// VetoVoid holds an unpaid refund authorization for governance.
 	VetoVoid(context.Context, *MsgVetoVoid) (*MsgVetoVoidResponse, error)
-	// ResolveTransfer handles the ResolveTransfer request.
-	ResolveTransfer(context.Context, *MsgResolveTransfer) (*MsgResolveTransferResponse, error)
-	// FinalizeRefund handles the FinalizeRefund request.
+	// RestartTransfer starts the next round of an unpaid transfer.
+	RestartTransfer(context.Context, *MsgRestartTransfer) (*MsgRestartTransferResponse, error)
+	// ConfirmMint records governance mint evidence in the next settlement round.
+	ConfirmMint(context.Context, *MsgConfirmMint) (*MsgConfirmMintResponse, error)
+	// ConfirmVoid records governance void evidence or resolves a paid transfer dispute.
+	ConfirmVoid(context.Context, *MsgConfirmVoid) (*MsgConfirmVoidResponse, error)
+	// FinalizeRefund pays the eligible queue head once to its original owner.
 	FinalizeRefund(context.Context, *MsgFinalizeRefund) (*MsgFinalizeRefundResponse, error)
-	// GuardianPause handles the GuardianPause request.
+	// GuardianPause disables deposits, refunds or both.
 	GuardianPause(context.Context, *MsgGuardianPause) (*MsgGuardianPauseResponse, error)
 }
 
@@ -205,8 +232,14 @@ func (*UnimplementedMsgServer) ReportOutcome(ctx context.Context, req *MsgReport
 func (*UnimplementedMsgServer) VetoVoid(ctx context.Context, req *MsgVetoVoid) (*MsgVetoVoidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VetoVoid not implemented")
 }
-func (*UnimplementedMsgServer) ResolveTransfer(ctx context.Context, req *MsgResolveTransfer) (*MsgResolveTransferResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ResolveTransfer not implemented")
+func (*UnimplementedMsgServer) RestartTransfer(ctx context.Context, req *MsgRestartTransfer) (*MsgRestartTransferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RestartTransfer not implemented")
+}
+func (*UnimplementedMsgServer) ConfirmMint(ctx context.Context, req *MsgConfirmMint) (*MsgConfirmMintResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmMint not implemented")
+}
+func (*UnimplementedMsgServer) ConfirmVoid(ctx context.Context, req *MsgConfirmVoid) (*MsgConfirmVoidResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmVoid not implemented")
 }
 func (*UnimplementedMsgServer) FinalizeRefund(ctx context.Context, req *MsgFinalizeRefund) (*MsgFinalizeRefundResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FinalizeRefund not implemented")
@@ -309,20 +342,56 @@ func _Msg_VetoVoid_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_ResolveTransfer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgResolveTransfer)
+func _Msg_RestartTransfer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgRestartTransfer)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).ResolveTransfer(ctx, in)
+		return srv.(MsgServer).RestartTransfer(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/akash.sink.v1.Msg/ResolveTransfer",
+		FullMethod: "/akash.sink.v1.Msg/RestartTransfer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).ResolveTransfer(ctx, req.(*MsgResolveTransfer))
+		return srv.(MsgServer).RestartTransfer(ctx, req.(*MsgRestartTransfer))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_ConfirmMint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgConfirmMint)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ConfirmMint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/akash.sink.v1.Msg/ConfirmMint",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ConfirmMint(ctx, req.(*MsgConfirmMint))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_ConfirmVoid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgConfirmVoid)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ConfirmVoid(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/akash.sink.v1.Msg/ConfirmVoid",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ConfirmVoid(ctx, req.(*MsgConfirmVoid))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -389,8 +458,16 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_VetoVoid_Handler,
 		},
 		{
-			MethodName: "ResolveTransfer",
-			Handler:    _Msg_ResolveTransfer_Handler,
+			MethodName: "RestartTransfer",
+			Handler:    _Msg_RestartTransfer_Handler,
+		},
+		{
+			MethodName: "ConfirmMint",
+			Handler:    _Msg_ConfirmMint_Handler,
+		},
+		{
+			MethodName: "ConfirmVoid",
+			Handler:    _Msg_ConfirmVoid_Handler,
 		},
 		{
 			MethodName: "FinalizeRefund",

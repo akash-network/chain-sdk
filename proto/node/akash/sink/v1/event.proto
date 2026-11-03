@@ -285,35 +285,23 @@ message EventPreexistingBalanceMoved {
   ];
 }
 
+// EventTotalsUpdated records the four financial status populations.
 message EventTotalsUpdated {
-  cosmos.base.v1beta1.Coin pending_amount = 1 [
-    (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "pending_amount",
-    (gogoproto.moretags)  = "yaml:\"pending_amount\""
+  Totals totals = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "totals",
+    (gogoproto.moretags) = "yaml:\"totals\""
   ];
-  cosmos.base.v1beta1.Coin pending_count = 2 [
-    (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "pending_count",
-    (gogoproto.moretags)  = "yaml:\"pending_count\""
-  ];
-  cosmos.base.v1beta1.Coin minted_amount = 3 [
-    (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "status",
-    (gogoproto.moretags)  = "yaml:\"status\""
-  ];
-  cosmos.base.v1beta1.Coin voided_amount = 4 [
-    (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "voided_amount",
-    (gogoproto.moretags)  = "yaml:\"voided_amount\""
-  ];
-  cosmos.base.v1beta1.Coin refunded_amount = 5 [
-    (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "refunded_amount",
-    (gogoproto.moretags)  = "yaml:\"refunded_amount\""
-  ];
-  cosmos.base.v1beta1.Coin refunded_in_epoch = 6 [
-    (gogoproto.nullable)  = false,
-    (gogoproto.jsontag)   = "refunded_in_epoch",
-    (gogoproto.moretags)  = "yaml:\"refunded_in_epoch\""
+}
+
+// EventWithdrawAddressReset is emitted at installation when a delegator's
+// reward withdrawal address is reset from the sink escrow to the delegator.
+message EventWithdrawAddressReset {
+  option (gogoproto.equal) = true;
+
+  string delegator = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "delegator",
+    (gogoproto.moretags)  = "yaml:\"delegator\""
   ];
 }

@@ -22,7 +22,7 @@ func TestSinkSDKCodec(t *testing.T) {
 	amino := codec.NewLegacyAmino()
 	std.RegisterLegacyAminoCodec(amino)
 	types.RegisterLegacyAminoCodec(amino)
-	msg := &types.MsgSink{DestType: 1, Dest: "destination", Amount: sdk.NewInt64Coin(types.Denom, 17), Sender: sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()}
+	msg := &types.MsgSink{DestType: types.DestTypeSolana, Dest: "destination", Amount: sdk.NewInt64Coin(sdkutil.DenomUakt, 17), Sender: sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()}
 	packed, err := codectypes.NewAnyWithValue(msg)
 	require.NoError(t, err)
 	require.Equal(t, "/akash.sink.v1.MsgSink", packed.TypeUrl)
@@ -36,7 +36,7 @@ func TestSinkSDKCodec(t *testing.T) {
 	require.NoError(t, amino.UnmarshalJSON(encoded, &decodedAmino))
 	require.Equal(t, msg, decodedAmino)
 
-	response := &types.MsgSinkResponse{Id: "18446744073709551615"}
+	response := &types.MsgSinkResponse{ID: types.ID{Owner: msg.Sender, Height: 1, Sequence: 18446744073709551615}}
 	packedResponse, err := codectypes.NewAnyWithValue(response)
 	require.NoError(t, err)
 	require.Equal(t, "/akash.sink.v1.MsgSinkResponse", packedResponse.TypeUrl)

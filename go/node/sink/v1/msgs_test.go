@@ -13,27 +13,35 @@ import (
 	"github.com/stretchr/testify/require"
 
 	types "pkg.akt.dev/go/node/sink/v1"
+	"pkg.akt.dev/go/sdkutil"
 )
 
 func TestMsgSinkValidateBasic(t *testing.T) {
 	pub := ed25519.NewKeyFromSeed(bytes.Repeat([]byte{7}, 32)).Public().(ed25519.PublicKey)
 	valid := func() *types.MsgSink {
-		return &types.MsgSink{DestType: 1, Dest: base58.Encode(pub), Amount: sdk.NewInt64Coin(types.Denom, 1),
-			Sender: sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()}
+		return &types.MsgSink{
+			DestType: types.DestTypeSolana,
+			Dest:     base58.Encode(pub),
+			Amount:   sdk.NewInt64Coin(sdkutil.DenomUakt, 1),
+			Sender:   sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String(),
+		}
 	}
+
 	require.NoError(t, valid().ValidateBasic())
+
 	// Off-curve keys may be allowlisted vaults; only the keeper knows the allowlist.
 	offCurve := valid()
 	offCurve.Dest = base58.Encode(append([]byte{2}, make([]byte, 31)...))
 	require.NoError(t, offCurve.ValidateBasic())
 	overflow, ok := sdkmath.NewIntFromString("18446744073709551616")
 	require.True(t, ok)
+
 	for name, tc := range map[string]struct {
 		change func(*types.MsgSink)
 		err    error
 	}{
-		"zero destination type":    {func(m *types.MsgSink) { m.DestType = 0 }, types.ErrInvalidDestination},
-		"unknown destination type": {func(m *types.MsgSink) { m.DestType = 2 }, types.ErrInvalidDestination},
+		"zero destination type":    {func(m *types.MsgSink) { m.DestType = types.DestTypeInvalid }, types.ErrInvalidDestination},
+		"unknown destination type": {func(m *types.MsgSink) { m.DestType = types.DestTypeSolana + 1 }, types.ErrInvalidDestination},
 		"empty destination":        {func(m *types.MsgSink) { m.Dest = "" }, types.ErrInvalidDestination},
 		"zero destination":         {func(m *types.MsgSink) { m.Dest = "11111111111111111111111111111111" }, types.ErrInvalidDestination},
 		"noncanonical destination": {func(m *types.MsgSink) { m.Dest = "1" + m.Dest }, types.ErrInvalidDestination},
@@ -53,6 +61,7 @@ func TestMsgSinkValidateBasic(t *testing.T) {
 			require.ErrorIs(t, msg.ValidateBasic(), tc.err)
 		})
 	}
+
 	var msg sdk.Msg = valid()
 	_, ok = msg.(sdk.HasValidateBasic)
 	require.True(t, ok)
@@ -68,7 +77,9 @@ func TestMsgGuardianPauseValidateBasic(t *testing.T) {
 	} {
 		require.NoError(t, msg.ValidateBasic())
 	}
+
 	require.ErrorIs(t, (&types.MsgGuardianPause{Guardian: guardian}).ValidateBasic(), types.ErrInvalidGuardianPause)
+
 	for name, msg := range map[string]types.MsgGuardianPause{
 		"empty guardian":   {Deposits: true},
 		"malformed":        {Guardian: "akash1notanaddress", Deposits: true},
@@ -78,7 +89,48 @@ func TestMsgGuardianPauseValidateBasic(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) { require.ErrorIs(t, msg.ValidateBasic(), sdkerrors.ErrInvalidAddress) })
 	}
+
 	var msg sdk.Msg = &types.MsgGuardianPause{}
 	_, ok := msg.(sdk.HasValidateBasic)
 	require.True(t, ok)
+}
+
+func TestEveryCommandValidatesStatelessRules(t *testing.T) {
+	id := types.ID{Owner: account(7), Height: 8, Sequence: 9}
+	authority := account(8)
+	for _, msg := range []sdk.HasValidateBasic{
+		&types.MsgUpdateParams{Authority: authority, Params: types.DefaultParams()},
+		&types.MsgRequestVoid{Authority: authority, ID: id},
+		&types.MsgReportOutcome{Reporter: account(1), ID: id, PolicyVersion: 1, Round: 1, Observation: types.Observation{Outcome: types.OutcomeMinted, Evidence: evidence()}},
+		&types.MsgVetoVoid{Signer: authority, ID: id, Reason: "verify"},
+		&types.MsgRestartTransfer{Authority: authority, ID: id, Reason: "retry", ExpectedRound: 1},
+		&types.MsgConfirmMint{Authority: authority, ID: id, Evidence: evidence(), Reason: "minted", ExpectedRound: 1},
+		&types.MsgConfirmVoid{Authority: authority, ID: id, Evidence: evidence(), Reason: "voided", ExpectedRound: 1},
+		&types.MsgFinalizeRefund{Executor: authority, ID: id},
+	} {
+		require.NoError(t, msg.ValidateBasic(), "%T", msg)
+	}
+
+	for _, msg := range []sdk.HasValidateBasic{
+		&types.MsgUpdateParams{}, &types.MsgRequestVoid{}, &types.MsgReportOutcome{}, &types.MsgVetoVoid{},
+		&types.MsgRestartTransfer{}, &types.MsgConfirmMint{}, &types.MsgConfirmVoid{}, &types.MsgFinalizeRefund{},
+	} {
+		require.Error(t, msg.ValidateBasic(), "%T", msg)
+	}
+
+	for _, round := range []uint64{0, ^uint64(0)} {
+		require.Error(t, (&types.MsgRestartTransfer{Authority: authority, ID: id, Reason: "retry", ExpectedRound: round}).ValidateBasic())
+		require.Error(t, (&types.MsgConfirmMint{Authority: authority, ID: id, Evidence: evidence(), Reason: "minted", ExpectedRound: round}).ValidateBasic())
+		require.Error(t, (&types.MsgConfirmVoid{Authority: authority, ID: id, Evidence: evidence(), Reason: "voided", ExpectedRound: round}).ValidateBasic())
+	}
+
+	for _, e := range []types.SolanaEvidence{{}, {Slot: 1, TransactionSignature: make([]byte, 64)}, {Slot: 1, TransactionSignature: []byte{1}}} {
+		require.Error(t, (&types.MsgConfirmMint{Authority: authority, ID: id, Evidence: e, Reason: "minted", ExpectedRound: 1}).ValidateBasic())
+	}
+
+	for _, reason := range []string{"", " \t", strings.Repeat("a", 257), string([]byte{0xff})} {
+		require.Error(t, types.ValidateReason(reason))
+	}
+
+	require.NoError(t, types.ValidateReason(strings.Repeat("a", 256)))
 }

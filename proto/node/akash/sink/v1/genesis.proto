@@ -2,34 +2,28 @@ syntax = "proto3";
 package akash.sink.v1;
 
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
 import "akash/sink/v1/params.proto";
 import "akash/sink/v1/types.proto";
 
 option go_package = "pkg.akt.dev/go/node/sink/v1";
 
-message GenesisRecord {
-  ID id = 1;
-
-  RecordData data = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "data",
-    (gogoproto.moretags) = "yaml:\"data\""
+// GenesisAccount preserves one owner's lifetime and raw epoch usage.
+message GenesisAccount {
+  string owner = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag) = "owner",
+    (gogoproto.moretags) = "yaml:\"owner\""
   ];
 
-  SettlementData settlement = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "settlement",
-    (gogoproto.moretags) = "yaml:\"settlement\""
-  ];
-
-  AccountUsage usage = 4 [
+  AccountUsage usage = 2 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "usage",
     (gogoproto.moretags) = "yaml:\"usage\""
   ];
 }
 
-// GenesisState defines the sink module state at genesis or export.
+// GenesisState exports complete sink state; schema_version must be 2.
 message GenesisState {
   Params params = 1 [
     (gogoproto.nullable) = false,
@@ -43,8 +37,40 @@ message GenesisState {
     (gogoproto.moretags) = "yaml:\"totals\""
   ];
 
-  repeated GenesisRecord records = 3 [
-    (gogoproto.jsontag) = "records",
-    (gogoproto.moretags) = "yaml:\"records\""
+  // Complete immutable history from version 1 through the current policy.
+  repeated ReporterPolicy policies = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "policies",
+    (gogoproto.moretags) = "yaml:\"policies\""
+  ];
+
+  EpochUsage send_usage = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "send_usage",
+    (gogoproto.moretags) = "yaml:\"send_usage\""
+  ];
+
+  EpochUsage refund_usage = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "refund_usage",
+    (gogoproto.moretags) = "yaml:\"refund_usage\""
+  ];
+
+  repeated TransferState transfers = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "transfers",
+    (gogoproto.moretags) = "yaml:\"transfers\""
+  ];
+
+  // One record per owner, including any retained empty usage records.
+  repeated GenesisAccount accounts = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "accounts",
+    (gogoproto.moretags) = "yaml:\"accounts\""
+  ];
+
+  uint32 schema_version = 8 [
+    (gogoproto.jsontag) = "schema_version",
+    (gogoproto.moretags) = "yaml:\"schema_version\""
   ];
 }

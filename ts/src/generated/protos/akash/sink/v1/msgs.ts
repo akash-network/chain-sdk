@@ -10,100 +10,125 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Params } from "./params.ts";
-import { Decision, decisionFromJSON, decisionToJSON, ID, Observation } from "./types.ts";
+import { DestType, destTypeFromJSON, destTypeToJSON, ID, Observation, SolanaEvidence } from "./types.ts";
 
 /** MsgSink locks AKT for a Solana destination. It must be the sole top-level transaction message. */
 export interface MsgSink {
-  /** Only 1 (Solana) is accepted. */
-  destType: number;
+  /** Only DEST_TYPE_SOLANA is accepted. */
+  destType: DestType;
   dest: string;
   amount: Coin | undefined;
   sender: string;
 }
 
-/** MsgSinkResponse returns the canonical decimal record ID for status tracking. */
+/** MsgSinkResponse returns the assigned composite transfer ID. */
 export interface MsgSinkResponse {
   id: ID | undefined;
 }
 
-/** MsgUpdateParams defines the MsgUpdateParams request. */
+/** MsgUpdateParams replaces the governed Sink parameters. */
 export interface MsgUpdateParams {
   authority: string;
   params: Params | undefined;
 }
 
-/** MsgUpdateParamsResponse is the response for MsgUpdateParams. */
+/** MsgUpdateParamsResponse acknowledges the transaction. */
 export interface MsgUpdateParamsResponse {
 }
 
-/** MsgRequestVoid defines the MsgRequestVoid request. */
+/** MsgRequestVoid orders a Solana void without authorizing an Akash refund. */
 export interface MsgRequestVoid {
   authority: string;
   id: ID | undefined;
 }
 
-/** MsgRequestVoidResponse is the response for MsgRequestVoid. */
+/** MsgRequestVoidResponse acknowledges the transaction. */
 export interface MsgRequestVoidResponse {
 }
 
-/** MsgReportOutcome defines the MsgReportOutcome request. */
+/** MsgReportOutcome reports a Solana outcome for one settlement round and reporter policy. */
 export interface MsgReportOutcome {
   reporter: string;
   id: ID | undefined;
-  reporterEpoch: bigint;
+  policyVersion: bigint;
   round: bigint;
   observation: Observation | undefined;
 }
 
-/** MsgReportOutcomeResponse is the response for MsgReportOutcome. */
+/** MsgReportOutcomeResponse acknowledges the transaction. */
 export interface MsgReportOutcomeResponse {
 }
 
-/** MsgVetoVoid defines the MsgVetoVoid request. */
+/** MsgVetoVoid holds a refund candidate for governance review. */
 export interface MsgVetoVoid {
   signer: string;
   id: ID | undefined;
   reason: string;
 }
 
-/** MsgVetoVoidResponse is the response for MsgVetoVoid. */
+/** MsgVetoVoidResponse acknowledges the transaction. */
 export interface MsgVetoVoidResponse {
 }
 
-/** MsgResolveTransfer defines the MsgResolveTransfer request. */
-export interface MsgResolveTransfer {
+/** MsgRestartTransfer starts a new settlement round for an unpaid transfer. */
+export interface MsgRestartTransfer {
   authority: string;
   id: ID | undefined;
-  decision: Decision;
-  observation: Observation | undefined;
   reason: string;
+  /** Must match the current round; a successful resolution increments it. */
+  expectedRound: bigint;
 }
 
-/** MsgResolveTransferResponse is the response for MsgResolveTransfer. */
-export interface MsgResolveTransferResponse {
+/** MsgRestartTransferResponse acknowledges the transaction. */
+export interface MsgRestartTransferResponse {
 }
 
-/** MsgFinalizeRefund defines the MsgFinalizeRefund request. */
+/** MsgConfirmMint records governance confirmation of a Solana mint. */
+export interface MsgConfirmMint {
+  authority: string;
+  id: ID | undefined;
+  evidence: SolanaEvidence | undefined;
+  reason: string;
+  /** Must match the current round; a successful resolution increments it. */
+  expectedRound: bigint;
+}
+
+/** MsgConfirmMintResponse acknowledges the transaction. */
+export interface MsgConfirmMintResponse {
+}
+
+/** MsgConfirmVoid records governance confirmation of a Solana void. */
+export interface MsgConfirmVoid {
+  authority: string;
+  id: ID | undefined;
+  evidence: SolanaEvidence | undefined;
+  reason: string;
+  /** Must match the current round; a successful resolution increments it. */
+  expectedRound: bigint;
+}
+
+/** MsgConfirmVoidResponse acknowledges the transaction. */
+export interface MsgConfirmVoidResponse {
+}
+
+/** MsgFinalizeRefund pays an eligible refund candidate to its original owner. */
 export interface MsgFinalizeRefund {
   executor: string;
   id: ID | undefined;
 }
 
-/** MsgFinalizeRefundResponse is the response for MsgFinalizeRefund. */
+/** MsgFinalizeRefundResponse acknowledges the transaction. */
 export interface MsgFinalizeRefundResponse {
 }
 
-/**
- * MsgGuardianPause disables deposits, refunds or both. The signer must be
- * params.pause_guardian. It cannot enable anything; only governance can.
- */
+/** MsgGuardianPause disables the selected deposit or refund operations. */
 export interface MsgGuardianPause {
   guardian: string;
   deposits: boolean;
   refunds: boolean;
 }
 
-/** MsgGuardianPauseResponse is the response for MsgGuardianPause. */
+/** MsgGuardianPauseResponse acknowledges the transaction. */
 export interface MsgGuardianPauseResponse {
 }
 
@@ -116,7 +141,7 @@ export const MsgSink: MessageFns<MsgSink, "akash.sink.v1.MsgSink"> = {
 
   encode(message: MsgSink, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.destType !== 0) {
-      writer.uint32(8).uint32(message.destType);
+      writer.uint32(8).int32(message.destType);
     }
     if (message.dest !== "") {
       writer.uint32(18).string(message.dest);
@@ -142,7 +167,7 @@ export const MsgSink: MessageFns<MsgSink, "akash.sink.v1.MsgSink"> = {
             break;
           }
 
-          message.destType = reader.uint32();
+          message.destType = reader.int32() as any;
           continue;
         }
         case 2: {
@@ -180,7 +205,7 @@ export const MsgSink: MessageFns<MsgSink, "akash.sink.v1.MsgSink"> = {
 
   fromJSON(object: any): MsgSink {
     return {
-      destType: isSet(object.dest_type) ? globalThis.Number(object.dest_type) : 0,
+      destType: isSet(object.dest_type) ? destTypeFromJSON(object.dest_type) : 0,
       dest: isSet(object.dest) ? globalThis.String(object.dest) : "",
       amount: isSet(object.amount) ? Coin.fromJSON(object.amount) : undefined,
       sender: isSet(object.sender) ? globalThis.String(object.sender) : "",
@@ -190,7 +215,7 @@ export const MsgSink: MessageFns<MsgSink, "akash.sink.v1.MsgSink"> = {
   toJSON(message: MsgSink): unknown {
     const obj: any = {};
     if (message.destType !== 0) {
-      obj.dest_type = Math.round(message.destType);
+      obj.dest_type = destTypeToJSON(message.destType);
     }
     if (message.dest !== "") {
       obj.dest = message.dest;
@@ -504,7 +529,7 @@ export const MsgRequestVoidResponse: MessageFns<MsgRequestVoidResponse, "akash.s
 };
 
 function createBaseMsgReportOutcome(): MsgReportOutcome {
-  return { reporter: "", id: undefined, reporterEpoch: 0n, round: 0n, observation: undefined };
+  return { reporter: "", id: undefined, policyVersion: 0n, round: 0n, observation: undefined };
 }
 
 export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgReportOutcome"> = {
@@ -517,11 +542,11 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
     if (message.id !== undefined) {
       ID.encode(message.id, writer.uint32(18).fork()).join();
     }
-    if (message.reporterEpoch !== 0n) {
-      if (BigInt.asUintN(64, message.reporterEpoch) !== message.reporterEpoch) {
-        throw new globalThis.Error("value provided for field message.reporterEpoch of type uint64 too large");
+    if (message.policyVersion !== 0n) {
+      if (BigInt.asUintN(64, message.policyVersion) !== message.policyVersion) {
+        throw new globalThis.Error("value provided for field message.policyVersion of type uint64 too large");
       }
-      writer.uint32(24).uint64(message.reporterEpoch);
+      writer.uint32(24).uint64(message.policyVersion);
     }
     if (message.round !== 0n) {
       if (BigInt.asUintN(64, message.round) !== message.round) {
@@ -563,7 +588,7 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
             break;
           }
 
-          message.reporterEpoch = reader.uint64() as bigint;
+          message.policyVersion = reader.uint64() as bigint;
           continue;
         }
         case 4: {
@@ -595,7 +620,7 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
     return {
       reporter: isSet(object.reporter) ? globalThis.String(object.reporter) : "",
       id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
-      reporterEpoch: isSet(object.reporter_epoch) ? BigInt(object.reporter_epoch) : 0n,
+      policyVersion: isSet(object.policy_version) ? BigInt(object.policy_version) : 0n,
       round: isSet(object.round) ? BigInt(object.round) : 0n,
       observation: isSet(object.observation) ? Observation.fromJSON(object.observation) : undefined,
     };
@@ -609,8 +634,8 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
     if (message.id !== undefined) {
       obj.id = ID.toJSON(message.id);
     }
-    if (message.reporterEpoch !== 0n) {
-      obj.reporter_epoch = message.reporterEpoch.toString();
+    if (message.policyVersion !== 0n) {
+      obj.policy_version = message.policyVersion.toString();
     }
     if (message.round !== 0n) {
       obj.round = message.round.toString();
@@ -624,8 +649,8 @@ export const MsgReportOutcome: MessageFns<MsgReportOutcome, "akash.sink.v1.MsgRe
     const message = createBaseMsgReportOutcome();
     message.reporter = object.reporter ?? "";
     message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
-    message.reporterEpoch = (object.reporterEpoch !== undefined && object.reporterEpoch !== null)
-      ? BigInt(object.reporterEpoch)
+    message.policyVersion = (object.policyVersion !== undefined && object.policyVersion !== null)
+      ? BigInt(object.policyVersion)
       : 0n;
     message.round = (object.round !== undefined && object.round !== null) ? BigInt(object.round) : 0n;
     message.observation = (object.observation !== undefined && object.observation !== null)
@@ -808,36 +833,36 @@ export const MsgVetoVoidResponse: MessageFns<MsgVetoVoidResponse, "akash.sink.v1
   },
 };
 
-function createBaseMsgResolveTransfer(): MsgResolveTransfer {
-  return { authority: "", id: undefined, decision: 0, observation: undefined, reason: "" };
+function createBaseMsgRestartTransfer(): MsgRestartTransfer {
+  return { authority: "", id: undefined, reason: "", expectedRound: 0n };
 }
 
-export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.MsgResolveTransfer"> = {
-  $type: "akash.sink.v1.MsgResolveTransfer" as const,
+export const MsgRestartTransfer: MessageFns<MsgRestartTransfer, "akash.sink.v1.MsgRestartTransfer"> = {
+  $type: "akash.sink.v1.MsgRestartTransfer" as const,
 
-  encode(message: MsgResolveTransfer, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: MsgRestartTransfer, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.authority !== "") {
       writer.uint32(10).string(message.authority);
     }
     if (message.id !== undefined) {
       ID.encode(message.id, writer.uint32(18).fork()).join();
     }
-    if (message.decision !== 0) {
-      writer.uint32(24).int32(message.decision);
-    }
-    if (message.observation !== undefined) {
-      Observation.encode(message.observation, writer.uint32(34).fork()).join();
-    }
     if (message.reason !== "") {
-      writer.uint32(42).string(message.reason);
+      writer.uint32(26).string(message.reason);
+    }
+    if (message.expectedRound !== 0n) {
+      if (BigInt.asUintN(64, message.expectedRound) !== message.expectedRound) {
+        throw new globalThis.Error("value provided for field message.expectedRound of type uint64 too large");
+      }
+      writer.uint32(32).uint64(message.expectedRound);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): MsgResolveTransfer {
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgRestartTransfer {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMsgResolveTransfer();
+    const message = createBaseMsgRestartTransfer();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -858,27 +883,19 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
           continue;
         }
         case 3: {
-          if (tag !== 24) {
-            break;
-          }
-
-          message.decision = reader.int32() as any;
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.observation = Observation.decode(reader, reader.uint32());
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
+          if (tag !== 26) {
             break;
           }
 
           message.reason = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.expectedRound = reader.uint64() as bigint;
           continue;
         }
       }
@@ -890,17 +907,16 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
     return message;
   },
 
-  fromJSON(object: any): MsgResolveTransfer {
+  fromJSON(object: any): MsgRestartTransfer {
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
       id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
-      decision: isSet(object.decision) ? decisionFromJSON(object.decision) : 0,
-      observation: isSet(object.observation) ? Observation.fromJSON(object.observation) : undefined,
       reason: isSet(object.reason) ? globalThis.String(object.reason) : "",
+      expectedRound: isSet(object.expected_round) ? BigInt(object.expected_round) : 0n,
     };
   },
 
-  toJSON(message: MsgResolveTransfer): unknown {
+  toJSON(message: MsgRestartTransfer): unknown {
     const obj: any = {};
     if (message.authority !== "") {
       obj.authority = message.authority;
@@ -908,48 +924,44 @@ export const MsgResolveTransfer: MessageFns<MsgResolveTransfer, "akash.sink.v1.M
     if (message.id !== undefined) {
       obj.id = ID.toJSON(message.id);
     }
-    if (message.decision !== 0) {
-      obj.decision = decisionToJSON(message.decision);
-    }
-    if (message.observation !== undefined) {
-      obj.observation = Observation.toJSON(message.observation);
-    }
     if (message.reason !== "") {
       obj.reason = message.reason;
     }
+    if (message.expectedRound !== 0n) {
+      obj.expected_round = message.expectedRound.toString();
+    }
     return obj;
   },
-  fromPartial(object: DeepPartial<MsgResolveTransfer>): MsgResolveTransfer {
-    const message = createBaseMsgResolveTransfer();
+  fromPartial(object: DeepPartial<MsgRestartTransfer>): MsgRestartTransfer {
+    const message = createBaseMsgRestartTransfer();
     message.authority = object.authority ?? "";
     message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
-    message.decision = object.decision ?? 0;
-    message.observation = (object.observation !== undefined && object.observation !== null)
-      ? Observation.fromPartial(object.observation)
-      : undefined;
     message.reason = object.reason ?? "";
+    message.expectedRound = (object.expectedRound !== undefined && object.expectedRound !== null)
+      ? BigInt(object.expectedRound)
+      : 0n;
     return message;
   },
 };
 
-function createBaseMsgResolveTransferResponse(): MsgResolveTransferResponse {
+function createBaseMsgRestartTransferResponse(): MsgRestartTransferResponse {
   return {};
 }
 
-export const MsgResolveTransferResponse: MessageFns<
-  MsgResolveTransferResponse,
-  "akash.sink.v1.MsgResolveTransferResponse"
+export const MsgRestartTransferResponse: MessageFns<
+  MsgRestartTransferResponse,
+  "akash.sink.v1.MsgRestartTransferResponse"
 > = {
-  $type: "akash.sink.v1.MsgResolveTransferResponse" as const,
+  $type: "akash.sink.v1.MsgRestartTransferResponse" as const,
 
-  encode(_: MsgResolveTransferResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(_: MsgRestartTransferResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): MsgResolveTransferResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgRestartTransferResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMsgResolveTransferResponse();
+    const message = createBaseMsgRestartTransferResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -962,16 +974,356 @@ export const MsgResolveTransferResponse: MessageFns<
     return message;
   },
 
-  fromJSON(_: any): MsgResolveTransferResponse {
+  fromJSON(_: any): MsgRestartTransferResponse {
     return {};
   },
 
-  toJSON(_: MsgResolveTransferResponse): unknown {
+  toJSON(_: MsgRestartTransferResponse): unknown {
     const obj: any = {};
     return obj;
   },
-  fromPartial(_: DeepPartial<MsgResolveTransferResponse>): MsgResolveTransferResponse {
-    const message = createBaseMsgResolveTransferResponse();
+  fromPartial(_: DeepPartial<MsgRestartTransferResponse>): MsgRestartTransferResponse {
+    const message = createBaseMsgRestartTransferResponse();
+    return message;
+  },
+};
+
+function createBaseMsgConfirmMint(): MsgConfirmMint {
+  return { authority: "", id: undefined, evidence: undefined, reason: "", expectedRound: 0n };
+}
+
+export const MsgConfirmMint: MessageFns<MsgConfirmMint, "akash.sink.v1.MsgConfirmMint"> = {
+  $type: "akash.sink.v1.MsgConfirmMint" as const,
+
+  encode(message: MsgConfirmMint, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.authority !== "") {
+      writer.uint32(10).string(message.authority);
+    }
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(18).fork()).join();
+    }
+    if (message.evidence !== undefined) {
+      SolanaEvidence.encode(message.evidence, writer.uint32(26).fork()).join();
+    }
+    if (message.reason !== "") {
+      writer.uint32(34).string(message.reason);
+    }
+    if (message.expectedRound !== 0n) {
+      if (BigInt.asUintN(64, message.expectedRound) !== message.expectedRound) {
+        throw new globalThis.Error("value provided for field message.expectedRound of type uint64 too large");
+      }
+      writer.uint32(40).uint64(message.expectedRound);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgConfirmMint {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgConfirmMint();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.authority = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.id = ID.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.evidence = SolanaEvidence.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.reason = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.expectedRound = reader.uint64() as bigint;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgConfirmMint {
+    return {
+      authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
+      evidence: isSet(object.evidence) ? SolanaEvidence.fromJSON(object.evidence) : undefined,
+      reason: isSet(object.reason) ? globalThis.String(object.reason) : "",
+      expectedRound: isSet(object.expected_round) ? BigInt(object.expected_round) : 0n,
+    };
+  },
+
+  toJSON(message: MsgConfirmMint): unknown {
+    const obj: any = {};
+    if (message.authority !== "") {
+      obj.authority = message.authority;
+    }
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
+    }
+    if (message.evidence !== undefined) {
+      obj.evidence = SolanaEvidence.toJSON(message.evidence);
+    }
+    if (message.reason !== "") {
+      obj.reason = message.reason;
+    }
+    if (message.expectedRound !== 0n) {
+      obj.expected_round = message.expectedRound.toString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<MsgConfirmMint>): MsgConfirmMint {
+    const message = createBaseMsgConfirmMint();
+    message.authority = object.authority ?? "";
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
+    message.evidence = (object.evidence !== undefined && object.evidence !== null)
+      ? SolanaEvidence.fromPartial(object.evidence)
+      : undefined;
+    message.reason = object.reason ?? "";
+    message.expectedRound = (object.expectedRound !== undefined && object.expectedRound !== null)
+      ? BigInt(object.expectedRound)
+      : 0n;
+    return message;
+  },
+};
+
+function createBaseMsgConfirmMintResponse(): MsgConfirmMintResponse {
+  return {};
+}
+
+export const MsgConfirmMintResponse: MessageFns<MsgConfirmMintResponse, "akash.sink.v1.MsgConfirmMintResponse"> = {
+  $type: "akash.sink.v1.MsgConfirmMintResponse" as const,
+
+  encode(_: MsgConfirmMintResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgConfirmMintResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgConfirmMintResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): MsgConfirmMintResponse {
+    return {};
+  },
+
+  toJSON(_: MsgConfirmMintResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+  fromPartial(_: DeepPartial<MsgConfirmMintResponse>): MsgConfirmMintResponse {
+    const message = createBaseMsgConfirmMintResponse();
+    return message;
+  },
+};
+
+function createBaseMsgConfirmVoid(): MsgConfirmVoid {
+  return { authority: "", id: undefined, evidence: undefined, reason: "", expectedRound: 0n };
+}
+
+export const MsgConfirmVoid: MessageFns<MsgConfirmVoid, "akash.sink.v1.MsgConfirmVoid"> = {
+  $type: "akash.sink.v1.MsgConfirmVoid" as const,
+
+  encode(message: MsgConfirmVoid, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.authority !== "") {
+      writer.uint32(10).string(message.authority);
+    }
+    if (message.id !== undefined) {
+      ID.encode(message.id, writer.uint32(18).fork()).join();
+    }
+    if (message.evidence !== undefined) {
+      SolanaEvidence.encode(message.evidence, writer.uint32(26).fork()).join();
+    }
+    if (message.reason !== "") {
+      writer.uint32(34).string(message.reason);
+    }
+    if (message.expectedRound !== 0n) {
+      if (BigInt.asUintN(64, message.expectedRound) !== message.expectedRound) {
+        throw new globalThis.Error("value provided for field message.expectedRound of type uint64 too large");
+      }
+      writer.uint32(40).uint64(message.expectedRound);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgConfirmVoid {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgConfirmVoid();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.authority = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.id = ID.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.evidence = SolanaEvidence.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.reason = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.expectedRound = reader.uint64() as bigint;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgConfirmVoid {
+    return {
+      authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
+      id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
+      evidence: isSet(object.evidence) ? SolanaEvidence.fromJSON(object.evidence) : undefined,
+      reason: isSet(object.reason) ? globalThis.String(object.reason) : "",
+      expectedRound: isSet(object.expected_round) ? BigInt(object.expected_round) : 0n,
+    };
+  },
+
+  toJSON(message: MsgConfirmVoid): unknown {
+    const obj: any = {};
+    if (message.authority !== "") {
+      obj.authority = message.authority;
+    }
+    if (message.id !== undefined) {
+      obj.id = ID.toJSON(message.id);
+    }
+    if (message.evidence !== undefined) {
+      obj.evidence = SolanaEvidence.toJSON(message.evidence);
+    }
+    if (message.reason !== "") {
+      obj.reason = message.reason;
+    }
+    if (message.expectedRound !== 0n) {
+      obj.expected_round = message.expectedRound.toString();
+    }
+    return obj;
+  },
+  fromPartial(object: DeepPartial<MsgConfirmVoid>): MsgConfirmVoid {
+    const message = createBaseMsgConfirmVoid();
+    message.authority = object.authority ?? "";
+    message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
+    message.evidence = (object.evidence !== undefined && object.evidence !== null)
+      ? SolanaEvidence.fromPartial(object.evidence)
+      : undefined;
+    message.reason = object.reason ?? "";
+    message.expectedRound = (object.expectedRound !== undefined && object.expectedRound !== null)
+      ? BigInt(object.expectedRound)
+      : 0n;
+    return message;
+  },
+};
+
+function createBaseMsgConfirmVoidResponse(): MsgConfirmVoidResponse {
+  return {};
+}
+
+export const MsgConfirmVoidResponse: MessageFns<MsgConfirmVoidResponse, "akash.sink.v1.MsgConfirmVoidResponse"> = {
+  $type: "akash.sink.v1.MsgConfirmVoidResponse" as const,
+
+  encode(_: MsgConfirmVoidResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MsgConfirmVoidResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgConfirmVoidResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): MsgConfirmVoidResponse {
+    return {};
+  },
+
+  toJSON(_: MsgConfirmVoidResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+  fromPartial(_: DeepPartial<MsgConfirmVoidResponse>): MsgConfirmVoidResponse {
+    const message = createBaseMsgConfirmVoidResponse();
     return message;
   },
 };

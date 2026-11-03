@@ -2,8 +2,8 @@
 /// Generated client implementations.
 pub mod query_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     #[derive(Debug, Clone)]
     pub struct QueryClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -47,9 +47,8 @@ pub mod query_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             QueryClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -84,125 +83,94 @@ pub mod query_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        pub async fn sink(
-            &mut self,
-            request: impl tonic::IntoRequest<super::QuerySink>,
-        ) -> std::result::Result<
-            tonic::Response<super::QuerySinkResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Query/Sink");
-            let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("akash.sink.v1.Query", "Sink"));
-            self.inner.unary(req, path, codec).await
-        }
-        pub async fn state(
-            &mut self,
-            request: impl tonic::IntoRequest<super::QueryStateRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryStateResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Query/State",
-            );
-            let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("akash.sink.v1.Query", "State"));
-            self.inner.unary(req, path, codec).await
-        }
         pub async fn transfer(
             &mut self,
             request: impl tonic::IntoRequest<super::QueryTransferRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryTransferResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::QueryTransferResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Query/Transfer",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Query/Transfer");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Query", "Transfer"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn transfers(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryTransfersRequest>,
+        ) -> std::result::Result<tonic::Response<super::QueryTransfersResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Query/Transfers");
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.sink.v1.Query", "Transfers"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn disputes(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryDisputesRequest>,
+        ) -> std::result::Result<tonic::Response<super::QueryDisputesResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Query/Disputes");
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.sink.v1.Query", "Disputes"));
+            self.inner.unary(req, path, codec).await
+        }
         pub async fn account(
             &mut self,
             request: impl tonic::IntoRequest<super::QueryAccountRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryAccountResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::QueryAccountResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Query/Account",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Query/Account");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Query", "Account"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn open_transfers(
+        pub async fn state(
             &mut self,
-            request: impl tonic::IntoRequest<super::QueryOpenTransfersRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryOpenTransfersResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            request: impl tonic::IntoRequest<super::QueryStateRequest>,
+        ) -> std::result::Result<tonic::Response<super::QueryStateResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Query/OpenTransfers",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Query/State");
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("akash.sink.v1.Query", "OpenTransfers"));
+                .insert(GrpcMethod::new("akash.sink.v1.Query", "State"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -214,41 +182,26 @@ pub mod query_server {
     /// Generated trait containing gRPC methods that should be implemented for use with QueryServer.
     #[async_trait]
     pub trait Query: Send + Sync + 'static {
-        async fn sink(
-            &self,
-            request: tonic::Request<super::QuerySink>,
-        ) -> std::result::Result<
-            tonic::Response<super::QuerySinkResponse>,
-            tonic::Status,
-        >;
-        async fn state(
-            &self,
-            request: tonic::Request<super::QueryStateRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryStateResponse>,
-            tonic::Status,
-        >;
         async fn transfer(
             &self,
             request: tonic::Request<super::QueryTransferRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryTransferResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::QueryTransferResponse>, tonic::Status>;
+        async fn transfers(
+            &self,
+            request: tonic::Request<super::QueryTransfersRequest>,
+        ) -> std::result::Result<tonic::Response<super::QueryTransfersResponse>, tonic::Status>;
+        async fn disputes(
+            &self,
+            request: tonic::Request<super::QueryDisputesRequest>,
+        ) -> std::result::Result<tonic::Response<super::QueryDisputesResponse>, tonic::Status>;
         async fn account(
             &self,
             request: tonic::Request<super::QueryAccountRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryAccountResponse>,
-            tonic::Status,
-        >;
-        async fn open_transfers(
+        ) -> std::result::Result<tonic::Response<super::QueryAccountResponse>, tonic::Status>;
+        async fn state(
             &self,
-            request: tonic::Request<super::QueryOpenTransfersRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::QueryOpenTransfersResponse>,
-            tonic::Status,
-        >;
+            request: tonic::Request<super::QueryStateRequest>,
+        ) -> std::result::Result<tonic::Response<super::QueryStateResponse>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct QueryServer<T: Query> {
@@ -271,10 +224,7 @@ pub mod query_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -326,112 +276,18 @@ pub mod query_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/akash.sink.v1.Query/Sink" => {
-                    #[allow(non_camel_case_types)]
-                    struct SinkSvc<T: Query>(pub Arc<T>);
-                    impl<T: Query> tonic::server::UnaryService<super::QuerySink>
-                    for SinkSvc<T> {
-                        type Response = super::QuerySinkResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::QuerySink>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Query>::sink(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = SinkSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/akash.sink.v1.Query/State" => {
-                    #[allow(non_camel_case_types)]
-                    struct StateSvc<T: Query>(pub Arc<T>);
-                    impl<T: Query> tonic::server::UnaryService<super::QueryStateRequest>
-                    for StateSvc<T> {
-                        type Response = super::QueryStateResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::QueryStateRequest>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Query>::state(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = StateSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
                 "/akash.sink.v1.Query/Transfer" => {
                     #[allow(non_camel_case_types)]
                     struct TransferSvc<T: Query>(pub Arc<T>);
-                    impl<
-                        T: Query,
-                    > tonic::server::UnaryService<super::QueryTransferRequest>
-                    for TransferSvc<T> {
+                    impl<T: Query> tonic::server::UnaryService<super::QueryTransferRequest> for TransferSvc<T> {
                         type Response = super::QueryTransferResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::QueryTransferRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Query>::transfer(&inner, request).await
-                            };
+                            let fut = async move { <T as Query>::transfer(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -457,26 +313,92 @@ pub mod query_server {
                     };
                     Box::pin(fut)
                 }
+                "/akash.sink.v1.Query/Transfers" => {
+                    #[allow(non_camel_case_types)]
+                    struct TransfersSvc<T: Query>(pub Arc<T>);
+                    impl<T: Query> tonic::server::UnaryService<super::QueryTransfersRequest> for TransfersSvc<T> {
+                        type Response = super::QueryTransfersResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryTransfersRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move { <T as Query>::transfers(&inner, request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = TransfersSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.sink.v1.Query/Disputes" => {
+                    #[allow(non_camel_case_types)]
+                    struct DisputesSvc<T: Query>(pub Arc<T>);
+                    impl<T: Query> tonic::server::UnaryService<super::QueryDisputesRequest> for DisputesSvc<T> {
+                        type Response = super::QueryDisputesResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryDisputesRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move { <T as Query>::disputes(&inner, request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = DisputesSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 "/akash.sink.v1.Query/Account" => {
                     #[allow(non_camel_case_types)]
                     struct AccountSvc<T: Query>(pub Arc<T>);
-                    impl<
-                        T: Query,
-                    > tonic::server::UnaryService<super::QueryAccountRequest>
-                    for AccountSvc<T> {
+                    impl<T: Query> tonic::server::UnaryService<super::QueryAccountRequest> for AccountSvc<T> {
                         type Response = super::QueryAccountResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::QueryAccountRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Query>::account(&inner, request).await
-                            };
+                            let fut = async move { <T as Query>::account(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -502,26 +424,18 @@ pub mod query_server {
                     };
                     Box::pin(fut)
                 }
-                "/akash.sink.v1.Query/OpenTransfers" => {
+                "/akash.sink.v1.Query/State" => {
                     #[allow(non_camel_case_types)]
-                    struct OpenTransfersSvc<T: Query>(pub Arc<T>);
-                    impl<
-                        T: Query,
-                    > tonic::server::UnaryService<super::QueryOpenTransfersRequest>
-                    for OpenTransfersSvc<T> {
-                        type Response = super::QueryOpenTransfersResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    struct StateSvc<T: Query>(pub Arc<T>);
+                    impl<T: Query> tonic::server::UnaryService<super::QueryStateRequest> for StateSvc<T> {
+                        type Response = super::QueryStateResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::QueryOpenTransfersRequest>,
+                            request: tonic::Request<super::QueryStateRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Query>::open_transfers(&inner, request).await
-                            };
+                            let fut = async move { <T as Query>::state(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -531,7 +445,7 @@ pub mod query_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = OpenTransfersSvc(inner);
+                        let method = StateSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -547,21 +461,17 @@ pub mod query_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -584,8 +494,8 @@ pub mod query_server {
 /// Generated client implementations.
 pub mod msg_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     #[derive(Debug, Clone)]
     pub struct MsgClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -616,10 +526,7 @@ pub mod msg_client {
             let inner = tonic::client::Grpc::with_origin(inner, origin);
             Self { inner }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> MsgClient<InterceptedService<T, F>>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> MsgClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -629,9 +536,8 @@ pub mod msg_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             MsgClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -669,205 +575,195 @@ pub mod msg_client {
         pub async fn sink(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgSink>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgSinkResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::MsgSinkResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/Sink");
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("akash.sink.v1.Msg", "Sink"));
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.sink.v1.Msg", "Sink"));
             self.inner.unary(req, path, codec).await
         }
+        /** UpdateParams updates governed parameters while preserving consumed capacity.
+        */
         pub async fn update_params(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgUpdateParams>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgUpdateParamsResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::MsgUpdateParamsResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Msg/UpdateParams",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/UpdateParams");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Msg", "UpdateParams"));
             self.inner.unary(req, path, codec).await
         }
+        /** RequestVoid creates an immutable governance void order; it does not authorize a refund.
+        */
         pub async fn request_void(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgRequestVoid>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgRequestVoidResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::MsgRequestVoidResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Msg/RequestVoid",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/RequestVoid");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Msg", "RequestVoid"));
             self.inner.unary(req, path, codec).await
         }
-        /** ReportOutcome handles the ReportOutcome request.
-*/
+        /** ReportOutcome records a report for the current policy and exact settlement round.
+        */
         pub async fn report_outcome(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgReportOutcome>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgReportOutcomeResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::MsgReportOutcomeResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Msg/ReportOutcome",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/ReportOutcome");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Msg", "ReportOutcome"));
             self.inner.unary(req, path, codec).await
         }
-        /** VetoVoid handles the VetoVoid request.
-*/
+        /** VetoVoid holds an unpaid refund authorization for governance.
+        */
         pub async fn veto_void(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgVetoVoid>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgVetoVoidResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::MsgVetoVoidResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Msg/VetoVoid",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/VetoVoid");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Msg", "VetoVoid"));
             self.inner.unary(req, path, codec).await
         }
-        /** ResolveTransfer handles the ResolveTransfer request.
-*/
-        pub async fn resolve_transfer(
+        /** RestartTransfer starts the next round of an unpaid transfer.
+        */
+        pub async fn restart_transfer(
             &mut self,
-            request: impl tonic::IntoRequest<super::MsgResolveTransfer>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgResolveTransferResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            request: impl tonic::IntoRequest<super::MsgRestartTransfer>,
+        ) -> std::result::Result<tonic::Response<super::MsgRestartTransferResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Msg/ResolveTransfer",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/RestartTransfer");
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("akash.sink.v1.Msg", "ResolveTransfer"));
+                .insert(GrpcMethod::new("akash.sink.v1.Msg", "RestartTransfer"));
             self.inner.unary(req, path, codec).await
         }
-        /** FinalizeRefund handles the FinalizeRefund request.
-*/
+        /** ConfirmMint records governance mint evidence in the next settlement round.
+        */
+        pub async fn confirm_mint(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgConfirmMint>,
+        ) -> std::result::Result<tonic::Response<super::MsgConfirmMintResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/ConfirmMint");
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.sink.v1.Msg", "ConfirmMint"));
+            self.inner.unary(req, path, codec).await
+        }
+        /** ConfirmVoid records governance void evidence or resolves a paid transfer dispute.
+        */
+        pub async fn confirm_void(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MsgConfirmVoid>,
+        ) -> std::result::Result<tonic::Response<super::MsgConfirmVoidResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/ConfirmVoid");
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("akash.sink.v1.Msg", "ConfirmVoid"));
+            self.inner.unary(req, path, codec).await
+        }
+        /** FinalizeRefund pays the eligible queue head once to its original owner.
+        */
         pub async fn finalize_refund(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgFinalizeRefund>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgFinalizeRefundResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::MsgFinalizeRefundResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Msg/FinalizeRefund",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/FinalizeRefund");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Msg", "FinalizeRefund"));
             self.inner.unary(req, path, codec).await
         }
-        /** GuardianPause handles the GuardianPause request.
-*/
+        /** GuardianPause disables deposits, refunds or both.
+        */
         pub async fn guardian_pause(
             &mut self,
             request: impl tonic::IntoRequest<super::MsgGuardianPause>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgGuardianPauseResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> std::result::Result<tonic::Response<super::MsgGuardianPauseResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/akash.sink.v1.Msg/GuardianPause",
-            );
+            let path = http::uri::PathAndQuery::from_static("/akash.sink.v1.Msg/GuardianPause");
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("akash.sink.v1.Msg", "GuardianPause"));
@@ -886,65 +782,60 @@ pub mod msg_server {
             &self,
             request: tonic::Request<super::MsgSink>,
         ) -> std::result::Result<tonic::Response<super::MsgSinkResponse>, tonic::Status>;
+        /** UpdateParams updates governed parameters while preserving consumed capacity.
+        */
         async fn update_params(
             &self,
             request: tonic::Request<super::MsgUpdateParams>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgUpdateParamsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::MsgUpdateParamsResponse>, tonic::Status>;
+        /** RequestVoid creates an immutable governance void order; it does not authorize a refund.
+        */
         async fn request_void(
             &self,
             request: tonic::Request<super::MsgRequestVoid>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgRequestVoidResponse>,
-            tonic::Status,
-        >;
-        /** ReportOutcome handles the ReportOutcome request.
-*/
+        ) -> std::result::Result<tonic::Response<super::MsgRequestVoidResponse>, tonic::Status>;
+        /** ReportOutcome records a report for the current policy and exact settlement round.
+        */
         async fn report_outcome(
             &self,
             request: tonic::Request<super::MsgReportOutcome>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgReportOutcomeResponse>,
-            tonic::Status,
-        >;
-        /** VetoVoid handles the VetoVoid request.
-*/
+        ) -> std::result::Result<tonic::Response<super::MsgReportOutcomeResponse>, tonic::Status>;
+        /** VetoVoid holds an unpaid refund authorization for governance.
+        */
         async fn veto_void(
             &self,
             request: tonic::Request<super::MsgVetoVoid>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgVetoVoidResponse>,
-            tonic::Status,
-        >;
-        /** ResolveTransfer handles the ResolveTransfer request.
-*/
-        async fn resolve_transfer(
+        ) -> std::result::Result<tonic::Response<super::MsgVetoVoidResponse>, tonic::Status>;
+        /** RestartTransfer starts the next round of an unpaid transfer.
+        */
+        async fn restart_transfer(
             &self,
-            request: tonic::Request<super::MsgResolveTransfer>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgResolveTransferResponse>,
-            tonic::Status,
-        >;
-        /** FinalizeRefund handles the FinalizeRefund request.
-*/
+            request: tonic::Request<super::MsgRestartTransfer>,
+        ) -> std::result::Result<tonic::Response<super::MsgRestartTransferResponse>, tonic::Status>;
+        /** ConfirmMint records governance mint evidence in the next settlement round.
+        */
+        async fn confirm_mint(
+            &self,
+            request: tonic::Request<super::MsgConfirmMint>,
+        ) -> std::result::Result<tonic::Response<super::MsgConfirmMintResponse>, tonic::Status>;
+        /** ConfirmVoid records governance void evidence or resolves a paid transfer dispute.
+        */
+        async fn confirm_void(
+            &self,
+            request: tonic::Request<super::MsgConfirmVoid>,
+        ) -> std::result::Result<tonic::Response<super::MsgConfirmVoidResponse>, tonic::Status>;
+        /** FinalizeRefund pays the eligible queue head once to its original owner.
+        */
         async fn finalize_refund(
             &self,
             request: tonic::Request<super::MsgFinalizeRefund>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgFinalizeRefundResponse>,
-            tonic::Status,
-        >;
-        /** GuardianPause handles the GuardianPause request.
-*/
+        ) -> std::result::Result<tonic::Response<super::MsgFinalizeRefundResponse>, tonic::Status>;
+        /** GuardianPause disables deposits, refunds or both.
+        */
         async fn guardian_pause(
             &self,
             request: tonic::Request<super::MsgGuardianPause>,
-        ) -> std::result::Result<
-            tonic::Response<super::MsgGuardianPauseResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::MsgGuardianPauseResponse>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct MsgServer<T: Msg> {
@@ -967,10 +858,7 @@ pub mod msg_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -1025,21 +913,15 @@ pub mod msg_server {
                 "/akash.sink.v1.Msg/Sink" => {
                     #[allow(non_camel_case_types)]
                     struct SinkSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgSink>
-                    for SinkSvc<T> {
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgSink> for SinkSvc<T> {
                         type Response = super::MsgSinkResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MsgSink>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::sink(&inner, request).await
-                            };
+                            let fut = async move { <T as Msg>::sink(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1068,21 +950,16 @@ pub mod msg_server {
                 "/akash.sink.v1.Msg/UpdateParams" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateParamsSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgUpdateParams>
-                    for UpdateParamsSvc<T> {
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgUpdateParams> for UpdateParamsSvc<T> {
                         type Response = super::MsgUpdateParamsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MsgUpdateParams>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::update_params(&inner, request).await
-                            };
+                            let fut =
+                                async move { <T as Msg>::update_params(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1111,21 +988,16 @@ pub mod msg_server {
                 "/akash.sink.v1.Msg/RequestVoid" => {
                     #[allow(non_camel_case_types)]
                     struct RequestVoidSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgRequestVoid>
-                    for RequestVoidSvc<T> {
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgRequestVoid> for RequestVoidSvc<T> {
                         type Response = super::MsgRequestVoidResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MsgRequestVoid>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::request_void(&inner, request).await
-                            };
+                            let fut =
+                                async move { <T as Msg>::request_void(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1154,21 +1026,16 @@ pub mod msg_server {
                 "/akash.sink.v1.Msg/ReportOutcome" => {
                     #[allow(non_camel_case_types)]
                     struct ReportOutcomeSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgReportOutcome>
-                    for ReportOutcomeSvc<T> {
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgReportOutcome> for ReportOutcomeSvc<T> {
                         type Response = super::MsgReportOutcomeResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MsgReportOutcome>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::report_outcome(&inner, request).await
-                            };
+                            let fut =
+                                async move { <T as Msg>::report_outcome(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1197,21 +1064,15 @@ pub mod msg_server {
                 "/akash.sink.v1.Msg/VetoVoid" => {
                     #[allow(non_camel_case_types)]
                     struct VetoVoidSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgVetoVoid>
-                    for VetoVoidSvc<T> {
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgVetoVoid> for VetoVoidSvc<T> {
                         type Response = super::MsgVetoVoidResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MsgVetoVoid>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::veto_void(&inner, request).await
-                            };
+                            let fut = async move { <T as Msg>::veto_void(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1237,24 +1098,19 @@ pub mod msg_server {
                     };
                     Box::pin(fut)
                 }
-                "/akash.sink.v1.Msg/ResolveTransfer" => {
+                "/akash.sink.v1.Msg/RestartTransfer" => {
                     #[allow(non_camel_case_types)]
-                    struct ResolveTransferSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgResolveTransfer>
-                    for ResolveTransferSvc<T> {
-                        type Response = super::MsgResolveTransferResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    struct RestartTransferSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgRestartTransfer> for RestartTransferSvc<T> {
+                        type Response = super::MsgRestartTransferResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::MsgResolveTransfer>,
+                            request: tonic::Request<super::MsgRestartTransfer>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::resolve_transfer(&inner, request).await
-                            };
+                            let fut =
+                                async move { <T as Msg>::restart_transfer(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1264,7 +1120,83 @@ pub mod msg_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = ResolveTransferSvc(inner);
+                        let method = RestartTransferSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.sink.v1.Msg/ConfirmMint" => {
+                    #[allow(non_camel_case_types)]
+                    struct ConfirmMintSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgConfirmMint> for ConfirmMintSvc<T> {
+                        type Response = super::MsgConfirmMintResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgConfirmMint>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut =
+                                async move { <T as Msg>::confirm_mint(&inner, request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = ConfirmMintSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.sink.v1.Msg/ConfirmVoid" => {
+                    #[allow(non_camel_case_types)]
+                    struct ConfirmVoidSvc<T: Msg>(pub Arc<T>);
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgConfirmVoid> for ConfirmVoidSvc<T> {
+                        type Response = super::MsgConfirmVoidResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MsgConfirmVoid>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut =
+                                async move { <T as Msg>::confirm_void(&inner, request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = ConfirmVoidSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -1283,21 +1215,16 @@ pub mod msg_server {
                 "/akash.sink.v1.Msg/FinalizeRefund" => {
                     #[allow(non_camel_case_types)]
                     struct FinalizeRefundSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgFinalizeRefund>
-                    for FinalizeRefundSvc<T> {
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgFinalizeRefund> for FinalizeRefundSvc<T> {
                         type Response = super::MsgFinalizeRefundResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MsgFinalizeRefund>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::finalize_refund(&inner, request).await
-                            };
+                            let fut =
+                                async move { <T as Msg>::finalize_refund(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1326,21 +1253,16 @@ pub mod msg_server {
                 "/akash.sink.v1.Msg/GuardianPause" => {
                     #[allow(non_camel_case_types)]
                     struct GuardianPauseSvc<T: Msg>(pub Arc<T>);
-                    impl<T: Msg> tonic::server::UnaryService<super::MsgGuardianPause>
-                    for GuardianPauseSvc<T> {
+                    impl<T: Msg> tonic::server::UnaryService<super::MsgGuardianPause> for GuardianPauseSvc<T> {
                         type Response = super::MsgGuardianPauseResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MsgGuardianPause>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Msg>::guardian_pause(&inner, request).await
-                            };
+                            let fut =
+                                async move { <T as Msg>::guardian_pause(&inner, request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1366,21 +1288,17 @@ pub mod msg_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

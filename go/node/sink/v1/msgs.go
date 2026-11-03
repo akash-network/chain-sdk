@@ -1,46 +1,140 @@
 package v1
 
 import (
-	errorsmod "cosmossdk.io/errors"
+	"math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var (
 	_ sdk.HasValidateBasic = &MsgSink{}
+	_ sdk.HasValidateBasic = &MsgUpdateParams{}
+	_ sdk.HasValidateBasic = &MsgRequestVoid{}
+	_ sdk.HasValidateBasic = &MsgReportOutcome{}
+	_ sdk.HasValidateBasic = &MsgVetoVoid{}
+	_ sdk.HasValidateBasic = &MsgRestartTransfer{}
+	_ sdk.HasValidateBasic = &MsgConfirmMint{}
+	_ sdk.HasValidateBasic = &MsgConfirmVoid{}
+	_ sdk.HasValidateBasic = &MsgFinalizeRefund{}
 	_ sdk.HasValidateBasic = &MsgGuardianPause{}
 )
 
-// ValidateBasic performs the stateless MsgSink checks before fees are charged.
-// The keeper repeats them and adds the parameter-dependent vault allowlist,
-// amount limits and signer account checks.
-func (m *MsgSink) ValidateBasic() error {
-	if m.DestType != DestTypeSolana {
-		return ErrInvalidDestination.Wrapf("destination type must be %d (Solana)", DestTypeSolana)
-	}
-	if _, err := DecodeDestination(m.Dest); err != nil {
-		return err
-	}
-	if m.Amount.Denom != Denom {
-		return sdkerrors.ErrInvalidCoins.Wrapf("expected %s, got %s", Denom, m.Amount.Denom)
-	}
-	if m.Amount.Amount.IsNil() || !m.Amount.Amount.IsPositive() || !m.Amount.Amount.IsUint64() {
-		return sdkerrors.ErrInvalidCoins.Wrap("amount must be a positive 64-bit value")
-	}
-	if _, err := ParseAccount(m.Sender, AccountLength); err != nil {
-		return errorsmod.Wrap(err, "sender")
-	}
-	return nil
+type Resolution interface {
+	sdk.Msg
+	sdk.HasValidateBasic
+	resolution()
 }
 
-// ValidateBasic checks the guardian address and that at least one switch is
-// requested. The keeper checks that the signer is params.pause_guardian.
+func (*MsgRestartTransfer) resolution() {}
+
+func (*MsgConfirmMint) resolution() {}
+
+func (*MsgConfirmVoid) resolution() {}
+
+func (m *MsgSink) ValidateBasic() error {
+	if m.DestType != DestTypeSolana {
+		return ErrInvalidDestination.Wrapf("destination type must be %s", DestTypeSolana)
+	}
+
+	if _, err := ParseAccount(m.Sender, AccountLength); err != nil {
+		return err
+	}
+
+	return (RecordData{Dest: m.Dest, Amount: m.Amount}).ValidateBasic()
+}
+
+func (m *MsgUpdateParams) ValidateBasic() error {
+	if _, err := ParseAccount(m.Authority, AccountLength, DerivedAccountLength); err != nil {
+		return err
+	}
+
+	return m.Params.ValidateBasic()
+}
+
+func (m *MsgRequestVoid) ValidateBasic() error {
+	return validateSignerID(m.Authority, m.ID)
+}
+
+func (m *MsgFinalizeRefund) ValidateBasic() error {
+	return validateSignerID(m.Executor, m.ID)
+}
+
+func (m *MsgVetoVoid) ValidateBasic() error {
+	if err := validateSignerID(m.Signer, m.ID); err != nil {
+		return err
+	}
+
+	return ValidateReason(m.Reason)
+}
+
+func (m *MsgReportOutcome) ValidateBasic() error {
+	if _, err := ParseAccount(m.Reporter, AccountLength); err != nil {
+		return err
+	}
+
+	if err := m.ID.ValidateBasic(); err != nil {
+		return err
+	}
+
+	if m.PolicyVersion == 0 || m.Round == 0 {
+		return ErrStaleReport.Wrap("policy_version and round must be positive")
+	}
+
+	return m.Observation.Validate()
+}
+
+func (m *MsgRestartTransfer) ValidateBasic() error {
+	return validateResolution(m.Authority, m.ID, m.Reason, m.ExpectedRound)
+}
+
+func (m *MsgConfirmMint) ValidateBasic() error {
+	if err := validateResolution(m.Authority, m.ID, m.Reason, m.ExpectedRound); err != nil {
+		return err
+	}
+
+	return m.Evidence.Validate()
+}
+
+func (m *MsgConfirmVoid) ValidateBasic() error {
+	if err := validateResolution(m.Authority, m.ID, m.Reason, m.ExpectedRound); err != nil {
+		return err
+	}
+
+	return m.Evidence.Validate()
+}
+
+func validateSignerID(signer string, id ID) error {
+	if _, err := ParseAccount(signer, AccountLength, DerivedAccountLength); err != nil {
+		return err
+	}
+
+	return id.ValidateBasic()
+}
+
+func validateResolution(authority string, id ID, reason string, round uint64) error {
+	if err := validateSignerID(authority, id); err != nil {
+		return err
+	}
+
+	if round == 0 {
+		return ErrInvalidResolution.Wrap("expected_round must be positive")
+	}
+
+	if round == math.MaxUint64 {
+		return ErrOverflow.Wrap("settlement round")
+	}
+
+	return ValidateReason(reason)
+}
+
 func (m *MsgGuardianPause) ValidateBasic() error {
 	if err := ValidatePauseGuardian(m.Guardian); err != nil {
 		return err
 	}
+
 	if !m.Deposits && !m.Refunds {
 		return ErrInvalidGuardianPause
 	}
+
 	return nil
 }

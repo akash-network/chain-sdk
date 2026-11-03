@@ -5,10 +5,8 @@ package v1
 import (
 	context "context"
 
-	grpc "google.golang.org/grpc"
-
 	mock "github.com/stretchr/testify/mock"
-
+	grpc "google.golang.org/grpc"
 	v1 "pkg.akt.dev/go/node/sink/v1"
 )
 
@@ -99,8 +97,8 @@ func (_c *QueryClient_Account_Call) RunAndReturn(run func(context.Context, *v1.Q
 	return _c
 }
 
-// OpenTransfers provides a mock function with given fields: ctx, in, opts
-func (_m *QueryClient) OpenTransfers(ctx context.Context, in *v1.QueryOpenTransfersRequest, opts ...grpc.CallOption) (*v1.QueryOpenTransfersResponse, error) {
+// Disputes provides a mock function with given fields: ctx, in, opts
+func (_m *QueryClient) Disputes(ctx context.Context, in *v1.QueryDisputesRequest, opts ...grpc.CallOption) (*v1.QueryDisputesResponse, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -111,23 +109,23 @@ func (_m *QueryClient) OpenTransfers(ctx context.Context, in *v1.QueryOpenTransf
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for OpenTransfers")
+		panic("no return value specified for Disputes")
 	}
 
-	var r0 *v1.QueryOpenTransfersResponse
+	var r0 *v1.QueryDisputesResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *v1.QueryOpenTransfersRequest, ...grpc.CallOption) (*v1.QueryOpenTransfersResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *v1.QueryDisputesRequest, ...grpc.CallOption) (*v1.QueryDisputesResponse, error)); ok {
 		return rf(ctx, in, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *v1.QueryOpenTransfersRequest, ...grpc.CallOption) *v1.QueryOpenTransfersResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *v1.QueryDisputesRequest, ...grpc.CallOption) *v1.QueryDisputesResponse); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v1.QueryOpenTransfersResponse)
+			r0 = ret.Get(0).(*v1.QueryDisputesResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *v1.QueryOpenTransfersRequest, ...grpc.CallOption) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *v1.QueryDisputesRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -136,21 +134,21 @@ func (_m *QueryClient) OpenTransfers(ctx context.Context, in *v1.QueryOpenTransf
 	return r0, r1
 }
 
-// QueryClient_OpenTransfers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OpenTransfers'
-type QueryClient_OpenTransfers_Call struct {
+// QueryClient_Disputes_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Disputes'
+type QueryClient_Disputes_Call struct {
 	*mock.Call
 }
 
-// OpenTransfers is a helper method to define mock.On call
+// Disputes is a helper method to define mock.On call
 //   - ctx context.Context
-//   - in *v1.QueryOpenTransfersRequest
+//   - in *v1.QueryDisputesRequest
 //   - opts ...grpc.CallOption
-func (_e *QueryClient_Expecter) OpenTransfers(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_OpenTransfers_Call {
-	return &QueryClient_OpenTransfers_Call{Call: _e.mock.On("OpenTransfers",
+func (_e *QueryClient_Expecter) Disputes(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_Disputes_Call {
+	return &QueryClient_Disputes_Call{Call: _e.mock.On("Disputes",
 		append([]interface{}{ctx, in}, opts...)...)}
 }
 
-func (_c *QueryClient_OpenTransfers_Call) Run(run func(ctx context.Context, in *v1.QueryOpenTransfersRequest, opts ...grpc.CallOption)) *QueryClient_OpenTransfers_Call {
+func (_c *QueryClient_Disputes_Call) Run(run func(ctx context.Context, in *v1.QueryDisputesRequest, opts ...grpc.CallOption)) *QueryClient_Disputes_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]grpc.CallOption, len(args)-2)
 		for i, a := range args[2:] {
@@ -158,91 +156,17 @@ func (_c *QueryClient_OpenTransfers_Call) Run(run func(ctx context.Context, in *
 				variadicArgs[i] = a.(grpc.CallOption)
 			}
 		}
-		run(args[0].(context.Context), args[1].(*v1.QueryOpenTransfersRequest), variadicArgs...)
+		run(args[0].(context.Context), args[1].(*v1.QueryDisputesRequest), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *QueryClient_OpenTransfers_Call) Return(_a0 *v1.QueryOpenTransfersResponse, _a1 error) *QueryClient_OpenTransfers_Call {
+func (_c *QueryClient_Disputes_Call) Return(_a0 *v1.QueryDisputesResponse, _a1 error) *QueryClient_Disputes_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *QueryClient_OpenTransfers_Call) RunAndReturn(run func(context.Context, *v1.QueryOpenTransfersRequest, ...grpc.CallOption) (*v1.QueryOpenTransfersResponse, error)) *QueryClient_OpenTransfers_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Sink provides a mock function with given fields: ctx, in, opts
-func (_m *QueryClient) Sink(ctx context.Context, in *v1.QuerySink, opts ...grpc.CallOption) (*v1.QuerySinkResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Sink")
-	}
-
-	var r0 *v1.QuerySinkResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *v1.QuerySink, ...grpc.CallOption) (*v1.QuerySinkResponse, error)); ok {
-		return rf(ctx, in, opts...)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *v1.QuerySink, ...grpc.CallOption) *v1.QuerySinkResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v1.QuerySinkResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *v1.QuerySink, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// QueryClient_Sink_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Sink'
-type QueryClient_Sink_Call struct {
-	*mock.Call
-}
-
-// Sink is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in *v1.QuerySink
-//   - opts ...grpc.CallOption
-func (_e *QueryClient_Expecter) Sink(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_Sink_Call {
-	return &QueryClient_Sink_Call{Call: _e.mock.On("Sink",
-		append([]interface{}{ctx, in}, opts...)...)}
-}
-
-func (_c *QueryClient_Sink_Call) Run(run func(ctx context.Context, in *v1.QuerySink, opts ...grpc.CallOption)) *QueryClient_Sink_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]grpc.CallOption, len(args)-2)
-		for i, a := range args[2:] {
-			if a != nil {
-				variadicArgs[i] = a.(grpc.CallOption)
-			}
-		}
-		run(args[0].(context.Context), args[1].(*v1.QuerySink), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *QueryClient_Sink_Call) Return(_a0 *v1.QuerySinkResponse, _a1 error) *QueryClient_Sink_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *QueryClient_Sink_Call) RunAndReturn(run func(context.Context, *v1.QuerySink, ...grpc.CallOption) (*v1.QuerySinkResponse, error)) *QueryClient_Sink_Call {
+func (_c *QueryClient_Disputes_Call) RunAndReturn(run func(context.Context, *v1.QueryDisputesRequest, ...grpc.CallOption) (*v1.QueryDisputesResponse, error)) *QueryClient_Disputes_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -391,6 +315,80 @@ func (_c *QueryClient_Transfer_Call) Return(_a0 *v1.QueryTransferResponse, _a1 e
 }
 
 func (_c *QueryClient_Transfer_Call) RunAndReturn(run func(context.Context, *v1.QueryTransferRequest, ...grpc.CallOption) (*v1.QueryTransferResponse, error)) *QueryClient_Transfer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Transfers provides a mock function with given fields: ctx, in, opts
+func (_m *QueryClient) Transfers(ctx context.Context, in *v1.QueryTransfersRequest, opts ...grpc.CallOption) (*v1.QueryTransfersResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Transfers")
+	}
+
+	var r0 *v1.QueryTransfersResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *v1.QueryTransfersRequest, ...grpc.CallOption) (*v1.QueryTransfersResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *v1.QueryTransfersRequest, ...grpc.CallOption) *v1.QueryTransfersResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1.QueryTransfersResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *v1.QueryTransfersRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// QueryClient_Transfers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Transfers'
+type QueryClient_Transfers_Call struct {
+	*mock.Call
+}
+
+// Transfers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *v1.QueryTransfersRequest
+//   - opts ...grpc.CallOption
+func (_e *QueryClient_Expecter) Transfers(ctx interface{}, in interface{}, opts ...interface{}) *QueryClient_Transfers_Call {
+	return &QueryClient_Transfers_Call{Call: _e.mock.On("Transfers",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *QueryClient_Transfers_Call) Run(run func(ctx context.Context, in *v1.QueryTransfersRequest, opts ...grpc.CallOption)) *QueryClient_Transfers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*v1.QueryTransfersRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *QueryClient_Transfers_Call) Return(_a0 *v1.QueryTransfersResponse, _a1 error) *QueryClient_Transfers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *QueryClient_Transfers_Call) RunAndReturn(run func(context.Context, *v1.QueryTransfersRequest, ...grpc.CallOption) (*v1.QueryTransfersResponse, error)) *QueryClient_Transfers_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,0 +1,170 @@
+package v1_test
+
+import (
+	"math"
+	"math/big"
+	"testing"
+	"time"
+
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+
+	types "pkg.akt.dev/go/node/sink/v1"
+	"pkg.akt.dev/go/sdkutil"
+)
+
+func TestRatioAndCapEdges(t *testing.T) {
+	require.NoError(t, types.DefaultGenesis().Validate())
+
+	for _, ratio := range []string{"0", "0.666666666666666666", "1.000000000000000001", "-1"} {
+		p := types.DefaultParams()
+		p.Reporters = policy().Members
+		p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr(ratio)
+		require.Error(t, p.ValidateBasic(), ratio)
+	}
+
+	for _, ratio := range []string{"0.666666666666666667", "0.75", "1"} {
+		p := types.DefaultParams()
+		p.Reporters = policy().Members
+		p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr(ratio)
+		require.NoError(t, p.ValidateBasic(), ratio)
+		expected := uint32(3)
+		if ratio == "1" {
+			expected = 4
+		}
+
+		require.Equal(t, expected, p.Policy(1).Threshold)
+	}
+
+	p := types.DefaultParams()
+	p.Reporters = policy().Members
+	p.Reporters = append(p.Reporters, p.Reporters[0])
+	require.Error(t, p.ValidateBasic())
+	p = types.DefaultParams()
+	p.DepositsEnabled = true
+	require.Error(t, p.ValidateBasic())
+
+	for name, change := range map[string]func(*types.Params){
+		"nil coin":           func(p *types.Params) { p.MaxTransferAmountPerEpoch = sdk.Coin{} },
+		"zero cap":           func(p *types.Params) { p.MaxEpochRefund = types.ZeroAmount() },
+		"denom":              func(p *types.Params) { p.MaxAmountPerTransfer.Denom = "other" },
+		"max over account":   func(p *types.Params) { p.MaxEpochAmountPerAccount = p.MinAmountPerTransfer },
+		"max over refund":    func(p *types.Params) { p.MaxEpochRefund = p.MinAmountPerTransfer },
+		"max over aggregate": func(p *types.Params) { p.MaxTransferAmountPerEpoch = p.MinAmountPerTransfer },
+		"min over max":       func(p *types.Params) { p.MinAmountPerTransfer = p.MaxTransferAmountPerEpoch },
+		"uint64 overflow": func(p *types.Params) {
+			p.MaxAmountPerTransfer = sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromUint64(math.MaxUint64).AddRaw(1))
+		},
+		"challenge floor": func(p *types.Params) {
+			p.ReporterChallengePeriod = time.Duration(types.MinChallengePeriodSeconds)*time.Second - 1
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			p := types.DefaultParams()
+			change(&p)
+			require.Error(t, p.ValidateBasic())
+		})
+	}
+
+	p = types.DefaultParams()
+	p.MinAmountPerTransfer = p.MaxAmountPerTransfer
+	p.MaxTransferAmountPerEpoch = p.MaxAmountPerTransfer
+	p.ReporterChallengePeriod = time.Duration(types.MinChallengePeriodSeconds) * time.Second
+	require.NoError(t, p.ValidateBasic())
+	a, b := policy(), policy()
+	b.Members[0], b.Members[3] = b.Members[3], b.Members[0]
+	b.Version = 2
+	require.True(t, a.SameRule(b))
+	b.Threshold++
+	require.False(t, a.SameRule(b))
+}
+
+func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
+	epoch, err := types.EpochOf(time.Unix(86400, 0))
+	require.NoError(t, err)
+	require.Equal(t, uint64(1), epoch)
+	_, err = types.EpochOf(time.Unix(-1, 0))
+	require.ErrorIs(t, err, types.ErrInvalidClock)
+	amount := sdk.NewInt64Coin(sdkutil.DenomUakt, 123)
+	send := types.EpochUsage{Epoch: 8, Amount: amount}
+	refund := types.EpochUsage{Epoch: 9, Amount: amount}
+	normalized, err := send.At(9)
+	require.NoError(t, err)
+	require.True(t, normalized.Amount.IsZero())
+	require.Equal(t, uint64(9), normalized.Epoch)
+	normalized, err = refund.At(9)
+	require.NoError(t, err)
+	require.Equal(t, amount, normalized.Amount)
+	_, err = refund.At(8)
+	require.ErrorIs(t, err, types.ErrInvalidClock)
+	require.Equal(t, amount, send.Amount)
+	account := types.AccountUsage{TotalSent: amount, EpochSent: amount, LastEpoch: 8}
+	usage, err := account.At(9)
+	require.NoError(t, err)
+	require.True(t, usage.EpochSent.IsZero())
+	require.Equal(t, amount, usage.TotalSent)
+	_, err = account.At(7)
+	require.ErrorIs(t, err, types.ErrInvalidClock)
+	_, err = account.At(math.MaxInt64 + 1)
+	require.ErrorIs(t, err, types.ErrInvalidClock)
+	account.LastEpoch = -1
+	_, err = account.At(9)
+	require.ErrorIs(t, err, types.ErrInvalidClock)
+	a := sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromUint64(math.MaxUint64))
+	sum, err := types.AddAmount(a, a)
+	require.NoError(t, err)
+	require.False(t, sum.Amount.IsUint64())
+	max := sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromBigInt(new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 256), big.NewInt(1))))
+	_, err = types.AddAmount(max, amount)
+	require.ErrorIs(t, err, types.ErrOverflow)
+	totals := types.DefaultTotals()
+	totals.PendingCount = math.MaxUint64
+	require.ErrorIs(t, totals.Add(types.StatusTransferPending, amount), types.ErrOverflow)
+	require.True(t, totals.PendingAmount.IsZero())
+}
+
+func TestTotalsSubRejectsRecordsOutsideThePopulation(t *testing.T) {
+	amount := sdk.NewInt64Coin(sdkutil.DenomUakt, 10)
+	totals := types.DefaultTotals()
+	require.NoError(t, totals.Add(types.StatusRefundPending, amount))
+	before := totals
+
+	for name, tc := range map[string]struct {
+		status types.Status
+		amount sdk.Coin
+	}{
+		"empty population":   {types.StatusMinted, amount},
+		"larger amount":      {types.StatusRefundPending, amount.Add(amount)},
+		"reserved status":    {types.Status(3), amount},
+		"foreign denom":      {types.StatusRefundPending, sdk.NewInt64Coin("other", 10)},
+		"uninitialized coin": {types.StatusRefundPending, sdk.Coin{Denom: sdkutil.DenomUakt}},
+	} {
+		require.Error(t, totals.Sub(tc.status, tc.amount), name)
+		require.Equal(t, before, totals, name)
+	}
+
+	require.NoError(t, totals.Sub(types.StatusRefundPending, amount))
+	require.Zero(t, totals.RefundPendingCount)
+	require.True(t, totals.RefundPendingAmount.IsZero())
+}
+
+func TestReporterCountAndMaximumTransferBoundaries(t *testing.T) {
+	p := types.DefaultParams()
+	for i := 1; i <= types.MaxReporters; i++ {
+		p.Reporters = append(p.Reporters, account(byte(i)))
+	}
+
+	require.NoError(t, p.ValidateBasic())
+	require.Equal(t, uint32(24), p.Policy(1).Threshold)
+	p.Reporters = append(p.Reporters, account(33))
+	require.Error(t, p.ValidateBasic())
+	p = types.DefaultParams()
+	p.Reporters = policy().Members
+	a := p.Policy(1)
+	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.70")
+	require.True(t, a.SameRule(p.Policy(2)))
+	maximum := sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromUint64(math.MaxUint64))
+	p.MaxAmountPerTransfer, p.MaxEpochAmountPerAccount, p.MaxTransferAmountPerEpoch, p.MaxEpochRefund = maximum, maximum, maximum, maximum
+	require.NoError(t, p.ValidateBasic())
+}

@@ -9,20 +9,24 @@ option go_package = "pkg.akt.dev/go/node/sink/v1";
 // Msg defines the sink transaction service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
-  // Sink handles the Sink request.
+  // Sink locks uakt and allocates a composite transfer ID.
   rpc Sink(MsgSink) returns (MsgSinkResponse);
-  // UpdateParams handles the UpdateParams request.
+  // UpdateParams updates governed parameters while preserving consumed capacity.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
-  // RequestVoid handles the RequestVoid request.
+  // RequestVoid creates an immutable governance void order; it does not authorize a refund.
   rpc RequestVoid(MsgRequestVoid) returns (MsgRequestVoidResponse);
-  // ReportOutcome handles the ReportOutcome request.
+  // ReportOutcome records a report for the current policy and exact settlement round.
   rpc ReportOutcome(MsgReportOutcome) returns (MsgReportOutcomeResponse);
-  // VetoVoid handles the VetoVoid request.
+  // VetoVoid holds an unpaid refund authorization for governance.
   rpc VetoVoid(MsgVetoVoid) returns (MsgVetoVoidResponse);
-  // ResolveTransfer handles the ResolveTransfer request.
-  rpc ResolveTransfer(MsgResolveTransfer) returns (MsgResolveTransferResponse);
-  // FinalizeRefund handles the FinalizeRefund request.
+  // RestartTransfer starts the next round of an unpaid transfer.
+  rpc RestartTransfer(MsgRestartTransfer) returns (MsgRestartTransferResponse);
+  // ConfirmMint records governance mint evidence in the next settlement round.
+  rpc ConfirmMint(MsgConfirmMint) returns (MsgConfirmMintResponse);
+  // ConfirmVoid records governance void evidence or resolves a paid transfer dispute.
+  rpc ConfirmVoid(MsgConfirmVoid) returns (MsgConfirmVoidResponse);
+  // FinalizeRefund pays the eligible queue head once to its original owner.
   rpc FinalizeRefund(MsgFinalizeRefund) returns (MsgFinalizeRefundResponse);
-  // GuardianPause handles the GuardianPause request.
+  // GuardianPause disables deposits, refunds or both.
   rpc GuardianPause(MsgGuardianPause) returns (MsgGuardianPauseResponse);
 }

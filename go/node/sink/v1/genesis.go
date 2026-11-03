@@ -1,90 +1,159 @@
 package v1
 
 import (
-	"math"
-
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const SchemaVersion uint32 = 2
+
 func DefaultGenesis() *GenesisState {
-	return &GenesisState{Params: DefaultParams(), Totals: Totals{ReporterEpoch: 1}}
+	params := DefaultParams()
+	return &GenesisState{
+		SchemaVersion: SchemaVersion,
+		Params:        params,
+		Totals:        DefaultTotals(),
+		Policies:      []ReporterPolicy{params.Policy(1)},
+		SendUsage:     EpochUsage{Amount: ZeroAmount()},
+		RefundUsage:   EpochUsage{Amount: ZeroAmount()},
+	}
 }
 
 func (g *GenesisState) Validate() error {
-	if err := g.Params.Validate(); err != nil {
+	if g == nil || g.SchemaVersion != SchemaVersion {
+		return ErrInvalidGenesis.Wrapf("schema_version must be %d; old sink state cannot be imported", SchemaVersion)
+	}
+
+	if err := g.Params.ValidateBasic(); err != nil {
 		return err
 	}
 
-	if g.Totals.ReporterEpoch == 0 || g.Totals.RefundedToday > g.Totals.RefundedAmount {
-		return ErrInvalidGenesis.Wrap("zero reporter epoch or refunded today above refunded total")
+	history, current, err := policyHistory(g.Policies)
+	if err != nil {
+		return err
 	}
 
-	seen := make(map[uint64]bool)
-	pending := make(map[[AccountLength]byte]uint32)
-	var total, pendingAmount, mintedAmount, voidedAmount, refundedAmount, pendingCount uint64
+	if !current.SameRule(g.Params.Policy(current.Version)) {
+		return ErrInvalidGenesis.Wrap("current reporter policy differs from params")
+	}
 
-	for _, entry := range g.Transfers {
-		t, err := DecodeTransfer(entry.Record)
+	if err = g.Totals.Validate(); err != nil {
+		return err
+	}
+
+	if _, err = g.Totals.DepositedAmount(); err != nil {
+		return err
+	}
+
+	if err = g.SendUsage.Validate(); err != nil {
+		return err
+	}
+
+	if err = g.RefundUsage.Validate(); err != nil {
+		return err
+	}
+
+	totals := DefaultTotals()
+	amounts := make(map[string]sdk.Coin)
+	ids := make(map[ID]bool, len(g.Transfers))
+	type position struct {
+		height   int64
+		sequence uint64
+	}
+
+	positions := make(map[position]bool, len(g.Transfers))
+	for _, transfer := range g.Transfers {
+		if err = transfer.ID.ValidateBasic(); err != nil {
+			return err
+		}
+
+		if err = transfer.Data.ValidateBasic(); err != nil {
+			return err
+		}
+
+		if err = transfer.Settlement.Validate(history); err != nil {
+			return err
+		}
+
+		id := transfer.ID
+		pos := position{id.Height, id.Sequence}
+		if ids[id] || positions[pos] {
+			return ErrInvalidGenesis.Wrap("duplicate transfer ID or block sequence")
+		}
+
+		ids[id], positions[pos] = true, true
+
+		if transfer.Settlement.Status == StatusRefundPending && transfer.Settlement.GovernanceEvidence != nil && !transfer.VoidOrdered {
+			return ErrInvalidGenesis.Wrap("governance refund authorization requires a void order")
+		}
+
+		if !transfer.Settlement.Terminal() && transfer.Data.Amount.IsGT(g.Params.MaxEpochRefund) {
+			return ErrInvalidGenesis.Wrap("unpaid transfer exceeds refund cap")
+		}
+
+		if err = totals.Add(transfer.Settlement.Status, transfer.Data.Amount); err != nil {
+			return err
+		}
+
+		amount, exists := amounts[id.Owner]
+		if !exists {
+			amount = ZeroAmount()
+		}
+
+		amounts[id.Owner], err = AddAmount(amount, transfer.Data.Amount)
 		if err != nil {
 			return err
 		}
-		if seen[t.ID] || t.ID > g.Totals.LastTransferId {
-			return ErrInvalidGenesis.Wrapf("transfer %d duplicated or above last transfer id %d", t.ID, g.Totals.LastTransferId)
-		}
-		seen[t.ID] = true
-		if err := entry.Settlement.Validate(g.Totals.ReporterEpoch); err != nil {
+	}
+
+	if !totals.Equal(g.Totals) {
+		return ErrInvalidGenesis.Wrap("totals do not match financial status populations")
+	}
+
+	owners := make(map[string]bool, len(g.Accounts))
+	epochAmount := ZeroAmount()
+	for _, account := range g.Accounts {
+		if _, err = ParseAccount(account.Owner, AccountLength); err != nil {
 			return err
 		}
-		policy := entry.Settlement.Policy
-		if policy.Epoch == g.Totals.ReporterEpoch && !g.Params.SameReporterSet(Params{Reporters: policy.Members, ReporterThreshold: policy.Threshold}) {
-			return ErrInvalidGenesis.Wrapf("transfer %d reporter snapshot does not match parameters", t.ID)
+
+		if owners[account.Owner] {
+			return ErrInvalidGenesis.Wrap("duplicate owner usage")
 		}
-		if t.Amount > math.MaxUint64-total {
-			return ErrOverflow.Wrap("transfer amount total")
+
+		owners[account.Owner] = true
+
+		usage, err := account.Usage.At(g.SendUsage.Epoch)
+		if err != nil {
+			return err
 		}
-		total += t.Amount
-		if !entry.Settlement.Terminal() {
-			if pending[t.Sender] == math.MaxUint32 {
-				return ErrOverflow.Wrap("account pending count")
-			}
-			pending[t.Sender]++
-			pendingCount++
+
+		amount, exists := amounts[account.Owner]
+		if !exists {
+			amount = ZeroAmount()
 		}
-		switch entry.Settlement.Status {
-		case Status_STATUS_PENDING:
-			pendingAmount += t.Amount
-		case Status_STATUS_MINTED:
-			mintedAmount += t.Amount
-		case Status_STATUS_VOIDED:
-			voidedAmount += t.Amount
-		case Status_STATUS_REFUNDED:
-			refundedAmount += t.Amount
+
+		if !usage.TotalSent.Equal(amount) {
+			return ErrInvalidGenesis.Wrap("account lifetime amount differs from transfer records")
+		}
+
+		epochAmount, err = AddAmount(epochAmount, usage.EpochSent)
+		if err != nil {
+			return err
 		}
 	}
 
-	if pendingAmount != g.Totals.PendingAmount || pendingCount != g.Totals.PendingCount || mintedAmount != g.Totals.MintedAmount || voidedAmount != g.Totals.VoidedAmount || refundedAmount != g.Totals.RefundedAmount {
-		return ErrInvalidGenesis.Wrap("totals do not match transfer records")
+	for owner := range amounts {
+		if !owners[owner] {
+			return ErrInvalidGenesis.Wrap("missing owner usage")
+		}
 	}
 
-	accounts := make(map[[AccountLength]byte]bool)
-
-	for _, a := range g.Accounts {
-		sender := sdk.AccAddress(a.Sender)
-		if err := ValidateAccount(sender, AccountLength); err != nil {
-			return errorsmod.Wrap(err, "account usage sender")
-		}
-		key := [AccountLength]byte(sender)
-		if accounts[key] || a.PendingCount != pending[key] {
-			return ErrInvalidGenesis.Wrapf("account %s duplicated or pending count mismatch", sender)
-		}
-		accounts[key] = true
+	if !epochAmount.Equal(g.SendUsage.Amount) {
+		return ErrInvalidGenesis.Wrap("global send usage differs from account epoch amounts")
 	}
 
-	for sender := range pending {
-		if !accounts[sender] {
-			return ErrInvalidGenesis.Wrapf("missing account usage for %s", sdk.AccAddress(sender[:]))
-		}
+	if g.RefundUsage.Amount.IsGT(totals.RefundedAmount) {
+		return ErrInvalidGenesis.Wrap("refund usage exceeds total paid refunds")
 	}
 
 	return nil

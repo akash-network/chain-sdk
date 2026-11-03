@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"context"
 	"crypto/ed25519"
+	"encoding/base64"
 	"io"
-	"math"
+	"strconv"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -18,6 +19,7 @@ import (
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -34,16 +36,18 @@ func TestSinkQuerySDKCommand(t *testing.T) {
 	enc := sdkutil.MakeEncodingConfig()
 	types.RegisterInterfaces(enc.InterfaceRegistry)
 	types.RegisterLegacyAminoCodec(enc.Amino)
-	response := &types.QuerySinkResponse{Status: types.QuerySinkResponse_completed}
+	id := types.ID{Owner: sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String(), Height: 9001, Sequence: 42}
+	response := &types.QueryTransferResponse{Transfer: types.TransferState{ID: id, Data: types.RecordData{Amount: sdk.NewInt64Coin(sdkutil.DenomUakt, 1)}, Settlement: types.SettlementData{Status: types.StatusMinted}}}
 	bz, err := enc.Codec.Marshal(response)
 	require.NoError(t, err)
-	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).
-		WithLegacyAmino(enc.Amino).WithClient(testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}))
-	out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "record", "42", "--output", "json")
+	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}))
+	out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "transfer", id.String(), "--output", "json")
 	require.NoError(t, err)
-	var got types.QuerySinkResponse
+	var got types.QueryTransferResponse
 	require.NoError(t, enc.Codec.UnmarshalJSON(out.Bytes(), &got))
-	require.Equal(t, types.QuerySinkResponse_completed, got.Status)
+	require.Equal(t, id, got.Transfer.ID)
+	_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "transfer", "42")
+	require.Error(t, err)
 }
 
 // capturingCometRPC records the ABCI query the CLI sends.
@@ -58,42 +62,37 @@ func (c capturingCometRPC) ABCIQueryWithOptions(ctx context.Context, path string
 	return c.MockCometRPC.ABCIQueryWithOptions(ctx, path, data, opts)
 }
 
-func TestSinkOpenTransfersQueryCommand(t *testing.T) {
+func TestSinkTransfersQueryCommand(t *testing.T) {
 	enc := sdkutil.MakeEncodingConfig()
 	types.RegisterInterfaces(enc.InterfaceRegistry)
-	types.RegisterLegacyAminoCodec(enc.Amino)
-	response := &types.QueryOpenTransfersResponse{
-		Transfers:      []types.TransferState{{Record: []byte{1}}, {Record: []byte{2}, VoidOrdered: true}},
-		NextStartAfter: math.MaxUint64,
-	}
+	response := &types.QueryTransfersResponse{Pagination: &query.PageResponse{NextKey: []byte{4}}}
 	bz, err := enc.Codec.Marshal(response)
 	require.NoError(t, err)
 	var path string
 	var data []byte
 	rpc := capturingCometRPC{MockCometRPC: testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}), path: &path, data: &data}
-	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).
-		WithLegacyAmino(enc.Amino).WithClient(rpc)
-	out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "open-transfers",
-		"--start-after", "18446744073709551614", "--limit", "500", "--output", "json")
+	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(rpc)
+	owner := sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()
+	out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "transfers", "--owner", owner, "--status", "STATUS_REFUND_PENDING", "--page-key", base64.StdEncoding.EncodeToString([]byte{1, 2}), "--limit", "500", "--height", "123", "--output", "json")
 	require.NoError(t, err)
-	require.Equal(t, "/akash.sink.v1.Query/OpenTransfers", path)
-	var request types.QueryOpenTransfersRequest
+	require.Equal(t, "/akash.sink.v1.Query/Transfers", path)
+	var request types.QueryTransfersRequest
 	require.NoError(t, enc.Codec.Unmarshal(data, &request))
-	require.Equal(t, types.QueryOpenTransfersRequest{StartAfter: math.MaxUint64 - 1, Limit: 500}, request)
-	var got types.QueryOpenTransfersResponse
+	require.Equal(t, owner, request.Owner)
+	require.Equal(t, types.StatusRefundPending, request.Status)
+	require.Equal(t, []byte{1, 2}, request.Pagination.Key)
+	var got types.QueryTransfersResponse
 	require.NoError(t, enc.Codec.UnmarshalJSON(out.Bytes(), &got))
-	require.Len(t, got.Transfers, 2)
-	require.Equal(t, []byte{2}, got.Transfers[1].Record)
-	require.True(t, got.Transfers[1].VoidOrdered)
-	require.Equal(t, uint64(math.MaxUint64), got.NextStartAfter)
+	require.Equal(t, []byte{4}, got.Pagination.NextKey)
 
-	// Defaults leave both fields zero; the node applies the default limit.
-	_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "open-transfers", "--output", "json")
+	for _, args := range [][]string{{"--limit", "501"}, {"--offset", "1"}, {"--count-total"}, {"--status", "STATUS_VOIDED"}} {
+		_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), append([]string{"sink", "transfers"}, args...)...)
+		require.Error(t, err)
+	}
+
+	_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "disputes")
 	require.NoError(t, err)
-	require.NoError(t, enc.Codec.Unmarshal(data, &request))
-	require.Equal(t, types.QueryOpenTransfersRequest{}, request)
-	_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "open-transfers", "--limit", "-1")
-	require.Error(t, err)
+	require.Equal(t, "/akash.sink.v1.Query/Disputes", path)
 }
 
 type SinkCLITestSuite struct {
@@ -122,6 +121,7 @@ func (s *SinkCLITestSuite) SetupSuite() {
 		WithOutput(io.Discard).
 		WithChainID("test-chain").
 		WithSignModeStr(cflags.SignModeDirect)
+
 	s.cctx = s.baseCtx
 	ctx := context.WithValue(context.Background(), cli.ContextTypeAddressCodec, s.encCfg.SigningOptions.AddressCodec)
 	s.ctx = context.WithValue(ctx, cli.ContextTypeValidatorCodec, s.encCfg.SigningOptions.ValidatorAddressCodec)
@@ -154,14 +154,17 @@ func (s *SinkCLITestSuite) TestDepositAmountIsExact() {
 				s.Require().ErrorIs(err, tc.err)
 				return
 			}
+
 			s.Require().NoError(err)
 			tx, err := s.encCfg.TxConfig.TxJSONDecoder()(out.Bytes())
 			s.Require().NoError(err)
 			s.Require().Len(tx.GetMsgs(), 1)
 			msg, ok := tx.GetMsgs()[0].(*types.MsgSink)
 			s.Require().True(ok)
-			s.Require().Equal(sdk.NewInt64Coin(types.Denom, tc.want), msg.Amount)
+			s.Require().Equal(sdk.NewInt64Coin(sdkutil.DenomUakt, tc.want), msg.Amount)
 			s.Require().Equal(s.from.String(), msg.Sender)
+			s.Require().Equal(types.DestTypeSolana, msg.DestType)
+			s.Require().Equal(s.dest, msg.Dest)
 		})
 	}
 
@@ -201,10 +204,49 @@ func (s *SinkCLITestSuite) TestGuardianPause() {
 		s.Require().True(ok)
 		s.Require().Equal(types.MsgGuardianPause{Guardian: s.from.String(), Deposits: tc.deposits, Refunds: tc.refunds}, *msg)
 	}
+
 	_, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxSinkGuardianPauseCmd(),
 		cli.TestFlags().WithFrom(s.from.String()).WithGenerateOnly()...)
 	s.Require().ErrorIs(err, types.ErrInvalidGuardianPause)
 	_, err = clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.TxCmd(),
 		cli.TestFlags().With("sink", "guardian-pause", "--deposits").WithFrom(s.from.String()).WithGenerateOnly()...)
 	s.Require().NoError(err)
+}
+
+func (s *SinkCLITestSuite) TestGovernanceCommandsBindExpectedRound() {
+	id := types.ID{Owner: s.from.String(), Height: 5, Sequence: 7}
+	signature := base58.Encode(bytes.Repeat([]byte{8}, 64))
+	for _, command := range []string{"restart-transfer", "confirm-mint", "confirm-void"} {
+		for _, round := range []string{"1", "0", "01", "+1", "18446744073709551615", "18446744073709551616"} {
+			args := []string{"sink", command, id.String(), round}
+			if command != "restart-transfer" {
+				args = append(args, "9", signature)
+			}
+
+			args = append(args, "reviewed", "--authority", s.from.String())
+			out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.TxCmd(), cli.TestFlags().With(args...).WithFrom(s.from.String()).WithGenerateOnly()...)
+			if round != "1" {
+				s.Require().Error(err)
+				continue
+			}
+
+			s.Require().NoError(err)
+			tx, err := s.encCfg.TxConfig.TxJSONDecoder()(out.Bytes())
+			s.Require().NoError(err)
+			expected, _ := strconv.ParseUint(round, 10, 64)
+			switch msg := tx.GetMsgs()[0].(type) {
+			case *types.MsgRestartTransfer:
+				s.Require().Equal(expected, msg.ExpectedRound)
+				s.Require().Equal(id, msg.ID)
+			case *types.MsgConfirmMint:
+				s.Require().Equal(expected, msg.ExpectedRound)
+				s.Require().Equal(uint64(9), msg.Evidence.Slot)
+			case *types.MsgConfirmVoid:
+				s.Require().Equal(expected, msg.ExpectedRound)
+				s.Require().Equal(uint64(9), msg.Evidence.Slot)
+			default:
+				s.T().Fatalf("unexpected message %T", msg)
+			}
+		}
+	}
 }

@@ -1,74 +1,145 @@
 package v1
 
-//import (
-//	"encoding/binary"
-//)
-//
-//const (
-//	ModuleName            = "sink"
-//	StoreKey              = ModuleName
-//	Denom                 = "uakt"
-//	DestTypeSolana uint32 = 1
-//	RecordSize            = 77
-//)
-//
-//// Transfer is the cross-chain commitment. Never rewrite or delete its value.
-//type Transfer struct {
-//	ID        uint64
-//	Sender    [20]byte
-//	Recipient [32]byte
-//	Amount    uint64
-//	Height    uint64
-//}
-//
-//// Solana proves transfer records and void orders at these keys in the sink
-//// store: a two-byte prefix, then the ID as an 8-byte big-endian integer.
-//// Changing a prefix or the ID encoding breaks every Solana proof.
-//
-//// TransferKeyPrefix is the store prefix of transfer records.
-//func TransferKeyPrefix() []byte { return []byte{0x02, 0x00} }
-//
-//// VoidKeyPrefix is the store prefix of void orders.
-//func VoidKeyPrefix() []byte { return []byte{0x02, 0x01} }
-//
-//// TransferKey is the store key of transfer record id.
-//func TransferKey(id uint64) []byte { return binary.BigEndian.AppendUint64(TransferKeyPrefix(), id) }
-//
-//// VoidKey is the store key of the void order for transfer id.
-//func VoidKey(id uint64) []byte { return binary.BigEndian.AppendUint64(VoidKeyPrefix(), id) }
-//
-//func (t Transfer) Marshal() ([]byte, error) {
-//	if t.ID == 0 || t.Amount == 0 || t.Height == 0 || t.Recipient == [32]byte{} {
-//		return nil, ErrInvalidRecord.Wrap("id, amount, height and recipient must be nonzero")
-//	}
-//	b := make([]byte, RecordSize)
-//	b[0] = 1
-//	binary.LittleEndian.PutUint64(b[1:9], t.ID)
-//	copy(b[9:29], t.Sender[:])
-//	copy(b[29:61], t.Recipient[:])
-//	binary.LittleEndian.PutUint64(b[61:69], t.Amount)
-//	binary.LittleEndian.PutUint64(b[69:77], t.Height)
-//	return b, nil
-//}
-//
-//func DecodeTransfer(b []byte) (Transfer, error) {
-//	var t Transfer
-//	if len(b) != RecordSize || b[0] != 1 {
-//		return t, ErrInvalidRecord.Wrapf("expected version 1 and %d bytes", RecordSize)
-//	}
-//	t.ID = binary.LittleEndian.Uint64(b[1:9])
-//	copy(t.Sender[:], b[9:29])
-//	copy(t.Recipient[:], b[29:61])
-//	t.Amount = binary.LittleEndian.Uint64(b[61:69])
-//	t.Height = binary.LittleEndian.Uint64(b[69:77])
-//	_, err := t.Marshal()
-//
-//	return t, err
-//}
-//
-//func VoidValue(id uint64) []byte {
-//	b := make([]byte, 9)
-//	b[0] = 1
-//	binary.LittleEndian.PutUint64(b[1:], id)
-//	return b
-//}
+import (
+	"encoding/binary"
+	"encoding/json"
+
+	collcodec "cosmossdk.io/collections/codec"
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"pkg.akt.dev/go/sdkutil"
+)
+
+const (
+	WireVersion    byte = 2
+	RecordDataSize int  = 41
+)
+
+var (
+	TransferKeyPrefix                                   = []byte{0x12, 0x00}
+	VoidOrderKeyPrefix                                  = []byte{0x12, 0x01}
+	RecordDataValue    collcodec.ValueCodec[RecordData] = recordDataValue{}
+	VoidOrderValue     collcodec.ValueCodec[VoidOrder]  = voidOrderValue{}
+)
+
+type VoidOrder struct{}
+
+type recordDataValue struct{}
+
+type voidOrderValue struct{}
+
+func TransferKey(id ID) ([]byte, error) {
+	return proofKey(TransferKeyPrefix, id)
+}
+
+func VoidOrderKey(id ID) ([]byte, error) {
+	return proofKey(VoidOrderKeyPrefix, id)
+}
+
+func proofKey(prefix []byte, id ID) ([]byte, error) {
+	b := make([]byte, len(prefix)+IDKeySize)
+	copy(b, prefix)
+
+	if _, err := IDKey.Encode(b[len(prefix):], id); err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+func (r RecordData) ValidateBasic() error {
+	if _, err := ParseSolanaAddress(r.Dest); err != nil {
+		return err
+	}
+
+	if err := ValidateAmount(r.Amount); err != nil {
+		return err
+	}
+
+	if !r.Amount.Amount.IsPositive() || !r.Amount.Amount.IsUint64() {
+		return sdkerrors.ErrInvalidCoins.Wrap("transfer amount must be a positive uint64")
+	}
+
+	return nil
+}
+
+func (recordDataValue) Encode(r RecordData) ([]byte, error) {
+	if err := r.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	recipient, err := ParseSolanaAddress(r.Dest)
+	if err != nil {
+		return nil, err
+	}
+
+	b := make([]byte, RecordDataSize)
+	b[0] = WireVersion
+	copy(b[1:33], recipient[:])
+	binary.LittleEndian.PutUint64(b[33:], r.Amount.Amount.Uint64())
+
+	return b, nil
+}
+
+func (recordDataValue) Decode(b []byte) (RecordData, error) {
+	if len(b) != RecordDataSize || b[0] != WireVersion {
+		return RecordData{}, ErrInvalidRecord.Wrapf("expected version %d and %d bytes", WireVersion, RecordDataSize)
+	}
+
+	var recipient SolanaAddress
+	copy(recipient[:], b[1:33])
+	r := RecordData{Dest: recipient.String(), Amount: sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromUint64(binary.LittleEndian.Uint64(b[33:])))}
+	return r, r.ValidateBasic()
+}
+
+func (recordDataValue) EncodeJSON(r RecordData) ([]byte, error) {
+	if err := r.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(r)
+}
+
+func (recordDataValue) DecodeJSON(b []byte) (RecordData, error) {
+	var r RecordData
+	if err := json.Unmarshal(b, &r); err != nil {
+		return r, err
+	}
+
+	return r, r.ValidateBasic()
+}
+
+func (recordDataValue) Stringify(r RecordData) string { return r.String() }
+
+func (recordDataValue) ValueType() string { return "sink.RecordData" }
+
+func (voidOrderValue) Encode(VoidOrder) ([]byte, error) {
+	return []byte{WireVersion}, nil
+}
+
+func (voidOrderValue) Decode(b []byte) (VoidOrder, error) {
+	if len(b) != 1 || b[0] != WireVersion {
+		return VoidOrder{}, ErrInvalidRecord.Wrapf("expected version %d void order", WireVersion)
+	}
+
+	return VoidOrder{}, nil
+}
+
+func (voidOrderValue) EncodeJSON(v VoidOrder) ([]byte, error) {
+	return json.Marshal(v)
+}
+
+func (voidOrderValue) DecodeJSON(b []byte) (VoidOrder, error) {
+	var v VoidOrder
+	if string(b) != "{}" {
+		return v, ErrInvalidRecord.Wrap("expected empty void order object")
+	}
+
+	return v, nil
+}
+
+func (voidOrderValue) Stringify(VoidOrder) string { return "{}" }
+
+func (voidOrderValue) ValueType() string { return "sink.VoidOrder" }

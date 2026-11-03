@@ -14,7 +14,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRequestVoid{}, "sink/MsgRequestVoid", nil)
 	cdc.RegisterConcrete(&MsgReportOutcome{}, "sink/MsgReportOutcome", nil)
 	cdc.RegisterConcrete(&MsgVetoVoid{}, "sink/MsgVetoVoid", nil)
-	cdc.RegisterConcrete(&MsgResolveTransfer{}, "sink/MsgResolveTransfer", nil)
+	cdc.RegisterConcrete(&MsgRestartTransfer{}, "sink/MsgRestartTransfer", nil)
+	cdc.RegisterConcrete(&MsgConfirmMint{}, "sink/MsgConfirmMint", nil)
+	cdc.RegisterConcrete(&MsgConfirmVoid{}, "sink/MsgConfirmVoid", nil)
 	cdc.RegisterConcrete(&MsgFinalizeRefund{}, "sink/MsgFinalizeRefund", nil)
 	cdc.RegisterConcrete(&MsgGuardianPause{}, "sink/MsgGuardianPause", nil)
 }
@@ -27,7 +29,9 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgRequestVoid{},
 		&MsgReportOutcome{},
 		&MsgVetoVoid{},
-		&MsgResolveTransfer{},
+		&MsgRestartTransfer{},
+		&MsgConfirmMint{},
+		&MsgConfirmVoid{},
 		&MsgFinalizeRefund{},
 		&MsgGuardianPause{},
 	)

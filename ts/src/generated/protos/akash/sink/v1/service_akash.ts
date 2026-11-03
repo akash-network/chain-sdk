@@ -1,4 +1,4 @@
-import { MsgFinalizeRefund, MsgFinalizeRefundResponse, MsgGuardianPause, MsgGuardianPauseResponse, MsgReportOutcome, MsgReportOutcomeResponse, MsgRequestVoid, MsgRequestVoidResponse, MsgResolveTransfer, MsgResolveTransferResponse, MsgSink, MsgSinkResponse, MsgUpdateParams, MsgUpdateParamsResponse, MsgVetoVoid, MsgVetoVoidResponse } from "./msgs.ts";
+import { MsgConfirmMint, MsgConfirmMintResponse, MsgConfirmVoid, MsgConfirmVoidResponse, MsgFinalizeRefund, MsgFinalizeRefundResponse, MsgGuardianPause, MsgGuardianPauseResponse, MsgReportOutcome, MsgReportOutcomeResponse, MsgRequestVoid, MsgRequestVoidResponse, MsgRestartTransfer, MsgRestartTransferResponse, MsgSink, MsgSinkResponse, MsgUpdateParams, MsgUpdateParamsResponse, MsgVetoVoid, MsgVetoVoidResponse } from "./msgs.ts";
 
 export const Msg = {
   typeName: "akash.sink.v1.Msg",
@@ -33,10 +33,22 @@ export const Msg = {
       output: MsgVetoVoidResponse,
       get parent() { return Msg; },
     },
-    resolveTransfer: {
-      name: "ResolveTransfer",
-      input: MsgResolveTransfer,
-      output: MsgResolveTransferResponse,
+    restartTransfer: {
+      name: "RestartTransfer",
+      input: MsgRestartTransfer,
+      output: MsgRestartTransferResponse,
+      get parent() { return Msg; },
+    },
+    confirmMint: {
+      name: "ConfirmMint",
+      input: MsgConfirmMint,
+      output: MsgConfirmMintResponse,
+      get parent() { return Msg; },
+    },
+    confirmVoid: {
+      name: "ConfirmVoid",
+      input: MsgConfirmVoid,
+      output: MsgConfirmVoidResponse,
       get parent() { return Msg; },
     },
     finalizeRefund: {

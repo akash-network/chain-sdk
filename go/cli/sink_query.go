@@ -19,25 +19,32 @@ func GetQuerySinkCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetQuerySinkRecordCmd(),
-		GetQuerySinkOpenTransfersCmd(),
+		GetQuerySinkTransferCmd(),
+		GetQuerySinkTransfersCmd(),
+		GetQuerySinkDisputesCmd(),
+		GetQuerySinkAccountCmd(),
+		GetQuerySinkStateCmd(),
 	)
 
 	return cmd
 }
 
-// GetQuerySinkRecordCmd returns a transfer's status by its record ID
-func GetQuerySinkRecordCmd() *cobra.Command {
+// GetQuerySinkTransferCmd returns a complete transfer by its composite ID
+func GetQuerySinkTransferCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "record [id]",
-		Short:             "Query status and settlement by canonical record ID",
+		Use:               "transfer [owner/height/sequence]",
+		Short:             "Query a complete transfer by its composite ID",
 		Args:              cobra.ExactArgs(1),
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := types.ParseID(args[0])
+			if err != nil {
+				return err
+			}
+
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
-
-			res, err := cl.Query().Sink().Sink(ctx, &types.QuerySink{Id: args[0]})
+			res, err := cl.Query().Sink().Transfer(ctx, &types.QueryTransferRequest{ID: id})
 			if err != nil {
 				return err
 			}
@@ -51,74 +58,142 @@ func GetQuerySinkRecordCmd() *cobra.Command {
 	return cmd
 }
 
-// GetQuerySinkOpenTransfersCmd pages through transfers that are neither minted
-// nor refunded, in ascending ID order
-func GetQuerySinkOpenTransfersCmd() *cobra.Command {
+// GetQuerySinkTransfersCmd pages through transfers by owner, financial status or history
+func GetQuerySinkTransfersCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "open-transfers",
-		Short: "List pending and voided transfers in ascending ID order",
-		Long: `List transfers with IDs above --start-after.
-Pass the returned next_start_after as --start-after to continue; zero means there are no more.`,
+		Use:               "transfers",
+		Short:             "List transfers by owner, financial status, or chronological history",
+		Long:              "List transfers using key pagination. Keep --height fixed on every page. Without filters, history is ordered by height, sequence, then owner.",
 		Args:              cobra.NoArgs,
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			startAfter, err := cmd.Flags().GetUint64("start-after")
+			pagination, err := ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
 
-			limit, err := cmd.Flags().GetUint32("limit")
+			owner, err := cmd.Flags().GetString("owner")
 			if err != nil {
 				return err
 			}
-			heldOnly, err := cmd.Flags().GetBool("held-only")
+
+			status, err := cmd.Flags().GetString("status")
 			if err != nil {
+				return err
+			}
+
+			value, ok := types.Status_value[status]
+			if !ok {
+				return types.ErrInvalidSettlement.Wrap("unknown status filter")
+			}
+
+			request := &types.QueryTransfersRequest{Owner: owner, Status: types.Status(value), Pagination: pagination}
+			if err = request.ValidateBasic(); err != nil {
 				return err
 			}
 
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
-
-			res, err := cl.Query().Sink().OpenTransfers(ctx, &types.QueryOpenTransfersRequest{
-				StartAfter: startAfter,
-				Limit:      limit,
-			})
+			res, err := cl.Query().Sink().Transfers(ctx, request)
 			if err != nil {
 				return err
 			}
 
-			if !heldOnly {
-				return cl.ClientContext().PrintProto(res)
-			}
-
-			// Held transfers wait for governance. Page through every open transfer
-			// so one proposal can restart all of them.
-			held := &types.QueryOpenTransfersResponse{}
-			for {
-				for _, transfer := range res.Transfers {
-					if transfer.Settlement.Hold != types.Hold_HOLD_NONE {
-						held.Transfers = append(held.Transfers, transfer)
-					}
-				}
-
-				if res.NextStartAfter == 0 {
-					return cl.ClientContext().PrintProto(held)
-				}
-
-				res, err = cl.Query().Sink().OpenTransfers(ctx, &types.QueryOpenTransfersRequest{
-					StartAfter: res.NextStartAfter,
-					Limit:      limit,
-				})
-				if err != nil {
-					return err
-				}
-			}
+			return cl.ClientContext().PrintProto(res)
 		},
 	}
 
-	cmd.Flags().Uint64("start-after", 0, "Return transfers with IDs above this one")
-	cmd.Flags().Uint32("limit", 0, "Maximum transfers to return; 0 means 100, at most 500")
-	cmd.Flags().Bool("held-only", false, "List every open transfer held for governance (veto or conflict), reading all pages")
+	cmd.Flags().String("owner", "", "Filter by a canonical Akash owner")
+	cmd.Flags().String("status", "STATUS_INVALID", "STATUS_TRANSFER_PENDING, STATUS_MINTED, STATUS_REFUND_PENDING, STATUS_REFUNDED, or STATUS_INVALID for any")
+	cflags.AddPaginationFlagsToCmd(cmd, "transfers")
+	cflags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQuerySinkDisputesCmd pages through held transfers
+func GetQuerySinkDisputesCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "disputes",
+		Short:             "List held transfers, including minted and refunded conflicts",
+		Args:              cobra.NoArgs,
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			pagination, err := ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			request := &types.QueryDisputesRequest{Pagination: pagination}
+			if err = request.ValidateBasic(); err != nil {
+				return err
+			}
+
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+			res, err := cl.Query().Sink().Disputes(ctx, request)
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddPaginationFlagsToCmd(cmd, "disputes")
+	cflags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQuerySinkAccountCmd returns an owner's lifetime and current epoch usage
+func GetQuerySinkAccountCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "account [owner]",
+		Short:             "Query owner lifetime and current epoch sending usage",
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			request := &types.QueryAccountRequest{Owner: args[0]}
+			if err := request.ValidateBasic(); err != nil {
+				return err
+			}
+
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+			res, err := cl.Query().Sink().Account(ctx, request)
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQuerySinkStateCmd returns params, totals, the current policy, epoch usage and the refund head
+func GetQuerySinkStateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "state",
+		Short:             "Query params, totals, policy, independent epoch usage and refund head",
+		Args:              cobra.NoArgs,
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+			res, err := cl.Query().Sink().State(ctx, &types.QueryStateRequest{})
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
 	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
