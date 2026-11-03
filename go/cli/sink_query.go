@@ -87,7 +87,11 @@ func GetQuerySinkTransfersCmd() *cobra.Command {
 				return types.ErrInvalidSettlement.Wrap("unknown status filter")
 			}
 
-			request := &types.QueryTransfersRequest{Owner: owner, Status: types.Status(value), Pagination: pagination}
+			request := &types.QueryTransfersRequest{
+				Owner:      owner,
+				Status:     types.Status(value),
+				Pagination: pagination,
+			}
 			if err = request.ValidateBasic(); err != nil {
 				return err
 			}

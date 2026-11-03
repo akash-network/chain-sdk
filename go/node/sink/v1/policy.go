@@ -45,7 +45,11 @@ func (p Params) Policy(version uint64) ReporterPolicy {
 		threshold = uint32(p.ReportersThreshold.MulInt64(int64(len(p.Reporters))).Ceil().TruncateInt64()) //nolint:gosec // Validated parameters bound quorum to 32.
 	}
 
-	return ReporterPolicy{Version: version, Members: slices.Clone(p.Reporters), Threshold: threshold}
+	return ReporterPolicy{
+		Version:   version,
+		Members:   slices.Clone(p.Reporters),
+		Threshold: threshold,
+	}
 }
 
 func (p ReporterPolicy) SameRule(other ReporterPolicy) bool {

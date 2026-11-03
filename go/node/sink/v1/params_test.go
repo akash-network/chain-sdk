@@ -111,8 +111,14 @@ func TestIndependentSendingCapsAndDisabledMinimum(t *testing.T) {
 
 func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
 	amount := sdk.NewInt64Coin(sdkutil.DenomUakt, 123)
-	send := types.EpochUsage{Epoch: 8, Amount: amount}
-	refund := types.EpochUsage{Epoch: 9, Amount: amount}
+	send := types.EpochUsage{
+		Epoch:  8,
+		Amount: amount,
+	}
+	refund := types.EpochUsage{
+		Epoch:  9,
+		Amount: amount,
+	}
 	normalized, err := send.At(9)
 	require.NoError(t, err)
 	require.True(t, normalized.Amount.IsZero())
@@ -123,7 +129,11 @@ func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
 	_, err = refund.At(8)
 	require.ErrorIs(t, err, types.ErrInvalidClock)
 	require.Equal(t, amount, send.Amount)
-	account := types.AccountUsage{TotalSent: amount, EpochSent: amount, LastEpoch: 8}
+	account := types.AccountUsage{
+		TotalSent: amount,
+		EpochSent: amount,
+		LastEpoch: 8,
+	}
 	usage, err := account.At(9)
 	require.NoError(t, err)
 	require.True(t, usage.EpochSent.IsZero())
@@ -135,8 +145,14 @@ func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
 	_, err = send.At(math.MaxInt64 + 1)
 	require.ErrorIs(t, err, types.ErrInvalidClock)
 	for _, usage := range []types.EpochUsage{
-		{Epoch: 0, Amount: amount},
-		{Epoch: math.MaxInt64 + 1, Amount: types.ZeroAmount()},
+		{
+			Epoch:  0,
+			Amount: amount,
+		},
+		{
+			Epoch:  math.MaxInt64 + 1,
+			Amount: types.ZeroAmount(),
+		},
 	} {
 		require.ErrorIs(t, usage.Validate(), types.ErrInvalidClock)
 	}
@@ -147,7 +163,10 @@ func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
 	normalized, err = zero.At(0)
 	require.NoError(t, err)
 	require.Equal(t, zero, normalized)
-	zeroAccount := types.AccountUsage{TotalSent: types.ZeroAmount(), EpochSent: types.ZeroAmount()}
+	zeroAccount := types.AccountUsage{
+		TotalSent: types.ZeroAmount(),
+		EpochSent: types.ZeroAmount(),
+	}
 	usage, err = zeroAccount.At(0)
 	require.NoError(t, err)
 	require.Equal(t, zeroAccount, usage)

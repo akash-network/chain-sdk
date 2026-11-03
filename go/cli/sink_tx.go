@@ -256,7 +256,11 @@ Example:
 				ID:            id,
 				PolicyVersion: version,
 				Round:         round,
-				Observation:   types.Observation{Outcome: outcome, Slot: evidence.Slot, TransactionSignature: evidence.TransactionSignature},
+				Observation: types.Observation{
+					Outcome:              outcome,
+					Slot:                 evidence.Slot,
+					TransactionSignature: evidence.TransactionSignature,
+				},
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
@@ -298,7 +302,11 @@ Example:
 			ctx := cmd.Context()
 			cl := MustClientFromContext(ctx)
 			signer := cl.ClientContext().GetFromAddress().String()
-			msg := &types.MsgVetoVoid{Signer: signer, ID: id, Reason: args[1]}
+			msg := &types.MsgVetoVoid{
+				Signer: signer,
+				ID:     id,
+				Reason: args[1],
+			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -349,7 +357,12 @@ Example:
 				return err
 			}
 
-			msg := &types.MsgRestartTransfer{Authority: signer, ID: id, ExpectedRound: round, Reason: args[2]}
+			msg := &types.MsgRestartTransfer{
+				Authority:     signer,
+				ID:            id,
+				ExpectedRound: round,
+				Reason:        args[2],
+			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -406,7 +419,13 @@ Example:
 				return err
 			}
 
-			msg := &types.MsgConfirmMint{Authority: signer, ID: id, ExpectedRound: round, Evidence: evidence, Reason: args[4]}
+			msg := &types.MsgConfirmMint{
+				Authority:     signer,
+				ID:            id,
+				ExpectedRound: round,
+				Evidence:      evidence,
+				Reason:        args[4],
+			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -465,7 +484,13 @@ Example:
 				return err
 			}
 
-			msg := &types.MsgConfirmVoid{Authority: signer, ID: id, ExpectedRound: round, Evidence: evidence, Reason: args[4]}
+			msg := &types.MsgConfirmVoid{
+				Authority:     signer,
+				ID:            id,
+				ExpectedRound: round,
+				Evidence:      evidence,
+				Reason:        args[4],
+			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -507,7 +532,10 @@ Example:
 			ctx := cmd.Context()
 			cl := MustClientFromContext(ctx)
 			signer := cl.ClientContext().GetFromAddress().String()
-			msg := &types.MsgFinalizeRefund{Executor: signer, ID: id}
+			msg := &types.MsgFinalizeRefund{
+				Executor: signer,
+				ID:       id,
+			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -557,7 +585,10 @@ Example:
 				return err
 			}
 
-			msg := &types.MsgUpdateParams{Authority: signer, Params: params}
+			msg := &types.MsgUpdateParams{
+				Authority: signer,
+				Params:    params,
+			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -597,6 +628,9 @@ func parseSinkEvidence(slot, signature string) (types.SolanaEvidence, error) {
 		return types.SolanaEvidence{}, types.ErrInvalidObservation.Wrap("expected a canonical base58 signature")
 	}
 
-	evidence := types.SolanaEvidence{Slot: number, TransactionSignature: bytes}
+	evidence := types.SolanaEvidence{
+		Slot:                 number,
+		TransactionSignature: bytes,
+	}
 	return evidence, evidence.Validate()
 }

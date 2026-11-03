@@ -10,7 +10,10 @@ import (
 )
 
 func TestQueryValidation(t *testing.T) {
-	for _, p := range []*query.PageRequest{nil, {}, {Limit: 500, Reverse: true}} {
+	for _, p := range []*query.PageRequest{nil, {}, {
+		Limit:   500,
+		Reverse: true,
+	}} {
 		require.NoError(t, types.ValidatePagination(p))
 	}
 
@@ -18,7 +21,10 @@ func TestQueryValidation(t *testing.T) {
 		require.ErrorIs(t, types.ValidatePagination(p), types.ErrInvalidPagination)
 	}
 
-	require.NoError(t, (types.QueryTransfersRequest{Owner: account(7), Status: types.StatusRefunded}).ValidateBasic())
+	require.NoError(t, (types.QueryTransfersRequest{
+		Owner:  account(7),
+		Status: types.StatusRefunded,
+	}).ValidateBasic())
 	require.Error(t, (types.QueryTransfersRequest{Owner: "bad"}).ValidateBasic())
 	require.Error(t, (types.QueryTransfersRequest{Status: 6}).ValidateBasic())
 	require.Error(t, (types.QueryTransferRequest{}).ValidateBasic())

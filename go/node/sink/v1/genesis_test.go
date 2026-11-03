@@ -33,16 +33,35 @@ func fullGenesis(t *testing.T) *types.GenesisState {
 				outcome = types.OutcomeVoided
 			}
 
-			s.Votes = append(s.Votes, types.Vote{Reporter: account(4), PolicyVersion: 1, Observation: observation(outcome)})
+			s.Votes = append(s.Votes, types.Vote{
+				Reporter:      account(4),
+				PolicyVersion: 1,
+				Observation:   observation(outcome),
+			})
 		}
 
 		if i == 8 {
 			o := observation(types.OutcomeVoided)
 			s.GovernanceObservation, s.Round, s.Votes = &o, 2, nil
-			s.VoidAuthorization = &types.VoidAuthorization{RequestedHeight: 2, RequestedRound: 1}
+			s.VoidAuthorization = &types.VoidAuthorization{
+				RequestedHeight: 2,
+				RequestedRound:  1,
+			}
 		}
 
-		g.Records = append(g.Records, types.GenesisRecord{ID: types.ID{Owner: owner, Height: 2, Sequence: uint64(i + 1)}, Data: types.RecordData{Dest: base58.Encode(makeRecipient()), Amount: amount}, Settlement: s, Status: status})
+		g.Records = append(g.Records, types.GenesisRecord{
+			ID: types.ID{
+				Owner:    owner,
+				Height:   2,
+				Sequence: uint64(i + 1),
+			},
+			Data: types.RecordData{
+				Dest:   base58.Encode(makeRecipient()),
+				Amount: amount,
+			},
+			Settlement: s,
+			Status:     status,
+		})
 		require.NoError(t, g.Totals.Add(status, amount))
 		var err error
 		total, err = types.AddAmount(total, amount)
@@ -50,8 +69,22 @@ func fullGenesis(t *testing.T) *types.GenesisState {
 	}
 
 	g.Accounts = []types.GenesisAccount{
-		{Owner: owner, Usage: types.AccountUsage{TotalSent: total, EpochSent: amount, LastEpoch: 10}},
-		{Owner: account(8), Usage: types.AccountUsage{TotalSent: types.ZeroAmount(), EpochSent: types.ZeroAmount(), LastEpoch: 0}},
+		{
+			Owner: owner,
+			Usage: types.AccountUsage{
+				TotalSent: total,
+				EpochSent: amount,
+				LastEpoch: 10,
+			},
+		},
+		{
+			Owner: account(8),
+			Usage: types.AccountUsage{
+				TotalSent: types.ZeroAmount(),
+				EpochSent: types.ZeroAmount(),
+				LastEpoch: 0,
+			},
+		},
 	}
 
 	g.SendUsage.Amount, g.RefundUsage.Amount = amount, amount
@@ -136,7 +169,11 @@ func TestGenesisTerminalAuthorizationSurvivesRotation(t *testing.T) {
 			outcome = types.OutcomeVoided
 		}
 
-		g.Records[i].Settlement.Votes = append(g.Records[i].Settlement.Votes, types.Vote{Reporter: account(9), PolicyVersion: 7, Observation: observation(outcome)})
+		g.Records[i].Settlement.Votes = append(g.Records[i].Settlement.Votes, types.Vote{
+			Reporter:      account(9),
+			PolicyVersion: 7,
+			Observation:   observation(outcome),
+		})
 		g.Records[i].Settlement.Hold = types.HoldConflict
 	}
 

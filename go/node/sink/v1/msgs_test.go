@@ -70,10 +70,23 @@ func TestMsgSinkValidateBasic(t *testing.T) {
 func TestMsgGuardianPauseValidateBasic(t *testing.T) {
 	guardian := sdk.AccAddress(bytes.Repeat([]byte{9}, 20)).String()
 	for _, msg := range []types.MsgGuardianPause{
-		{Guardian: guardian, Deposits: true},
-		{Guardian: guardian, Refunds: true},
-		{Guardian: guardian, Deposits: true, Refunds: true},
-		{Guardian: sdk.AccAddress(bytes.Repeat([]byte{9}, 32)).String(), Deposits: true},
+		{
+			Guardian: guardian,
+			Deposits: true,
+		},
+		{
+			Guardian: guardian,
+			Refunds:  true,
+		},
+		{
+			Guardian: guardian,
+			Deposits: true,
+			Refunds:  true,
+		},
+		{
+			Guardian: sdk.AccAddress(bytes.Repeat([]byte{9}, 32)).String(),
+			Deposits: true,
+		},
 	} {
 		require.NoError(t, msg.ValidateBasic())
 	}
@@ -81,11 +94,23 @@ func TestMsgGuardianPauseValidateBasic(t *testing.T) {
 	require.ErrorIs(t, (&types.MsgGuardianPause{Guardian: guardian}).ValidateBasic(), types.ErrInvalidGuardianPause)
 
 	for name, msg := range map[string]types.MsgGuardianPause{
-		"empty guardian":   {Deposits: true},
-		"malformed":        {Guardian: "akash1notanaddress", Deposits: true},
-		"zero address":     {Guardian: sdk.AccAddress(make([]byte, 20)).String(), Deposits: true},
-		"21-byte address":  {Guardian: sdk.AccAddress(bytes.Repeat([]byte{9}, 21)).String(), Deposits: true},
-		"uppercase bech32": {Guardian: strings.ToUpper(guardian), Refunds: true},
+		"empty guardian": {Deposits: true},
+		"malformed": {
+			Guardian: "akash1notanaddress",
+			Deposits: true,
+		},
+		"zero address": {
+			Guardian: sdk.AccAddress(make([]byte, 20)).String(),
+			Deposits: true,
+		},
+		"21-byte address": {
+			Guardian: sdk.AccAddress(bytes.Repeat([]byte{9}, 21)).String(),
+			Deposits: true,
+		},
+		"uppercase bech32": {
+			Guardian: strings.ToUpper(guardian),
+			Refunds:  true,
+		},
 	} {
 		t.Run(name, func(t *testing.T) { require.ErrorIs(t, msg.ValidateBasic(), sdkerrors.ErrInvalidAddress) })
 	}
@@ -96,17 +121,62 @@ func TestMsgGuardianPauseValidateBasic(t *testing.T) {
 }
 
 func TestEveryCommandValidatesStatelessRules(t *testing.T) {
-	id := types.ID{Owner: account(7), Height: 8, Sequence: 9}
+	id := types.ID{
+		Owner:    account(7),
+		Height:   8,
+		Sequence: 9,
+	}
 	authority := account(8)
 	for _, msg := range []sdk.HasValidateBasic{
-		&types.MsgUpdateParams{Authority: authority, Params: types.DefaultParams()},
-		&types.MsgRequestVoid{Authority: authority, ID: id, ExpectedRound: 1},
-		&types.MsgReportOutcome{Reporter: account(1), ID: id, PolicyVersion: 1, Round: 1, Observation: types.Observation{Outcome: types.OutcomeMinted, Slot: evidence().Slot, TransactionSignature: evidence().TransactionSignature}},
-		&types.MsgVetoVoid{Signer: authority, ID: id, Reason: "verify"},
-		&types.MsgRestartTransfer{Authority: authority, ID: id, Reason: "retry", ExpectedRound: 1},
-		&types.MsgConfirmMint{Authority: authority, ID: id, Evidence: evidence(), Reason: "minted", ExpectedRound: 1},
-		&types.MsgConfirmVoid{Authority: authority, ID: id, Evidence: evidence(), Reason: "voided", ExpectedRound: 1},
-		&types.MsgFinalizeRefund{Executor: authority, ID: id},
+		&types.MsgUpdateParams{
+			Authority: authority,
+			Params:    types.DefaultParams(),
+		},
+		&types.MsgRequestVoid{
+			Authority:     authority,
+			ID:            id,
+			ExpectedRound: 1,
+		},
+		&types.MsgReportOutcome{
+			Reporter:      account(1),
+			ID:            id,
+			PolicyVersion: 1,
+			Round:         1,
+			Observation: types.Observation{
+				Outcome:              types.OutcomeMinted,
+				Slot:                 evidence().Slot,
+				TransactionSignature: evidence().TransactionSignature,
+			},
+		},
+		&types.MsgVetoVoid{
+			Signer: authority,
+			ID:     id,
+			Reason: "verify",
+		},
+		&types.MsgRestartTransfer{
+			Authority:     authority,
+			ID:            id,
+			Reason:        "retry",
+			ExpectedRound: 1,
+		},
+		&types.MsgConfirmMint{
+			Authority:     authority,
+			ID:            id,
+			Evidence:      evidence(),
+			Reason:        "minted",
+			ExpectedRound: 1,
+		},
+		&types.MsgConfirmVoid{
+			Authority:     authority,
+			ID:            id,
+			Evidence:      evidence(),
+			Reason:        "voided",
+			ExpectedRound: 1,
+		},
+		&types.MsgFinalizeRefund{
+			Executor: authority,
+			ID:       id,
+		},
 	} {
 		require.NoError(t, msg.ValidateBasic(), "%T", msg)
 	}
@@ -119,13 +189,42 @@ func TestEveryCommandValidatesStatelessRules(t *testing.T) {
 	}
 
 	for _, round := range []uint64{0, ^uint64(0)} {
-		require.Error(t, (&types.MsgRestartTransfer{Authority: authority, ID: id, Reason: "retry", ExpectedRound: round}).ValidateBasic())
-		require.Error(t, (&types.MsgConfirmMint{Authority: authority, ID: id, Evidence: evidence(), Reason: "minted", ExpectedRound: round}).ValidateBasic())
-		require.Error(t, (&types.MsgConfirmVoid{Authority: authority, ID: id, Evidence: evidence(), Reason: "voided", ExpectedRound: round}).ValidateBasic())
+		require.Error(t, (&types.MsgRestartTransfer{
+			Authority:     authority,
+			ID:            id,
+			Reason:        "retry",
+			ExpectedRound: round,
+		}).ValidateBasic())
+		require.Error(t, (&types.MsgConfirmMint{
+			Authority:     authority,
+			ID:            id,
+			Evidence:      evidence(),
+			Reason:        "minted",
+			ExpectedRound: round,
+		}).ValidateBasic())
+		require.Error(t, (&types.MsgConfirmVoid{
+			Authority:     authority,
+			ID:            id,
+			Evidence:      evidence(),
+			Reason:        "voided",
+			ExpectedRound: round,
+		}).ValidateBasic())
 	}
 
-	for _, e := range []types.SolanaEvidence{{}, {Slot: 1, TransactionSignature: make([]byte, 64)}, {Slot: 1, TransactionSignature: []byte{1}}} {
-		require.Error(t, (&types.MsgConfirmMint{Authority: authority, ID: id, Evidence: e, Reason: "minted", ExpectedRound: 1}).ValidateBasic())
+	for _, e := range []types.SolanaEvidence{{}, {
+		Slot:                 1,
+		TransactionSignature: make([]byte, 64),
+	}, {
+		Slot:                 1,
+		TransactionSignature: []byte{1},
+	}} {
+		require.Error(t, (&types.MsgConfirmMint{
+			Authority:     authority,
+			ID:            id,
+			Evidence:      e,
+			Reason:        "minted",
+			ExpectedRound: 1,
+		}).ValidateBasic())
 	}
 
 	for _, reason := range []string{"", " \t", strings.Repeat("a", 257), string([]byte{0xff})} {

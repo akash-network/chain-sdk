@@ -36,8 +36,16 @@ func TestSinkQuerySDKCommand(t *testing.T) {
 	enc := sdkutil.MakeEncodingConfig()
 	types.RegisterInterfaces(enc.InterfaceRegistry)
 	types.RegisterLegacyAminoCodec(enc.Amino)
-	id := types.ID{Owner: sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String(), Height: 9001, Sequence: 42}
-	response := &types.QueryTransferResponse{Transfer: types.TransferState{ID: id, Data: types.RecordData{Amount: sdk.NewInt64Coin(sdkutil.DenomUakt, 1)}, Status: types.StatusMinted}}
+	id := types.ID{
+		Owner:    sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String(),
+		Height:   9001,
+		Sequence: 42,
+	}
+	response := &types.QueryTransferResponse{Transfer: types.TransferState{
+		ID:     id,
+		Data:   types.RecordData{Amount: sdk.NewInt64Coin(sdkutil.DenomUakt, 1)},
+		Status: types.StatusMinted,
+	}}
 	bz, err := enc.Codec.Marshal(response)
 	require.NoError(t, err)
 	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}))
@@ -70,7 +78,11 @@ func TestSinkTransfersQueryCommand(t *testing.T) {
 	require.NoError(t, err)
 	var path string
 	var data []byte
-	rpc := capturingCometRPC{MockCometRPC: testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}), path: &path, data: &data}
+	rpc := capturingCometRPC{
+		MockCometRPC: testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}),
+		path:         &path,
+		data:         &data,
+	}
 	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(rpc)
 	owner := sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()
 	out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "transfers", "--owner", owner, "--status", "STATUS_REFUND_PENDING", "--page-key", base64.StdEncoding.EncodeToString([]byte{1, 2}), "--limit", "500", "--height", "123", "--output", "json")
@@ -202,7 +214,11 @@ func (s *SinkCLITestSuite) TestGuardianPause() {
 		s.Require().Len(tx.GetMsgs(), 1)
 		msg, ok := tx.GetMsgs()[0].(*types.MsgGuardianPause)
 		s.Require().True(ok)
-		s.Require().Equal(types.MsgGuardianPause{Guardian: s.from.String(), Deposits: tc.deposits, Refunds: tc.refunds}, *msg)
+		s.Require().Equal(types.MsgGuardianPause{
+			Guardian: s.from.String(),
+			Deposits: tc.deposits,
+			Refunds:  tc.refunds,
+		}, *msg)
 	}
 
 	_, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.GetTxSinkGuardianPauseCmd(),
@@ -214,7 +230,11 @@ func (s *SinkCLITestSuite) TestGuardianPause() {
 }
 
 func (s *SinkCLITestSuite) TestGovernanceCommandsBindExpectedRound() {
-	id := types.ID{Owner: s.from.String(), Height: 5, Sequence: 7}
+	id := types.ID{
+		Owner:    s.from.String(),
+		Height:   5,
+		Sequence: 7,
+	}
 	signature := base58.Encode(bytes.Repeat([]byte{8}, 64))
 	for _, command := range []string{"restart-transfer", "confirm-mint", "confirm-void"} {
 		for _, round := range []string{"1", "0", "01", "+1", "18446744073709551615", "18446744073709551616"} {
@@ -252,7 +272,11 @@ func (s *SinkCLITestSuite) TestGovernanceCommandsBindExpectedRound() {
 }
 
 func (s *SinkCLITestSuite) TestRequestVoidBindsExpectedRound() {
-	id := types.ID{Owner: s.from.String(), Height: 5, Sequence: 7}
+	id := types.ID{
+		Owner:    s.from.String(),
+		Height:   5,
+		Sequence: 7,
+	}
 	for _, round := range []string{"1", "18446744073709551615", "0", "01", "+1", "18446744073709551616"} {
 		out, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.TxCmd(),
 			cli.TestFlags().With("sink", "request-void", id.String(), round, "--authority", s.from.String()).WithFrom(s.from.String()).WithGenerateOnly()...)
@@ -268,6 +292,10 @@ func (s *SinkCLITestSuite) TestRequestVoidBindsExpectedRound() {
 		s.Require().True(ok)
 		expected, err := strconv.ParseUint(round, 10, 64)
 		s.Require().NoError(err)
-		s.Require().Equal(types.MsgRequestVoid{Authority: s.from.String(), ID: id, ExpectedRound: expected}, *msg)
+		s.Require().Equal(types.MsgRequestVoid{
+			Authority:     s.from.String(),
+			ID:            id,
+			ExpectedRound: expected,
+		}, *msg)
 	}
 }

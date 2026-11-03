@@ -15,29 +15,47 @@ func account(b byte) string {
 }
 
 func evidence() types.SolanaEvidence {
-	return types.SolanaEvidence{Slot: 7, TransactionSignature: bytes.Repeat([]byte{8}, 64)}
+	return types.SolanaEvidence{
+		Slot:                 7,
+		TransactionSignature: bytes.Repeat([]byte{8}, 64),
+	}
 }
 
 func observation(outcome types.Outcome) types.Observation {
 	e := evidence()
-	return types.Observation{Outcome: outcome, Slot: e.Slot, TransactionSignature: e.TransactionSignature}
+	return types.Observation{
+		Outcome:              outcome,
+		Slot:                 e.Slot,
+		TransactionSignature: e.TransactionSignature,
+	}
 }
 
 func policy() types.ReporterPolicy {
-	return types.ReporterPolicy{Version: 1, Members: []string{account(1), account(2), account(3), account(4)}, Threshold: 3}
+	return types.ReporterPolicy{
+		Version:   1,
+		Members:   []string{account(1), account(2), account(3), account(4)},
+		Threshold: 3,
+	}
 }
 
 func quorum(outcome types.Outcome) []types.Vote {
 	votes := make([]types.Vote, 3)
 	for i := range votes {
-		votes[i] = types.Vote{Reporter: account(byte(i + 1)), PolicyVersion: 1, Observation: observation(outcome)}
+		votes[i] = types.Vote{
+			Reporter:      account(byte(i + 1)),
+			PolicyVersion: 1,
+			Observation:   observation(outcome),
+		}
 	}
 
 	return votes
 }
 
 func settled(status types.Status) types.SettlementData {
-	s := types.SettlementData{Round: 1, Policy: policy()}
+	s := types.SettlementData{
+		Round:  1,
+		Policy: policy(),
+	}
 	if status == types.StatusMinted {
 		s.Votes = quorum(types.OutcomeMinted)
 	}
@@ -51,15 +69,26 @@ func settled(status types.Status) types.SettlementData {
 	}
 
 	if status == types.StatusVoided {
-		s.VoidAuthorization = &types.VoidAuthorization{RequestedHeight: 2, RequestedRound: 1}
+		s.VoidAuthorization = &types.VoidAuthorization{
+			RequestedHeight: 2,
+			RequestedRound:  1,
+		}
 	}
 
 	return s
 }
 
 func TestSettlementRetainsAuthorization(t *testing.T) {
-	id := types.ID{Owner: account(7), Height: 2, Sequence: 1}
-	policies := map[uint64]types.ReporterPolicy{1: policy(), 7: {Version: 7, Members: []string{account(9)}, Threshold: 1}}
+	id := types.ID{
+		Owner:    account(7),
+		Height:   2,
+		Sequence: 1,
+	}
+	policies := map[uint64]types.ReporterPolicy{1: policy(), 7: {
+		Version:   7,
+		Members:   []string{account(9)},
+		Threshold: 1,
+	}}
 	for _, status := range []types.Status{types.StatusTransferPending, types.StatusVoided, types.StatusMinted, types.StatusRefundPending, types.StatusRefunded} {
 		s := settled(status)
 		require.NoError(t, s.Validate(id, status, policies))
@@ -77,14 +106,21 @@ func TestSettlementRetainsAuthorization(t *testing.T) {
 
 		s.GovernanceObservation, s.Round = &o, 2
 		if status == types.StatusRefundPending {
-			s.VoidAuthorization = &types.VoidAuthorization{RequestedHeight: 2, RequestedRound: 1}
+			s.VoidAuthorization = &types.VoidAuthorization{
+				RequestedHeight: 2,
+				RequestedRound:  1,
+			}
 		}
 
 		require.NoError(t, s.Validate(id, status, policies))
 	}
 
 	s := settled(types.StatusMinted)
-	s.Votes = append(s.Votes, types.Vote{Reporter: account(9), PolicyVersion: 7, Observation: observation(types.OutcomeVoided)})
+	s.Votes = append(s.Votes, types.Vote{
+		Reporter:      account(9),
+		PolicyVersion: 7,
+		Observation:   observation(types.OutcomeVoided),
+	})
 	require.ErrorContains(t, s.Validate(id, types.StatusMinted, policies), "conflict")
 	s.Hold = types.HoldConflict
 	require.NoError(t, s.Validate(id, types.StatusMinted, policies))
@@ -97,7 +133,11 @@ func TestSettlementRetainsAuthorization(t *testing.T) {
 }
 
 func TestSettlementShapes(t *testing.T) {
-	id := types.ID{Owner: account(7), Height: 2, Sequence: 1}
+	id := types.ID{
+		Owner:    account(7),
+		Height:   2,
+		Sequence: 1,
+	}
 	policies := map[uint64]types.ReporterPolicy{1: policy()}
 	for name, change := range map[string]func(*types.SettlementData){
 		"unknown hold":         func(s *types.SettlementData) { s.Hold = 3 },
@@ -120,10 +160,16 @@ func TestSettlementShapes(t *testing.T) {
 			s.GovernanceObservation = &o
 		},
 		"early receipt": func(s *types.SettlementData) {
-			s.VoidAuthorization = &types.VoidAuthorization{RequestedHeight: 1, RequestedRound: 1}
+			s.VoidAuthorization = &types.VoidAuthorization{
+				RequestedHeight: 1,
+				RequestedRound:  1,
+			}
 		},
 		"future receipt round": func(s *types.SettlementData) {
-			s.VoidAuthorization = &types.VoidAuthorization{RequestedHeight: 2, RequestedRound: 2}
+			s.VoidAuthorization = &types.VoidAuthorization{
+				RequestedHeight: 2,
+				RequestedRound:  2,
+			}
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -141,13 +187,20 @@ func TestSettlementShapes(t *testing.T) {
 	require.Equal(t, uint64(1), scope)
 	o := observation(types.OutcomeVoided)
 	s.GovernanceObservation, s.Round, s.Votes = &o, 2, nil
-	s.VoidAuthorization = &types.VoidAuthorization{RequestedHeight: 2, RequestedRound: 1}
+	s.VoidAuthorization = &types.VoidAuthorization{
+		RequestedHeight: 2,
+		RequestedRound:  1,
+	}
 	require.NoError(t, s.Validate(id, types.StatusRefundPending, policies))
 	require.True(t, s.Payable(types.StatusRefundPending, 7))
 	scope, ok = s.RefundScope(types.StatusRefundPending)
 	require.True(t, ok)
 	require.Zero(t, scope)
-	s.Votes = append(s.Votes, types.Vote{Reporter: account(1), PolicyVersion: 1, Observation: observation(types.OutcomeMinted)})
+	s.Votes = append(s.Votes, types.Vote{
+		Reporter:      account(1),
+		PolicyVersion: 1,
+		Observation:   observation(types.OutcomeMinted),
+	})
 	s.Hold = types.HoldConflict
 	require.NoError(t, s.Validate(id, types.StatusRefundPending, policies))
 	require.False(t, s.Payable(types.StatusRefundPending, 1))
@@ -156,22 +209,42 @@ func TestSettlementShapes(t *testing.T) {
 }
 
 func TestSettlementVetoPolicyProvenance(t *testing.T) {
-	id := types.ID{Owner: account(7), Height: 2, Sequence: 1}
+	id := types.ID{
+		Owner:    account(7),
+		Height:   2,
+		Sequence: 1,
+	}
 	s := settled(types.StatusRefundPending)
 	s.Hold, s.VetoBy, s.VetoReason, s.VetoPolicyVersion = types.HoldVeto, account(9), "verify", 7
-	policies := map[uint64]types.ReporterPolicy{1: policy(), 7: {Version: 7, Members: []string{account(9)}, Threshold: 1}}
+	policies := map[uint64]types.ReporterPolicy{1: policy(), 7: {
+		Version:   7,
+		Members:   []string{account(9)},
+		Threshold: 1,
+	}}
 	require.NoError(t, s.Validate(id, types.StatusRefundPending, policies))
 	delete(policies, 7)
 	require.ErrorContains(t, s.Validate(id, types.StatusRefundPending, policies), "veto outside")
 }
 
 func TestSettlementRejectsVetoOutsideRefundCandidate(t *testing.T) {
-	id := types.ID{Owner: account(7), Height: 2, Sequence: 1}
+	id := types.ID{
+		Owner:    account(7),
+		Height:   2,
+		Sequence: 1,
+	}
 	for _, status := range []types.Status{types.StatusTransferPending, types.StatusVoided} {
 		s := settled(status)
 		s.Votes = []types.Vote{
-			{Reporter: account(1), PolicyVersion: 1, Observation: observation(types.OutcomeMinted)},
-			{Reporter: account(2), PolicyVersion: 1, Observation: observation(types.OutcomeVoided)},
+			{
+				Reporter:      account(1),
+				PolicyVersion: 1,
+				Observation:   observation(types.OutcomeMinted),
+			},
+			{
+				Reporter:      account(2),
+				PolicyVersion: 1,
+				Observation:   observation(types.OutcomeVoided),
+			},
 		}
 
 		s.Hold, s.VetoBy, s.VetoReason, s.VetoPolicyVersion = types.HoldConflict, account(1), "retained veto", 1

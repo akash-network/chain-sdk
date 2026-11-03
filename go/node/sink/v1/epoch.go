@@ -56,7 +56,10 @@ func (u EpochUsage) At(epoch uint64) (EpochUsage, error) {
 	}
 
 	if u.Epoch < epoch {
-		return EpochUsage{Epoch: epoch, Amount: ZeroAmount()}, nil
+		return EpochUsage{
+			Epoch:  epoch,
+			Amount: ZeroAmount(),
+		}, nil
 	}
 
 	return u, nil
