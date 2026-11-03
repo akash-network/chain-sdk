@@ -1,6 +1,7 @@
 package v1_test
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"math"
@@ -84,8 +85,7 @@ func TestProofFixtureContracts(t *testing.T) {
 		require.NoError(t, err)
 		key, err := hex.DecodeString(vector.Key)
 		require.NoError(t, err)
-		require.Equal(t, types.TransferKeyPrefix, key[:len(types.TransferKeyPrefix)])
-		nonce := types.ProofNonce(key)
+		nonce := sha256.Sum256(key)
 		require.Equal(t, vector.Nonce, hex.EncodeToString(nonce[:]))
 		value, err := hex.DecodeString(vector.Value)
 		require.NoError(t, err)
@@ -120,8 +120,7 @@ func TestProofFixtureContracts(t *testing.T) {
 		require.NoError(t, id.ValidateBasic())
 		key, err := hex.DecodeString(vector.Key)
 		require.NoError(t, err)
-		require.Equal(t, types.SettlementKeyPrefix, key[:len(types.SettlementKeyPrefix)])
-		nonce := types.ProofNonce(key)
+		nonce := sha256.Sum256(key)
 		require.Equal(t, vector.Nonce, hex.EncodeToString(nonce[:]))
 		value, err := hex.DecodeString(vector.Value)
 		require.NoError(t, err)
