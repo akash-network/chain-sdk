@@ -1,3 +1,6 @@
+#[path = "../src/encoding/mod.rs"]
+pub mod encoding;
+
 pub mod cosmos {
     pub mod base {
         pub mod v1beta1 {
@@ -28,9 +31,40 @@ mod tests {
         RecordData, ReporterPolicy, SettlementData,
     };
     use super::cosmos::base::v1beta1::Coin;
+    use super::encoding::legacy_dec;
     use prost::Message;
     use serde::Deserialize;
     use sha2::{Digest, Sha256};
+
+    fn params_from_decimal_json(
+        value: serde_json::Value,
+    ) -> Result<Params, Box<dyn std::error::Error>> {
+        let mut params: Params = serde_json::from_value(value)?;
+        params.reporters_threshold = legacy_dec::encode(&params.reporters_threshold)?;
+        Ok(params)
+    }
+
+    fn params_to_decimal_json(
+        mut params: Params,
+    ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+        params.reporters_threshold = legacy_dec::decode(&params.reporters_threshold)?;
+        Ok(serde_json::to_value(params)?)
+    }
+
+    fn policy_from_decimal_json(
+        value: serde_json::Value,
+    ) -> Result<ReporterPolicy, Box<dyn std::error::Error>> {
+        let mut policy: ReporterPolicy = serde_json::from_value(value)?;
+        policy.threshold = legacy_dec::encode(&policy.threshold)?;
+        Ok(policy)
+    }
+
+    fn policy_to_decimal_json(
+        mut policy: ReporterPolicy,
+    ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+        policy.threshold = legacy_dec::decode(&policy.threshold)?;
+        Ok(serde_json::to_value(policy)?)
+    }
 
     #[derive(Deserialize)]
     struct ParamsVector {
@@ -39,6 +73,25 @@ mod tests {
         duration_nanos: String,
         json: serde_json::Value,
         proto_hex: String,
+    }
+
+    #[test]
+    fn generated_strings_require_explicit_decimal_conversion() {
+        let params: Params = serde_json::from_value(serde_json::json!({
+            "reporters_threshold": "0.75",
+        }))
+        .unwrap();
+        assert_eq!(params.reporters_threshold, "0.75");
+        assert_eq!(
+            serde_json::to_value(&params).unwrap()["reportersThreshold"],
+            "0.75"
+        );
+        let policy: ReporterPolicy = serde_json::from_value(serde_json::json!({
+            "threshold": "0.75",
+        }))
+        .unwrap();
+        assert_eq!(policy.threshold, "0.75");
+        assert_eq!(serde_json::to_value(&policy).unwrap()["threshold"], "0.75");
     }
 
     #[test]
@@ -52,18 +105,18 @@ mod tests {
         for vector in vectors {
             let wire = hex::decode(&vector.proto_hex).unwrap();
             let from_wire = Params::decode(wire.as_slice()).unwrap();
-            let from_json: Params = serde_json::from_value(vector.json).unwrap();
+            let from_json: Params = params_from_decimal_json(vector.json).unwrap();
             assert_eq!(from_json, from_wire, "{}", vector.name);
             assert_eq!(from_json.encode_to_vec(), wire, "{}", vector.name);
             assert_eq!(from_wire.encode_to_vec(), wire, "{}", vector.name);
 
-            let json = serde_json::to_value(&from_wire).unwrap();
+            let json = params_to_decimal_json(from_wire.clone()).unwrap();
             assert_eq!(
                 json["reportersThreshold"], vector.threshold,
                 "{}",
                 vector.name
             );
-            let roundtrip: Params = serde_json::from_value(json).unwrap();
+            let roundtrip: Params = params_from_decimal_json(json).unwrap();
             assert_eq!(roundtrip.encode_to_vec(), wire, "{}", vector.name);
 
             let duration = from_wire.reporter_challenge_period.unwrap();
@@ -73,7 +126,7 @@ mod tests {
     }
 
     #[test]
-    fn threshold_json_preserves_exact_decimal_precision() {
+    fn explicit_decimal_conversion_preserves_precision() {
         for (decimal, atoms, canonical) in [
             ("0.75", "750000000000000000", "0.750000000000000000"),
             ("0", "0", "0.000000000000000000"),
@@ -100,19 +153,19 @@ mod tests {
         ] {
             for field in ["reporters_threshold", "reportersThreshold"] {
                 let params: Params =
-                    serde_json::from_value(serde_json::json!({ field: decimal })).unwrap();
+                    params_from_decimal_json(serde_json::json!({ field: decimal })).unwrap();
                 assert_eq!(params.reporters_threshold, atoms, "{decimal}");
                 assert_eq!(
-                    serde_json::to_value(&params).unwrap()["reportersThreshold"],
+                    params_to_decimal_json(params.clone()).unwrap()["reportersThreshold"],
                     canonical,
                     "{decimal}"
                 );
             }
             let policy: ReporterPolicy =
-                serde_json::from_value(serde_json::json!({ "threshold": decimal })).unwrap();
+                policy_from_decimal_json(serde_json::json!({ "threshold": decimal })).unwrap();
             assert_eq!(policy.threshold, atoms, "{decimal}");
             assert_eq!(
-                serde_json::to_value(&policy).unwrap()["threshold"],
+                policy_to_decimal_json(policy.clone()).unwrap()["threshold"],
                 canonical,
                 "{decimal}"
             );
@@ -124,7 +177,7 @@ mod tests {
     }
 
     #[test]
-    fn threshold_json_rejects_invalid_decimals() {
+    fn explicit_decimal_conversion_rejects_invalid_inputs() {
         for value in [
             serde_json::json!(0.75),
             serde_json::Value::Null,
@@ -132,11 +185,11 @@ mod tests {
             serde_json::json!([]),
             serde_json::json!({}),
         ] {
-            assert!(serde_json::from_value::<Params>(serde_json::json!({
+            assert!(params_from_decimal_json(serde_json::json!({
                 "reporters_threshold": value,
             }))
             .is_err());
-            assert!(serde_json::from_value::<ReporterPolicy>(serde_json::json!({
+            assert!(policy_from_decimal_json(serde_json::json!({
                 "threshold": value,
             }))
             .is_err());
@@ -160,14 +213,14 @@ mod tests {
             "0.7500000000000000000",
         ] {
             assert!(
-                serde_json::from_value::<Params>(serde_json::json!({
+                params_from_decimal_json(serde_json::json!({
                     "reporters_threshold": value,
                 }))
                 .is_err(),
                 "{value}"
             );
             assert!(
-                serde_json::from_value::<ReporterPolicy>(serde_json::json!({
+                policy_from_decimal_json(serde_json::json!({
                     "threshold": value,
                 }))
                 .is_err(),
@@ -202,46 +255,46 @@ mod tests {
     }
 
     #[test]
-    fn threshold_serialization_rejects_non_atomic_values() {
+    fn explicit_atomic_conversion_rejects_non_atomic_values() {
         for value in ["0.75", "1e18", "NaN", "-", " ", "--1"] {
             let params = Params {
                 reporters_threshold: value.into(),
                 ..Params::default()
             };
-            assert!(serde_json::to_value(params).is_err(), "{value}");
+            assert!(params_to_decimal_json(params).is_err(), "{value}");
             let policy = ReporterPolicy {
                 threshold: value.into(),
                 ..ReporterPolicy::default()
             };
-            assert!(serde_json::to_value(policy).is_err(), "{value}");
+            assert!(policy_to_decimal_json(policy).is_err(), "{value}");
         }
     }
 
     #[test]
-    fn threshold_serialization_rejects_ambiguous_leading_zeros() {
+    fn explicit_atomic_conversion_rejects_ambiguous_leading_zeros() {
         for value in ["000750000000000000000", "010", "+010", "-010", "00", "08"] {
             let params = Params {
                 reporters_threshold: value.into(),
                 ..Params::default()
             };
-            assert!(serde_json::to_value(params).is_err(), "{value}");
+            assert!(params_to_decimal_json(params).is_err(), "{value}");
             let policy = ReporterPolicy {
                 threshold: value.into(),
                 ..ReporterPolicy::default()
             };
-            assert!(serde_json::to_value(policy).is_err(), "{value}");
+            assert!(policy_to_decimal_json(policy).is_err(), "{value}");
         }
     }
 
     #[test]
-    fn threshold_json_enforces_legacy_dec_range() {
+    fn explicit_decimal_conversion_enforces_legacy_dec_range() {
         let max_whole =
             "115792089237316195423570985008687907853269984665640564039457584007913129639935";
         let overflow_whole =
             "115792089237316195423570985008687907853269984665640564039457584007913129639936";
         for sign in ["", "-"] {
             let decimal = format!("{sign}{max_whole}.999999999999999999");
-            let params: Params = serde_json::from_value(serde_json::json!({
+            let params: Params = params_from_decimal_json(serde_json::json!({
                 "reporters_threshold": decimal,
             }))
             .unwrap();
@@ -250,11 +303,11 @@ mod tests {
                 format!("{sign}{max_whole}999999999999999999")
             );
             assert_eq!(
-                serde_json::to_value(params).unwrap()["reportersThreshold"],
+                params_to_decimal_json(params).unwrap()["reportersThreshold"],
                 decimal
             );
 
-            assert!(serde_json::from_value::<Params>(serde_json::json!({
+            assert!(params_from_decimal_json(serde_json::json!({
                 "reporters_threshold": format!("{sign}{overflow_whole}"),
             }))
             .is_err());
@@ -262,8 +315,8 @@ mod tests {
                 reporters_threshold: format!("{sign}{overflow_whole}000000000000000000"),
                 ..Params::default()
             };
-            assert!(serde_json::to_value(overflow).is_err());
-            let policy: ReporterPolicy = serde_json::from_value(serde_json::json!({
+            assert!(params_to_decimal_json(overflow).is_err());
+            let policy: ReporterPolicy = policy_from_decimal_json(serde_json::json!({
                 "threshold": decimal,
             }))
             .unwrap();
@@ -271,8 +324,11 @@ mod tests {
                 policy.threshold,
                 format!("{sign}{max_whole}999999999999999999")
             );
-            assert_eq!(serde_json::to_value(policy).unwrap()["threshold"], decimal);
-            assert!(serde_json::from_value::<ReporterPolicy>(serde_json::json!({
+            assert_eq!(
+                policy_to_decimal_json(policy).unwrap()["threshold"],
+                decimal
+            );
+            assert!(policy_from_decimal_json(serde_json::json!({
                 "threshold": format!("{sign}{overflow_whole}"),
             }))
             .is_err());
@@ -280,30 +336,31 @@ mod tests {
                 threshold: format!("{sign}{overflow_whole}000000000000000000"),
                 ..ReporterPolicy::default()
             };
-            assert!(serde_json::to_value(overflow).is_err());
+            assert!(policy_to_decimal_json(overflow).is_err());
         }
     }
 
     #[test]
-    fn nested_policy_json_and_wire_preserve_decimal_precision() {
+    fn explicit_policy_conversion_survives_nested_wire_roundtrips() {
         let policy_json = serde_json::json!({
             "version": u64::MAX.to_string(),
             "members": ["akash1reporter"],
             "threshold": "0.666666666666666667",
         });
-        let policy: ReporterPolicy = serde_json::from_value(policy_json.clone()).unwrap();
+        let policy: ReporterPolicy = policy_from_decimal_json(policy_json.clone()).unwrap();
+        let wire_policy_json = serde_json::to_value(&policy).unwrap();
         let settlement: SettlementData = serde_json::from_value(serde_json::json!({
-            "policy": policy_json,
+            "policy": wire_policy_json,
         }))
         .unwrap();
         let reporters: QueryReportersResponse = serde_json::from_value(serde_json::json!({
-            "reporters": [policy_json],
+            "reporters": [wire_policy_json],
         }))
         .unwrap();
         let genesis: GenesisState = serde_json::from_value(serde_json::json!({
             "policy_sequence": u64::MAX.to_string(),
-            "policies": [policy_json],
-            "records": [{ "settlement": { "policy": policy_json } }],
+            "policies": [wire_policy_json],
+            "records": [{ "settlement": { "policy": wire_policy_json } }],
         }))
         .unwrap();
 
@@ -326,8 +383,12 @@ mod tests {
         );
         let json = serde_json::to_value(&genesis).unwrap();
         assert_eq!(json["policySequence"], u64::MAX.to_string());
-        assert_eq!(json["policies"][0], policy_json);
-        assert_eq!(json["records"][0]["settlement"]["policy"], policy_json);
+        assert_eq!(json["policies"][0], wire_policy_json);
+        assert_eq!(json["records"][0]["settlement"]["policy"], wire_policy_json);
+        assert_eq!(
+            policy_to_decimal_json(genesis.policies[0].clone()).unwrap(),
+            policy_json
+        );
         assert_eq!(
             serde_json::from_value::<GenesisState>(json).unwrap(),
             genesis
@@ -440,7 +501,10 @@ mod tests {
             "../../go/node/sink/v1/testdata/settlement_vectors.json"
         ))
         .unwrap();
-        for v in vectors {
+        for mut v in vectors {
+            let native_json = serde_json::to_value(&v.settlement).unwrap();
+            let policy = v.settlement.policy.as_mut().unwrap();
+            policy.threshold = legacy_dec::encode(&policy.threshold).unwrap();
             let mut key = vec![3, 1, v.status, 20];
             key.extend(hex::decode(v.owner_hex).unwrap());
             key.extend(v.height.parse::<i64>().unwrap().to_be_bytes());
@@ -452,6 +516,15 @@ mod tests {
             assert_eq!(
                 SettlementData::decode(value.as_slice()).unwrap(),
                 v.settlement
+            );
+            let mut from_wire = SettlementData::decode(value.as_slice()).unwrap();
+            let policy = from_wire.policy.as_mut().unwrap();
+            policy.threshold = legacy_dec::decode(&policy.threshold).unwrap();
+            assert_eq!(
+                serde_json::to_value(from_wire).unwrap(),
+                native_json,
+                "{}",
+                v.name
             );
             if v.name == "maximum_evidence" {
                 assert_eq!(value.len(), 6519);
