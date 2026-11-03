@@ -173,14 +173,6 @@ export interface EventTotalsUpdated {
   totals: Totals | undefined;
 }
 
-/**
- * EventWithdrawAddressReset is emitted at installation when a delegator's
- * reward withdrawal address is reset from the sink escrow to the delegator.
- */
-export interface EventWithdrawAddressReset {
-  delegator: string;
-}
-
 function createBaseEventTransferCreated(): EventTransferCreated {
   return { id: undefined, sender: "", recipient: "", amount: undefined, height: 0n };
 }
@@ -1183,65 +1175,6 @@ export const EventTotalsUpdated: MessageFns<EventTotalsUpdated, "akash.sink.v1.E
     message.totals = (object.totals !== undefined && object.totals !== null)
       ? Totals.fromPartial(object.totals)
       : undefined;
-    return message;
-  },
-};
-
-function createBaseEventWithdrawAddressReset(): EventWithdrawAddressReset {
-  return { delegator: "" };
-}
-
-export const EventWithdrawAddressReset: MessageFns<
-  EventWithdrawAddressReset,
-  "akash.sink.v1.EventWithdrawAddressReset"
-> = {
-  $type: "akash.sink.v1.EventWithdrawAddressReset" as const,
-
-  encode(message: EventWithdrawAddressReset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.delegator !== "") {
-      writer.uint32(10).string(message.delegator);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): EventWithdrawAddressReset {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEventWithdrawAddressReset();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.delegator = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): EventWithdrawAddressReset {
-    return { delegator: isSet(object.delegator) ? globalThis.String(object.delegator) : "" };
-  },
-
-  toJSON(message: EventWithdrawAddressReset): unknown {
-    const obj: any = {};
-    if (message.delegator !== "") {
-      obj.delegator = message.delegator;
-    }
-    return obj;
-  },
-  fromPartial(object: DeepPartial<EventWithdrawAddressReset>): EventWithdrawAddressReset {
-    const message = createBaseEventWithdrawAddressReset();
-    message.delegator = object.delegator ?? "";
     return message;
   },
 };

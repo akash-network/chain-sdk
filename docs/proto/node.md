@@ -579,7 +579,6 @@
      - [EventVoidConfirmed](#akash.sink.v1.EventVoidConfirmed)
      - [EventVoidOrdered](#akash.sink.v1.EventVoidOrdered)
      - [EventVoidVetoed](#akash.sink.v1.EventVoidVetoed)
-     - [EventWithdrawAddressReset](#akash.sink.v1.EventWithdrawAddressReset)
    
  - [akash/sink/v1/params.proto](#akash/sink/v1/params.proto)
      - [Params](#akash.sink.v1.Params)
@@ -7905,22 +7904,6 @@ its challenge period, holding the transfer for governance.
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  | `signer` | [string](#string) |  | Signer is the reporter account that vetoed. |
  | `reason` | [string](#string) |  | Reason is the veto reason. |
-
-
-
-
-
-
- <a name="akash.sink.v1.EventWithdrawAddressReset"></a>
-
- ### EventWithdrawAddressReset
- EventWithdrawAddressReset is emitted at installation when a delegator's
-reward withdrawal address is reset from the sink escrow to the delegator.
-
-
- | Field | Type | Label | Description |
- | ----- | ---- | ----- | ----------- |
- | `delegator` | [string](#string) |  |  |
 
 
 

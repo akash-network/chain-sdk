@@ -293,15 +293,3 @@ message EventTotalsUpdated {
     (gogoproto.moretags) = "yaml:\"totals\""
   ];
 }
-
-// EventWithdrawAddressReset is emitted at installation when a delegator's
-// reward withdrawal address is reset from the sink escrow to the delegator.
-message EventWithdrawAddressReset {
-  option (gogoproto.equal) = true;
-
-  string delegator = 1 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.jsontag)   = "delegator",
-    (gogoproto.moretags)  = "yaml:\"delegator\""
-  ];
-}
