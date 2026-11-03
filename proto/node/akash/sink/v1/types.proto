@@ -398,6 +398,7 @@ message ReporterPolicy {
     (gogoproto.jsontag)   = "version",
     (gogoproto.moretags)  = "yaml:\"version\""
   ];
+
   repeated string members = 2 [
     (cosmos_proto.scalar) = "cosmos.AddressString",
     (gogoproto.jsontag)   = "members",
