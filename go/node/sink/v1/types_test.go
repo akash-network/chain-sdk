@@ -18,6 +18,7 @@ func TestDestination(t *testing.T) {
 	got, err := types.ParseDestination(addr, nil)
 	require.NoError(t, err)
 	require.Equal(t, pub, ed25519.PublicKey(got[:]))
+	require.Equal(t, addr, got.String())
 
 	for name, address := range map[string]string{
 		"empty":  "",

@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/mr-tron/base58"
+	"github.com/gagliardetto/solana-go"
 	"github.com/spf13/cobra"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
@@ -623,14 +623,14 @@ func parseSinkEvidence(slot, signature string) (types.SolanaEvidence, error) {
 		return types.SolanaEvidence{}, err
 	}
 
-	bytes, err := base58.Decode(signature)
-	if err != nil || base58.Encode(bytes) != signature {
+	decoded, err := solana.SignatureFromBase58(signature)
+	if err != nil {
 		return types.SolanaEvidence{}, types.ErrInvalidObservation.Wrap("expected a canonical base58 signature")
 	}
 
 	evidence := types.SolanaEvidence{
 		Slot:                 number,
-		TransactionSignature: bytes,
+		TransactionSignature: decoded[:],
 	}
 	return evidence, evidence.Validate()
 }

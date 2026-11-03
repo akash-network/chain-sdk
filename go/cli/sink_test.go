@@ -299,6 +299,25 @@ func (s *SinkCLITestSuite) TestGuardianPause() {
 	s.Require().NoError(err)
 }
 
+func (s *SinkCLITestSuite) TestRejectMalformedSolanaSignatures() {
+	id := types.ID{
+		Owner:    s.from.String(),
+		Height:   5,
+		Sequence: 7,
+	}
+
+	for _, signature := range []string{
+		"0OIl",
+		base58.Encode(bytes.Repeat([]byte{1}, 63)),
+		base58.Encode(bytes.Repeat([]byte{1}, 65)),
+		base58.Encode(make([]byte, 64)),
+	} {
+		_, err := clitestutil.ExecTestCLICmd(s.ctx, s.cctx, cli.TxCmd(),
+			cli.TestFlags().With("sink", "confirm-mint", id.String(), "1", "9", signature, "reviewed", "--authority", s.from.String()).WithFrom(s.from.String()).WithGenerateOnly()...)
+		s.Require().ErrorIs(err, types.ErrInvalidObservation)
+	}
+}
+
 func (s *SinkCLITestSuite) TestGovernanceCommandsBindExpectedRound() {
 	id := types.ID{
 		Owner:    s.from.String(),

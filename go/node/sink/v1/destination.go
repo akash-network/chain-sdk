@@ -4,19 +4,18 @@ import (
 	"bytes"
 
 	"filippo.io/edwards25519"
-
-	"github.com/mr-tron/base58"
+	"github.com/gagliardetto/solana-go"
 )
 
 const (
-	SolanaAddressSize    = 32
+	SolanaAddressSize    = solana.PublicKeyLength
 	SolanaAddressSizeStr = 44
 )
 
 type SolanaAddress [SolanaAddressSize]byte
 
 func (a SolanaAddress) String() string {
-	return base58.Encode(a[:])
+	return solana.PublicKey(a).String()
 }
 
 // ParseDestination accepts the canonical base58 public key carried by MsgSink.
@@ -42,12 +41,12 @@ func ParseSolanaAddress(address string) (SolanaAddress, error) {
 		return recipient, ErrInvalidDestination.Wrap("Solana address too long")
 	}
 
-	b, err := base58.Decode(address)
-	if err != nil || len(b) != 32 {
+	key, err := solana.PublicKeyFromBase58(address)
+	if err != nil {
 		return recipient, ErrInvalidDestination.Wrap("Solana address must be canonical base58 of 32 bytes")
 	}
 
-	copy(recipient[:], b)
+	recipient = SolanaAddress(key)
 
 	if err := requireNonZero(recipient); err != nil {
 		return SolanaAddress{}, err
@@ -82,7 +81,7 @@ func ValidateRecipient(recipient SolanaAddress, vaults []SolanaAddress) error {
 }
 
 func requireNonZero(recipient SolanaAddress) error {
-	if recipient == [32]byte{} {
+	if solana.PublicKey(recipient).IsZero() {
 		return ErrInvalidDestination.Wrap("zero Solana recipient")
 	}
 

@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"bytes"
 	"slices"
 	"strings"
 	"time"
@@ -9,6 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 	gogotypes "github.com/cosmos/gogoproto/types"
+	"github.com/gagliardetto/solana-go"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -17,7 +17,7 @@ const GovernanceRefundScope uint64 = 0
 
 // Validate checks evidence syntax only. Observers establish Solana truth and finality.
 func (e SolanaEvidence) Validate() error {
-	if e.Slot == 0 || len(e.TransactionSignature) != 64 || bytes.Equal(e.TransactionSignature, make([]byte, 64)) {
+	if e.Slot == 0 || len(e.TransactionSignature) != solana.SignatureLength || solana.SignatureFromBytes(e.TransactionSignature).IsZero() {
 		return ErrInvalidObservation.Wrap("positive slot and a nonzero 64-byte transaction signature required")
 	}
 

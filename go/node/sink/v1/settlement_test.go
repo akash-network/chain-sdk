@@ -2,9 +2,11 @@ package v1_test
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gagliardetto/solana-go"
 	"github.com/stretchr/testify/require"
 
 	types "pkg.akt.dev/go/node/sink/v1"
@@ -18,6 +20,23 @@ func evidence() types.SolanaEvidence {
 	return types.SolanaEvidence{
 		Slot:                 7,
 		TransactionSignature: bytes.Repeat([]byte{8}, 64),
+	}
+}
+
+func TestSolanaEvidenceSignatureLength(t *testing.T) {
+	for _, size := range []int{0, 1, solana.SignatureLength - 1, solana.SignatureLength, solana.SignatureLength + 1} {
+		t.Run(fmt.Sprint(size), func(t *testing.T) {
+			e := types.SolanaEvidence{
+				Slot:                 1,
+				TransactionSignature: bytes.Repeat([]byte{1}, size),
+			}
+			if size == solana.SignatureLength {
+				require.NoError(t, e.Validate())
+				return
+			}
+
+			require.ErrorIs(t, e.Validate(), types.ErrInvalidObservation)
+		})
 	}
 }
 
