@@ -43,6 +43,7 @@ const (
 	errCodeInvalidClock
 	errCodeSendCapReached
 	errCodeInvalidPagination
+	errCodeSettlementHeld
 )
 
 var (
@@ -84,15 +85,15 @@ var (
 	ErrAboveMaxTransfer = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeAboveMaxTransfer, codes.FailedPrecondition, "amount above maximum transfer")
 	// ErrAccountLimitReached retains the code for removed account count limits.
 	ErrAccountLimitReached = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeAccountLimitReached, codes.ResourceExhausted, "account deposit limit reached")
-	// ErrAccountDailyAmountExceeded is the error when a deposit exceeds the account's remaining daily amount
-	ErrAccountDailyAmountExceeded = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeAccountDailyAmountExceeded, codes.ResourceExhausted, "account daily amount exceeded")
-	// ErrRefundCapReached is the error when a refund exceeds the remaining daily refund cap
-	ErrRefundCapReached = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeRefundCapReached, codes.ResourceExhausted, "daily refund cap reached")
+	// ErrAccountDailyAmountExceeded is the error when a deposit exceeds the account's remaining epoch amount
+	ErrAccountDailyAmountExceeded = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeAccountDailyAmountExceeded, codes.ResourceExhausted, "account epoch amount exceeded")
+	// ErrRefundCapReached is the error when a refund exceeds the remaining epoch refund cap
+	ErrRefundCapReached = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeRefundCapReached, codes.ResourceExhausted, "epoch refund cap reached")
 	// ErrNotReporter is the error when the signer is not a current reporter
 	ErrNotReporter = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeNotReporter, codes.PermissionDenied, "not a current reporter")
 	// ErrNotGuardian is the error when the signer is not the pause guardian
 	ErrNotGuardian = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeNotGuardian, codes.PermissionDenied, "not the pause guardian")
-	// ErrStaleReport is the error when a report or authorization is from an earlier reporter epoch or round
+	// ErrStaleReport is the error when a report or authorization is from an earlier reporter policy version or round
 	ErrStaleReport = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeStaleReport, codes.FailedPrecondition, "stale reporter policy or round")
 	// ErrNoPendingVoid is the error when a transfer has no confirmed void to veto
 	ErrNoPendingVoid = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeNoPendingVoid, codes.FailedPrecondition, "no pending void")
@@ -120,4 +121,6 @@ var (
 	ErrSendCapReached = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeSendCapReached, codes.ResourceExhausted, "send epoch cap reached")
 	// ErrInvalidPagination is the error for unsupported limits or cursor scans.
 	ErrInvalidPagination = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeInvalidPagination, codes.InvalidArgument, "invalid pagination")
+	// ErrSettlementHeld is the error when a settlement hold requires governance resolution.
+	ErrSettlementHeld = sdkerrors.RegisterWithGRPCCode(ModuleName, errCodeSettlementHeld, codes.FailedPrecondition, "settlement requires governance resolution")
 )
