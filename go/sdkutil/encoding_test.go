@@ -33,7 +33,12 @@ func TestTxSignersResolveAcrossEncodingConfigs(t *testing.T) {
 	provider, sender, deployer := testutil.AccAddress(t), testutil.AccAddress(t), testutil.AccAddress(t)
 	annotated := []sdk.Msg{
 		providerMsg(provider, "ops@example.com"),
-		&wasmtypes.MsgInstantiateContract{Sender: sender.String(), CodeID: 1, Label: "label", Msg: []byte(`{}`)},
+		&wasmtypes.MsgInstantiateContract{
+			Sender: sender.String(),
+			CodeID: 1,
+			Label:  "label",
+			Msg:    []byte(`{}`),
+		},
 	}
 	global := globalDescriptorEncoding(t)
 	akash := akashEncoding()
@@ -85,7 +90,13 @@ func TestSignaturesVerifyAcrossEncodingConfigs(t *testing.T) {
 	deployer := sdk.AccAddress(key.PubKey().Address())
 	// The deployer is not the fee payer, so it may sign with every mode.
 	msgs := []sdk.Msg{providerMsg(testutil.AccAddress(t), "ops@example.com"), deploymentMsg(deployer, "web")}
-	signer := authsigning.SignerData{Address: deployer.String(), ChainID: "akash-signing", AccountNumber: 7, Sequence: 3, PubKey: key.PubKey()}
+	signer := authsigning.SignerData{
+		Address:       deployer.String(),
+		ChainID:       "akash-signing",
+		AccountNumber: 7,
+		Sequence:      3,
+		PubKey:        key.PubKey(),
+	}
 	packedKey, err := codectypes.NewAnyWithValue(key.PubKey())
 	require.NoError(t, err)
 
@@ -97,7 +108,9 @@ func TestSignaturesVerifyAcrossEncodingConfigs(t *testing.T) {
 			builder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin(sdkutil.DenomUakt, 5_000)))
 			signMode := signingtypes.SignMode(mode)
 			require.NoError(t, builder.SetSignatures(signingtypes.SignatureV2{
-				PubKey: key.PubKey(), Data: &signingtypes.SingleSignatureData{SignMode: signMode}, Sequence: signer.Sequence,
+				PubKey:   key.PubKey(),
+				Data:     &signingtypes.SingleSignatureData{SignMode: signMode},
+				Sequence: signer.Sequence,
 			}))
 			signature, err := clienttx.SignWithPrivKey(context.Background(), signMode, signer, builder, key, producer.TxConfig, signer.Sequence)
 			require.NoError(t, err)
@@ -111,8 +124,14 @@ func TestSignaturesVerifyAcrossEncodingConfigs(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, signatures, 1)
 			require.NoError(t, authsigning.VerifySignature(context.Background(), key.PubKey(), txsigning.SignerData{
-				Address: signer.Address, ChainID: signer.ChainID, AccountNumber: signer.AccountNumber, Sequence: signer.Sequence,
-				PubKey: &anypb.Any{TypeUrl: packedKey.TypeUrl, Value: packedKey.Value},
+				Address:       signer.Address,
+				ChainID:       signer.ChainID,
+				AccountNumber: signer.AccountNumber,
+				Sequence:      signer.Sequence,
+				PubKey: &anypb.Any{
+					TypeUrl: packedKey.TypeUrl,
+					Value:   packedKey.Value,
+				},
 			}, signatures[0].Data, handler, decoded.(authsigning.V2AdaptableTx).GetSigningTxData()))
 		})
 	}
@@ -128,7 +147,9 @@ func TestLegacyAminoSignBytesBindNestedFields(t *testing.T) {
 		signed, modified sdk.Msg
 	}{
 		{"top-level field", providerMsg(owner, "ops@example.com"), &ptypes.MsgCreateProvider{
-			Owner: owner.String(), HostURI: "https://other.example:8443", Info: ptypes.Info{EMail: "ops@example.com"},
+			Owner:   owner.String(),
+			HostURI: "https://other.example:8443",
+			Info:    ptypes.Info{EMail: "ops@example.com"},
 		}},
 		{"nested message", providerMsg(owner, "ops@example.com"), providerMsg(owner, "abuse@example.com")},
 		{"repeated nested message", deploymentMsg(owner, "web"), deploymentMsg(owner, "db")},
@@ -146,23 +167,40 @@ func legacyAminoSignBytes(t *testing.T, encoding sdkutil.EncodingConfig, signer 
 	require.NoError(t, builder.SetMsgs(msg))
 	signBytes, err := authsigning.GetSignBytesAdapter(context.Background(), encoding.TxConfig.SignModeHandler(),
 		signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
-		authsigning.SignerData{Address: signer.String(), ChainID: "akash-signing", AccountNumber: 1, Sequence: 1},
+		authsigning.SignerData{
+			Address:       signer.String(),
+			ChainID:       "akash-signing",
+			AccountNumber: 1,
+			Sequence:      1,
+		},
 		builder.GetTx())
 	require.NoError(t, err)
+
 	return signBytes
 }
 
 func providerMsg(owner sdk.AccAddress, email string) *ptypes.MsgCreateProvider {
-	return &ptypes.MsgCreateProvider{Owner: owner.String(), HostURI: "https://provider.example:8443", Info: ptypes.Info{EMail: email}}
+	return &ptypes.MsgCreateProvider{
+		Owner:   owner.String(),
+		HostURI: "https://provider.example:8443",
+		Info:    ptypes.Info{EMail: email},
+	}
 }
 
 func deploymentMsg(owner sdk.AccAddress, group string) *dtypes.MsgCreateDeployment {
-	return &dtypes.MsgCreateDeployment{ID: dv1.DeploymentID{Owner: owner.String(), DSeq: 1}, Groups: dtypes.GroupSpecs{{Name: group}}}
+	return &dtypes.MsgCreateDeployment{
+		ID: dv1.DeploymentID{
+			Owner: owner.String(),
+			DSeq:  1,
+		},
+		Groups: dtypes.GroupSpecs{{Name: group}},
+	}
 }
 
 func akashEncoding() sdkutil.EncodingConfig {
 	encoding := sdkutil.MakeEncodingConfig()
 	registerMsgs(encoding.InterfaceRegistry)
+
 	return encoding
 }
 
@@ -180,7 +218,12 @@ func globalDescriptorEncoding(t *testing.T) sdkutil.EncodingConfig {
 	require.NoError(t, err)
 	registerMsgs(registry)
 	cdc := codec.NewProtoCodec(registry)
-	return sdkutil.EncodingConfig{InterfaceRegistry: registry, Codec: cdc, TxConfig: authtx.NewTxConfig(cdc, authtx.DefaultSignModes)}
+
+	return sdkutil.EncodingConfig{
+		InterfaceRegistry: registry,
+		Codec:             cdc,
+		TxConfig:          authtx.NewTxConfig(cdc, authtx.DefaultSignModes),
+	}
 }
 
 func registerMsgs(registry codectypes.InterfaceRegistry) {

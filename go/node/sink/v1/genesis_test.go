@@ -110,6 +110,7 @@ func TestFullGenesisRoundTrip(t *testing.T) {
 	again, err := cdc.MarshalJSON(&restored)
 	require.NoError(t, err)
 	require.JSONEq(t, string(encoded), string(again))
+
 	binary, err := g.Marshal()
 	require.NoError(t, err)
 	restored = types.GenesisState{}

@@ -62,6 +62,7 @@ func TestSinkGuardianPauseCodec(t *testing.T) {
 	amino := codec.NewLegacyAmino()
 	std.RegisterLegacyAminoCodec(amino)
 	types.RegisterLegacyAminoCodec(amino)
+
 	msg := &types.MsgGuardianPause{
 		Guardian: sdk.AccAddress(bytes.Repeat([]byte{9}, 20)).String(),
 		Deposits: true,
@@ -72,12 +73,14 @@ func TestSinkGuardianPauseCodec(t *testing.T) {
 	var decoded sdk.Msg
 	require.NoError(t, cdc.UnpackAny(packed, &decoded))
 	require.Equal(t, msg, decoded)
+
 	encoded, err := amino.MarshalJSON(msg)
 	require.NoError(t, err)
 	require.Contains(t, string(encoded), `"type":"sink/MsgGuardianPause"`)
 	var decodedAmino sdk.Msg
 	require.NoError(t, amino.UnmarshalJSON(encoded, &decodedAmino))
 	require.Equal(t, msg, decodedAmino)
+
 	resolved, err := registry.Resolve("/akash.sink.v1.MsgGuardianPauseResponse")
 	require.NoError(t, err)
 	require.IsType(t, &types.MsgGuardianPauseResponse{}, resolved)
