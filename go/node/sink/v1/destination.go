@@ -4,10 +4,16 @@ import (
 	"bytes"
 
 	"filippo.io/edwards25519"
+
 	"github.com/mr-tron/base58"
 )
 
-type SolanaAddress [32]byte
+const (
+	SolanaAddressSize    = 32
+	SolanaAddressSizeStr = 44
+)
+
+type SolanaAddress [SolanaAddressSize]byte
 
 func (a SolanaAddress) String() string {
 	return base58.Encode(a[:])
@@ -32,12 +38,12 @@ func ParseDestination(address string, vaults []SolanaAddress) (SolanaAddress, er
 // 32 nonzero bytes. The curve check depends on the governed vault allowlist.
 func ParseSolanaAddress(address string) (SolanaAddress, error) {
 	var recipient SolanaAddress
-	if len(address) > 44 {
+	if len(address) > SolanaAddressSizeStr {
 		return recipient, ErrInvalidDestination.Wrap("Solana address too long")
 	}
 
 	b, err := base58.Decode(address)
-	if err != nil || len(b) != 32 || base58.Encode(b) != address {
+	if err != nil || len(b) != 32 {
 		return recipient, ErrInvalidDestination.Wrap("Solana address must be canonical base58 of 32 bytes")
 	}
 

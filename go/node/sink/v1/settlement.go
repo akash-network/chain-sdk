@@ -8,6 +8,8 @@ import (
 	"unicode/utf8"
 
 	gogotypes "github.com/cosmos/gogoproto/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const GovernanceRefundScope uint64 = 0
@@ -21,7 +23,7 @@ func (e SolanaEvidence) Validate() error {
 	return nil
 }
 
-func (o Observation) Validate() error {
+func (o *Observation) Validate() error {
 	if o.Outcome != OutcomeMinted && o.Outcome != OutcomeVoided {
 		return ErrInvalidObservation.Wrap("unknown outcome")
 	}
@@ -54,7 +56,7 @@ func (s Status) Terminal() bool {
 }
 
 // Tallies counts only votes under the embedded authorization policy.
-func (s SettlementData) Tallies() (minted, voided uint32) {
+func (s *SettlementData) Tallies() (minted, voided uint32) {
 	for _, vote := range s.Votes {
 		if vote.PolicyVersion != s.Policy.Version {
 			continue
@@ -71,7 +73,7 @@ func (s SettlementData) Tallies() (minted, voided uint32) {
 	return
 }
 
-func (s SettlementData) HasVoidAuthorization() bool {
+func (s *SettlementData) HasVoidAuthorization() bool {
 	if s.GovernanceObservation != nil {
 		return s.GovernanceObservation.Outcome == OutcomeVoided
 	}
@@ -80,12 +82,12 @@ func (s SettlementData) HasVoidAuthorization() bool {
 	return s.Policy.Threshold > 0 && voided == s.Policy.Threshold
 }
 
-func (s SettlementData) Payable(status Status, current uint64) bool {
+func (s *SettlementData) Payable(status Status, current uint64) bool {
 	return status == StatusRefundPending && s.Hold == HoldNone && s.HasVoidAuthorization() &&
 		(s.GovernanceObservation != nil || s.Policy.Version == current)
 }
 
-func (s SettlementData) RefundScope(status Status) (scope uint64, ok bool) {
+func (s *SettlementData) RefundScope(status Status) (scope uint64, ok bool) {
 	if status != StatusRefundPending || s.Hold != HoldNone {
 		return 0, false
 	}
@@ -98,7 +100,7 @@ func (s SettlementData) RefundScope(status Status) (scope uint64, ok bool) {
 }
 
 // Validate checks key identity and retained evidence. The keeper authenticates governance vetoes.
-func (s SettlementData) Validate(id ID, status Status, policies map[uint64]ReporterPolicy) error {
+func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]ReporterPolicy) error {
 	if err := id.ValidateBasic(); err != nil {
 		return err
 	}
@@ -146,7 +148,7 @@ func (s SettlementData) Validate(id ID, status Status, policies map[uint64]Repor
 			return ErrInvalidSettlement.Wrap("orphaned veto")
 		}
 
-		if _, err := ParseAccount(s.VetoBy, AccountLength); err != nil {
+		if _, err := sdk.AccAddressFromBech32(s.VetoBy); err != nil {
 			return err
 		}
 

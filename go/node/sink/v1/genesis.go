@@ -109,7 +109,7 @@ func (g *GenesisState) Validate() error {
 	owners := make(map[string]bool, len(g.Accounts))
 	epochAmount := ZeroAmount()
 	for _, account := range g.Accounts {
-		if _, err = ParseAccount(account.Owner, AccountLength); err != nil {
+		if _, err = sdk.AccAddressFromBech32(account.Owner); err != nil {
 			return err
 		}
 

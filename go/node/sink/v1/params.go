@@ -23,16 +23,22 @@ func DefaultParams() Params {
 		MaxTransferAmountPerEpoch: sdk.NewInt64Coin(sdkutil.DenomUakt, 10_000_000_000_000),
 		MaxEpochAmountPerAccount:  sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000_000_000),
 		MaxEpochRefund:            sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000_000_000),
-		ReportersThreshold:        sdkmath.LegacyMustNewDecFromStr("0.75"),
+		ReportersThreshold:        sdkmath.LegacyMustNewDecFromStr("0.66"),
 		ReporterChallengePeriod:   time.Duration(DefaultChallengePeriodSeconds) * time.Second,
 	}
 }
 
-func (p Params) ValidateBasic() error {
-	for _, cap := range []sdk.Coin{p.MinAmountPerTransfer, p.MaxAmountPerTransfer, p.MaxTransferAmountPerEpoch, p.MaxEpochAmountPerAccount, p.MaxEpochRefund} {
-		if err := ValidateAmount(cap); err != nil {
-			return ErrInvalidParam.Wrap(err.Error())
-		}
+func (p *Params) ValidateBasic() error {
+	coins := sdk.Coins{
+		p.MinAmountPerTransfer,
+		p.MaxAmountPerTransfer,
+		p.MaxTransferAmountPerEpoch,
+		p.MaxEpochAmountPerAccount,
+		p.MaxEpochRefund,
+	}
+
+	if err := coins.Validate(); err != nil {
+		return err
 	}
 
 	if !p.MaxAmountPerTransfer.IsPositive() || !p.MaxTransferAmountPerEpoch.IsPositive() || !p.MaxEpochRefund.IsPositive() {
@@ -54,10 +60,6 @@ func (p Params) ValidateBasic() error {
 		return ErrInvalidReporters.Wrap("reporters_threshold must be between zero and one")
 	}
 
-	if len(p.Reporters) > MaxReporters {
-		return ErrInvalidReporters.Wrap("too many reporters")
-	}
-
 	if err := p.Policy(1).Validate(); err != nil {
 		return err
 	}
@@ -75,7 +77,7 @@ func (p Params) ValidateBasic() error {
 	}
 
 	if p.PauseGuardian != "" {
-		if err := ValidatePauseGuardian(p.PauseGuardian); err != nil {
+		if _, err := sdk.AccAddressFromBech32(p.PauseGuardian); err != nil {
 			return err
 		}
 	}
@@ -95,9 +97,4 @@ func (p Params) ValidateBasic() error {
 	}
 
 	return nil
-}
-
-func ValidatePauseGuardian(guardian string) error {
-	_, err := ParseAccount(guardian, AccountLength, DerivedAccountLength)
-	return err
 }

@@ -1,12 +1,15 @@
 package v1
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (id ID) ValidateBasic() error {
-	if _, err := ParseAccount(id.Owner, AccountLength); err != nil {
+func (id *ID) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(id.Owner); err != nil {
 		return ErrInvalidID.Wrap(err.Error())
 	}
 
@@ -17,8 +20,8 @@ func (id ID) ValidateBasic() error {
 	return nil
 }
 
-func (id ID) String() string {
-	return id.Owner + "/" + strconv.FormatInt(id.Height, 10) + "/" + strconv.FormatUint(id.Sequence, 10)
+func (id *ID) String() string {
+	return fmt.Sprintf("%s/%d/%d", id.Owner, id.Height, id.Sequence)
 }
 
 func ParseID(s string) (ID, error) {
@@ -42,12 +45,9 @@ func ParseID(s string) (ID, error) {
 		Height:   height,
 		Sequence: sequence,
 	}
+
 	if err = id.ValidateBasic(); err != nil {
 		return ID{}, err
-	}
-
-	if id.String() != s {
-		return ID{}, ErrInvalidID.Wrap("noncanonical ID")
 	}
 
 	return id, nil

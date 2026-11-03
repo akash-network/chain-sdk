@@ -17,7 +17,7 @@ func TestSettlementID(t *testing.T) {
 	for status := types.StatusTransferPending; status <= types.StatusRefunded; status++ {
 		key := types.NewSettlementID(status, id)
 		require.NoError(t, key.ValidateBasic())
-		require.Equal(t, id, key.ID())
+		require.Equal(t, id, key.GetID())
 		require.Equal(t, status, key.Status)
 	}
 	for _, status := range []types.Status{types.StatusInvalid, -1, 6, 256} {

@@ -36,7 +36,7 @@ func (m *MsgSink) ValidateBasic() error {
 		return ErrInvalidDestination.Wrapf("destination type must be %s", DestTypeSolana)
 	}
 
-	if _, err := ParseAccount(m.Sender, AccountLength); err != nil {
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
 		return err
 	}
 
@@ -47,7 +47,7 @@ func (m *MsgSink) ValidateBasic() error {
 }
 
 func (m *MsgUpdateParams) ValidateBasic() error {
-	if _, err := ParseAccount(m.Authority, AccountLength, DerivedAccountLength); err != nil {
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return err
 	}
 
@@ -79,7 +79,7 @@ func (m *MsgVetoVoid) ValidateBasic() error {
 }
 
 func (m *MsgReportOutcome) ValidateBasic() error {
-	if _, err := ParseAccount(m.Reporter, AccountLength); err != nil {
+	if _, err := sdk.AccAddressFromBech32(m.Reporter); err != nil {
 		return err
 	}
 
@@ -115,7 +115,7 @@ func (m *MsgConfirmVoid) ValidateBasic() error {
 }
 
 func validateSignerID(signer string, id ID) error {
-	if _, err := ParseAccount(signer, AccountLength, DerivedAccountLength); err != nil {
+	if _, err := sdk.AccAddressFromBech32(signer); err != nil {
 		return err
 	}
 
@@ -123,7 +123,11 @@ func validateSignerID(signer string, id ID) error {
 }
 
 func validateResolution(authority string, id ID, reason string, round uint64) error {
-	if err := validateSignerID(authority, id); err != nil {
+	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+		return err
+	}
+
+	if err := id.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -139,7 +143,7 @@ func validateResolution(authority string, id ID, reason string, round uint64) er
 }
 
 func (m *MsgGuardianPause) ValidateBasic() error {
-	if err := ValidatePauseGuardian(m.Guardian); err != nil {
+	if _, err := sdk.AccAddressFromBech32(m.Guardian); err != nil {
 		return err
 	}
 
