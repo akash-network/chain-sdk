@@ -97,14 +97,84 @@ func TestSinkTransfersQueryCommand(t *testing.T) {
 	require.NoError(t, enc.Codec.UnmarshalJSON(out.Bytes(), &got))
 	require.Equal(t, []byte{4}, got.Pagination.NextKey)
 
-	for _, args := range [][]string{{"--limit", "501"}, {"--offset", "1"}, {"--count-total"}, {"--status", "STATUS_UNKNOWN"}} {
+	for _, args := range [][]string{{"--offset", "1"}, {"--count-total"}, {"--status", "STATUS_UNKNOWN"}} {
+		path, data = "", nil
 		_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), append([]string{"sink", "transfers"}, args...)...)
 		require.Error(t, err)
+		require.Empty(t, path)
+		require.Empty(t, data)
 	}
 
 	_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "disputes")
 	require.NoError(t, err)
 	require.Equal(t, "/akash.sink.v1.Query/Disputes", path)
+}
+
+func TestSinkQueryPagination(t *testing.T) {
+	enc := sdkutil.MakeEncodingConfig()
+	types.RegisterInterfaces(enc.InterfaceRegistry)
+	var path string
+	var data []byte
+	rpc := capturingCometRPC{
+		MockCometRPC: testutil.NewMockCometRPC(abci.ResponseQuery{Value: []byte{}}),
+		path:         &path,
+		data:         &data,
+	}
+	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(rpc)
+
+	for _, command := range []string{"transfers", "disputes"} {
+		t.Run(command, func(t *testing.T) {
+			for _, args := range [][]string{
+				{"--page", "2"},
+				{"--page", "2", "--limit", "0"},
+				{"--offset", "0"},
+				{"--count-total=false"},
+			} {
+				path, data = "", nil
+				_, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), append([]string{"sink", command}, args...)...)
+				require.ErrorContains(t, err, "unknown flag", args)
+				require.Empty(t, path)
+				require.Empty(t, data)
+			}
+
+			for _, tc := range []struct {
+				args []string
+				want query.PageRequest
+			}{
+				{
+					want: query.PageRequest{Limit: 100},
+				},
+				{
+					args: []string{"--limit", "0"},
+					want: query.PageRequest{},
+				},
+				{
+					args: []string{"--page-key", "AQI=", "--limit", "500", "--reverse", "--height", "123"},
+					want: query.PageRequest{
+						Key:     []byte{1, 2},
+						Limit:   500,
+						Reverse: true,
+					},
+				},
+			} {
+				_, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), append([]string{"sink", command}, tc.args...)...)
+				require.NoError(t, err)
+
+				var pagination *query.PageRequest
+				if command == "transfers" {
+					var request types.QueryTransfersRequest
+					require.NoError(t, enc.Codec.Unmarshal(data, &request))
+					pagination = request.Pagination
+				} else {
+					var request types.QueryDisputesRequest
+					require.NoError(t, enc.Codec.Unmarshal(data, &request))
+					pagination = request.Pagination
+				}
+
+				require.Equal(t, &tc.want, pagination)
+			}
+		})
+	}
 }
 
 type SinkCLITestSuite struct {

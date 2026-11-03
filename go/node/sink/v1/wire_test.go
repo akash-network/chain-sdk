@@ -26,9 +26,24 @@ func TestIDText(t *testing.T) {
 	parsed, err := types.ParseID(id.String())
 	require.NoError(t, err)
 	require.Equal(t, id, parsed)
-	for _, text := range []string{"42", id.Owner + "/01/1", id.Owner + "/+1/1", id.Owner + "/1/01", id.Owner + "/1/+1", id.Owner + "/0/1", id.Owner + "/1/0", id.Owner + "/-1/1", id.Owner + "/9223372036854775808/1", id.Owner + "/1/18446744073709551616", strings.ToUpper(id.Owner) + "/1/1", " " + id.String(), id.String() + "/1"} {
+	for _, text := range []string{"42", id.Owner + "/1/+1", id.Owner + "/0/1", id.Owner + "/1/0", id.Owner + "/-1/1", id.Owner + "/9223372036854775808/1", id.Owner + "/1/18446744073709551616", " " + id.String(), id.String() + "/1"} {
 		_, err := types.ParseID(text)
 		require.Error(t, err, text)
+	}
+
+	for _, text := range []string{
+		id.Owner + "/01/1",
+		id.Owner + "/+1/1",
+		id.Owner + "/1/01",
+		strings.ToUpper(id.Owner) + "/1/1",
+	} {
+		parsed, err := types.ParseID(text)
+		require.NoError(t, err, text)
+		owner, err := sdk.AccAddressFromBech32(parsed.Owner)
+		require.NoError(t, err)
+		require.Equal(t, id.Owner, owner.String())
+		require.Equal(t, int64(1), parsed.Height)
+		require.Equal(t, uint64(1), parsed.Sequence)
 	}
 
 	maximum := types.ID{

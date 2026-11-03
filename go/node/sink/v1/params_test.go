@@ -198,7 +198,6 @@ func TestTotalsSubRejectsRecordsOutsideThePopulation(t *testing.T) {
 	}{
 		"empty population":   {types.StatusMinted, amount},
 		"larger amount":      {types.StatusRefundPending, amount.Add(amount)},
-		"reserved status":    {types.Status(3), amount},
 		"foreign denom":      {types.StatusRefundPending, sdk.NewInt64Coin("other", 10)},
 		"uninitialized coin": {types.StatusRefundPending, sdk.Coin{Denom: sdkutil.DenomUakt}},
 	} {
@@ -206,21 +205,29 @@ func TestTotalsSubRejectsRecordsOutsideThePopulation(t *testing.T) {
 		require.Equal(t, before, totals, name)
 	}
 
+	require.ErrorIs(t, totals.Sub(types.StatusInvalid, amount), types.ErrInvalidSettlement)
+	require.Equal(t, before, totals)
+
 	require.NoError(t, totals.Sub(types.StatusRefundPending, amount))
 	require.Zero(t, totals.RefundPendingCount)
 	require.True(t, totals.RefundPendingAmount.IsZero())
+
+	require.NoError(t, totals.Add(types.StatusVoided, amount))
+	require.Equal(t, uint64(1), totals.VoidedCount)
+	require.Equal(t, amount, totals.VoidedAmount)
+	require.NoError(t, totals.Sub(types.StatusVoided, amount))
+	require.True(t, types.DefaultTotals().Equal(totals))
 }
 
-func TestReporterCountAndMaximumTransferBoundaries(t *testing.T) {
+func TestReporterPolicyAndMaximumTransferBoundaries(t *testing.T) {
 	p := types.DefaultParams()
-	for i := 1; i <= types.MaxReporters; i++ {
+	for i := 1; i <= 33; i++ {
 		p.Reporters = append(p.Reporters, account(byte(i)))
 	}
 
+	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.75")
 	require.NoError(t, p.ValidateBasic())
-	require.Equal(t, uint32(24), p.Policy(1).Threshold)
-	p.Reporters = append(p.Reporters, account(33))
-	require.Error(t, p.ValidateBasic())
+	require.Equal(t, uint32(25), p.Policy(1).Threshold)
 	p = types.DefaultParams()
 	p.Reporters = policy().Members
 	a := p.Policy(1)

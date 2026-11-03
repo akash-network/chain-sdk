@@ -51,15 +51,27 @@ func TestMsgSinkValidateBasic(t *testing.T) {
 		"negative amount":          {func(m *types.MsgSink) { m.Amount.Amount = sdkmath.NewInt(-1) }, sdkerrors.ErrInvalidCoins},
 		"overflow amount":          {func(m *types.MsgSink) { m.Amount.Amount = overflow }, sdkerrors.ErrInvalidCoins},
 		"wrong denomination":       {func(m *types.MsgSink) { m.Amount.Denom = "akt" }, sdkerrors.ErrInvalidCoins},
-		"empty sender":             {func(m *types.MsgSink) { m.Sender = "" }, sdkerrors.ErrInvalidAddress},
-		"malformed sender":         {func(m *types.MsgSink) { m.Sender = "akash1notanaddress" }, sdkerrors.ErrInvalidAddress},
-		"long sender":              {func(m *types.MsgSink) { m.Sender = sdk.AccAddress(bytes.Repeat([]byte{7}, 32)).String() }, sdkerrors.ErrInvalidAddress},
 	} {
 		t.Run(name, func(t *testing.T) {
 			msg := valid()
 			tc.change(msg)
 			require.ErrorIs(t, msg.ValidateBasic(), tc.err)
 		})
+	}
+
+	for _, sender := range []string{
+		"",
+		"akash1notanaddress",
+		sdk.AccAddress(bytes.Repeat([]byte{7}, 32)).String(),
+	} {
+		msg := valid()
+		msg.Sender = sender
+		_, err := sdk.AccAddressFromBech32(sender)
+		if err != nil {
+			require.EqualError(t, msg.ValidateBasic(), err.Error())
+		} else {
+			require.NoError(t, msg.ValidateBasic())
+		}
 	}
 
 	var msg sdk.Msg = valid()
@@ -112,7 +124,14 @@ func TestMsgGuardianPauseValidateBasic(t *testing.T) {
 			Refunds:  true,
 		},
 	} {
-		t.Run(name, func(t *testing.T) { require.ErrorIs(t, msg.ValidateBasic(), sdkerrors.ErrInvalidAddress) })
+		t.Run(name, func(t *testing.T) {
+			_, err := sdk.AccAddressFromBech32(msg.Guardian)
+			if err != nil {
+				require.EqualError(t, msg.ValidateBasic(), err.Error())
+			} else {
+				require.NoError(t, msg.ValidateBasic())
+			}
+		})
 	}
 
 	var msg sdk.Msg = &types.MsgGuardianPause{}

@@ -182,9 +182,6 @@ func TestSettlementShapes(t *testing.T) {
 	s := settled(types.StatusRefundPending)
 	require.True(t, s.Payable(types.StatusRefundPending, 1))
 	require.False(t, s.Payable(types.StatusRefundPending, 7))
-	scope, ok := s.RefundScope(types.StatusRefundPending)
-	require.True(t, ok)
-	require.Equal(t, uint64(1), scope)
 	o := observation(types.OutcomeVoided)
 	s.GovernanceObservation, s.Round, s.Votes = &o, 2, nil
 	s.VoidAuthorization = &types.VoidAuthorization{
@@ -193,9 +190,6 @@ func TestSettlementShapes(t *testing.T) {
 	}
 	require.NoError(t, s.Validate(id, types.StatusRefundPending, policies))
 	require.True(t, s.Payable(types.StatusRefundPending, 7))
-	scope, ok = s.RefundScope(types.StatusRefundPending)
-	require.True(t, ok)
-	require.Zero(t, scope)
 	s.Votes = append(s.Votes, types.Vote{
 		Reporter:      account(1),
 		PolicyVersion: 1,
@@ -204,8 +198,6 @@ func TestSettlementShapes(t *testing.T) {
 	s.Hold = types.HoldConflict
 	require.NoError(t, s.Validate(id, types.StatusRefundPending, policies))
 	require.False(t, s.Payable(types.StatusRefundPending, 1))
-	_, ok = s.RefundScope(types.StatusRefundPending)
-	require.False(t, ok)
 }
 
 func TestSettlementVetoPolicyProvenance(t *testing.T) {

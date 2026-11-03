@@ -89,18 +89,6 @@ func (s *SettlementData) Payable(status Status, current uint64) bool {
 		(s.GovernanceObservation != nil || s.Policy.Version == current)
 }
 
-func (s *SettlementData) RefundScope(status Status) (scope uint64, ok bool) {
-	if status != StatusRefundPending || s.Hold != HoldNone {
-		return 0, false
-	}
-
-	if s.GovernanceObservation != nil {
-		return GovernanceRefundScope, true
-	}
-
-	return s.Policy.Version, true
-}
-
 // Validate checks key identity and retained evidence. The keeper authenticates governance vetoes.
 func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]ReporterPolicy) error {
 	if err := id.ValidateBasic(); err != nil {

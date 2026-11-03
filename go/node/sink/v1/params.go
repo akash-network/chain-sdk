@@ -30,7 +30,7 @@ func DefaultParams() Params {
 }
 
 func (p *Params) ValidateBasic() error {
-	coins := sdk.Coins{
+	coins := []sdk.Coin{
 		p.MinAmountPerTransfer,
 		p.MaxAmountPerTransfer,
 		p.MaxTransferAmountPerEpoch,
@@ -38,8 +38,14 @@ func (p *Params) ValidateBasic() error {
 		p.MaxEpochRefund,
 	}
 
-	if err := coins.Validate(); err != nil {
-		return err
+	for _, coin := range coins {
+		if err := coin.Validate(); err != nil {
+			return err
+		}
+
+		if coin.Denom != sdkutil.DenomUakt {
+			return ErrInvalidParam.Wrap("transfer and epoch caps must use uakt")
+		}
 	}
 
 	if !p.MaxAmountPerTransfer.IsPositive() || !p.MaxTransferAmountPerEpoch.IsPositive() || !p.MaxEpochRefund.IsPositive() {

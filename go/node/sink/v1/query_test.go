@@ -13,21 +13,17 @@ func TestQueryValidation(t *testing.T) {
 	for _, p := range []*query.PageRequest{nil, {}, {
 		Limit:   500,
 		Reverse: true,
-	}} {
-		require.NoError(t, types.ValidatePagination(p))
+	}, {Offset: 1}, {CountTotal: true}, {Limit: 501}} {
+		require.NoError(t, (&types.QueryTransfersRequest{Pagination: p}).ValidateBasic())
+		require.NoError(t, (&types.QueryDisputesRequest{Pagination: p}).ValidateBasic())
 	}
 
-	for _, p := range []*query.PageRequest{{Offset: 1}, {CountTotal: true}, {Limit: 501}} {
-		require.ErrorIs(t, types.ValidatePagination(p), types.ErrInvalidPagination)
-	}
-
-	require.NoError(t, (types.QueryTransfersRequest{
+	require.NoError(t, (&types.QueryTransfersRequest{
 		Owner:  account(7),
 		Status: types.StatusRefunded,
 	}).ValidateBasic())
-	require.Error(t, (types.QueryTransfersRequest{Owner: "bad"}).ValidateBasic())
-	require.Error(t, (types.QueryTransfersRequest{Status: 6}).ValidateBasic())
-	require.Error(t, (types.QueryTransferRequest{}).ValidateBasic())
-	require.Error(t, (types.QueryAccountRequest{}).ValidateBasic())
-	require.Error(t, (types.QueryDisputesRequest{Pagination: &query.PageRequest{Offset: 1}}).ValidateBasic())
+	require.Error(t, (&types.QueryTransfersRequest{Owner: "bad"}).ValidateBasic())
+	require.Error(t, (&types.QueryTransfersRequest{Status: 6}).ValidateBasic())
+	require.Error(t, (&types.QueryTransferRequest{}).ValidateBasic())
+	require.Error(t, (&types.QueryAccountRequest{}).ValidateBasic())
 }

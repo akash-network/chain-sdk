@@ -109,7 +109,9 @@ func GetQuerySinkTransfersCmd() *cobra.Command {
 
 	cmd.Flags().String("owner", "", "Filter by a canonical Akash owner")
 	cmd.Flags().String("status", "STATUS_INVALID", "STATUS_TRANSFER_PENDING, STATUS_MINTED, STATUS_REFUND_PENDING, STATUS_REFUNDED, or STATUS_INVALID for any")
-	cflags.AddPaginationFlagsToCmd(cmd, "transfers")
+	cmd.Flags().String(cflags.FlagPageKey, "", "pagination page-key of transfers to query for")
+	cmd.Flags().Uint64(cflags.FlagLimit, 100, "pagination limit of transfers to query for")
+	cmd.Flags().Bool(cflags.FlagReverse, false, "results are sorted in descending order")
 	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -144,7 +146,9 @@ func GetQuerySinkDisputesCmd() *cobra.Command {
 		},
 	}
 
-	cflags.AddPaginationFlagsToCmd(cmd, "disputes")
+	cmd.Flags().String(cflags.FlagPageKey, "", "pagination page-key of disputes to query for")
+	cmd.Flags().Uint64(cflags.FlagLimit, 100, "pagination limit of disputes to query for")
+	cmd.Flags().Bool(cflags.FlagReverse, false, "results are sorted in descending order")
 	cflags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
