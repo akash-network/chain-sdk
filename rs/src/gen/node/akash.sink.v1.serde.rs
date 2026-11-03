@@ -4890,7 +4890,7 @@ impl serde::Serialize for Params {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.deposits_enabled {
+        if self.enabled {
             len += 1;
         }
         if self.min_amount_per_transfer.is_some() {
@@ -4927,8 +4927,8 @@ impl serde::Serialize for Params {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.Params", len)?;
-        if self.deposits_enabled {
-            struct_ser.serialize_field("depositsEnabled", &self.deposits_enabled)?;
+        if self.enabled {
+            struct_ser.serialize_field("enabled", &self.enabled)?;
         }
         if let Some(v) = self.min_amount_per_transfer.as_ref() {
             struct_ser.serialize_field("minAmountPerTransfer", v)?;
@@ -4974,8 +4974,7 @@ impl<'de> serde::Deserialize<'de> for Params {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "deposits_enabled",
-            "depositsEnabled",
+            "enabled",
             "min_amount_per_transfer",
             "minAmountPerTransfer",
             "max_amount_per_transfer",
@@ -5001,7 +5000,7 @@ impl<'de> serde::Deserialize<'de> for Params {
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            DepositsEnabled,
+            Enabled,
             MinAmountPerTransfer,
             MaxAmountPerTransfer,
             MaxTransferAmountPerEpoch,
@@ -5037,9 +5036,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                         E: serde::de::Error,
                     {
                         match value {
-                            "depositsEnabled" | "deposits_enabled" => {
-                                Ok(GeneratedField::DepositsEnabled)
-                            }
+                            "enabled" => Ok(GeneratedField::Enabled),
                             "minAmountPerTransfer" | "min_amount_per_transfer" => {
                                 Ok(GeneratedField::MinAmountPerTransfer)
                             }
@@ -5088,7 +5085,7 @@ impl<'de> serde::Deserialize<'de> for Params {
             where
                 V: serde::de::MapAccess<'de>,
             {
-                let mut deposits_enabled__ = None;
+                let mut enabled__ = None;
                 let mut min_amount_per_transfer__ = None;
                 let mut max_amount_per_transfer__ = None;
                 let mut max_transfer_amount_per_epoch__ = None;
@@ -5102,11 +5099,11 @@ impl<'de> serde::Deserialize<'de> for Params {
                 let mut pause_guardian__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::DepositsEnabled => {
-                            if deposits_enabled__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("depositsEnabled"));
+                        GeneratedField::Enabled => {
+                            if enabled__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("enabled"));
                             }
-                            deposits_enabled__ = Some(map_.next_value()?);
+                            enabled__ = Some(map_.next_value()?);
                         }
                         GeneratedField::MinAmountPerTransfer => {
                             if min_amount_per_transfer__.is_some() {
@@ -5191,7 +5188,7 @@ impl<'de> serde::Deserialize<'de> for Params {
                     }
                 }
                 Ok(Params {
-                    deposits_enabled: deposits_enabled__.unwrap_or_default(),
+                    enabled: enabled__.unwrap_or_default(),
                     min_amount_per_transfer: min_amount_per_transfer__,
                     max_amount_per_transfer: max_amount_per_transfer__,
                     max_transfer_amount_per_epoch: max_transfer_amount_per_epoch__,

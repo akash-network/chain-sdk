@@ -17,7 +17,8 @@ import { Duration } from "../../../google/protobuf/duration.ts";
  * Send and refund quotas use the current number of the native "day" epoch.
  */
 export interface Params {
-  depositsEnabled: boolean;
+  /** Enabled permits deposits. Refunds are controlled independently. */
+  enabled: boolean;
   minAmountPerTransfer: Coin | undefined;
   maxAmountPerTransfer: Coin | undefined;
   maxTransferAmountPerEpoch:
@@ -48,7 +49,7 @@ export interface Params {
 
 function createBaseParams(): Params {
   return {
-    depositsEnabled: false,
+    enabled: false,
     minAmountPerTransfer: undefined,
     maxAmountPerTransfer: undefined,
     maxTransferAmountPerEpoch: undefined,
@@ -67,8 +68,8 @@ const _Params: MessageFns<Params, "akash.sink.v1.Params"> = {
   $type: "akash.sink.v1.Params" as const,
 
   encode(message: Params, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.depositsEnabled !== false) {
-      writer.uint32(8).bool(message.depositsEnabled);
+    if (message.enabled !== false) {
+      writer.uint32(8).bool(message.enabled);
     }
     if (message.minAmountPerTransfer !== undefined) {
       Coin.encode(message.minAmountPerTransfer, writer.uint32(18).fork()).join();
@@ -118,7 +119,7 @@ const _Params: MessageFns<Params, "akash.sink.v1.Params"> = {
             break;
           }
 
-          message.depositsEnabled = reader.bool();
+          message.enabled = reader.bool();
           continue;
         }
         case 2: {
@@ -220,7 +221,7 @@ const _Params: MessageFns<Params, "akash.sink.v1.Params"> = {
 
   fromJSON(object: any): Params {
     return {
-      depositsEnabled: isSet(object.deposits_enabled) ? globalThis.Boolean(object.deposits_enabled) : false,
+      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
       minAmountPerTransfer: isSet(object.min_amount_per_transfer)
         ? Coin.fromJSON(object.min_amount_per_transfer)
         : undefined,
@@ -251,8 +252,8 @@ const _Params: MessageFns<Params, "akash.sink.v1.Params"> = {
 
   toJSON(message: Params): unknown {
     const obj: any = {};
-    if (message.depositsEnabled !== false) {
-      obj.deposits_enabled = message.depositsEnabled;
+    if (message.enabled !== false) {
+      obj.enabled = message.enabled;
     }
     if (message.minAmountPerTransfer !== undefined) {
       obj.min_amount_per_transfer = Coin.toJSON(message.minAmountPerTransfer);
@@ -291,7 +292,7 @@ const _Params: MessageFns<Params, "akash.sink.v1.Params"> = {
   },
   fromPartial(object: DeepPartial<Params>): Params {
     const message = createBaseParams();
-    message.depositsEnabled = object.depositsEnabled ?? false;
+    message.enabled = object.enabled ?? false;
     message.minAmountPerTransfer = (object.minAmountPerTransfer !== undefined && object.minAmountPerTransfer !== null)
       ? Coin.fromPartial(object.minAmountPerTransfer)
       : undefined;

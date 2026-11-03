@@ -11,9 +11,10 @@ option go_package = "pkg.akt.dev/go/node/sink/v1";
 // Params configures uakt transfer limits, reporter settlement and refunds.
 // Send and refund quotas use the current number of the native "day" epoch.
 message Params {
-  bool   deposits_enabled = 1 [
-    (gogoproto.jsontag)   = "deposits_enabled,omitempty",
-    (gogoproto.moretags)  = "yaml:\"deposits_enabled\""
+  // Enabled permits deposits. Refunds are controlled independently.
+  bool   enabled = 1 [
+    (gogoproto.jsontag)   = "enabled,omitempty",
+    (gogoproto.moretags)  = "yaml:\"enabled\""
   ];
 
   cosmos.base.v1beta1.Coin min_amount_per_transfer = 2 [

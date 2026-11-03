@@ -16,6 +16,8 @@ import (
 
 func TestRatioAndCapEdges(t *testing.T) {
 	require.NoError(t, types.DefaultGenesis().Validate())
+	require.False(t, types.DefaultParams().Enabled)
+	require.False(t, types.DefaultParams().RefundsEnabled)
 
 	for _, ratio := range []string{"0", "0.5", "1.000000000000000001", "-1"} {
 		p := types.DefaultParams()
@@ -42,7 +44,7 @@ func TestRatioAndCapEdges(t *testing.T) {
 	p.Reporters = append(p.Reporters, p.Reporters[0])
 	require.Error(t, p.ValidateBasic())
 	p = types.DefaultParams()
-	p.DepositsEnabled = true
+	p.Enabled = true
 	require.Error(t, p.ValidateBasic())
 
 	for name, change := range map[string]func(*types.Params){
@@ -94,7 +96,7 @@ func TestIndependentSendingCapsAndDisabledMinimum(t *testing.T) {
 	p.MinAmountPerTransfer = types.ZeroAmount()
 	require.NoError(t, p.ValidateBasic())
 	p.Reporters = policy().Members
-	p.DepositsEnabled = true
+	p.Enabled = true
 	require.Error(t, p.ValidateBasic())
 	p.MinAmountPerTransfer = sdk.NewInt64Coin(sdkutil.DenomUakt, 1)
 	require.NoError(t, p.ValidateBasic())

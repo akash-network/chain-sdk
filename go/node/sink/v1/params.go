@@ -39,7 +39,7 @@ func (p Params) ValidateBasic() error {
 		return ErrInvalidParam.Wrap("transfer, send and refund caps must be positive")
 	}
 
-	if p.DepositsEnabled && p.MinAmountPerTransfer.IsZero() {
+	if p.Enabled && p.MinAmountPerTransfer.IsZero() {
 		return ErrInvalidParam.Wrap("minimum transfer must be positive while deposits are enabled")
 	}
 
@@ -62,7 +62,7 @@ func (p Params) ValidateBasic() error {
 		return err
 	}
 
-	if p.DepositsEnabled && len(p.Reporters) == 0 {
+	if p.Enabled && len(p.Reporters) == 0 {
 		return ErrInvalidParam.Wrap("deposits require reporters")
 	}
 

@@ -86,6 +86,16 @@ describe("sink SDK", () => {
     expect(Params.fromJSON({ pause_guardian: "akash1guardian" }).pauseGuardian).toBe("akash1guardian");
   });
 
+  it("preserves the Params enabled JSON name and field number", () => {
+    const params = Params.fromJSON({ enabled: true });
+    expect(params.enabled).toBe(true);
+    expect(Params.toJSON(params)).toMatchObject({ enabled: true });
+    expect(Params.toJSON(params)).not.toHaveProperty("deposits_enabled");
+    expect(Params.decode(Uint8Array.of(8, 1)).enabled).toBe(true);
+    expect(Params.encode(Params.fromPartial({ enabled: true })).finish()).toEqual(Uint8Array.of(8, 1));
+    expect(Params.fromJSON({}).enabled).toBe(false);
+  });
+
   it("queries composite IDs without losing precision or paid status", async () => {
     const id = ID.fromPartial({ owner: "akash1owner", height: 9007199254740993n, sequence: MAX_UINT64 });
     const response = QueryTransferResponse.fromPartial({ transfer: { id, settlement: { status: Status.STATUS_REFUNDED, round: 9007199254740993n } } });

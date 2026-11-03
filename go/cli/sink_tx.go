@@ -127,7 +127,7 @@ Example:
 		},
 	}
 
-	cmd.Flags().Bool("deposits", false, "Disable deposits (params.deposits_enabled)")
+	cmd.Flags().Bool("deposits", false, "Disable deposits (params.enabled)")
 	cmd.Flags().Bool("refunds", false, "Disable refunds (params.refunds_enabled)")
 	cflags.AddTxFlagsToCmd(cmd)
 

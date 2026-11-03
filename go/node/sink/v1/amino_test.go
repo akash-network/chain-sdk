@@ -111,7 +111,7 @@ func testSinkAminoJSONParity(t *testing.T, handler *txsigning.HandlerMap) {
 	evidence := types.SolanaEvidence{Slot: math.MaxUint64, TransactionSignature: signature}
 	maximum := sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromUint64(math.MaxUint64))
 	params := types.DefaultParams()
-	params.DepositsEnabled, params.RefundsEnabled = true, true
+	params.Enabled, params.RefundsEnabled = true, true
 	params.Reporters = []string{account(1), account(2), account(3), account(4)}
 	params.AllowedDestinationVaults = []string{recipient, base58.Encode(bytes.Repeat([]byte{6}, len(types.SolanaAddress{})))}
 	params.PauseGuardian = guardian
@@ -158,19 +158,19 @@ func testSinkAminoJSONParity(t *testing.T, handler *txsigning.HandlerMap) {
 	}
 
 	for name, change := range map[string]func(*types.Params){
-		"deposits_disabled": func(p *types.Params) { p.DepositsEnabled = false },
+		"deposits_disabled": func(p *types.Params) { p.Enabled = false },
 		"refunds_disabled":  func(p *types.Params) { p.RefundsEnabled = false },
 		"no_guardian":       func(p *types.Params) { p.PauseGuardian = "" },
 		"nil_vaults":        func(p *types.Params) { p.AllowedDestinationVaults = nil },
 		"empty_vaults":      func(p *types.Params) { p.AllowedDestinationVaults = []string{} },
 		"nil_reporters": func(p *types.Params) {
-			p.DepositsEnabled, p.Reporters = false, nil
+			p.Enabled, p.Reporters = false, nil
 		},
 		"empty_reporters": func(p *types.Params) {
-			p.DepositsEnabled, p.Reporters = false, []string{}
+			p.Enabled, p.Reporters = false, []string{}
 		},
 		"zero_ratio_without_reporters": func(p *types.Params) {
-			p.DepositsEnabled, p.Reporters = false, nil
+			p.Enabled, p.Reporters = false, nil
 			p.ReportersThreshold = sdkmath.LegacyZeroDec()
 		},
 	} {
@@ -270,6 +270,24 @@ func signedMessageJSON(t *testing.T, handler *txsigning.HandlerMap, signer strin
 	return document.Msgs[0]
 }
 
+func TestSinkAminoSignBytesUseParamsEnabled(t *testing.T) {
+	encoding := sdkutil.MakeEncodingConfig()
+	types.RegisterInterfaces(encoding.InterfaceRegistry)
+	params := types.DefaultParams()
+	params.Reporters = policy().Members
+	params.Enabled = true
+	msg := &types.MsgUpdateParams{Authority: account(8), Params: params}
+	require.NoError(t, msg.ValidateBasic())
+	enabled := legacyAminoSignBytes(t, encoding, msg)
+	require.Contains(t, string(enabled), `"enabled":true`)
+	require.NotContains(t, string(enabled), `"deposits_enabled"`)
+	msg.Params.Enabled = false
+	require.NoError(t, msg.ValidateBasic())
+	disabled := legacyAminoSignBytes(t, encoding, msg)
+	require.NotContains(t, string(disabled), `"enabled"`)
+	require.NotEqual(t, string(enabled), string(disabled))
+}
+
 func TestSinkAminoSignBytesBindNestedFields(t *testing.T) {
 	encoding := sdkutil.MakeEncodingConfig()
 	types.RegisterInterfaces(encoding.InterfaceRegistry)
@@ -284,7 +302,7 @@ func TestSinkAminoSignBytesBindNestedFields(t *testing.T) {
 	}
 
 	params := &types.MsgUpdateParams{Authority: account(8), Params: types.DefaultParams()}
-	params.Params.DepositsEnabled, params.Params.RefundsEnabled = true, true
+	params.Params.Enabled, params.Params.RefundsEnabled = true, true
 	params.Params.Reporters = policy().Members
 	params.Params.PauseGuardian = account(9)
 	params.Params.AllowedDestinationVaults = []string{base58.Encode(bytes.Repeat([]byte{7}, len(types.SolanaAddress{})))}
@@ -321,7 +339,7 @@ func TestSinkAminoSignBytesBindNestedFields(t *testing.T) {
 		{"refund coin", params, func(m sdk.Msg) {
 			m.(*types.MsgUpdateParams).Params.MaxEpochRefund.Amount = params.Params.MaxEpochRefund.Amount.AddRaw(1)
 		}},
-		{"deposits enabled", params, func(m sdk.Msg) { m.(*types.MsgUpdateParams).Params.DepositsEnabled = false }},
+		{"deposits enabled", params, func(m sdk.Msg) { m.(*types.MsgUpdateParams).Params.Enabled = false }},
 		{"refunds enabled", params, func(m sdk.Msg) { m.(*types.MsgUpdateParams).Params.RefundsEnabled = false }},
 		{"reporter", params, func(m sdk.Msg) { m.(*types.MsgUpdateParams).Params.Reporters[0] = account(9) }},
 		{"guardian", params, func(m sdk.Msg) { m.(*types.MsgUpdateParams).Params.PauseGuardian = account(8) }},

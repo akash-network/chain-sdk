@@ -7952,7 +7952,7 @@ Send and refund quotas use the current number of the native "day" epoch.
 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `deposits_enabled` | [bool](#bool) |  |  |
+ | `enabled` | [bool](#bool) |  | Enabled permits deposits. Refunds are controlled independently. |
  | `min_amount_per_transfer` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `max_amount_per_transfer` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `max_transfer_amount_per_epoch` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
