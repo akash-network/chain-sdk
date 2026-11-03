@@ -9,26 +9,30 @@ MARKER = "\n// Generated from rs/serde/sink_legacy_dec.rs by rs/script/fix-prost
 
 def patch(source: str, adapter: str) -> str:
     source = source.split(MARKER)[0]
-    replacements = [
-        (
-            r'serialize_field\(\s*"reportersThreshold",\s*&self\.reporters_threshold\s*\)',
-            'serialize_field("reportersThreshold", '
-            '&sink_legacy_dec::to_json(&self.reporters_threshold)'
-            '.map_err(serde::ser::Error::custom)?)',
-            "sink_legacy_dec::to_json",
-        ),
-        (
-            r"reporters_threshold__ = Some\(map_\.next_value\(\)\?\);",
-            "reporters_threshold__ = Some("
-            "sink_legacy_dec::from_json(&map_.next_value::<String>()?)"
-            ".map_err(serde::de::Error::custom)?);",
-            "sink_legacy_dec::from_json",
-        ),
-    ]
-    for pattern, replacement, call in replacements:
-        source, count = re.subn(pattern, replacement, source)
-        if count > 1 or source.count(call) != 1:
-            raise ValueError(f"unexpected Sink serde output for {call}")
+    for field, json_name in [
+        ("reporters_threshold", "reportersThreshold"),
+        ("threshold", "threshold"),
+    ]:
+        replacements = [
+            (
+                rf'serialize_field\(\s*"{json_name}",\s*&self\.{field}\s*\)',
+                f'serialize_field("{json_name}", '
+                f'&sink_legacy_dec::to_json(&self.{field})'
+                '.map_err(serde::ser::Error::custom)?)',
+                rf"sink_legacy_dec::to_json\(&self\.{field}\)",
+            ),
+            (
+                rf"\b{field}__ = Some\(map_\.next_value\(\)\?\);",
+                f"{field}__ = Some("
+                "sink_legacy_dec::from_json(&map_.next_value::<String>()?)"
+                ".map_err(serde::de::Error::custom)?);",
+                rf"\b{field}__\s*=\s*Some\(\s*sink_legacy_dec::from_json",
+            ),
+        ]
+        for pattern, replacement, patched_pattern in replacements:
+            source, count = re.subn(pattern, replacement, source)
+            if count > 1 or len(re.findall(patched_pattern, source)) != 1:
+                raise ValueError(f"unexpected Sink serde output for {field}")
     return source.rstrip() + "\n" + MARKER + adapter
 
 

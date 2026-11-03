@@ -79,9 +79,14 @@ func (s *SettlementData) HasVoidAuthorization() bool {
 		return s.GovernanceObservation.Outcome == OutcomeVoided
 	}
 
-	_, voided := s.Tallies()
+	if s.Policy.Threshold.IsNil() || !s.Policy.Threshold.IsPositive() || s.Policy.Threshold.GT(math.LegacyOneDec()) {
+		return false
+	}
 
-	return s.Policy.Threshold.GT(math.LegacyZeroDec()) && voided == s.Policy.Threshold
+	_, voided := s.Tallies()
+	required := s.Policy.Threshold.MulInt64(int64(len(s.Policy.Members))).Ceil().TruncateInt64()
+
+	return required > 0 && int64(voided) == required
 }
 
 func (s *SettlementData) Payable(status Status, current uint64) bool {
@@ -104,7 +109,7 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 	}
 
 	policy, ok := policies[s.Policy.Version]
-	if !ok || !policy.SameRule(s.Policy) {
+	if !ok || !policy.Equal(s.Policy) {
 		return ErrInvalidSettlement.Wrap("missing or inconsistent authorization policy")
 	}
 
@@ -154,7 +159,7 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 		}
 	}
 
-	if s.Hold == HoldVeto && (!veto || status != StatusRefundPending) {
+	if s.Hold == HoldVeto && !veto {
 		return ErrInvalidSettlement.Wrap("veto hold requires a refund candidate, signer and reason")
 	}
 
@@ -185,7 +190,7 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 	}
 
 	seen := make(map[string]bool, len(s.Votes))
-	var certificate, witnesses uint32
+	var certificate, witnesses int64
 	for _, vote := range s.Votes {
 		p, exists := policies[vote.PolicyVersion]
 		if !exists || !slices.Contains(p.Members, vote.Reporter) {
@@ -208,7 +213,8 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 		}
 	}
 
-	if witnesses > 1 || certificate > s.Policy.Threshold {
+	required := s.Policy.Threshold.MulInt64(int64(len(s.Policy.Members))).Ceil().TruncateInt64()
+	if witnesses > 1 || certificate > required {
 		return ErrInvalidSettlement.Wrap("certificate or opposite witness exceeds authorization bound")
 	}
 
@@ -217,7 +223,7 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 		return ErrInvalidSettlement.Wrap("conflict hold must have opposing evidence")
 	}
 
-	authorized := s.GovernanceObservation != nil || s.Policy.Threshold > 0 && certificate == s.Policy.Threshold
+	authorized := s.GovernanceObservation != nil || required > 0 && certificate == required
 	if status == StatusMinted || status == StatusRefundPending || status == StatusRefunded {
 		if !authorized {
 			return ErrInvalidSettlement.Wrap("missing retained quorum authorization")
@@ -229,25 +235,20 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 	return nil
 }
 
-func policyHistory(policies []ReporterPolicy, current uint64) (map[uint64]ReporterPolicy, ReporterPolicy, error) {
+func policyHistory(policies []ReporterPolicy, sequence uint64) (map[uint64]ReporterPolicy, error) {
 	history := make(map[uint64]ReporterPolicy, len(policies))
 
 	for _, policy := range policies {
 		if err := policy.Validate(); err != nil {
-			return nil, ReporterPolicy{}, err
+			return nil, err
 		}
 
-		if _, exists := history[policy.Version]; exists || (policy.Version > current) {
-			return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("duplicate or future reporter policy")
+		if _, exists := history[policy.Version]; exists || policy.Version > sequence {
+			return nil, ErrInvalidGenesis.Wrap("duplicate or future reporter policy")
 		}
 
 		history[policy.Version] = policy
 	}
 
-	policy, exists := history[current]
-	if !exists {
-		return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("missing current reporter policy")
-	}
-
-	return history, policy, nil
+	return history, nil
 }

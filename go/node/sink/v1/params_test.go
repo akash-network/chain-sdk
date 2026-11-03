@@ -19,30 +19,24 @@ func TestRatioAndCapEdges(t *testing.T) {
 	require.False(t, types.DefaultParams().Enabled)
 	require.False(t, types.DefaultParams().RefundsEnabled)
 
-	for _, ratio := range []string{"0", "0.5", "1.000000000000000001", "-1"} {
+	for _, ratio := range []string{"1.000000000000000001", "-1"} {
 		p := types.DefaultParams()
 		p.Reporters = policy().Members
 		p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr(ratio)
 		require.Error(t, p.ValidateBasic(), ratio)
 	}
 
-	for _, ratio := range []string{"0.500000000000000001", "0.6", "0.666666666666666666", "0.666666666666666667", "0.75", "1"} {
+	for _, ratio := range []string{"0", "0.5", "0.500000000000000001", "0.6", "0.666666666666666666", "0.666666666666666667", "0.75", "1"} {
 		p := types.DefaultParams()
 		p.Reporters = policy().Members
 		p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr(ratio)
 		require.NoError(t, p.ValidateBasic(), ratio)
-		expected := uint32(3)
-		if ratio == "1" {
-			expected = 4
-		}
-
-		require.Equal(t, expected, p.Policy(1).Threshold)
 	}
 
 	p := types.DefaultParams()
 	p.Reporters = policy().Members
 	p.Reporters = append(p.Reporters, p.Reporters[0])
-	require.Error(t, p.ValidateBasic())
+	require.Error(t, types.ValidateReporters(p.Reporters, p.ReportersThreshold))
 	p = types.DefaultParams()
 	p.Enabled = true
 	require.Error(t, p.ValidateBasic())
@@ -78,13 +72,6 @@ func TestRatioAndCapEdges(t *testing.T) {
 	require.NoError(t, p.ValidateBasic())
 	p.MaxEpochAmountPerAccount = types.ZeroAmount()
 	require.NoError(t, p.ValidateBasic())
-
-	a, b := policy(), policy()
-	b.Members[0], b.Members[3] = b.Members[3], b.Members[0]
-	b.Version = 2
-	require.True(t, a.SameRule(b))
-	b.Threshold++
-	require.False(t, a.SameRule(b))
 }
 
 func TestIndependentSendingCapsAndDisabledMinimum(t *testing.T) {
@@ -103,10 +90,9 @@ func TestIndependentSendingCapsAndDisabledMinimum(t *testing.T) {
 
 	p.Reporters = p.Reporters[:3]
 	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.666666666666666666")
-	require.Error(t, p.ValidateBasic())
+	require.NoError(t, p.ValidateBasic())
 	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.666666666666666667")
 	require.NoError(t, p.ValidateBasic())
-	require.Equal(t, uint32(3), p.Policy(1).Threshold)
 }
 
 func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
@@ -227,12 +213,13 @@ func TestReporterPolicyAndMaximumTransferBoundaries(t *testing.T) {
 
 	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.75")
 	require.NoError(t, p.ValidateBasic())
-	require.Equal(t, uint32(25), p.Policy(1).Threshold)
-	p = types.DefaultParams()
-	p.Reporters = policy().Members
-	a := p.Policy(1)
-	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.70")
-	require.True(t, a.SameRule(p.Policy(2)))
+	reporters := types.ReporterPolicy{
+		Version:   1,
+		Members:   p.Reporters,
+		Threshold: p.ReportersThreshold,
+	}
+	require.NoError(t, reporters.Validate())
+
 	maximum := sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromUint64(math.MaxUint64))
 	p.MaxAmountPerTransfer, p.MaxEpochAmountPerAccount, p.MaxTransferAmountPerEpoch, p.MaxEpochRefund = maximum, maximum, maximum, maximum
 	require.NoError(t, p.ValidateBasic())

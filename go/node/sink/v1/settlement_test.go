@@ -3,8 +3,10 @@ package v1_test
 import (
 	"bytes"
 	"fmt"
+	"slices"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gagliardetto/solana-go"
 	"github.com/stretchr/testify/require"
@@ -50,10 +52,13 @@ func observation(outcome types.Outcome) types.Observation {
 }
 
 func policy() types.ReporterPolicy {
+	members := []string{account(1), account(2), account(3), account(4)}
+	slices.Sort(members)
+
 	return types.ReporterPolicy{
 		Version:   1,
-		Members:   []string{account(1), account(2), account(3), account(4)},
-		Threshold: 3,
+		Members:   members,
+		Threshold: sdkmath.LegacyMustNewDecFromStr("0.75"),
 	}
 }
 
@@ -103,11 +108,14 @@ func TestSettlementRetainsAuthorization(t *testing.T) {
 		Height:   2,
 		Sequence: 1,
 	}
-	policies := map[uint64]types.ReporterPolicy{1: policy(), 7: {
-		Version:   7,
-		Members:   []string{account(9)},
-		Threshold: 1,
-	}}
+	policies := map[uint64]types.ReporterPolicy{
+		1: policy(),
+		7: {
+			Version:   7,
+			Members:   []string{account(9)},
+			Threshold: sdkmath.LegacyOneDec(),
+		},
+	}
 	for _, status := range []types.Status{types.StatusTransferPending, types.StatusVoided, types.StatusMinted, types.StatusRefundPending, types.StatusRefunded} {
 		s := settled(status)
 		require.NoError(t, s.Validate(id, status, policies))
@@ -151,6 +159,83 @@ func TestSettlementRetainsAuthorization(t *testing.T) {
 	require.ErrorContains(t, s.Validate(id, types.StatusMinted, policies), "bound")
 }
 
+func TestSettlementDecimalQuorum(t *testing.T) {
+	id := types.ID{
+		Owner:    account(20),
+		Height:   2,
+		Sequence: 1,
+	}
+	for _, tc := range []struct {
+		threshold string
+		votes     int
+	}{
+		{"0.7", 5},
+		{"0.75", 6},
+		{"0.714285714285714285", 5},
+		{"0.714285714285714286", 6},
+		{"1", 7},
+	} {
+		t.Run(tc.threshold, func(t *testing.T) {
+			p := types.ReporterPolicy{
+				Version:   1,
+				Threshold: sdkmath.LegacyMustNewDecFromStr(tc.threshold),
+			}
+			for i := byte(1); i <= 7; i++ {
+				p.Members = append(p.Members, account(i))
+			}
+
+			slices.Sort(p.Members)
+			require.NoError(t, p.Validate())
+			history := p
+			history.Threshold = sdkmath.LegacyMustNewDecFromStr(p.Threshold.String())
+			policies := map[uint64]types.ReporterPolicy{1: history}
+			for count := 0; count <= len(p.Members); count++ {
+				s := types.SettlementData{
+					Round:        1,
+					Policy:       p,
+					ChallengeEnd: 3600,
+				}
+				for _, reporter := range p.Members[:count] {
+					s.Votes = append(s.Votes, types.Vote{
+						Reporter:      reporter,
+						PolicyVersion: 1,
+						Observation:   observation(types.OutcomeVoided),
+					})
+				}
+
+				require.Equal(t, count == tc.votes, s.HasVoidAuthorization(), count)
+				err := s.Validate(id, types.StatusRefundPending, policies)
+				if count == tc.votes {
+					require.NoError(t, err)
+				} else {
+					require.Error(t, err, count)
+				}
+			}
+		})
+	}
+}
+
+func TestSettlementCannotLowerRecordedThreshold(t *testing.T) {
+	id := types.ID{
+		Owner:    account(7),
+		Height:   2,
+		Sequence: 1,
+	}
+	s := settled(types.StatusMinted)
+	historical := policy()
+	historical.Threshold = sdkmath.LegacyOneDec()
+	require.ErrorContains(t, s.Validate(id, types.StatusMinted, map[uint64]types.ReporterPolicy{1: historical}), "inconsistent authorization policy")
+}
+
+func TestSettlementUninitializedPolicyCannotAuthorizeRefund(t *testing.T) {
+	s := types.SettlementData{}
+	require.False(t, s.HasVoidAuthorization())
+	s.Policy.Threshold = sdkmath.LegacyMustNewDecFromStr("2")
+	require.False(t, s.HasVoidAuthorization())
+	s.Policy.Threshold = sdkmath.LegacyOneDec()
+	require.False(t, s.HasVoidAuthorization())
+}
+
 func TestSettlementShapes(t *testing.T) {
 	id := types.ID{
 		Owner:    account(7),
@@ -162,7 +247,7 @@ func TestSettlementShapes(t *testing.T) {
 		"unknown hold":         func(s *types.SettlementData) { s.Hold = 3 },
 		"zero round":           func(s *types.SettlementData) { s.Round = 0 },
 		"missing policy":       func(s *types.SettlementData) { s.Policy.Version = 2 },
-		"different policy":     func(s *types.SettlementData) { s.Policy.Threshold = 4 },
+		"different policy":     func(s *types.SettlementData) { s.Policy.Threshold = sdkmath.LegacyOneDec() },
 		"missing deadline":     func(s *types.SettlementData) { s.ChallengeEnd = 0 },
 		"negative deadline":    func(s *types.SettlementData) { s.ChallengeEnd = -1 },
 		"timestamp overflow":   func(s *types.SettlementData) { s.ChallengeEnd = 253402300800 },
@@ -227,11 +312,14 @@ func TestSettlementVetoPolicyProvenance(t *testing.T) {
 	}
 	s := settled(types.StatusRefundPending)
 	s.Hold, s.VetoBy, s.VetoReason, s.VetoPolicyVersion = types.HoldVeto, account(9), "verify", 7
-	policies := map[uint64]types.ReporterPolicy{1: policy(), 7: {
-		Version:   7,
-		Members:   []string{account(9)},
-		Threshold: 1,
-	}}
+	policies := map[uint64]types.ReporterPolicy{
+		1: policy(),
+		7: {
+			Version:   7,
+			Members:   []string{account(9)},
+			Threshold: sdkmath.LegacyOneDec(),
+		},
+	}
 	require.NoError(t, s.Validate(id, types.StatusRefundPending, policies))
 	delete(policies, 7)
 	require.ErrorContains(t, s.Validate(id, types.StatusRefundPending, policies), "veto outside")

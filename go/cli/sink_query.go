@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/spf13/cobra"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
@@ -24,6 +26,8 @@ func GetQuerySinkCmd() *cobra.Command {
 		GetQuerySinkDisputesCmd(),
 		GetQuerySinkAccountCmd(),
 		GetQuerySinkStateCmd(),
+		GetQuerySinkParamsCmd(),
+		GetQuerySinkReportersCmd(),
 	)
 
 	return cmd
@@ -194,6 +198,59 @@ func GetQuerySinkStateCmd() *cobra.Command {
 			ctx := cmd.Context()
 			cl := MustLightClientFromContext(ctx)
 			res, err := cl.Query().Sink().State(ctx, &types.QueryStateRequest{})
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQuerySinkParamsCmd returns the command to query Sink module parameters
+func GetQuerySinkParamsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "params",
+		Short:             "Query the current Sink module parameters",
+		Args:              cobra.NoArgs,
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+			res, err := cl.Query().Sink().Params(ctx, &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return cl.ClientContext().PrintProto(res)
+		},
+	}
+
+	cflags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQuerySinkReportersCmd returns the command to query reporter policies by version
+func GetQuerySinkReportersCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "reporters [version]",
+		Short:             "Query Sink reporter policies by version",
+		Args:              cobra.ExactArgs(1),
+		PersistentPreRunE: QueryPersistentPreRunE,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			version, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			ctx := cmd.Context()
+			cl := MustLightClientFromContext(ctx)
+			res, err := cl.Query().Sink().Reporters(ctx, &types.QueryReportersRequest{Version: version})
 			if err != nil {
 				return err
 			}

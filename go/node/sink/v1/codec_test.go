@@ -41,11 +41,13 @@ func TestSinkSDKCodec(t *testing.T) {
 	require.NoError(t, amino.UnmarshalJSON(encoded, &decodedAmino))
 	require.Equal(t, msg, decodedAmino)
 
-	response := &types.MsgSinkResponse{ID: types.ID{
-		Owner:    msg.Sender,
-		Height:   1,
-		Sequence: 18446744073709551615,
-	}}
+	response := &types.MsgSinkResponse{
+		ID: types.ID{
+			Owner:    msg.Sender,
+			Height:   1,
+			Sequence: 18446744073709551615,
+		},
+	}
 	packedResponse, err := codectypes.NewAnyWithValue(response)
 	require.NoError(t, err)
 	require.Equal(t, "/akash.sink.v1.MsgSinkResponse", packedResponse.TypeUrl)

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtbytes "github.com/cometbft/cometbft/libs/bytes"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -41,11 +42,15 @@ func TestSinkQuerySDKCommand(t *testing.T) {
 		Height:   9001,
 		Sequence: 42,
 	}
-	response := &types.QueryTransferResponse{Transfer: types.TransferState{
-		ID:     id,
-		Data:   types.RecordData{Amount: sdk.NewInt64Coin(sdkutil.DenomUakt, 1)},
-		Status: types.StatusMinted,
-	}}
+	response := &types.QueryTransferResponse{
+		Transfer: types.TransferState{
+			ID: id,
+			Data: types.RecordData{
+				Amount: sdk.NewInt64Coin(sdkutil.DenomUakt, 1),
+			},
+			Status: types.StatusMinted,
+		},
+	}
 	bz, err := enc.Codec.Marshal(response)
 	require.NoError(t, err)
 	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}))
@@ -70,10 +75,102 @@ func (c capturingCometRPC) ABCIQueryWithOptions(ctx context.Context, path string
 	return c.MockCometRPC.ABCIQueryWithOptions(ctx, path, data, opts)
 }
 
+func TestSinkParamsQueryCommand(t *testing.T) {
+	enc := sdkutil.MakeEncodingConfig()
+	types.RegisterInterfaces(enc.InterfaceRegistry)
+	response := &types.QueryParamsResponse{Params: types.DefaultParams()}
+	bz, err := enc.Codec.Marshal(response)
+	require.NoError(t, err)
+
+	var path string
+	var data []byte
+	rpc := capturingCometRPC{
+		MockCometRPC: testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}),
+		path:         &path,
+		data:         &data,
+	}
+	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(rpc)
+
+	out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "params", "--output", "json")
+	require.NoError(t, err)
+	require.Equal(t, "/akash.sink.v1.Query/Params", path)
+	var request types.QueryParamsRequest
+	require.NoError(t, enc.Codec.Unmarshal(data, &request))
+	var got types.QueryParamsResponse
+	require.NoError(t, enc.Codec.UnmarshalJSON(out.Bytes(), &got))
+	gotBytes, err := enc.Codec.Marshal(&got)
+	require.NoError(t, err)
+	require.Equal(t, bz, gotBytes)
+
+	path, data = "", nil
+	_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "params", "extra")
+	require.Error(t, err)
+	require.Empty(t, path)
+	require.Empty(t, data)
+}
+
+func TestSinkReportersQueryCommand(t *testing.T) {
+	enc := sdkutil.MakeEncodingConfig()
+	types.RegisterInterfaces(enc.InterfaceRegistry)
+	response := &types.QueryReportersResponse{
+		Reporters: []types.ReporterPolicy{
+			{
+				Version:   7,
+				Members:   []string{sdk.AccAddress(bytes.Repeat([]byte{7}, 20)).String()},
+				Threshold: sdkmath.LegacyOneDec(),
+			},
+		},
+	}
+	bz, err := enc.Codec.Marshal(response)
+	require.NoError(t, err)
+
+	var path string
+	var data []byte
+	rpc := capturingCometRPC{
+		MockCometRPC: testutil.NewMockCometRPC(abci.ResponseQuery{Value: bz}),
+		path:         &path,
+		data:         &data,
+	}
+	cctx := client.Context{}.WithCodec(enc.Codec).WithTxConfig(enc.TxConfig).WithLegacyAmino(enc.Amino).WithClient(rpc)
+
+	for _, version := range []string{"0", "7", "18446744073709551615"} {
+		t.Run(version, func(t *testing.T) {
+			path, data = "", nil
+			out, err := clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), "sink", "reporters", version, "--output", "json")
+			require.NoError(t, err)
+			require.Equal(t, "/akash.sink.v1.Query/Reporters", path)
+			var request types.QueryReportersRequest
+			require.NoError(t, enc.Codec.Unmarshal(data, &request))
+			require.Equal(t, version, strconv.FormatUint(request.Version, 10))
+			var got types.QueryReportersResponse
+			require.NoError(t, enc.Codec.UnmarshalJSON(out.Bytes(), &got))
+			require.Equal(t, response.Reporters, got.Reporters)
+		})
+	}
+
+	for _, args := range [][]string{
+		{},
+		{"7", "extra"},
+		{"invalid"},
+		{"18446744073709551616"},
+		{"--", "-1"},
+	} {
+		path, data = "", nil
+		_, err = clitestutil.ExecTestCLICmd(context.Background(), cctx, cli.QueryCmd(), append([]string{"sink", "reporters"}, args...)...)
+		require.Error(t, err, args)
+		require.Empty(t, path, args)
+		require.Empty(t, data, args)
+	}
+}
+
 func TestSinkTransfersQueryCommand(t *testing.T) {
 	enc := sdkutil.MakeEncodingConfig()
 	types.RegisterInterfaces(enc.InterfaceRegistry)
-	response := &types.QueryTransfersResponse{Pagination: &query.PageResponse{NextKey: []byte{4}}}
+	response := &types.QueryTransfersResponse{
+		Pagination: &query.PageResponse{
+			NextKey: []byte{4},
+		},
+	}
 	bz, err := enc.Codec.Marshal(response)
 	require.NoError(t, err)
 	var path string
@@ -198,7 +295,9 @@ func (s *SinkCLITestSuite) SetupSuite() {
 		WithTxConfig(s.encCfg.TxConfig).
 		WithCodec(s.encCfg.Codec).
 		WithLegacyAmino(s.encCfg.Amino).
-		WithClient(testutil.MockCometRPC{Client: rpcclientmock.Client{}}).
+		WithClient(testutil.MockCometRPC{
+			Client: rpcclientmock.Client{},
+		}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
 		WithChainID("test-chain").

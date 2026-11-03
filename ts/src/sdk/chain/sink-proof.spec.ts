@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
+import { Decimal } from "@cosmjs/math";
 import { describe, expect, it } from "vitest";
 
 import { ID, RecordData, SettlementData } from "../../generated/protos/akash/sink/v1/types.ts";
@@ -69,7 +70,13 @@ describe("native canonical settlement vectors", () => {
       const value = SettlementData.fromJSON(vector.settlement);
       const encoded = SettlementData.encode(value).finish();
       expect(Buffer.from(encoded).toString("hex")).toBe(vector.settlement_value_hex);
-      expect(SettlementData.decode(encoded)).toEqual(value);
+      expect(SettlementData.decode(encoded)).toEqual({
+        ...value,
+        policy: value.policy && {
+          ...value.policy,
+          threshold: Decimal.fromUserInput(value.policy.threshold, 18).toString(),
+        },
+      });
       const key = Buffer.alloc(40);
       key.set([3, 1, vector.status, 20]);
       Buffer.from(vector.owner_hex, "hex").copy(key, 4);
@@ -77,7 +84,7 @@ describe("native canonical settlement vectors", () => {
       key.writeBigUInt64BE(BigInt(vector.sequence), 32);
       expect(key.toString("hex")).toBe(vector.settlement_key_hex);
       expect(createHash("sha256").update(key).digest("hex")).toBe(vector.proof_nonce_hex);
-      if (vector.name === "maximum_evidence") expect(encoded.length).toBe(6500);
+      if (vector.name === "maximum_evidence") expect(encoded.length).toBe(6519);
     });
   }
 });

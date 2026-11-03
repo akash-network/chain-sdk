@@ -22,7 +22,7 @@ func (g *GenesisState) Validate() error {
 		return err
 	}
 
-	history, _, err := policyHistory(g.Policies, g.PolicySequence)
+	history, err := policyHistory(g.Policies, g.PolicySequence)
 	if err != nil {
 		return err
 	}

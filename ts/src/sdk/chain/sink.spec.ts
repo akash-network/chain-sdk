@@ -189,7 +189,7 @@ describe("sink SDK", () => {
 
   it("queries reporter policies with an explicit version without losing precision", async () => {
     const json = {
-      reporters: [{ version: MAX_UINT64.toString(), members: ["akash1reporter"], threshold: 1 }],
+      reporters: [{ version: MAX_UINT64.toString(), members: ["akash1reporter"], threshold: "0.666666666666666667" }],
     };
     const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(json)));
     vi.stubGlobal("fetch", fetch);
@@ -201,8 +201,9 @@ describe("sink SDK", () => {
     const url = new URL(fetch.mock.calls[0][0].toString());
     expect(url.pathname).toBe("/akash/sink/v1/reporters");
     expect(url.searchParams.get("version")).toBe(MAX_UINT64.toString());
-    expect(result.reporters).toEqual([{ version: MAX_UINT64, members: ["akash1reporter"], threshold: 1 }]);
+    expect(result.reporters).toEqual([{ version: MAX_UINT64, members: ["akash1reporter"], threshold: "0.666666666666666667" }]);
     expect(QueryReportersResponse.toJSON(result)).toEqual(json);
+    expect(QueryReportersResponse.decode(QueryReportersResponse.encode(result).finish())).toEqual(result);
     expect(QueryReportersRequest.decode(QueryReportersRequest.encode(request).finish())).toEqual(request);
   });
 });

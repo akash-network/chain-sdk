@@ -2383,6 +2383,9 @@ impl serde::Serialize for GenesisState {
         if self.totals.is_some() {
             len += 1;
         }
+        if self.policy_sequence != 0 {
+            len += 1;
+        }
         if !self.policies.is_empty() {
             len += 1;
         }
@@ -2398,18 +2401,20 @@ impl serde::Serialize for GenesisState {
         if !self.accounts.is_empty() {
             len += 1;
         }
-        if self.schema_version != 0 {
-            len += 1;
-        }
-        if self.current_policy_version != 0 {
-            len += 1;
-        }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.GenesisState", len)?;
         if let Some(v) = self.params.as_ref() {
             struct_ser.serialize_field("params", v)?;
         }
         if let Some(v) = self.totals.as_ref() {
             struct_ser.serialize_field("totals", v)?;
+        }
+        if self.policy_sequence != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "policySequence",
+                ToString::to_string(&self.policy_sequence).as_str(),
+            )?;
         }
         if !self.policies.is_empty() {
             struct_ser.serialize_field("policies", &self.policies)?;
@@ -2426,17 +2431,6 @@ impl serde::Serialize for GenesisState {
         if !self.accounts.is_empty() {
             struct_ser.serialize_field("accounts", &self.accounts)?;
         }
-        if self.schema_version != 0 {
-            struct_ser.serialize_field("schemaVersion", &self.schema_version)?;
-        }
-        if self.current_policy_version != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field(
-                "currentPolicyVersion",
-                ToString::to_string(&self.current_policy_version).as_str(),
-            )?;
-        }
         struct_ser.end()
     }
 }
@@ -2449,6 +2443,8 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
         const FIELDS: &[&str] = &[
             "params",
             "totals",
+            "policy_sequence",
+            "policySequence",
             "policies",
             "send_usage",
             "sendUsage",
@@ -2456,23 +2452,18 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
             "refundUsage",
             "records",
             "accounts",
-            "schema_version",
-            "schemaVersion",
-            "current_policy_version",
-            "currentPolicyVersion",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Params,
             Totals,
+            PolicySequence,
             Policies,
             SendUsage,
             RefundUsage,
             Records,
             Accounts,
-            SchemaVersion,
-            CurrentPolicyVersion,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -2499,15 +2490,14 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                         match value {
                             "params" => Ok(GeneratedField::Params),
                             "totals" => Ok(GeneratedField::Totals),
+                            "policySequence" | "policy_sequence" => {
+                                Ok(GeneratedField::PolicySequence)
+                            }
                             "policies" => Ok(GeneratedField::Policies),
                             "sendUsage" | "send_usage" => Ok(GeneratedField::SendUsage),
                             "refundUsage" | "refund_usage" => Ok(GeneratedField::RefundUsage),
                             "records" => Ok(GeneratedField::Records),
                             "accounts" => Ok(GeneratedField::Accounts),
-                            "schemaVersion" | "schema_version" => Ok(GeneratedField::SchemaVersion),
-                            "currentPolicyVersion" | "current_policy_version" => {
-                                Ok(GeneratedField::CurrentPolicyVersion)
-                            }
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -2529,13 +2519,12 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
             {
                 let mut params__ = None;
                 let mut totals__ = None;
+                let mut policy_sequence__ = None;
                 let mut policies__ = None;
                 let mut send_usage__ = None;
                 let mut refund_usage__ = None;
                 let mut records__ = None;
                 let mut accounts__ = None;
-                let mut schema_version__ = None;
-                let mut current_policy_version__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Params => {
@@ -2549,6 +2538,15 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                                 return Err(serde::de::Error::duplicate_field("totals"));
                             }
                             totals__ = map_.next_value()?;
+                        }
+                        GeneratedField::PolicySequence => {
+                            if policy_sequence__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("policySequence"));
+                            }
+                            policy_sequence__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::Policies => {
                             if policies__.is_some() {
@@ -2580,38 +2578,17 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             }
                             accounts__ = Some(map_.next_value()?);
                         }
-                        GeneratedField::SchemaVersion => {
-                            if schema_version__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("schemaVersion"));
-                            }
-                            schema_version__ = Some(
-                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
-                                    .0,
-                            );
-                        }
-                        GeneratedField::CurrentPolicyVersion => {
-                            if current_policy_version__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "currentPolicyVersion",
-                                ));
-                            }
-                            current_policy_version__ = Some(
-                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
-                                    .0,
-                            );
-                        }
                     }
                 }
                 Ok(GenesisState {
                     params: params__,
                     totals: totals__,
+                    policy_sequence: policy_sequence__.unwrap_or_default(),
                     policies: policies__.unwrap_or_default(),
                     send_usage: send_usage__,
                     refund_usage: refund_usage__,
                     records: records__.unwrap_or_default(),
                     accounts: accounts__.unwrap_or_default(),
-                    schema_version: schema_version__.unwrap_or_default(),
-                    current_policy_version: current_policy_version__.unwrap_or_default(),
                 })
             }
         }
@@ -7211,7 +7188,7 @@ impl serde::Serialize for ReporterPolicy {
         if !self.members.is_empty() {
             len += 1;
         }
-        if self.threshold != 0 {
+        if !self.threshold.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.ReporterPolicy", len)?;
@@ -7223,8 +7200,11 @@ impl serde::Serialize for ReporterPolicy {
         if !self.members.is_empty() {
             struct_ser.serialize_field("members", &self.members)?;
         }
-        if self.threshold != 0 {
-            struct_ser.serialize_field("threshold", &self.threshold)?;
+        if !self.threshold.is_empty() {
+            struct_ser.serialize_field(
+                "threshold",
+                &sink_legacy_dec::to_json(&self.threshold).map_err(serde::ser::Error::custom)?,
+            )?;
         }
         struct_ser.end()
     }
@@ -7313,8 +7293,8 @@ impl<'de> serde::Deserialize<'de> for ReporterPolicy {
                                 return Err(serde::de::Error::duplicate_field("threshold"));
                             }
                             threshold__ = Some(
-                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
-                                    .0,
+                                sink_legacy_dec::from_json(&map_.next_value::<String>()?)
+                                    .map_err(serde::de::Error::custom)?,
                             );
                         }
                     }

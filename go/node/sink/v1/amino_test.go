@@ -369,7 +369,9 @@ func signedMessageJSON(t *testing.T, handler *txsigning.HandlerMap, signer strin
 		txsigning.TxData{
 			Body:      body,
 			BodyBytes: bodyBytes,
-			AuthInfo:  &txv1beta1.AuthInfo{Fee: &txv1beta1.Fee{}},
+			AuthInfo: &txv1beta1.AuthInfo{
+				Fee: &txv1beta1.Fee{},
+			},
 		})
 	require.NoError(t, err)
 	var document struct {

@@ -3,14 +3,19 @@ package v1
 import (
 	"slices"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func ValidateReporters(members []string, threshold uint32) error {
-	n := int64(len(members))
-	required := int64(threshold)
+func ValidateReporters(members []string, threshold math.LegacyDec) error {
+	if threshold.IsNil() || threshold.IsNegative() || threshold.GT(math.LegacyOneDec()) {
+		return ErrInvalidReporters.Wrap("threshold must be between zero and one")
+	}
 
-	if n == 0 && required != 0 || n > 0 && (required > n || 3*required <= 2*n) {
+	n := int64(len(members))
+	required := threshold.MulInt64(n).Ceil().TruncateInt64()
+
+	if n > 0 && 3*required <= 2*n {
 		return ErrInvalidReporters.Wrap("threshold must exceed two thirds and not exceed membership")
 	}
 
@@ -40,7 +45,7 @@ func (p *ReporterPolicy) Validate() error {
 
 // slices expected to be sorted
 func (p *ReporterPolicy) Equal(other ReporterPolicy) bool {
-	if p.Threshold != other.Threshold {
+	if p.Threshold.IsNil() || other.Threshold.IsNil() || !p.Threshold.Equal(other.Threshold) {
 		return false
 	}
 

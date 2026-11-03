@@ -23,7 +23,10 @@ pub mod akash {
 
 #[cfg(test)]
 mod tests {
-    use super::akash::sink::v1::{Id, Params, RecordData, SettlementData};
+    use super::akash::sink::v1::{
+        GenesisAccount, GenesisRecord, GenesisState, Id, Params, QueryReportersResponse,
+        RecordData, ReporterPolicy, SettlementData,
+    };
     use super::cosmos::base::v1beta1::Coin;
     use prost::Message;
     use serde::Deserialize;
@@ -105,6 +108,18 @@ mod tests {
                     "{decimal}"
                 );
             }
+            let policy: ReporterPolicy =
+                serde_json::from_value(serde_json::json!({ "threshold": decimal })).unwrap();
+            assert_eq!(policy.threshold, atoms, "{decimal}");
+            assert_eq!(
+                serde_json::to_value(&policy).unwrap()["threshold"],
+                canonical,
+                "{decimal}"
+            );
+            let mut wire = vec![26, u8::try_from(atoms.len()).unwrap()];
+            wire.extend(atoms.as_bytes());
+            assert_eq!(policy.encode_to_vec(), wire, "{decimal}");
+            assert_eq!(ReporterPolicy::decode(wire.as_slice()).unwrap(), policy);
         }
     }
 
@@ -119,6 +134,10 @@ mod tests {
         ] {
             assert!(serde_json::from_value::<Params>(serde_json::json!({
                 "reporters_threshold": value,
+            }))
+            .is_err());
+            assert!(serde_json::from_value::<ReporterPolicy>(serde_json::json!({
+                "threshold": value,
             }))
             .is_err());
         }
@@ -147,6 +166,13 @@ mod tests {
                 .is_err(),
                 "{value}"
             );
+            assert!(
+                serde_json::from_value::<ReporterPolicy>(serde_json::json!({
+                    "threshold": value,
+                }))
+                .is_err(),
+                "{value}"
+            );
         }
 
         assert!(serde_json::from_str::<Params>(
@@ -161,6 +187,18 @@ mod tests {
             serde_json::to_value(Params::default()).unwrap(),
             serde_json::json!({})
         );
+        assert!(
+            serde_json::from_str::<ReporterPolicy>(r#"{"threshold":"0.75","threshold":"1"}"#)
+                .is_err()
+        );
+        assert_eq!(
+            serde_json::from_str::<ReporterPolicy>("{}").unwrap(),
+            ReporterPolicy::default()
+        );
+        assert_eq!(
+            serde_json::to_value(ReporterPolicy::default()).unwrap(),
+            serde_json::json!({})
+        );
     }
 
     #[test]
@@ -171,6 +209,11 @@ mod tests {
                 ..Params::default()
             };
             assert!(serde_json::to_value(params).is_err(), "{value}");
+            let policy = ReporterPolicy {
+                threshold: value.into(),
+                ..ReporterPolicy::default()
+            };
+            assert!(serde_json::to_value(policy).is_err(), "{value}");
         }
     }
 
@@ -182,6 +225,11 @@ mod tests {
                 ..Params::default()
             };
             assert!(serde_json::to_value(params).is_err(), "{value}");
+            let policy = ReporterPolicy {
+                threshold: value.into(),
+                ..ReporterPolicy::default()
+            };
+            assert!(serde_json::to_value(policy).is_err(), "{value}");
         }
     }
 
@@ -215,6 +263,102 @@ mod tests {
                 ..Params::default()
             };
             assert!(serde_json::to_value(overflow).is_err());
+            let policy: ReporterPolicy = serde_json::from_value(serde_json::json!({
+                "threshold": decimal,
+            }))
+            .unwrap();
+            assert_eq!(
+                policy.threshold,
+                format!("{sign}{max_whole}999999999999999999")
+            );
+            assert_eq!(serde_json::to_value(policy).unwrap()["threshold"], decimal);
+            assert!(serde_json::from_value::<ReporterPolicy>(serde_json::json!({
+                "threshold": format!("{sign}{overflow_whole}"),
+            }))
+            .is_err());
+            let overflow = ReporterPolicy {
+                threshold: format!("{sign}{overflow_whole}000000000000000000"),
+                ..ReporterPolicy::default()
+            };
+            assert!(serde_json::to_value(overflow).is_err());
+        }
+    }
+
+    #[test]
+    fn nested_policy_json_and_wire_preserve_decimal_precision() {
+        let policy_json = serde_json::json!({
+            "version": u64::MAX.to_string(),
+            "members": ["akash1reporter"],
+            "threshold": "0.666666666666666667",
+        });
+        let policy: ReporterPolicy = serde_json::from_value(policy_json.clone()).unwrap();
+        let settlement: SettlementData = serde_json::from_value(serde_json::json!({
+            "policy": policy_json,
+        }))
+        .unwrap();
+        let reporters: QueryReportersResponse = serde_json::from_value(serde_json::json!({
+            "reporters": [policy_json],
+        }))
+        .unwrap();
+        let genesis: GenesisState = serde_json::from_value(serde_json::json!({
+            "policy_sequence": u64::MAX.to_string(),
+            "policies": [policy_json],
+            "records": [{ "settlement": { "policy": policy_json } }],
+        }))
+        .unwrap();
+
+        assert_eq!(policy.threshold, "666666666666666667");
+        assert_eq!(settlement.policy.as_ref(), Some(&policy));
+        assert_eq!(reporters.reporters, vec![policy.clone()]);
+        assert_eq!(genesis.policies, vec![policy]);
+        assert_eq!(genesis.records[0].settlement.as_ref(), Some(&settlement));
+        assert_eq!(
+            SettlementData::decode(settlement.encode_to_vec().as_slice()).unwrap(),
+            settlement
+        );
+        assert_eq!(
+            QueryReportersResponse::decode(reporters.encode_to_vec().as_slice()).unwrap(),
+            reporters
+        );
+        assert_eq!(
+            GenesisState::decode(genesis.encode_to_vec().as_slice()).unwrap(),
+            genesis
+        );
+        let json = serde_json::to_value(&genesis).unwrap();
+        assert_eq!(json["policySequence"], u64::MAX.to_string());
+        assert_eq!(json["policies"][0], policy_json);
+        assert_eq!(json["records"][0]["settlement"]["policy"], policy_json);
+        assert_eq!(
+            serde_json::from_value::<GenesisState>(json).unwrap(),
+            genesis
+        );
+    }
+
+    #[test]
+    fn genesis_uses_current_field_numbers_and_policy_sequence() {
+        let genesis = GenesisState {
+            params: Some(Params::default()),
+            totals: Some(Default::default()),
+            policy_sequence: 10,
+            policies: vec![ReporterPolicy::default()],
+            send_usage: Some(Default::default()),
+            refund_usage: Some(Default::default()),
+            records: vec![GenesisRecord::default()],
+            accounts: vec![GenesisAccount::default()],
+        };
+        let wire = [10, 0, 18, 0, 24, 10, 34, 0, 42, 0, 50, 0, 58, 0, 66, 0];
+
+        assert_eq!(genesis.encode_to_vec(), wire);
+        assert_eq!(GenesisState::decode(wire.as_slice()).unwrap(), genesis);
+        let json = serde_json::to_value(&genesis).unwrap();
+        assert_eq!(json["policySequence"], "10");
+        for removed in [
+            "schemaVersion",
+            "schema_version",
+            "currentPolicyVersion",
+            "current_policy_version",
+        ] {
+            assert!(json.get(removed).is_none(), "{removed}");
         }
     }
 
@@ -310,7 +454,7 @@ mod tests {
                 v.settlement
             );
             if v.name == "maximum_evidence" {
-                assert_eq!(value.len(), 6500);
+                assert_eq!(value.len(), 6519);
             }
         }
     }

@@ -3,6 +3,7 @@ package v1_test
 import (
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,8 @@ import (
 func fullGenesis(t *testing.T) *types.GenesisState {
 	g := types.DefaultGenesis()
 	g.Params.Reporters = policy().Members
-	g.Policies = []types.ReporterPolicy{g.Params.Policy(1)}
+	g.Policies = []types.ReporterPolicy{policy()}
+	g.PolicySequence = 1
 	g.SendUsage.Epoch, g.RefundUsage.Epoch = 10, 9
 	statuses := []types.Status{types.StatusTransferPending, types.StatusMinted, types.StatusRefundPending, types.StatusRefunded, types.StatusVoided, types.StatusRefundPending, types.StatusMinted, types.StatusRefunded, types.StatusRefundPending}
 	amount := g.Params.MinAmountPerTransfer
@@ -118,36 +120,45 @@ func TestFullGenesisRoundTrip(t *testing.T) {
 	require.NoError(t, restored.Validate())
 }
 
+func TestGenesisPolicySequence(t *testing.T) {
+	g := types.DefaultGenesis()
+	require.Zero(t, g.PolicySequence)
+	require.Empty(t, g.Policies)
+	require.NoError(t, g.Validate())
+
+	g = fullGenesis(t)
+	g.PolicySequence = 7
+	g.Params.Reporters = nil
+	require.NoError(t, g.Validate())
+	g.PolicySequence = 0
+	require.ErrorContains(t, g.Validate(), "future reporter policy")
+}
+
 func TestGenesisRejectsLostOrContradictoryState(t *testing.T) {
 	for name, change := range map[string]func(*types.GenesisState){
-		"old schema":          func(g *types.GenesisState) { g.SchemaVersion = 1 },
-		"intermediate schema": func(g *types.GenesisState) { g.SchemaVersion = 3 },
-		"fixed days":          func(g *types.GenesisState) { g.SchemaVersion = 2 },
-		"missing schema":      func(g *types.GenesisState) { g.SchemaVersion = 0 },
-		"duplicate ID":        func(g *types.GenesisState) { g.Records = append(g.Records, g.Records[0]) },
+		"duplicate ID": func(g *types.GenesisState) { g.Records = append(g.Records, g.Records[0]) },
 		"cross owner reused sequence": func(g *types.GenesisState) {
 			g.Records[1].ID = g.Records[0].ID
 			g.Records[1].ID.Owner = account(9)
 		},
-		"zero height":             func(g *types.GenesisState) { g.Records[0].ID.Height = 0 },
-		"missing settlement":      func(g *types.GenesisState) { g.Records[0].Settlement = types.SettlementData{} },
-		"missing minted quorum":   func(g *types.GenesisState) { g.Records[1].Settlement.Votes = nil },
-		"missing refund quorum":   func(g *types.GenesisState) { g.Records[2].Settlement.Votes = nil },
-		"missing paid quorum":     func(g *types.GenesisState) { g.Records[3].Settlement.Votes = nil },
-		"missing void order":      func(g *types.GenesisState) { g.Records[8].Settlement.VoidAuthorization = nil },
-		"duplicate owner":         func(g *types.GenesisState) { g.Accounts = append(g.Accounts, g.Accounts[0]) },
-		"missing owner":           func(g *types.GenesisState) { g.Accounts = g.Accounts[1:] },
-		"lifetime mismatch":       func(g *types.GenesisState) { g.Accounts[0].Usage.TotalSent = g.Params.MinAmountPerTransfer },
-		"future account stamp":    func(g *types.GenesisState) { g.Accounts[0].Usage.LastEpoch++ },
-		"negative account stamp":  func(g *types.GenesisState) { g.Accounts[0].Usage.LastEpoch = -1 },
-		"send consumption":        func(g *types.GenesisState) { g.SendUsage.Amount = types.ZeroAmount() },
-		"refund consumption":      func(g *types.GenesisState) { g.RefundUsage.Amount = g.Params.MaxEpochRefund },
-		"missing policies":        func(g *types.GenesisState) { g.Policies = nil },
-		"duplicate policies":      func(g *types.GenesisState) { g.Policies = append(g.Policies, g.Policies[0]) },
-		"missing policy version":  func(g *types.GenesisState) { g.Policies[0].Version = 2 },
-		"current policy mismatch": func(g *types.GenesisState) { g.Params.Reporters = nil },
-		"wrong status count":      func(g *types.GenesisState) { g.Totals.PendingCount++ },
-		"nil Coin":                func(g *types.GenesisState) { g.Totals = types.Totals{} },
+		"zero height":            func(g *types.GenesisState) { g.Records[0].ID.Height = 0 },
+		"missing settlement":     func(g *types.GenesisState) { g.Records[0].Settlement = types.SettlementData{} },
+		"missing minted quorum":  func(g *types.GenesisState) { g.Records[1].Settlement.Votes = nil },
+		"missing refund quorum":  func(g *types.GenesisState) { g.Records[2].Settlement.Votes = nil },
+		"missing paid quorum":    func(g *types.GenesisState) { g.Records[3].Settlement.Votes = nil },
+		"missing void order":     func(g *types.GenesisState) { g.Records[8].Settlement.VoidAuthorization = nil },
+		"duplicate owner":        func(g *types.GenesisState) { g.Accounts = append(g.Accounts, g.Accounts[0]) },
+		"missing owner":          func(g *types.GenesisState) { g.Accounts = g.Accounts[1:] },
+		"lifetime mismatch":      func(g *types.GenesisState) { g.Accounts[0].Usage.TotalSent = g.Params.MinAmountPerTransfer },
+		"future account stamp":   func(g *types.GenesisState) { g.Accounts[0].Usage.LastEpoch++ },
+		"negative account stamp": func(g *types.GenesisState) { g.Accounts[0].Usage.LastEpoch = -1 },
+		"send consumption":       func(g *types.GenesisState) { g.SendUsage.Amount = types.ZeroAmount() },
+		"refund consumption":     func(g *types.GenesisState) { g.RefundUsage.Amount = g.Params.MaxEpochRefund },
+		"missing policies":       func(g *types.GenesisState) { g.Policies = nil },
+		"duplicate policies":     func(g *types.GenesisState) { g.Policies = append(g.Policies, g.Policies[0]) },
+		"missing policy version": func(g *types.GenesisState) { g.Policies[0].Version = 2 },
+		"wrong status count":     func(g *types.GenesisState) { g.Totals.PendingCount++ },
+		"nil Coin":               func(g *types.GenesisState) { g.Totals = types.Totals{} },
 	} {
 		t.Run(name, func(t *testing.T) {
 			g := fullGenesis(t)
@@ -160,8 +171,12 @@ func TestGenesisRejectsLostOrContradictoryState(t *testing.T) {
 func TestGenesisTerminalAuthorizationSurvivesRotation(t *testing.T) {
 	g := fullGenesis(t)
 	g.Params.Reporters = []string{account(9)}
-	g.Policies = append(g.Policies, g.Params.Policy(7))
-	g.CurrentPolicyVersion = 7
+	g.Policies = append(g.Policies, types.ReporterPolicy{
+		Version:   7,
+		Members:   g.Params.Reporters,
+		Threshold: sdkmath.LegacyOneDec(),
+	})
+	g.PolicySequence = 7
 	require.NoError(t, g.Validate())
 
 	for _, i := range []int{1, 3} {
@@ -183,11 +198,7 @@ func TestGenesisTerminalAuthorizationSurvivesRotation(t *testing.T) {
 	require.Error(t, g.Validate())
 }
 
-func TestGenesisRejectsOldShapesAndKeepsRawUsage(t *testing.T) {
-	cdc := codec.NewProtoCodec(sdkutil.NewCodecOptions().NewInterfaceRegistry())
-	var old types.GenesisState
-	require.NoError(t, cdc.UnmarshalJSON([]byte(`{}`), &old))
-	require.ErrorContains(t, old.Validate(), "schema_version")
+func TestGenesisKeepsRawUsage(t *testing.T) {
 	g := fullGenesis(t)
 	g.Params.MaxAmountPerTransfer = g.Params.MinAmountPerTransfer
 	g.Params.MaxEpochAmountPerAccount = g.Params.MinAmountPerTransfer
