@@ -153,14 +153,14 @@ func parseSinkAmount(value string) (sdk.Coin, error) {
 // GetTxSinkRequestVoidCmd orders a transfer void through governance
 func GetTxSinkRequestVoidCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request-void [owner/height/sequence]",
+		Use:   "request-void [owner/height/sequence] [expected-round]",
 		Short: "Order a transfer void through governance",
 		Long: `Generate MsgRequestVoid for a governance proposal. Solana can prove the order.
 It does not confirm the void on Akash and cannot release escrow.
 
 Example:
-  $ akash tx sink request-void <owner>/1200/1 --generate-only --from mykey`,
-		Args:              cobra.ExactArgs(1),
+  $ akash tx sink request-void <owner>/1200/1 1 --generate-only --from mykey`,
+		Args:              cobra.ExactArgs(2),
 		PersistentPreRunE: TxPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := types.ParseID(args[0])
@@ -175,7 +175,16 @@ Example:
 				return err
 			}
 
-			msg := &types.MsgRequestVoid{Authority: signer, ID: id}
+			round, err := parseSinkPositiveUint(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgRequestVoid{
+				Authority:     signer,
+				ID:            id,
+				ExpectedRound: round,
+			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -247,7 +256,7 @@ Example:
 				ID:            id,
 				PolicyVersion: version,
 				Round:         round,
-				Observation:   types.Observation{Outcome: outcome, Evidence: evidence},
+				Observation:   types.Observation{Outcome: outcome, Slot: evidence.Slot, TransactionSignature: evidence.TransactionSignature},
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return err

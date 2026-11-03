@@ -52,7 +52,15 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 }
 
 func (m *MsgRequestVoid) ValidateBasic() error {
-	return validateSignerID(m.Authority, m.ID)
+	if err := validateSignerID(m.Authority, m.ID); err != nil {
+		return err
+	}
+
+	if m.ExpectedRound == 0 {
+		return ErrInvalidResolution.Wrap("expected_round must be positive")
+	}
+
+	return nil
 }
 
 func (m *MsgFinalizeRefund) ValidateBasic() error {

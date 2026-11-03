@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"slices"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	gogotypes "github.com/cosmos/gogoproto/types"
@@ -25,7 +26,10 @@ func (o Observation) Validate() error {
 		return ErrInvalidObservation.Wrap("unknown outcome")
 	}
 
-	return o.Evidence.Validate()
+	return (SolanaEvidence{
+		Slot:                 o.Slot,
+		TransactionSignature: o.TransactionSignature,
+	}).Validate()
 }
 
 func ValidateReason(reason string) error {
@@ -38,21 +42,21 @@ func ValidateReason(reason string) error {
 
 func (s Status) IsValid() bool {
 	switch s {
-	case StatusTransferPending, StatusMinted, StatusRefundPending, StatusRefunded:
+	case StatusTransferPending, StatusMinted, StatusVoided, StatusRefundPending, StatusRefunded:
 		return true
 	default:
 		return false
 	}
 }
 
-func (s SettlementData) Terminal() bool {
-	return s.Status == StatusMinted || s.Status == StatusRefunded
+func (s Status) Terminal() bool {
+	return s == StatusMinted || s == StatusRefunded
 }
 
-// Tallies counts only votes under the settlement's authorization policy.
+// Tallies counts only votes under the embedded authorization policy.
 func (s SettlementData) Tallies() (minted, voided uint32) {
 	for _, vote := range s.Votes {
-		if vote.PolicyVersion != s.PolicyVersion {
+		if vote.PolicyVersion != s.Policy.Version {
 			continue
 		}
 
@@ -67,104 +71,133 @@ func (s SettlementData) Tallies() (minted, voided uint32) {
 	return
 }
 
-func (s SettlementData) HasVoidAuthorization(policy ReporterPolicy) bool {
-	if s.Status != StatusRefundPending && s.Status != StatusRefunded {
-		return false
-	}
-
-	if s.GovernanceEvidence != nil {
-		return true
+func (s SettlementData) HasVoidAuthorization() bool {
+	if s.GovernanceObservation != nil {
+		return s.GovernanceObservation.Outcome == OutcomeVoided
 	}
 
 	_, voided := s.Tallies()
-	return policy.Version == s.PolicyVersion && policy.Threshold > 0 && voided >= policy.Threshold
+	return s.Policy.Threshold > 0 && voided == s.Policy.Threshold
 }
 
-func (s SettlementData) Payable(policy ReporterPolicy, current uint64) bool {
-	return s.Status == StatusRefundPending && s.Hold == HoldNone && (s.GovernanceEvidence != nil || s.PolicyVersion == current && s.HasVoidAuthorization(policy))
+func (s SettlementData) Payable(status Status, current uint64) bool {
+	return status == StatusRefundPending && s.Hold == HoldNone && s.HasVoidAuthorization() &&
+		(s.GovernanceObservation != nil || s.Policy.Version == current)
 }
 
-func (s SettlementData) RefundScope() (scope uint64, ok bool) {
-	if s.Status != StatusRefundPending || s.Hold != HoldNone {
+func (s SettlementData) RefundScope(status Status) (scope uint64, ok bool) {
+	if status != StatusRefundPending || s.Hold != HoldNone {
 		return 0, false
 	}
 
-	if s.GovernanceEvidence != nil {
+	if s.GovernanceObservation != nil {
 		return GovernanceRefundScope, true
 	}
 
-	return s.PolicyVersion, true
+	return s.Policy.Version, true
 }
 
-// Validate checks only the policy versions s references. Policies are validated when stored.
-func (s SettlementData) Validate(policies map[uint64]ReporterPolicy) error {
-	if s.Round == 0 {
-		return ErrInvalidSettlement.Wrap("round must be positive")
+// Validate checks key identity and retained evidence. The keeper authenticates governance vetoes.
+func (s SettlementData) Validate(id ID, status Status, policies map[uint64]ReporterPolicy) error {
+	if err := id.ValidateBasic(); err != nil {
+		return err
 	}
 
-	policy, ok := policies[s.PolicyVersion]
-	if !ok {
-		return ErrInvalidSettlement.Wrap("missing authorization policy")
+	if s.Round == 0 || !status.IsValid() {
+		return ErrInvalidSettlement.Wrap("positive round and valid financial status required")
 	}
 
-	if !s.Status.IsValid() {
-		return ErrInvalidSettlement.Wrap("unknown financial status")
+	if err := s.Policy.Validate(); err != nil {
+		return err
+	}
+
+	policy, ok := policies[s.Policy.Version]
+	if !ok || !policy.SameRule(s.Policy) {
+		return ErrInvalidSettlement.Wrap("missing or inconsistent authorization policy")
 	}
 
 	if s.Hold != HoldNone && s.Hold != HoldVeto && s.Hold != HoldConflict {
 		return ErrInvalidSettlement.Wrap("unknown hold")
 	}
 
-	if (s.Status == StatusRefundPending) != (s.ChallengeEnd != nil) {
+	if (status == StatusRefundPending) != (s.ChallengeEnd > 0) || s.ChallengeEnd < 0 {
 		return ErrInvalidSettlement.Wrap("deadline required exactly for refund-pending")
 	}
 
-	if s.ChallengeEnd != nil {
-		if _, err := gogotypes.TimestampProto(*s.ChallengeEnd); err != nil || s.ChallengeEnd.Unix() <= 0 {
+	if s.ChallengeEnd > 0 {
+		if _, err := gogotypes.TimestampProto(time.Unix(s.ChallengeEnd, 0)); err != nil {
 			return ErrInvalidSettlement.Wrap("invalid challenge deadline")
 		}
 	}
 
-	if s.Veto != nil {
-		if s.Terminal() || s.Hold == HoldNone {
+	if receipt := s.VoidAuthorization; receipt != nil {
+		if receipt.RequestedHeight < id.Height || receipt.RequestedRound == 0 || receipt.RequestedRound > s.Round {
+			return ErrInvalidSettlement.Wrap("invalid permanent void authorization")
+		}
+	}
+
+	if status == StatusVoided && s.VoidAuthorization == nil || status == StatusTransferPending && s.VoidAuthorization != nil {
+		return ErrInvalidSettlement.Wrap("pending status must match permanent void authorization")
+	}
+
+	veto := s.VetoBy != "" || s.VetoReason != "" || s.VetoPolicyVersion != 0
+	if veto {
+		if s.Hold == HoldNone || status != StatusRefundPending {
 			return ErrInvalidSettlement.Wrap("orphaned veto")
 		}
 
-		if _, err := ParseAccount(s.Veto.Signer, AccountLength, DerivedAccountLength); err != nil {
+		if _, err := ParseAccount(s.VetoBy, AccountLength); err != nil {
 			return err
 		}
 
-		if err := ValidateReason(s.Veto.Reason); err != nil {
+		if err := ValidateReason(s.VetoReason); err != nil {
 			return err
 		}
+
+		if s.VetoPolicyVersion != GovernanceRefundScope {
+			p, exists := policies[s.VetoPolicyVersion]
+			if !exists || !slices.Contains(p.Members, s.VetoBy) {
+				return ErrInvalidSettlement.Wrap("veto outside its reporter policy")
+			}
+		}
 	}
 
-	if s.Hold == HoldVeto && s.Veto == nil {
-		return ErrInvalidSettlement.Wrap("veto hold requires signer and reason")
+	if s.Hold == HoldVeto && (!veto || status != StatusRefundPending) {
+		return ErrInvalidSettlement.Wrap("veto hold requires a refund candidate, signer and reason")
 	}
 
-	if s.Hold == HoldVeto && s.Terminal() {
-		return ErrInvalidSettlement.Wrap("terminal status cannot have veto hold")
+	var primary Outcome
+	switch status {
+	case StatusMinted:
+		primary = OutcomeMinted
+	case StatusRefundPending, StatusRefunded:
+		primary = OutcomeVoided
 	}
 
-	if s.GovernanceEvidence != nil {
-		if s.Status == StatusTransferPending || s.Round == 1 {
-			return ErrInvalidSettlement.Wrap("orphaned governance evidence")
+	if s.GovernanceObservation != nil {
+		if primary == OutcomeUnspecified || s.Round == 1 || s.GovernanceObservation.Outcome != primary {
+			return ErrInvalidSettlement.Wrap("orphaned or contradictory governance observation")
 		}
 
-		if err := s.GovernanceEvidence.Validate(); err != nil {
+		if err := s.GovernanceObservation.Validate(); err != nil {
 			return err
 		}
+
+		if status == StatusRefundPending && s.VoidAuthorization == nil {
+			return ErrInvalidSettlement.Wrap("governance refund authorization requires a void order")
+		}
 	}
 
-	type voteKey struct {
-		reporter string
-		outcome  Outcome
-		version  uint64
+	if len(s.Votes) > MaxReporters+1 {
+		return ErrInvalidSettlement.Wrap("certificate and opposite witness exceed evidence bound")
 	}
 
-	seen := make(map[voteKey]bool, len(s.Votes))
-	var hasMint, hasVoid bool
+	if primary == OutcomeUnspecified && len(s.Votes) > 0 {
+		primary = s.Votes[0].Observation.Outcome
+	}
+
+	seen := make(map[string]bool, len(s.Votes))
+	var certificate, witnesses uint32
 	for _, vote := range s.Votes {
 		p, exists := policies[vote.PolicyVersion]
 		if !exists || !slices.Contains(p.Members, vote.Reporter) {
@@ -175,62 +208,57 @@ func (s SettlementData) Validate(policies map[uint64]ReporterPolicy) error {
 			return err
 		}
 
-		key := voteKey{vote.Reporter, vote.Observation.Outcome, vote.PolicyVersion}
-		if seen[key] {
-			return ErrInvalidSettlement.Wrap("duplicate reporter/outcome/policy vote")
-		}
+		if vote.Observation.Outcome == primary {
+			if s.GovernanceObservation != nil || vote.PolicyVersion != s.Policy.Version || seen[vote.Reporter] {
+				return ErrInvalidSettlement.Wrap("invalid or duplicate certificate vote")
+			}
 
-		seen[key] = true
-		hasMint = hasMint || vote.Observation.Outcome == OutcomeMinted
-		hasVoid = hasVoid || vote.Observation.Outcome == OutcomeVoided
+			seen[vote.Reporter] = true
+			certificate++
+		} else {
+			witnesses++
+		}
 	}
 
-	if s.Hold != HoldConflict && (hasMint && hasVoid || s.Status == StatusMinted && hasVoid || (s.Status == StatusRefundPending || s.Status == StatusRefunded) && hasMint) {
-		return ErrInvalidSettlement.Wrap("opposing evidence requires conflict hold")
+	if witnesses > 1 || certificate > s.Policy.Threshold {
+		return ErrInvalidSettlement.Wrap("certificate or opposite witness exceeds authorization bound")
 	}
 
-	minted, voided := s.Tallies()
-	if s.Status != StatusTransferPending && s.GovernanceEvidence == nil {
-		count := voided
-		if s.Status == StatusMinted {
-			count = minted
-		}
+	conflict := witnesses == 1 && (certificate > 0 || s.GovernanceObservation != nil)
+	if (s.Hold == HoldConflict) != conflict {
+		return ErrInvalidSettlement.Wrap("conflict hold must have opposing evidence")
+	}
 
-		if policy.Threshold == 0 || count < policy.Threshold {
+	authorized := s.GovernanceObservation != nil || s.Policy.Threshold > 0 && certificate == s.Policy.Threshold
+	if status == StatusMinted || status == StatusRefundPending || status == StatusRefunded {
+		if !authorized {
 			return ErrInvalidSettlement.Wrap("missing retained quorum authorization")
 		}
-	}
-
-	if s.Status == StatusTransferPending && s.Hold == HoldNone && policy.Threshold > 0 && (minted >= policy.Threshold || voided >= policy.Threshold) {
-		return ErrInvalidSettlement.Wrap("unheld quorum must have a settled financial status")
+	} else if authorized {
+		return ErrInvalidSettlement.Wrap("quorum must have an authorized financial status")
 	}
 
 	return nil
 }
 
-func policyHistory(policies []ReporterPolicy) (map[uint64]ReporterPolicy, ReporterPolicy, error) {
+func policyHistory(policies []ReporterPolicy, current uint64) (map[uint64]ReporterPolicy, ReporterPolicy, error) {
 	history := make(map[uint64]ReporterPolicy, len(policies))
 	for _, policy := range policies {
 		if err := policy.Validate(); err != nil {
 			return nil, ReporterPolicy{}, err
 		}
 
-		if _, exists := history[policy.Version]; exists {
-			return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("duplicate reporter policy")
+		if _, exists := history[policy.Version]; exists || policy.Version > current {
+			return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("duplicate or future reporter policy")
 		}
 
 		history[policy.Version] = policy
 	}
 
-	if len(history) == 0 {
-		return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("missing reporter policy history")
+	policy, exists := history[current]
+	if !exists {
+		return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("missing current reporter policy")
 	}
 
-	for version := uint64(1); version <= uint64(len(history)); version++ {
-		if _, exists := history[version]; !exists {
-			return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("reporter policy history must contain versions 1 through current")
-		}
-	}
-
-	return history, history[uint64(len(history))], nil
+	return history, policy, nil
 }

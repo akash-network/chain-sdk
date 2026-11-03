@@ -39,7 +39,11 @@ export interface MsgUpdateParamsResponse {
 /** MsgRequestVoid orders a Solana void without authorizing an Akash refund. */
 export interface MsgRequestVoid {
   authority: string;
-  id: ID | undefined;
+  id:
+    | ID
+    | undefined;
+  /** New orders require this round; retries preserve the original receipt. */
+  expectedRound: bigint;
 }
 
 /** MsgRequestVoidResponse acknowledges the transaction. */
@@ -414,7 +418,7 @@ export const MsgUpdateParamsResponse: MessageFns<MsgUpdateParamsResponse, "akash
 };
 
 function createBaseMsgRequestVoid(): MsgRequestVoid {
-  return { authority: "", id: undefined };
+  return { authority: "", id: undefined, expectedRound: 0n };
 }
 
 export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgRequestVoid"> = {
@@ -426,6 +430,12 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
     }
     if (message.id !== undefined) {
       ID.encode(message.id, writer.uint32(18).fork()).join();
+    }
+    if (message.expectedRound !== 0n) {
+      if (BigInt.asUintN(64, message.expectedRound) !== message.expectedRound) {
+        throw new globalThis.Error("value provided for field message.expectedRound of type uint64 too large");
+      }
+      writer.uint32(24).uint64(message.expectedRound);
     }
     return writer;
   },
@@ -453,6 +463,14 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
           message.id = ID.decode(reader, reader.uint32());
           continue;
         }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.expectedRound = reader.uint64() as bigint;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -466,6 +484,7 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
     return {
       authority: isSet(object.authority) ? globalThis.String(object.authority) : "",
       id: isSet(object.id) ? ID.fromJSON(object.id) : undefined,
+      expectedRound: isSet(object.expected_round) ? BigInt(object.expected_round) : 0n,
     };
   },
 
@@ -477,12 +496,18 @@ export const MsgRequestVoid: MessageFns<MsgRequestVoid, "akash.sink.v1.MsgReques
     if (message.id !== undefined) {
       obj.id = ID.toJSON(message.id);
     }
+    if (message.expectedRound !== 0n) {
+      obj.expected_round = message.expectedRound.toString();
+    }
     return obj;
   },
   fromPartial(object: DeepPartial<MsgRequestVoid>): MsgRequestVoid {
     const message = createBaseMsgRequestVoid();
     message.authority = object.authority ?? "";
     message.id = (object.id !== undefined && object.id !== null) ? ID.fromPartial(object.id) : undefined;
+    message.expectedRound = (object.expectedRound !== undefined && object.expectedRound !== null)
+      ? BigInt(object.expectedRound)
+      : 0n;
     return message;
   },
 };

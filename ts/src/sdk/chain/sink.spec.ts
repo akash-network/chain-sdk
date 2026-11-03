@@ -98,21 +98,21 @@ describe("sink SDK", () => {
 
   it("queries composite IDs without losing precision or paid status", async () => {
     const id = ID.fromPartial({ owner: "akash1owner", height: 9007199254740993n, sequence: MAX_UINT64 });
-    const response = QueryTransferResponse.fromPartial({ transfer: { id, settlement: { status: Status.STATUS_REFUNDED, round: 9007199254740993n } } });
+    const response = QueryTransferResponse.fromPartial({ transfer: { id, status: Status.STATUS_REFUNDED, settlement: { round: 9007199254740993n } } });
     const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(QueryTransferResponse.toJSON(response))));
     vi.stubGlobal("fetch", fetch);
     const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
     const result = await sdk.akash.sink.v1.getTransfer({ id });
     expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe(`/akash/sink/v1/transfers/${id.owner}/${id.height}/${id.sequence}`);
     expect(result.transfer?.id).toEqual(id);
-    expect(result.transfer?.settlement?.status).toBe(Status.STATUS_REFUNDED);
+    expect(result.transfer?.status).toBe(Status.STATUS_REFUNDED);
     expect(result.transfer?.settlement?.round).toBe(9007199254740993n);
     await expect(sdk.akash.sink.v1.getTransfer({ id: { owner: id.owner } })).rejects.toThrow("id.height");
   });
 
   it("pages transfers at a fixed height with native pagination", async () => {
     const response = QueryTransfersResponse.fromPartial({
-      transfers: [{ settlement: { status: Status.STATUS_REFUND_PENDING } }],
+      transfers: [{ status: Status.STATUS_REFUND_PENDING }],
       pagination: { nextKey: Uint8Array.of(3, 4) },
     });
     const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(QueryTransfersResponse.toJSON(response))));
@@ -131,13 +131,13 @@ describe("sink SDK", () => {
   });
 
   it("lists disputes including terminal conflicts", async () => {
-    const response = QueryDisputesResponse.fromPartial({ transfers: [{ settlement: { status: Status.STATUS_MINTED, hold: 2 } }] });
+    const response = QueryDisputesResponse.fromPartial({ transfers: [{ status: Status.STATUS_MINTED, settlement: { hold: 2 } }] });
     const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(QueryDisputesResponse.toJSON(response))));
     vi.stubGlobal("fetch", fetch);
     const sdk = createChainNodeWebSDK({ query: { baseUrl: "http://localhost:1317" } });
     const result = await sdk.akash.sink.v1.getDisputes({});
     expect(new URL(fetch.mock.calls[0][0].toString()).pathname).toBe("/akash/sink/v1/disputes");
-    expect(result.transfers[0].settlement?.status).toBe(Status.STATUS_MINTED);
+    expect(result.transfers[0].status).toBe(Status.STATUS_MINTED);
   });
 
   it("round trips Coin totals above uint64 and the exact LegacyDec ratio", () => {

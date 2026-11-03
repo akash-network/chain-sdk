@@ -192,7 +192,7 @@ func testSinkAminoJSONParity(t *testing.T, handler *txsigning.HandlerMap) {
 	} {
 		id, round, reason, ev := fixture.id, fixture.round, fixture.reason, fixture.evidence
 		cases = append(cases,
-			messageCase{"MsgRequestVoid/" + fixture.name, &types.MsgRequestVoid{Authority: authority, ID: id}, authority},
+			messageCase{"MsgRequestVoid/" + fixture.name, &types.MsgRequestVoid{Authority: authority, ID: id, ExpectedRound: round}, authority},
 			messageCase{"MsgVetoVoid/" + fixture.name, &types.MsgVetoVoid{Signer: account(1), ID: id, Reason: reason}, account(1)},
 			messageCase{"MsgRestartTransfer/" + fixture.name, &types.MsgRestartTransfer{Authority: authority, ID: id, Reason: reason, ExpectedRound: round}, authority},
 			messageCase{"MsgConfirmMint/" + fixture.name, &types.MsgConfirmMint{Authority: authority, ID: id, Reason: reason, ExpectedRound: round, Evidence: ev}, authority},
@@ -206,7 +206,7 @@ func testSinkAminoJSONParity(t *testing.T, handler *txsigning.HandlerMap) {
 				ID:            id,
 				PolicyVersion: math.MaxUint64,
 				Round:         round,
-				Observation:   types.Observation{Outcome: outcome, Evidence: ev},
+				Observation:   types.Observation{Outcome: outcome, Slot: ev.Slot, TransactionSignature: ev.TransactionSignature},
 			}, account(1)})
 		}
 	}
@@ -292,13 +292,13 @@ func TestSinkAminoSignBytesBindNestedFields(t *testing.T) {
 	encoding := sdkutil.MakeEncodingConfig()
 	types.RegisterInterfaces(encoding.InterfaceRegistry)
 	id := types.ID{Owner: account(7), Height: 1, Sequence: 1}
-	request := &types.MsgRequestVoid{Authority: account(8), ID: id}
+	request := &types.MsgRequestVoid{Authority: account(8), ID: id, ExpectedRound: 1}
 	report := &types.MsgReportOutcome{
 		Reporter:      account(1),
 		ID:            id,
 		PolicyVersion: 1,
 		Round:         1,
-		Observation:   types.Observation{Outcome: types.OutcomeMinted, Evidence: evidence()},
+		Observation:   types.Observation{Outcome: types.OutcomeMinted, Slot: evidence().Slot, TransactionSignature: evidence().TransactionSignature},
 	}
 
 	params := &types.MsgUpdateParams{Authority: account(8), Params: types.DefaultParams()}
@@ -314,12 +314,13 @@ func TestSinkAminoSignBytesBindNestedFields(t *testing.T) {
 		msg    sdk.Msg
 		change func(sdk.Msg)
 	}{
+		{"request round", request, func(m sdk.Msg) { m.(*types.MsgRequestVoid).ExpectedRound++ }},
 		{"ID owner", request, func(m sdk.Msg) { m.(*types.MsgRequestVoid).ID.Owner = account(9) }},
 		{"ID height", request, func(m sdk.Msg) { m.(*types.MsgRequestVoid).ID.Height++ }},
 		{"ID sequence", request, func(m sdk.Msg) { m.(*types.MsgRequestVoid).ID.Sequence++ }},
 		{"outcome", report, func(m sdk.Msg) { m.(*types.MsgReportOutcome).Observation.Outcome = types.OutcomeVoided }},
-		{"evidence slot", report, func(m sdk.Msg) { m.(*types.MsgReportOutcome).Observation.Evidence.Slot++ }},
-		{"evidence signature", report, func(m sdk.Msg) { m.(*types.MsgReportOutcome).Observation.Evidence.TransactionSignature[63] ^= 1 }},
+		{"evidence slot", report, func(m sdk.Msg) { m.(*types.MsgReportOutcome).Observation.Slot++ }},
+		{"evidence signature", report, func(m sdk.Msg) { m.(*types.MsgReportOutcome).Observation.TransactionSignature[63] ^= 1 }},
 		{"report round", report, func(m sdk.Msg) { m.(*types.MsgReportOutcome).Round++ }},
 		{"report policy", report, func(m sdk.Msg) { m.(*types.MsgReportOutcome).PolicyVersion++ }},
 		{"threshold", params, func(m sdk.Msg) { m.(*types.MsgUpdateParams).Params.ReportersThreshold = sdkmath.LegacyOneDec() }},

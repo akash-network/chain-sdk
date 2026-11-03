@@ -100,8 +100,8 @@ func TestEveryCommandValidatesStatelessRules(t *testing.T) {
 	authority := account(8)
 	for _, msg := range []sdk.HasValidateBasic{
 		&types.MsgUpdateParams{Authority: authority, Params: types.DefaultParams()},
-		&types.MsgRequestVoid{Authority: authority, ID: id},
-		&types.MsgReportOutcome{Reporter: account(1), ID: id, PolicyVersion: 1, Round: 1, Observation: types.Observation{Outcome: types.OutcomeMinted, Evidence: evidence()}},
+		&types.MsgRequestVoid{Authority: authority, ID: id, ExpectedRound: 1},
+		&types.MsgReportOutcome{Reporter: account(1), ID: id, PolicyVersion: 1, Round: 1, Observation: types.Observation{Outcome: types.OutcomeMinted, Slot: evidence().Slot, TransactionSignature: evidence().TransactionSignature}},
 		&types.MsgVetoVoid{Signer: authority, ID: id, Reason: "verify"},
 		&types.MsgRestartTransfer{Authority: authority, ID: id, Reason: "retry", ExpectedRound: 1},
 		&types.MsgConfirmMint{Authority: authority, ID: id, Evidence: evidence(), Reason: "minted", ExpectedRound: 1},

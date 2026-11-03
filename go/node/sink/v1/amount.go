@@ -41,11 +41,17 @@ func AddAmount(a, b sdk.Coin) (sdk.Coin, error) {
 }
 
 func DefaultTotals() Totals {
-	return Totals{PendingAmount: ZeroAmount(), MintedAmount: ZeroAmount(), RefundPendingAmount: ZeroAmount(), RefundedAmount: ZeroAmount()}
+	return Totals{
+		PendingAmount:       ZeroAmount(),
+		MintedAmount:        ZeroAmount(),
+		VoidedAmount:        ZeroAmount(),
+		RefundPendingAmount: ZeroAmount(),
+		RefundedAmount:      ZeroAmount(),
+	}
 }
 
 func (t Totals) Validate() error {
-	for _, amount := range []sdk.Coin{t.PendingAmount, t.MintedAmount, t.RefundPendingAmount, t.RefundedAmount} {
+	for _, amount := range []sdk.Coin{t.PendingAmount, t.MintedAmount, t.VoidedAmount, t.RefundPendingAmount, t.RefundedAmount} {
 		if err := ValidateAmount(amount); err != nil {
 			return err
 		}
@@ -69,16 +75,23 @@ func (t Totals) EscrowAmount() (sdk.Coin, error) {
 		return sdk.Coin{}, err
 	}
 
+	amount, err = AddAmount(amount, t.VoidedAmount)
+	if err != nil {
+		return sdk.Coin{}, err
+	}
+
 	return AddAmount(amount, t.RefundPendingAmount)
 }
 
 func (t Totals) Equal(other Totals) bool {
 	return t.PendingCount == other.PendingCount &&
 		t.MintedCount == other.MintedCount &&
+		t.VoidedCount == other.VoidedCount &&
 		t.RefundPendingCount == other.RefundPendingCount &&
 		t.RefundedCount == other.RefundedCount &&
 		t.PendingAmount.Equal(other.PendingAmount) &&
 		t.MintedAmount.Equal(other.MintedAmount) &&
+		t.VoidedAmount.Equal(other.VoidedAmount) &&
 		t.RefundPendingAmount.Equal(other.RefundPendingAmount) &&
 		t.RefundedAmount.Equal(other.RefundedAmount)
 }
@@ -136,6 +149,8 @@ func (t *Totals) population(status Status) (*sdk.Coin, *uint64, error) {
 		return &t.PendingAmount, &t.PendingCount, nil
 	case StatusMinted:
 		return &t.MintedAmount, &t.MintedCount, nil
+	case StatusVoided:
+		return &t.VoidedAmount, &t.VoidedCount, nil
 	case StatusRefundPending:
 		return &t.RefundPendingAmount, &t.RefundPendingCount, nil
 	case StatusRefunded:

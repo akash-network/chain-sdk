@@ -557,7 +557,7 @@
      - [SolanaEvidence](#akash.sink.v1.SolanaEvidence)
      - [Totals](#akash.sink.v1.Totals)
      - [TransferState](#akash.sink.v1.TransferState)
-     - [Veto](#akash.sink.v1.Veto)
+     - [VoidAuthorization](#akash.sink.v1.VoidAuthorization)
      - [Vote](#akash.sink.v1.Vote)
    
      - [Decision](#akash.sink.v1.Decision)
@@ -585,6 +585,7 @@
    
  - [akash/sink/v1/genesis.proto](#akash/sink/v1/genesis.proto)
      - [GenesisAccount](#akash.sink.v1.GenesisAccount)
+     - [GenesisRecord](#akash.sink.v1.GenesisRecord)
      - [GenesisState](#akash.sink.v1.GenesisState)
    
  - [akash/sink/v1/msgs.proto](#akash/sink/v1/msgs.proto)
@@ -7450,7 +7451,8 @@ Example: "akash1..." |
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `outcome` | [Outcome](#akash.sink.v1.Outcome) |  |  |
- | `evidence` | [SolanaEvidence](#akash.sink.v1.SolanaEvidence) |  |  |
+ | `slot` | [uint64](#uint64) |  |  |
+ | `transaction_signature` | [bytes](#bytes) |  |  |
 
 
 
@@ -7493,19 +7495,21 @@ Example: "akash1..." |
  <a name="akash.sink.v1.SettlementData"></a>
 
  ### SettlementData
- SettlementData retains financial status and its authorization evidence.
+ SettlementData retains authorization evidence; financial status exists only in its key.
 
 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `status` | [Status](#akash.sink.v1.Status) |  |  |
  | `hold` | [Hold](#akash.sink.v1.Hold) |  |  |
  | `round` | [uint64](#uint64) |  |  |
- | `policy_version` | [uint64](#uint64) |  | Terminal and governance authorizations retain this version after reporter rotation. |
+ | `policy` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) |  |  |
  | `votes` | [Vote](#akash.sink.v1.Vote) | repeated |  |
- | `challenge_end` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | Present exactly while refund-pending; maturity does not change financial status. |
- | `governance_evidence` | [SolanaEvidence](#akash.sink.v1.SolanaEvidence) |  |  |
- | `veto` | [Veto](#akash.sink.v1.Veto) |  |  |
+ | `challenge_end` | [int64](#int64) |  |  |
+ | `governance_observation` | [Observation](#akash.sink.v1.Observation) |  |  |
+ | `veto_by` | [string](#string) |  |  |
+ | `veto_reason` | [string](#string) |  |  |
+ | `void_authorization` | [VoidAuthorization](#akash.sink.v1.VoidAuthorization) |  |  |
+ | `veto_policy_version` | [uint64](#uint64) |  | Zero identifies governance; positive versions authenticate reporter vetoes. |
 
 
 
@@ -7515,7 +7519,7 @@ Example: "akash1..." |
  <a name="akash.sink.v1.SettlementID"></a>
 
  ### SettlementID
- SettlementID keys the status index by financial status, then transfer ID.
+ SettlementID keys the canonical settlement by financial status, then transfer ID.
 
 
  | Field | Type | Label | Description |
@@ -7558,6 +7562,8 @@ Example: "akash1..." |
  | `pending_count` | [uint64](#uint64) |  |  |
  | `minted_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `minted_count` | [uint64](#uint64) |  |  |
+ | `voided_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `voided_count` | [uint64](#uint64) |  |  |
  | `refund_pending_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `refund_pending_count` | [uint64](#uint64) |  |  |
  | `refunded_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
@@ -7571,7 +7577,7 @@ Example: "akash1..." |
  <a name="akash.sink.v1.TransferState"></a>
 
  ### TransferState
- TransferState is the complete public and genesis aggregate.
+ TransferState is the complete public query aggregate.
 
 
  | Field | Type | Label | Description |
@@ -7579,23 +7585,23 @@ Example: "akash1..." |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `data` | [RecordData](#akash.sink.v1.RecordData) |  |  |
  | `settlement` | [SettlementData](#akash.sink.v1.SettlementData) |  |  |
- | `void_ordered` | [bool](#bool) |  |  |
+ | `status` | [Status](#akash.sink.v1.Status) |  |  |
 
 
 
 
 
 
- <a name="akash.sink.v1.Veto"></a>
+ <a name="akash.sink.v1.VoidAuthorization"></a>
 
- ### Veto
- Veto preserves its signer and reason through policy refresh.
+ ### VoidAuthorization
+ VoidAuthorization permanently records the governance order, not Solana execution.
 
 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `signer` | [string](#string) |  |  |
- | `reason` | [string](#string) |  |  |
+ | `requested_height` | [int64](#int64) |  |  |
+ | `requested_round` | [uint64](#uint64) |  |  |
 
 
 
@@ -7676,13 +7682,14 @@ Example: "akash1..." |
  <a name="akash.sink.v1.Status"></a>
 
  ### Status
- Status partitions the four financial populations independently of holds.
+ Status partitions the five financial populations independently of holds.
 
  | Name | Number | Description |
  | ---- | ------ | ----------- |
  | STATUS_INVALID | 0 | Invalid on stored settlements; selects any status in list filters. |
  | STATUS_TRANSFER_PENDING | 1 | Escrow awaits an authorized Solana outcome. |
  | STATUS_MINTED | 2 | Mint authorization is retained and escrow backs the minted tokens. |
+ | STATUS_VOIDED | 3 | Governance ordered a void; Solana confirmation is still required. |
  | STATUS_REFUND_PENDING | 4 | Void authorization is retained and payment awaits challenge and capacity checks. |
  | STATUS_REFUNDED | 5 | The original owner has already received the refund. |
 
@@ -7793,12 +7800,22 @@ earlier vote, holding the transfer for governance.
  <a name="akash.sink.v1.EventTotalsUpdated"></a>
 
  ### EventTotalsUpdated
- EventTotalsUpdated records the four financial status populations.
+ EventTotalsUpdated records the five financial populations and normalized refund usage.
 
 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
+ | `pending_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `pending_count` | [uint64](#uint64) |  |  |
+ | `minted_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `minted_count` | [uint64](#uint64) |  |  |
+ | `voided_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `voided_count` | [uint64](#uint64) |  |  |
+ | `refund_pending_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `refund_pending_count` | [uint64](#uint64) |  |  |
+ | `refunded_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ | `refunded_count` | [uint64](#uint64) |  |  |
+ | `refunded_in_epoch` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
 
 
 
@@ -7985,22 +8002,41 @@ Send and refund quotas use the current number of the native "day" epoch.
 
 
 
+ <a name="akash.sink.v1.GenesisRecord"></a>
+
+ ### GenesisRecord
+ GenesisRecord preserves the immutable record and complete canonical settlement key.
+
+
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `id` | [ID](#akash.sink.v1.ID) |  |  |
+ | `data` | [RecordData](#akash.sink.v1.RecordData) |  |  |
+ | `settlement` | [SettlementData](#akash.sink.v1.SettlementData) |  |  |
+ | `status` | [Status](#akash.sink.v1.Status) |  |  |
+
+
+
+
+
+
  <a name="akash.sink.v1.GenesisState"></a>
 
  ### GenesisState
- GenesisState exports complete sink state; schema_version must be 3 for native epoch usage.
+ GenesisState exports complete sink state; schema_version must be 4 for canonical settlements.
 
 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `params` | [Params](#akash.sink.v1.Params) |  |  |
  | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
- | `policies` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) | repeated | Complete immutable history from version 1 through the current policy. |
+ | `policies` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) | repeated | Current policy and every additional policy referenced by retained evidence. |
  | `send_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
  | `refund_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
- | `transfers` | [TransferState](#akash.sink.v1.TransferState) | repeated |  |
+ | `records` | [GenesisRecord](#akash.sink.v1.GenesisRecord) | repeated |  |
  | `accounts` | [GenesisAccount](#akash.sink.v1.GenesisAccount) | repeated | One record per owner, including any retained empty usage records. |
  | `schema_version` | [uint32](#uint32) |  |  |
+ | `current_policy_version` | [uint64](#uint64) |  |  |
 
 
 
@@ -8173,6 +8209,7 @@ Send and refund quotas use the current number of the native "day" epoch.
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
+ | `expected_round` | [uint64](#uint64) |  | New orders require this round; retries preserve the original receipt. |
 
 
 

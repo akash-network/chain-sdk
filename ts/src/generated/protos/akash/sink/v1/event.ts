@@ -10,16 +10,7 @@ import type { DeepPartial, MessageFns } from "../../../../../encoding/typeEncodi
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Coin } from "../../../cosmos/base/v1beta1/coin.ts";
 import { Timestamp } from "../../../google/protobuf/timestamp.ts";
-import {
-  Decision,
-  decisionFromJSON,
-  decisionToJSON,
-  ID,
-  Outcome,
-  outcomeFromJSON,
-  outcomeToJSON,
-  Totals,
-} from "./types.ts";
+import { Decision, decisionFromJSON, decisionToJSON, ID, Outcome, outcomeFromJSON, outcomeToJSON } from "./types.ts";
 
 /**
  * EventTransferCreated is emitted when a deposit locks AKT and creates a
@@ -168,9 +159,19 @@ export interface EventPreexistingBalanceMoved {
   recipient: string;
 }
 
-/** EventTotalsUpdated records the four financial status populations. */
+/** EventTotalsUpdated records the five financial populations and normalized refund usage. */
 export interface EventTotalsUpdated {
-  totals: Totals | undefined;
+  pendingAmount: Coin | undefined;
+  pendingCount: bigint;
+  mintedAmount: Coin | undefined;
+  mintedCount: bigint;
+  voidedAmount: Coin | undefined;
+  voidedCount: bigint;
+  refundPendingAmount: Coin | undefined;
+  refundPendingCount: bigint;
+  refundedAmount: Coin | undefined;
+  refundedCount: bigint;
+  refundedInEpoch: Coin | undefined;
 }
 
 function createBaseEventTransferCreated(): EventTransferCreated {
@@ -1122,15 +1123,72 @@ export const EventPreexistingBalanceMoved: MessageFns<
 };
 
 function createBaseEventTotalsUpdated(): EventTotalsUpdated {
-  return { totals: undefined };
+  return {
+    pendingAmount: undefined,
+    pendingCount: 0n,
+    mintedAmount: undefined,
+    mintedCount: 0n,
+    voidedAmount: undefined,
+    voidedCount: 0n,
+    refundPendingAmount: undefined,
+    refundPendingCount: 0n,
+    refundedAmount: undefined,
+    refundedCount: 0n,
+    refundedInEpoch: undefined,
+  };
 }
 
 export const EventTotalsUpdated: MessageFns<EventTotalsUpdated, "akash.sink.v1.EventTotalsUpdated"> = {
   $type: "akash.sink.v1.EventTotalsUpdated" as const,
 
   encode(message: EventTotalsUpdated, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.totals !== undefined) {
-      Totals.encode(message.totals, writer.uint32(10).fork()).join();
+    if (message.pendingAmount !== undefined) {
+      Coin.encode(message.pendingAmount, writer.uint32(10).fork()).join();
+    }
+    if (message.pendingCount !== 0n) {
+      if (BigInt.asUintN(64, message.pendingCount) !== message.pendingCount) {
+        throw new globalThis.Error("value provided for field message.pendingCount of type uint64 too large");
+      }
+      writer.uint32(16).uint64(message.pendingCount);
+    }
+    if (message.mintedAmount !== undefined) {
+      Coin.encode(message.mintedAmount, writer.uint32(26).fork()).join();
+    }
+    if (message.mintedCount !== 0n) {
+      if (BigInt.asUintN(64, message.mintedCount) !== message.mintedCount) {
+        throw new globalThis.Error("value provided for field message.mintedCount of type uint64 too large");
+      }
+      writer.uint32(32).uint64(message.mintedCount);
+    }
+    if (message.voidedAmount !== undefined) {
+      Coin.encode(message.voidedAmount, writer.uint32(42).fork()).join();
+    }
+    if (message.voidedCount !== 0n) {
+      if (BigInt.asUintN(64, message.voidedCount) !== message.voidedCount) {
+        throw new globalThis.Error("value provided for field message.voidedCount of type uint64 too large");
+      }
+      writer.uint32(48).uint64(message.voidedCount);
+    }
+    if (message.refundPendingAmount !== undefined) {
+      Coin.encode(message.refundPendingAmount, writer.uint32(58).fork()).join();
+    }
+    if (message.refundPendingCount !== 0n) {
+      if (BigInt.asUintN(64, message.refundPendingCount) !== message.refundPendingCount) {
+        throw new globalThis.Error("value provided for field message.refundPendingCount of type uint64 too large");
+      }
+      writer.uint32(64).uint64(message.refundPendingCount);
+    }
+    if (message.refundedAmount !== undefined) {
+      Coin.encode(message.refundedAmount, writer.uint32(74).fork()).join();
+    }
+    if (message.refundedCount !== 0n) {
+      if (BigInt.asUintN(64, message.refundedCount) !== message.refundedCount) {
+        throw new globalThis.Error("value provided for field message.refundedCount of type uint64 too large");
+      }
+      writer.uint32(80).uint64(message.refundedCount);
+    }
+    if (message.refundedInEpoch !== undefined) {
+      Coin.encode(message.refundedInEpoch, writer.uint32(90).fork()).join();
     }
     return writer;
   },
@@ -1147,7 +1205,87 @@ export const EventTotalsUpdated: MessageFns<EventTotalsUpdated, "akash.sink.v1.E
             break;
           }
 
-          message.totals = Totals.decode(reader, reader.uint32());
+          message.pendingAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.pendingCount = reader.uint64() as bigint;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.mintedAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.mintedCount = reader.uint64() as bigint;
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.voidedAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.voidedCount = reader.uint64() as bigint;
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.refundPendingAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.refundPendingCount = reader.uint64() as bigint;
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.refundedAmount = Coin.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.refundedCount = reader.uint64() as bigint;
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.refundedInEpoch = Coin.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1160,20 +1298,94 @@ export const EventTotalsUpdated: MessageFns<EventTotalsUpdated, "akash.sink.v1.E
   },
 
   fromJSON(object: any): EventTotalsUpdated {
-    return { totals: isSet(object.totals) ? Totals.fromJSON(object.totals) : undefined };
+    return {
+      pendingAmount: isSet(object.pending_amount) ? Coin.fromJSON(object.pending_amount) : undefined,
+      pendingCount: isSet(object.pending_count) ? BigInt(object.pending_count) : 0n,
+      mintedAmount: isSet(object.minted_amount) ? Coin.fromJSON(object.minted_amount) : undefined,
+      mintedCount: isSet(object.minted_count) ? BigInt(object.minted_count) : 0n,
+      voidedAmount: isSet(object.voided_amount) ? Coin.fromJSON(object.voided_amount) : undefined,
+      voidedCount: isSet(object.voided_count) ? BigInt(object.voided_count) : 0n,
+      refundPendingAmount: isSet(object.refund_pending_amount)
+        ? Coin.fromJSON(object.refund_pending_amount)
+        : undefined,
+      refundPendingCount: isSet(object.refund_pending_count) ? BigInt(object.refund_pending_count) : 0n,
+      refundedAmount: isSet(object.refunded_amount) ? Coin.fromJSON(object.refunded_amount) : undefined,
+      refundedCount: isSet(object.refunded_count) ? BigInt(object.refunded_count) : 0n,
+      refundedInEpoch: isSet(object.refunded_in_epoch) ? Coin.fromJSON(object.refunded_in_epoch) : undefined,
+    };
   },
 
   toJSON(message: EventTotalsUpdated): unknown {
     const obj: any = {};
-    if (message.totals !== undefined) {
-      obj.totals = Totals.toJSON(message.totals);
+    if (message.pendingAmount !== undefined) {
+      obj.pending_amount = Coin.toJSON(message.pendingAmount);
+    }
+    if (message.pendingCount !== 0n) {
+      obj.pending_count = message.pendingCount.toString();
+    }
+    if (message.mintedAmount !== undefined) {
+      obj.minted_amount = Coin.toJSON(message.mintedAmount);
+    }
+    if (message.mintedCount !== 0n) {
+      obj.minted_count = message.mintedCount.toString();
+    }
+    if (message.voidedAmount !== undefined) {
+      obj.voided_amount = Coin.toJSON(message.voidedAmount);
+    }
+    if (message.voidedCount !== 0n) {
+      obj.voided_count = message.voidedCount.toString();
+    }
+    if (message.refundPendingAmount !== undefined) {
+      obj.refund_pending_amount = Coin.toJSON(message.refundPendingAmount);
+    }
+    if (message.refundPendingCount !== 0n) {
+      obj.refund_pending_count = message.refundPendingCount.toString();
+    }
+    if (message.refundedAmount !== undefined) {
+      obj.refunded_amount = Coin.toJSON(message.refundedAmount);
+    }
+    if (message.refundedCount !== 0n) {
+      obj.refunded_count = message.refundedCount.toString();
+    }
+    if (message.refundedInEpoch !== undefined) {
+      obj.refunded_in_epoch = Coin.toJSON(message.refundedInEpoch);
     }
     return obj;
   },
   fromPartial(object: DeepPartial<EventTotalsUpdated>): EventTotalsUpdated {
     const message = createBaseEventTotalsUpdated();
-    message.totals = (object.totals !== undefined && object.totals !== null)
-      ? Totals.fromPartial(object.totals)
+    message.pendingAmount = (object.pendingAmount !== undefined && object.pendingAmount !== null)
+      ? Coin.fromPartial(object.pendingAmount)
+      : undefined;
+    message.pendingCount = (object.pendingCount !== undefined && object.pendingCount !== null)
+      ? BigInt(object.pendingCount)
+      : 0n;
+    message.mintedAmount = (object.mintedAmount !== undefined && object.mintedAmount !== null)
+      ? Coin.fromPartial(object.mintedAmount)
+      : undefined;
+    message.mintedCount = (object.mintedCount !== undefined && object.mintedCount !== null)
+      ? BigInt(object.mintedCount)
+      : 0n;
+    message.voidedAmount = (object.voidedAmount !== undefined && object.voidedAmount !== null)
+      ? Coin.fromPartial(object.voidedAmount)
+      : undefined;
+    message.voidedCount = (object.voidedCount !== undefined && object.voidedCount !== null)
+      ? BigInt(object.voidedCount)
+      : 0n;
+    message.refundPendingAmount = (object.refundPendingAmount !== undefined && object.refundPendingAmount !== null)
+      ? Coin.fromPartial(object.refundPendingAmount)
+      : undefined;
+    message.refundPendingCount = (object.refundPendingCount !== undefined && object.refundPendingCount !== null)
+      ? BigInt(object.refundPendingCount)
+      : 0n;
+    message.refundedAmount = (object.refundedAmount !== undefined && object.refundedAmount !== null)
+      ? Coin.fromPartial(object.refundedAmount)
+      : undefined;
+    message.refundedCount = (object.refundedCount !== undefined && object.refundedCount !== null)
+      ? BigInt(object.refundedCount)
+      : 0n;
+    message.refundedInEpoch = (object.refundedInEpoch !== undefined && object.refundedInEpoch !== null)
+      ? Coin.fromPartial(object.refundedInEpoch)
       : undefined;
     return message;
   },

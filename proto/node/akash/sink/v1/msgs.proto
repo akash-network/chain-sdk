@@ -82,6 +82,11 @@ message MsgRequestVoid {
     (gogoproto.jsontag)    = "id",
     (gogoproto.moretags)   = "yaml:\"id\""
   ];
+  // New orders require this round; retries preserve the original receipt.
+  uint64 expected_round = 3 [
+    (gogoproto.jsontag)   = "expected_round",
+    (gogoproto.moretags)  = "yaml:\"expected_round\""
+  ];
 }
 
 // MsgRequestVoidResponse acknowledges the transaction.

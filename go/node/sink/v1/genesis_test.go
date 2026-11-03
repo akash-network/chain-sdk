@@ -16,26 +16,33 @@ func fullGenesis(t *testing.T) *types.GenesisState {
 	g.Params.Reporters = policy().Members
 	g.Policies = []types.ReporterPolicy{g.Params.Policy(1)}
 	g.SendUsage.Epoch, g.RefundUsage.Epoch = 10, 9
-	statuses := []types.Status{types.StatusTransferPending, types.StatusMinted, types.StatusRefundPending, types.StatusRefunded, types.StatusTransferPending, types.StatusRefundPending, types.StatusMinted, types.StatusRefunded, types.StatusRefundPending}
+	statuses := []types.Status{types.StatusTransferPending, types.StatusMinted, types.StatusRefundPending, types.StatusRefunded, types.StatusVoided, types.StatusRefundPending, types.StatusMinted, types.StatusRefunded, types.StatusRefundPending}
 	amount := g.Params.MinAmountPerTransfer
 	owner := account(7)
 	total := types.ZeroAmount()
 	for i, status := range statuses {
 		s := settled(status)
-		if i == 4 || i == 5 {
-			s.Hold, s.Veto = types.HoldVeto, &types.Veto{Signer: account(1), Reason: "check"}
+		if i == 5 {
+			s.Hold, s.VetoBy, s.VetoReason, s.VetoPolicyVersion = types.HoldVeto, account(1), "check", 1
 		}
 
 		if i == 6 || i == 7 {
 			s.Hold = types.HoldConflict
+			outcome := types.OutcomeMinted
+			if status == types.StatusMinted {
+				outcome = types.OutcomeVoided
+			}
+
+			s.Votes = append(s.Votes, types.Vote{Reporter: account(4), PolicyVersion: 1, Observation: observation(outcome)})
 		}
 
 		if i == 8 {
-			e := evidence()
-			s.GovernanceEvidence, s.Round, s.Votes = &e, 2, nil
+			o := observation(types.OutcomeVoided)
+			s.GovernanceObservation, s.Round, s.Votes = &o, 2, nil
+			s.VoidAuthorization = &types.VoidAuthorization{RequestedHeight: 2, RequestedRound: 1}
 		}
 
-		g.Transfers = append(g.Transfers, types.TransferState{ID: types.ID{Owner: owner, Height: 2, Sequence: uint64(i + 1)}, Data: types.RecordData{Dest: base58.Encode(makeRecipient()), Amount: amount}, Settlement: s, VoidOrdered: i == 8})
+		g.Records = append(g.Records, types.GenesisRecord{ID: types.ID{Owner: owner, Height: 2, Sequence: uint64(i + 1)}, Data: types.RecordData{Dest: base58.Encode(makeRecipient()), Amount: amount}, Settlement: s, Status: status})
 		require.NoError(t, g.Totals.Add(status, amount))
 		var err error
 		total, err = types.AddAmount(total, amount)
@@ -79,20 +86,21 @@ func TestFullGenesisRoundTrip(t *testing.T) {
 
 func TestGenesisRejectsLostOrContradictoryState(t *testing.T) {
 	for name, change := range map[string]func(*types.GenesisState){
-		"old schema":     func(g *types.GenesisState) { g.SchemaVersion = 1 },
-		"fixed days":     func(g *types.GenesisState) { g.SchemaVersion = 2 },
-		"missing schema": func(g *types.GenesisState) { g.SchemaVersion = 0 },
-		"duplicate ID":   func(g *types.GenesisState) { g.Transfers = append(g.Transfers, g.Transfers[0]) },
+		"old schema":          func(g *types.GenesisState) { g.SchemaVersion = 1 },
+		"intermediate schema": func(g *types.GenesisState) { g.SchemaVersion = 3 },
+		"fixed days":          func(g *types.GenesisState) { g.SchemaVersion = 2 },
+		"missing schema":      func(g *types.GenesisState) { g.SchemaVersion = 0 },
+		"duplicate ID":        func(g *types.GenesisState) { g.Records = append(g.Records, g.Records[0]) },
 		"cross owner reused sequence": func(g *types.GenesisState) {
-			g.Transfers[1].ID = g.Transfers[0].ID
-			g.Transfers[1].ID.Owner = account(9)
+			g.Records[1].ID = g.Records[0].ID
+			g.Records[1].ID.Owner = account(9)
 		},
-		"zero height":             func(g *types.GenesisState) { g.Transfers[0].ID.Height = 0 },
-		"missing settlement":      func(g *types.GenesisState) { g.Transfers[0].Settlement = types.SettlementData{} },
-		"missing minted quorum":   func(g *types.GenesisState) { g.Transfers[1].Settlement.Votes = nil },
-		"missing refund quorum":   func(g *types.GenesisState) { g.Transfers[2].Settlement.Votes = nil },
-		"missing paid quorum":     func(g *types.GenesisState) { g.Transfers[3].Settlement.Votes = nil },
-		"missing void order":      func(g *types.GenesisState) { g.Transfers[8].VoidOrdered = false },
+		"zero height":             func(g *types.GenesisState) { g.Records[0].ID.Height = 0 },
+		"missing settlement":      func(g *types.GenesisState) { g.Records[0].Settlement = types.SettlementData{} },
+		"missing minted quorum":   func(g *types.GenesisState) { g.Records[1].Settlement.Votes = nil },
+		"missing refund quorum":   func(g *types.GenesisState) { g.Records[2].Settlement.Votes = nil },
+		"missing paid quorum":     func(g *types.GenesisState) { g.Records[3].Settlement.Votes = nil },
+		"missing void order":      func(g *types.GenesisState) { g.Records[8].Settlement.VoidAuthorization = nil },
 		"duplicate owner":         func(g *types.GenesisState) { g.Accounts = append(g.Accounts, g.Accounts[0]) },
 		"missing owner":           func(g *types.GenesisState) { g.Accounts = g.Accounts[1:] },
 		"lifetime mismatch":       func(g *types.GenesisState) { g.Accounts[0].Usage.TotalSent = g.Params.MinAmountPerTransfer },
@@ -118,17 +126,23 @@ func TestGenesisRejectsLostOrContradictoryState(t *testing.T) {
 func TestGenesisTerminalAuthorizationSurvivesRotation(t *testing.T) {
 	g := fullGenesis(t)
 	g.Params.Reporters = []string{account(9)}
-	g.Policies = append(g.Policies, g.Params.Policy(2))
+	g.Policies = append(g.Policies, g.Params.Policy(7))
+	g.CurrentPolicyVersion = 7
 	require.NoError(t, g.Validate())
 
-	for _, i := range []int{1, 3, 6, 7} {
-		g.Transfers[i].Settlement.Votes = append(g.Transfers[i].Settlement.Votes, types.Vote{Reporter: account(9), PolicyVersion: 2, Observation: types.Observation{Outcome: types.OutcomeMinted, Evidence: evidence()}})
-		g.Transfers[i].Settlement.Hold = types.HoldConflict
+	for _, i := range []int{1, 3} {
+		outcome := types.OutcomeMinted
+		if g.Records[i].Status == types.StatusMinted {
+			outcome = types.OutcomeVoided
+		}
+
+		g.Records[i].Settlement.Votes = append(g.Records[i].Settlement.Votes, types.Vote{Reporter: account(9), PolicyVersion: 7, Observation: observation(outcome)})
+		g.Records[i].Settlement.Hold = types.HoldConflict
 	}
 
 	require.NoError(t, g.Validate())
-	g.Transfers[6].Settlement.Votes = g.Transfers[6].Settlement.Votes[3:]
-	require.ErrorContains(t, g.Validate(), "retained quorum")
+	g.Records[6].Settlement.Votes = nil
+	require.Error(t, g.Validate())
 }
 
 func TestGenesisRejectsOldShapesAndKeepsRawUsage(t *testing.T) {

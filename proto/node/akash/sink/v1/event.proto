@@ -285,11 +285,56 @@ message EventPreexistingBalanceMoved {
   ];
 }
 
-// EventTotalsUpdated records the four financial status populations.
+// EventTotalsUpdated records the five financial populations and normalized refund usage.
 message EventTotalsUpdated {
-  Totals totals = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag)  = "totals",
-    (gogoproto.moretags) = "yaml:\"totals\""
+  cosmos.base.v1beta1.Coin pending_amount = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "pending_amount",
+    (gogoproto.moretags)  = "yaml:\"pending_amount\""
+  ];
+  uint64 pending_count = 2 [
+    (gogoproto.jsontag)   = "pending_count",
+    (gogoproto.moretags)  = "yaml:\"pending_count\""
+  ];
+  cosmos.base.v1beta1.Coin minted_amount = 3 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "minted_amount",
+    (gogoproto.moretags)  = "yaml:\"minted_amount\""
+  ];
+  uint64 minted_count = 4 [
+    (gogoproto.jsontag)   = "minted_count",
+    (gogoproto.moretags)  = "yaml:\"minted_count\""
+  ];
+  cosmos.base.v1beta1.Coin voided_amount = 5 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "voided_amount",
+    (gogoproto.moretags)  = "yaml:\"voided_amount\""
+  ];
+  uint64 voided_count = 6 [
+    (gogoproto.jsontag)   = "voided_count",
+    (gogoproto.moretags)  = "yaml:\"voided_count\""
+  ];
+  cosmos.base.v1beta1.Coin refund_pending_amount = 7 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refund_pending_amount",
+    (gogoproto.moretags)  = "yaml:\"refund_pending_amount\""
+  ];
+  uint64 refund_pending_count = 8 [
+    (gogoproto.jsontag)   = "refund_pending_count",
+    (gogoproto.moretags)  = "yaml:\"refund_pending_count\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_amount = 9 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_amount",
+    (gogoproto.moretags)  = "yaml:\"refunded_amount\""
+  ];
+  uint64 refunded_count = 10 [
+    (gogoproto.jsontag)   = "refunded_count",
+    (gogoproto.moretags)  = "yaml:\"refunded_count\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_in_epoch = 11 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_in_epoch",
+    (gogoproto.moretags)  = "yaml:\"refunded_in_epoch\""
   ];
 }

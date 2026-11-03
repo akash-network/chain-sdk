@@ -20,7 +20,7 @@ func TestQueryValidation(t *testing.T) {
 
 	require.NoError(t, (types.QueryTransfersRequest{Owner: account(7), Status: types.StatusRefunded}).ValidateBasic())
 	require.Error(t, (types.QueryTransfersRequest{Owner: "bad"}).ValidateBasic())
-	require.Error(t, (types.QueryTransfersRequest{Status: 3}).ValidateBasic())
+	require.Error(t, (types.QueryTransfersRequest{Status: 6}).ValidateBasic())
 	require.Error(t, (types.QueryTransferRequest{}).ValidateBasic())
 	require.Error(t, (types.QueryAccountRequest{}).ValidateBasic())
 	require.Error(t, (types.QueryDisputesRequest{Pagination: &query.PageRequest{Offset: 1}}).ValidateBasic())

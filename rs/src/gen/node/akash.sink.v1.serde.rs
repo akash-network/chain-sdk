@@ -1031,13 +1031,98 @@ impl serde::Serialize for EventTotalsUpdated {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.totals.is_some() {
+        if self.pending_amount.is_some() {
+            len += 1;
+        }
+        if self.pending_count != 0 {
+            len += 1;
+        }
+        if self.minted_amount.is_some() {
+            len += 1;
+        }
+        if self.minted_count != 0 {
+            len += 1;
+        }
+        if self.voided_amount.is_some() {
+            len += 1;
+        }
+        if self.voided_count != 0 {
+            len += 1;
+        }
+        if self.refund_pending_amount.is_some() {
+            len += 1;
+        }
+        if self.refund_pending_count != 0 {
+            len += 1;
+        }
+        if self.refunded_amount.is_some() {
+            len += 1;
+        }
+        if self.refunded_count != 0 {
+            len += 1;
+        }
+        if self.refunded_in_epoch.is_some() {
             len += 1;
         }
         let mut struct_ser =
             serializer.serialize_struct("akash.sink.v1.EventTotalsUpdated", len)?;
-        if let Some(v) = self.totals.as_ref() {
-            struct_ser.serialize_field("totals", v)?;
+        if let Some(v) = self.pending_amount.as_ref() {
+            struct_ser.serialize_field("pendingAmount", v)?;
+        }
+        if self.pending_count != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "pendingCount",
+                ToString::to_string(&self.pending_count).as_str(),
+            )?;
+        }
+        if let Some(v) = self.minted_amount.as_ref() {
+            struct_ser.serialize_field("mintedAmount", v)?;
+        }
+        if self.minted_count != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "mintedCount",
+                ToString::to_string(&self.minted_count).as_str(),
+            )?;
+        }
+        if let Some(v) = self.voided_amount.as_ref() {
+            struct_ser.serialize_field("voidedAmount", v)?;
+        }
+        if self.voided_count != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "voidedCount",
+                ToString::to_string(&self.voided_count).as_str(),
+            )?;
+        }
+        if let Some(v) = self.refund_pending_amount.as_ref() {
+            struct_ser.serialize_field("refundPendingAmount", v)?;
+        }
+        if self.refund_pending_count != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "refundPendingCount",
+                ToString::to_string(&self.refund_pending_count).as_str(),
+            )?;
+        }
+        if let Some(v) = self.refunded_amount.as_ref() {
+            struct_ser.serialize_field("refundedAmount", v)?;
+        }
+        if self.refunded_count != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "refundedCount",
+                ToString::to_string(&self.refunded_count).as_str(),
+            )?;
+        }
+        if let Some(v) = self.refunded_in_epoch.as_ref() {
+            struct_ser.serialize_field("refundedInEpoch", v)?;
         }
         struct_ser.end()
     }
@@ -1048,11 +1133,44 @@ impl<'de> serde::Deserialize<'de> for EventTotalsUpdated {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["totals"];
+        const FIELDS: &[&str] = &[
+            "pending_amount",
+            "pendingAmount",
+            "pending_count",
+            "pendingCount",
+            "minted_amount",
+            "mintedAmount",
+            "minted_count",
+            "mintedCount",
+            "voided_amount",
+            "voidedAmount",
+            "voided_count",
+            "voidedCount",
+            "refund_pending_amount",
+            "refundPendingAmount",
+            "refund_pending_count",
+            "refundPendingCount",
+            "refunded_amount",
+            "refundedAmount",
+            "refunded_count",
+            "refundedCount",
+            "refunded_in_epoch",
+            "refundedInEpoch",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Totals,
+            PendingAmount,
+            PendingCount,
+            MintedAmount,
+            MintedCount,
+            VoidedAmount,
+            VoidedCount,
+            RefundPendingAmount,
+            RefundPendingCount,
+            RefundedAmount,
+            RefundedCount,
+            RefundedInEpoch,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -1077,7 +1195,25 @@ impl<'de> serde::Deserialize<'de> for EventTotalsUpdated {
                         E: serde::de::Error,
                     {
                         match value {
-                            "totals" => Ok(GeneratedField::Totals),
+                            "pendingAmount" | "pending_amount" => Ok(GeneratedField::PendingAmount),
+                            "pendingCount" | "pending_count" => Ok(GeneratedField::PendingCount),
+                            "mintedAmount" | "minted_amount" => Ok(GeneratedField::MintedAmount),
+                            "mintedCount" | "minted_count" => Ok(GeneratedField::MintedCount),
+                            "voidedAmount" | "voided_amount" => Ok(GeneratedField::VoidedAmount),
+                            "voidedCount" | "voided_count" => Ok(GeneratedField::VoidedCount),
+                            "refundPendingAmount" | "refund_pending_amount" => {
+                                Ok(GeneratedField::RefundPendingAmount)
+                            }
+                            "refundPendingCount" | "refund_pending_count" => {
+                                Ok(GeneratedField::RefundPendingCount)
+                            }
+                            "refundedAmount" | "refunded_amount" => {
+                                Ok(GeneratedField::RefundedAmount)
+                            }
+                            "refundedCount" | "refunded_count" => Ok(GeneratedField::RefundedCount),
+                            "refundedInEpoch" | "refunded_in_epoch" => {
+                                Ok(GeneratedField::RefundedInEpoch)
+                            }
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -1097,18 +1233,119 @@ impl<'de> serde::Deserialize<'de> for EventTotalsUpdated {
             where
                 V: serde::de::MapAccess<'de>,
             {
-                let mut totals__ = None;
+                let mut pending_amount__ = None;
+                let mut pending_count__ = None;
+                let mut minted_amount__ = None;
+                let mut minted_count__ = None;
+                let mut voided_amount__ = None;
+                let mut voided_count__ = None;
+                let mut refund_pending_amount__ = None;
+                let mut refund_pending_count__ = None;
+                let mut refunded_amount__ = None;
+                let mut refunded_count__ = None;
+                let mut refunded_in_epoch__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Totals => {
-                            if totals__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("totals"));
+                        GeneratedField::PendingAmount => {
+                            if pending_amount__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("pendingAmount"));
                             }
-                            totals__ = map_.next_value()?;
+                            pending_amount__ = map_.next_value()?;
+                        }
+                        GeneratedField::PendingCount => {
+                            if pending_count__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("pendingCount"));
+                            }
+                            pending_count__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::MintedAmount => {
+                            if minted_amount__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("mintedAmount"));
+                            }
+                            minted_amount__ = map_.next_value()?;
+                        }
+                        GeneratedField::MintedCount => {
+                            if minted_count__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("mintedCount"));
+                            }
+                            minted_count__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::VoidedAmount => {
+                            if voided_amount__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("voidedAmount"));
+                            }
+                            voided_amount__ = map_.next_value()?;
+                        }
+                        GeneratedField::VoidedCount => {
+                            if voided_count__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("voidedCount"));
+                            }
+                            voided_count__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::RefundPendingAmount => {
+                            if refund_pending_amount__.is_some() {
+                                return Err(serde::de::Error::duplicate_field(
+                                    "refundPendingAmount",
+                                ));
+                            }
+                            refund_pending_amount__ = map_.next_value()?;
+                        }
+                        GeneratedField::RefundPendingCount => {
+                            if refund_pending_count__.is_some() {
+                                return Err(serde::de::Error::duplicate_field(
+                                    "refundPendingCount",
+                                ));
+                            }
+                            refund_pending_count__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::RefundedAmount => {
+                            if refunded_amount__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("refundedAmount"));
+                            }
+                            refunded_amount__ = map_.next_value()?;
+                        }
+                        GeneratedField::RefundedCount => {
+                            if refunded_count__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("refundedCount"));
+                            }
+                            refunded_count__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::RefundedInEpoch => {
+                            if refunded_in_epoch__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("refundedInEpoch"));
+                            }
+                            refunded_in_epoch__ = map_.next_value()?;
                         }
                     }
                 }
-                Ok(EventTotalsUpdated { totals: totals__ })
+                Ok(EventTotalsUpdated {
+                    pending_amount: pending_amount__,
+                    pending_count: pending_count__.unwrap_or_default(),
+                    minted_amount: minted_amount__,
+                    minted_count: minted_count__.unwrap_or_default(),
+                    voided_amount: voided_amount__,
+                    voided_count: voided_count__.unwrap_or_default(),
+                    refund_pending_amount: refund_pending_amount__,
+                    refund_pending_count: refund_pending_count__.unwrap_or_default(),
+                    refunded_amount: refunded_amount__,
+                    refunded_count: refunded_count__.unwrap_or_default(),
+                    refunded_in_epoch: refunded_in_epoch__,
+                })
             }
         }
         deserializer.deserialize_struct(
@@ -1989,6 +2226,149 @@ impl<'de> serde::Deserialize<'de> for GenesisAccount {
         deserializer.deserialize_struct("akash.sink.v1.GenesisAccount", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for GenesisRecord {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.data.is_some() {
+            len += 1;
+        }
+        if self.settlement.is_some() {
+            len += 1;
+        }
+        if self.status != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("akash.sink.v1.GenesisRecord", len)?;
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if let Some(v) = self.data.as_ref() {
+            struct_ser.serialize_field("data", v)?;
+        }
+        if let Some(v) = self.settlement.as_ref() {
+            struct_ser.serialize_field("settlement", v)?;
+        }
+        if self.status != 0 {
+            let v = Status::try_from(self.status).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.status))
+            })?;
+            struct_ser.serialize_field("status", &v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GenesisRecord {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &["id", "data", "settlement", "status"];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Data,
+            Settlement,
+            Status,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "data" => Ok(GeneratedField::Data),
+                            "settlement" => Ok(GeneratedField::Settlement),
+                            "status" => Ok(GeneratedField::Status),
+                            _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GenesisRecord;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct akash.sink.v1.GenesisRecord")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenesisRecord, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut data__ = None;
+                let mut settlement__ = None;
+                let mut status__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Data => {
+                            if data__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("data"));
+                            }
+                            data__ = map_.next_value()?;
+                        }
+                        GeneratedField::Settlement => {
+                            if settlement__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("settlement"));
+                            }
+                            settlement__ = map_.next_value()?;
+                        }
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value::<Status>()? as i32);
+                        }
+                    }
+                }
+                Ok(GenesisRecord {
+                    id: id__,
+                    data: data__,
+                    settlement: settlement__,
+                    status: status__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("akash.sink.v1.GenesisRecord", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GenesisState {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -2012,13 +2392,16 @@ impl serde::Serialize for GenesisState {
         if self.refund_usage.is_some() {
             len += 1;
         }
-        if !self.transfers.is_empty() {
+        if !self.records.is_empty() {
             len += 1;
         }
         if !self.accounts.is_empty() {
             len += 1;
         }
         if self.schema_version != 0 {
+            len += 1;
+        }
+        if self.current_policy_version != 0 {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.GenesisState", len)?;
@@ -2037,14 +2420,22 @@ impl serde::Serialize for GenesisState {
         if let Some(v) = self.refund_usage.as_ref() {
             struct_ser.serialize_field("refundUsage", v)?;
         }
-        if !self.transfers.is_empty() {
-            struct_ser.serialize_field("transfers", &self.transfers)?;
+        if !self.records.is_empty() {
+            struct_ser.serialize_field("records", &self.records)?;
         }
         if !self.accounts.is_empty() {
             struct_ser.serialize_field("accounts", &self.accounts)?;
         }
         if self.schema_version != 0 {
             struct_ser.serialize_field("schemaVersion", &self.schema_version)?;
+        }
+        if self.current_policy_version != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "currentPolicyVersion",
+                ToString::to_string(&self.current_policy_version).as_str(),
+            )?;
         }
         struct_ser.end()
     }
@@ -2063,10 +2454,12 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
             "sendUsage",
             "refund_usage",
             "refundUsage",
-            "transfers",
+            "records",
             "accounts",
             "schema_version",
             "schemaVersion",
+            "current_policy_version",
+            "currentPolicyVersion",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -2076,9 +2469,10 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
             Policies,
             SendUsage,
             RefundUsage,
-            Transfers,
+            Records,
             Accounts,
             SchemaVersion,
+            CurrentPolicyVersion,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -2108,9 +2502,12 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             "policies" => Ok(GeneratedField::Policies),
                             "sendUsage" | "send_usage" => Ok(GeneratedField::SendUsage),
                             "refundUsage" | "refund_usage" => Ok(GeneratedField::RefundUsage),
-                            "transfers" => Ok(GeneratedField::Transfers),
+                            "records" => Ok(GeneratedField::Records),
                             "accounts" => Ok(GeneratedField::Accounts),
                             "schemaVersion" | "schema_version" => Ok(GeneratedField::SchemaVersion),
+                            "currentPolicyVersion" | "current_policy_version" => {
+                                Ok(GeneratedField::CurrentPolicyVersion)
+                            }
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -2135,9 +2532,10 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                 let mut policies__ = None;
                 let mut send_usage__ = None;
                 let mut refund_usage__ = None;
-                let mut transfers__ = None;
+                let mut records__ = None;
                 let mut accounts__ = None;
                 let mut schema_version__ = None;
+                let mut current_policy_version__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Params => {
@@ -2170,11 +2568,11 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                             }
                             refund_usage__ = map_.next_value()?;
                         }
-                        GeneratedField::Transfers => {
-                            if transfers__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("transfers"));
+                        GeneratedField::Records => {
+                            if records__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("records"));
                             }
-                            transfers__ = Some(map_.next_value()?);
+                            records__ = Some(map_.next_value()?);
                         }
                         GeneratedField::Accounts => {
                             if accounts__.is_some() {
@@ -2191,6 +2589,17 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                                     .0,
                             );
                         }
+                        GeneratedField::CurrentPolicyVersion => {
+                            if current_policy_version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field(
+                                    "currentPolicyVersion",
+                                ));
+                            }
+                            current_policy_version__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
                     }
                 }
                 Ok(GenesisState {
@@ -2199,9 +2608,10 @@ impl<'de> serde::Deserialize<'de> for GenesisState {
                     policies: policies__.unwrap_or_default(),
                     send_usage: send_usage__,
                     refund_usage: refund_usage__,
-                    transfers: transfers__.unwrap_or_default(),
+                    records: records__.unwrap_or_default(),
                     accounts: accounts__.unwrap_or_default(),
                     schema_version: schema_version__.unwrap_or_default(),
+                    current_policy_version: current_policy_version__.unwrap_or_default(),
                 })
             }
         }
@@ -3571,12 +3981,23 @@ impl serde::Serialize for MsgRequestVoid {
         if self.id.is_some() {
             len += 1;
         }
+        if self.expected_round != 0 {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.MsgRequestVoid", len)?;
         if !self.authority.is_empty() {
             struct_ser.serialize_field("authority", &self.authority)?;
         }
         if let Some(v) = self.id.as_ref() {
             struct_ser.serialize_field("id", v)?;
+        }
+        if self.expected_round != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "expectedRound",
+                ToString::to_string(&self.expected_round).as_str(),
+            )?;
         }
         struct_ser.end()
     }
@@ -3587,12 +4008,13 @@ impl<'de> serde::Deserialize<'de> for MsgRequestVoid {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["authority", "id"];
+        const FIELDS: &[&str] = &["authority", "id", "expected_round", "expectedRound"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Authority,
             Id,
+            ExpectedRound,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -3619,6 +4041,7 @@ impl<'de> serde::Deserialize<'de> for MsgRequestVoid {
                         match value {
                             "authority" => Ok(GeneratedField::Authority),
                             "id" => Ok(GeneratedField::Id),
+                            "expectedRound" | "expected_round" => Ok(GeneratedField::ExpectedRound),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -3640,6 +4063,7 @@ impl<'de> serde::Deserialize<'de> for MsgRequestVoid {
             {
                 let mut authority__ = None;
                 let mut id__ = None;
+                let mut expected_round__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Authority => {
@@ -3654,11 +4078,21 @@ impl<'de> serde::Deserialize<'de> for MsgRequestVoid {
                             }
                             id__ = map_.next_value()?;
                         }
+                        GeneratedField::ExpectedRound => {
+                            if expected_round__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("expectedRound"));
+                            }
+                            expected_round__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
                     }
                 }
                 Ok(MsgRequestVoid {
                     authority: authority__.unwrap_or_default(),
                     id: id__,
+                    expected_round: expected_round__.unwrap_or_default(),
                 })
             }
         }
@@ -4612,7 +5046,10 @@ impl serde::Serialize for Observation {
         if self.outcome != 0 {
             len += 1;
         }
-        if self.evidence.is_some() {
+        if self.slot != 0 {
+            len += 1;
+        }
+        if !self.transaction_signature.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.Observation", len)?;
@@ -4622,8 +5059,18 @@ impl serde::Serialize for Observation {
             })?;
             struct_ser.serialize_field("outcome", &v)?;
         }
-        if let Some(v) = self.evidence.as_ref() {
-            struct_ser.serialize_field("evidence", v)?;
+        if self.slot != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("slot", ToString::to_string(&self.slot).as_str())?;
+        }
+        if !self.transaction_signature.is_empty() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "transactionSignature",
+                pbjson::private::base64::encode(&self.transaction_signature).as_str(),
+            )?;
         }
         struct_ser.end()
     }
@@ -4634,12 +5081,18 @@ impl<'de> serde::Deserialize<'de> for Observation {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["outcome", "evidence"];
+        const FIELDS: &[&str] = &[
+            "outcome",
+            "slot",
+            "transaction_signature",
+            "transactionSignature",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Outcome,
-            Evidence,
+            Slot,
+            TransactionSignature,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -4665,7 +5118,10 @@ impl<'de> serde::Deserialize<'de> for Observation {
                     {
                         match value {
                             "outcome" => Ok(GeneratedField::Outcome),
-                            "evidence" => Ok(GeneratedField::Evidence),
+                            "slot" => Ok(GeneratedField::Slot),
+                            "transactionSignature" | "transaction_signature" => {
+                                Ok(GeneratedField::TransactionSignature)
+                            }
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -4686,7 +5142,8 @@ impl<'de> serde::Deserialize<'de> for Observation {
                 V: serde::de::MapAccess<'de>,
             {
                 let mut outcome__ = None;
-                let mut evidence__ = None;
+                let mut slot__ = None;
+                let mut transaction_signature__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Outcome => {
@@ -4695,17 +5152,32 @@ impl<'de> serde::Deserialize<'de> for Observation {
                             }
                             outcome__ = Some(map_.next_value::<Outcome>()? as i32);
                         }
-                        GeneratedField::Evidence => {
-                            if evidence__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("evidence"));
+                        GeneratedField::Slot => {
+                            if slot__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("slot"));
                             }
-                            evidence__ = map_.next_value()?;
+                            slot__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::TransactionSignature => {
+                            if transaction_signature__.is_some() {
+                                return Err(serde::de::Error::duplicate_field(
+                                    "transactionSignature",
+                                ));
+                            }
+                            transaction_signature__ = Some(
+                                map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                     }
                 }
                 Ok(Observation {
                     outcome: outcome__.unwrap_or_default(),
-                    evidence: evidence__,
+                    slot: slot__.unwrap_or_default(),
+                    transaction_signature: transaction_signature__.unwrap_or_default(),
                 })
             }
         }
@@ -6517,37 +6989,37 @@ impl serde::Serialize for SettlementData {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.status != 0 {
-            len += 1;
-        }
         if self.hold != 0 {
             len += 1;
         }
         if self.round != 0 {
             len += 1;
         }
-        if self.policy_version != 0 {
+        if self.policy.is_some() {
             len += 1;
         }
         if !self.votes.is_empty() {
             len += 1;
         }
-        if self.challenge_end.is_some() {
+        if self.challenge_end != 0 {
             len += 1;
         }
-        if self.governance_evidence.is_some() {
+        if self.governance_observation.is_some() {
             len += 1;
         }
-        if self.veto.is_some() {
+        if !self.veto_by.is_empty() {
+            len += 1;
+        }
+        if !self.veto_reason.is_empty() {
+            len += 1;
+        }
+        if self.void_authorization.is_some() {
+            len += 1;
+        }
+        if self.veto_policy_version != 0 {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.SettlementData", len)?;
-        if self.status != 0 {
-            let v = Status::try_from(self.status).map_err(|_| {
-                serde::ser::Error::custom(format!("Invalid variant {}", self.status))
-            })?;
-            struct_ser.serialize_field("status", &v)?;
-        }
         if self.hold != 0 {
             let v = Hold::try_from(self.hold)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.hold)))?;
@@ -6558,25 +7030,39 @@ impl serde::Serialize for SettlementData {
             #[allow(clippy::needless_borrows_for_generic_args)]
             struct_ser.serialize_field("round", ToString::to_string(&self.round).as_str())?;
         }
-        if self.policy_version != 0 {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field(
-                "policyVersion",
-                ToString::to_string(&self.policy_version).as_str(),
-            )?;
+        if let Some(v) = self.policy.as_ref() {
+            struct_ser.serialize_field("policy", v)?;
         }
         if !self.votes.is_empty() {
             struct_ser.serialize_field("votes", &self.votes)?;
         }
-        if let Some(v) = self.challenge_end.as_ref() {
-            struct_ser.serialize_field("challengeEnd", v)?;
+        if self.challenge_end != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "challengeEnd",
+                ToString::to_string(&self.challenge_end).as_str(),
+            )?;
         }
-        if let Some(v) = self.governance_evidence.as_ref() {
-            struct_ser.serialize_field("governanceEvidence", v)?;
+        if let Some(v) = self.governance_observation.as_ref() {
+            struct_ser.serialize_field("governanceObservation", v)?;
         }
-        if let Some(v) = self.veto.as_ref() {
-            struct_ser.serialize_field("veto", v)?;
+        if !self.veto_by.is_empty() {
+            struct_ser.serialize_field("vetoBy", &self.veto_by)?;
+        }
+        if !self.veto_reason.is_empty() {
+            struct_ser.serialize_field("vetoReason", &self.veto_reason)?;
+        }
+        if let Some(v) = self.void_authorization.as_ref() {
+            struct_ser.serialize_field("voidAuthorization", v)?;
+        }
+        if self.veto_policy_version != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "vetoPolicyVersion",
+                ToString::to_string(&self.veto_policy_version).as_str(),
+            )?;
         }
         struct_ser.end()
     }
@@ -6588,29 +7074,36 @@ impl<'de> serde::Deserialize<'de> for SettlementData {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "status",
             "hold",
             "round",
-            "policy_version",
-            "policyVersion",
+            "policy",
             "votes",
             "challenge_end",
             "challengeEnd",
-            "governance_evidence",
-            "governanceEvidence",
-            "veto",
+            "governance_observation",
+            "governanceObservation",
+            "veto_by",
+            "vetoBy",
+            "veto_reason",
+            "vetoReason",
+            "void_authorization",
+            "voidAuthorization",
+            "veto_policy_version",
+            "vetoPolicyVersion",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Status,
             Hold,
             Round,
-            PolicyVersion,
+            Policy,
             Votes,
             ChallengeEnd,
-            GovernanceEvidence,
-            Veto,
+            GovernanceObservation,
+            VetoBy,
+            VetoReason,
+            VoidAuthorization,
+            VetoPolicyVersion,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -6635,16 +7128,22 @@ impl<'de> serde::Deserialize<'de> for SettlementData {
                         E: serde::de::Error,
                     {
                         match value {
-                            "status" => Ok(GeneratedField::Status),
                             "hold" => Ok(GeneratedField::Hold),
                             "round" => Ok(GeneratedField::Round),
-                            "policyVersion" | "policy_version" => Ok(GeneratedField::PolicyVersion),
+                            "policy" => Ok(GeneratedField::Policy),
                             "votes" => Ok(GeneratedField::Votes),
                             "challengeEnd" | "challenge_end" => Ok(GeneratedField::ChallengeEnd),
-                            "governanceEvidence" | "governance_evidence" => {
-                                Ok(GeneratedField::GovernanceEvidence)
+                            "governanceObservation" | "governance_observation" => {
+                                Ok(GeneratedField::GovernanceObservation)
                             }
-                            "veto" => Ok(GeneratedField::Veto),
+                            "vetoBy" | "veto_by" => Ok(GeneratedField::VetoBy),
+                            "vetoReason" | "veto_reason" => Ok(GeneratedField::VetoReason),
+                            "voidAuthorization" | "void_authorization" => {
+                                Ok(GeneratedField::VoidAuthorization)
+                            }
+                            "vetoPolicyVersion" | "veto_policy_version" => {
+                                Ok(GeneratedField::VetoPolicyVersion)
+                            }
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -6664,22 +7163,18 @@ impl<'de> serde::Deserialize<'de> for SettlementData {
             where
                 V: serde::de::MapAccess<'de>,
             {
-                let mut status__ = None;
                 let mut hold__ = None;
                 let mut round__ = None;
-                let mut policy_version__ = None;
+                let mut policy__ = None;
                 let mut votes__ = None;
                 let mut challenge_end__ = None;
-                let mut governance_evidence__ = None;
-                let mut veto__ = None;
+                let mut governance_observation__ = None;
+                let mut veto_by__ = None;
+                let mut veto_reason__ = None;
+                let mut void_authorization__ = None;
+                let mut veto_policy_version__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Status => {
-                            if status__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("status"));
-                            }
-                            status__ = Some(map_.next_value::<Status>()? as i32);
-                        }
                         GeneratedField::Hold => {
                             if hold__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("hold"));
@@ -6695,14 +7190,11 @@ impl<'de> serde::Deserialize<'de> for SettlementData {
                                     .0,
                             );
                         }
-                        GeneratedField::PolicyVersion => {
-                            if policy_version__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("policyVersion"));
+                        GeneratedField::Policy => {
+                            if policy__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("policy"));
                             }
-                            policy_version__ = Some(
-                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
-                                    .0,
-                            );
+                            policy__ = map_.next_value()?;
                         }
                         GeneratedField::Votes => {
                             if votes__.is_some() {
@@ -6714,33 +7206,59 @@ impl<'de> serde::Deserialize<'de> for SettlementData {
                             if challenge_end__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("challengeEnd"));
                             }
-                            challenge_end__ = map_.next_value()?;
+                            challenge_end__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
-                        GeneratedField::GovernanceEvidence => {
-                            if governance_evidence__.is_some() {
+                        GeneratedField::GovernanceObservation => {
+                            if governance_observation__.is_some() {
                                 return Err(serde::de::Error::duplicate_field(
-                                    "governanceEvidence",
+                                    "governanceObservation",
                                 ));
                             }
-                            governance_evidence__ = map_.next_value()?;
+                            governance_observation__ = map_.next_value()?;
                         }
-                        GeneratedField::Veto => {
-                            if veto__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("veto"));
+                        GeneratedField::VetoBy => {
+                            if veto_by__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("vetoBy"));
                             }
-                            veto__ = map_.next_value()?;
+                            veto_by__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::VetoReason => {
+                            if veto_reason__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("vetoReason"));
+                            }
+                            veto_reason__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::VoidAuthorization => {
+                            if void_authorization__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("voidAuthorization"));
+                            }
+                            void_authorization__ = map_.next_value()?;
+                        }
+                        GeneratedField::VetoPolicyVersion => {
+                            if veto_policy_version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("vetoPolicyVersion"));
+                            }
+                            veto_policy_version__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                     }
                 }
                 Ok(SettlementData {
-                    status: status__.unwrap_or_default(),
                     hold: hold__.unwrap_or_default(),
                     round: round__.unwrap_or_default(),
-                    policy_version: policy_version__.unwrap_or_default(),
+                    policy: policy__,
                     votes: votes__.unwrap_or_default(),
-                    challenge_end: challenge_end__,
-                    governance_evidence: governance_evidence__,
-                    veto: veto__,
+                    challenge_end: challenge_end__.unwrap_or_default(),
+                    governance_observation: governance_observation__,
+                    veto_by: veto_by__.unwrap_or_default(),
+                    veto_reason: veto_reason__.unwrap_or_default(),
+                    void_authorization: void_authorization__,
+                    veto_policy_version: veto_policy_version__.unwrap_or_default(),
                 })
             }
         }
@@ -7035,6 +7553,7 @@ impl serde::Serialize for Status {
             Self::Invalid => "STATUS_INVALID",
             Self::TransferPending => "STATUS_TRANSFER_PENDING",
             Self::Minted => "STATUS_MINTED",
+            Self::Voided => "STATUS_VOIDED",
             Self::RefundPending => "STATUS_REFUND_PENDING",
             Self::Refunded => "STATUS_REFUNDED",
         };
@@ -7051,6 +7570,7 @@ impl<'de> serde::Deserialize<'de> for Status {
             "STATUS_INVALID",
             "STATUS_TRANSFER_PENDING",
             "STATUS_MINTED",
+            "STATUS_VOIDED",
             "STATUS_REFUND_PENDING",
             "STATUS_REFUNDED",
         ];
@@ -7096,6 +7616,7 @@ impl<'de> serde::Deserialize<'de> for Status {
                     "STATUS_INVALID" => Ok(Status::Invalid),
                     "STATUS_TRANSFER_PENDING" => Ok(Status::TransferPending),
                     "STATUS_MINTED" => Ok(Status::Minted),
+                    "STATUS_VOIDED" => Ok(Status::Voided),
                     "STATUS_REFUND_PENDING" => Ok(Status::RefundPending),
                     "STATUS_REFUNDED" => Ok(Status::Refunded),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
@@ -7123,6 +7644,12 @@ impl serde::Serialize for Totals {
             len += 1;
         }
         if self.minted_count != 0 {
+            len += 1;
+        }
+        if self.voided_amount.is_some() {
+            len += 1;
+        }
+        if self.voided_count != 0 {
             len += 1;
         }
         if self.refund_pending_amount.is_some() {
@@ -7158,6 +7685,17 @@ impl serde::Serialize for Totals {
             struct_ser.serialize_field(
                 "mintedCount",
                 ToString::to_string(&self.minted_count).as_str(),
+            )?;
+        }
+        if let Some(v) = self.voided_amount.as_ref() {
+            struct_ser.serialize_field("voidedAmount", v)?;
+        }
+        if self.voided_count != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "voidedCount",
+                ToString::to_string(&self.voided_count).as_str(),
             )?;
         }
         if let Some(v) = self.refund_pending_amount.as_ref() {
@@ -7200,6 +7738,10 @@ impl<'de> serde::Deserialize<'de> for Totals {
             "mintedAmount",
             "minted_count",
             "mintedCount",
+            "voided_amount",
+            "voidedAmount",
+            "voided_count",
+            "voidedCount",
             "refund_pending_amount",
             "refundPendingAmount",
             "refund_pending_count",
@@ -7216,6 +7758,8 @@ impl<'de> serde::Deserialize<'de> for Totals {
             PendingCount,
             MintedAmount,
             MintedCount,
+            VoidedAmount,
+            VoidedCount,
             RefundPendingAmount,
             RefundPendingCount,
             RefundedAmount,
@@ -7248,6 +7792,8 @@ impl<'de> serde::Deserialize<'de> for Totals {
                             "pendingCount" | "pending_count" => Ok(GeneratedField::PendingCount),
                             "mintedAmount" | "minted_amount" => Ok(GeneratedField::MintedAmount),
                             "mintedCount" | "minted_count" => Ok(GeneratedField::MintedCount),
+                            "voidedAmount" | "voided_amount" => Ok(GeneratedField::VoidedAmount),
+                            "voidedCount" | "voided_count" => Ok(GeneratedField::VoidedCount),
                             "refundPendingAmount" | "refund_pending_amount" => {
                                 Ok(GeneratedField::RefundPendingAmount)
                             }
@@ -7281,6 +7827,8 @@ impl<'de> serde::Deserialize<'de> for Totals {
                 let mut pending_count__ = None;
                 let mut minted_amount__ = None;
                 let mut minted_count__ = None;
+                let mut voided_amount__ = None;
+                let mut voided_count__ = None;
                 let mut refund_pending_amount__ = None;
                 let mut refund_pending_count__ = None;
                 let mut refunded_amount__ = None;
@@ -7313,6 +7861,21 @@ impl<'de> serde::Deserialize<'de> for Totals {
                                 return Err(serde::de::Error::duplicate_field("mintedCount"));
                             }
                             minted_count__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
+                        }
+                        GeneratedField::VoidedAmount => {
+                            if voided_amount__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("voidedAmount"));
+                            }
+                            voided_amount__ = map_.next_value()?;
+                        }
+                        GeneratedField::VoidedCount => {
+                            if voided_count__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("voidedCount"));
+                            }
+                            voided_count__ = Some(
                                 map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
                                     .0,
                             );
@@ -7358,6 +7921,8 @@ impl<'de> serde::Deserialize<'de> for Totals {
                     pending_count: pending_count__.unwrap_or_default(),
                     minted_amount: minted_amount__,
                     minted_count: minted_count__.unwrap_or_default(),
+                    voided_amount: voided_amount__,
+                    voided_count: voided_count__.unwrap_or_default(),
                     refund_pending_amount: refund_pending_amount__,
                     refund_pending_count: refund_pending_count__.unwrap_or_default(),
                     refunded_amount: refunded_amount__,
@@ -7385,7 +7950,7 @@ impl serde::Serialize for TransferState {
         if self.settlement.is_some() {
             len += 1;
         }
-        if self.void_ordered {
+        if self.status != 0 {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("akash.sink.v1.TransferState", len)?;
@@ -7398,8 +7963,11 @@ impl serde::Serialize for TransferState {
         if let Some(v) = self.settlement.as_ref() {
             struct_ser.serialize_field("settlement", v)?;
         }
-        if self.void_ordered {
-            struct_ser.serialize_field("voidOrdered", &self.void_ordered)?;
+        if self.status != 0 {
+            let v = Status::try_from(self.status).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.status))
+            })?;
+            struct_ser.serialize_field("status", &v)?;
         }
         struct_ser.end()
     }
@@ -7410,14 +7978,14 @@ impl<'de> serde::Deserialize<'de> for TransferState {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["id", "data", "settlement", "void_ordered", "voidOrdered"];
+        const FIELDS: &[&str] = &["id", "data", "settlement", "status"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Id,
             Data,
             Settlement,
-            VoidOrdered,
+            Status,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -7445,7 +8013,7 @@ impl<'de> serde::Deserialize<'de> for TransferState {
                             "id" => Ok(GeneratedField::Id),
                             "data" => Ok(GeneratedField::Data),
                             "settlement" => Ok(GeneratedField::Settlement),
-                            "voidOrdered" | "void_ordered" => Ok(GeneratedField::VoidOrdered),
+                            "status" => Ok(GeneratedField::Status),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -7468,7 +8036,7 @@ impl<'de> serde::Deserialize<'de> for TransferState {
                 let mut id__ = None;
                 let mut data__ = None;
                 let mut settlement__ = None;
-                let mut void_ordered__ = None;
+                let mut status__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -7489,11 +8057,11 @@ impl<'de> serde::Deserialize<'de> for TransferState {
                             }
                             settlement__ = map_.next_value()?;
                         }
-                        GeneratedField::VoidOrdered => {
-                            if void_ordered__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("voidOrdered"));
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
                             }
-                            void_ordered__ = Some(map_.next_value()?);
+                            status__ = Some(map_.next_value::<Status>()? as i32);
                         }
                     }
                 }
@@ -7501,14 +8069,14 @@ impl<'de> serde::Deserialize<'de> for TransferState {
                     id: id__,
                     data: data__,
                     settlement: settlement__,
-                    void_ordered: void_ordered__.unwrap_or_default(),
+                    status: status__.unwrap_or_default(),
                 })
             }
         }
         deserializer.deserialize_struct("akash.sink.v1.TransferState", FIELDS, GeneratedVisitor)
     }
 }
-impl serde::Serialize for Veto {
+impl serde::Serialize for VoidAuthorization {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -7516,34 +8084,49 @@ impl serde::Serialize for Veto {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if !self.signer.is_empty() {
+        if self.requested_height != 0 {
             len += 1;
         }
-        if !self.reason.is_empty() {
+        if self.requested_round != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("akash.sink.v1.Veto", len)?;
-        if !self.signer.is_empty() {
-            struct_ser.serialize_field("signer", &self.signer)?;
+        let mut struct_ser = serializer.serialize_struct("akash.sink.v1.VoidAuthorization", len)?;
+        if self.requested_height != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "requestedHeight",
+                ToString::to_string(&self.requested_height).as_str(),
+            )?;
         }
-        if !self.reason.is_empty() {
-            struct_ser.serialize_field("reason", &self.reason)?;
+        if self.requested_round != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field(
+                "requestedRound",
+                ToString::to_string(&self.requested_round).as_str(),
+            )?;
         }
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for Veto {
+impl<'de> serde::Deserialize<'de> for VoidAuthorization {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["signer", "reason"];
+        const FIELDS: &[&str] = &[
+            "requested_height",
+            "requestedHeight",
+            "requested_round",
+            "requestedRound",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Signer,
-            Reason,
+            RequestedHeight,
+            RequestedRound,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -7568,8 +8151,12 @@ impl<'de> serde::Deserialize<'de> for Veto {
                         E: serde::de::Error,
                     {
                         match value {
-                            "signer" => Ok(GeneratedField::Signer),
-                            "reason" => Ok(GeneratedField::Reason),
+                            "requestedHeight" | "requested_height" => {
+                                Ok(GeneratedField::RequestedHeight)
+                            }
+                            "requestedRound" | "requested_round" => {
+                                Ok(GeneratedField::RequestedRound)
+                            }
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -7579,41 +8166,47 @@ impl<'de> serde::Deserialize<'de> for Veto {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = Veto;
+            type Value = VoidAuthorization;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct akash.sink.v1.Veto")
+                formatter.write_str("struct akash.sink.v1.VoidAuthorization")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Veto, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<VoidAuthorization, V::Error>
             where
                 V: serde::de::MapAccess<'de>,
             {
-                let mut signer__ = None;
-                let mut reason__ = None;
+                let mut requested_height__ = None;
+                let mut requested_round__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Signer => {
-                            if signer__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("signer"));
+                        GeneratedField::RequestedHeight => {
+                            if requested_height__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("requestedHeight"));
                             }
-                            signer__ = Some(map_.next_value()?);
+                            requested_height__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
-                        GeneratedField::Reason => {
-                            if reason__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("reason"));
+                        GeneratedField::RequestedRound => {
+                            if requested_round__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("requestedRound"));
                             }
-                            reason__ = Some(map_.next_value()?);
+                            requested_round__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                     }
                 }
-                Ok(Veto {
-                    signer: signer__.unwrap_or_default(),
-                    reason: reason__.unwrap_or_default(),
+                Ok(VoidAuthorization {
+                    requested_height: requested_height__.unwrap_or_default(),
+                    requested_round: requested_round__.unwrap_or_default(),
                 })
             }
         }
-        deserializer.deserialize_struct("akash.sink.v1.Veto", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("akash.sink.v1.VoidAuthorization", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Vote {

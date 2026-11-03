@@ -4,17 +4,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const SchemaVersion uint32 = 3
+const SchemaVersion uint32 = 4
 
 func DefaultGenesis() *GenesisState {
 	params := DefaultParams()
 	return &GenesisState{
-		SchemaVersion: SchemaVersion,
-		Params:        params,
-		Totals:        DefaultTotals(),
-		Policies:      []ReporterPolicy{params.Policy(1)},
-		SendUsage:     EpochUsage{Amount: ZeroAmount()},
-		RefundUsage:   EpochUsage{Amount: ZeroAmount()},
+		SchemaVersion:        SchemaVersion,
+		CurrentPolicyVersion: 1,
+		Params:               params,
+		Totals:               DefaultTotals(),
+		Policies:             []ReporterPolicy{params.Policy(1)},
+		SendUsage:            EpochUsage{Amount: ZeroAmount()},
+		RefundUsage:          EpochUsage{Amount: ZeroAmount()},
 	}
 }
 
@@ -27,7 +28,7 @@ func (g *GenesisState) Validate() error {
 		return err
 	}
 
-	history, current, err := policyHistory(g.Policies)
+	history, current, err := policyHistory(g.Policies, g.CurrentPolicyVersion)
 	if err != nil {
 		return err
 	}
@@ -54,14 +55,14 @@ func (g *GenesisState) Validate() error {
 
 	totals := DefaultTotals()
 	amounts := make(map[string]sdk.Coin)
-	ids := make(map[ID]bool, len(g.Transfers))
+	ids := make(map[ID]bool, len(g.Records))
 	type position struct {
 		height   int64
 		sequence uint64
 	}
 
-	positions := make(map[position]bool, len(g.Transfers))
-	for _, transfer := range g.Transfers {
+	positions := make(map[position]bool, len(g.Records))
+	for _, transfer := range g.Records {
 		if err = transfer.ID.ValidateBasic(); err != nil {
 			return err
 		}
@@ -70,7 +71,7 @@ func (g *GenesisState) Validate() error {
 			return err
 		}
 
-		if err = transfer.Settlement.Validate(history); err != nil {
+		if err = transfer.Settlement.Validate(transfer.ID, transfer.Status, history); err != nil {
 			return err
 		}
 
@@ -82,15 +83,11 @@ func (g *GenesisState) Validate() error {
 
 		ids[id], positions[pos] = true, true
 
-		if transfer.Settlement.Status == StatusRefundPending && transfer.Settlement.GovernanceEvidence != nil && !transfer.VoidOrdered {
-			return ErrInvalidGenesis.Wrap("governance refund authorization requires a void order")
-		}
-
-		if !transfer.Settlement.Terminal() && transfer.Data.Amount.IsGT(g.Params.MaxEpochRefund) {
+		if !transfer.Status.Terminal() && transfer.Data.Amount.IsGT(g.Params.MaxEpochRefund) {
 			return ErrInvalidGenesis.Wrap("unpaid transfer exceeds refund cap")
 		}
 
-		if err = totals.Add(transfer.Settlement.Status, transfer.Data.Amount); err != nil {
+		if err = totals.Add(transfer.Status, transfer.Data.Amount); err != nil {
 			return err
 		}
 

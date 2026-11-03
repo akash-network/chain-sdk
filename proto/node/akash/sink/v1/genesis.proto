@@ -23,7 +23,33 @@ message GenesisAccount {
   ];
 }
 
-// GenesisState exports complete sink state; schema_version must be 3 for native epoch usage.
+// GenesisRecord preserves the immutable record and complete canonical settlement key.
+message GenesisRecord {
+  ID id = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag) = "id",
+    (gogoproto.moretags) = "yaml:\"id\""
+  ];
+  RecordData data = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "data",
+    (gogoproto.moretags) = "yaml:\"data\""
+  ];
+  SettlementData settlement = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "settlement",
+    (gogoproto.moretags) = "yaml:\"settlement\""
+  ];
+  reserved 4;
+  reserved "usage";
+  Status status = 5 [
+    (gogoproto.jsontag) = "status",
+    (gogoproto.moretags) = "yaml:\"status\""
+  ];
+}
+
+// GenesisState exports complete sink state; schema_version must be 4 for canonical settlements.
 message GenesisState {
   Params params = 1 [
     (gogoproto.nullable) = false,
@@ -37,8 +63,8 @@ message GenesisState {
     (gogoproto.moretags) = "yaml:\"totals\""
   ];
 
-  // Complete immutable history from version 1 through the current policy.
-  repeated ReporterPolicy policies = 3 [
+  // Current policy and every additional policy referenced by retained evidence.
+  repeated ReporterPolicy policies = 6 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "policies",
     (gogoproto.moretags) = "yaml:\"policies\""
@@ -56,10 +82,10 @@ message GenesisState {
     (gogoproto.moretags) = "yaml:\"refund_usage\""
   ];
 
-  repeated TransferState transfers = 6 [
+  repeated GenesisRecord records = 3 [
     (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "transfers",
-    (gogoproto.moretags) = "yaml:\"transfers\""
+    (gogoproto.jsontag) = "records",
+    (gogoproto.moretags) = "yaml:\"records\""
   ];
 
   // One record per owner, including any retained empty usage records.
@@ -72,5 +98,10 @@ message GenesisState {
   uint32 schema_version = 8 [
     (gogoproto.jsontag) = "schema_version",
     (gogoproto.moretags) = "yaml:\"schema_version\""
+  ];
+
+  uint64 current_policy_version = 9 [
+    (gogoproto.jsontag) = "current_policy_version",
+    (gogoproto.moretags) = "yaml:\"current_policy_version\""
   ];
 }

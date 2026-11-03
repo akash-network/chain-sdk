@@ -23,7 +23,8 @@ pub mod akash {
 
 #[cfg(test)]
 mod tests {
-    use super::akash::sink::v1::Id;
+    use super::akash::sink::v1::{Id, RecordData, SettlementData};
+    use super::cosmos::base::v1beta1::Coin;
     use prost::Message;
     use serde::Deserialize;
     use sha2::{Digest, Sha256};
@@ -35,15 +36,12 @@ mod tests {
         owner_hex: String,
         height: String,
         sequence: String,
-        recipient_hex: String,
+        recipient: String,
         amount: String,
         id_text: String,
         transfer_key_hex: String,
         record_value_hex: String,
-        void_order_key_hex: String,
-        void_order_value_hex: String,
         mint_proof_nonce_hex: String,
-        void_proof_nonce_hex: String,
         height_le_hex: String,
         sequence_le_hex: String,
     }
@@ -71,24 +69,60 @@ mod tests {
             suffix.extend(hex::decode(v.owner_hex).unwrap());
             suffix.extend(id.height.to_be_bytes());
             suffix.extend(id.sequence.to_be_bytes());
-            let mut transfer = vec![0x12, 0];
+            let mut transfer = vec![0x02, 0];
             transfer.extend(&suffix);
-            let mut order = vec![0x12, 1];
-            order.extend(&suffix);
             assert_eq!(hex::encode(&transfer), v.transfer_key_hex, "{}", v.name);
-            assert_eq!(hex::encode(&order), v.void_order_key_hex);
-            let mut record = vec![2];
-            record.extend(hex::decode(v.recipient_hex).unwrap());
-            record.extend(v.amount.parse::<u64>().unwrap().to_le_bytes());
-            assert_eq!(hex::encode(record), v.record_value_hex);
-            assert_eq!(v.void_order_value_hex, "02");
+            let record = RecordData {
+                dest: v.recipient,
+                amount: Some(Coin {
+                    denom: "uakt".into(),
+                    amount: v.amount,
+                }),
+            };
+            assert_eq!(hex::encode(record.encode_to_vec()), v.record_value_hex);
             assert_eq!(
                 hex::encode(Sha256::digest(transfer)),
                 v.mint_proof_nonce_hex
             );
-            assert_eq!(hex::encode(Sha256::digest(order)), v.void_proof_nonce_hex);
             assert_eq!(hex::encode(id.height.to_le_bytes()), v.height_le_hex);
             assert_eq!(hex::encode(id.sequence.to_le_bytes()), v.sequence_le_hex);
+        }
+    }
+    #[derive(Deserialize)]
+    struct SettlementVector {
+        name: String,
+        owner_hex: String,
+        height: String,
+        sequence: String,
+        status: u8,
+        settlement: SettlementData,
+        settlement_key_hex: String,
+        settlement_value_hex: String,
+        proof_nonce_hex: String,
+    }
+
+    #[test]
+    fn settlement_vectors() {
+        let vectors: Vec<SettlementVector> = serde_json::from_str(include_str!(
+            "../../go/node/sink/v1/testdata/settlement_vectors.json"
+        ))
+        .unwrap();
+        for v in vectors {
+            let mut key = vec![3, 1, v.status, 20];
+            key.extend(hex::decode(v.owner_hex).unwrap());
+            key.extend(v.height.parse::<i64>().unwrap().to_be_bytes());
+            key.extend(v.sequence.parse::<u64>().unwrap().to_be_bytes());
+            assert_eq!(hex::encode(&key), v.settlement_key_hex, "{}", v.name);
+            assert_eq!(hex::encode(Sha256::digest(&key)), v.proof_nonce_hex);
+            let value = v.settlement.encode_to_vec();
+            assert_eq!(hex::encode(&value), v.settlement_value_hex, "{}", v.name);
+            assert_eq!(
+                SettlementData::decode(value.as_slice()).unwrap(),
+                v.settlement
+            );
+            if v.name == "maximum_evidence" {
+                assert_eq!(value.len(), 6500);
+            }
         }
     }
 }
