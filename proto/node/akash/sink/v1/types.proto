@@ -405,8 +405,11 @@ message ReporterPolicy {
     (gogoproto.moretags)  = "yaml:\"members\""
   ];
 
-  uint32          threshold = 3 [
-    (gogoproto.jsontag)   = "threshold",
-    (gogoproto.moretags)  = "yaml:\"threshold\""
+  string threshold = 3 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false,
+    (gogoproto.jsontag)    = "threshold",
+    (gogoproto.moretags)   = "yaml:\"threshold\""
   ];
 }

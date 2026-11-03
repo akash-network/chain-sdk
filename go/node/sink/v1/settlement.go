@@ -7,6 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"cosmossdk.io/math"
 	gogotypes "github.com/cosmos/gogoproto/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -79,7 +80,8 @@ func (s *SettlementData) HasVoidAuthorization() bool {
 	}
 
 	_, voided := s.Tallies()
-	return s.Policy.Threshold > 0 && voided == s.Policy.Threshold
+
+	return s.Policy.Threshold.GT(math.LegacyZeroDec()) && voided == s.Policy.Threshold
 }
 
 func (s *SettlementData) Payable(status Status, current uint64) bool {
@@ -190,10 +192,6 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 		}
 	}
 
-	if len(s.Votes) > MaxReporters+1 {
-		return ErrInvalidSettlement.Wrap("certificate and opposite witness exceed evidence bound")
-	}
-
 	if primary == OutcomeUnspecified && len(s.Votes) > 0 {
 		primary = s.Votes[0].Observation.Outcome
 	}
@@ -245,12 +243,13 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 
 func policyHistory(policies []ReporterPolicy, current uint64) (map[uint64]ReporterPolicy, ReporterPolicy, error) {
 	history := make(map[uint64]ReporterPolicy, len(policies))
+
 	for _, policy := range policies {
 		if err := policy.Validate(); err != nil {
 			return nil, ReporterPolicy{}, err
 		}
 
-		if _, exists := history[policy.Version]; exists || policy.Version > current {
+		if _, exists := history[policy.Version]; exists || (policy.Version > current) {
 			return nil, ReporterPolicy{}, ErrInvalidGenesis.Wrap("duplicate or future reporter policy")
 		}
 

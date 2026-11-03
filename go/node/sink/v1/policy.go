@@ -38,30 +38,11 @@ func (p *ReporterPolicy) Validate() error {
 	return ValidateReporters(p.Members, p.Threshold)
 }
 
-// Policy derives a policy from validated parameters using exact decimal arithmetic.
-func (p *Params) Policy(version uint64) ReporterPolicy {
-	var threshold uint32
-	if len(p.Reporters) > 0 {
-		threshold = uint32(p.ReportersThreshold.MulInt64(int64(len(p.Reporters))).Ceil().TruncateInt64()) //nolint:gosec // Validated parameters bound quorum to 32.
-	}
-
-	return ReporterPolicy{
-		Version:   version,
-		Members:   slices.Clone(p.Reporters),
-		Threshold: threshold,
-	}
-}
-
-func (p *ReporterPolicy) SameRule(other ReporterPolicy) bool {
-	if p.Threshold != other.Threshold || len(p.Members) != len(other.Members) {
+// slices expected to be sorted
+func (p *ReporterPolicy) Equal(other ReporterPolicy) bool {
+	if p.Threshold != other.Threshold {
 		return false
 	}
 
-	for _, member := range p.Members {
-		if !slices.Contains(other.Members, member) {
-			return false
-		}
-	}
-
-	return true
+	return slices.Equal(p.Members, other.Members)
 }

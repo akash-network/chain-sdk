@@ -4,37 +4,27 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const SchemaVersion uint32 = 4
-
 func DefaultGenesis() *GenesisState {
 	params := DefaultParams()
+
 	return &GenesisState{
-		SchemaVersion:        SchemaVersion,
-		CurrentPolicyVersion: 1,
-		Params:               params,
-		Totals:               DefaultTotals(),
-		Policies:             []ReporterPolicy{params.Policy(1)},
-		SendUsage:            EpochUsage{Amount: ZeroAmount()},
-		RefundUsage:          EpochUsage{Amount: ZeroAmount()},
+		Params:         params,
+		Totals:         DefaultTotals(),
+		PolicySequence: 0,
+		Policies:       []ReporterPolicy{},
+		SendUsage:      EpochUsage{Amount: ZeroAmount()},
+		RefundUsage:    EpochUsage{Amount: ZeroAmount()},
 	}
 }
 
 func (g *GenesisState) Validate() error {
-	if g == nil || g.SchemaVersion != SchemaVersion {
-		return ErrInvalidGenesis.Wrapf("schema_version must be %d; old sink state cannot be imported", SchemaVersion)
-	}
-
 	if err := g.Params.ValidateBasic(); err != nil {
 		return err
 	}
 
-	history, current, err := policyHistory(g.Policies, g.CurrentPolicyVersion)
+	history, _, err := policyHistory(g.Policies, g.PolicySequence)
 	if err != nil {
 		return err
-	}
-
-	if !current.SameRule(g.Params.Policy(current.Version)) {
-		return ErrInvalidGenesis.Wrap("current reporter policy differs from params")
 	}
 
 	if err = g.Totals.Validate(); err != nil {

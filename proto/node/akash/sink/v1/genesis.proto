@@ -63,45 +63,40 @@ message GenesisState {
     (gogoproto.moretags) = "yaml:\"totals\""
   ];
 
+  uint64 policy_sequence = 3 [
+    (gogoproto.jsontag) = "policy_sequence",
+    (gogoproto.moretags) = "yaml:\"policy_sequence\""
+  ];
+
   // Current policy and every additional policy referenced by retained evidence.
-  repeated ReporterPolicy policies = 6 [
+  repeated ReporterPolicy policies = 4 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "policies",
     (gogoproto.moretags) = "yaml:\"policies\""
   ];
 
-  EpochUsage send_usage = 4 [
+  EpochUsage send_usage = 5 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "send_usage",
     (gogoproto.moretags) = "yaml:\"send_usage\""
   ];
 
-  EpochUsage refund_usage = 5 [
+  EpochUsage refund_usage = 6 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "refund_usage",
     (gogoproto.moretags) = "yaml:\"refund_usage\""
   ];
 
-  repeated GenesisRecord records = 3 [
+  repeated GenesisRecord records = 7 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "records",
     (gogoproto.moretags) = "yaml:\"records\""
   ];
 
   // One record per owner, including any retained empty usage records.
-  repeated GenesisAccount accounts = 7 [
+  repeated GenesisAccount accounts = 8 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "accounts",
     (gogoproto.moretags) = "yaml:\"accounts\""
-  ];
-
-  uint32 schema_version = 8 [
-    (gogoproto.jsontag) = "schema_version",
-    (gogoproto.moretags) = "yaml:\"schema_version\""
-  ];
-
-  uint64 current_policy_version = 9 [
-    (gogoproto.jsontag) = "current_policy_version",
-    (gogoproto.moretags) = "yaml:\"current_policy_version\""
   ];
 }

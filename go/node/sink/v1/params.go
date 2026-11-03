@@ -18,6 +18,7 @@ const MaxChallengePeriod = time.Duration(aminojson.MaxDurationSeconds)*time.Seco
 // DefaultParams is a development policy; deposits and refunds start disabled.
 func DefaultParams() Params {
 	return Params{
+		Enabled:                   false,
 		MinAmountPerTransfer:      sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000),
 		MaxAmountPerTransfer:      sdk.NewInt64Coin(sdkutil.DenomUakt, 1_000_000_000_000),
 		MaxTransferAmountPerEpoch: sdk.NewInt64Coin(sdkutil.DenomUakt, 10_000_000_000_000),
@@ -58,10 +59,6 @@ func (p *Params) ValidateBasic() error {
 	// Bound the decimal before multiplying; arbitrary protobuf decimals may overflow.
 	if p.ReportersThreshold.IsNil() || p.ReportersThreshold.IsNegative() || p.ReportersThreshold.GT(sdkmath.LegacyOneDec()) {
 		return ErrInvalidReporters.Wrap("reporters_threshold must be between zero and one")
-	}
-
-	if err := p.Policy(1).Validate(); err != nil {
-		return err
 	}
 
 	if p.Enabled && len(p.Reporters) == 0 {
