@@ -55,7 +55,7 @@ message Params {
     (gogoproto.moretags)  = "yaml:\"reporters\""
   ];
 
-  // Exact ratio; with members, 3*r > 2 and r <= 1. Quorum is ceil(r*n).
+  // Ratio between zero and one. Quorum is ceil(r*n) and must exceed two thirds of the members.
   string reporters_threshold = 8 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",

@@ -20,7 +20,7 @@ A void order does not authorize payment. A void observation can establish refund
 
 Votes retain their own `policy_version`. Dedupe uses reporter, outcome, and policy version, ignoring changed evidence for the same tuple. Opposing observations remain available for conflict detection. Quorum tallies use the settlement's authorization version. Minted and refunded state retain their original quorum or governance evidence after reporter rotation.
 
-Policies contain at most 32 canonical ordinary account addresses. `Params.reporters_threshold` is an SDK `LegacyDec`. With configured reporters, `3*r > 2` and `r <= 1`; the effective quorum is `ceil(r*n)`. Policy versions change only when membership or effective quorum changes. Member order alone does not change the rule.
+Policies contain at most 32 canonical ordinary account addresses. `Params.reporters_threshold` is an SDK `LegacyDec` between zero and one. The effective quorum is `ceil(r*n)` and must exceed two thirds of the members. For example, a ratio of `0.6` with four reporters requires three signatures. Policy versions change only when membership or effective quorum changes. Member order alone does not change the rule.
 
 On refresh, transfer-pending and quorum-authorized refund-pending adopt the current policy. The latter returns to pending and loses its deadline. Prior votes and holds survive. Governance refund authorization and terminal authorization retain their evidence and policy version.
 
@@ -30,7 +30,7 @@ Refund queue scope is zero for governance and the policy version for quorum. Onl
 
 ## Amount limits and recipient validation
 
-Amounts are SDK `Coin` values in `sdkutil.DenomUakt`. The account epoch cap may be zero to disable that limit; usage is still tracked. The minimum and other caps are positive. The minimum is at most the maximum transfer, which fits `uint64`, the aggregate sending and refund caps, and any enabled account cap. Totals use checked SDK integer arithmetic and may exceed `uint64`.
+Amounts are SDK `Coin` values in `sdkutil.DenomUakt`. The account epoch cap may be zero to disable that limit; usage is still tracked. The minimum must be positive while deposits are enabled and may be zero while disabled. The other caps are positive. The minimum fits the transfer maximum, the aggregate sending cap, and any enabled account cap. The transfer maximum fits `uint64` and the refund cap. Account and aggregate sending caps may be below that maximum; every deposit must fit all applicable limits. Totals use checked SDK integer arithmetic and may exceed `uint64`.
 
 Sending and refund usage share the current number of the existing native `day` epoch, with separate consumed amounts. The epochs module owns the schedule. Its duration and start are configurable in genesis, so the identifier does not imply a UTC-day boundary. A started epoch advances only when block time is strictly after its end, at most once per block. After downtime, successive blocks can each advance one epoch and receive one fresh allowance. Unused allowances do not accumulate.
 

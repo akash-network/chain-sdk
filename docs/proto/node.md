@@ -7959,7 +7959,7 @@ Send and refund quotas use the current number of the native "day" epoch.
  | `max_epoch_amount_per_account` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | zero means no limit |
  | `max_epoch_refund` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `reporters` | [string](#string) | repeated | list governance approved akash addresses that monitor and report state of the mint/void from solana to akash |
- | `reporters_threshold` | [string](#string) |  | Exact ratio; with members, 3*r > 2 and r <= 1. Quorum is ceil(r*n). |
+ | `reporters_threshold` | [string](#string) |  | Ratio between zero and one. Quorum is ceil(r*n) and must exceed two thirds of the members. |
  | `reporter_challenge_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | At most 9223372035.999999999 seconds, the pinned native Amino signing limit. |
  | `allowed_destination_vaults` | [string](#string) | repeated | Canonical base58 vault addresses exempt only from the recipient curve check. |
  | `refunds_enabled` | [bool](#bool) |  |  |

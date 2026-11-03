@@ -43,7 +43,7 @@ type Params struct {
 	// list governance approved akash addresses that monitor and report state of the
 	// mint/void from solana to akash
 	Reporters []string `protobuf:"bytes,7,rep,name=reporters,proto3" json:"reporters,omitempty" yaml:"reporters"`
-	// Exact ratio; with members, 3*r > 2 and r <= 1. Quorum is ceil(r*n).
+	// Ratio between zero and one. Quorum is ceil(r*n) and must exceed two thirds of the members.
 	ReportersThreshold cosmossdk_io_math.LegacyDec `protobuf:"bytes,8,opt,name=reporters_threshold,json=reportersThreshold,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"reporters_threshold" yaml:"reporters_threshold"`
 	// At most 9223372035.999999999 seconds, the pinned native Amino signing limit.
 	ReporterChallengePeriod time.Duration `protobuf:"bytes,9,opt,name=reporter_challenge_period,json=reporterChallengePeriod,proto3,stdduration" json:"reporter_challenge_period" yaml:"reporter_challenge_period"`

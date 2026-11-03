@@ -33,7 +33,7 @@ export interface Params {
    * mint/void from solana to akash
    */
   reporters: string[];
-  /** Exact ratio; with members, 3*r > 2 and r <= 1. Quorum is ceil(r*n). */
+  /** Ratio between zero and one. Quorum is ceil(r*n) and must exceed two thirds of the members. */
   reportersThreshold: string;
   /** At most 9223372035.999999999 seconds, the pinned native Amino signing limit. */
   reporterChallengePeriod:

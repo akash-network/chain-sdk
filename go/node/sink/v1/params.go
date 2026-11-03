@@ -29,33 +29,29 @@ func DefaultParams() Params {
 }
 
 func (p Params) ValidateBasic() error {
-	for _, cap := range []sdk.Coin{p.MinAmountPerTransfer, p.MaxAmountPerTransfer, p.MaxTransferAmountPerEpoch, p.MaxEpochRefund} {
+	for _, cap := range []sdk.Coin{p.MinAmountPerTransfer, p.MaxAmountPerTransfer, p.MaxTransferAmountPerEpoch, p.MaxEpochAmountPerAccount, p.MaxEpochRefund} {
 		if err := ValidateAmount(cap); err != nil {
 			return ErrInvalidParam.Wrap(err.Error())
 		}
-
-		if !cap.IsPositive() {
-			return ErrInvalidParam.Wrap("transfer and refund caps and the minimum must be positive")
-		}
 	}
 
-	if err := ValidateAmount(p.MaxEpochAmountPerAccount); err != nil {
-		return ErrInvalidParam.Wrap(err.Error())
+	if !p.MaxAmountPerTransfer.IsPositive() || !p.MaxTransferAmountPerEpoch.IsPositive() || !p.MaxEpochRefund.IsPositive() {
+		return ErrInvalidParam.Wrap("transfer, send and refund caps must be positive")
+	}
+
+	if p.DepositsEnabled && p.MinAmountPerTransfer.IsZero() {
+		return ErrInvalidParam.Wrap("minimum transfer must be positive while deposits are enabled")
 	}
 
 	if !p.MaxAmountPerTransfer.Amount.IsUint64() || p.MinAmountPerTransfer.IsGT(p.MaxAmountPerTransfer) ||
-		(p.MaxEpochAmountPerAccount.IsPositive() && p.MaxAmountPerTransfer.IsGT(p.MaxEpochAmountPerAccount)) ||
-		p.MaxAmountPerTransfer.IsGT(p.MaxTransferAmountPerEpoch) || p.MaxAmountPerTransfer.IsGT(p.MaxEpochRefund) {
-		return ErrInvalidParam.Wrap("transfer bounds must fit uint64 and account, send and refund caps")
+		(p.MaxEpochAmountPerAccount.IsPositive() && p.MinAmountPerTransfer.IsGT(p.MaxEpochAmountPerAccount)) ||
+		p.MinAmountPerTransfer.IsGT(p.MaxTransferAmountPerEpoch) || p.MaxAmountPerTransfer.IsGT(p.MaxEpochRefund) {
+		return ErrInvalidParam.Wrap("minimum must fit transfer and sending caps; maximum must fit uint64 and refund cap")
 	}
 
 	// Bound the decimal before multiplying; arbitrary protobuf decimals may overflow.
 	if p.ReportersThreshold.IsNil() || p.ReportersThreshold.IsNegative() || p.ReportersThreshold.GT(sdkmath.LegacyOneDec()) {
 		return ErrInvalidReporters.Wrap("reporters_threshold must be between zero and one")
-	}
-
-	if len(p.Reporters) > 0 && !p.ReportersThreshold.MulInt64(3).GT(sdkmath.LegacyNewDec(2)) {
-		return ErrInvalidReporters.Wrap("reporters_threshold must exceed two thirds")
 	}
 
 	if len(p.Reporters) > MaxReporters {

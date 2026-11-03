@@ -17,14 +17,14 @@ import (
 func TestRatioAndCapEdges(t *testing.T) {
 	require.NoError(t, types.DefaultGenesis().Validate())
 
-	for _, ratio := range []string{"0", "0.666666666666666666", "1.000000000000000001", "-1"} {
+	for _, ratio := range []string{"0", "0.5", "1.000000000000000001", "-1"} {
 		p := types.DefaultParams()
 		p.Reporters = policy().Members
 		p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr(ratio)
 		require.Error(t, p.ValidateBasic(), ratio)
 	}
 
-	for _, ratio := range []string{"0.666666666666666667", "0.75", "1"} {
+	for _, ratio := range []string{"0.500000000000000001", "0.6", "0.666666666666666666", "0.666666666666666667", "0.75", "1"} {
 		p := types.DefaultParams()
 		p.Reporters = policy().Members
 		p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr(ratio)
@@ -51,9 +51,9 @@ func TestRatioAndCapEdges(t *testing.T) {
 		"account cap denom":  func(p *types.Params) { p.MaxEpochAmountPerAccount.Denom = "other" },
 		"zero cap":           func(p *types.Params) { p.MaxEpochRefund = types.ZeroAmount() },
 		"denom":              func(p *types.Params) { p.MaxAmountPerTransfer.Denom = "other" },
-		"max over account":   func(p *types.Params) { p.MaxEpochAmountPerAccount = p.MinAmountPerTransfer },
+		"min over account":   func(p *types.Params) { p.MaxEpochAmountPerAccount = sdk.NewInt64Coin(sdkutil.DenomUakt, 1) },
 		"max over refund":    func(p *types.Params) { p.MaxEpochRefund = p.MinAmountPerTransfer },
-		"max over aggregate": func(p *types.Params) { p.MaxTransferAmountPerEpoch = p.MinAmountPerTransfer },
+		"min over aggregate": func(p *types.Params) { p.MaxTransferAmountPerEpoch = sdk.NewInt64Coin(sdkutil.DenomUakt, 1) },
 		"min over max":       func(p *types.Params) { p.MinAmountPerTransfer = p.MaxTransferAmountPerEpoch },
 		"uint64 overflow": func(p *types.Params) {
 			p.MaxAmountPerTransfer = sdk.NewCoin(sdkutil.DenomUakt, sdkmath.NewIntFromUint64(math.MaxUint64).AddRaw(1))
@@ -83,6 +83,28 @@ func TestRatioAndCapEdges(t *testing.T) {
 	require.True(t, a.SameRule(b))
 	b.Threshold++
 	require.False(t, a.SameRule(b))
+}
+
+func TestIndependentSendingCapsAndDisabledMinimum(t *testing.T) {
+	p := types.DefaultParams()
+	p.MaxEpochAmountPerAccount = p.MinAmountPerTransfer
+	p.MaxTransferAmountPerEpoch = p.MinAmountPerTransfer
+	require.NoError(t, p.ValidateBasic())
+
+	p.MinAmountPerTransfer = types.ZeroAmount()
+	require.NoError(t, p.ValidateBasic())
+	p.Reporters = policy().Members
+	p.DepositsEnabled = true
+	require.Error(t, p.ValidateBasic())
+	p.MinAmountPerTransfer = sdk.NewInt64Coin(sdkutil.DenomUakt, 1)
+	require.NoError(t, p.ValidateBasic())
+
+	p.Reporters = p.Reporters[:3]
+	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.666666666666666666")
+	require.Error(t, p.ValidateBasic())
+	p.ReportersThreshold = sdkmath.LegacyMustNewDecFromStr("0.666666666666666667")
+	require.NoError(t, p.ValidateBasic())
+	require.Equal(t, uint32(3), p.Policy(1).Threshold)
 }
 
 func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
