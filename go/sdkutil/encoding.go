@@ -2,12 +2,15 @@ package sdkutil
 
 import (
 	"cosmossdk.io/x/tx/signing"
+	"cosmossdk.io/x/tx/signing/aminojson"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	"github.com/cosmos/gogoproto/proto"
 
 	offchain "pkg.akt.dev/go/node/types/offchain/sign"
 )
@@ -47,10 +50,25 @@ func MakeEncodingConfig(modules ...module.AppModuleBasic) EncodingConfig {
 		panic(err)
 	}
 
+	// The global registry leaves nested gogoproto messages unresolved, and Amino JSON
+	// would sign them as empty objects. Signer lookups must stay on the global
+	// descriptors that every tx config shares, so only this handler resolves them.
+	files, err := proto.MergedRegistry()
+	if err != nil {
+		panic(err)
+	}
+
 	txConfig, err := tx.NewTxConfigWithOptions(cdc, tx.ConfigOptions{
-		EnabledSignModes: tx.DefaultSignModes,
-		SigningOptions:   &co.Options,
-		SigningContext:   signingCtx,
+		EnabledSignModes: []signingtypes.SignMode{
+			signingtypes.SignMode_SIGN_MODE_DIRECT,
+			signingtypes.SignMode_SIGN_MODE_DIRECT_AUX,
+		},
+		CustomSignModes: []signing.SignModeHandler{aminojson.NewSignModeHandler(aminojson.SignModeHandlerOptions{
+			FileResolver: files,
+			TypeResolver: co.Options.TypeResolver,
+		})},
+		SigningOptions: &co.Options,
+		SigningContext: signingCtx,
 	})
 	if err != nil {
 		panic(err)
