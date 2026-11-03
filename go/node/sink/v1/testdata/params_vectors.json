@@ -1,0 +1,177 @@
+[
+  {
+    "name": "default",
+    "threshold": "0.750000000000000000",
+    "duration_nanos": "259200000000000",
+    "json": {
+      "enabled": false,
+      "min_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000"
+      },
+      "max_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_transfer_amount_per_epoch": {
+        "denom": "uakt",
+        "amount": "10000000000000"
+      },
+      "max_epoch_amount_per_account": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_epoch_refund": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "reporters": [],
+      "reporters_threshold": "0.750000000000000000",
+      "reporter_challenge_period": "259200s",
+      "allowed_destination_vaults": [],
+      "refunds_enabled": false,
+      "pause_guardian": ""
+    },
+    "proto_hex": "120f0a0475616b741207313030303030301a150a0475616b74120d3130303030303030303030303022160a0475616b74120e31303030303030303030303030302a150a0475616b74120d3130303030303030303030303032150a0475616b74120d3130303030303030303030303042123735303030303030303030303030303030304a040880e90f"
+  },
+  {
+    "name": "fractional",
+    "threshold": "0.666666666666666667",
+    "duration_nanos": "259200250000000",
+    "json": {
+      "enabled": false,
+      "min_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000"
+      },
+      "max_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_transfer_amount_per_epoch": {
+        "denom": "uakt",
+        "amount": "10000000000000"
+      },
+      "max_epoch_amount_per_account": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_epoch_refund": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "reporters": [],
+      "reporters_threshold": "0.666666666666666667",
+      "reporter_challenge_period": "259200.250s",
+      "allowed_destination_vaults": [],
+      "refunds_enabled": false,
+      "pause_guardian": ""
+    },
+    "proto_hex": "120f0a0475616b741207313030303030301a150a0475616b74120d3130303030303030303030303022160a0475616b74120e31303030303030303030303030302a150a0475616b74120d3130303030303030303030303032150a0475616b74120d3130303030303030303030303042123636363636363636363636363636363636374a090880e90f1080e59a77"
+  },
+  {
+    "name": "nanosecond",
+    "threshold": "1.000000000000000000",
+    "duration_nanos": "259200000000001",
+    "json": {
+      "enabled": false,
+      "min_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000"
+      },
+      "max_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_transfer_amount_per_epoch": {
+        "denom": "uakt",
+        "amount": "10000000000000"
+      },
+      "max_epoch_amount_per_account": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_epoch_refund": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "reporters": [],
+      "reporters_threshold": "1.000000000000000000",
+      "reporter_challenge_period": "259200.000000001s",
+      "allowed_destination_vaults": [],
+      "refunds_enabled": false,
+      "pause_guardian": ""
+    },
+    "proto_hex": "120f0a0475616b741207313030303030301a150a0475616b74120d3130303030303030303030303022160a0475616b74120e31303030303030303030303030302a150a0475616b74120d3130303030303030303030303032150a0475616b74120d313030303030303030303030304213313030303030303030303030303030303030304a060880e90f1001"
+  },
+  {
+    "name": "zero_threshold",
+    "threshold": "0.000000000000000000",
+    "duration_nanos": "259200000000000",
+    "json": {
+      "enabled": false,
+      "min_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000"
+      },
+      "max_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_transfer_amount_per_epoch": {
+        "denom": "uakt",
+        "amount": "10000000000000"
+      },
+      "max_epoch_amount_per_account": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_epoch_refund": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "reporters": [],
+      "reporters_threshold": "0.000000000000000000",
+      "reporter_challenge_period": "259200s",
+      "allowed_destination_vaults": [],
+      "refunds_enabled": false,
+      "pause_guardian": ""
+    },
+    "proto_hex": "120f0a0475616b741207313030303030301a150a0475616b74120d3130303030303030303030303022160a0475616b74120e31303030303030303030303030302a150a0475616b74120d3130303030303030303030303032150a0475616b74120d313030303030303030303030304201304a040880e90f"
+  },
+  {
+    "name": "maximum_duration",
+    "threshold": "0.750000000000000000",
+    "duration_nanos": "9223372035999999999",
+    "json": {
+      "enabled": false,
+      "min_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000"
+      },
+      "max_amount_per_transfer": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_transfer_amount_per_epoch": {
+        "denom": "uakt",
+        "amount": "10000000000000"
+      },
+      "max_epoch_amount_per_account": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "max_epoch_refund": {
+        "denom": "uakt",
+        "amount": "1000000000000"
+      },
+      "reporters": [],
+      "reporters_threshold": "0.750000000000000000",
+      "reporter_challenge_period": "9223372035.999999999s",
+      "allowed_destination_vaults": [],
+      "refunds_enabled": false,
+      "pause_guardian": ""
+    },
+    "proto_hex": "120f0a0475616b741207313030303030301a150a0475616b74120d3130303030303030303030303022160a0475616b74120e31303030303030303030303030302a150a0475616b74120d3130303030303030303030303032150a0475616b74120d3130303030303030303030303042123735303030303030303030303030303030304a0c0883fa85ae2210ff93ebdc03"
+  }
+]

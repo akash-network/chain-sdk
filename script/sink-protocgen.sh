@@ -11,6 +11,7 @@ node --experimental-strip-types --no-warnings ts/script/fix-ts-proto-generated-t
 sed '/^inputs:/,$d; s@out: rs/src/gen/node@out: .cache/sink-gen-rust@' buf.gen.rs.yaml > .cache/buf.sink.rs.yaml
 buf generate --template .cache/buf.sink.rs.yaml --path proto/node/akash/sink/v1
 cp .cache/sink-gen-rust/akash.sink.v1*.rs rs/src/gen/node/
+python3 rs/script/fix-prost-serde.py rs/src/gen/node
 rustfmt --edition 2021 --config skip_children=true rs/src/gen/node/akash.sink.v1.rs rs/src/gen/node/akash.sink.v1.serde.rs rs/src/gen/node/akash.sink.v1.tonic.rs
 cat > .cache/mockery.sink.yaml <<'YAML'
 mockname: "{{.InterfaceName}}"

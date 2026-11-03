@@ -25,6 +25,7 @@ proto-gen-rust-clean:
 .PHONY: proto-gen-rust-buf
 proto-gen-rust-buf: $(BUF) $(PROTOC) $(GOGOPROTO) $(PROTOC_GEN_PROST)
 	$(BUF) generate --template $(BUF_GEN_RUST_CONFIG)
+	python3 $(RUST_SDK_DIR)/script/fix-prost-serde.py $(RUST_GEN_DIR)/node
 
 .PHONY: proto-gen-rust-fmt
 proto-gen-rust-fmt:
