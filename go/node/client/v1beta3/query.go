@@ -25,6 +25,7 @@ import (
 	mtypes "pkg.akt.dev/go/node/market/v1beta5"
 	otypes "pkg.akt.dev/go/node/oracle/v2"
 	ptypes "pkg.akt.dev/go/node/provider/v1beta4"
+	sinktypes "pkg.akt.dev/go/node/sink/v1"
 )
 
 var _ QueryClient = (*queryClient)(nil)
@@ -46,6 +47,7 @@ type sdkQueryClient struct {
 	wasm      wasmtypes.QueryClient
 	oracle    otypes.QueryClient
 	bme       btypes.QueryClient
+	sink      sinktypes.QueryClient
 }
 
 type queryClient struct {
@@ -89,6 +91,7 @@ func newQueryClient(cctx sdkclient.Context) *queryClient {
 			wasm:      wasmtypes.NewQueryClient(cctx),
 			oracle:    otypes.NewQueryClient(cctx),
 			bme:       btypes.NewQueryClient(cctx),
+			sink:      sinktypes.NewQueryClient(cctx),
 		},
 		cctx: cctx,
 	}
@@ -202,4 +205,9 @@ func (c *queryClient) Oracle() otypes.QueryClient {
 // BME implements QueryClient by returning the bme query client.
 func (c *queryClient) BME() btypes.QueryClient {
 	return c.sdk.bme
+}
+
+// Sink returns the sink query client.
+func (c *queryClient) Sink() sinktypes.QueryClient {
+	return c.sdk.sink
 }

@@ -1,0 +1,316 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+
+import "akash/sink/v1/params.proto";
+import "akash/sink/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// MsgSink locks AKT for a Solana destination. It must be the sole top-level transaction message.
+message MsgSink {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "sink/MsgSink";
+
+  DestType dest_type = 1; // Only DEST_TYPE_SOLANA is accepted.
+  string dest = 2;
+
+  cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "amount",
+    (gogoproto.moretags)  = "yaml:\"amount\""
+  ];
+
+  string sender = 4 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "sender",
+    (gogoproto.moretags)  = "yaml:\"sender\""
+  ];
+}
+
+// MsgSinkResponse returns the assigned composite transfer ID.
+message MsgSinkResponse {
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+}
+
+// MsgUpdateParams replaces the governed Sink parameters.
+message MsgUpdateParams {
+  option (amino.name) = "sink/MsgUpdateParams";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "params",
+    (gogoproto.moretags)  = "yaml:\"params\""
+  ];
+}
+
+// MsgUpdateParamsResponse acknowledges the transaction.
+message MsgUpdateParamsResponse {}
+
+// MsgRequestVoid orders a Solana void without authorizing an Akash refund.
+message MsgRequestVoid {
+  option (amino.name) = "sink/MsgRequestVoid";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+  // New orders require this round; retries preserve the original receipt.
+  uint64 expected_round = 3 [
+    (gogoproto.jsontag)   = "expected_round",
+    (gogoproto.moretags)  = "yaml:\"expected_round\""
+  ];
+}
+
+// MsgRequestVoidResponse acknowledges the transaction.
+message MsgRequestVoidResponse {}
+
+// MsgReportOutcome reports a Solana outcome for one settlement round and reporter policy.
+message MsgReportOutcome {
+  option (amino.name) = "sink/MsgReportOutcome";
+  option (cosmos.msg.v1.signer) = "reporter";
+
+  string reporter = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "reporter",
+    (gogoproto.moretags)  = "yaml:\"reporter\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  uint64 policy_version = 3 [
+    (gogoproto.jsontag)   = "policy_version",
+    (gogoproto.moretags)  = "yaml:\"policy_version\""
+  ];
+
+  uint64 round = 4 [
+    (gogoproto.jsontag)   = "round",
+    (gogoproto.moretags)  = "yaml:\"round\""
+  ];
+
+  Observation observation = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "observation",
+    (gogoproto.moretags)  = "yaml:\"observation\""
+  ];
+}
+
+// MsgReportOutcomeResponse acknowledges the transaction.
+message MsgReportOutcomeResponse {}
+
+// MsgVetoVoid holds a refund candidate for governance review.
+message MsgVetoVoid {
+  option (amino.name) = "sink/MsgVetoVoid";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  string signer = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "signer",
+    (gogoproto.moretags)  = "yaml:\"signer\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  string reason = 3 [
+    (gogoproto.jsontag)   = "reason",
+    (gogoproto.moretags)  = "yaml:\"reason\""
+  ];
+}
+
+// MsgVetoVoidResponse acknowledges the transaction.
+message MsgVetoVoidResponse {}
+
+// MsgRestartTransfer starts a new settlement round for an unpaid transfer.
+message MsgRestartTransfer {
+  option (amino.name) = "sink/MsgRestartTransfer";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  string reason = 3 [
+    (gogoproto.jsontag)   = "reason",
+    (gogoproto.moretags)  = "yaml:\"reason\""
+  ];
+
+  // Must match the current round; a successful resolution increments it.
+  uint64 expected_round = 4 [
+    (gogoproto.jsontag)   = "expected_round",
+    (gogoproto.moretags)  = "yaml:\"expected_round\""
+  ];
+}
+
+// MsgRestartTransferResponse acknowledges the transaction.
+message MsgRestartTransferResponse {}
+
+// MsgConfirmMint records governance confirmation of a Solana mint.
+message MsgConfirmMint {
+  option (amino.name) = "sink/MsgConfirmMint";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  SolanaEvidence evidence = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "evidence",
+    (gogoproto.moretags)  = "yaml:\"evidence\""
+  ];
+
+  string reason = 4 [
+    (gogoproto.jsontag)   = "reason",
+    (gogoproto.moretags)  = "yaml:\"reason\""
+  ];
+
+  // Must match the current round; a successful resolution increments it.
+  uint64 expected_round = 5 [
+    (gogoproto.jsontag)   = "expected_round",
+    (gogoproto.moretags)  = "yaml:\"expected_round\""
+  ];
+}
+
+// MsgConfirmMintResponse acknowledges the transaction.
+message MsgConfirmMintResponse {}
+
+// MsgConfirmVoid records governance confirmation of a Solana void.
+message MsgConfirmVoid {
+  option (amino.name) = "sink/MsgConfirmVoid";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "authority",
+    (gogoproto.moretags)  = "yaml:\"authority\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  SolanaEvidence evidence = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)   = "evidence",
+    (gogoproto.moretags)  = "yaml:\"evidence\""
+  ];
+
+  string reason = 4 [
+    (gogoproto.jsontag)   = "reason",
+    (gogoproto.moretags)  = "yaml:\"reason\""
+  ];
+
+  // Must match the current round; a successful resolution increments it.
+  uint64 expected_round = 5 [
+    (gogoproto.jsontag)   = "expected_round",
+    (gogoproto.moretags)  = "yaml:\"expected_round\""
+  ];
+}
+
+// MsgConfirmVoidResponse acknowledges the transaction.
+message MsgConfirmVoidResponse {}
+
+// MsgFinalizeRefund pays an eligible refund candidate to its original owner.
+message MsgFinalizeRefund {
+  option (amino.name) = "sink/MsgFinalizeRefund";
+  option (cosmos.msg.v1.signer) = "executor";
+
+  string executor = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "executor",
+    (gogoproto.moretags)  = "yaml:\"executor\""
+  ];
+
+  ID id = 2 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+}
+
+// MsgFinalizeRefundResponse acknowledges the transaction.
+message MsgFinalizeRefundResponse {}
+
+// MsgGuardianPause disables the selected deposit or refund operations.
+message MsgGuardianPause {
+  option (amino.name) = "sink/MsgGuardianPause";
+  option (cosmos.msg.v1.signer) = "guardian";
+
+  string guardian = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "guardian",
+    (gogoproto.moretags)  = "yaml:\"guardian\""
+  ];
+
+  bool deposits = 2 [
+    (gogoproto.jsontag)   = "deposits,omitempty",
+    (gogoproto.moretags)  = "yaml:\"deposits\""
+  ];
+  bool refunds  = 3 [
+    (gogoproto.jsontag)   = "refunds,omitempty",
+    (gogoproto.moretags)  = "yaml:\"refunds\""
+  ];
+}
+
+// MsgGuardianPauseResponse acknowledges the transaction.
+message MsgGuardianPauseResponse {}
+

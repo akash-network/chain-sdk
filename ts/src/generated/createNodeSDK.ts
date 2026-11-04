@@ -26,6 +26,8 @@ import type * as akash_oracle_v2_query from "./protos/akash/oracle/v2/query.ts";
 import type * as akash_oracle_v2_msgs from "./protos/akash/oracle/v2/msgs.ts";
 import type * as akash_provider_v1beta4_query from "./protos/akash/provider/v1beta4/query.ts";
 import type * as akash_provider_v1beta4_msg from "./protos/akash/provider/v1beta4/msg.ts";
+import type * as akash_sink_v1_query from "./protos/akash/sink/v1/query.ts";
+import type * as akash_sink_v1_msgs from "./protos/akash/sink/v1/msgs.ts";
 import type * as akash_take_v1_query from "./protos/akash/take/v1/query.ts";
 import type * as akash_take_v1_paramsmsg from "./protos/akash/take/v1/paramsmsg.ts";
 import type * as akash_wasm_v1_query from "./protos/akash/wasm/v1/query.ts";
@@ -58,6 +60,8 @@ export const serviceLoader= createServiceLoader([
   () => import("./protos/akash/oracle/v2/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/provider/v1beta4/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/provider/v1beta4/service_akash.ts").then(m => m.Msg),
+  () => import("./protos/akash/sink/v1/query_akash.ts").then(m => m.Query),
+  () => import("./protos/akash/sink/v1/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/take/v1/query_akash.ts").then(m => m.Query),
   () => import("./protos/akash/take/v1/service_akash.ts").then(m => m.Msg),
   () => import("./protos/akash/wasm/v1/query_akash.ts").then(m => m.Query),
@@ -591,15 +595,146 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
           }, { path: [20, "deleteProvider"], serviceLoader })
         }
       },
+      sink: {
+        v1: {
+          /**
+           * getTransfer returns immutable data and retained settlement evidence for one ID.
+           */
+          getTransfer: withMetadata(async function getTransfer(input: DeepPartial<akash_sink_v1_query.QueryTransferRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).transfer(input, options);
+          }, { path: [21, "transfer"], serviceLoader }),
+          /**
+           * getTransfers lists one owner's transfers, one status bucket, or the global
+           * chronological history. Pagination keys are opaque server cursors: pass
+           * next_key back unchanged. A resumed page keeps the cursor's owner and status
+           * and ignores the request's, while reverse is read from every request. Offset
+           * requires a status filter, a zero limit selects the default page size, and
+           * total is the number of transfers in the returned page.
+           */
+          getTransfers: withMetadata(async function getTransfers(input: DeepPartial<akash_sink_v1_query.QueryTransfersRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).transfers(input, options);
+          }, { path: [21, "transfers"], serviceLoader }),
+          /**
+           * getDisputes lists all held transfers, including terminal conflicts, with
+           * standard key pagination.
+           */
+          getDisputes: withMetadata(async function getDisputes(input: DeepPartial<akash_sink_v1_query.QueryDisputesRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).disputes(input, options);
+          }, { path: [21, "disputes"], serviceLoader }),
+          /**
+           * getAccount returns usage normalized to the current sending epoch without a write.
+           */
+          getAccount: withMetadata(async function getAccount(input: DeepPartial<akash_sink_v1_query.QueryAccountRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).account(input, options);
+          }, { path: [21, "account"], serviceLoader }),
+          /**
+           * getState returns financial totals, the native "day" epoch with send and refund
+           * usage, and the refund queue head. Params and Reporters return the
+           * parameters and reporter policies.
+           */
+          getState: withMetadata(async function getState(input: DeepPartial<akash_sink_v1_query.QueryStateRequest> = {}, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).state(input, options);
+          }, { path: [21, "state"], serviceLoader }),
+          /**
+           * getParams returns the module parameters.
+           */
+          getParams: withMetadata(async function getParams(input: DeepPartial<akash_sink_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).params(input, options);
+          }, { path: [21, "params"], serviceLoader }),
+          /**
+           * getReporters returns reporter policies selected by version.
+           */
+          getReporters: withMetadata(async function getReporters(input: DeepPartial<akash_sink_v1_query.QueryReportersRequest>, options?: CallOptions) {
+            const service = await serviceLoader.loadAt(21);
+            return getClient(service).reporters(input, options);
+          }, { path: [21, "reporters"], serviceLoader }),
+          /**
+           * sink locks uakt and allocates a composite transfer ID.
+           */
+          sink: withMetadata(async function sink(input: DeepSimplify<akash_sink_v1_msgs.MsgSink>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).sink(input, options);
+          }, { path: [22, "sink"], serviceLoader }),
+          /**
+           * updateParams updates governed parameters while preserving consumed capacity.
+           */
+          updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_sink_v1_msgs.MsgUpdateParams>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).updateParams(input, options);
+          }, { path: [22, "updateParams"], serviceLoader }),
+          /**
+           * requestVoid creates an immutable governance void order; it does not authorize a refund.
+           */
+          requestVoid: withMetadata(async function requestVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgRequestVoid>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).requestVoid(input, options);
+          }, { path: [22, "requestVoid"], serviceLoader }),
+          /**
+           * reportOutcome records a report for the current policy and exact settlement round.
+           */
+          reportOutcome: withMetadata(async function reportOutcome(input: DeepSimplify<akash_sink_v1_msgs.MsgReportOutcome>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).reportOutcome(input, options);
+          }, { path: [22, "reportOutcome"], serviceLoader }),
+          /**
+           * vetoVoid holds an unpaid refund authorization for governance.
+           */
+          vetoVoid: withMetadata(async function vetoVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgVetoVoid>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).vetoVoid(input, options);
+          }, { path: [22, "vetoVoid"], serviceLoader }),
+          /**
+           * restartTransfer starts the next round of an unpaid transfer.
+           */
+          restartTransfer: withMetadata(async function restartTransfer(input: DeepSimplify<akash_sink_v1_msgs.MsgRestartTransfer>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).restartTransfer(input, options);
+          }, { path: [22, "restartTransfer"], serviceLoader }),
+          /**
+           * confirmMint records governance mint evidence in the next settlement round.
+           */
+          confirmMint: withMetadata(async function confirmMint(input: DeepSimplify<akash_sink_v1_msgs.MsgConfirmMint>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).confirmMint(input, options);
+          }, { path: [22, "confirmMint"], serviceLoader }),
+          /**
+           * confirmVoid records governance void evidence or resolves a paid transfer dispute.
+           */
+          confirmVoid: withMetadata(async function confirmVoid(input: DeepSimplify<akash_sink_v1_msgs.MsgConfirmVoid>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).confirmVoid(input, options);
+          }, { path: [22, "confirmVoid"], serviceLoader }),
+          /**
+           * finalizeRefund pays the eligible queue head once to its original owner.
+           */
+          finalizeRefund: withMetadata(async function finalizeRefund(input: DeepSimplify<akash_sink_v1_msgs.MsgFinalizeRefund>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).finalizeRefund(input, options);
+          }, { path: [22, "finalizeRefund"], serviceLoader }),
+          /**
+           * guardianPause disables deposits, refunds or both.
+           */
+          guardianPause: withMetadata(async function guardianPause(input: DeepSimplify<akash_sink_v1_msgs.MsgGuardianPause>, options?: TxCallOptions) {
+            const service = await serviceLoader.loadAt(22);
+            return getMsgClient(service).guardianPause(input, options);
+          }, { path: [22, "guardianPause"], serviceLoader })
+        }
+      },
       take: {
         v1: {
           /**
            * getParams returns the total set of take parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_take_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(21);
+            const service = await serviceLoader.loadAt(23);
             return getClient(service).params(input, options);
-          }, { path: [21, "params"], serviceLoader }),
+          }, { path: [23, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/market module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -607,9 +742,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * Since: akash v1.0.0
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_take_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(22);
+            const service = await serviceLoader.loadAt(24);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [22, "updateParams"], serviceLoader })
+          }, { path: [24, "updateParams"], serviceLoader })
         }
       },
       wasm: {
@@ -618,9 +753,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * getParams returns the total set of wasm parameters.
            */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_wasm_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
-            const service = await serviceLoader.loadAt(23);
+            const service = await serviceLoader.loadAt(25);
             return getClient(service).params(input, options);
-          }, { path: [23, "params"], serviceLoader }),
+          }, { path: [25, "params"], serviceLoader }),
           /**
            * updateParams defines a governance operation for updating the x/wasm module
            * parameters. The authority is hard-coded to the x/gov module account.
@@ -628,9 +763,9 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
            * Since: akash v2.0.0
            */
           updateParams: withMetadata(async function updateParams(input: DeepSimplify<akash_wasm_v1_paramsmsg.MsgUpdateParams>, options?: TxCallOptions) {
-            const service = await serviceLoader.loadAt(24);
+            const service = await serviceLoader.loadAt(26);
             return getMsgClient(service).updateParams(input, options);
-          }, { path: [24, "updateParams"], serviceLoader })
+          }, { path: [26, "updateParams"], serviceLoader })
         }
       }
     }

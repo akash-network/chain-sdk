@@ -78,6 +78,13 @@ function applyPatching(
   let newSource = source.replace(
     /^export const (\w+)(:\s*MessageFns<[^>]+,\s*["']([^"']+)["']>\s*=)/gm,
     (match, symbolName, typeAnnotation, fullName) => {
+      if (fullName === "google.protobuf.Duration") {
+        const importPath = relativePath(dirname(filePath), `${ROOT_DIR}/encoding/durationJson.ts`);
+        imports.add(`import { durationJson } from "${importPath}";`);
+        exports.push(`export const ${symbolName} = { ..._${symbolName}, ...durationJson };`);
+        return `const _${symbolName}${typeAnnotation}`;
+      }
+
       if (!typesToPatch.has(fullName)) return match;
 
       const namespace = fullName.split(".")[0];

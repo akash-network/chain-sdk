@@ -1,0 +1,32 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "akash/sink/v1/msgs.proto";
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// Msg defines the sink transaction service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+  // Sink locks uakt and allocates a composite transfer ID.
+  rpc Sink(MsgSink) returns (MsgSinkResponse);
+  // UpdateParams updates governed parameters while preserving consumed capacity.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  // RequestVoid creates an immutable governance void order; it does not authorize a refund.
+  rpc RequestVoid(MsgRequestVoid) returns (MsgRequestVoidResponse);
+  // ReportOutcome records a report for the current policy and exact settlement round.
+  rpc ReportOutcome(MsgReportOutcome) returns (MsgReportOutcomeResponse);
+  // VetoVoid holds an unpaid refund authorization for governance.
+  rpc VetoVoid(MsgVetoVoid) returns (MsgVetoVoidResponse);
+  // RestartTransfer starts the next round of an unpaid transfer.
+  rpc RestartTransfer(MsgRestartTransfer) returns (MsgRestartTransferResponse);
+  // ConfirmMint records governance mint evidence in the next settlement round.
+  rpc ConfirmMint(MsgConfirmMint) returns (MsgConfirmMintResponse);
+  // ConfirmVoid records governance void evidence or resolves a paid transfer dispute.
+  rpc ConfirmVoid(MsgConfirmVoid) returns (MsgConfirmVoidResponse);
+  // FinalizeRefund pays the eligible queue head once to its original owner.
+  rpc FinalizeRefund(MsgFinalizeRefund) returns (MsgFinalizeRefundResponse);
+  // GuardianPause disables deposits, refunds or both.
+  rpc GuardianPause(MsgGuardianPause) returns (MsgGuardianPauseResponse);
+}
