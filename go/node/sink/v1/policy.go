@@ -21,15 +21,19 @@ func ValidateReporters(members []string, threshold math.LegacyDec) error {
 
 	seen := make(map[string]bool, len(members))
 	for _, member := range members {
-		if _, err := sdk.AccAddressFromBech32(member); err != nil {
+		addr, err := sdk.AccAddressFromBech32(member)
+		if err != nil {
 			return err
 		}
 
-		if seen[member] {
+		// Bech32 also decodes the upper-case spelling of an address, so
+		// duplicates are found by address rather than by string.
+		key := addr.String()
+		if seen[key] {
 			return ErrInvalidReporters.Wrap("duplicate reporter")
 		}
 
-		seen[member] = true
+		seen[key] = true
 	}
 
 	return nil

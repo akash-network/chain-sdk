@@ -2,9 +2,11 @@ package v1_test
 
 import (
 	"slices"
+	"strings"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	types "pkg.akt.dev/go/node/sink/v1"
@@ -48,4 +50,27 @@ func TestReporterPolicyDecimalValidation(t *testing.T) {
 	}
 
 	require.NoError(t, types.ValidateReporters(nil, sdkmath.LegacyZeroDec()))
+}
+
+// Bech32 also decodes the all-upper-case spelling of an address, so two
+// spellings of one account are a duplicate reporter.
+func TestValidateReportersDedupesDecodedAddresses(t *testing.T) {
+	members := policy().Members
+	upper := strings.ToUpper(members[0])
+	alias, err := sdk.AccAddressFromBech32(upper)
+	require.NoError(t, err)
+	require.Equal(t, members[0], alias.String(), "both spellings name one account")
+
+	// Four strings at 0.66 need three votes, which two accounts would cast.
+	threshold := sdkmath.LegacyMustNewDecFromStr("0.66")
+	duplicate := []string{members[0], upper, members[1], members[2]}
+	require.ErrorIs(t, types.ValidateReporters(duplicate, threshold), types.ErrInvalidReporters)
+
+	p := policy()
+	p.Members = duplicate
+	p.Threshold = threshold
+	require.ErrorIs(t, p.Validate(), types.ErrInvalidReporters)
+
+	// One spelling per account is valid in either case.
+	require.NoError(t, types.ValidateReporters([]string{upper, members[1], members[2], members[3]}, threshold))
 }
