@@ -36,7 +36,7 @@ export interface GenesisRecord {
   status: Status;
 }
 
-/** GenesisState exports complete sink state; schema_version must be 4 for canonical settlements. */
+/** GenesisState exports the complete sink state. */
 export interface GenesisState {
   params: Params | undefined;
   totals: Totals | undefined;

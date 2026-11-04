@@ -146,7 +146,7 @@ func (m *GenesisRecord) GetStatus() Status {
 	return StatusInvalid
 }
 
-// GenesisState exports complete sink state; schema_version must be 4 for canonical settlements.
+// GenesisState exports the complete sink state.
 type GenesisState struct {
 	Params         Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params" yaml:"params"`
 	Totals         Totals `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals" yaml:"totals"`

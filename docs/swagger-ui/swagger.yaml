@@ -6719,6 +6719,1457 @@ paths:
           type: string
       tags:
         - Query
+  /akash/sink/v1/accounts/{owner}:
+    get:
+      summary: >-
+        Account returns usage normalized to the current sending epoch without a
+        write.
+      operationId: SinkAccount
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              usage:
+                type: object
+                properties:
+                  total_sent:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  epoch_sent:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  last_epoch:
+                    type: string
+                    format: int64
+                description: >-
+                  AccountUsage counts lifetime deposits and deposits within the
+                  native "day" last_epoch.
+              epoch:
+                type: string
+                format: uint64
+                description: >-
+                  Native "day" CurrentEpoch at the queried height; zero before
+                  counting starts.
+            description: >-
+              QueryAccountResponse returns account usage normalized to the
+              queried sending epoch.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /akash/sink/v1/disputes:
+    get:
+      summary: |-
+        Disputes lists all held transfers, including terminal conflicts, with
+        standard key pagination.
+      operationId: SinkDisputes
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              transfers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: object
+                      properties:
+                        owner:
+                          type: string
+                        height:
+                          type: string
+                          format: int64
+                          description: >-
+                            Positive creating block height; genesis imports
+                            require a later initial_height.
+                        sequence:
+                          type: string
+                          format: uint64
+                          description: >-
+                            Positive globally allocated sequence within the
+                            creating block.
+                      description: >-
+                        ID identifies a transfer by owner, block height and
+                        sequence.
+                    data:
+                      type: object
+                      properties:
+                        dest:
+                          type: string
+                        amount:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                      description: >-
+                        RecordData is the immutable transfer payload proven on
+                        Solana.
+                    settlement:
+                      type: object
+                      properties:
+                        hold:
+                          type: string
+                          enum:
+                            - HOLD_NONE
+                            - HOLD_VETO
+                            - HOLD_CONFLICT
+                          default: HOLD_NONE
+                          description: >-
+                            Hold records a veto or conflict requiring governance
+                            resolution.
+
+                             - HOLD_NONE: No settlement hold is active.
+                             - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+                             - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+                        round:
+                          type: string
+                          format: uint64
+                        policy:
+                          type: object
+                          properties:
+                            version:
+                              type: string
+                              format: uint64
+                            members:
+                              type: array
+                              items:
+                                type: string
+                            threshold:
+                              type: string
+                          description: >-
+                            ReporterPolicy is an immutable version of the
+                            reporter authorization rule.
+                        votes:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              reporter:
+                                type: string
+                              observation:
+                                type: object
+                                properties:
+                                  outcome:
+                                    type: string
+                                    enum:
+                                      - OUTCOME_UNSPECIFIED
+                                      - OUTCOME_MINTED
+                                      - OUTCOME_VOIDED
+                                    default: OUTCOME_UNSPECIFIED
+                                    description: >-
+                                      Outcome is the finalized Solana result
+                                      asserted by an observer.
+
+                                       - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                                       - OUTCOME_MINTED: Solana finalized the mint.
+                                       - OUTCOME_VOIDED: Solana finalized the void.
+                                  slot:
+                                    type: string
+                                    format: uint64
+                                  transaction_signature:
+                                    type: string
+                                    format: byte
+                                description: >-
+                                  Observation binds one outcome to its Solana
+                                  evidence.
+                              policy_version:
+                                type: string
+                                format: uint64
+                            description: >-
+                              Vote retains the policy version under which its
+                              reporter was authorized.
+                        challenge_end:
+                          type: string
+                          format: int64
+                        governance_observation:
+                          type: object
+                          properties:
+                            outcome:
+                              type: string
+                              enum:
+                                - OUTCOME_UNSPECIFIED
+                                - OUTCOME_MINTED
+                                - OUTCOME_VOIDED
+                              default: OUTCOME_UNSPECIFIED
+                              description: >-
+                                Outcome is the finalized Solana result asserted
+                                by an observer.
+
+                                 - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                                 - OUTCOME_MINTED: Solana finalized the mint.
+                                 - OUTCOME_VOIDED: Solana finalized the void.
+                            slot:
+                              type: string
+                              format: uint64
+                            transaction_signature:
+                              type: string
+                              format: byte
+                          description: >-
+                            Observation binds one outcome to its Solana
+                            evidence.
+                        veto_by:
+                          type: string
+                        veto_reason:
+                          type: string
+                        void_authorization:
+                          type: object
+                          properties:
+                            requested_height:
+                              type: string
+                              format: int64
+                            requested_round:
+                              type: string
+                              format: uint64
+                          description: >-
+                            VoidAuthorization permanently records the governance
+                            order, not Solana execution.
+                        veto_policy_version:
+                          type: string
+                          format: uint64
+                          description: >-
+                            Zero identifies governance; positive versions
+                            authenticate reporter vetoes.
+                      description: >-
+                        SettlementData retains authorization evidence; financial
+                        status exists only in its key.
+                    status:
+                      type: string
+                      enum:
+                        - STATUS_INVALID
+                        - STATUS_TRANSFER_PENDING
+                        - STATUS_MINTED
+                        - STATUS_VOIDED
+                        - STATUS_REFUND_PENDING
+                        - STATUS_REFUNDED
+                      default: STATUS_INVALID
+                      description: >-
+                        Status partitions the five financial populations
+                        independently of holds.
+
+                         - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+                         - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+                         - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+                         - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+                         - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+                         - STATUS_REFUNDED: The original owner has already received the refund.
+                  description: TransferState is the complete public query aggregate.
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+            description: >-
+              QueryDisputesResponse returns held transfers and the next dispute
+              cursor.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /akash/sink/v1/params:
+    get:
+      summary: Params returns the module parameters.
+      operationId: SinkParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the module.
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    description: >-
+                      Enabled permits deposits. Refunds are controlled
+                      independently.
+                  min_amount_per_transfer:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  max_amount_per_transfer:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  max_transfer_amount_per_epoch:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  max_epoch_amount_per_account:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                    title: zero means no limit
+                  max_epoch_refund:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  reporters:
+                    type: array
+                    items:
+                      type: string
+                    title: >-
+                      list governance approved akash addresses that monitor and
+                      report state of the
+
+                      mint/void from solana to akash
+                  reporters_threshold:
+                    type: string
+                    description: >-
+                      Ratio between zero and one. Quorum is ceil(r*n) and must
+                      exceed two thirds of the members.
+                  reporter_challenge_period:
+                    type: string
+                    description: >-
+                      At most 9223372035.999999999 seconds, the pinned native
+                      Amino signing limit.
+                  allowed_destination_vaults:
+                    type: array
+                    items:
+                      type: string
+                    description: >-
+                      Canonical base58 vault addresses exempt only from the
+                      recipient curve check.
+                  refunds_enabled:
+                    type: boolean
+                  pause_guardian:
+                    type: string
+                    description: >-
+                      Bech32 account that may only disable deposits and refunds.
+                      Empty means none.
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /akash/sink/v1/reporters:
+    get:
+      summary: Reporters returns reporter policies selected by version.
+      operationId: SinkReporters
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              reporters:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    version:
+                      type: string
+                      format: uint64
+                    members:
+                      type: array
+                      items:
+                        type: string
+                    threshold:
+                      type: string
+                  description: >-
+                    ReporterPolicy is an immutable version of the reporter
+                    authorization rule.
+                description: >-
+                  reporters holds the selected policies; it is empty when no
+                  policy exists
+
+                  yet and version 0 or the maximum uint64 is requested.
+            description: QueryReportersResponse returns the selected reporter policies.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: version
+          description: >-
+            0 selects the current policy, which is absent before the first
+            policy is
+
+            set. The maximum uint64 selects every retained policy. Any other
+            value
+
+            selects that version, or fails with NotFound.
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
+  /akash/sink/v1/state:
+    get:
+      summary: >-
+        State returns financial totals, the native "day" epoch with send and
+        refund
+
+        usage, and the refund queue head. Params and Reporters return the
+
+        parameters and reporter policies.
+      operationId: SinkState
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              totals:
+                type: object
+                properties:
+                  pending_amount:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  pending_count:
+                    type: string
+                    format: uint64
+                  minted_amount:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  minted_count:
+                    type: string
+                    format: uint64
+                  voided_amount:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  voided_count:
+                    type: string
+                    format: uint64
+                  refund_pending_amount:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  refund_pending_count:
+                    type: string
+                    format: uint64
+                  refunded_amount:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  refunded_count:
+                    type: string
+                    format: uint64
+                description: >-
+                  Totals counts each financial status exactly once, regardless
+                  of holds.
+              epoch:
+                type: string
+                format: uint64
+                description: >-
+                  Native "day" CurrentEpoch at the queried height; zero before
+                  counting starts.
+              send_usage:
+                type: object
+                properties:
+                  epoch:
+                    type: string
+                    format: uint64
+                  amount:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                description: >-
+                  EpochUsage preserves raw consumption for a native "day" epoch
+                  number.
+              refund_usage:
+                type: object
+                properties:
+                  epoch:
+                    type: string
+                    format: uint64
+                  amount:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                description: >-
+                  EpochUsage preserves raw consumption for a native "day" epoch
+                  number.
+              refund_head:
+                type: object
+                properties:
+                  owner:
+                    type: string
+                  height:
+                    type: string
+                    format: int64
+                    description: >-
+                      Positive creating block height; genesis imports require a
+                      later initial_height.
+                  sequence:
+                    type: string
+                    format: uint64
+                    description: >-
+                      Positive globally allocated sequence within the creating
+                      block.
+                description: ID identifies a transfer by owner, block height and sequence.
+            description: >-
+              QueryStateResponse returns totals, epoch usage and the refund
+              candidate head.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /akash/sink/v1/transfers:
+    get:
+      summary: >-
+        Transfers lists one owner's transfers, one status bucket, or the global
+
+        chronological history. Pagination keys are opaque server cursors: pass
+
+        next_key back unchanged. A resumed page keeps the cursor's owner and
+        status
+
+        and ignores the request's, while reverse is read from every request.
+        Offset
+
+        requires a status filter, a zero limit selects the default page size,
+        and
+
+        total is the number of transfers in the returned page.
+      operationId: SinkTransfers
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              transfers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: object
+                      properties:
+                        owner:
+                          type: string
+                        height:
+                          type: string
+                          format: int64
+                          description: >-
+                            Positive creating block height; genesis imports
+                            require a later initial_height.
+                        sequence:
+                          type: string
+                          format: uint64
+                          description: >-
+                            Positive globally allocated sequence within the
+                            creating block.
+                      description: >-
+                        ID identifies a transfer by owner, block height and
+                        sequence.
+                    data:
+                      type: object
+                      properties:
+                        dest:
+                          type: string
+                        amount:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                      description: >-
+                        RecordData is the immutable transfer payload proven on
+                        Solana.
+                    settlement:
+                      type: object
+                      properties:
+                        hold:
+                          type: string
+                          enum:
+                            - HOLD_NONE
+                            - HOLD_VETO
+                            - HOLD_CONFLICT
+                          default: HOLD_NONE
+                          description: >-
+                            Hold records a veto or conflict requiring governance
+                            resolution.
+
+                             - HOLD_NONE: No settlement hold is active.
+                             - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+                             - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+                        round:
+                          type: string
+                          format: uint64
+                        policy:
+                          type: object
+                          properties:
+                            version:
+                              type: string
+                              format: uint64
+                            members:
+                              type: array
+                              items:
+                                type: string
+                            threshold:
+                              type: string
+                          description: >-
+                            ReporterPolicy is an immutable version of the
+                            reporter authorization rule.
+                        votes:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              reporter:
+                                type: string
+                              observation:
+                                type: object
+                                properties:
+                                  outcome:
+                                    type: string
+                                    enum:
+                                      - OUTCOME_UNSPECIFIED
+                                      - OUTCOME_MINTED
+                                      - OUTCOME_VOIDED
+                                    default: OUTCOME_UNSPECIFIED
+                                    description: >-
+                                      Outcome is the finalized Solana result
+                                      asserted by an observer.
+
+                                       - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                                       - OUTCOME_MINTED: Solana finalized the mint.
+                                       - OUTCOME_VOIDED: Solana finalized the void.
+                                  slot:
+                                    type: string
+                                    format: uint64
+                                  transaction_signature:
+                                    type: string
+                                    format: byte
+                                description: >-
+                                  Observation binds one outcome to its Solana
+                                  evidence.
+                              policy_version:
+                                type: string
+                                format: uint64
+                            description: >-
+                              Vote retains the policy version under which its
+                              reporter was authorized.
+                        challenge_end:
+                          type: string
+                          format: int64
+                        governance_observation:
+                          type: object
+                          properties:
+                            outcome:
+                              type: string
+                              enum:
+                                - OUTCOME_UNSPECIFIED
+                                - OUTCOME_MINTED
+                                - OUTCOME_VOIDED
+                              default: OUTCOME_UNSPECIFIED
+                              description: >-
+                                Outcome is the finalized Solana result asserted
+                                by an observer.
+
+                                 - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                                 - OUTCOME_MINTED: Solana finalized the mint.
+                                 - OUTCOME_VOIDED: Solana finalized the void.
+                            slot:
+                              type: string
+                              format: uint64
+                            transaction_signature:
+                              type: string
+                              format: byte
+                          description: >-
+                            Observation binds one outcome to its Solana
+                            evidence.
+                        veto_by:
+                          type: string
+                        veto_reason:
+                          type: string
+                        void_authorization:
+                          type: object
+                          properties:
+                            requested_height:
+                              type: string
+                              format: int64
+                            requested_round:
+                              type: string
+                              format: uint64
+                          description: >-
+                            VoidAuthorization permanently records the governance
+                            order, not Solana execution.
+                        veto_policy_version:
+                          type: string
+                          format: uint64
+                          description: >-
+                            Zero identifies governance; positive versions
+                            authenticate reporter vetoes.
+                      description: >-
+                        SettlementData retains authorization evidence; financial
+                        status exists only in its key.
+                    status:
+                      type: string
+                      enum:
+                        - STATUS_INVALID
+                        - STATUS_TRANSFER_PENDING
+                        - STATUS_MINTED
+                        - STATUS_VOIDED
+                        - STATUS_REFUND_PENDING
+                        - STATUS_REFUNDED
+                      default: STATUS_INVALID
+                      description: >-
+                        Status partitions the five financial populations
+                        independently of holds.
+
+                         - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+                         - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+                         - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+                         - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+                         - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+                         - STATUS_REFUNDED: The original owner has already received the refund.
+                  description: TransferState is the complete public query aggregate.
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+            description: >-
+              QueryTransfersResponse returns transfers and the next index
+              cursor.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: owner
+          in: query
+          required: false
+          type: string
+        - name: status
+          description: |2-
+             - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+             - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+             - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+             - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+             - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+             - STATUS_REFUNDED: The original owner has already received the refund.
+          in: query
+          required: false
+          type: string
+          enum:
+            - STATUS_INVALID
+            - STATUS_TRANSFER_PENDING
+            - STATUS_MINTED
+            - STATUS_VOIDED
+            - STATUS_REFUND_PENDING
+            - STATUS_REFUNDED
+          default: STATUS_INVALID
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /akash/sink/v1/transfers/{id.owner}/{id.height}/{id.sequence}:
+    get:
+      summary: >-
+        Transfer returns immutable data and retained settlement evidence for one
+        ID.
+      operationId: SinkTransfer
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              transfer:
+                type: object
+                properties:
+                  id:
+                    type: object
+                    properties:
+                      owner:
+                        type: string
+                      height:
+                        type: string
+                        format: int64
+                        description: >-
+                          Positive creating block height; genesis imports
+                          require a later initial_height.
+                      sequence:
+                        type: string
+                        format: uint64
+                        description: >-
+                          Positive globally allocated sequence within the
+                          creating block.
+                    description: >-
+                      ID identifies a transfer by owner, block height and
+                      sequence.
+                  data:
+                    type: object
+                    properties:
+                      dest:
+                        type: string
+                      amount:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                    description: >-
+                      RecordData is the immutable transfer payload proven on
+                      Solana.
+                  settlement:
+                    type: object
+                    properties:
+                      hold:
+                        type: string
+                        enum:
+                          - HOLD_NONE
+                          - HOLD_VETO
+                          - HOLD_CONFLICT
+                        default: HOLD_NONE
+                        description: >-
+                          Hold records a veto or conflict requiring governance
+                          resolution.
+
+                           - HOLD_NONE: No settlement hold is active.
+                           - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+                           - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+                      round:
+                        type: string
+                        format: uint64
+                      policy:
+                        type: object
+                        properties:
+                          version:
+                            type: string
+                            format: uint64
+                          members:
+                            type: array
+                            items:
+                              type: string
+                          threshold:
+                            type: string
+                        description: >-
+                          ReporterPolicy is an immutable version of the reporter
+                          authorization rule.
+                      votes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            reporter:
+                              type: string
+                            observation:
+                              type: object
+                              properties:
+                                outcome:
+                                  type: string
+                                  enum:
+                                    - OUTCOME_UNSPECIFIED
+                                    - OUTCOME_MINTED
+                                    - OUTCOME_VOIDED
+                                  default: OUTCOME_UNSPECIFIED
+                                  description: >-
+                                    Outcome is the finalized Solana result
+                                    asserted by an observer.
+
+                                     - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                                     - OUTCOME_MINTED: Solana finalized the mint.
+                                     - OUTCOME_VOIDED: Solana finalized the void.
+                                slot:
+                                  type: string
+                                  format: uint64
+                                transaction_signature:
+                                  type: string
+                                  format: byte
+                              description: >-
+                                Observation binds one outcome to its Solana
+                                evidence.
+                            policy_version:
+                              type: string
+                              format: uint64
+                          description: >-
+                            Vote retains the policy version under which its
+                            reporter was authorized.
+                      challenge_end:
+                        type: string
+                        format: int64
+                      governance_observation:
+                        type: object
+                        properties:
+                          outcome:
+                            type: string
+                            enum:
+                              - OUTCOME_UNSPECIFIED
+                              - OUTCOME_MINTED
+                              - OUTCOME_VOIDED
+                            default: OUTCOME_UNSPECIFIED
+                            description: >-
+                              Outcome is the finalized Solana result asserted by
+                              an observer.
+
+                               - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                               - OUTCOME_MINTED: Solana finalized the mint.
+                               - OUTCOME_VOIDED: Solana finalized the void.
+                          slot:
+                            type: string
+                            format: uint64
+                          transaction_signature:
+                            type: string
+                            format: byte
+                        description: Observation binds one outcome to its Solana evidence.
+                      veto_by:
+                        type: string
+                      veto_reason:
+                        type: string
+                      void_authorization:
+                        type: object
+                        properties:
+                          requested_height:
+                            type: string
+                            format: int64
+                          requested_round:
+                            type: string
+                            format: uint64
+                        description: >-
+                          VoidAuthorization permanently records the governance
+                          order, not Solana execution.
+                      veto_policy_version:
+                        type: string
+                        format: uint64
+                        description: >-
+                          Zero identifies governance; positive versions
+                          authenticate reporter vetoes.
+                    description: >-
+                      SettlementData retains authorization evidence; financial
+                      status exists only in its key.
+                  status:
+                    type: string
+                    enum:
+                      - STATUS_INVALID
+                      - STATUS_TRANSFER_PENDING
+                      - STATUS_MINTED
+                      - STATUS_VOIDED
+                      - STATUS_REFUND_PENDING
+                      - STATUS_REFUNDED
+                    default: STATUS_INVALID
+                    description: >-
+                      Status partitions the five financial populations
+                      independently of holds.
+
+                       - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+                       - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+                       - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+                       - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+                       - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+                       - STATUS_REFUNDED: The original owner has already received the refund.
+                description: TransferState is the complete public query aggregate.
+            description: >-
+              QueryTransferResponse returns the complete transfer and settlement
+              state.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: id.owner
+          in: path
+          required: true
+          type: string
+        - name: id.height
+          description: >-
+            Positive creating block height; genesis imports require a later
+            initial_height.
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: id.sequence
+          description: Positive globally allocated sequence within the creating block.
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
   /akash/take/v1/params:
     get:
       summary: Params returns the total set of take parameters.
@@ -53197,6 +54648,1765 @@ definitions:
 
               was set, its value is undefined otherwise
     title: QueryProvidersResponse is response type for the Query/Providers RPC method
+  akash.sink.v1.AccountUsage:
+    type: object
+    properties:
+      total_sent:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      epoch_sent:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      last_epoch:
+        type: string
+        format: int64
+    description: >-
+      AccountUsage counts lifetime deposits and deposits within the native "day"
+      last_epoch.
+  akash.sink.v1.EpochUsage:
+    type: object
+    properties:
+      epoch:
+        type: string
+        format: uint64
+      amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+    description: EpochUsage preserves raw consumption for a native "day" epoch number.
+  akash.sink.v1.Hold:
+    type: string
+    enum:
+      - HOLD_NONE
+      - HOLD_VETO
+      - HOLD_CONFLICT
+    default: HOLD_NONE
+    description: |-
+      Hold records a veto or conflict requiring governance resolution.
+
+       - HOLD_NONE: No settlement hold is active.
+       - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+       - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+  akash.sink.v1.ID:
+    type: object
+    properties:
+      owner:
+        type: string
+      height:
+        type: string
+        format: int64
+        description: >-
+          Positive creating block height; genesis imports require a later
+          initial_height.
+      sequence:
+        type: string
+        format: uint64
+        description: Positive globally allocated sequence within the creating block.
+    description: ID identifies a transfer by owner, block height and sequence.
+  akash.sink.v1.Observation:
+    type: object
+    properties:
+      outcome:
+        type: string
+        enum:
+          - OUTCOME_UNSPECIFIED
+          - OUTCOME_MINTED
+          - OUTCOME_VOIDED
+        default: OUTCOME_UNSPECIFIED
+        description: |-
+          Outcome is the finalized Solana result asserted by an observer.
+
+           - OUTCOME_UNSPECIFIED: No outcome was supplied.
+           - OUTCOME_MINTED: Solana finalized the mint.
+           - OUTCOME_VOIDED: Solana finalized the void.
+      slot:
+        type: string
+        format: uint64
+      transaction_signature:
+        type: string
+        format: byte
+    description: Observation binds one outcome to its Solana evidence.
+  akash.sink.v1.Outcome:
+    type: string
+    enum:
+      - OUTCOME_UNSPECIFIED
+      - OUTCOME_MINTED
+      - OUTCOME_VOIDED
+    default: OUTCOME_UNSPECIFIED
+    description: |-
+      Outcome is the finalized Solana result asserted by an observer.
+
+       - OUTCOME_UNSPECIFIED: No outcome was supplied.
+       - OUTCOME_MINTED: Solana finalized the mint.
+       - OUTCOME_VOIDED: Solana finalized the void.
+  akash.sink.v1.Params:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        description: Enabled permits deposits. Refunds are controlled independently.
+      min_amount_per_transfer:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      max_amount_per_transfer:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      max_transfer_amount_per_epoch:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      max_epoch_amount_per_account:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+        title: zero means no limit
+      max_epoch_refund:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      reporters:
+        type: array
+        items:
+          type: string
+        title: >-
+          list governance approved akash addresses that monitor and report state
+          of the
+
+          mint/void from solana to akash
+      reporters_threshold:
+        type: string
+        description: >-
+          Ratio between zero and one. Quorum is ceil(r*n) and must exceed two
+          thirds of the members.
+      reporter_challenge_period:
+        type: string
+        description: >-
+          At most 9223372035.999999999 seconds, the pinned native Amino signing
+          limit.
+      allowed_destination_vaults:
+        type: array
+        items:
+          type: string
+        description: >-
+          Canonical base58 vault addresses exempt only from the recipient curve
+          check.
+      refunds_enabled:
+        type: boolean
+      pause_guardian:
+        type: string
+        description: >-
+          Bech32 account that may only disable deposits and refunds. Empty means
+          none.
+    description: |-
+      Params configures uakt transfer limits, reporter settlement and refunds.
+      Send and refund quotas use the current number of the native "day" epoch.
+  akash.sink.v1.QueryAccountResponse:
+    type: object
+    properties:
+      usage:
+        type: object
+        properties:
+          total_sent:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          epoch_sent:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          last_epoch:
+            type: string
+            format: int64
+        description: >-
+          AccountUsage counts lifetime deposits and deposits within the native
+          "day" last_epoch.
+      epoch:
+        type: string
+        format: uint64
+        description: >-
+          Native "day" CurrentEpoch at the queried height; zero before counting
+          starts.
+    description: >-
+      QueryAccountResponse returns account usage normalized to the queried
+      sending epoch.
+  akash.sink.v1.QueryDisputesResponse:
+    type: object
+    properties:
+      transfers:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: object
+              properties:
+                owner:
+                  type: string
+                height:
+                  type: string
+                  format: int64
+                  description: >-
+                    Positive creating block height; genesis imports require a
+                    later initial_height.
+                sequence:
+                  type: string
+                  format: uint64
+                  description: >-
+                    Positive globally allocated sequence within the creating
+                    block.
+              description: ID identifies a transfer by owner, block height and sequence.
+            data:
+              type: object
+              properties:
+                dest:
+                  type: string
+                amount:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+              description: RecordData is the immutable transfer payload proven on Solana.
+            settlement:
+              type: object
+              properties:
+                hold:
+                  type: string
+                  enum:
+                    - HOLD_NONE
+                    - HOLD_VETO
+                    - HOLD_CONFLICT
+                  default: HOLD_NONE
+                  description: >-
+                    Hold records a veto or conflict requiring governance
+                    resolution.
+
+                     - HOLD_NONE: No settlement hold is active.
+                     - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+                     - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+                round:
+                  type: string
+                  format: uint64
+                policy:
+                  type: object
+                  properties:
+                    version:
+                      type: string
+                      format: uint64
+                    members:
+                      type: array
+                      items:
+                        type: string
+                    threshold:
+                      type: string
+                  description: >-
+                    ReporterPolicy is an immutable version of the reporter
+                    authorization rule.
+                votes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      reporter:
+                        type: string
+                      observation:
+                        type: object
+                        properties:
+                          outcome:
+                            type: string
+                            enum:
+                              - OUTCOME_UNSPECIFIED
+                              - OUTCOME_MINTED
+                              - OUTCOME_VOIDED
+                            default: OUTCOME_UNSPECIFIED
+                            description: >-
+                              Outcome is the finalized Solana result asserted by
+                              an observer.
+
+                               - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                               - OUTCOME_MINTED: Solana finalized the mint.
+                               - OUTCOME_VOIDED: Solana finalized the void.
+                          slot:
+                            type: string
+                            format: uint64
+                          transaction_signature:
+                            type: string
+                            format: byte
+                        description: Observation binds one outcome to its Solana evidence.
+                      policy_version:
+                        type: string
+                        format: uint64
+                    description: >-
+                      Vote retains the policy version under which its reporter
+                      was authorized.
+                challenge_end:
+                  type: string
+                  format: int64
+                governance_observation:
+                  type: object
+                  properties:
+                    outcome:
+                      type: string
+                      enum:
+                        - OUTCOME_UNSPECIFIED
+                        - OUTCOME_MINTED
+                        - OUTCOME_VOIDED
+                      default: OUTCOME_UNSPECIFIED
+                      description: >-
+                        Outcome is the finalized Solana result asserted by an
+                        observer.
+
+                         - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                         - OUTCOME_MINTED: Solana finalized the mint.
+                         - OUTCOME_VOIDED: Solana finalized the void.
+                    slot:
+                      type: string
+                      format: uint64
+                    transaction_signature:
+                      type: string
+                      format: byte
+                  description: Observation binds one outcome to its Solana evidence.
+                veto_by:
+                  type: string
+                veto_reason:
+                  type: string
+                void_authorization:
+                  type: object
+                  properties:
+                    requested_height:
+                      type: string
+                      format: int64
+                    requested_round:
+                      type: string
+                      format: uint64
+                  description: >-
+                    VoidAuthorization permanently records the governance order,
+                    not Solana execution.
+                veto_policy_version:
+                  type: string
+                  format: uint64
+                  description: >-
+                    Zero identifies governance; positive versions authenticate
+                    reporter vetoes.
+              description: >-
+                SettlementData retains authorization evidence; financial status
+                exists only in its key.
+            status:
+              type: string
+              enum:
+                - STATUS_INVALID
+                - STATUS_TRANSFER_PENDING
+                - STATUS_MINTED
+                - STATUS_VOIDED
+                - STATUS_REFUND_PENDING
+                - STATUS_REFUNDED
+              default: STATUS_INVALID
+              description: >-
+                Status partitions the five financial populations independently
+                of holds.
+
+                 - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+                 - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+                 - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+                 - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+                 - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+                 - STATUS_REFUNDED: The original owner has already received the refund.
+          description: TransferState is the complete public query aggregate.
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+    description: QueryDisputesResponse returns held transfers and the next dispute cursor.
+  akash.sink.v1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the module.
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            description: Enabled permits deposits. Refunds are controlled independently.
+          min_amount_per_transfer:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          max_amount_per_transfer:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          max_transfer_amount_per_epoch:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          max_epoch_amount_per_account:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+            title: zero means no limit
+          max_epoch_refund:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          reporters:
+            type: array
+            items:
+              type: string
+            title: >-
+              list governance approved akash addresses that monitor and report
+              state of the
+
+              mint/void from solana to akash
+          reporters_threshold:
+            type: string
+            description: >-
+              Ratio between zero and one. Quorum is ceil(r*n) and must exceed
+              two thirds of the members.
+          reporter_challenge_period:
+            type: string
+            description: >-
+              At most 9223372035.999999999 seconds, the pinned native Amino
+              signing limit.
+          allowed_destination_vaults:
+            type: array
+            items:
+              type: string
+            description: >-
+              Canonical base58 vault addresses exempt only from the recipient
+              curve check.
+          refunds_enabled:
+            type: boolean
+          pause_guardian:
+            type: string
+            description: >-
+              Bech32 account that may only disable deposits and refunds. Empty
+              means none.
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  akash.sink.v1.QueryReportersResponse:
+    type: object
+    properties:
+      reporters:
+        type: array
+        items:
+          type: object
+          properties:
+            version:
+              type: string
+              format: uint64
+            members:
+              type: array
+              items:
+                type: string
+            threshold:
+              type: string
+          description: >-
+            ReporterPolicy is an immutable version of the reporter authorization
+            rule.
+        description: >-
+          reporters holds the selected policies; it is empty when no policy
+          exists
+
+          yet and version 0 or the maximum uint64 is requested.
+    description: QueryReportersResponse returns the selected reporter policies.
+  akash.sink.v1.QueryStateResponse:
+    type: object
+    properties:
+      totals:
+        type: object
+        properties:
+          pending_amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          pending_count:
+            type: string
+            format: uint64
+          minted_amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          minted_count:
+            type: string
+            format: uint64
+          voided_amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          voided_count:
+            type: string
+            format: uint64
+          refund_pending_amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          refund_pending_count:
+            type: string
+            format: uint64
+          refunded_amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          refunded_count:
+            type: string
+            format: uint64
+        description: Totals counts each financial status exactly once, regardless of holds.
+      epoch:
+        type: string
+        format: uint64
+        description: >-
+          Native "day" CurrentEpoch at the queried height; zero before counting
+          starts.
+      send_usage:
+        type: object
+        properties:
+          epoch:
+            type: string
+            format: uint64
+          amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+        description: EpochUsage preserves raw consumption for a native "day" epoch number.
+      refund_usage:
+        type: object
+        properties:
+          epoch:
+            type: string
+            format: uint64
+          amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+        description: EpochUsage preserves raw consumption for a native "day" epoch number.
+      refund_head:
+        type: object
+        properties:
+          owner:
+            type: string
+          height:
+            type: string
+            format: int64
+            description: >-
+              Positive creating block height; genesis imports require a later
+              initial_height.
+          sequence:
+            type: string
+            format: uint64
+            description: Positive globally allocated sequence within the creating block.
+        description: ID identifies a transfer by owner, block height and sequence.
+    description: >-
+      QueryStateResponse returns totals, epoch usage and the refund candidate
+      head.
+  akash.sink.v1.QueryTransferResponse:
+    type: object
+    properties:
+      transfer:
+        type: object
+        properties:
+          id:
+            type: object
+            properties:
+              owner:
+                type: string
+              height:
+                type: string
+                format: int64
+                description: >-
+                  Positive creating block height; genesis imports require a
+                  later initial_height.
+              sequence:
+                type: string
+                format: uint64
+                description: >-
+                  Positive globally allocated sequence within the creating
+                  block.
+            description: ID identifies a transfer by owner, block height and sequence.
+          data:
+            type: object
+            properties:
+              dest:
+                type: string
+              amount:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            description: RecordData is the immutable transfer payload proven on Solana.
+          settlement:
+            type: object
+            properties:
+              hold:
+                type: string
+                enum:
+                  - HOLD_NONE
+                  - HOLD_VETO
+                  - HOLD_CONFLICT
+                default: HOLD_NONE
+                description: >-
+                  Hold records a veto or conflict requiring governance
+                  resolution.
+
+                   - HOLD_NONE: No settlement hold is active.
+                   - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+                   - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+              round:
+                type: string
+                format: uint64
+              policy:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    format: uint64
+                  members:
+                    type: array
+                    items:
+                      type: string
+                  threshold:
+                    type: string
+                description: >-
+                  ReporterPolicy is an immutable version of the reporter
+                  authorization rule.
+              votes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    reporter:
+                      type: string
+                    observation:
+                      type: object
+                      properties:
+                        outcome:
+                          type: string
+                          enum:
+                            - OUTCOME_UNSPECIFIED
+                            - OUTCOME_MINTED
+                            - OUTCOME_VOIDED
+                          default: OUTCOME_UNSPECIFIED
+                          description: >-
+                            Outcome is the finalized Solana result asserted by
+                            an observer.
+
+                             - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                             - OUTCOME_MINTED: Solana finalized the mint.
+                             - OUTCOME_VOIDED: Solana finalized the void.
+                        slot:
+                          type: string
+                          format: uint64
+                        transaction_signature:
+                          type: string
+                          format: byte
+                      description: Observation binds one outcome to its Solana evidence.
+                    policy_version:
+                      type: string
+                      format: uint64
+                  description: >-
+                    Vote retains the policy version under which its reporter was
+                    authorized.
+              challenge_end:
+                type: string
+                format: int64
+              governance_observation:
+                type: object
+                properties:
+                  outcome:
+                    type: string
+                    enum:
+                      - OUTCOME_UNSPECIFIED
+                      - OUTCOME_MINTED
+                      - OUTCOME_VOIDED
+                    default: OUTCOME_UNSPECIFIED
+                    description: >-
+                      Outcome is the finalized Solana result asserted by an
+                      observer.
+
+                       - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                       - OUTCOME_MINTED: Solana finalized the mint.
+                       - OUTCOME_VOIDED: Solana finalized the void.
+                  slot:
+                    type: string
+                    format: uint64
+                  transaction_signature:
+                    type: string
+                    format: byte
+                description: Observation binds one outcome to its Solana evidence.
+              veto_by:
+                type: string
+              veto_reason:
+                type: string
+              void_authorization:
+                type: object
+                properties:
+                  requested_height:
+                    type: string
+                    format: int64
+                  requested_round:
+                    type: string
+                    format: uint64
+                description: >-
+                  VoidAuthorization permanently records the governance order,
+                  not Solana execution.
+              veto_policy_version:
+                type: string
+                format: uint64
+                description: >-
+                  Zero identifies governance; positive versions authenticate
+                  reporter vetoes.
+            description: >-
+              SettlementData retains authorization evidence; financial status
+              exists only in its key.
+          status:
+            type: string
+            enum:
+              - STATUS_INVALID
+              - STATUS_TRANSFER_PENDING
+              - STATUS_MINTED
+              - STATUS_VOIDED
+              - STATUS_REFUND_PENDING
+              - STATUS_REFUNDED
+            default: STATUS_INVALID
+            description: >-
+              Status partitions the five financial populations independently of
+              holds.
+
+               - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+               - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+               - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+               - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+               - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+               - STATUS_REFUNDED: The original owner has already received the refund.
+        description: TransferState is the complete public query aggregate.
+    description: QueryTransferResponse returns the complete transfer and settlement state.
+  akash.sink.v1.QueryTransfersResponse:
+    type: object
+    properties:
+      transfers:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: object
+              properties:
+                owner:
+                  type: string
+                height:
+                  type: string
+                  format: int64
+                  description: >-
+                    Positive creating block height; genesis imports require a
+                    later initial_height.
+                sequence:
+                  type: string
+                  format: uint64
+                  description: >-
+                    Positive globally allocated sequence within the creating
+                    block.
+              description: ID identifies a transfer by owner, block height and sequence.
+            data:
+              type: object
+              properties:
+                dest:
+                  type: string
+                amount:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+              description: RecordData is the immutable transfer payload proven on Solana.
+            settlement:
+              type: object
+              properties:
+                hold:
+                  type: string
+                  enum:
+                    - HOLD_NONE
+                    - HOLD_VETO
+                    - HOLD_CONFLICT
+                  default: HOLD_NONE
+                  description: >-
+                    Hold records a veto or conflict requiring governance
+                    resolution.
+
+                     - HOLD_NONE: No settlement hold is active.
+                     - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+                     - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+                round:
+                  type: string
+                  format: uint64
+                policy:
+                  type: object
+                  properties:
+                    version:
+                      type: string
+                      format: uint64
+                    members:
+                      type: array
+                      items:
+                        type: string
+                    threshold:
+                      type: string
+                  description: >-
+                    ReporterPolicy is an immutable version of the reporter
+                    authorization rule.
+                votes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      reporter:
+                        type: string
+                      observation:
+                        type: object
+                        properties:
+                          outcome:
+                            type: string
+                            enum:
+                              - OUTCOME_UNSPECIFIED
+                              - OUTCOME_MINTED
+                              - OUTCOME_VOIDED
+                            default: OUTCOME_UNSPECIFIED
+                            description: >-
+                              Outcome is the finalized Solana result asserted by
+                              an observer.
+
+                               - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                               - OUTCOME_MINTED: Solana finalized the mint.
+                               - OUTCOME_VOIDED: Solana finalized the void.
+                          slot:
+                            type: string
+                            format: uint64
+                          transaction_signature:
+                            type: string
+                            format: byte
+                        description: Observation binds one outcome to its Solana evidence.
+                      policy_version:
+                        type: string
+                        format: uint64
+                    description: >-
+                      Vote retains the policy version under which its reporter
+                      was authorized.
+                challenge_end:
+                  type: string
+                  format: int64
+                governance_observation:
+                  type: object
+                  properties:
+                    outcome:
+                      type: string
+                      enum:
+                        - OUTCOME_UNSPECIFIED
+                        - OUTCOME_MINTED
+                        - OUTCOME_VOIDED
+                      default: OUTCOME_UNSPECIFIED
+                      description: >-
+                        Outcome is the finalized Solana result asserted by an
+                        observer.
+
+                         - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                         - OUTCOME_MINTED: Solana finalized the mint.
+                         - OUTCOME_VOIDED: Solana finalized the void.
+                    slot:
+                      type: string
+                      format: uint64
+                    transaction_signature:
+                      type: string
+                      format: byte
+                  description: Observation binds one outcome to its Solana evidence.
+                veto_by:
+                  type: string
+                veto_reason:
+                  type: string
+                void_authorization:
+                  type: object
+                  properties:
+                    requested_height:
+                      type: string
+                      format: int64
+                    requested_round:
+                      type: string
+                      format: uint64
+                  description: >-
+                    VoidAuthorization permanently records the governance order,
+                    not Solana execution.
+                veto_policy_version:
+                  type: string
+                  format: uint64
+                  description: >-
+                    Zero identifies governance; positive versions authenticate
+                    reporter vetoes.
+              description: >-
+                SettlementData retains authorization evidence; financial status
+                exists only in its key.
+            status:
+              type: string
+              enum:
+                - STATUS_INVALID
+                - STATUS_TRANSFER_PENDING
+                - STATUS_MINTED
+                - STATUS_VOIDED
+                - STATUS_REFUND_PENDING
+                - STATUS_REFUNDED
+              default: STATUS_INVALID
+              description: >-
+                Status partitions the five financial populations independently
+                of holds.
+
+                 - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+                 - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+                 - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+                 - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+                 - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+                 - STATUS_REFUNDED: The original owner has already received the refund.
+          description: TransferState is the complete public query aggregate.
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+    description: QueryTransfersResponse returns transfers and the next index cursor.
+  akash.sink.v1.RecordData:
+    type: object
+    properties:
+      dest:
+        type: string
+      amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+    description: RecordData is the immutable transfer payload proven on Solana.
+  akash.sink.v1.ReporterPolicy:
+    type: object
+    properties:
+      version:
+        type: string
+        format: uint64
+      members:
+        type: array
+        items:
+          type: string
+      threshold:
+        type: string
+    description: ReporterPolicy is an immutable version of the reporter authorization rule.
+  akash.sink.v1.SettlementData:
+    type: object
+    properties:
+      hold:
+        type: string
+        enum:
+          - HOLD_NONE
+          - HOLD_VETO
+          - HOLD_CONFLICT
+        default: HOLD_NONE
+        description: |-
+          Hold records a veto or conflict requiring governance resolution.
+
+           - HOLD_NONE: No settlement hold is active.
+           - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+           - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+      round:
+        type: string
+        format: uint64
+      policy:
+        type: object
+        properties:
+          version:
+            type: string
+            format: uint64
+          members:
+            type: array
+            items:
+              type: string
+          threshold:
+            type: string
+        description: >-
+          ReporterPolicy is an immutable version of the reporter authorization
+          rule.
+      votes:
+        type: array
+        items:
+          type: object
+          properties:
+            reporter:
+              type: string
+            observation:
+              type: object
+              properties:
+                outcome:
+                  type: string
+                  enum:
+                    - OUTCOME_UNSPECIFIED
+                    - OUTCOME_MINTED
+                    - OUTCOME_VOIDED
+                  default: OUTCOME_UNSPECIFIED
+                  description: >-
+                    Outcome is the finalized Solana result asserted by an
+                    observer.
+
+                     - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                     - OUTCOME_MINTED: Solana finalized the mint.
+                     - OUTCOME_VOIDED: Solana finalized the void.
+                slot:
+                  type: string
+                  format: uint64
+                transaction_signature:
+                  type: string
+                  format: byte
+              description: Observation binds one outcome to its Solana evidence.
+            policy_version:
+              type: string
+              format: uint64
+          description: >-
+            Vote retains the policy version under which its reporter was
+            authorized.
+      challenge_end:
+        type: string
+        format: int64
+      governance_observation:
+        type: object
+        properties:
+          outcome:
+            type: string
+            enum:
+              - OUTCOME_UNSPECIFIED
+              - OUTCOME_MINTED
+              - OUTCOME_VOIDED
+            default: OUTCOME_UNSPECIFIED
+            description: |-
+              Outcome is the finalized Solana result asserted by an observer.
+
+               - OUTCOME_UNSPECIFIED: No outcome was supplied.
+               - OUTCOME_MINTED: Solana finalized the mint.
+               - OUTCOME_VOIDED: Solana finalized the void.
+          slot:
+            type: string
+            format: uint64
+          transaction_signature:
+            type: string
+            format: byte
+        description: Observation binds one outcome to its Solana evidence.
+      veto_by:
+        type: string
+      veto_reason:
+        type: string
+      void_authorization:
+        type: object
+        properties:
+          requested_height:
+            type: string
+            format: int64
+          requested_round:
+            type: string
+            format: uint64
+        description: >-
+          VoidAuthorization permanently records the governance order, not Solana
+          execution.
+      veto_policy_version:
+        type: string
+        format: uint64
+        description: >-
+          Zero identifies governance; positive versions authenticate reporter
+          vetoes.
+    description: >-
+      SettlementData retains authorization evidence; financial status exists
+      only in its key.
+  akash.sink.v1.Status:
+    type: string
+    enum:
+      - STATUS_INVALID
+      - STATUS_TRANSFER_PENDING
+      - STATUS_MINTED
+      - STATUS_VOIDED
+      - STATUS_REFUND_PENDING
+      - STATUS_REFUNDED
+    default: STATUS_INVALID
+    description: |-
+      Status partitions the five financial populations independently of holds.
+
+       - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+       - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+       - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+       - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+       - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+       - STATUS_REFUNDED: The original owner has already received the refund.
+  akash.sink.v1.Totals:
+    type: object
+    properties:
+      pending_amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      pending_count:
+        type: string
+        format: uint64
+      minted_amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      minted_count:
+        type: string
+        format: uint64
+      voided_amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      voided_count:
+        type: string
+        format: uint64
+      refund_pending_amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      refund_pending_count:
+        type: string
+        format: uint64
+      refunded_amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      refunded_count:
+        type: string
+        format: uint64
+    description: Totals counts each financial status exactly once, regardless of holds.
+  akash.sink.v1.TransferState:
+    type: object
+    properties:
+      id:
+        type: object
+        properties:
+          owner:
+            type: string
+          height:
+            type: string
+            format: int64
+            description: >-
+              Positive creating block height; genesis imports require a later
+              initial_height.
+          sequence:
+            type: string
+            format: uint64
+            description: Positive globally allocated sequence within the creating block.
+        description: ID identifies a transfer by owner, block height and sequence.
+      data:
+        type: object
+        properties:
+          dest:
+            type: string
+          amount:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+        description: RecordData is the immutable transfer payload proven on Solana.
+      settlement:
+        type: object
+        properties:
+          hold:
+            type: string
+            enum:
+              - HOLD_NONE
+              - HOLD_VETO
+              - HOLD_CONFLICT
+            default: HOLD_NONE
+            description: |-
+              Hold records a veto or conflict requiring governance resolution.
+
+               - HOLD_NONE: No settlement hold is active.
+               - HOLD_VETO: An unpaid transfer is held by a reporter or governance veto.
+               - HOLD_CONFLICT: Conflicting evidence requires governance, including on terminal transfers.
+          round:
+            type: string
+            format: uint64
+          policy:
+            type: object
+            properties:
+              version:
+                type: string
+                format: uint64
+              members:
+                type: array
+                items:
+                  type: string
+              threshold:
+                type: string
+            description: >-
+              ReporterPolicy is an immutable version of the reporter
+              authorization rule.
+          votes:
+            type: array
+            items:
+              type: object
+              properties:
+                reporter:
+                  type: string
+                observation:
+                  type: object
+                  properties:
+                    outcome:
+                      type: string
+                      enum:
+                        - OUTCOME_UNSPECIFIED
+                        - OUTCOME_MINTED
+                        - OUTCOME_VOIDED
+                      default: OUTCOME_UNSPECIFIED
+                      description: >-
+                        Outcome is the finalized Solana result asserted by an
+                        observer.
+
+                         - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                         - OUTCOME_MINTED: Solana finalized the mint.
+                         - OUTCOME_VOIDED: Solana finalized the void.
+                    slot:
+                      type: string
+                      format: uint64
+                    transaction_signature:
+                      type: string
+                      format: byte
+                  description: Observation binds one outcome to its Solana evidence.
+                policy_version:
+                  type: string
+                  format: uint64
+              description: >-
+                Vote retains the policy version under which its reporter was
+                authorized.
+          challenge_end:
+            type: string
+            format: int64
+          governance_observation:
+            type: object
+            properties:
+              outcome:
+                type: string
+                enum:
+                  - OUTCOME_UNSPECIFIED
+                  - OUTCOME_MINTED
+                  - OUTCOME_VOIDED
+                default: OUTCOME_UNSPECIFIED
+                description: >-
+                  Outcome is the finalized Solana result asserted by an
+                  observer.
+
+                   - OUTCOME_UNSPECIFIED: No outcome was supplied.
+                   - OUTCOME_MINTED: Solana finalized the mint.
+                   - OUTCOME_VOIDED: Solana finalized the void.
+              slot:
+                type: string
+                format: uint64
+              transaction_signature:
+                type: string
+                format: byte
+            description: Observation binds one outcome to its Solana evidence.
+          veto_by:
+            type: string
+          veto_reason:
+            type: string
+          void_authorization:
+            type: object
+            properties:
+              requested_height:
+                type: string
+                format: int64
+              requested_round:
+                type: string
+                format: uint64
+            description: >-
+              VoidAuthorization permanently records the governance order, not
+              Solana execution.
+          veto_policy_version:
+            type: string
+            format: uint64
+            description: >-
+              Zero identifies governance; positive versions authenticate
+              reporter vetoes.
+        description: >-
+          SettlementData retains authorization evidence; financial status exists
+          only in its key.
+      status:
+        type: string
+        enum:
+          - STATUS_INVALID
+          - STATUS_TRANSFER_PENDING
+          - STATUS_MINTED
+          - STATUS_VOIDED
+          - STATUS_REFUND_PENDING
+          - STATUS_REFUNDED
+        default: STATUS_INVALID
+        description: >-
+          Status partitions the five financial populations independently of
+          holds.
+
+           - STATUS_INVALID: Invalid on stored settlements; selects any status in list filters.
+           - STATUS_TRANSFER_PENDING: Escrow awaits an authorized Solana outcome.
+           - STATUS_MINTED: Mint authorization is retained and escrow backs the minted tokens.
+           - STATUS_VOIDED: Governance ordered a void; Solana confirmation is still required.
+           - STATUS_REFUND_PENDING: Void authorization is retained and payment awaits challenge and capacity checks.
+           - STATUS_REFUNDED: The original owner has already received the refund.
+    description: TransferState is the complete public query aggregate.
+  akash.sink.v1.VoidAuthorization:
+    type: object
+    properties:
+      requested_height:
+        type: string
+        format: int64
+      requested_round:
+        type: string
+        format: uint64
+    description: >-
+      VoidAuthorization permanently records the governance order, not Solana
+      execution.
+  akash.sink.v1.Vote:
+    type: object
+    properties:
+      reporter:
+        type: string
+      observation:
+        type: object
+        properties:
+          outcome:
+            type: string
+            enum:
+              - OUTCOME_UNSPECIFIED
+              - OUTCOME_MINTED
+              - OUTCOME_VOIDED
+            default: OUTCOME_UNSPECIFIED
+            description: |-
+              Outcome is the finalized Solana result asserted by an observer.
+
+               - OUTCOME_UNSPECIFIED: No outcome was supplied.
+               - OUTCOME_MINTED: Solana finalized the mint.
+               - OUTCOME_VOIDED: Solana finalized the void.
+          slot:
+            type: string
+            format: uint64
+          transaction_signature:
+            type: string
+            format: byte
+        description: Observation binds one outcome to its Solana evidence.
+      policy_version:
+        type: string
+        format: uint64
+    description: Vote retains the policy version under which its reporter was authorized.
+  akash.sink.v1.DestType:
+    type: string
+    enum:
+      - DEST_TYPE_INVALID
+      - DEST_TYPE_SOLANA
+    default: DEST_TYPE_INVALID
+    description: |-
+      DestType selects the network that receives a transfer.
+
+       - DEST_TYPE_INVALID: No destination network was supplied.
+       - DEST_TYPE_SOLANA: Solana; dest is a canonical base58 public key.
+  akash.sink.v1.MsgConfirmMintResponse:
+    type: object
+    description: MsgConfirmMintResponse acknowledges the transaction.
+  akash.sink.v1.MsgConfirmVoidResponse:
+    type: object
+    description: MsgConfirmVoidResponse acknowledges the transaction.
+  akash.sink.v1.MsgFinalizeRefundResponse:
+    type: object
+    description: MsgFinalizeRefundResponse acknowledges the transaction.
+  akash.sink.v1.MsgGuardianPauseResponse:
+    type: object
+    description: MsgGuardianPauseResponse acknowledges the transaction.
+  akash.sink.v1.MsgReportOutcomeResponse:
+    type: object
+    description: MsgReportOutcomeResponse acknowledges the transaction.
+  akash.sink.v1.MsgRequestVoidResponse:
+    type: object
+    description: MsgRequestVoidResponse acknowledges the transaction.
+  akash.sink.v1.MsgRestartTransferResponse:
+    type: object
+    description: MsgRestartTransferResponse acknowledges the transaction.
+  akash.sink.v1.MsgSinkResponse:
+    type: object
+    properties:
+      id:
+        type: object
+        properties:
+          owner:
+            type: string
+          height:
+            type: string
+            format: int64
+            description: >-
+              Positive creating block height; genesis imports require a later
+              initial_height.
+          sequence:
+            type: string
+            format: uint64
+            description: Positive globally allocated sequence within the creating block.
+        description: ID identifies a transfer by owner, block height and sequence.
+    description: MsgSinkResponse returns the assigned composite transfer ID.
+  akash.sink.v1.MsgUpdateParamsResponse:
+    type: object
+    description: MsgUpdateParamsResponse acknowledges the transaction.
+  akash.sink.v1.MsgVetoVoidResponse:
+    type: object
+    description: MsgVetoVoidResponse acknowledges the transaction.
+  akash.sink.v1.SolanaEvidence:
+    type: object
+    properties:
+      slot:
+        type: string
+        format: uint64
+      transaction_signature:
+        type: string
+        format: byte
+    description: SolanaEvidence validates evidence format, not Solana finality.
   akash.take.v1.DenomTakeRate:
     type: object
     properties:

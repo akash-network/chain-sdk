@@ -18,6 +18,17 @@ apis:
         Params: MarketParams
   - url: "./.cache/tmp/swagger-gen/akash/market/v1beta5/service.swagger.json"
   - url: "./.cache/tmp/swagger-gen/akash/provider/v1beta4/query.swagger.json"
+  - url: "./.cache/tmp/swagger-gen/akash/sink/v1/query.swagger.json"
+    operationIds:
+      rename:
+        Account: SinkAccount
+        Disputes: SinkDisputes
+        Params: SinkParams
+        Reporters: SinkReporters
+        State: SinkState
+        Transfer: SinkTransfer
+        Transfers: SinkTransfers
+  - url: "./.cache/tmp/swagger-gen/akash/sink/v1/service.swagger.json"
   - url: "./.cache/tmp/swagger-gen/akash/take/v1/query.swagger.json"
     operationIds:
       rename:

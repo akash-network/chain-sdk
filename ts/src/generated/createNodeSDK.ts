@@ -605,14 +605,20 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).transfer(input, options);
           }, { path: [21, "transfer"], serviceLoader }),
           /**
-           * getTransfers lists owner/status indexes or global chronological history with native key pagination.
+           * getTransfers lists one owner's transfers, one status bucket, or the global
+           * chronological history. Pagination keys are opaque server cursors: pass
+           * next_key back unchanged. A resumed page keeps the cursor's owner and status
+           * and ignores the request's, while reverse is read from every request. Offset
+           * requires a status filter, a zero limit selects the default page size, and
+           * total is the number of transfers in the returned page.
            */
           getTransfers: withMetadata(async function getTransfers(input: DeepPartial<akash_sink_v1_query.QueryTransfersRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
             return getClient(service).transfers(input, options);
           }, { path: [21, "transfers"], serviceLoader }),
           /**
-           * getDisputes lists all held transfers, including terminal conflicts.
+           * getDisputes lists all held transfers, including terminal conflicts, with
+           * standard key pagination.
            */
           getDisputes: withMetadata(async function getDisputes(input: DeepPartial<akash_sink_v1_query.QueryDisputesRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
@@ -626,16 +632,24 @@ export function createSDK(queryTransport: Transport, txTransport: Transport) {
             return getClient(service).account(input, options);
           }, { path: [21, "account"], serviceLoader }),
           /**
-           * getState returns current policy, financial totals, independent usage and the refund queue head.
+           * getState returns financial totals, the native "day" epoch with send and refund
+           * usage, and the refund queue head. Params and Reporters return the
+           * parameters and reporter policies.
            */
           getState: withMetadata(async function getState(input: DeepPartial<akash_sink_v1_query.QueryStateRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
             return getClient(service).state(input, options);
           }, { path: [21, "state"], serviceLoader }),
+          /**
+           * getParams returns the module parameters.
+           */
           getParams: withMetadata(async function getParams(input: DeepPartial<akash_sink_v1_query.QueryParamsRequest> = {}, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
             return getClient(service).params(input, options);
           }, { path: [21, "params"], serviceLoader }),
+          /**
+           * getReporters returns reporter policies selected by version.
+           */
           getReporters: withMetadata(async function getReporters(input: DeepPartial<akash_sink_v1_query.QueryReportersRequest>, options?: CallOptions) {
             const service = await serviceLoader.loadAt(21);
             return getClient(service).reporters(input, options);

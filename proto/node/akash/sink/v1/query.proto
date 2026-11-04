@@ -18,11 +18,17 @@ service Query {
   rpc Transfer(QueryTransferRequest) returns (QueryTransferResponse) {
     option (google.api.http).get = "/akash/sink/v1/transfers/{id.owner}/{id.height}/{id.sequence}";
   }
-  // Transfers lists owner/status indexes or global chronological history with native key pagination.
+  // Transfers lists one owner's transfers, one status bucket, or the global
+  // chronological history. Pagination keys are opaque server cursors: pass
+  // next_key back unchanged. A resumed page keeps the cursor's owner and status
+  // and ignores the request's, while reverse is read from every request. Offset
+  // requires a status filter, a zero limit selects the default page size, and
+  // total is the number of transfers in the returned page.
   rpc Transfers(QueryTransfersRequest) returns (QueryTransfersResponse) {
     option (google.api.http).get = "/akash/sink/v1/transfers";
   }
-  // Disputes lists all held transfers, including terminal conflicts.
+  // Disputes lists all held transfers, including terminal conflicts, with
+  // standard key pagination.
   rpc Disputes(QueryDisputesRequest) returns (QueryDisputesResponse) {
     option (google.api.http).get = "/akash/sink/v1/disputes";
   }
@@ -30,15 +36,19 @@ service Query {
   rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
     option (google.api.http).get = "/akash/sink/v1/accounts/{owner}";
   }
-  // State returns current policy, financial totals, independent usage and the refund queue head.
+  // State returns financial totals, the native "day" epoch with send and refund
+  // usage, and the refund queue head. Params and Reporters return the
+  // parameters and reporter policies.
   rpc State(QueryStateRequest) returns (QueryStateResponse) {
     option (google.api.http).get = "/akash/sink/v1/state";
   }
 
+  // Params returns the module parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/akash/sink/v1/params";
   }
 
+  // Reporters returns reporter policies selected by version.
   rpc Reporters(QueryReportersRequest) returns (QueryReportersResponse) {
     option (google.api.http).get = "/akash/sink/v1/reporters";
   }
@@ -56,17 +66,21 @@ message QueryParamsResponse {
   ];
 }
 
-// QueryParamsRequest is the request type for the Query/Params RPC method.
+// QueryReportersRequest selects reporter policies by version.
 message QueryReportersRequest {
+  // 0 selects the current policy, which is absent before the first policy is
+  // set. The maximum uint64 selects every retained policy. Any other value
+  // selects that version, or fails with NotFound.
   uint64 version = 1 [
     (gogoproto.jsontag)    = "version",
     (gogoproto.moretags)   = "yaml:\"version\""
   ];
 }
 
-// QueryParamsResponse is the response type for the Query/Params RPC method.
+// QueryReportersResponse returns the selected reporter policies.
 message QueryReportersResponse {
-  // params defines the parameters of the module.
+  // reporters holds the selected policies; it is empty when no policy exists
+  // yet and version 0 or the maximum uint64 is requested.
   repeated ReporterPolicy reporters = 1 [
     (gogoproto.nullable)   = false,
     (amino.dont_omitempty) = true,
@@ -173,10 +187,10 @@ message QueryAccountResponse {
   ];
 }
 
-// QueryStateRequest requests the current Sink parameters, accounting and policy.
+// QueryStateRequest requests the current Sink accounting.
 message QueryStateRequest {}
 
-// QueryStateResponse returns parameters, accounting, current policy and the refund candidate head.
+// QueryStateResponse returns totals, epoch usage and the refund candidate head.
 message QueryStateResponse {
   Totals totals = 1 [
     (gogoproto.nullable) = false,

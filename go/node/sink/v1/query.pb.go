@@ -115,8 +115,11 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryParamsRequest is the request type for the Query/Params RPC method.
+// QueryReportersRequest selects reporter policies by version.
 type QueryReportersRequest struct {
+	// 0 selects the current policy, which is absent before the first policy is
+	// set. The maximum uint64 selects every retained policy. Any other value
+	// selects that version, or fails with NotFound.
 	Version uint64 `protobuf:"varint,1,opt,name=version,proto3" json:"version" yaml:"version"`
 }
 
@@ -160,9 +163,10 @@ func (m *QueryReportersRequest) GetVersion() uint64 {
 	return 0
 }
 
-// QueryParamsResponse is the response type for the Query/Params RPC method.
+// QueryReportersResponse returns the selected reporter policies.
 type QueryReportersResponse struct {
-	// params defines the parameters of the module.
+	// reporters holds the selected policies; it is empty when no policy exists
+	// yet and version 0 or the maximum uint64 is requested.
 	Reporters []ReporterPolicy `protobuf:"bytes,1,rep,name=reporters,proto3" json:"reporters" yaml:"reporters"`
 }
 
@@ -607,7 +611,7 @@ func (m *QueryAccountResponse) GetEpoch() uint64 {
 	return 0
 }
 
-// QueryStateRequest requests the current Sink parameters, accounting and policy.
+// QueryStateRequest requests the current Sink accounting.
 type QueryStateRequest struct {
 }
 
@@ -644,7 +648,7 @@ func (m *QueryStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryStateRequest proto.InternalMessageInfo
 
-// QueryStateResponse returns parameters, accounting, current policy and the refund candidate head.
+// QueryStateResponse returns totals, epoch usage and the refund candidate head.
 type QueryStateResponse struct {
 	Totals Totals `protobuf:"bytes,1,opt,name=totals,proto3" json:"totals" yaml:"totals"`
 	// Native "day" CurrentEpoch at the queried height; zero before counting starts.
@@ -832,15 +836,25 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Transfer returns immutable data and retained settlement evidence for one ID.
 	Transfer(ctx context.Context, in *QueryTransferRequest, opts ...grpc.CallOption) (*QueryTransferResponse, error)
-	// Transfers lists owner/status indexes or global chronological history with native key pagination.
+	// Transfers lists one owner's transfers, one status bucket, or the global
+	// chronological history. Pagination keys are opaque server cursors: pass
+	// next_key back unchanged. A resumed page keeps the cursor's owner and status
+	// and ignores the request's, while reverse is read from every request. Offset
+	// requires a status filter, a zero limit selects the default page size, and
+	// total is the number of transfers in the returned page.
 	Transfers(ctx context.Context, in *QueryTransfersRequest, opts ...grpc.CallOption) (*QueryTransfersResponse, error)
-	// Disputes lists all held transfers, including terminal conflicts.
+	// Disputes lists all held transfers, including terminal conflicts, with
+	// standard key pagination.
 	Disputes(ctx context.Context, in *QueryDisputesRequest, opts ...grpc.CallOption) (*QueryDisputesResponse, error)
 	// Account returns usage normalized to the current sending epoch without a write.
 	Account(ctx context.Context, in *QueryAccountRequest, opts ...grpc.CallOption) (*QueryAccountResponse, error)
-	// State returns current policy, financial totals, independent usage and the refund queue head.
+	// State returns financial totals, the native "day" epoch with send and refund
+	// usage, and the refund queue head. Params and Reporters return the
+	// parameters and reporter policies.
 	State(ctx context.Context, in *QueryStateRequest, opts ...grpc.CallOption) (*QueryStateResponse, error)
+	// Params returns the module parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// Reporters returns reporter policies selected by version.
 	Reporters(ctx context.Context, in *QueryReportersRequest, opts ...grpc.CallOption) (*QueryReportersResponse, error)
 }
 
@@ -919,15 +933,25 @@ func (c *queryClient) Reporters(ctx context.Context, in *QueryReportersRequest, 
 type QueryServer interface {
 	// Transfer returns immutable data and retained settlement evidence for one ID.
 	Transfer(context.Context, *QueryTransferRequest) (*QueryTransferResponse, error)
-	// Transfers lists owner/status indexes or global chronological history with native key pagination.
+	// Transfers lists one owner's transfers, one status bucket, or the global
+	// chronological history. Pagination keys are opaque server cursors: pass
+	// next_key back unchanged. A resumed page keeps the cursor's owner and status
+	// and ignores the request's, while reverse is read from every request. Offset
+	// requires a status filter, a zero limit selects the default page size, and
+	// total is the number of transfers in the returned page.
 	Transfers(context.Context, *QueryTransfersRequest) (*QueryTransfersResponse, error)
-	// Disputes lists all held transfers, including terminal conflicts.
+	// Disputes lists all held transfers, including terminal conflicts, with
+	// standard key pagination.
 	Disputes(context.Context, *QueryDisputesRequest) (*QueryDisputesResponse, error)
 	// Account returns usage normalized to the current sending epoch without a write.
 	Account(context.Context, *QueryAccountRequest) (*QueryAccountResponse, error)
-	// State returns current policy, financial totals, independent usage and the refund queue head.
+	// State returns financial totals, the native "day" epoch with send and refund
+	// usage, and the refund queue head. Params and Reporters return the
+	// parameters and reporter policies.
 	State(context.Context, *QueryStateRequest) (*QueryStateResponse, error)
+	// Params returns the module parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// Reporters returns reporter policies selected by version.
 	Reporters(context.Context, *QueryReportersRequest) (*QueryReportersResponse, error)
 }
 

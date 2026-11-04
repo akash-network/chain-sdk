@@ -49,7 +49,7 @@ message GenesisRecord {
   ];
 }
 
-// GenesisState exports complete sink state; schema_version must be 4 for canonical settlements.
+// GenesisState exports the complete sink state.
 message GenesisState {
   Params params = 1 [
     (gogoproto.nullable) = false,

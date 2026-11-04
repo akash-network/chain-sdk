@@ -187,11 +187,11 @@ func GetQuerySinkAccountCmd() *cobra.Command {
 	return cmd
 }
 
-// GetQuerySinkStateCmd returns params, totals, the current policy, epoch usage and the refund head
+// GetQuerySinkStateCmd returns totals, epoch usage and the refund head
 func GetQuerySinkStateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "state",
-		Short:             "Query params, totals, policy, independent epoch usage and refund head",
+		Short:             "Query totals, independent epoch usage and refund head",
 		Args:              cobra.NoArgs,
 		PersistentPreRunE: QueryPersistentPreRunE,
 		RunE: func(cmd *cobra.Command, _ []string) error {

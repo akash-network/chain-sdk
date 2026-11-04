@@ -32,14 +32,22 @@ export interface QueryParamsResponse {
   params: Params | undefined;
 }
 
-/** QueryParamsRequest is the request type for the Query/Params RPC method. */
+/** QueryReportersRequest selects reporter policies by version. */
 export interface QueryReportersRequest {
+  /**
+   * 0 selects the current policy, which is absent before the first policy is
+   * set. The maximum uint64 selects every retained policy. Any other value
+   * selects that version, or fails with NotFound.
+   */
   version: bigint;
 }
 
-/** QueryParamsResponse is the response type for the Query/Params RPC method. */
+/** QueryReportersResponse returns the selected reporter policies. */
 export interface QueryReportersResponse {
-  /** params defines the parameters of the module. */
+  /**
+   * reporters holds the selected policies; it is empty when no policy exists
+   * yet and version 0 or the maximum uint64 is requested.
+   */
   reporters: ReporterPolicy[];
 }
 
@@ -91,11 +99,11 @@ export interface QueryAccountResponse {
   epoch: bigint;
 }
 
-/** QueryStateRequest requests the current Sink parameters, accounting and policy. */
+/** QueryStateRequest requests the current Sink accounting. */
 export interface QueryStateRequest {
 }
 
-/** QueryStateResponse returns parameters, accounting, current policy and the refund candidate head. */
+/** QueryStateResponse returns totals, epoch usage and the refund candidate head. */
 export interface QueryStateResponse {
   totals:
     | Totals

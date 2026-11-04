@@ -615,6 +615,10 @@
      - [QueryAccountResponse](#akash.sink.v1.QueryAccountResponse)
      - [QueryDisputesRequest](#akash.sink.v1.QueryDisputesRequest)
      - [QueryDisputesResponse](#akash.sink.v1.QueryDisputesResponse)
+     - [QueryParamsRequest](#akash.sink.v1.QueryParamsRequest)
+     - [QueryParamsResponse](#akash.sink.v1.QueryParamsResponse)
+     - [QueryReportersRequest](#akash.sink.v1.QueryReportersRequest)
+     - [QueryReportersResponse](#akash.sink.v1.QueryReportersResponse)
      - [QueryStateRequest](#akash.sink.v1.QueryStateRequest)
      - [QueryStateResponse](#akash.sink.v1.QueryStateResponse)
      - [QueryTransferRequest](#akash.sink.v1.QueryTransferRequest)
@@ -7389,115 +7393,115 @@ Example: "akash1..." |
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/sink/v1/types.proto
+ 
 
-
-
+ 
  <a name="akash.sink.v1.AccountUsage"></a>
 
  ### AccountUsage
  AccountUsage counts lifetime deposits and deposits within the native "day" last_epoch.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `total_sent` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `epoch_sent` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `last_epoch` | [int64](#int64) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EpochUsage"></a>
 
  ### EpochUsage
  EpochUsage preserves raw consumption for a native "day" epoch number.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `epoch` | [uint64](#uint64) |  |  |
  | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.ID"></a>
 
  ### ID
  ID identifies a transfer by owner, block height and sequence.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `owner` | [string](#string) |  |  |
  | `height` | [int64](#int64) |  | Positive creating block height; genesis imports require a later initial_height. |
  | `sequence` | [uint64](#uint64) |  | Positive globally allocated sequence within the creating block. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.Observation"></a>
 
  ### Observation
  Observation binds one outcome to its Solana evidence.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `outcome` | [Outcome](#akash.sink.v1.Outcome) |  |  |
  | `slot` | [uint64](#uint64) |  |  |
  | `transaction_signature` | [bytes](#bytes) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.RecordData"></a>
 
  ### RecordData
  RecordData is the immutable transfer payload proven on Solana.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `dest` | [string](#string) |  |  |
  | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.ReporterPolicy"></a>
 
  ### ReporterPolicy
  ReporterPolicy is an immutable version of the reporter authorization rule.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `version` | [uint64](#uint64) |  |  |
  | `members` | [string](#string) | repeated |  |
- | `threshold` | [uint32](#uint32) |  |  |
+ | `threshold` | [string](#string) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.SettlementData"></a>
 
  ### SettlementData
  SettlementData retains authorization evidence; financial status exists only in its key.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `hold` | [Hold](#akash.sink.v1.Hold) |  |  |
@@ -7510,52 +7514,52 @@ Example: "akash1..." |
  | `veto_reason` | [string](#string) |  |  |
  | `void_authorization` | [VoidAuthorization](#akash.sink.v1.VoidAuthorization) |  |  |
  | `veto_policy_version` | [uint64](#uint64) |  | Zero identifies governance; positive versions authenticate reporter vetoes. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.SettlementID"></a>
 
  ### SettlementID
  SettlementID keys the canonical settlement by financial status, then transfer ID.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `status` | [Status](#akash.sink.v1.Status) |  |  |
  | `owner` | [string](#string) |  |  |
  | `height` | [int64](#int64) |  |  |
  | `sequence` | [uint64](#uint64) |  | sequence disambiguate multiple entries at the same height |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.SolanaEvidence"></a>
 
  ### SolanaEvidence
  SolanaEvidence validates evidence format, not Solana finality.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `slot` | [uint64](#uint64) |  |  |
  | `transaction_signature` | [bytes](#bytes) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.Totals"></a>
 
  ### Totals
  Totals counts each financial status exactly once, regardless of holds.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `pending_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
@@ -7568,65 +7572,65 @@ Example: "akash1..." |
  | `refund_pending_count` | [uint64](#uint64) |  |  |
  | `refunded_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `refunded_count` | [uint64](#uint64) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.TransferState"></a>
 
  ### TransferState
  TransferState is the complete public query aggregate.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `data` | [RecordData](#akash.sink.v1.RecordData) |  |  |
  | `settlement` | [SettlementData](#akash.sink.v1.SettlementData) |  |  |
  | `status` | [Status](#akash.sink.v1.Status) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.VoidAuthorization"></a>
 
  ### VoidAuthorization
  VoidAuthorization permanently records the governance order, not Solana execution.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `requested_height` | [int64](#int64) |  |  |
  | `requested_round` | [uint64](#uint64) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.Vote"></a>
 
  ### Vote
  Vote retains the policy version under which its reporter was authorized.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `reporter` | [string](#string) |  |  |
  | `observation` | [Observation](#akash.sink.v1.Observation) |  |  |
  | `policy_version` | [uint64](#uint64) |  |  |
+ 
+ 
 
-
-
-
+ 
 
   <!-- end messages -->
 
-
+ 
  <a name="akash.sink.v1.Decision"></a>
 
  ### Decision
@@ -7638,9 +7642,9 @@ Example: "akash1..." |
  | DECISION_RESTART | 1 | Governance restarted an unpaid transfer. |
  | DECISION_CONFIRM_MINT | 2 | Governance confirmed the mint. |
  | DECISION_CONFIRM_VOID | 3 | Governance confirmed the void or resolved a paid transfer dispute. |
+ 
 
-
-
+ 
  <a name="akash.sink.v1.DestType"></a>
 
  ### DestType
@@ -7650,9 +7654,9 @@ Example: "akash1..." |
  | ---- | ------ | ----------- |
  | DEST_TYPE_INVALID | 0 | No destination network was supplied. |
  | DEST_TYPE_SOLANA | 1 | Solana; dest is a canonical base58 public key. |
+ 
 
-
-
+ 
  <a name="akash.sink.v1.Hold"></a>
 
  ### Hold
@@ -7663,9 +7667,9 @@ Example: "akash1..." |
  | HOLD_NONE | 0 | No settlement hold is active. |
  | HOLD_VETO | 1 | An unpaid transfer is held by a reporter or governance veto. |
  | HOLD_CONFLICT | 2 | Conflicting evidence requires governance, including on terminal transfers. |
+ 
 
-
-
+ 
  <a name="akash.sink.v1.Outcome"></a>
 
  ### Outcome
@@ -7676,9 +7680,9 @@ Example: "akash1..." |
  | OUTCOME_UNSPECIFIED | 0 | No outcome was supplied. |
  | OUTCOME_MINTED | 1 | Solana finalized the mint. |
  | OUTCOME_VOIDED | 2 | Solana finalized the void. |
+ 
 
-
-
+ 
  <a name="akash.sink.v1.Status"></a>
 
  ### Status
@@ -7692,7 +7696,7 @@ Example: "akash1..." |
  | STATUS_VOIDED | 3 | Governance ordered a void; Solana confirmation is still required. |
  | STATUS_REFUND_PENDING | 4 | Void authorization is retained and payment awaits challenge and capacity checks. |
  | STATUS_REFUNDED | 5 | The original owner has already received the refund. |
-
+ 
 
   <!-- end enums -->
 
@@ -7700,22 +7704,22 @@ Example: "akash1..." |
 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/sink/v1/event.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/sink/v1/event.proto
+ 
 
-
-
+ 
  <a name="akash.sink.v1.EventGuardianPaused"></a>
 
  ### EventGuardianPaused
  EventGuardianPaused is emitted when the pause guardian turns deposits,
 refunds or both off.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `guardian` | [string](#string) |  | Guardian is the pause guardian account. |
@@ -7723,86 +7727,86 @@ refunds or both off.
  | `refunds` | [bool](#bool) |  | Refunds is set when the pause requested refunds off. |
  | `enabled` | [bool](#bool) |  | Enabled is whether deposits are enabled after the pause. |
  | `refunds_enabled` | [bool](#bool) |  | RefundsEnabled is whether refunds are enabled after the pause. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventMintConfirmed"></a>
 
  ### EventMintConfirmed
  EventMintConfirmed is emitted when reporters confirm that Solana minted a
 transfer. The locked AKT stays in the sink module.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventOutcomeReported"></a>
 
  ### EventOutcomeReported
  EventOutcomeReported is emitted when a reporter records what happened to a
 transfer on Solana.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  | `reporter` | [string](#string) |  | Reporter is the reporter account that sent the report. |
  | `outcome` | [Outcome](#akash.sink.v1.Outcome) |  | Outcome is the reported Solana outcome. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventPreexistingBalanceMoved"></a>
 
  ### EventPreexistingBalanceMoved
  EventPreexistingBalanceMoved is emitted at installation when the sink
 address already held coins, which move to the community pool.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Amount is the balance moved. |
  | `recipient` | [string](#string) |  | Recipient is the community pool's module account. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventReportConflict"></a>
 
  ### EventReportConflict
  EventReportConflict is emitted when a report contradicts the reporter's
 earlier vote, holding the transfer for governance.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  | `reporter` | [string](#string) |  | Reporter is the reporter account whose report conflicted. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventTotalsUpdated"></a>
 
  ### EventTotalsUpdated
  EventTotalsUpdated records the five financial populations and normalized refund usage.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `pending_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
@@ -7816,19 +7820,19 @@ earlier vote, holding the transfer for governance.
  | `refunded_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `refunded_count` | [uint64](#uint64) |  |  |
  | `refunded_in_epoch` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventTransferCreated"></a>
 
  ### EventTransferCreated
  EventTransferCreated is emitted when a deposit locks AKT and creates a
 transfer record for Solana to prove.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
@@ -7836,95 +7840,95 @@ transfer record for Solana to prove.
  | `recipient` | [string](#string) |  | Recipient is the Solana address, base58, that receives the minted AKT. |
  | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the locked AKT. |
  | `height` | [int64](#int64) |  | Height is the block height that committed the record. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventTransferRefunded"></a>
 
  ### EventTransferRefunded
  EventTransferRefunded is emitted when a voided transfer's AKT is returned to
 its sender.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  | `sender` | [string](#string) |  | Sender is the original sender, who receives the refund. |
  | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Amount is the refunded AKT. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventTransferResolved"></a>
 
  ### EventTransferResolved
  EventTransferResolved is emitted when governance resolves a held transfer.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  | `decision` | [Decision](#akash.sink.v1.Decision) |  | Decision is the governance decision. |
  | `reason` | [string](#string) |  | Reason is the governance reason. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventVoidConfirmed"></a>
 
  ### EventVoidConfirmed
  EventVoidConfirmed is emitted when reporters confirm that Solana voided a
 transfer, starting its challenge period.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  | `challenge_end` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | ChallengeEnd is when the refund becomes payable unless vetoed. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventVoidOrdered"></a>
 
  ### EventVoidOrdered
  EventVoidOrdered is emitted when governance orders a transfer voided.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.EventVoidVetoed"></a>
 
  ### EventVoidVetoed
  EventVoidVetoed is emitted when a reporter vetoes a confirmed void during
 its challenge period, holding the transfer for governance.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  | ID is the transfer record identifier. |
  | `signer` | [string](#string) |  | Signer is the reporter account that vetoed. |
  | `reason` | [string](#string) |  | Reason is the veto reason. |
+ 
+ 
 
-
-
-
+ 
 
   <!-- end messages -->
 
@@ -7934,22 +7938,22 @@ its challenge period, holding the transfer for governance.
 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/sink/v1/params.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/sink/v1/params.proto
+ 
 
-
-
+ 
  <a name="akash.sink.v1.Params"></a>
 
  ### Params
  Params configures uakt transfer limits, reporter settlement and refunds.
 Send and refund quotas use the current number of the native "day" epoch.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `enabled` | [bool](#bool) |  | Enabled permits deposits. Refunds are controlled independently. |
@@ -7964,10 +7968,10 @@ Send and refund quotas use the current number of the native "day" epoch.
  | `allowed_destination_vaults` | [string](#string) | repeated | Canonical base58 vault addresses exempt only from the recipient curve check. |
  | `refunds_enabled` | [bool](#bool) |  |  |
  | `pause_guardian` | [string](#string) |  | Bech32 account that may only disable deposits and refunds. Empty means none. |
+ 
+ 
 
-
-
-
+ 
 
   <!-- end messages -->
 
@@ -7977,70 +7981,69 @@ Send and refund quotas use the current number of the native "day" epoch.
 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/sink/v1/genesis.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/sink/v1/genesis.proto
+ 
 
-
-
+ 
  <a name="akash.sink.v1.GenesisAccount"></a>
 
  ### GenesisAccount
  GenesisAccount preserves one owner's lifetime and raw epoch usage.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `owner` | [string](#string) |  |  |
  | `usage` | [AccountUsage](#akash.sink.v1.AccountUsage) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.GenesisRecord"></a>
 
  ### GenesisRecord
  GenesisRecord preserves the immutable record and complete canonical settlement key.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `data` | [RecordData](#akash.sink.v1.RecordData) |  |  |
  | `settlement` | [SettlementData](#akash.sink.v1.SettlementData) |  |  |
  | `status` | [Status](#akash.sink.v1.Status) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.GenesisState"></a>
 
  ### GenesisState
- GenesisState exports complete sink state; schema_version must be 4 for canonical settlements.
+ GenesisState exports the complete sink state.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `params` | [Params](#akash.sink.v1.Params) |  |  |
  | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
+ | `policy_sequence` | [uint64](#uint64) |  |  |
  | `policies` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) | repeated | Current policy and every additional policy referenced by retained evidence. |
  | `send_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
  | `refund_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
  | `records` | [GenesisRecord](#akash.sink.v1.GenesisRecord) | repeated |  |
  | `accounts` | [GenesisAccount](#akash.sink.v1.GenesisAccount) | repeated | One record per owner, including any retained empty usage records. |
- | `schema_version` | [uint32](#uint32) |  |  |
- | `current_policy_version` | [uint64](#uint64) |  |  |
+ 
+ 
 
-
-
-
+ 
 
   <!-- end messages -->
 
@@ -8050,21 +8053,21 @@ Send and refund quotas use the current number of the native "day" epoch.
 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/sink/v1/msgs.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/sink/v1/msgs.proto
+ 
 
-
-
+ 
  <a name="akash.sink.v1.MsgConfirmMint"></a>
 
  ### MsgConfirmMint
  MsgConfirmMint records governance confirmation of a Solana mint.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
@@ -8072,28 +8075,28 @@ Send and refund quotas use the current number of the native "day" epoch.
  | `evidence` | [SolanaEvidence](#akash.sink.v1.SolanaEvidence) |  |  |
  | `reason` | [string](#string) |  |  |
  | `expected_round` | [uint64](#uint64) |  | Must match the current round; a successful resolution increments it. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgConfirmMintResponse"></a>
 
  ### MsgConfirmMintResponse
  MsgConfirmMintResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgConfirmVoid"></a>
 
  ### MsgConfirmVoid
  MsgConfirmVoid records governance confirmation of a Solana void.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
@@ -8101,81 +8104,81 @@ Send and refund quotas use the current number of the native "day" epoch.
  | `evidence` | [SolanaEvidence](#akash.sink.v1.SolanaEvidence) |  |  |
  | `reason` | [string](#string) |  |  |
  | `expected_round` | [uint64](#uint64) |  | Must match the current round; a successful resolution increments it. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgConfirmVoidResponse"></a>
 
  ### MsgConfirmVoidResponse
  MsgConfirmVoidResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgFinalizeRefund"></a>
 
  ### MsgFinalizeRefund
  MsgFinalizeRefund pays an eligible refund candidate to its original owner.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `executor` | [string](#string) |  |  |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgFinalizeRefundResponse"></a>
 
  ### MsgFinalizeRefundResponse
  MsgFinalizeRefundResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgGuardianPause"></a>
 
  ### MsgGuardianPause
  MsgGuardianPause disables the selected deposit or refund operations.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `guardian` | [string](#string) |  |  |
  | `deposits` | [bool](#bool) |  |  |
  | `refunds` | [bool](#bool) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgGuardianPauseResponse"></a>
 
  ### MsgGuardianPauseResponse
  MsgGuardianPauseResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgReportOutcome"></a>
 
  ### MsgReportOutcome
  MsgReportOutcome reports a Solana outcome for one settlement round and reporter policy.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `reporter` | [string](#string) |  |  |
@@ -8183,161 +8186,161 @@ Send and refund quotas use the current number of the native "day" epoch.
  | `policy_version` | [uint64](#uint64) |  |  |
  | `round` | [uint64](#uint64) |  |  |
  | `observation` | [Observation](#akash.sink.v1.Observation) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgReportOutcomeResponse"></a>
 
  ### MsgReportOutcomeResponse
  MsgReportOutcomeResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgRequestVoid"></a>
 
  ### MsgRequestVoid
  MsgRequestVoid orders a Solana void without authorizing an Akash refund.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `expected_round` | [uint64](#uint64) |  | New orders require this round; retries preserve the original receipt. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgRequestVoidResponse"></a>
 
  ### MsgRequestVoidResponse
  MsgRequestVoidResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgRestartTransfer"></a>
 
  ### MsgRestartTransfer
  MsgRestartTransfer starts a new settlement round for an unpaid transfer.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `reason` | [string](#string) |  |  |
  | `expected_round` | [uint64](#uint64) |  | Must match the current round; a successful resolution increments it. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgRestartTransferResponse"></a>
 
  ### MsgRestartTransferResponse
  MsgRestartTransferResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgSink"></a>
 
  ### MsgSink
  MsgSink locks AKT for a Solana destination. It must be the sole top-level transaction message.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `dest_type` | [DestType](#akash.sink.v1.DestType) |  | Only DEST_TYPE_SOLANA is accepted. |
  | `dest` | [string](#string) |  |  |
  | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
  | `sender` | [string](#string) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgSinkResponse"></a>
 
  ### MsgSinkResponse
  MsgSinkResponse returns the assigned composite transfer ID.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgUpdateParams"></a>
 
  ### MsgUpdateParams
  MsgUpdateParams replaces the governed Sink parameters.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `authority` | [string](#string) |  |  |
  | `params` | [Params](#akash.sink.v1.Params) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgUpdateParamsResponse"></a>
 
  ### MsgUpdateParamsResponse
  MsgUpdateParamsResponse acknowledges the transaction.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.MsgVetoVoid"></a>
 
  ### MsgVetoVoid
  MsgVetoVoid holds a refund candidate for governance review.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `signer` | [string](#string) |  |  |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
  | `reason` | [string](#string) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.MsgVetoVoidResponse"></a>
 
  ### MsgVetoVoidResponse
  MsgVetoVoidResponse acknowledges the transaction.
 
+ 
 
-
-
+ 
 
   <!-- end messages -->
 
@@ -8347,169 +8350,222 @@ Send and refund quotas use the current number of the native "day" epoch.
 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/sink/v1/query.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/sink/v1/query.proto
+ 
 
-
-
+ 
  <a name="akash.sink.v1.QueryAccountRequest"></a>
 
  ### QueryAccountRequest
  QueryAccountRequest selects usage for one Akash owner.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `owner` | [string](#string) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.QueryAccountResponse"></a>
 
  ### QueryAccountResponse
  QueryAccountResponse returns account usage normalized to the queried sending epoch.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `usage` | [AccountUsage](#akash.sink.v1.AccountUsage) |  |  |
  | `epoch` | [uint64](#uint64) |  | Native "day" CurrentEpoch at the queried height; zero before counting starts. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.QueryDisputesRequest"></a>
 
  ### QueryDisputesRequest
  QueryDisputesRequest selects a page of held transfers across all financial statuses.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.QueryDisputesResponse"></a>
 
  ### QueryDisputesResponse
  QueryDisputesResponse returns held transfers and the next dispute cursor.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `transfers` | [TransferState](#akash.sink.v1.TransferState) | repeated |  |
  | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+ 
+ 
 
+ 
 
+ 
+ <a name="akash.sink.v1.QueryParamsRequest"></a>
 
+ ### QueryParamsRequest
+ QueryParamsRequest is the request type for the Query/Params RPC method.
 
+ 
 
+ 
 
+ 
+ <a name="akash.sink.v1.QueryParamsResponse"></a>
+
+ ### QueryParamsResponse
+ QueryParamsResponse is the response type for the Query/Params RPC method.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `params` | [Params](#akash.sink.v1.Params) |  | params defines the parameters of the module. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryReportersRequest"></a>
+
+ ### QueryReportersRequest
+ QueryReportersRequest selects reporter policies by version.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `version` | [uint64](#uint64) |  | 0 selects the current policy, which is absent before the first policy is set. The maximum uint64 selects every retained policy. Any other value selects that version, or fails with NotFound. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.sink.v1.QueryReportersResponse"></a>
+
+ ### QueryReportersResponse
+ QueryReportersResponse returns the selected reporter policies.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `reporters` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) | repeated | reporters holds the selected policies; it is empty when no policy exists yet and version 0 or the maximum uint64 is requested. |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.sink.v1.QueryStateRequest"></a>
 
  ### QueryStateRequest
- QueryStateRequest requests the current Sink parameters, accounting and policy.
+ QueryStateRequest requests the current Sink accounting.
 
+ 
 
+ 
 
-
-
-
+ 
  <a name="akash.sink.v1.QueryStateResponse"></a>
 
  ### QueryStateResponse
- QueryStateResponse returns parameters, accounting, current policy and the refund candidate head.
+ QueryStateResponse returns totals, epoch usage and the refund candidate head.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
- | `params` | [Params](#akash.sink.v1.Params) |  |  |
  | `totals` | [Totals](#akash.sink.v1.Totals) |  |  |
- | `policy` | [ReporterPolicy](#akash.sink.v1.ReporterPolicy) |  |  |
  | `epoch` | [uint64](#uint64) |  | Native "day" CurrentEpoch at the queried height; zero before counting starts. |
  | `send_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
  | `refund_usage` | [EpochUsage](#akash.sink.v1.EpochUsage) |  |  |
  | `refund_head` | [ID](#akash.sink.v1.ID) |  | Oldest unheld candidate under governance or the current reporter policy. Payment still requires maturity, refund capacity, and enabled refunds. |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.QueryTransferRequest"></a>
 
  ### QueryTransferRequest
  QueryTransferRequest selects one transfer by its composite ID.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `id` | [ID](#akash.sink.v1.ID) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.QueryTransferResponse"></a>
 
  ### QueryTransferResponse
  QueryTransferResponse returns the complete transfer and settlement state.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `transfer` | [TransferState](#akash.sink.v1.TransferState) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.QueryTransfersRequest"></a>
 
  ### QueryTransfersRequest
  QueryTransfersRequest selects a page of transfers by owner and financial status.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `owner` | [string](#string) |  |  |
  | `status` | [Status](#akash.sink.v1.Status) |  |  |
  | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+ 
+ 
 
+ 
 
-
-
-
-
+ 
  <a name="akash.sink.v1.QueryTransfersResponse"></a>
 
  ### QueryTransfersResponse
  QueryTransfersResponse returns transfers and the next index cursor.
 
-
+ 
  | Field | Type | Label | Description |
  | ----- | ---- | ----- | ----------- |
  | `transfers` | [TransferState](#akash.sink.v1.TransferState) | repeated |  |
  | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+ 
+ 
 
-
-
-
+ 
 
   <!-- end messages -->
 
@@ -8517,7 +8573,7 @@ Send and refund quotas use the current number of the native "day" epoch.
 
   <!-- end HasExtensions -->
 
-
+ 
  <a name="akash.sink.v1.Query"></a>
 
  ### Query
@@ -8526,20 +8582,22 @@ Send and refund quotas use the current number of the native "day" epoch.
  | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
  | ----------- | ------------ | ------------- | ------------| ------- | -------- |
  | `Transfer` | [QueryTransferRequest](#akash.sink.v1.QueryTransferRequest) | [QueryTransferResponse](#akash.sink.v1.QueryTransferResponse) | Transfer returns immutable data and retained settlement evidence for one ID. | GET|/akash/sink/v1/transfers/{id.owner}/{id.height}/{id.sequence}|
- | `Transfers` | [QueryTransfersRequest](#akash.sink.v1.QueryTransfersRequest) | [QueryTransfersResponse](#akash.sink.v1.QueryTransfersResponse) | Transfers lists owner/status indexes or global chronological history with native key pagination. | GET|/akash/sink/v1/transfers|
- | `Disputes` | [QueryDisputesRequest](#akash.sink.v1.QueryDisputesRequest) | [QueryDisputesResponse](#akash.sink.v1.QueryDisputesResponse) | Disputes lists all held transfers, including terminal conflicts. | GET|/akash/sink/v1/disputes|
+ | `Transfers` | [QueryTransfersRequest](#akash.sink.v1.QueryTransfersRequest) | [QueryTransfersResponse](#akash.sink.v1.QueryTransfersResponse) | Transfers lists one owner's transfers, one status bucket, or the global chronological history. Pagination keys are opaque server cursors: pass next_key back unchanged. A resumed page keeps the cursor's owner and status and ignores the request's, while reverse is read from every request. Offset requires a status filter, a zero limit selects the default page size, and total is the number of transfers in the returned page. | GET|/akash/sink/v1/transfers|
+ | `Disputes` | [QueryDisputesRequest](#akash.sink.v1.QueryDisputesRequest) | [QueryDisputesResponse](#akash.sink.v1.QueryDisputesResponse) | Disputes lists all held transfers, including terminal conflicts, with standard key pagination. | GET|/akash/sink/v1/disputes|
  | `Account` | [QueryAccountRequest](#akash.sink.v1.QueryAccountRequest) | [QueryAccountResponse](#akash.sink.v1.QueryAccountResponse) | Account returns usage normalized to the current sending epoch without a write. | GET|/akash/sink/v1/accounts/{owner}|
- | `State` | [QueryStateRequest](#akash.sink.v1.QueryStateRequest) | [QueryStateResponse](#akash.sink.v1.QueryStateResponse) | State returns current policy, financial totals, independent usage and the refund queue head. | GET|/akash/sink/v1/state|
-
+ | `State` | [QueryStateRequest](#akash.sink.v1.QueryStateRequest) | [QueryStateResponse](#akash.sink.v1.QueryStateResponse) | State returns financial totals, the native "day" epoch with send and refund usage, and the refund queue head. Params and Reporters return the parameters and reporter policies. | GET|/akash/sink/v1/state|
+ | `Params` | [QueryParamsRequest](#akash.sink.v1.QueryParamsRequest) | [QueryParamsResponse](#akash.sink.v1.QueryParamsResponse) | Params returns the module parameters. | GET|/akash/sink/v1/params|
+ | `Reporters` | [QueryReportersRequest](#akash.sink.v1.QueryReportersRequest) | [QueryReportersResponse](#akash.sink.v1.QueryReportersResponse) | Reporters returns reporter policies selected by version. | GET|/akash/sink/v1/reporters|
+ 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/sink/v1/service.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/sink/v1/service.proto
-
+ 
 
   <!-- end messages -->
 
@@ -8547,7 +8605,7 @@ Send and refund quotas use the current number of the native "day" epoch.
 
   <!-- end HasExtensions -->
 
-
+ 
  <a name="akash.sink.v1.Msg"></a>
 
  ### Msg
@@ -8565,11 +8623,11 @@ Send and refund quotas use the current number of the native "day" epoch.
  | `ConfirmVoid` | [MsgConfirmVoid](#akash.sink.v1.MsgConfirmVoid) | [MsgConfirmVoidResponse](#akash.sink.v1.MsgConfirmVoidResponse) | ConfirmVoid records governance void evidence or resolves a paid transfer dispute. | |
  | `FinalizeRefund` | [MsgFinalizeRefund](#akash.sink.v1.MsgFinalizeRefund) | [MsgFinalizeRefundResponse](#akash.sink.v1.MsgFinalizeRefundResponse) | FinalizeRefund pays the eligible queue head once to its original owner. | |
  | `GuardianPause` | [MsgGuardianPause](#akash.sink.v1.MsgGuardianPause) | [MsgGuardianPauseResponse](#akash.sink.v1.MsgGuardianPauseResponse) | GuardianPause disables deposits, refunds or both. | |
-
+ 
   <!-- end services -->
 
-
-
+ 
+ 
  <a name="akash/take/v1/params.proto"></a>
  <p align="right"><a href="#top">Top</a></p>
 
