@@ -32,6 +32,16 @@ describe(generateManifestVersion.name, () => {
 
       expect(version1).not.toEqual(version2);
     });
+
+    it("matches the Go manifest version for strings Go's encoding/json escapes or replaces", async () => {
+      const { manifest } = setup({
+        env: ["TEXT=line\u{2028}paragraph\u{2029}end", "TEXT=lone\ud800high", "TEXT=lone\udc00low", "TEXT=pair\u{1f600}"],
+      });
+      const version = await generateManifestVersion(manifest);
+
+      // Computed by Go's v2beta3.Manifest.Version() after decoding this manifest's JSON, as a provider does.
+      expect(Buffer.from(version).toString("hex")).toBe("f06700b9322d43511e2513c2891cb08b34d9bf7129a7ba94821485bcabc4cb5b");
+    });
   });
 
   describe(manifestToSortedJSON.name, () => {
@@ -170,6 +180,21 @@ describe(generateManifestVersion.name, () => {
       expect(json).not.toContain("<");
       expect(json).not.toContain(">");
       // Note: & only gets escaped if present, which won't be in normal output
+    });
+
+    it("escapes U+2028 and U+2029 like Go's encoding/json", () => {
+      const { manifest } = setup({ env: ["TEXT=line\u{2028}paragraph\u{2029}end"] });
+      const json = manifestToSortedJSON(manifest);
+
+      expect(json).toContain("\"TEXT=line\\u2028paragraph\\u2029end\"");
+      expect(JSON.parse(json)[0].services[0].env).toEqual(["TEXT=line\u{2028}paragraph\u{2029}end"]);
+    });
+
+    it("replaces lone surrogates with U+FFFD like Go's encoding/json", () => {
+      const { manifest } = setup({ env: ["TEXT=lone\ud800high", "TEXT=lone\udc00low", "TEXT=pair\u{1f600}"] });
+      const parsed = JSON.parse(manifestToSortedJSON(manifest));
+
+      expect(parsed[0].services[0].env).toEqual(["TEXT=lone\u{fffd}high", "TEXT=lone\u{fffd}low", "TEXT=pair\u{1f600}"]);
     });
   });
 
