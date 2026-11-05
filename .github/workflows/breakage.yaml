@@ -24,5 +24,11 @@ jobs:
           cache-dependency-path: go/go.sum
       - name: go mod vendor
         run: make modvendor
+      - name: Cache buf modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/buf
+          key: buf-${{ runner.os }}-${{ hashFiles('buf.lock') }}
+          restore-keys: buf-${{ runner.os }}-
       - name: check-breakage
         run: make proto-check-breaking
