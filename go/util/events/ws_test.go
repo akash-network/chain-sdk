@@ -1013,6 +1013,148 @@ func TestDialHeadersCancelledDuringHandshake(t *testing.T) {
 	}
 }
 
+// settle gives a dial's cancellation hook, which runs on a goroutine of its own, time to
+// act on a cancel before the dial carries on.
+func settle() { time.Sleep(50 * time.Millisecond) }
+
+// cancelOnFirstUse is a connection that runs cancel the first time it is put to use, by
+// a deadline or a write, before that use takes effect.
+type cancelOnFirstUse struct {
+	net.Conn
+	cancel func()
+	used   atomic.Bool
+}
+
+func (c *cancelOnFirstUse) use() {
+	if c.used.CompareAndSwap(false, true) {
+		c.cancel()
+	}
+}
+
+func (c *cancelOnFirstUse) SetDeadline(t time.Time) error {
+	c.use()
+	return c.Conn.SetDeadline(t)
+}
+
+func (c *cancelOnFirstUse) Write(b []byte) (int, error) {
+	c.use()
+	return c.Conn.Write(b)
+}
+
+// A cancel that lands as the connection to the node opens, before the websocket library
+// is under way, ends the dial at once as well. The library sets its own handshake
+// deadline on the connection it is handed, which undoes any deadline set to end the dial
+// before then.
+func TestDialHeadersCancelledAsConnectionOpens(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		// opened cancels the dial at the moment under test, given the connection it
+		// opened, and returns the connection to hand the websocket library.
+		opened func(c net.Conn, cancel context.CancelFunc) net.Conn
+	}{
+		{
+			name: "before the connection reaches the library",
+			opened: func(c net.Conn, cancel context.CancelFunc) net.Conn {
+				cancel()
+				settle()
+				return c
+			},
+		},
+		{
+			name: "as the library takes the connection over",
+			opened: func(c net.Conn, cancel context.CancelFunc) net.Conn {
+				return &cancelOnFirstUse{Conn: c, cancel: func() {
+					cancel()
+					settle()
+				}}
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			addr, _ := newSilentListener(t)
+			cfg := streamConfig(t, "tcp://"+addr, time.Second, 5*time.Second)
+			cfg.timeout = time.Minute
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			cfg.netDial = func(dialCtx context.Context, network, address string) (net.Conn, error) {
+				var d net.Dialer
+				c, err := d.DialContext(dialCtx, network, address)
+				if err != nil {
+					return nil, err
+				}
+				return tc.opened(c, cancel), nil
+			}
+
+			done := make(chan error, 1)
+			go func() {
+				_, err := dialHeaders(ctx, cfg)
+				done <- err
+			}()
+
+			select {
+			case err := <-done:
+				require.ErrorIs(t, err, context.Canceled)
+			case <-time.After(2 * time.Second):
+				t.Fatal("the dial kept waiting on the handshake after its context was cancelled")
+			}
+		})
+	}
+}
+
+// cancelOnSubscribe is a connection that runs cancel on its first write after the node
+// has answered the handshake, which is the subscription, before that write goes out.
+type cancelOnSubscribe struct {
+	net.Conn
+	cancel   func()
+	answered atomic.Bool
+	fired    atomic.Bool
+}
+
+func (c *cancelOnSubscribe) Read(b []byte) (int, error) {
+	n, err := c.Conn.Read(b)
+	if n > 0 {
+		c.answered.Store(true)
+	}
+	return n, err
+}
+
+func (c *cancelOnSubscribe) Write(b []byte) (int, error) {
+	if c.answered.Load() && c.fired.CompareAndSwap(false, true) {
+		c.cancel()
+	}
+	return c.Conn.Write(b)
+}
+
+// A cancel that lands once the node has answered the handshake, as the subscription is
+// written, ends the dial with ctx's error rather than that of the connection it closed.
+func TestDialHeadersCancelledAsSubscriptionIsWritten(t *testing.T) {
+	node := newRPCNode(t)
+	cfg := streamConfig(t, node.addr(), time.Second, 5*time.Second)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	cfg.netDial = func(dialCtx context.Context, network, address string) (net.Conn, error) {
+		var d net.Dialer
+		c, err := d.DialContext(dialCtx, network, address)
+		if err != nil {
+			return nil, err
+		}
+		return &cancelOnSubscribe{Conn: c, cancel: func() {
+			cancel()
+			settle()
+		}}, nil
+	}
+
+	s, err := dialHeaders(ctx, cfg)
+	if err == nil {
+		s.Close()
+	}
+	require.ErrorIs(t, err, context.Canceled)
+}
+
 // The service's HTTP connections to the node are its own, so they close when it stops
 // rather than idling on until the transport times them out.
 func TestEventsShutdownClosesNodeConnections(t *testing.T) {
