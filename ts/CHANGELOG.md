@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.0.0-alpha.47](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.46...ts/v1.0.0-alpha.47) (2026-11-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sink:** restore canonical settlement records and proofs
+* **sink:** Sink genesis, proof keys, lifecycle and query schemas require matching consumers and fresh paired Akash/Solana testnet state.
+* **sink:** the launch_reserve and launch_reserve_source fields are removed from the sink proto.
+
+### Features
+
+* **sink:** add akash.sink.v1 protobuf api ([74cfdba](https://github.com/akash-network/chain-sdk/commit/74cfdba4de8d4fed50ff4603820b8bef160090d9))
+* **sink:** complete typed transfers and recoverable genesis ([e88a162](https://github.com/akash-network/chain-sdk/commit/e88a162c229b58129c6ae81c5a2f03cf7470380b))
+* **sink:** define typed events for every sink event ([ee8428b](https://github.com/akash-network/chain-sdk/commit/ee8428ba0763e30e54dd243a1a13dff6aedbe439))
+* **sink:** generate go and ts bindings for sink api ([1e53fb4](https://github.com/akash-network/chain-sdk/commit/1e53fb4e7e06efc8623b5a22b028691ba991a183))
+* **sink:** refactor api ([6a42f05](https://github.com/akash-network/chain-sdk/commit/6a42f0512e2b5547e513b5c20e7621397b29f617))
+* **sink:** remove the launch reserve and raise default caps ([93bc1aa](https://github.com/akash-network/chain-sdk/commit/93bc1aacaf075a97e929023ecbdaec1f52e6665d))
+
+
+### Bug Fixes
+
+* **sink:** integrate decimal policies and complete query clients ([ed73873](https://github.com/akash-network/chain-sdk/commit/ed73873538908405ea405cf9c98f39ee45db2c02))
+* **sink:** preserve native parameter JSON in generated clients ([90d84f2](https://github.com/akash-network/chain-sdk/commit/90d84f25ba52626ccbb1b567c95fff2d4a75c50e))
+* **sink:** regenerate clients for params and reporters queries ([a791bb7](https://github.com/akash-network/chain-sdk/commit/a791bb7e2d53ed072a403828f89ba7a48f2c816b))
+* **sink:** remove the restored withdrawal reset event API ([b41c5f4](https://github.com/akash-network/chain-sdk/commit/b41c5f4332a8b6a3cfed396bd4cd11063ce18864))
+* **sink:** restore independent amount and quorum policies ([bcc56e0](https://github.com/akash-network/chain-sdk/commit/bcc56e06e878c458861e4941801727e0dfb8e360))
+* **sink:** restore the enabled parameter name ([18a90e7](https://github.com/akash-network/chain-sdk/commit/18a90e7bcf117ccfde77794c9e12f9103e5bfcb9))
+* **sink:** use native epoch quota state ([badf13f](https://github.com/akash-network/chain-sdk/commit/badf13fceba4a0c557c5a83c1fd8cae61068aebb))
+
+
+### Code Refactoring
+
+* **sink:** restore canonical settlement records and proofs ([813acac](https://github.com/akash-network/chain-sdk/commit/813acac45013698b93b01ca6b09de2acc049ac83))
+
 ## [1.0.0-alpha.46](https://github.com/akash-network/chain-sdk/compare/ts/v1.0.0-alpha.45...ts/v1.0.0-alpha.46) (2026-09-29)
 
 
