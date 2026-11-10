@@ -56,6 +56,9 @@ type wsConfig struct {
 	pongWait   time.Duration
 	// tlsConfig is nil in production, which means the system's roots.
 	tlsConfig *tls.Config
+	// netDial opens the connection under the websocket. It is nil in production, which
+	// means a net.Dialer bounded by timeout.
+	netDial func(ctx context.Context, network, address string) (net.Conn, error)
 }
 
 // wsStream is a headerStream over a websocket the stream owns.
@@ -81,23 +84,26 @@ type wsStream struct {
 // within pongWait; a chain that merely produces no block does not.
 //
 // Cancelling ctx ends the dial at once, in any phase. The websocket library bounds the
-// handshake by deadlines only, so the connection is also poked when ctx ends, until the
+// handshake by deadlines only, so the connection is also closed when ctx ends, until the
 // stream is handed over.
 func dialHeaders(ctx context.Context, cfg wsConfig) (headerStream, error) {
-	nd := &net.Dialer{Timeout: cfg.timeout}
-	dial := nd.DialContext
+	netDial := cfg.netDial
+	if netDial == nil {
+		netDial = (&net.Dialer{Timeout: cfg.timeout}).DialContext
+	}
+	dial := netDial
 	proxy := http.ProxyFromEnvironment
 	if cfg.target.network == networkUnix {
 		// The URL's host only stands in for the socket, so there is nothing to proxy.
 		proxy = nil
 		dial = func(ctx context.Context, _, _ string) (net.Conn, error) {
-			return nd.DialContext(ctx, networkUnix, cfg.target.address)
+			return netDial(ctx, networkUnix, cfg.target.address)
 		}
 	}
 
-	// poke makes every pending and future read and write on c fail at once.
-	poke := func(c net.Conn) { _ = c.SetDeadline(time.Unix(1, 0)) }
-
+	// When ctx ends, the connection is closed rather than given a deadline in the past:
+	// the websocket library sets a handshake deadline of its own on the connection it is
+	// handed, which would undo the earlier one, while a closed connection stays closed.
 	var (
 		rawMu sync.Mutex
 		raw   net.Conn
@@ -109,11 +115,13 @@ func dialHeaders(ctx context.Context, cfg wsConfig) (headerStream, error) {
 				return nil, err
 			}
 			rawMu.Lock()
-			raw = c
-			rawMu.Unlock()
-			if ctx.Err() != nil {
-				poke(c) // ctx ended before the hook below could see this connection
+			defer rawMu.Unlock()
+			if err := ctx.Err(); err != nil {
+				// ctx ended before the hook below could see this connection.
+				_ = c.Close()
+				return nil, err
 			}
+			raw = c
 			return c, nil
 		},
 		Proxy:            proxy,
@@ -125,7 +133,7 @@ func dialHeaders(ctx context.Context, cfg wsConfig) (headerStream, error) {
 		rawMu.Lock()
 		defer rawMu.Unlock()
 		if raw != nil {
-			poke(raw)
+			_ = raw.Close()
 		}
 	})
 	defer stop()
@@ -135,7 +143,7 @@ func dialHeaders(ctx context.Context, cfg wsConfig) (headerStream, error) {
 		_ = resp.Body.Close()
 	}
 	if err != nil {
-		return nil, fmt.Errorf("events: dial %s: %w", cfg.target.url, err)
+		return nil, fmt.Errorf("events: dial %s: %w", cfg.target.url, dialErr(ctx, err))
 	}
 
 	req, err := rpctypes.MapToRequest(rpctypes.JSONRPCIntID(1), "subscribe", map[string]interface{}{"query": cfg.query})
@@ -149,11 +157,11 @@ func dialHeaders(ctx context.Context, cfg wsConfig) (headerStream, error) {
 	}
 	if err := conn.WriteJSON(req); err != nil {
 		_ = conn.Close()
-		return nil, fmt.Errorf("events: subscribe: %w", err)
+		return nil, fmt.Errorf("events: subscribe: %w", dialErr(ctx, err))
 	}
 
 	// Detach the cancellation hook before handing the stream over. If ctx ended first,
-	// the hook may already have poisoned the connection's deadlines.
+	// the hook has closed the connection or is about to.
 	if !stop() {
 		_ = conn.Close()
 		return nil, fmt.Errorf("events: dial %s: %w", cfg.target.url, ctx.Err())
@@ -170,6 +178,16 @@ func dialHeaders(ctx context.Context, cfg wsConfig) (headerStream, error) {
 	go s.ping()
 
 	return s, nil
+}
+
+// dialErr is why a dial failed with err. Once ctx has ended that is ctx's error: the
+// dial is cut short by closing its connection, so err would only say the connection
+// was closed.
+func dialErr(ctx context.Context, err error) error {
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return ctxErr
+	}
+	return err
 }
 
 func (s *wsStream) Notify() <-chan struct{} { return s.notify }
