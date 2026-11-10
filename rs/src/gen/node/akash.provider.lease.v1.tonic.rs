@@ -245,6 +245,40 @@ pub mod lease_rpc_client {
                 );
             self.inner.server_streaming(req, path, codec).await
         }
+        /** AttestationQuote requests hardware-signed attestation evidence from the
+ confidential compute sidecar. The provider forwards the tenant's nonce
+ to the sidecar and returns the hardware-signed quote verbatim.
+*/
+        pub async fn attestation_quote(
+            &mut self,
+            request: impl tonic::IntoRequest<super::AttestationQuoteRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::AttestationQuoteResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/akash.provider.lease.v1.LeaseRPC/AttestationQuote",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "akash.provider.lease.v1.LeaseRPC",
+                        "AttestationQuote",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -317,6 +351,17 @@ pub mod lease_rpc_server {
             request: tonic::Request<super::ServiceLogsRequest>,
         ) -> std::result::Result<
             tonic::Response<Self::StreamServiceLogsStream>,
+            tonic::Status,
+        >;
+        /** AttestationQuote requests hardware-signed attestation evidence from the
+ confidential compute sidecar. The provider forwards the tenant's nonce
+ to the sidecar and returns the hardware-signed quote verbatim.
+*/
+        async fn attestation_quote(
+            &self,
+            request: tonic::Request<super::AttestationQuoteRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::AttestationQuoteResponse>,
             tonic::Status,
         >;
     }
@@ -622,6 +667,51 @@ pub mod lease_rpc_server {
                                 max_encoding_message_size,
                             );
                         let res = grpc.server_streaming(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/akash.provider.lease.v1.LeaseRPC/AttestationQuote" => {
+                    #[allow(non_camel_case_types)]
+                    struct AttestationQuoteSvc<T: LeaseRpc>(pub Arc<T>);
+                    impl<
+                        T: LeaseRpc,
+                    > tonic::server::UnaryService<super::AttestationQuoteRequest>
+                    for AttestationQuoteSvc<T> {
+                        type Response = super::AttestationQuoteResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::AttestationQuoteRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as LeaseRpc>::attestation_quote(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = AttestationQuoteSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)

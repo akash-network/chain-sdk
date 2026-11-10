@@ -1,0 +1,340 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/timestamp.proto";
+
+import "akash/sink/v1/types.proto";
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// EventTransferCreated is emitted when a deposit locks AKT and creates a
+// transfer record for Solana to prove.
+message EventTransferCreated {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Sender is the Akash account that deposited the AKT.
+  string sender = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "sender",
+    (gogoproto.moretags)  = "yaml:\"sender\""
+  ];
+
+  // Recipient is the Solana address, base58, that receives the minted AKT.
+  string recipient = 3 [
+    (gogoproto.jsontag)  = "recipient",
+    (gogoproto.moretags) = "yaml:\"recipient\""
+  ];
+
+  // Amount is the locked AKT.
+  cosmos.base.v1beta1.Coin amount = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+
+  // Height is the block height that committed the record.
+  int64 height = 5 [
+    (gogoproto.jsontag)  = "height",
+    (gogoproto.moretags) = "yaml:\"height\""
+  ];
+}
+
+// EventVoidOrdered is emitted when governance orders a transfer voided.
+message EventVoidOrdered {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+}
+
+// EventOutcomeReported is emitted when a reporter records what happened to a
+// transfer on Solana.
+message EventOutcomeReported {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Reporter is the reporter account that sent the report.
+  string reporter = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "reporter",
+    (gogoproto.moretags)  = "yaml:\"reporter\""
+  ];
+
+  // Outcome is the reported Solana outcome.
+  Outcome outcome = 3 [
+    (gogoproto.jsontag)  = "outcome",
+    (gogoproto.moretags) = "yaml:\"outcome\""
+  ];
+}
+
+// EventReportConflict is emitted when a report contradicts the reporter's
+// earlier vote, holding the transfer for governance.
+message EventReportConflict {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Reporter is the reporter account whose report conflicted.
+  string reporter = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "reporter",
+    (gogoproto.moretags)  = "yaml:\"reporter\""
+  ];
+}
+
+// EventMintConfirmed is emitted when reporters confirm that Solana minted a
+// transfer. The locked AKT stays in the sink module.
+message EventMintConfirmed {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+}
+
+// EventVoidConfirmed is emitted when reporters confirm that Solana voided a
+// transfer, starting its challenge period.
+message EventVoidConfirmed {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // ChallengeEnd is when the refund becomes payable unless vetoed.
+  google.protobuf.Timestamp challenge_end = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime)  = true,
+    (gogoproto.jsontag)  = "challenge_end",
+    (gogoproto.moretags) = "yaml:\"challenge_end\""
+  ];
+}
+
+// EventVoidVetoed is emitted when a reporter vetoes a confirmed void during
+// its challenge period, holding the transfer for governance.
+message EventVoidVetoed {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Signer is the reporter account that vetoed.
+  string signer = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "signer",
+    (gogoproto.moretags)  = "yaml:\"signer\""
+  ];
+
+  // Reason is the veto reason.
+  string reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+}
+
+// EventTransferResolved is emitted when governance resolves a held transfer.
+message EventTransferResolved {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Decision is the governance decision.
+  Decision decision = 2 [
+    (gogoproto.jsontag)  = "decision",
+    (gogoproto.moretags) = "yaml:\"decision\""
+  ];
+
+  // Reason is the governance reason.
+  string reason = 3 [
+    (gogoproto.jsontag)  = "reason",
+    (gogoproto.moretags) = "yaml:\"reason\""
+  ];
+}
+
+// EventTransferRefunded is emitted when a voided transfer's AKT is returned to
+// its sender.
+message EventTransferRefunded {
+  option (gogoproto.equal) = true;
+
+  // ID is the transfer record identifier.
+  ID id = 1 [
+    (gogoproto.nullable)   = false,
+    (gogoproto.customname) = "ID",
+    (gogoproto.jsontag)    = "id",
+    (gogoproto.moretags)   = "yaml:\"id\""
+  ];
+
+  // Sender is the original sender, who receives the refund.
+  string sender = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "sender",
+    (gogoproto.moretags)  = "yaml:\"sender\""
+  ];
+
+  // Amount is the refunded AKT.
+  cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "amount",
+    (gogoproto.moretags) = "yaml:\"amount\""
+  ];
+}
+
+// EventGuardianPaused is emitted when the pause guardian turns deposits,
+// refunds or both off.
+message EventGuardianPaused {
+  option (gogoproto.equal) = true;
+
+  // Guardian is the pause guardian account.
+  string guardian = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "guardian",
+    (gogoproto.moretags)  = "yaml:\"guardian\""
+  ];
+
+  // Deposits is set when the pause requested deposits off.
+  bool deposits = 2 [
+    (gogoproto.jsontag)  = "deposits",
+    (gogoproto.moretags) = "yaml:\"deposits\""
+  ];
+
+  // Refunds is set when the pause requested refunds off.
+  bool refunds = 3 [
+    (gogoproto.jsontag)  = "refunds",
+    (gogoproto.moretags) = "yaml:\"refunds\""
+  ];
+
+  // Enabled is whether deposits are enabled after the pause.
+  bool enabled = 4 [
+    (gogoproto.jsontag)  = "enabled",
+    (gogoproto.moretags) = "yaml:\"enabled\""
+  ];
+
+  // RefundsEnabled is whether refunds are enabled after the pause.
+  bool refunds_enabled = 5 [
+    (gogoproto.jsontag)  = "refunds_enabled",
+    (gogoproto.moretags) = "yaml:\"refunds_enabled\""
+  ];
+}
+
+// EventPreexistingBalanceMoved is emitted at installation when the sink
+// address already held coins, which move to the community pool.
+message EventPreexistingBalanceMoved {
+  option (gogoproto.equal) = true;
+
+  // Amount is the balance moved.
+  repeated cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.jsontag)      = "amount",
+    (gogoproto.moretags)     = "yaml:\"amount\""
+  ];
+
+  // Recipient is the community pool's module account.
+  string recipient = 2 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "recipient",
+    (gogoproto.moretags)  = "yaml:\"recipient\""
+  ];
+}
+
+// EventTotalsUpdated records the five financial populations and normalized refund usage.
+message EventTotalsUpdated {
+  cosmos.base.v1beta1.Coin pending_amount = 1 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "pending_amount",
+    (gogoproto.moretags)  = "yaml:\"pending_amount\""
+  ];
+  uint64 pending_count = 2 [
+    (gogoproto.jsontag)   = "pending_count",
+    (gogoproto.moretags)  = "yaml:\"pending_count\""
+  ];
+  cosmos.base.v1beta1.Coin minted_amount = 3 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "minted_amount",
+    (gogoproto.moretags)  = "yaml:\"minted_amount\""
+  ];
+  uint64 minted_count = 4 [
+    (gogoproto.jsontag)   = "minted_count",
+    (gogoproto.moretags)  = "yaml:\"minted_count\""
+  ];
+  cosmos.base.v1beta1.Coin voided_amount = 5 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "voided_amount",
+    (gogoproto.moretags)  = "yaml:\"voided_amount\""
+  ];
+  uint64 voided_count = 6 [
+    (gogoproto.jsontag)   = "voided_count",
+    (gogoproto.moretags)  = "yaml:\"voided_count\""
+  ];
+  cosmos.base.v1beta1.Coin refund_pending_amount = 7 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refund_pending_amount",
+    (gogoproto.moretags)  = "yaml:\"refund_pending_amount\""
+  ];
+  uint64 refund_pending_count = 8 [
+    (gogoproto.jsontag)   = "refund_pending_count",
+    (gogoproto.moretags)  = "yaml:\"refund_pending_count\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_amount = 9 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_amount",
+    (gogoproto.moretags)  = "yaml:\"refunded_amount\""
+  ];
+  uint64 refunded_count = 10 [
+    (gogoproto.jsontag)   = "refunded_count",
+    (gogoproto.moretags)  = "yaml:\"refunded_count\""
+  ];
+  cosmos.base.v1beta1.Coin refunded_in_epoch = 11 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "refunded_in_epoch",
+    (gogoproto.moretags)  = "yaml:\"refunded_in_epoch\""
+  ];
+}

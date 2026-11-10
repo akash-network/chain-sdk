@@ -38,6 +38,7 @@
      - [NodeRPC](#akash.inventory.v1.NodeRPC)
    
  - [akash/manifest/v2beta3/httpoptions.proto](#akash/manifest/v2beta3/httpoptions.proto)
+     - [ProxyOptions](#akash.manifest.v2beta3.ProxyOptions)
      - [ServiceExposeHTTPOptions](#akash.manifest.v2beta3.ServiceExposeHTTPOptions)
    
  - [akash/manifest/v2beta3/serviceexpose.proto](#akash/manifest/v2beta3/serviceexpose.proto)
@@ -49,11 +50,15 @@
      - [ServiceParams](#akash.manifest.v2beta3.ServiceParams)
      - [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions)
      - [StorageParams](#akash.manifest.v2beta3.StorageParams)
+     - [TEEParams](#akash.manifest.v2beta3.TEEParams)
    
  - [akash/manifest/v2beta3/group.proto](#akash/manifest/v2beta3/group.proto)
      - [Group](#akash.manifest.v2beta3.Group)
    
  - [akash/provider/lease/v1/service.proto](#akash/provider/lease/v1/service.proto)
+     - [AttestationGPUReport](#akash.provider.lease.v1.AttestationGPUReport)
+     - [AttestationQuoteRequest](#akash.provider.lease.v1.AttestationQuoteRequest)
+     - [AttestationQuoteResponse](#akash.provider.lease.v1.AttestationQuoteResponse)
      - [ForwarderPortStatus](#akash.provider.lease.v1.ForwarderPortStatus)
      - [LeaseIPStatus](#akash.provider.lease.v1.LeaseIPStatus)
      - [LeaseServiceStatus](#akash.provider.lease.v1.LeaseServiceStatus)
@@ -161,6 +166,7 @@
  | `vendor` | [string](#string) |  |  |
  | `model` | [string](#string) |  |  |
  | `vcores` | [uint32](#uint32) |  |  |
+ | `arch` | [string](#string) |  |  |
  
  
 
@@ -491,6 +497,29 @@
  
 
  
+ <a name="akash.manifest.v2beta3.ProxyOptions"></a>
+
+ ### ProxyOptions
+ ProxyOptions carries nginx proxy tuning applied to a route's location block.
+Every field is omitempty (0 / Unspecified == unset) so unset values are dropped
+from the manifest and never affect the version hash. Defaults are applied by the
+provider gateway at use-time, never injected here.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `buffering_disable` | [bool](#bool) |  | buffering_disable turns nginx proxy_buffering off when true. When false (the default) the field is omitted, so the gateway applies its default (buffering on) and a manifest that does not disable buffering hashes identically to one without proxy tuning. It is scoped to proxy_buffering only and independent of the buffer sizing fields below: proxy_buffer_size still applies with buffering off, while proxy_buffers/busy_buffers_size take effect only with buffering on. |
+ | `buffer_size` | [uint32](#uint32) |  | buffer_size maps to nginx proxy_buffer_size (bytes). |
+ | `buffers_number` | [uint32](#uint32) |  | buffers_number maps to the count in nginx proxy_buffers <number> <size>. |
+ | `buffers_size` | [uint32](#uint32) |  | buffers_size maps to the size in nginx proxy_buffers <number> <size> (bytes). |
+ | `busy_buffers_size` | [uint32](#uint32) |  | busy_buffers_size maps to nginx proxy_busy_buffers_size (bytes). |
+ | `connect_timeout` | [uint32](#uint32) |  | connect_timeout maps to nginx proxy_connect_timeout (milliseconds). |
+ 
+ 
+
+ 
+
+ 
  <a name="akash.manifest.v2beta3.ServiceExposeHTTPOptions"></a>
 
  ### ServiceExposeHTTPOptions
@@ -505,6 +534,7 @@
  | `next_tries` | [uint32](#uint32) |  |  |
  | `next_timeout` | [uint32](#uint32) |  |  |
  | `next_cases` | [string](#string) | repeated |  |
+ | `proxy` | [ProxyOptions](#akash.manifest.v2beta3.ProxyOptions) |  | proxy groups the optional nginx proxy tuning for this route. It is nullable and omitempty, so a manifest that does not set it serializes identically to a pre-change manifest: the version hash is unchanged and older providers stay compatible. A nil proxy means the provider applies gateway defaults. |
  
  
 
@@ -622,6 +652,7 @@ JSON / YAML tags carry `omitempty`: the on-chain manifest `version` is a SHA has
  | `storage` | [StorageParams](#akash.manifest.v2beta3.StorageParams) | repeated |  |
  | `credentials` | [ImageCredentials](#akash.manifest.v2beta3.ImageCredentials) |  |  |
  | `permissions` | [ServicePermissions](#akash.manifest.v2beta3.ServicePermissions) |  |  |
+ | `tee` | [TEEParams](#akash.manifest.v2beta3.TEEParams) |  |  |
  
  
 
@@ -656,6 +687,25 @@ Resources map to Kubernetes RBAC permissions:
  | `name` | [string](#string) |  |  |
  | `mount` | [string](#string) |  |  |
  | `read_only` | [bool](#bool) |  |  |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.manifest.v2beta3.TEEParams"></a>
+
+ ### TEEParams
+ TEEParams configures Trusted Execution Environment for the service.
+The type field selects the TEE capability and the provider resolves the
+runtime class based on its detected platform (TDX or SNP).
+The attestation field controls whether the provider injects an attestation sidecar.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `type` | [string](#string) |  | type is the TEE capability: cpu, cpu-gpu |
+ | `attestation` | [bool](#bool) |  | attestation controls whether the provider injects an attestation sidecar. IMPORTANT: proto3 bool defaults to false, but the intended default is true. All producers MUST set this field explicitly. The Go SDL builder enforces this; non-Go clients must set attestation=true when sidecar injection is desired. |
  
  
 
@@ -707,6 +757,63 @@ Resources map to Kubernetes RBAC permissions:
  <p align="right"><a href="#top">Top</a></p>
 
  ## akash/provider/lease/v1/service.proto
+ 
+
+ 
+ <a name="akash.provider.lease.v1.AttestationGPUReport"></a>
+
+ ### AttestationGPUReport
+ AttestationGPUReport holds attestation evidence for a single GPU device.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `device_index` | [uint32](#uint32) |  |  |
+ | `report` | [string](#string) |  | Base64-encoded hardware-signed GPU attestation report. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.lease.v1.AttestationQuoteRequest"></a>
+
+ ### AttestationQuoteRequest
+ AttestationQuoteRequest is the request body for the AttestationQuote RPC method.
+The tenant generates a nonce and sends it; the provider forwards it verbatim
+to the attestation sidecar inside the confidential compute pod.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `lease_id` | [akash.market.v1.LeaseID](#akash.market.v1.LeaseID) |  |  |
+ | `nonce` | [string](#string) |  | Base64-encoded 64-byte nonce generated by the tenant. |
+ | `bind_tls` | [bool](#bool) |  | When true, report_data is computed as SHA-512(tls_pubkey || nonce)[:64] to bind the attestation to the TLS channel. |
+ 
+ 
+
+ 
+
+ 
+ <a name="akash.provider.lease.v1.AttestationQuoteResponse"></a>
+
+ ### AttestationQuoteResponse
+ AttestationQuoteResponse is the response from the AttestationQuote RPC method.
+Contains raw hardware-signed attestation evidence from the TEE sidecar.
+The provider never inspects or modifies any field.
+
+ 
+ | Field | Type | Label | Description |
+ | ----- | ---- | ----- | ----------- |
+ | `report` | [string](#string) |  | Base64-encoded CPU attestation report (SNP ~1184 bytes, TDX ~5243 bytes). |
+ | `cert_chain` | [string](#string) |  | Base64-encoded certificate chain (may be empty). |
+ | `tee_platform` | [string](#string) |  | TEE platform identifier: "snp", "tdx", "snp-gpu", "tdx-gpu". |
+ | `auxblob` | [string](#string) |  | Base64-encoded auxiliary blob (typically empty). |
+ | `gpu_reports` | [AttestationGPUReport](#akash.provider.lease.v1.AttestationGPUReport) | repeated | Per-device GPU attestation reports for all CC-capable GPUs. |
+ | `tls_bound` | [bool](#bool) |  | Whether report_data was computed with TLS channel binding. |
+ 
+ 
+
  
 
  
@@ -924,6 +1031,7 @@ Resources map to Kubernetes RBAC permissions:
  | `StreamServiceStatus` | [ServiceStatusRequest](#akash.provider.lease.v1.ServiceStatusRequest) | [ServiceStatusResponse](#akash.provider.lease.v1.ServiceStatusResponse) stream | StreamServiceStatus buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
  | `ServiceLogs` | [ServiceLogsRequest](#akash.provider.lease.v1.ServiceLogsRequest) | [ServiceLogsResponse](#akash.provider.lease.v1.ServiceLogsResponse) | ServiceLogs buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
  | `StreamServiceLogs` | [ServiceLogsRequest](#akash.provider.lease.v1.ServiceLogsRequest) | [ServiceLogsResponse](#akash.provider.lease.v1.ServiceLogsResponse) stream | StreamServiceLogs buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME | |
+ | `AttestationQuote` | [AttestationQuoteRequest](#akash.provider.lease.v1.AttestationQuoteRequest) | [AttestationQuoteResponse](#akash.provider.lease.v1.AttestationQuoteResponse) | AttestationQuote requests hardware-signed attestation evidence from the confidential compute sidecar. The provider forwards the tenant's nonce to the sidecar and returns the hardware-signed quote verbatim. | POST|/v1/lease/attestation/quote|
  
   <!-- end services -->
 

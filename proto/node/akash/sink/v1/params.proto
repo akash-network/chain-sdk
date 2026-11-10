@@ -1,0 +1,93 @@
+syntax = "proto3";
+package akash.sink.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "pkg.akt.dev/go/node/sink/v1";
+
+// Params configures uakt transfer limits, reporter settlement and refunds.
+// Send and refund quotas use the current number of the native "day" epoch.
+message Params {
+  // Enabled permits deposits. Refunds are controlled independently.
+  bool   enabled = 1 [
+    (gogoproto.jsontag)   = "enabled,omitempty",
+    (gogoproto.moretags)  = "yaml:\"enabled\""
+  ];
+
+  cosmos.base.v1beta1.Coin min_amount_per_transfer = 2 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "min_amount_per_transfer",
+    (gogoproto.moretags)  = "yaml:\"min_amount_per_transfer\""
+  ];
+
+  cosmos.base.v1beta1.Coin max_amount_per_transfer = 3 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_amount_per_transfer",
+    (gogoproto.moretags)  = "yaml:\"max_amount_per_transfer\""
+  ];
+
+  cosmos.base.v1beta1.Coin max_transfer_amount_per_epoch = 4 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_transfer_amount_per_epoch",
+    (gogoproto.moretags)  = "yaml:\"max_transfer_amount_per_epoch\""
+  ];
+
+  // zero means no limit
+  cosmos.base.v1beta1.Coin max_epoch_amount_per_account = 5 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_epoch_amount_per_account",
+    (gogoproto.moretags)  = "yaml:\"max_epoch_amount_per_account\""
+  ];
+
+  cosmos.base.v1beta1.Coin max_epoch_refund = 6 [
+    (gogoproto.nullable)  = false,
+    (gogoproto.jsontag)   = "max_epoch_refund",
+    (gogoproto.moretags)  = "yaml:\"max_epoch_refund\""
+  ];
+
+  // list governance approved akash addresses that monitor and report state of the
+  // mint/void from solana to akash
+  repeated string reporters = 7 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "reporters,omitempty",
+    (gogoproto.moretags)  = "yaml:\"reporters\""
+  ];
+
+  // Ratio between zero and one. Quorum is ceil(r*n) and must exceed two thirds of the members.
+  string reporters_threshold = 8 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false,
+    (gogoproto.jsontag)    = "reporters_threshold",
+    (gogoproto.moretags)   = "yaml:\"reporters_threshold\""
+  ];
+
+  // At most 9223372035.999999999 seconds, the pinned native Amino signing limit.
+  google.protobuf.Duration reporter_challenge_period = 9 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag) = "reporter_challenge_period",
+    (gogoproto.moretags) = "yaml:\"reporter_challenge_period\""
+  ];
+
+  // Canonical base58 vault addresses exempt only from the recipient curve check.
+  repeated string allowed_destination_vaults = 10 [
+    (gogoproto.jsontag)   = "allowed_destination_vaults,omitempty",
+    (gogoproto.moretags)  = "yaml:\"allowed_destination_vaults\""
+  ];
+
+  bool refunds_enabled = 11 [
+    (gogoproto.jsontag)   = "refunds_enabled,omitempty",
+    (gogoproto.moretags)  = "yaml:\"refunds_enabled\""
+  ];
+
+  // Bech32 account that may only disable deposits and refunds. Empty means none.
+  string pause_guardian = 12 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.jsontag)   = "pause_guardian,omitempty",
+    (gogoproto.moretags)  = "yaml:\"pause_guardian\""
+  ];
+}

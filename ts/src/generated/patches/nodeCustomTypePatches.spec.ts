@@ -8,6 +8,8 @@ import { AggregatedPrice, PriceDataState } from "../protos/akash/oracle/v1/price
 import { AggregatedPrice as AggregatedPrice$1, PriceDataState as PriceDataState$1 } from "../protos/akash/oracle/v2/prices.ts";
 import { EventPriceData } from "../protos/akash/oracle/v2/events.ts";
 import { MsgAddPriceEntry } from "../protos/akash/oracle/v2/msgs.ts";
+import { ReporterPolicy } from "../protos/akash/sink/v1/types.ts";
+import { Params } from "../protos/akash/sink/v1/params.ts";
 
 import { expect, describe, it } from "vitest";
 import { patches } from "./nodeCustomTypePatches.ts";
@@ -66,6 +68,14 @@ const messageTypes: Record<string, MessageSchema> = {
   "akash.oracle.v2.MsgAddPriceEntry": {
     type: MsgAddPriceEntry,
     fields: [{name: "price",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "akash.sink.v1.ReporterPolicy": {
+    type: ReporterPolicy,
+    fields: [{name: "threshold",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
+  },
+  "akash.sink.v1.Params": {
+    type: Params,
+    fields: [{name: "reportersThreshold",kind: "scalar",scalarType: 9,customType: "LegacyDec",},],
   },
 };
 describe("nodeCustomTypePatches.ts", () => {
