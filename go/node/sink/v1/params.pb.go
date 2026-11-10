@@ -49,6 +49,7 @@ type Params struct {
 	// At most 9223372035.999999999 seconds, the pinned native Amino signing limit.
 	ReporterChallengePeriod time.Duration `protobuf:"bytes,9,opt,name=reporter_challenge_period,json=reporterChallengePeriod,proto3,stdduration" json:"reporter_challenge_period" yaml:"reporter_challenge_period"`
 	// Canonical base58 vault addresses exempt only from the recipient curve check.
+	// deprecated - is not being used from v2.3.0
 	AllowedDestinationVaults []string `protobuf:"bytes,10,rep,name=allowed_destination_vaults,json=allowedDestinationVaults,proto3" json:"allowed_destination_vaults,omitempty" yaml:"allowed_destination_vaults"`
 	RefundsEnabled           bool     `protobuf:"varint,11,opt,name=refunds_enabled,json=refundsEnabled,proto3" json:"refunds_enabled,omitempty" yaml:"refunds_enabled"`
 	// Bech32 account that may only disable deposits and refunds. Empty means none.

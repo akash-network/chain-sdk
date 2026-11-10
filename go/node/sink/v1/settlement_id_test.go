@@ -23,7 +23,9 @@ func TestSettlementID(t *testing.T) {
 	}
 
 	for _, status := range []types.Status{types.StatusInvalid, -1, 6, 256} {
-		require.Error(t, types.NewSettlementID(status, id).ValidateBasic())
+		sid := types.NewSettlementID(status, id)
+		err := sid.ValidateBasic()
+		require.Error(t, err)
 	}
 
 	for _, bad := range []types.ID{
@@ -44,6 +46,9 @@ func TestSettlementID(t *testing.T) {
 			Sequence: 0,
 		},
 	} {
-		require.Error(t, types.NewSettlementID(types.StatusMinted, bad).ValidateBasic())
+		sid := types.NewSettlementID(types.StatusMinted, bad)
+		err := sid.ValidateBasic()
+
+		require.Error(t, err)
 	}
 }

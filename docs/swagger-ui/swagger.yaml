@@ -7245,9 +7245,11 @@ paths:
                     type: array
                     items:
                       type: string
-                    description: >-
+                    title: >-
                       Canonical base58 vault addresses exempt only from the
                       recipient curve check.
+
+                      deprecated - is not being used from v2.3.0
                   refunds_enabled:
                     type: boolean
                   pause_guardian:
@@ -54855,9 +54857,11 @@ definitions:
         type: array
         items:
           type: string
-        description: >-
+        title: >-
           Canonical base58 vault addresses exempt only from the recipient curve
           check.
+
+          deprecated - is not being used from v2.3.0
       refunds_enabled:
         type: boolean
       pause_guardian:
@@ -55247,9 +55251,11 @@ definitions:
             type: array
             items:
               type: string
-            description: >-
+            title: >-
               Canonical base58 vault addresses exempt only from the recipient
               curve check.
+
+              deprecated - is not being used from v2.3.0
           refunds_enabled:
             type: boolean
           pause_guardian:

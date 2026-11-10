@@ -68,7 +68,7 @@ func TestSinkChallengePeriodSigningBoundary(t *testing.T) {
 			}
 			genesis := types.DefaultGenesis()
 			genesis.Params = params
-			for _, err := range []error{params.ValidateBasic(), msg.ValidateBasic(), genesis.Validate()} {
+			for _, err := range []error{params.ValidateBasic(), msg.ValidateBasic(), genesis.ValidateBasic()} {
 				if tc.valid {
 					require.NoError(t, err)
 				} else {

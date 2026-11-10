@@ -17,14 +17,33 @@ func DefaultGenesis() *GenesisState {
 	}
 }
 
-func (g *GenesisState) Validate() error {
-	if err := g.Params.ValidateBasic(); err != nil {
+// ValidateBasic checks genesis state without store access. Beyond the SDK
+// shape checks it requires the reporter policy that params describe: without
+// a policy sequence the reporter set is empty, otherwise the policy at the
+// sequence exists and matches params. SetParams and every reporter command
+// load that policy, so a genesis without it could only be repaired by a chain
+// upgrade.
+func (g *GenesisState) ValidateBasic() error {
+	var err error
+	if err = g.Params.ValidateBasic(); err != nil {
 		return err
 	}
 
-	history, err := policyHistory(g.Policies, g.PolicySequence)
-	if err != nil {
-		return err
+	if g.PolicySequence != uint64(len(g.Policies)) {
+		return ErrInvalidGenesis.Wrap("invalid policies")
+	}
+
+	pHistory := make(map[uint64]ReporterPolicy, len(g.Policies))
+	for _, policy := range g.Policies {
+		if err = policy.Validate(); err != nil {
+			return err
+		}
+
+		if _, exists := pHistory[policy.Version]; exists || policy.Version > g.PolicySequence {
+			return ErrInvalidGenesis.Wrap("duplicate or future reporter policy")
+		}
+
+		pHistory[policy.Version] = policy
 	}
 
 	if err = g.Totals.Validate(); err != nil {
@@ -46,6 +65,7 @@ func (g *GenesisState) Validate() error {
 	totals := DefaultTotals()
 	amounts := make(map[string]sdk.Coin)
 	ids := make(map[ID]bool, len(g.Records))
+
 	type position struct {
 		height   int64
 		sequence uint64
@@ -61,7 +81,7 @@ func (g *GenesisState) Validate() error {
 			return err
 		}
 
-		if err = transfer.Settlement.Validate(transfer.ID, transfer.Status, history); err != nil {
+		if err = transfer.Settlement.Validate(transfer.ID, transfer.Status, pHistory); err != nil {
 			return err
 		}
 
@@ -144,4 +164,22 @@ func (g *GenesisState) Validate() error {
 	}
 
 	return nil
+}
+
+func policyHistory(policies []ReporterPolicy, sequence uint64) (map[uint64]ReporterPolicy, error) {
+	history := make(map[uint64]ReporterPolicy, len(policies))
+
+	for _, policy := range policies {
+		if err := policy.Validate(); err != nil {
+			return nil, err
+		}
+
+		if _, exists := history[policy.Version]; exists || policy.Version > sequence {
+			return nil, ErrInvalidGenesis.Wrap("duplicate or future reporter policy")
+		}
+
+		history[policy.Version] = policy
+	}
+
+	return history, nil
 }

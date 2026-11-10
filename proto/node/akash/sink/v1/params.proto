@@ -74,6 +74,7 @@ message Params {
   ];
 
   // Canonical base58 vault addresses exempt only from the recipient curve check.
+  // deprecated - is not being used from v2.3.0
   repeated string allowed_destination_vaults = 10 [
     (gogoproto.jsontag)   = "allowed_destination_vaults,omitempty",
     (gogoproto.moretags)  = "yaml:\"allowed_destination_vaults\""

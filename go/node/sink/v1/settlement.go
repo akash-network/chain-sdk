@@ -74,6 +74,14 @@ func (s *SettlementData) Tallies() (minted, voided uint32) {
 	return
 }
 
+// IsVetoAuthorized reports whether a governance-scope veto was signed
+// by the configured authority. SettlementData.Validate checks reporter-scope
+// vetoes against their policy but cannot know the authority. Settlement writes
+// and genesis import and export all apply this one rule.
+func (s *SettlementData) IsVetoAuthorized(authority string) bool {
+	return (s.VetoBy == "") || (s.VetoPolicyVersion != GovernanceRefundScope) || (s.VetoBy == authority)
+}
+
 func (s *SettlementData) HasVoidAuthorization() bool {
 	if s.GovernanceObservation != nil {
 		return s.GovernanceObservation.Outcome == OutcomeVoided
@@ -233,22 +241,4 @@ func (s *SettlementData) Validate(id ID, status Status, policies map[uint64]Repo
 	}
 
 	return nil
-}
-
-func policyHistory(policies []ReporterPolicy, sequence uint64) (map[uint64]ReporterPolicy, error) {
-	history := make(map[uint64]ReporterPolicy, len(policies))
-
-	for _, policy := range policies {
-		if err := policy.Validate(); err != nil {
-			return nil, err
-		}
-
-		if _, exists := history[policy.Version]; exists || policy.Version > sequence {
-			return nil, ErrInvalidGenesis.Wrap("duplicate or future reporter policy")
-		}
-
-		history[policy.Version] = policy
-	}
-
-	return history, nil
 }

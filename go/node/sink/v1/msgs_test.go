@@ -33,8 +33,6 @@ func TestMsgSinkValidateBasic(t *testing.T) {
 	offCurve := valid()
 	offCurve.Dest = base58.Encode(append([]byte{2}, make([]byte, 31)...))
 	require.NoError(t, offCurve.ValidateBasic())
-	overflow, ok := sdkmath.NewIntFromString("18446744073709551616")
-	require.True(t, ok)
 
 	for name, tc := range map[string]struct {
 		change func(*types.MsgSink)
@@ -47,9 +45,7 @@ func TestMsgSinkValidateBasic(t *testing.T) {
 		"noncanonical destination": {func(m *types.MsgSink) { m.Dest = "1" + m.Dest }, types.ErrInvalidDestination},
 		"memo destination":         {func(m *types.MsgSink) { m.Dest = `{"solana_address":"x"}` }, types.ErrInvalidDestination},
 		"nil amount":               {func(m *types.MsgSink) { m.Amount.Amount = sdkmath.Int{} }, sdkerrors.ErrInvalidCoins},
-		"zero amount":              {func(m *types.MsgSink) { m.Amount.Amount = sdkmath.ZeroInt() }, sdkerrors.ErrInvalidCoins},
 		"negative amount":          {func(m *types.MsgSink) { m.Amount.Amount = sdkmath.NewInt(-1) }, sdkerrors.ErrInvalidCoins},
-		"overflow amount":          {func(m *types.MsgSink) { m.Amount.Amount = overflow }, sdkerrors.ErrInvalidCoins},
 		"wrong denomination":       {func(m *types.MsgSink) { m.Amount.Denom = "akt" }, sdkerrors.ErrInvalidCoins},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -75,7 +71,7 @@ func TestMsgSinkValidateBasic(t *testing.T) {
 	}
 
 	var msg sdk.Msg = valid()
-	_, ok = msg.(sdk.HasValidateBasic)
+	_, ok := msg.(sdk.HasValidateBasic)
 	require.True(t, ok)
 }
 

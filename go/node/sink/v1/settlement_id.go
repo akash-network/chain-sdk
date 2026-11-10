@@ -1,7 +1,7 @@
 package v1
 
-func NewSettlementID(status Status, id ID) *SettlementID {
-	return &SettlementID{
+func NewSettlementID(status Status, id ID) SettlementID {
+	return SettlementID{
 		Status:   status,
 		Owner:    id.Owner,
 		Height:   id.Height,

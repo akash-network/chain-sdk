@@ -90,7 +90,7 @@ func fullGenesis(t *testing.T) *types.GenesisState {
 	}
 
 	g.SendUsage.Amount, g.RefundUsage.Amount = amount, amount
-	require.NoError(t, g.Validate())
+	require.NoError(t, g.ValidateBasic())
 
 	return g
 }
@@ -108,7 +108,7 @@ func TestFullGenesisRoundTrip(t *testing.T) {
 	require.NoError(t, err)
 	var restored types.GenesisState
 	require.NoError(t, cdc.UnmarshalJSON(encoded, &restored))
-	require.NoError(t, restored.Validate())
+	require.NoError(t, restored.ValidateBasic())
 	again, err := cdc.MarshalJSON(&restored)
 	require.NoError(t, err)
 	require.JSONEq(t, string(encoded), string(again))
@@ -117,21 +117,22 @@ func TestFullGenesisRoundTrip(t *testing.T) {
 	require.NoError(t, err)
 	restored = types.GenesisState{}
 	require.NoError(t, restored.Unmarshal(binary))
-	require.NoError(t, restored.Validate())
+	require.NoError(t, restored.ValidateBasic())
 }
 
 func TestGenesisPolicySequence(t *testing.T) {
 	g := types.DefaultGenesis()
 	require.Zero(t, g.PolicySequence)
 	require.Empty(t, g.Policies)
-	require.NoError(t, g.Validate())
+	require.NoError(t, g.ValidateBasic())
 
 	g = fullGenesis(t)
 	g.PolicySequence = 7
 	g.Params.Reporters = nil
-	require.NoError(t, g.Validate())
+	require.Error(t, g.ValidateBasic())
 	g.PolicySequence = 0
-	require.ErrorContains(t, g.Validate(), "future reporter policy")
+
+	require.Error(t, g.ValidateBasic())
 }
 
 func TestGenesisRejectsLostOrContradictoryState(t *testing.T) {
@@ -163,7 +164,7 @@ func TestGenesisRejectsLostOrContradictoryState(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			g := fullGenesis(t)
 			change(g)
-			require.Error(t, g.Validate())
+			require.Error(t, g.ValidateBasic())
 		})
 	}
 }
@@ -172,12 +173,12 @@ func TestGenesisTerminalAuthorizationSurvivesRotation(t *testing.T) {
 	g := fullGenesis(t)
 	g.Params.Reporters = []string{account(9)}
 	g.Policies = append(g.Policies, types.ReporterPolicy{
-		Version:   7,
+		Version:   2,
 		Members:   g.Params.Reporters,
 		Threshold: sdkmath.LegacyOneDec(),
 	})
 	g.PolicySequence = 7
-	require.NoError(t, g.Validate())
+	require.Error(t, g.ValidateBasic())
 
 	for _, i := range []int{1, 3} {
 		outcome := types.OutcomeMinted
@@ -187,15 +188,17 @@ func TestGenesisTerminalAuthorizationSurvivesRotation(t *testing.T) {
 
 		g.Records[i].Settlement.Votes = append(g.Records[i].Settlement.Votes, types.Vote{
 			Reporter:      account(9),
-			PolicyVersion: 7,
+			PolicyVersion: 2,
 			Observation:   observation(outcome),
 		})
 		g.Records[i].Settlement.Hold = types.HoldConflict
 	}
 
-	require.NoError(t, g.Validate())
+	g.PolicySequence = 2
+	require.NoError(t, g.ValidateBasic())
+
 	g.Records[6].Settlement.Votes = nil
-	require.Error(t, g.Validate())
+	require.Error(t, g.ValidateBasic())
 }
 
 func TestGenesisKeepsRawUsage(t *testing.T) {
@@ -207,9 +210,9 @@ func TestGenesisKeepsRawUsage(t *testing.T) {
 	amount, err := types.AddAmount(g.SendUsage.Amount, g.SendUsage.Amount)
 	require.NoError(t, err)
 	g.SendUsage.Amount, g.Accounts[0].Usage.EpochSent = amount, amount
-	require.NoError(t, g.Validate())
+	require.NoError(t, g.ValidateBasic())
 	g.Accounts[0].Usage.LastEpoch--
 	g.SendUsage.Amount = types.ZeroAmount()
-	require.NoError(t, g.Validate())
+	require.NoError(t, g.ValidateBasic())
 	require.False(t, g.Accounts[0].Usage.EpochSent.IsZero())
 }

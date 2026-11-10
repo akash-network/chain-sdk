@@ -15,7 +15,7 @@ import (
 )
 
 func TestRatioAndCapEdges(t *testing.T) {
-	require.NoError(t, types.DefaultGenesis().Validate())
+	require.NoError(t, types.DefaultGenesis().ValidateBasic())
 	require.False(t, types.DefaultParams().Enabled)
 	require.False(t, types.DefaultParams().RefundsEnabled)
 
@@ -126,9 +126,9 @@ func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
 	require.Equal(t, amount, usage.TotalSent)
 	_, err = account.At(7)
 	require.ErrorIs(t, err, types.ErrInvalidClock)
-	_, err = account.At(math.MaxInt64 + 1)
+	_, err = account.At(uint64(math.MaxInt64) + 1)
 	require.ErrorIs(t, err, types.ErrInvalidClock)
-	_, err = send.At(math.MaxInt64 + 1)
+	_, err = send.At(uint64(math.MaxInt64) + 1)
 	require.ErrorIs(t, err, types.ErrInvalidClock)
 	for _, usage := range []types.EpochUsage{
 		{
@@ -136,7 +136,7 @@ func TestIndependentEpochsAndCoinOverflow(t *testing.T) {
 			Amount: amount,
 		},
 		{
-			Epoch:  math.MaxInt64 + 1,
+			Epoch:  uint64(math.MaxInt64) + 1,
 			Amount: types.ZeroAmount(),
 		},
 	} {
