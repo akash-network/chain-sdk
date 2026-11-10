@@ -47,11 +47,27 @@ func (p *ReporterPolicy) Validate() error {
 	return ValidateReporters(p.Members, p.Threshold)
 }
 
-// slices expected to be sorted
+// Equal slices expected to be sorted
 func (p *ReporterPolicy) Equal(other ReporterPolicy) bool {
 	if p.Threshold.IsNil() || other.Threshold.IsNil() || !p.Threshold.Equal(other.Threshold) {
 		return false
 	}
 
 	return slices.Equal(p.Members, other.Members)
+}
+
+// WithinThreshold reports whether policy is the reporter policy that params
+// describe: the same members in any order and an equal threshold ratio.
+func (p *ReporterPolicy) WithinThreshold(threshold math.LegacyDec, reporters []string) bool {
+	if p.Threshold.IsNil() || threshold.IsNil() || !threshold.Equal(p.Threshold) {
+		return false
+	}
+
+	current := slices.Clone(p.Members)
+	next := slices.Clone(reporters)
+
+	slices.Sort(current)
+	slices.Sort(next)
+
+	return slices.Equal(current, next)
 }

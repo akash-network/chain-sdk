@@ -40,7 +40,10 @@ export interface Params {
   reporterChallengePeriod:
     | Duration
     | undefined;
-  /** Canonical base58 vault addresses exempt only from the recipient curve check. */
+  /**
+   * Canonical base58 vault addresses exempt only from the recipient curve check.
+   * deprecated - is not being used from v2.3.0
+   */
   allowedDestinationVaults: string[];
   refundsEnabled: boolean;
   /** Bech32 account that may only disable deposits and refunds. Empty means none. */

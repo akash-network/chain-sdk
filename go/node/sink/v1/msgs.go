@@ -40,10 +40,16 @@ func (m *MsgSink) ValidateBasic() error {
 		return err
 	}
 
-	return (RecordData{
+	rec := &RecordData{
 		Dest:   m.Dest,
 		Amount: m.Amount,
-	}).ValidateBasic()
+	}
+
+	if err := rec.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *MsgUpdateParams) ValidateBasic() error {
