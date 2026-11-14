@@ -25,7 +25,7 @@ func (s *Service) validate(helper *validateManifestGroupsHelper) error {
 	}
 
 	if err := s.Resources.Validate(); err != nil {
-		return err
+		return fmt.Errorf("%w: service %q: %w", ErrInvalidManifest, s.Name, err)
 	}
 
 	for _, envVar := range s.Env {
