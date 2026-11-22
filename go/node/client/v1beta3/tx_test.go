@@ -10,20 +10,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	rpctypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+
+	"pkg.akt.dev/go/sdkutil"
 )
 
 const testBroadcastCommitMethod = "broadcast_tx_commit"
@@ -310,9 +309,7 @@ func TestBroadcastTxConfirmationStops(t *testing.T) {
 func newBroadcastTestClient(t *testing.T, handle func(http.ResponseWriter, *http.Request, rpctypes.RPCRequest, []byte)) (sdkclient.Context, sdk.Tx) {
 	t.Helper()
 
-	registry := codectypes.NewInterfaceRegistry()
-	std.RegisterInterfaces(registry)
-	txConfig := authtx.NewTxConfig(codec.NewProtoCodec(registry), authtx.DefaultSignModes)
+	txConfig := sdkutil.MakeEncodingConfig().TxConfig
 	tx := txConfig.NewTxBuilder().GetTx()
 	encoded, err := txConfig.TxEncoder()(tx)
 	require.NoError(t, err)
