@@ -16,6 +16,7 @@ import (
 
 	"github.com/cometbft/cometbft/mempool"
 	cbcoretypes "github.com/cometbft/cometbft/rpc/core/types"
+	rpctypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
 	cbtypes "github.com/cometbft/cometbft/types"
 
 	cerrors "cosmossdk.io/errors"
@@ -407,6 +408,7 @@ func (c *serialBroadcaster) BroadcastTx(ctx context.Context, tx sdk.Tx, opts ...
 
 	responsech := make(chan broadcastResp, 1)
 	request := broadcastReq{
+		ctx:        ctx,
 		responsech: responsech,
 		data:       tx,
 		opts:       bOpts,
@@ -796,17 +798,20 @@ func (c *serialBroadcaster) broadcastTx(ctx context.Context, cctx sdkclient.Cont
 		resp = sdk.NewResponseFormatBroadcastTx(res)
 	}
 
+	var rpcErr *rpctypes.RPCError
 	if err == nil {
 		// good job
 		return resp, nil
-	} else if !strings.HasSuffix(err.Error(), timeoutErrorMessage) {
+	} else if errors.As(err, &rpcErr) && !strings.HasSuffix(err.Error(), timeoutErrorMessage) {
 		return resp, err
 	}
 
-	// timeout error, continue on to retry
-	// loop
-	lctx, cancel := context.WithTimeout(c.ctx, timeout)
+	// A transport failure can hide a committed transaction. Confirm by hash
+	// without broadcasting it again.
+	lctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
+	stop := context.AfterFunc(c.ctx, cancel)
+	defer stop()
 
 	for lctx.Err() == nil {
 		// wait up to one second
@@ -818,13 +823,13 @@ func (c *serialBroadcaster) broadcastTx(ctx context.Context, cctx sdkclient.Cont
 
 		// check transaction
 		// https://github.com/cosmos/cosmos-sdk/pull/8734
-		res, err := nutils.QueryTx(ctx, cctx, hash)
+		res, err := nutils.QueryTx(lctx, cctx, hash)
 		if err == nil {
 			return res, nil
 		}
 
-		// if it's not a "not found" error, return
-		if !strings.HasSuffix(err.Error(), notFoundErrorMessageSuffix) {
+		// Retry missing transactions and interrupted confirmations until the deadline.
+		if errors.As(err, &rpcErr) && !strings.HasSuffix(err.Error(), notFoundErrorMessageSuffix) {
 			return res, err
 		}
 	}
